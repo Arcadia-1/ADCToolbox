@@ -1,0 +1,10 @@
+da.ErrVana = PVR_checkError(hw.pvr_Vana);
+da.ErrVamp = PVR_checkError(hw.pvr_Vamp);
+da.ErrVref1 = PVR_checkError(hw.pvr_Vref1);
+da.ErrVref2 = PVR_checkError(hw.pvr_Vref2);
+da.ErrVdig1 = PVR_checkError(hw.pvr_Vdig1);
+da.ErrVdig2 = PVR_checkError(hw.pvr_Vdig2);
+da.ErrVdig3 = PVR_checkError(hw.pvr_Vdig3);
+da.ErrViol = PVR_checkError(hw.pvr_Viol);
+da.ErrVioh = PVR_checkError(hw.pvr_Vioh);
+da.ErrVclk = PVR_checkError(hw.pvr_Vclk);
