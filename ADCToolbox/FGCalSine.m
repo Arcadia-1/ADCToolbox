@@ -200,6 +200,14 @@ function [weight,offset,postCal,ideal,err,freqCal] = FGCalSine(bits,varargin)
     end
     
     err = postCal-offset-ideal;
+
+    if(sum(weight)<0)
+        weight = -weight;
+        offset = -offset;
+        postCal = -postCal;
+        ideal = -ideal;
+        err = -err;
+    end
     
     freqCal = freq;
 
