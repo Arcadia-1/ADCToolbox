@@ -1,5 +1,5 @@
 <deployment-project plugin="plugin.toolbox" plugin-version="1.0">
-  <configuration file="D:\document\Library\Matlab\ADCToolbox.prj" location="D:\document\Library\Matlab" name="ADCToolbox" target="target.toolbox" target-name="打包为工具箱">
+  <configuration file="D:\document\Library\Matlab\Toolboxing\ADCToolbox.prj" location="D:\document\Library\Matlab\Toolboxing" name="ADCToolbox" target="target.toolbox" target-name="打包为工具箱">
     <param.appname>ADCToolbox</param.appname>
     <param.authnamewatermark>Lu Jie</param.authnamewatermark>
     <param.email>jielu@tsinghua.edu.cn</param.email>
@@ -91,29 +91,29 @@
       <param.additional.sw.linux.url />
     </unset>
     <fileset.rootdir>
-      <file>${PROJECT_ROOT}\ADCToolbox</file>
+      <file>D:\document\Library\Matlab\ADCToolbox</file>
     </fileset.rootdir>
     <fileset.rootfiles>
-      <file>${PROJECT_ROOT}\ADCToolbox\alias.m</file>
-      <file>${PROJECT_ROOT}\ADCToolbox\bitInBand.m</file>
-      <file>${PROJECT_ROOT}\ADCToolbox\cap2weight.m</file>
-      <file>${PROJECT_ROOT}\ADCToolbox\errHistSine.m</file>
-      <file>${PROJECT_ROOT}\ADCToolbox\FGCalSine.m</file>
-      <file>${PROJECT_ROOT}\ADCToolbox\findBin.m</file>
-      <file>${PROJECT_ROOT}\ADCToolbox\findFin.m</file>
-      <file>${PROJECT_ROOT}\ADCToolbox\INLsine.m</file>
-      <file>${PROJECT_ROOT}\ADCToolbox\NTFAnalyzer.m</file>
-      <file>${PROJECT_ROOT}\ADCToolbox\overflowChk.m</file>
-      <file>${PROJECT_ROOT}\ADCToolbox\sineFit.m</file>
-      <file>${PROJECT_ROOT}\ADCToolbox\specPlot.m</file>
-      <file>${PROJECT_ROOT}\ADCToolbox\specPlotPhase.m</file>
-      <file>${PROJECT_ROOT}\ADCToolbox\tomDecomp.m</file>
+      <file>D:\document\Library\Matlab\ADCToolbox\alias.m</file>
+      <file>D:\document\Library\Matlab\ADCToolbox\bitInBand.m</file>
+      <file>D:\document\Library\Matlab\ADCToolbox\cap2weight.m</file>
+      <file>D:\document\Library\Matlab\ADCToolbox\errHistSine.m</file>
+      <file>D:\document\Library\Matlab\ADCToolbox\FGCalSine.m</file>
+      <file>D:\document\Library\Matlab\ADCToolbox\findBin.m</file>
+      <file>D:\document\Library\Matlab\ADCToolbox\findFin.m</file>
+      <file>D:\document\Library\Matlab\ADCToolbox\INLsine.m</file>
+      <file>D:\document\Library\Matlab\ADCToolbox\NTFAnalyzer.m</file>
+      <file>D:\document\Library\Matlab\ADCToolbox\overflowChk.m</file>
+      <file>D:\document\Library\Matlab\ADCToolbox\sineFit.m</file>
+      <file>D:\document\Library\Matlab\ADCToolbox\specPlot.m</file>
+      <file>D:\document\Library\Matlab\ADCToolbox\specPlotPhase.m</file>
+      <file>D:\document\Library\Matlab\ADCToolbox\tomDecomp.m</file>
     </fileset.rootfiles>
     <fileset.depfun.included />
     <fileset.depfun.excluded />
     <fileset.package />
     <build-deliverables>
-      <file location="${PROJECT_ROOT}" name="ADCToolbox.mltbx" optional="false">D:\document\Library\Matlab\ADCToolbox.mltbx</file>
+      <file location="${PROJECT_ROOT}" name="ADCToolbox.mltbx" optional="false">D:\document\Library\Matlab\Toolboxing\ADCToolbox.mltbx</file>
     </build-deliverables>
     <workflow />
     <matlab>
