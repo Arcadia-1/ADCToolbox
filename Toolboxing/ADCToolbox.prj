@@ -1,0 +1,176 @@
+<deployment-project plugin="plugin.toolbox" plugin-version="1.0">
+  <configuration file="D:\document\Library\Matlab\ADCToolbox.prj" location="D:\document\Library\Matlab" name="ADCToolbox" target="target.toolbox" target-name="打包为工具箱">
+    <param.appname>ADCToolbox</param.appname>
+    <param.authnamewatermark>Lu Jie</param.authnamewatermark>
+    <param.email>jielu@tsinghua.edu.cn</param.email>
+    <param.company>Tsinghua University</param.company>
+    <param.summary>A toolbox for analyze and calibrate data from analog to digital converter (ADC)</param.summary>
+    <param.description>!!! This is a trial version and may contains unknown bugs. The code is not yet fully commented !!!
+- alias : calculate frequency after aliasing
+- bitInBand : an ideal filter for oversample ADC, pick out the data in interested frequency bands
+- cap2weight : calculate the weight of a CDAC
+- errHistSine : analyze the error of the ADC data under sinewave input
+- FGCalSine : calibrate the bit weighting of ADC data under sinewave input
+- findBin : find a coherent bin number given the wanted input frequency and sampling frequency
+- findFin : find the normalized frequency of a sampled signal
+- INLsine : calculate the INL and DNL for a ADC under sinewave input
+- NTFAnalyzer : calculate the SQNR improvement for a specific NTF
+- overflowChk : show the residue range of each ADC stages and check if any stage overflows
+- sineFit : fit the data with an sinewave
+- specPlot : a spectrum analyzer for ADC data under singletone input
+- specPlotPhase : plot the phase of an ADC spectrum
+- tomDecomp : decomposite ADC data into signal, distortions and noise</param.description>
+    <param.screenshot />
+    <param.version>0.1</param.version>
+    <param.output>${PROJECT_ROOT}\ADCToolbox.mltbx</param.output>
+    <param.products.name />
+    <param.products.id />
+    <param.products.version />
+    <param.platforms />
+    <param.guid>f0fd2942-fb79-4300-8076-d30b7fb69cc1</param.guid>
+    <param.exclude.filters />
+    <param.exclude.pcodedmfiles>true</param.exclude.pcodedmfiles>
+    <param.examples />
+    <param.demosxml />
+    <param.apps />
+    <param.registered.apps />
+    <param.docs />
+    <param.getting.started.guide />
+    <param.matlabpath.excludes />
+    <param.javaclasspath.excludes />
+    <param.exported.on.package>false</param.exported.on.package>
+    <param.required.addons />
+    <param.matlab.project.id />
+    <param.matlab.project.name />
+    <param.release.start />
+    <param.release.end />
+    <param.release.current.only>false</param.release.current.only>
+    <param.compatiblity.windows>true</param.compatiblity.windows>
+    <param.compatiblity.macos>true</param.compatiblity.macos>
+    <param.compatiblity.linux>true</param.compatiblity.linux>
+    <param.compatiblity.matlabonline>true</param.compatiblity.matlabonline>
+    <param.installation.map />
+    <param.additional.sw.names />
+    <param.additional.sw.licenses />
+    <param.additional.sw.win.url />
+    <param.additional.sw.mac.url />
+    <param.additional.sw.linux.url />
+    <unset>
+      <param.screenshot />
+      <param.output />
+      <param.products.name />
+      <param.products.id />
+      <param.products.version />
+      <param.platforms />
+      <param.exclude.filters />
+      <param.exclude.pcodedmfiles />
+      <param.examples />
+      <param.demosxml />
+      <param.apps />
+      <param.registered.apps />
+      <param.docs />
+      <param.getting.started.guide />
+      <param.matlabpath.excludes />
+      <param.javaclasspath.excludes />
+      <param.exported.on.package />
+      <param.required.addons />
+      <param.matlab.project.id />
+      <param.matlab.project.name />
+      <param.release.start />
+      <param.release.end />
+      <param.release.current.only />
+      <param.compatiblity.windows />
+      <param.compatiblity.macos />
+      <param.compatiblity.linux />
+      <param.compatiblity.matlabonline />
+      <param.installation.map />
+      <param.additional.sw.names />
+      <param.additional.sw.licenses />
+      <param.additional.sw.win.url />
+      <param.additional.sw.mac.url />
+      <param.additional.sw.linux.url />
+    </unset>
+    <fileset.rootdir>
+      <file>${PROJECT_ROOT}\ADCToolbox</file>
+    </fileset.rootdir>
+    <fileset.rootfiles>
+      <file>${PROJECT_ROOT}\ADCToolbox\alias.m</file>
+      <file>${PROJECT_ROOT}\ADCToolbox\bitInBand.m</file>
+      <file>${PROJECT_ROOT}\ADCToolbox\cap2weight.m</file>
+      <file>${PROJECT_ROOT}\ADCToolbox\errHistSine.m</file>
+      <file>${PROJECT_ROOT}\ADCToolbox\FGCalSine.m</file>
+      <file>${PROJECT_ROOT}\ADCToolbox\findBin.m</file>
+      <file>${PROJECT_ROOT}\ADCToolbox\findFin.m</file>
+      <file>${PROJECT_ROOT}\ADCToolbox\INLsine.m</file>
+      <file>${PROJECT_ROOT}\ADCToolbox\NTFAnalyzer.m</file>
+      <file>${PROJECT_ROOT}\ADCToolbox\overflowChk.m</file>
+      <file>${PROJECT_ROOT}\ADCToolbox\sineFit.m</file>
+      <file>${PROJECT_ROOT}\ADCToolbox\specPlot.m</file>
+      <file>${PROJECT_ROOT}\ADCToolbox\specPlotPhase.m</file>
+      <file>${PROJECT_ROOT}\ADCToolbox\tomDecomp.m</file>
+    </fileset.rootfiles>
+    <fileset.depfun.included />
+    <fileset.depfun.excluded />
+    <fileset.package />
+    <build-deliverables>
+      <file location="${PROJECT_ROOT}" name="ADCToolbox.mltbx" optional="false">D:\document\Library\Matlab\ADCToolbox.mltbx</file>
+    </build-deliverables>
+    <workflow />
+    <matlab>
+      <root>C:\Program Files\MATLAB\R2024a</root>
+      <toolboxes>
+        <toolbox name="matlabcoder" />
+        <toolbox name="embeddedcoder" />
+        <toolbox name="gpucoder" />
+        <toolbox name="fixedpoint" />
+        <toolbox name="matlabhdlcoder" />
+        <toolbox name="neuralnetwork" />
+      </toolboxes>
+      <toolbox>
+        <matlabcoder>
+          <enabled>true</enabled>
+        </matlabcoder>
+      </toolbox>
+      <toolbox>
+        <embeddedcoder>
+          <enabled>true</enabled>
+        </embeddedcoder>
+      </toolbox>
+      <toolbox>
+        <gpucoder>
+          <enabled>true</enabled>
+        </gpucoder>
+      </toolbox>
+      <toolbox>
+        <fixedpoint>
+          <enabled>true</enabled>
+        </fixedpoint>
+      </toolbox>
+      <toolbox>
+        <matlabhdlcoder>
+          <enabled>true</enabled>
+        </matlabhdlcoder>
+      </toolbox>
+      <toolbox>
+        <neuralnetwork>
+          <enabled>true</enabled>
+        </neuralnetwork>
+      </toolbox>
+    </matlab>
+    <platform>
+      <unix>false</unix>
+      <mac>false</mac>
+      <windows>true</windows>
+      <win2k>false</win2k>
+      <winxp>false</winxp>
+      <vista>false</vista>
+      <linux>false</linux>
+      <solaris>false</solaris>
+      <osver>10.0</osver>
+      <os32>false</os32>
+      <os64>true</os64>
+      <arch>win64</arch>
+      <matlab>true</matlab>
+    </platform>
+  </configuration>
+</deployment-project>
