@@ -2,7 +2,6 @@ function [ENoB,SNDR,SFDR,SNR,THD,pwr,NF,h] = specPlot(data,varargin)
  
 p = inputParser;
 validScalarPosNum = @(x) isnumeric(x) && isscalar(x) && (x > 0);
-addOptional(p, 'N_fft', length(data), validScalarPosNum);
 addOptional(p, 'Fs', 1, validScalarPosNum);
 addOptional(p, 'maxCode', max(max(data))-min(min(data)), validScalarPosNum);
 addOptional(p, 'harmonic', 5);
@@ -15,12 +14,10 @@ addParameter(p, 'isPlot', 1, @(x)ismember(x, [0, 1]));
 addParameter(p, 'noFlicker', 0, validScalarPosNum);
 addParameter(p, 'nTHD', 5, validScalarPosNum);
 addParameter(p, 'coAvg', 0, @(x)ismember(x, [0, 1]));
-addParameter(p, 'NC', 0, @(x)ismember(x, [0, 1]));
 addParameter(p, 'NFMethod', 0, @(x)ismember(x, [0, 1]))
 parse(p, varargin{:});
 
 %%
-N_fft = p.Results.N_fft;
 Fs = p.Results.Fs;
 maxCode = p.Results.maxCode;
 harmonic = p.Results.harmonic;
@@ -33,30 +30,31 @@ isPlot = p.Results.isPlot;
 noFlicker = p.Results.noFlicker;
 nTHD = p.Results.nTHD;
 coAvg = p.Results.coAvg;
-NC = p.Results.NC;
 nfmethod = p.Results.NFMethod;
 
 %%
 
 [N,M] = size(data);
+N_fft = M;
 if(M==1 && N > 1)
     data = data';
+    N_fft = N;
 end
 
 [N_run,~] = size(data);
 
-Nd2 = floor(N_fft/2);
-freq = (0:(Nd2-1))/N_fft*Fs;
-fbase = 0;
+Nd2 = floor(N_fft/2)+1;
 
-if(NC)
-    win = ones([1,N]);
-    sideBin = 0;
-else
+freq = (0:(Nd2-1))/N_fft*Fs;
+
+try
+    win = window(winType,N_fft,'periodic')';
+catch
     try
-        win = window(winType,N_fft,'periodic')';
-    catch
         win = window(winType,N_fft)';
+    catch
+        win = window(@rectwin,N_fft)';
+        warning("Unsupported window type %s, using rectangle window", winType);
     end
 end
 
@@ -71,12 +69,6 @@ for iter = 1:N_run
     tdata = tdata./maxCode;
     tdata = tdata-mean(tdata);
     tdata = tdata.*win/sqrt(mean(win.^2));
-    
-    if(NC && fbase == 0)
-        fin = findFin(tdata);
-        fbase = fin/max(round(fin*N_fft),1);
-        spec = zeros([1,floor(N_fft/2)]);
-    end
 
     if(coAvg)
         tspec = fft(tdata);
@@ -113,13 +105,7 @@ for iter = 1:N_run
         spec = spec + tspec;
 
     else
-        if(NC)
-            [s,f] = DFTNC(tdata,fbase);
-            freq = f/2/pi*Fs;
-            spec = spec+abs(s*N_fft/2).^2;
-        else
-            spec = spec+abs(fft(tdata)).^2;
-        end
+        spec = spec+abs(fft(tdata)).^2;
     end
     
     ME = ME+1;
@@ -141,6 +127,11 @@ end
 
 
 [~, bin] = max(spec_inband);
+sig_e = log10(spec(bin));
+sig_l = log10(spec(min(max(bin-1,1),Nd2)));
+sig_r = log10(spec(min(max(bin+1,1),Nd2)));
+bin_r = bin + (sig_r-sig_l)/(2*sig_e-sig_l-sig_r)/2;
+
 sig = sum(spec(max(bin-sideBin,1):min(bin+sideBin,floor(N_fft/2/OSR))));
 pwr = 10*log10(sig);
 if(~isnan(assumedSignal))
@@ -150,7 +141,7 @@ end
 
 if(harmonic < 0)
     for i = 2:-harmonic
-        b = alias((bin-1)*i,N_fft);
+        b = alias(round((bin_r-1)*i),N_fft);
         spec(max(b+1-sideBin,1):min(b+1+sideBin,Nd2)) = 0;
     end
 end
@@ -174,7 +165,7 @@ if(isPlot)
     end
     if(harmonic > 0)
         for i = 2:harmonic
-            b = alias((bin-1)*i,N_fft);
+            b = alias(round((bin_r-1)*i),N_fft);
             plot(b/N_fft*Fs,10*log10(spec(b+1)+10^(-20)),'rs');
             text(b/N_fft*Fs,10*log10(spec(b+1)+10^(-20))+5,num2str(i),'fontname','Arial','fontsize',12,'horizontalalignment','center');
         end
@@ -202,7 +193,7 @@ end
 
 thd = 0;
 for i = 2:nTHD
-    b = alias((bin-1)*i,N_fft)+1;
+    b = alias(round((bin_r-1)*i),N_fft) +1;
     thd = thd + spec(b);
     spec(b) = 0;
 end
@@ -218,29 +209,65 @@ SNR = 10*log10(sig/noi);
 NF = SNR - pwr;
 
 if(isPlot)
-    axis([Fs/N_fft,Fs/2,min(max(median(10*log10(spec_inband))-20,-150),-40),0]);
+    minx = min(max(median(10*log10(spec_inband))-20,-200),-40);
+    axis([Fs/N_fft,Fs/2,minx,0]);
     if(label)
         plot([1,1]*Fs/2/OSR,[0,-1000],'--');
-        if(Fs > 10^6)
-            text(Fs/N_fft*2,-10,['Fin/Fs = ',num2str(bin/N_fft*Fs/10^6,'%.1f'),' / ',num2str(Fs/10^6,'%.1f'),' MHz']);
+        if(OSR>1)
+            TX = 10^(log10(Fs)*0.01+log10(Fs/N_fft)*0.99);
         else
-            text(Fs/N_fft*2,-10,['Fin/Fs = ',num2str(bin/N_fft*Fs/10^3,'%.1f'),' / ',num2str(Fs/10^3,'%.1f'),' KHz']);
+            if(bin/N_fft < 0.2)
+                TX = Fs*0.3;
+            else
+                TX = Fs*0.01;
+            end
         end
-        text(bin/N_fft*Fs,pwr,['Fund = ',num2str(pwr,'%.2f'),' dB']);
-        text(Fs/N_fft*2,-20,['ENoB = ',num2str(ENoB,'%.2f')]);
-        text(Fs/N_fft*2,-30,['SNDR = ',num2str(SNDR,'%.2f'),' dB']);
-        text(Fs/N_fft*2,-40,['SFDR = ',num2str(SFDR,'%.2f'),' dB']);
-        text(Fs/N_fft*2,-50,['THD = ',num2str(THD,'%.2f'),' dB']);
-        text(Fs/N_fft*2,-60,['SNR = ',num2str(SNR,'%.2f'),' dB']);
-        text(Fs/N_fft*2,-70,['Noise Floor = ',num2str(NF,'%.2f'),' dB']);
+        
+        TYD = minx*0.06;
+
+        if(Fs >= 10^9)
+            txt_fs = num2str(Fs/10^9,'%.1fG');
+        elseif(Fs >= 10^6)
+            txt_fs = num2str(Fs/10^6,'%.1fM');
+        elseif(Fs >= 10^3)
+            txt_fs = num2str(Fs/10^3,'%.1fK');
+        elseif(Fs >= 1)
+            txt_fs = num2str(Fs,'%.1f');
+        else
+            txt_fs = num2str(Fs,'%.3f');
+        end
+
+        Fin = (bin_r-1)/N_fft*Fs;
+        if(Fin >= 10^9)
+            txt_fin = num2str(Fin/10^9,'%.1fG');
+        elseif(Fin >= 10^6)
+            txt_fin = num2str(Fin/10^6,'%.1fM');
+        elseif(Fin >= 10^3)
+            txt_fin = num2str(Fin/10^3,'%.1fK');
+        elseif(Fin >= 1)
+            txt_fin = num2str(Fin/10^3,'%.1f');
+        else
+            txt_fin = num2str(bin/N_fft*Fs,'%.3f');
+        end
+
+        text(TX,TYD,['Fin/Fs = ',txt_fin,' / ',txt_fs,' Hz']);
+        
+        text(TX,TYD*2,['ENoB = ',num2str(ENoB,'%.2f')]);
+        text(TX,TYD*3,['SNDR = ',num2str(SNDR,'%.2f'),' dB']);
+        text(TX,TYD*4,['SFDR = ',num2str(SFDR,'%.2f'),' dB']);
+        text(TX,TYD*5,['THD = ',num2str(THD,'%.2f'),' dB']);
+        text(TX,TYD*6,['SNR = ',num2str(SNR,'%.2f'),' dB']);
+        text(TX,TYD*7,['Noise Floor = ',num2str(NF,'%.2f'),' dB']);
+
+        text(bin/N_fft*Fs,pwr,['Sig = ',num2str(pwr,'%.2f'),' dB']);
 
         if (OSR>1)
-            text(Fs/N_fft*2,-80,['OSR = ',num2str(OSR,'%d')]);
             semilogx([Fs/N_fft,Fs/2/OSR],-[1,1]*(NF+10*log10(N_fft/2/OSR)),'r--');
-            text(Fs/N_fft*2,-(NF+10*log10(N_fft/2/OSR)),['NSD = ',num2str(NF+10*log10(Fs/2/OSR),'%.2f'),' dBFS/Hz'],'VerticalAlignment','top');
+            text(TX,TYD*8,['NSD = ',num2str(NF+10*log10(Fs/2/OSR),'%.2f'),' dBFS/Hz']);
+            text(TX,TYD*9,['OSR = ',num2str(OSR,'%.2f')]);
         else
             plot([0,Fs/2],-[1,1]*(NF+10*log10(N_fft/2/OSR)),'r--');
-            text(Fs/N_fft*2,-(NF+10*log10(N_fft/2/OSR)),['NSD = ',num2str(NF+10*log10(Fs/2/OSR),'%.2f'),' dBFS/Hz'],'VerticalAlignment','top');
+            text(TX,TYD*8,['NSD = ',num2str(NF+10*log10(Fs/2/OSR),'%.2f'),' dBFS/Hz']);
         end
     end
     xlabel('Freq (Hz)');
