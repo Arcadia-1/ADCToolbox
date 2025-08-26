@@ -141,10 +141,10 @@ function [weight,offset,postCal,ideal,err,freqCal] = FGCalSine(bits,varargin)
             
             order_mat = ones([N,1]) * (1:order);
             if(sel)
-                KS = ones([N,1]) * [1,x(M+2:M+order)]' .* order_mat;        % coefficient of sin
+                KS = ones([N,1]) * [1,x(M+2:M+order)'] .* order_mat;        % coefficient of sin
                 KC = ones([N,1]) * x(M+1+order:M+order*2)' .* order_mat;    % coefficient of cos
             else
-                KC = ones([N,1]) * [1,x(M+2:M+order)]' .* order_mat;        % coefficient of cos
+                KC = ones([N,1]) * [1,x(M+2:M+order)'] .* order_mat;        % coefficient of cos
                 KS = ones([N,1]) * x(M+1+order:M+order*2)' .* order_mat;    % coefficient of sin
             end
             xcd = -2*pi * KC .* time_mat .* sin(theta_mat*2*pi) / N;    % cosine series partial freq
