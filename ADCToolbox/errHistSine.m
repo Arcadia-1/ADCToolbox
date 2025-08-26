@@ -1,4 +1,4 @@
-function [emean, erms, phase_code, edata] = errHistSine(data, varargin)
+function [emean, erms, phase_code, edata, err, xx] = errHistSine(data, varargin)
 
     % mode = 0 : phase as x axis; 
     % mode >= 1 : code as axis;
@@ -22,9 +22,10 @@ function [emean, erms, phase_code, edata] = errHistSine(data, varargin)
         [data_fit,~,~,~,phi] = sineFit(data,fin);
     end
 
-    error = data_fit-data;
+    err = data_fit-data;
     
     if(codeMode)
+        xx = data;
         dat_min = min(data);
         dat_max = max(data);
         bin_wid = (dat_max-dat_min)/bin;
@@ -36,33 +37,33 @@ function [emean, erms, phase_code, edata] = errHistSine(data, varargin)
     
         for ii = 1:length(data)
             b = min(floor((data(ii)-dat_min)/bin_wid)+1,bin);
-            esum(b) = esum(b) + error(ii);
+            esum(b) = esum(b) + err(ii);
             enum(b) = enum(b) + 1;
         end
         emean = esum./enum;
         for ii = 1:length(data)
             b = min(floor((data(ii)-dat_min)/bin_wid)+1,bin);
-            erms(b) = erms(b) + (error(ii) - emean(b))^2;
+            erms(b) = erms(b) + (err(ii) - emean(b))^2;
         end
         erms = sqrt(erms./enum);
 
         if(~isempty(erange))
             eid = (data >= erange(1)) & (data <= erange(2));
-            edata = error(eid);
+            edata = err(eid);
         end
 
         if(disp)
             subplot(2,1,1);
     
-            plot(data,error,'r.');
+            plot(data,err,'r.');
             hold on;
             plot(phase_code,emean,'b-');
-            axis([dat_min,dat_max,min(error),max(error)]);
+            axis([dat_min,dat_max,min(err),max(err)]);
             ylabel('error');
             xlabel('code');
 
             if(~isempty(erange))
-                plot(data(eid),error(eid),'m.');
+                plot(data(eid),err(eid),'m.');
             end
     
             subplot(2,1,2);
@@ -73,7 +74,7 @@ function [emean, erms, phase_code, edata] = errHistSine(data, varargin)
         end
 
     else
-        phi_list = mod(phi/pi*180 + (0:length(data)-1)*fin*360,360);
+        xx = mod(phi/pi*180 + (0:length(data)-1)*fin*360,360);
         phase_code = (0:bin-1)/bin*360;
 
         enum = zeros([1,bin]);
@@ -81,42 +82,42 @@ function [emean, erms, phase_code, edata] = errHistSine(data, varargin)
         erms = zeros([1,bin]);
     
         for ii = 1:length(data)
-            b = mod(round(phi_list(ii)/360*bin),bin)+1;
-            esum(b) = esum(b) + error(ii);
+            b = mod(round(xx(ii)/360*bin),bin)+1;
+            esum(b) = esum(b) + err(ii);
             enum(b) = enum(b) + 1;
         end
         emean = esum./enum;
         for ii = 1:length(data)
-            b = mod(round(phi_list(ii)/360*bin),bin)+1;
-            erms(b) = erms(b) + (error(ii) - emean(b))^2;
+            b = mod(round(xx(ii)/360*bin),bin)+1;
+            erms(b) = erms(b) + (err(ii) - emean(b))^2;
         end
         erms = sqrt(erms./enum);
 
         if(~isempty(erange))
-            eid = (phi_list >= erange(1)) & (phi_list <= erange(2));
-            edata = error(eid);
+            eid = (xx >= erange(1)) & (xx <= erange(2));
+            edata = err(eid);
         end
         
         if(disp)
             subplot(2,1,1);
     
             yyaxis left;
-            plot(phi_list,data,'k.');
+            plot(xx,data,'k.');
             axis([0,360,min(data),max(data)]);
             ylabel('data');
 
             yyaxis right;
-            plot(phi_list,error,'r.');
+            plot(xx,err,'r.');
             hold on;
             plot(phase_code,emean,'b-');
-            axis([0,360,min(error),max(error)]);
+            axis([0,360,min(err),max(err)]);
             ylabel('error');
     
             legend('data','error');
             xlabel('phase(deg)');
 
             if(~isempty(erange))
-                plot(phi_list(eid),error(eid),'m.');
+                plot(xx(eid),err(eid),'m.');
             end
     
     
