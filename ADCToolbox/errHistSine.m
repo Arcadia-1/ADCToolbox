@@ -16,6 +16,11 @@ function [emean, erms, phase_code, edata, err, xx] = errHistSine(data, varargin)
     codeMode = p.Results.mode;
     erange = p.Results.erange;
 
+    [N,M] = size(data);
+    if(M == 1)
+        data = data';
+    end
+
     if(fin == 0)
         [data_fit,fin,~,~,phi] = sineFit(data);
     else

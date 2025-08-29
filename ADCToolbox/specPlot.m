@@ -14,7 +14,7 @@ addParameter(p, 'isPlot', 1, @(x)ismember(x, [0, 1]));
 addParameter(p, 'noFlicker', 0, validScalarPosNum);
 addParameter(p, 'nTHD', 5, validScalarPosNum);
 addParameter(p, 'coAvg', 0, @(x)ismember(x, [0, 1]));
-addParameter(p, 'NFMethod', 0, @(x)ismember(x, [0, 1]))
+addParameter(p, 'NFMethod', 0, @(x)ismember(x, [0, 1, 2]))
 parse(p, varargin{:});
 
 %%
@@ -131,6 +131,9 @@ sig_e = log10(spec(bin));
 sig_l = log10(spec(min(max(bin-1,1),Nd2)));
 sig_r = log10(spec(min(max(bin+1,1),Nd2)));
 bin_r = bin + (sig_r-sig_l)/(2*sig_e-sig_l-sig_r)/2;
+if(isnan(bin_r))
+    bin_r = bin;
+end
 
 sig = sum(spec(max(bin-sideBin,1):min(bin+sideBin,floor(N_fft/2/OSR))));
 pwr = 10*log10(sig);
@@ -191,17 +194,25 @@ if(isPlot && label)
     text((sbin-1)/N_fft*Fs,10*log10(spur+10^(-20))+5,'MaxSpur','fontname','Arial','fontsize',10,'horizontalalignment','center');
 end
 
+
+if(nfmethod == 0)
+    noi = median(spec(1:floor(N_fft/2/OSR)))/sqrt((1-2/(9*N_run))^3) *floor(N_fft/2/OSR);    % assuming noise is normal distributed
+elseif(nfmethod == 1)
+    spec_sort = sort(spec(1:floor(N_fft/2/OSR)));
+    noi = mean(spec_sort(floor(N_fft/2/OSR*0.05):floor(N_fft/2/OSR*0.95)))*floor(N_fft/2/OSR);
+else 
+    spec_noise = spec;
+    for i = 2:nTHD
+        b = alias(round((bin_r-1)*i),N_fft) +1;
+        spec_noise(b) = 0;
+    end
+    noi = sum(spec_noise(1:floor(N_fft/2/OSR)));
+end
+
 thd = 0;
 for i = 2:nTHD
     b = alias(round((bin_r-1)*i),N_fft) +1;
     thd = thd + spec(b);
-    spec(b) = 0;
-end
-
-if(nfmethod == 0)
-    noi = median(spec(1:floor(N_fft/2/OSR)))*floor(N_fft/2/OSR);
-else 
-    noi = sum(spec(1:floor(N_fft/2/OSR)));
 end
 
 THD = 10*log10(thd/sigs);
@@ -258,7 +269,6 @@ if(isPlot)
         text(TX,TYD*5,['THD = ',num2str(THD,'%.2f'),' dB']);
         text(TX,TYD*6,['SNR = ',num2str(SNR,'%.2f'),' dB']);
         text(TX,TYD*7,['Noise Floor = ',num2str(NF,'%.2f'),' dB']);
-        
 
         if (OSR>1)
             text(bin/N_fft*Fs,min(pwr,TYD/2),['Sig = ',num2str(pwr,'%.2f'),' dB']);
@@ -277,7 +287,15 @@ if(isPlot)
     end
     xlabel('Freq (Hz)');
     ylabel('dBFS');
-    title('Power Spectrum');
+    if(N_run > 1)
+        if(coAvg)
+            title(sprintf('Power Spectrum (%dx Jointed)',N_run));
+        else
+            title(sprintf('Power Spectrum (%dx Averanged)',N_run));
+        end
+    else
+        title('Power Spectrum');
+    end
 end
 
 if(~isPlot)
