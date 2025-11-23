@@ -294,7 +294,7 @@ if(isPlot)
             title(sprintf('Power Spectrum (%dx Averanged)',N_run));
         end
     else
-        title('Power Spectrum');
+        % title('Power Spectrum');
     end
 end
 

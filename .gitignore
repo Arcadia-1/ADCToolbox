@@ -30,3 +30,8 @@ codegen/
 
 # Cloud based storage dotfile
 .MATLABDriveTag
+
+
+claude_code_please_read.md
+MIGRATION_SUMMARY.md
+PYTHON_MIGRATION_TODO.md

@@ -1,5 +1,6 @@
 close all ; clear; clc; warning("off")
 rng(42); % set random seed for reproducibility
+
 %% Sinewave with jitter
 Tj_list = logspace(-15, -12, 4); % jitter values (in s) to sweep
 
@@ -22,7 +23,6 @@ for k = 1:length(Tj_list)
     fprintf("[Save data into file] -> [%s]\n", filename);
     writematrix(data, filename)
 end
-
 %% Sinewave with clipping
 clipping_list = [0.055, 0.060, 0.070]; % clipping thresholds to sweep
 
@@ -46,11 +46,10 @@ for k = 1:length(clipping_list)
     fprintf("[Save data into file] -> [%s]\n", filename);
     writematrix(data, filename)
 end
-
 %% Sinewave with 2-step quantization gain error
 gain_error_list = [0.98, 0.99, 1.01, 1.02]; % interstage gain error values
-
-N = 2^18;
+% gain_error_list = linspace(0.99,1.01, 10);
+N = 2^14;
 Fs = 10e9;
 J = findBin(Fs, 1000e6, N);
 Fin = J / N * Fs;
@@ -71,8 +70,8 @@ for k = 1:length(gain_error_list)
     filename = fullfile("ADCToolbox_example_data", sprintf("sinewave_gain_error_%s.csv", gstr));
     fprintf("[Save data into file] -> [%s]\n", filename);
     writematrix(data, filename)
-end
 
+end
 %% Sinewave with 2-step quantization kickback
 kickback_strength_list = 0.003:0.003:0.01; % kickback coupling strength
 
@@ -102,6 +101,7 @@ for k = 1:length(kickback_strength_list)
 
     writematrix(data, filename)
 end
+
 %% Sinewave with random glitch injection
 glitch_prob_list = [0.001, 0.01, 0.1]; % 0.1%, 1%, 10%
 
@@ -126,6 +126,7 @@ for k = 1:length(glitch_prob_list)
     fprintf("[Save data into file] -> [%s]\n", filename);
     writematrix(data, filename)
 end
+
 %% Sinewave with baseline drift
 baseline_list = [0.05, 0.1, 0.2]; % different drift amplitudes to sweep
 
@@ -150,7 +151,6 @@ for k = 1:length(baseline_list)
     fprintf("[Save data into file] -> [%s]\n", filename);
     writematrix(data, filename)
 end
-
 %% Sinewave with reference modulation error
 
 ref_error_list = [0.005, 0.01, 0.02]; % different reference mismatch levels
@@ -170,7 +170,6 @@ for k = 1:length(ref_error_list)
     fprintf("[Save data into file] -> [%s]\n", filename);
     writematrix(data, filename)
 end
-
 %% Sinewave with additive noise
 noise_list = [100e-6, 1e-3, 10e-3]; % 100uV, 1mV, 10mV
 
@@ -183,7 +182,7 @@ ideal_phase = 2 * pi * Fin * (0:N - 1) * 1 / Fs;
 for k = 1:length(noise_list)
     noise_amp = noise_list(k);
 
-    sig = sin(ideal_phase) * 0.49 + 0.5 + randn(1, N) * noise_amp;
+    data = sin(ideal_phase) * 0.49 + 0.5 + randn(1, N) * noise_amp;
 
     if noise_amp < 1e-3
         nstr = sprintf("%duV", round(noise_amp*1e6)); % µV
@@ -192,13 +191,14 @@ for k = 1:length(noise_list)
     end
     filename = fullfile("ADCToolbox_example_data", sprintf("sinewave_noise_%s.csv", nstr));
     fprintf("[Save data into file] -> [%s]\n", filename);
-    writematrix(sig, filename)
+    writematrix(data, filename)
 end
+
 %% Sinewave with specific HD2 / HD3 distortion levels
 HD2_dB_list = [-70, -80]; % Target HD2 levels in dB
 HD3_dB_list = [-70, -80]; % Target HD3 levels in dB
 
-N = 2^18;
+N = 2^14;
 J = findBin(1, 0.0789, N);
 A = 0.499;
 sinewave = A * sin((0:N - 1)*J*2*pi/N); % Base sinewave (zero mean)
@@ -224,10 +224,38 @@ for k = 1:length(HD2_dB_list)
         hd3_str = sprintf("HD3_n%ddB", abs(HD3_dB_list(k2)));
         filename = fullfile("ADCToolbox_example_data", sprintf("sinewave_%s_%s.csv", hd2_str, hd3_str));
         fprintf("[Save data into file] -> [%s]\n", filename);
-        writematrix(data.', filename);
+        writematrix(data, filename);
     end
 end
-%% Sinewave with Amplitude Modulation Noise (AM Noise)
+%% Sinewave with True Amplitude Modulation (AM Tone)
+am_strength_list = [0.0001, 0.0005, 0.001]; % modulation depth (m)
+am_freq = 99e6; % AM modulation frequency (Hz)
+
+N = 2^14;
+Fs = 1e9;
+J = findBin(Fs, 200e6, N);
+Fin = J / N * Fs;
+t = (0:N - 1) / Fs;
+ideal_phase = 2 * pi * Fin * t;
+
+for k = 1:length(am_strength_list)
+    am_strength = am_strength_list(k);
+
+    sine_zero_mean = sin(ideal_phase) * 0.49; % baseband sine
+
+    am_factor = 1 + am_strength * sin(2*pi*am_freq*t); % AM(t) = 1 + m*sin(Ωt)
+
+    data = sine_zero_mean .* am_factor + 0.5; % add DC offset
+    data = data + randn(1, N) * 1e-6; % tiny white noise
+
+    astr = replace(sprintf('%.3f', am_strength), '.', 'P');
+    filename = fullfile("ADCToolbox_example_data", ...
+        sprintf("sinewave_amplitude_modulation_%s.csv", astr));
+
+    fprintf("[Save data into file] -> [%s]\n", filename);
+    writematrix(data, filename);
+end
+%% Sinewave with Amplitude Noise (Random Amplitude Noise)
 am_noise_list = [0.001, 0.005, 0.01]; % AM noise strength (e.g., 0.1% to 1%)
 
 N = 2^14;
@@ -249,11 +277,10 @@ for k = 1:length(am_noise_list)
     data = sinewave_zero_mean .* am_factor + 0.5 + randn(1, N) * 1e-6;
 
     astr = replace(sprintf("%.3f", am_strength), ".", "P");
-    filename = fullfile("ADCToolbox_example_data", sprintf("sinewave_amp_mod_noise_%s.csv", astr));
+    filename = fullfile("ADCToolbox_example_data", sprintf("sinewave_amplitude_noise_%s.csv", astr));
     fprintf("[Save data into file] -> [%s]\n", filename);
     writematrix(data, filename);
 end
-
 %% Sinewave in Nyquist Zones 2 to 4
 N = 2^13;
 Fs = 1e9;
@@ -289,6 +316,7 @@ for k = 1:length(Nyquist_Zone_Fins)
     fprintf("[Save data into file] -> [%s]\n", filename);
     writematrix(data, filename);
 end
+
 %% Sinewave with multirun
 N_run_list = [2, 16, 100];
 
@@ -317,7 +345,7 @@ for k = 1:length(N_run_list)
     end
 
     filename = fullfile("ADCToolbox_example_data", sprintf("batch_sinewave_Nrun_%d.csv", N_run));
-    
+
     fprintf("[Save data into file] -> [%s]\n", filename);
     writematrix(data_batch, filename);
 end
