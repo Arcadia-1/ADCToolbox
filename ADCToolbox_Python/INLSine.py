@@ -60,7 +60,10 @@ def INLsine(data, clip=0.01):
     
     # 计算直方图 - 统计每个码值出现的次数
     # DCC: Digital Code Count，每个码的计数
-    DCC, _ = np.histogram(data, bins=np.append(code, code[-1] + 1))
+    # MATLAB's hist(data, code) uses code values as bin centers
+    # For consecutive integers, bins are [code[i]-0.5, code[i]+0.5)
+    bins = np.append(code - 0.5, code[-1] + 0.5)
+    DCC, _ = np.histogram(data, bins=bins)
     
     # 计算累积分布函数(CDF)并应用反余弦变换
     # 理论：对于理想正弦波，CDF应该是反正弦函数
@@ -96,12 +99,12 @@ def INLsine(data, clip=0.01):
     # 3. 去除均值（去除增益误差的影响）
     # 这样DNL只反映非线性，不包含整体增益误差
     DNL = DNL - np.mean(DNL)
-    print(DNL)
+
     # 计算INL：DNL的累积和
     # INL表示每个码点相对于理想直线的偏差
     # 通过对DNL积分(累加)得到
     INL = np.cumsum(DNL)
-    print(INL)
+
     return INL, DNL, code
 
 

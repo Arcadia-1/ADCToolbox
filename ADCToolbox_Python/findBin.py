@@ -10,26 +10,21 @@ Ported from MATLAB: findBin.m
 import numpy as np
 
 
-def is_prime(n: int) -> bool:
-    """Check if a number is prime."""
-    if n < 2:
-        return False
-    if n == 2:
-        return True
-    if n % 2 == 0:
-        return False
-    for i in range(3, int(np.sqrt(n)) + 1, 2):
-        if n % i == 0:
-            return False
-    return True
+def gcd(a: int, b: int) -> int:
+    """Compute greatest common divisor using Euclidean algorithm."""
+    while b:
+        a, b = b, a % b
+    return a
 
 
 def find_bin(fs: float, fin: float, n: int) -> int:
     """
-    Find the nearest prime FFT bin for coherent sampling.
+    Find the nearest coherent FFT bin.
 
     For coherent sampling, the number of signal cycles (M) should be
-    prime and coprime with N to avoid spectral leakage.
+    coprime with N (gcd(M,N) = 1) to avoid spectral leakage.
+
+    MATLAB reference: findBin.m lines 2-5
 
     Args:
         fs: Sampling frequency (Hz)
@@ -37,19 +32,19 @@ def find_bin(fs: float, fin: float, n: int) -> int:
         n: Number of FFT points (samples)
 
     Returns:
-        bin: Prime bin number (number of cycles in N samples)
+        bin: Bin number coprime with N (number of cycles in N samples)
 
     Example:
-        # For 1 MHz sampling, ~100 kHz input, 4096 samples
-        bin = find_bin(1e6, 100e3, 4096)
-        # Returns nearest prime to floor(100e3/1e6 * 4096) = 409
+        # For 10 GHz sampling, ~400 MHz input, 16384 samples
+        bin = find_bin(10e9, 400e6, 16384)
+        # Returns first bin >= floor(400e6/10e9 * 16384) where gcd(bin,16384)==1
         # Actual fin = bin * fs / n
     """
-    # Calculate initial bin
+    # Calculate initial bin (MATLAB line 2)
     bin_val = int(np.floor(fin / fs * n))
 
-    # Find next prime
-    while not is_prime(bin_val):
+    # Find next bin coprime with N (MATLAB lines 3-5)
+    while gcd(bin_val, n) > 1:
         bin_val += 1
 
     return bin_val
@@ -88,18 +83,18 @@ if __name__ == "__main__":
 
     print(f"[Test 1] fs={fs/1e6:.1f}MHz, fin_target={fin_target/1e3:.1f}kHz, N={n}")
     print(f"  [Result] bin={bin_val}, actual_fin={actual_fin/1e3:.3f}kHz")
-    print(f"  [Prime check] {bin_val} is prime: {is_prime(bin_val)}")
+    print(f"  [Coprime check] gcd({bin_val}, {n}) = {gcd(bin_val, n)}")
 
-    # Test case 2
-    fs = 10e6
-    fin_target = 1.23e6
-    n = 8192
+    # Test case 2: Matches MATLAB test_jitter.m
+    fs = 10e9
+    fin_target = 400e6
+    n = 16384
 
     bin_val = find_bin(fs, fin_target, n)
     actual_fin = bin_val * fs / n
 
-    print(f"\n[Test 2] fs={fs/1e6:.1f}MHz, fin_target={fin_target/1e6:.2f}MHz, N={n}")
+    print(f"\n[Test 2] fs={fs/1e9:.1f}GHz, fin_target={fin_target/1e6:.0f}MHz, N={n}")
     print(f"  [Result] bin={bin_val}, actual_fin={actual_fin/1e6:.6f}MHz")
-    print(f"  [Prime check] {bin_val} is prime: {is_prime(bin_val)}")
+    print(f"  [Coprime check] gcd({bin_val}, {n}) = {gcd(bin_val, n)}")
 
     print("\n" + "=" * 60)

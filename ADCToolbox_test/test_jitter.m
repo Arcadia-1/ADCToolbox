@@ -1,9 +1,9 @@
 close all ; clear; clc; warning("off")
 
 %% constants
-N = 2^16;
+N = 2^14;
 Fs = 10e9;
-J = findBin(Fs, 1000e6, N);
+J = findBin(Fs, 200e6, N);
 Fin = J/N * Fs;
 
 A = 0.49;
@@ -41,39 +41,23 @@ for i = 1:length(Tj_list)
         % jittered signal
         data = sin(theta + phase_jitter) * A + offset + randn(1, N) * amp_noise;
 
-        % data = sin(theta + phase_jitter) * A .* (1+randn(1, N)*0.02) + offset + randn(1, N) * amp_noise;
-
         % extract jitter by errHistSine
         [emean, erms, phase_code, anoi, pnoi] = errHistSine(data, 99, J/N, 0);
 
-        amp_err = sqrt(erms.^2 - min(erms)^2);
-        norm_amp_err = amp_err * 2 / (max(data) - min(data));
-        phase_slope = abs(sin(phase_code/360*2*pi));
-
-        jitter_on_phase = norm_amp_err ./ phase_slope / (2*pi*Fin);
-        jitter_on_phase(~isfinite(jitter_on_phase)) = 0;
-
-        jitter_rms = mean(jitter_on_phase(2:end));
-
         jitter_rms_new = pnoi / (2*pi*Fin);
-
-        meas_jitter(i, k) = jitter_rms;
         meas_jitter_new(i, k) = jitter_rms_new;
-
 
         [ENoB,SNDR,SFDR,SNR,THD,pwr,NF,h] = specPlot(data, 'label', 1, 'harmonic', 0, 'winType', @hann, 'OSR', 1, 'coAvg', 0, "isPlot", 0);
 
         meas_SNDR(i, k) = SNDR;
 
-
-        fprintf("[Tj]=%8.2ffs, [trial %d] -> [ENoB=%0.2f] [measured jitter] %.2ffs [measured jitter2] %.2ffs\n", ...
-            Tj*1e15, k, ENoB, jitter_rms*1e15, jitter_rms_new*1e15);
+        fprintf("[Tj]=%8.2ffs, [trial %d] -> [ENoB=%0.2f] [measured jitter2] %.2ffs\n", ...
+            Tj*1e15, k, ENoB, jitter_rms_new*1e15);
 
     end
 end
 
 %% compute average of N_random runs
-avg_meas_jitter = mean(meas_jitter, 2);
 avg_meas_jitter_new = mean(meas_jitter_new, 2);
 avg_meas_SNDR = mean(meas_SNDR, 2);
 
@@ -82,10 +66,9 @@ figure;
 %% left axis: jitter
 yyaxis left
 loglog(Tj_list, Tj_list, 'k--', 'LineWidth', 1.5, "DisplayName","set jitter"); hold on;
-loglog(Tj_list, avg_meas_jitter, 'ro-', 'LineWidth', 2, 'MarkerSize', 8, "DisplayName","old method");
-loglog(Tj_list, avg_meas_jitter_new, 'bs-', 'LineWidth', 2, 'MarkerSize', 8, "DisplayName","new method");
+loglog(Tj_list, avg_meas_jitter_new, 'bs-', 'LineWidth', 2, 'MarkerSize', 8, "DisplayName","Calculated jitter");
 
-ylabel("Calculated jitter (seconds)", "FontSize", 18);
+ylabel("Calculated jitter (s)", "FontSize", 18);
 
 %% right axis: SNDR
 yyaxis right
@@ -102,3 +85,17 @@ legend("Location", "southeast", "FontSize", 16);
 
 grid on;
 set(gca, "FontSize", 16);
+
+
+%%
+
+outputdir = "ADCToolbox_example_output";
+subdir_path = fullfile(outputdir, "jitter_sweep");
+if ~exist(subdir_path, 'dir')
+    mkdir(subdir_path);
+end
+output_filename_base = sprintf('jitter_sweep_Fin_%dMHz_matlab.png', round(Fin/1e6));
+output_filepath = fullfile(subdir_path, output_filename_base);
+
+saveas(gcf, output_filepath);
+fprintf('[Saved image] -> [%s]\n\n', output_filepath);

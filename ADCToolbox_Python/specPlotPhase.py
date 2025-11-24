@@ -164,15 +164,30 @@ def spec_plot_phase(
     ax.set_theta_direction(-1)  # Clockwise
     ax.set_theta_zero_location('N')  # 0 degrees at top
 
-    # Custom tick labels showing dB values
-    max_r = np.max(radii) * 1.1
-    tick_vals = np.arange(0, max_r, 10)
-    ax.set_rticks(tick_vals)
-    tick_labels = [f'{int(min_r + t):.0f}' for t in tick_vals]
-    ax.set_yticklabels(tick_labels)
-    ax.set_rlim(0, max_r)
+    # Custom tick labels showing dB values (match MATLAB exactly)
+    # MATLAB: tick = [-minR:-10:0]; pax.RTick = tick(end:-1:1);
+    #         tickl = (0:-10:minR); pax.RTickLabel = tickl(end:-1:1);
+    # minR is negative (e.g., -120), so -minR is positive (e.g., 120)
+    tick = np.arange(-min_r, -1, -10)  # e.g., [120, 110, 100, ..., 10]
+    tick = tick[::-1]  # Reverse: [10, 20, 30, ..., 120]
+    # Prepend 0 if not already there
+    if len(tick) == 0 or tick[0] != 0:
+        tick = np.concatenate([[0], tick])
 
-    ax.set_title('Spectrum Phase (dBFS)', pad=20)
+    tickl = np.arange(0, min_r, -10)  # e.g., [0, -10, -20, ..., -120]
+    tickl = tickl[::-1]  # Reverse: [-120, -110, ..., -10, 0]
+
+    # Ensure tick and tickl have same length
+    if len(tick) != len(tickl):
+        min_len = min(len(tick), len(tickl))
+        tick = tick[:min_len]
+        tickl = tickl[:min_len]
+
+    ax.set_rticks(tick)
+    ax.set_yticklabels([f'{int(t):.0f}' for t in tickl])
+    ax.set_rlim(0, -min_r)
+
+    ax.set_title('Spectrum Phase', pad=20, fontsize=12)
     ax.grid(True, alpha=0.3)
 
     plt.tight_layout()
@@ -183,7 +198,7 @@ def spec_plot_phase(
 
     if show_plot:
         plt.show()
-    else:
+    elif save_path:
         plt.close()
 
     return {

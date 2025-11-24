@@ -24,16 +24,18 @@ def find_relative_freq(data):
     return relative_freq
 
 
-def sine_fit(data, f0=None, tol=1e-15, rate=0.5):
+def sine_fit(data, f0=None, tol=1e-12, rate=0.5):
     """
     将正弦波拟合到输入数据。
-    
+
+    Matches MATLAB sineFit.m exactly.
+
     参数：
     - data: 要拟合的数据。
     - f0: 估计的频率（可选）。如果没有提供，将从数据中估计。
-    - tol: 停止准则的容差（默认值：1e-12）。
+    - tol: 停止准则的容差（默认值：1e-12，匹配MATLAB）。
     - rate: 频率调整步长（默认值：0.5）。
-    
+
     返回：
     - data_fit: 拟合的正弦波。
     - freq: 估计的频率。
@@ -68,25 +70,37 @@ def sine_fit(data, f0=None, tol=1e-15, rate=0.5):
     freq = f0
     delta_f = 0
     
-    # 频率的迭代优化
+    # 频率的迭代优化 (MATLAB lines 49-67)
     for _ in range(100):
         freq += delta_f
         theta = 2 * np.pi * freq * time
-        M = np.column_stack([np.cos(theta), np.sin(theta), np.ones(N), 
-                             -A * 2 * np.pi * time * np.sin(theta) + B * 2 * np.pi * time * np.cos(theta)])
+        # MATLAB line 53: 4th column is divided by N
+        M = np.column_stack([np.cos(theta), np.sin(theta), np.ones(N),
+                             (-A * 2 * np.pi * time * np.sin(theta) + B * 2 * np.pi * time * np.cos(theta)) / N])
         x = np.linalg.lstsq(M, data, rcond=None)[0]
-        
+
         A, B, dc = x[0], x[1], x[2]
-        delta_f = x[3] * rate
-        
-        # 检查停止准则
-        if abs(delta_f) < tol:
+        # MATLAB line 58: delta_f = x(4)*rate/N
+        delta_f = x[3] * rate / N
+
+        # MATLAB line 59: relerr = rms(x(end)/N*M(:,end)) / sqrt(x(1)^2+x(2)^2)
+        # M(:,end) is the 4th column of M
+        mag_current = np.sqrt(A**2 + B**2)
+        if mag_current > 0:
+            # Calculate RMS of (x(4)/N * M(:,4))
+            residual = x[3] / N * M[:, 3]
+            relerr = np.sqrt(np.mean(residual**2)) / mag_current
+        else:
+            relerr = 0
+
+        # 检查停止准则 (MATLAB line 63)
+        if relerr < tol:
             break
     
     # 使用最终参数拟合数据
     data_fit = A * np.cos(2 * np.pi * freq * time) + B * np.sin(2 * np.pi * freq * time) + dc
     mag = np.sqrt(A**2 + B**2)
-    phi = np.arctan2(B, A)
+    phi = -np.arctan2(B, A)  # CRITICAL: Negative sign to match MATLAB (line 71)
     
     return data_fit, freq, mag, dc, phi
 

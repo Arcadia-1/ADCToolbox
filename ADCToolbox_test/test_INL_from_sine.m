@@ -82,7 +82,7 @@ for k = 1:length(file_list_struct)
         if ~exist(subdir_path, 'dir')
             mkdir(subdir_path);
         end
-        output_filename_base = sprintf('INL_%db_%s', Resolution, name);
+        output_filename_base = sprintf('INL_%db_%s_matlab', Resolution, name);
         output_filepath = fullfile(subdir_path, [output_filename_base, '.png']);
         
         saveas(gcf, output_filepath);

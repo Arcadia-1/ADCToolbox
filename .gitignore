@@ -1,3 +1,7 @@
+# =============================================================================
+# MATLAB
+# =============================================================================
+
 # Autosave files
 *.asv
 *.m~
@@ -31,7 +35,140 @@ codegen/
 # Cloud based storage dotfile
 .MATLABDriveTag
 
+# =============================================================================
+# Python
+# =============================================================================
+
+# Byte-compiled / optimized / DLL files
+__pycache__/
+*.py[cod]
+*$py.class
+
+# C extensions
+*.so
+
+# Distribution / packaging
+.Python
+build/
+develop-eggs/
+dist/
+downloads/
+eggs/
+.eggs/
+lib/
+lib64/
+parts/
+sdist/
+var/
+wheels/
+*.egg-info/
+.installed.cfg
+*.egg
+
+# PyInstaller
+*.manifest
+*.spec
+
+# Installer logs
+pip-log.txt
+pip-delete-this-directory.txt
+
+# Unit test / coverage reports
+htmlcov/
+.tox/
+.nox/
+.coverage
+.coverage.*
+.cache
+nosetests.xml
+coverage.xml
+*.cover
+*.py,cover
+.hypothesis/
+.pytest_cache/
+
+# Translations
+*.mo
+*.pot
+
+# Jupyter Notebook
+.ipynb_checkpoints
+
+# pyenv
+.python-version
+
+# Environments
+.env
+.venv
+env/
+venv/
+ENV/
+env.bak/
+venv.bak/
+
+# mypy
+.mypy_cache/
+.dmypy.json
+dmypy.json
+
+# =============================================================================
+# Python-generated outputs (can be regenerated from MATLAB golden references)
+# =============================================================================
+
+# Python output images
+ADCToolbox_example_output/**/*_python.png
+ADCToolbox_example_output/**/*_python.csv
+
+# =============================================================================
+# IDE and Editors
+# =============================================================================
+
+# VS Code
+.vscode/
+
+# JetBrains IDEs
+.idea/
+
+# Vim
+*.swp
+*.swo
+*~
+
+# Sublime Text
+*.sublime-workspace
+
+# Emacs
+*~
+\#*\#
+/.emacs.desktop
+/.emacs.desktop.lock
+*.elc
+
+# =============================================================================
+# OS-specific
+# =============================================================================
+
+# macOS
+.DS_Store
+.AppleDouble
+.LSOverride
+._*
+
+# Windows
+Thumbs.db
+ehthumbs.db
+Desktop.ini
+$RECYCLE.BIN/
+
+# Linux
+*~
+
+# =============================================================================
+# Project-specific documentation (local only)
+# =============================================================================
 
 claude_code_please_read.md
+project_log.md
 MIGRATION_SUMMARY.md
 PYTHON_MIGRATION_TODO.md
+JITTER_DETECTION_FIX_SUMMARY.md

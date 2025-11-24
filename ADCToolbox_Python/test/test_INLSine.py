@@ -1,76 +1,133 @@
-"""Test INLSine.py against MATLAB golden reference."""
+"""Test INLSine.py - Python version of test_INL_from_sine.m"""
 
 import numpy as np
 import matplotlib.pyplot as plt
 import os
 import sys
+import glob
 
-from ADC_Toolbox_Python.INLSine import INLsine
+# Add project root to sys.path if needed (for direct script execution)
+_project_root = os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
+if _project_root not in sys.path:
+    sys.path.insert(0, _project_root)
+
+from ADCToolbox_Python.INLSine import INLsine
 
 
-def run_inl_tests():
-    current_dir = os.path.dirname(os.path.abspath(__file__))
-    matlab_dir = os.path.join(os.path.dirname(os.path.dirname(current_dir)), "matlab_reference")
-    output_dir = os.path.join(current_dir, "output", "INL_FIRAS_chip2")
-    os.makedirs(output_dir, exist_ok=True)
+def test_inl_from_sine():
+    """Test INLSine function with sinewave data files."""
 
-    print("=" * 60)
-    print("Test: INLSine (INL/DNL from Sine Wave)")
-    print("=" * 60)
+    # Define input and output directories
+    inputdir = os.path.join(_project_root, "ADCToolbox_example_data")
+    outputdir = os.path.join(_project_root, "ADCToolbox_example_output")
 
-    # Load CSV file
-    csv_file = os.path.join(matlab_dir, "FIRAS_chip2_SingleTone_20240408162613.csv")
+    # Resolution list to scan
+    Resolution_list = [12]
 
-    if not os.path.exists(csv_file):
-        print(f"ERROR: {csv_file} not found")
-        return False
+    # Create output directory if it doesn't exist
+    os.makedirs(outputdir, exist_ok=True)
 
-    try:
-        # Load data from CSV
-        d_out_dec_INL = np.loadtxt(csv_file, delimiter=',').flatten()
+    # Manual file list (empty means use search patterns)
+    manual_files_list = []
 
-        print(f"[Data] {len(d_out_dec_INL)} samples")
+    if manual_files_list:
+        file_list = manual_files_list
+    else:
+        # Search patterns for input files
+        search_patterns = ["sinewave_HD_*.csv", "sinewave_gain_error_*.csv"]
+        all_files = []
 
-        # Calculate INL and DNL
-        INL, DNL, code = INLsine(d_out_dec_INL, clip=0.01)
+        for pattern in search_patterns:
+            matched_files = glob.glob(os.path.join(inputdir, pattern))
+            all_files.extend([os.path.basename(f) for f in matched_files])
 
-        print(f"[INL] range: [{np.min(INL):.2f}, {np.max(INL):.2f}] LSB")
-        print(f"[DNL] range: [{np.min(DNL):.2f}, {np.max(DNL):.2f}] LSB")
-        print(f"[Code] range: {code[0]} to {code[-1]}")
+        # Remove duplicates while preserving order
+        seen = set()
+        file_list = []
+        for f in all_files:
+            if f not in seen:
+                seen.add(f)
+                file_list.append(f)
 
-        # Plot INL
-        plt.figure(figsize=(10, 6))
-        plt.plot(code, INL, linewidth=0.5)
-        plt.xlabel('Code')
-        plt.ylabel('INL (LSB)')
-        inl_min, inl_max = np.min(INL), np.max(INL)
-        plt.title(f'Integral Nonlinearity: INL=[{inl_min:+.2f}, {inl_max:+.2f}] LSB')
-        plt.grid(True, alpha=0.3)
-        plt.tight_layout()
-        plt.savefig(os.path.join(output_dir, "INL.png"), dpi=150)
-        plt.close()
+    # Process each file
+    for current_filename in file_list:
+        data_filepath = os.path.join(inputdir, current_filename)
 
-        # Plot DNL
-        plt.figure(figsize=(10, 6))
-        plt.plot(code, DNL, linewidth=0.5)
-        plt.xlabel('Code')
-        plt.ylabel('DNL (LSB)')
-        dnl_min, dnl_max = np.min(DNL), np.max(DNL)
-        plt.title(f'Differential Nonlinearity: DNL=[{dnl_min:+.2f}, {dnl_max:+.2f}] LSB')
-        plt.grid(True, alpha=0.3)
-        plt.tight_layout()
-        plt.savefig(os.path.join(output_dir, "DNL.png"), dpi=150)
-        plt.close()
+        # Extract name without extension
+        name = os.path.splitext(current_filename)[0]
 
-        print(f"[OK] Plots saved to: {output_dir}")
-        return True
+        # Load data
+        data = np.loadtxt(data_filepath, delimiter=',')
+        if data.ndim > 1:
+            data = data.flatten()
 
-    except Exception as e:
-        print(f"ERROR: {e}")
-        import traceback
-        traceback.print_exc()
-        return False
+        # Process each resolution
+        for Resolution in Resolution_list:
+            # Scale data by 2^Resolution
+            scaled_data = data * (2 ** Resolution)
+
+            # Calculate min/max for verification
+            data_min = np.min(scaled_data)
+            data_max = np.max(scaled_data)
+            expected_max = 2 ** Resolution
+
+            # Call INLsine function
+            INL, DNL, code = INLsine(scaled_data)
+
+            # Calculate DNL/INL ranges
+            max_inl = np.max(INL)
+            min_inl = np.min(INL)
+            max_dnl = np.max(DNL)
+            min_dnl = np.min(DNL)
+
+            # Create figure with 2 subplots
+            fig = plt.figure(figsize=(10, 8))
+
+            # Top subplot: INL
+            plt.subplot(2, 1, 1)
+            plt.scatter(code, INL, s=8, alpha=0.6)
+            plt.xlabel('Code')
+            plt.ylabel('INL (LSB)')
+            plt.grid(True)
+            title_str_inl = f'INL = [{min_inl:.2f}, {max_inl:+.2f}] LSB'
+            plt.title(title_str_inl)
+
+            # Set y-axis limits (at least [-1, 1])
+            ylim_min = min(min_inl, -1)
+            ylim_max = max(max_inl, 1)
+            plt.ylim([ylim_min, ylim_max])
+            plt.xlim([0, expected_max])
+
+            # Bottom subplot: DNL
+            plt.subplot(2, 1, 2)
+            plt.scatter(code, DNL, s=8, alpha=0.6)
+            plt.xlabel('Code')
+            plt.ylabel('DNL (LSB)')
+            plt.grid(True)
+            title_str_dnl = f'DNL = [{min_dnl:.2f}, {max_dnl:.2f}] LSB'
+            plt.title(title_str_dnl)
+
+            # Set y-axis limits (at least [-1, 1])
+            ylim_min = min(min_dnl, -1)
+            ylim_max = max(max_dnl, 1)
+            plt.ylim([ylim_min, ylim_max])
+            plt.xlim([0, expected_max])
+
+            # Save figure
+            subdir_path = os.path.join(outputdir, name)
+            os.makedirs(subdir_path, exist_ok=True)
+
+            output_filename_base = f'INL_{Resolution}b_{name}_python'
+            output_filepath = os.path.join(subdir_path, f'{output_filename_base}.png')
+
+            plt.tight_layout()
+            plt.savefig(output_filepath, dpi=150)
+            plt.close(fig)
+
+            # Console output
+            print(f'[Resolution = {Resolution}]: DNL = [{min_dnl:.2f}, {max_dnl:.2f}] LSB, INL = [{min_inl:.2f}, {max_inl:+.2f}] LSB')
+            print(f'[Saved image] -> [{output_filepath}]\n')
 
 
 if __name__ == "__main__":
-    sys.exit(0 if run_inl_tests() else 1)
+    test_inl_from_sine()

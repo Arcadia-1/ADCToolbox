@@ -6,7 +6,7 @@ from .alias import alias
 #已验证
 def spec_plot(data, Fs=1.0, maxCode=None, harmonic=7, winType=1,
                  sideBin=1, logSca=0, label=1, assumedSignal=np.nan, isPlot=1,
-                 nTHD=5, OSR=1):
+                 nTHD=5, OSR=1, coAvg=0):
     """
     specPlot.m 的精确 Python 移植版本
 
@@ -23,6 +23,7 @@ def spec_plot(data, Fs=1.0, maxCode=None, harmonic=7, winType=1,
         isPlot: Generate plot (default 1)
         nTHD: Number of harmonics for THD calculation (default 5)
         OSR: Oversampling ratio (default 1)
+        coAvg: Coherent averaging mode (default 0)
     """
     # --- 参数处理 ---
     data = np.asarray(data)
@@ -103,7 +104,7 @@ def spec_plot(data, Fs=1.0, maxCode=None, harmonic=7, winType=1,
             else:
                 plt.semilogx(freq[start:end], 10 * np.log10(spec[start:end].clip(1e-20)), 'r-', linewidth=1.5)
 
-        if harmonic > 0:
+        if label and harmonic > 0:
             for i in range(2, harmonic + 1):
                 b = alias(bin_ * i, N)  # Python bin_ is 0-based = MATLAB's (bin-1)
                 if b < len(spec):
@@ -130,6 +131,12 @@ def spec_plot(data, Fs=1.0, maxCode=None, harmonic=7, winType=1,
     spur = np.max(spec_inband)
     sbin = np.argmax(spec_inband)
 
+    # Mark max spur on plot (before clearing spec_no_sig)
+    if isPlot and label:
+        plt.plot(sbin / N * Fs, 10 * np.log10(spur + 1e-20), 'rd')
+        plt.text(sbin / N * Fs, 10 * np.log10(spur + 1e-20) + 5, 'MaxSpur',
+                 fontname='Arial', fontsize=10, ha='center')
+
     SNDR = 10 * np.log10(sig / noi) if noi > 0 else 999
     SFDR = 10 * np.log10(sigs / spur) if spur > 0 else 999
     ENoB = (SNDR - 1.76) / 6.02
@@ -150,34 +157,81 @@ def spec_plot(data, Fs=1.0, maxCode=None, harmonic=7, winType=1,
 
     # --- 绘图标注 ---
     if isPlot:
-        # y_max = pwr if pwr > 0 else 0
-        # axis_limits = [Fs/N, Fs/2, -120, y_max + 10]
-        # plt.axis(axis_limits)
-        plt.ylim(-120, (pwr if pwr > 0 else 0) + 10)
+        # Calculate axis limits
+        minx = min(max(np.median(10*np.log10(spec_inband+1e-20))-20, -200), -40)
         plt.xlim(Fs/N, Fs/2)
-
+        plt.ylim(minx, 0)
 
         if label:
-            ax = plt.gca()
-            props = dict(boxstyle='round', facecolor='wheat', alpha=0.8)
-            
-            text_str = '\n'.join([
-                f'ENoB = {ENoB:.2f} bits',
-                f'SNDR = {SNDR:.2f} dB',
-                f'SFDR = {SFDR:.2f} dB',
-                f'THD  = {THD:.2f} dB',
-                f'SNR  = {SNR:.2f} dB',
-                f'Noise Floor = {NF:.2f} dBFS/bin'
-            ])
-            ax.text(0.2, 0.99, text_str, transform=ax.transAxes, fontsize=10,
-                    verticalalignment='top', bbox=props)
-            
-            fund_text = f'Fund = {pwr:.2f} dBFS @ {freq[bin_]/1e3:.2f} kHz'
-            plt.text(freq[bin_], pwr, fund_text, ha='center', va='bottom', fontsize=9)
-            
-            plt.xlabel('Frequency (Hz)')
-            plt.ylabel('dBFS')
-            plt.title('Output Spectrum')
+            # Determine text position based on fundamental bin location
+            if OSR > 1:
+                TX = 10**(np.log10(Fs)*0.01 + np.log10(Fs/N)*0.99)
+            else:
+                if bin_/N < 0.2:
+                    TX = Fs * 0.3
+                else:
+                    TX = Fs * 0.01
+
+            TYD = minx * 0.06
+
+            # Format Fs text
+            if Fs >= 1e9:
+                txt_fs = f'{Fs/1e9:.1f}G'
+            elif Fs >= 1e6:
+                txt_fs = f'{Fs/1e6:.1f}M'
+            elif Fs >= 1e3:
+                txt_fs = f'{Fs/1e3:.1f}K'
+            elif Fs >= 1:
+                txt_fs = f'{Fs:.1f}'
+            else:
+                txt_fs = f'{Fs:.3f}'
+
+            # Format Fin text
+            Fin = bin_/N * Fs
+            if Fin >= 1e9:
+                txt_fin = f'{Fin/1e9:.1f}G'
+            elif Fin >= 1e6:
+                txt_fin = f'{Fin/1e6:.1f}M'
+            elif Fin >= 1e3:
+                txt_fin = f'{Fin/1e3:.1f}K'
+            elif Fin >= 1:
+                txt_fin = f'{Fin/1e3:.1f}'
+            else:
+                txt_fin = f'{bin_/N*Fs:.3f}'
+
+            # NSD calculation
+            NSD = NF + 10*np.log10(Fs/2/OSR)
+
+            # Add text annotations
+            plt.text(TX, TYD, f'Fin/Fs = {txt_fin} / {txt_fs} Hz', fontsize=10)
+            plt.text(TX, TYD*2, f'ENoB = {ENoB:.2f}', fontsize=10)
+            plt.text(TX, TYD*3, f'SNDR = {SNDR:.2f} dB', fontsize=10)
+            plt.text(TX, TYD*4, f'SFDR = {SFDR:.2f} dB', fontsize=10)
+            plt.text(TX, TYD*5, f'THD = {THD:.2f} dB', fontsize=10)
+            plt.text(TX, TYD*6, f'SNR = {SNR:.2f} dB', fontsize=10)
+            plt.text(TX, TYD*7, f'Noise Floor = {NF:.2f} dB', fontsize=10)
+
+            # Add Sig label
+            if OSR > 1:
+                plt.text(freq[bin_], min(pwr, TYD/2), f'Sig = {pwr:.2f} dB', fontsize=10)
+                plt.text(TX, TYD*8, f'NSD = {NSD:.2f} dBFS/Hz', fontsize=10)
+            else:
+                if bin_/N > 0.4:
+                    plt.text(freq[bin_] * (1-0.01/bin_*N), min(pwr, TYD/2), f'Sig = {pwr:.2f} dB',
+                             ha='right', fontsize=10)
+                else:
+                    plt.text(freq[bin_] * (1+0.01/bin_*N), min(pwr, TYD/2), f'Sig = {pwr:.2f} dB', fontsize=10)
+                plt.text(TX, TYD*8, f'NSD = {NSD:.2f} dBFS/Hz', fontsize=10)
+
+            plt.xlabel('Freq (Hz)', fontsize=10)
+            plt.ylabel('dBFS', fontsize=10)
+
+        # Title for batch data
+        if M > 1:
+            if coAvg:
+                plt.title(f'Power Spectrum ({M}x Jointed)', fontsize=12)
+            else:
+                plt.title(f'Power Spectrum ({M}x Averanged)', fontsize=12)
 
     if not isPlot:
         h = None
