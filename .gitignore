@@ -112,12 +112,11 @@ venv.bak/
 dmypy.json
 
 # =============================================================================
-# Python-generated outputs (can be regenerated from MATLAB golden references)
+# Test outputs (can be regenerated, not tracked in git)
 # =============================================================================
 
-# Python output images
-ADCToolbox_example_output/**/*_python.png
-ADCToolbox_example_output/**/*_python.csv
+# All test output files
+test_output/
 
 # =============================================================================
 # IDE and Editors
@@ -172,3 +171,4 @@ project_log.md
 MIGRATION_SUMMARY.md
 PYTHON_MIGRATION_TODO.md
 JITTER_DETECTION_FIX_SUMMARY.md
+todo.txt
