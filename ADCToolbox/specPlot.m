@@ -97,8 +97,8 @@ for iter = 1:N_run
         end
 
         for iter2 = 1:N_fft                         % non-harmonic shift
-            if(marker(iter) == 0)
-                tspec(iter) = tspec(iter).*(conj(phi).^((iter-1)/(bin-1)));
+            if(marker(iter2) == 0)
+                tspec(iter2) = tspec(iter2).*(conj(phi).^((iter2-1)/(bin-1)));
             end
         end
 

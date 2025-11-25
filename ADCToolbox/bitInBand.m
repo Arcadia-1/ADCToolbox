@@ -2,8 +2,8 @@ function [dout] = bitInBand(din,bands)
 
     [N,M] = size(din);
     if(N < M)
-        bits = bits';
-        [N,M] = size(bits);
+        din = din';
+        [N,M] = size(din);
     end
 
     [P,Q] = size(bands);
