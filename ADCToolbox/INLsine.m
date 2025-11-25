@@ -17,7 +17,7 @@ function [INL, DNL, code] = INLsine(data, clip)
     code = min_data:max_data;
     data = min(max(data,min_data),max_data);
 
-    DCC = hist(data,code);
+    DCC = histcounts(data,[code-0.5, code(end)+0.5]);
     DCC = -cos(pi*cumsum(DCC)/sum(DCC));
     DNL = DCC(2:end) - DCC(1:end-1);
     code = code(1:end-1);
