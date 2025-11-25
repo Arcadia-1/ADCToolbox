@@ -23,7 +23,7 @@ if current_dir not in sys.path:
     sys.path.insert(0, current_dir)
 
 
-def tomDecomp(data, re_fin=None, order=10, disp=1):
+def tom_decomp(data, re_fin=None, order=10, disp=1):
     """
     Thompson Decomposition - Thompson error decomposition
 

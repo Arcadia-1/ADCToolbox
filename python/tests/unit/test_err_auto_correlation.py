@@ -1,4 +1,4 @@
-"""test_errAutoCorrelation.py - Unit test for errAutoCorrelation function
+"""test_err_auto_correlation.py - Unit test for errAutoCorrelation function
 
 Tests the errAutoCorrelation function with sinewave error data.
 
@@ -16,15 +16,16 @@ import matplotlib.pyplot as plt
 from pathlib import Path
 
 from adctoolbox.common import sine_fit
-from adctoolbox.aout import errAutoCorrelation
+from adctoolbox.aout import err_auto_correlation
 
-# Get project root directory
-project_root = Path(__file__).parent.parent.parent
+
+# Get project root directory (two levels up from python/tests/unit)
+project_root = Path(__file__).resolve().parents[3]
 
 
 def main():
     """Main test function."""
-    input_dir = project_root / "test_data"
+    input_dir = project_root / "dataset"
     output_dir = project_root / "test_output"
 
     # Test datasets - leave empty to auto-search
@@ -68,7 +69,7 @@ def main():
 
         # Run errAutoCorrelation
         plt.figure(figsize=(12, 8))
-        acf, lags = errAutoCorrelation(err_data, MaxLag=200)
+        acf, lags = err_auto_correlation(err_data, MaxLag=200)
         plt.title(f'errAutoCorrelation: {dataset_name}')
 
         # Save plot

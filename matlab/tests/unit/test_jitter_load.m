@@ -5,11 +5,7 @@ close all; clear; clc; warning("off")
 % Output: test_output/jitter_sweep/
 
 %% Configuration
-addpath('matlab/aout');
-addpath('matlab/common');
-addpath('matlab/test/unit');
-
-inputDir = fullfile('test_data', 'jitter_sweep');
+inputDir = fullfile('dataset', 'jitter_sweep');
 outputDir = fullfile('test_output', 'jitter_sweep');
 
 if ~exist(outputDir, 'dir')

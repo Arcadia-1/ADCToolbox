@@ -4,21 +4,23 @@ import numpy as np
 import matplotlib.pyplot as plt
 from pathlib import Path
 
-from adctoolbox.aout import INLsine
+from adctoolbox.aout import inl_sine
 
+# Get project root directory (two levels up from python/tests/unit)
+project_root = Path(__file__).resolve().parents[3]
 
 def test_inl_from_sine():
     """Test INLSine function with sinewave data files."""
 
     # Configuration - assumes running from project root d:\ADCToolbox
-    inputdir = Path("test_data")
-    outputdir = Path("test_output")
+    input_dir = project_root / "dataset"
+    output_dir = project_root / "test_output"
 
     # Resolution list to scan
     Resolution_list = [12]
 
     # Create output directory if it doesn't exist
-    outputdir.mkdir(exist_ok=True)
+    output_dir.mkdir(exist_ok=True)
 
     # Manual file list (empty means use search patterns)
     manual_files_list = []
@@ -27,11 +29,11 @@ def test_inl_from_sine():
         file_list = manual_files_list
     else:
         # Search patterns for input files
-        search_patterns = ["sinewave_HD_*.csv", "sinewave_gain_error_*.csv"]
+        search_patterns = ["sinewave_*.csv"]
         all_files = []
 
         for pattern in search_patterns:
-            matched_files = list(inputdir.glob(pattern))
+            matched_files = list(input_dir.glob(pattern))
             all_files.extend([f.name for f in matched_files])
 
         # Remove duplicates while preserving order
@@ -44,7 +46,7 @@ def test_inl_from_sine():
 
     # Process each file
     for k, current_filename in enumerate(file_list, start=1):
-        data_filepath = inputdir / current_filename
+        data_filepath = input_dir / current_filename
 
         # Extract name without extension
         name = Path(current_filename).stem
@@ -65,7 +67,7 @@ def test_inl_from_sine():
             expected_max = 2 ** Resolution
 
             # Call INLsine function
-            INL, DNL, code = INLsine(scaled_data)
+            INL, DNL, code = inl_sine(scaled_data)
 
             # Calculate DNL/INL ranges
             max_inl = np.max(INL)
@@ -107,7 +109,7 @@ def test_inl_from_sine():
             plt.xlim([0, expected_max])
 
             # Save figure
-            subdir_path = outputdir / name
+            subdir_path = output_dir / name
             subdir_path.mkdir(parents=True, exist_ok=True)
 
             output_filename_base = f'INL_{Resolution}b_{name}_python'
@@ -118,7 +120,7 @@ def test_inl_from_sine():
             plt.close(fig)
 
             # Print one-line progress
-            print(f'[{k}/{len(file_list)}] [test_INLSine] [INL={min_inl:.2f}to{max_inl:+.2f}LSB] from {current_filename}')
+            print(f'[{k}/{len(file_list)}] [test_INLSine] [DNL={min_dnl:.2f}, {max_dnl:+.2f}] LSB, [INL={min_inl:.2f}, {max_inl:+.2f}] LSB from [{current_filename}]')
 
     # Close any remaining figures
     plt.close('all')

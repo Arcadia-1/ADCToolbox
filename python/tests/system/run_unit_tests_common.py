@@ -23,7 +23,7 @@ def run_unit_tests_common():
     # List of unit tests to run
     unit_tests = [
         "test_alias.py",
-        "test_sineFit.py",
+        "test_sine_fit.py",
     ]
 
     # Base directory for unit tests

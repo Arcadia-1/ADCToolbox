@@ -1,5 +1,5 @@
 """
-test_sineFit.py - Unit test for sineFit function
+test_sine_fit.py - Unit test for sineFit function
 
 Tests the sine_fit function for sinewave fitting with proper MxN support.
 
@@ -16,13 +16,15 @@ from pathlib import Path
 
 from adctoolbox.common import sine_fit
 
+# Get project root directory (two levels up from python/tests/unit)
+project_root = Path(__file__).resolve().parents[3]
 
 def test_sineFit():
     """Test sineFit function on multiple datasets."""
 
-    # Configuration - assumes running from project root d:\ADCToolbox
-    input_dir = Path("test_data")
-    output_dir = Path("test_output")
+    # Configuration
+    input_dir = project_root / "dataset"
+    output_dir = project_root / "test_output"
 
     # Test datasets - leave empty to auto-search
     files_list = [
@@ -43,7 +45,7 @@ def test_sineFit():
     output_dir.mkdir(exist_ok=True)
 
     # Test Loop
-    print("=== test_sineFit.py ===")
+    print("=== test_sine_fit.py ===")
     print(f"Testing sine_fit function with {len(files_list)} datasets...\n")
 
     for k, current_filename in enumerate(files_list, 1):

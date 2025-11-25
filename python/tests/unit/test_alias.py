@@ -7,6 +7,7 @@ Generates txt file showing how Fin values alias into Nyquist bands.
 """
 
 import os
+from pathlib import Path
 
 from adctoolbox.common import alias
 
@@ -14,7 +15,9 @@ from adctoolbox.common import alias
 def generate_alias_report(Fs=1000, output_path=None):
     """Generate aliasing report for different input frequencies."""
     if output_path is None:
-        output_path = os.path.join('test_output', 'test_alias', 'alias_report.txt')
+        # Get project root (4 levels up from python/tests/unit/test_alias.py)
+        project_root = Path(__file__).resolve().parents[3]
+        output_path = project_root / 'test_output' / 'test_alias' / 'alias_report.txt'
     os.makedirs(os.path.dirname(output_path), exist_ok=True)
 
     lines = []

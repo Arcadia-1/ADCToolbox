@@ -9,20 +9,20 @@ Test Hierarchy:
         └── system/run_unit_tests_all.py
             ├── system/run_unit_tests_common.py
             │   ├── unit/test_alias.py
-            │   └── unit/test_sineFit.py
+            │   └── unit/test_sine_fit.py
             ├── system/run_unit_tests_aout.py
-            │   ├── unit/test_errAutoCorrelation.py
-            │   ├── unit/test_errEnvelopeSpectrum.py
-            │   ├── unit/test_errHistSine.py
-            │   ├── unit/test_errPDF.py
-            │   ├── unit/test_errSpectrum.py
-            │   ├── unit/test_INLSine.py
-            │   ├── unit/test_specPlot.py
-            │   ├── unit/test_specPlotPhase.py
-            │   └── unit/test_tomDecomp.py
+            │   ├── unit/test_err_auto_correlation.py
+            │   ├── unit/test_err_envelope_spectrum.py
+            │   ├── unit/test_err_hist_sine.py
+            │   ├── unit/test_err_pdf.py
+            │   ├── unit/test_err_spectrum.py
+            │   ├── unit/test_inl_sine.py
+            │   ├── unit/test_spec_plot.py
+            │   ├── unit/test_spec_plot_phase.py
+            │   └── unit/test_tom_decomp.py
             └── system/run_unit_tests_dout.py
-                ├── unit/test_FGCalSine.py
-                ├── unit/test_FGCalSine_overflowChk.py
+                ├── unit/test_fg_cal_sine.py
+                ├── unit/test_fg_cal_sine_overflow_chk.py
                 └── unit/test_cap2weight.py
 
 Configuration - assumes running from project root d:\ADCToolbox
@@ -45,7 +45,7 @@ import re
 # ============================================================================
 
 # Output report file
-REPORT_FILE = "test_output/TEST_REPORT.txt"
+REPORT_FILE = "../../test_output/TEST_REPORT.txt"
 
 
 # ============================================================================
@@ -131,20 +131,20 @@ def generate_report(result, total_time, metrics, report_path):
     report_lines.append("  └── system/run_unit_tests_all.py")
     report_lines.append("      ├── system/run_unit_tests_common.py")
     report_lines.append("      │   ├── unit/test_alias.py")
-    report_lines.append("      │   └── unit/test_sineFit.py")
+    report_lines.append("      │   └── unit/test_sine_fit.py")
     report_lines.append("      ├── system/run_unit_tests_aout.py")
-    report_lines.append("      │   ├── unit/test_errAutoCorrelation.py")
-    report_lines.append("      │   ├── unit/test_errEnvelopeSpectrum.py")
-    report_lines.append("      │   ├── unit/test_errHistSine.py")
-    report_lines.append("      │   ├── unit/test_errPDF.py")
-    report_lines.append("      │   ├── unit/test_errSpectrum.py")
-    report_lines.append("      │   ├── unit/test_INLSine.py")
-    report_lines.append("      │   ├── unit/test_specPlot.py")
-    report_lines.append("      │   ├── unit/test_specPlotPhase.py")
-    report_lines.append("      │   └── unit/test_tomDecomp.py")
+    report_lines.append("      │   ├── unit/test_err_auto_correlation.py")
+    report_lines.append("      │   ├── unit/test_err_envelope_spectrum.py")
+    report_lines.append("      │   ├── unit/test_err_hist_sine.py")
+    report_lines.append("      │   ├── unit/test_err_pdf.py")
+    report_lines.append("      │   ├── unit/test_err_spectrum.py")
+    report_lines.append("      │   ├── unit/test_inl_sine.py")
+    report_lines.append("      │   ├── unit/test_spec_plot.py")
+    report_lines.append("      │   ├── unit/test_spec_plot_phase.py")
+    report_lines.append("      │   └── unit/test_tom_decomp.py")
     report_lines.append("      └── system/run_unit_tests_dout.py")
-    report_lines.append("          ├── unit/test_FGCalSine.py")
-    report_lines.append("          ├── unit/test_FGCalSine_overflowChk.py")
+    report_lines.append("          ├── unit/test_fg_cal_sine.py")
+    report_lines.append("          ├── unit/test_fg_cal_sine_overflow_chk.py")
     report_lines.append("          └── unit/test_cap2weight.py")
     report_lines.append("")
 

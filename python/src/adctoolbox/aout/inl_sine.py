@@ -1,6 +1,6 @@
 import numpy as np
 
-def INLsine(data, clip=0.01):
+def inl_sine(data, clip=0.01):
     """
     Calculate ADC INL (Integral Nonlinearity) and DNL (Differential Nonlinearity) using sine histogram method
 

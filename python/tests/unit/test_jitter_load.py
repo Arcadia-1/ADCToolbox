@@ -12,15 +12,14 @@ import matplotlib.pyplot as plt
 from pathlib import Path
 
 from adctoolbox.common import sine_fit
-from adctoolbox.aout import spec_plot, errHistSine
+from adctoolbox.aout import spec_plot, err_hist_sine
 
 # Get project root directory
-project_root = Path(__file__).parent.parent.parent
-
+project_root = Path(__file__).resolve().parents[3]
 
 def main():
     """Main test function."""
-    input_dir = project_root / "test_data" / "jitter_sweep"
+    input_dir = project_root / "dataset" / "jitter_sweep"
     output_dir = project_root / "test_output" / "jitter_sweep"
 
     if not output_dir.exists():
@@ -38,8 +37,8 @@ def main():
 
     # Load metadata
     metadata_filepath = input_dir / 'jitter_sweep_metadata.csv'
-    metadata = pd.read_csv(metadata_filepath, header=None)
-    Tj_list = metadata.iloc[:, 1].values
+    metadata = pd.read_csv(metadata_filepath)  # Read with header
+    Tj_list = metadata['Tj_seconds'].values  # Use column name
 
     # Load frequency list
     freq_metadata_filepath = input_dir / 'frequency_list.csv'
@@ -85,7 +84,7 @@ def main():
             actual_Fin[i_tj] = Fin_fit
 
             # Error histogram analysis
-            emean, erms, phase_code, anoi, pnoi, err, xx = errHistSine(
+            emean, erms, phase_code, anoi, pnoi, err, xx = err_hist_sine(
                 read_data, bin=99, fin=f_norm, disp=0
             )
             pnoi_array[i_tj] = pnoi
@@ -140,7 +139,7 @@ def main():
         # Combine legends
         lines1, labels1 = ax1.get_legend_handles_labels()
         lines2, labels2 = ax2.get_legend_handles_labels()
-        ax1.legend(lines1 + lines2, labels1 + labels2, loc='southeast', fontsize=16)
+        ax1.legend(lines1 + lines2, labels1 + labels2, loc='lower right', fontsize=16)
 
         output_filename = f'jitter_analysis_Fin_{round(Fin_nominal/1e6)}MHz_python.png'
         output_filepath = output_dir / output_filename

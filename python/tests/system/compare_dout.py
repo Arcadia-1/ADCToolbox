@@ -38,8 +38,11 @@ def compare_dout():
     print(f"[Test types] {', '.join(test_types)}")
     print()
 
-    # Create comparator
-    comparator = CSVComparator(test_output_dir='test_output')
+    # Create comparator (use absolute path from this file's location)
+    script_dir = Path(__file__).resolve().parent  # python/tests/system
+    project_root = script_dir.parent.parent.parent  # d:\ADCToolbox
+    test_output_dir = project_root / 'test_output'
+    comparator = CSVComparator(test_output_dir=str(test_output_dir))
 
     # Find all pairs
     all_pairs = comparator.find_csv_pairs()
@@ -48,8 +51,10 @@ def compare_dout():
     dout_pairs = [p for p in all_pairs if p['test_type'] in test_types]
 
     if not dout_pairs:
-        print("[No CSV pairs found for dout package]")
-        return True
+        print("[WARNING] No CSV pairs found for dout package")
+        print("[INFO] MATLAB reference files (*_matlab.csv) not found")
+        print("[INFO] Run MATLAB tests first to generate reference outputs")
+        return None  # Return None to indicate no data to compare
 
     print(f"[Found] {len(dout_pairs)} CSV pairs in dout package")
     print()
@@ -79,7 +84,7 @@ def compare_dout():
     results_df = pd.DataFrame(results)
 
     # Save results
-    output_path = Path('test_output/comparison_dout.csv')
+    output_path = test_output_dir / 'comparison_dout.csv'
     output_path.parent.mkdir(parents=True, exist_ok=True)
     results_df.to_csv(output_path, index=False)
 

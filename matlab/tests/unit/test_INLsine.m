@@ -10,11 +10,7 @@
 close all; clc; clear;
 
 %% Configuration
-addpath('matlab/aout');
-addpath('matlab/common');
-addpath('matlab/test/unit');
-
-inputDir = "test_data";
+inputDir = "dataset";
 outputDir = "test_output";
 
 % Test datasets - leave empty to auto-search
@@ -96,7 +92,7 @@ for k = 1:length(filesList)
     metricsPath = fullfile(subFolder, 'metrics_matlab.csv');
     writetable(metricsTable, metricsPath);
     fprintf('  [Saved] %s\n', metricsPath);
-    fprintf('  [Results] DNL: [%.4f, %.4f], INL: [%.4f, %.4f] LSB\n\n', ...
+    fprintf('  [Results] DNL: [%.2f, %.2f], INL: [%.2f, %.2f] LSB\n\n', ...
         min_DNL, max_DNL, min_INL, max_INL);
 end
 

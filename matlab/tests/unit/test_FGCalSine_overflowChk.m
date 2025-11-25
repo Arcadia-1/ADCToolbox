@@ -4,16 +4,13 @@
 % Output structure:
 %   test_output/<data_set_name>/test_overflowChk/
 %       overflowChk_matlab.png  - overflow check plot
+%       data_decom_matlab.csv   - decomposed residue data (N samples x M bits)
 
 close all; clc; clear;
 warning("off");
 
 %% Configuration
-addpath('matlab/dout');
-addpath('matlab/common');
-addpath('matlab/test/unit');
-
-inputDir = "test_data";
+inputDir = "dataset";
 outputDir = "test_output";
 
 % Test datasets - leave empty to auto-search
@@ -55,14 +52,23 @@ for k = 1:length(filesList)
 
     %% Run overflowChk
     figure('Visible', 'off');
-    overflowChk(read_data, weights_cal);
+    data_decom = overflowChk(read_data, weights_cal);
     title(titleString);
 
     % Save plot
     plotPath = fullfile(subFolder, 'overflowChk_matlab.png');
     saveas(gcf, plotPath);
-    fprintf('  [Saved] %s\n\n', plotPath);
+    fprintf('  [Saved] %s\n', plotPath);
     close(gcf);
+
+    % Save data_decom to CSV
+    [N, M] = size(data_decom);
+    % Create column names: bit_M, bit_M-1, ..., bit_1, bit_0
+    varNames = arrayfun(@(x) sprintf('bit_%d', x), M-1:-1:0, 'UniformOutput', false);
+    dataDecomTable = array2table(data_decom, 'VariableNames', varNames);
+    dataDecomPath = fullfile(subFolder, 'data_decom_matlab.csv');
+    writetable(dataDecomTable, dataDecomPath);
+    fprintf('  [Saved] %s\n\n', dataDecomPath);
 end
 
 fprintf('[test_FGCalSine_overflowChk COMPLETE]\n');

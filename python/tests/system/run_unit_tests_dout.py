@@ -23,8 +23,8 @@ def run_unit_tests_dout():
 
     # List of unit tests to run
     unit_tests = [
-        "test_FGCalSine.py",
-        "test_FGCalSine_overflowChk.py",
+        "test_fg_cal_sine.py",
+        "test_fg_cal_sine_overflow_chk.py",
         "test_cap2weight.py",
     ]
 

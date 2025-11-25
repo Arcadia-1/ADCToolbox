@@ -1,17 +1,15 @@
-%% test_errEnvelopeSpectrum.m - Unit test for errEnvelopeSpectrum function
-% Tests the errEnvelopeSpectrum function with sinewave error data
+%% test_errSpectrum.m - Unit test for error spectrum analysis
+% Tests spectrum analysis of sinewave error data using specPlot
 %
 % Output structure:
-%   test_output/<data_set_name>/test_errEnvelopeSpectrum/
-%       errEnvelopeSpectrum_matlab.png
+%   test_output/<data_set_name>/test_errSpectrum/
+%       errSpectrum_matlab.png      - Error spectrum plot
+%       spectrum_data_matlab.csv    - Spectrum data
 
 close all; clc; clear;
 
 %% Configuration
-addpath('matlab/aout');
-addpath('matlab/common');
-
-inputDir = "test_data";
+inputDir = "dataset";
 outputDir = "test_output";
 
 % Test datasets - leave empty to auto-search
@@ -48,17 +46,17 @@ for k = 1:length(filesList)
         mkdir(subFolder);
     end
 
-    %% Run errEnvelopeSpectrum
+    %% Run error spectrum analysis
     figure('Visible', 'off');
     [data_fit, freq_est, mag, dc, phi] = sineFit(read_data);
     err_data = read_data - data_fit;
-    specPlot(err_data, "label", 0);
+    [~, ~, ~, ~, ~, ~, ~, h] = specPlot(err_data, "label", 0);
     title(['errSpectrum: ', titleString]);
 
     % Save plot
     plotPath = fullfile(subFolder, 'errSpectrum_matlab.png');
     saveas(gcf, plotPath);
-    fprintf('  [Saved] %s\n\n', plotPath);
+    fprintf('  [Saved] %s\n', plotPath);
     close(gcf);
 end
 

@@ -118,6 +118,10 @@ dmypy.json
 # All test output files
 test_output/
 
+# Symlinks to shared test directories (don't track the links themselves)
+python/test_data
+python/test_output
+
 # =============================================================================
 # IDE and Editors
 # =============================================================================

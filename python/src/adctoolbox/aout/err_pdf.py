@@ -2,7 +2,7 @@ import numpy as np
 import matplotlib.pyplot as plt
 
 
-def errPDF(err_data, Resolution=12, FullScale=1):
+def err_pdf(err_data, Resolution=12, FullScale=1):
     """
     Compute error probability density function using Kernel Density Estimation (KDE).
 

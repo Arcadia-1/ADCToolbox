@@ -11,11 +11,7 @@
 close all; clc; clear; warning("off")
 
 %% Configuration
-addpath('matlab/aout');
-addpath('matlab/common');
-addpath('matlab/test/unit');
-
-inputDir = "test_data";
+inputDir = "dataset";
 outputDir = "test_output";
 
 % Test datasets - leave empty to auto-search

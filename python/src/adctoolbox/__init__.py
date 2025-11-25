@@ -7,7 +7,7 @@ calibration algorithms, and more.
 
 Submodules:
 -----------
-- common: Common utility functions (alias, findBin, findFin, sineFit, etc.)
+- common: Common utility functions (alias, find_bin, find_fin, sine_fit, etc.)
 - aout: Analog output / time-domain analysis (spectrum, error analysis, etc.)
 - dout: Digital output / code-level analysis (calibration, overflow detection, etc.)
 - oversampling: Oversampling and noise transfer function tools
@@ -18,7 +18,7 @@ Usage:
 ------
 >>> from adctoolbox.aout import spec_plot
 >>> from adctoolbox.common import sine_fit
->>> from adctoolbox.dout import FGCalSine
+>>> from adctoolbox.dout import fg_cal_sine
 """
 
 __version__ = '0.1.0'

@@ -1,4 +1,4 @@
-function [h] = specPlotPhase(data,varargin)
+function [h, spec, phi, bin] = specPlotPhase(data,varargin)
 
 p = inputParser;
 validScalarPosNum = @(x) isnumeric(x) && isscalar(x) && (x > 0);

@@ -3,7 +3,7 @@ import numpy as np
 import matplotlib.pyplot as plt
 from scipy import signal
 
-def NTFAnalyzer(NTF, Flow, Fhigh, isPlot=None):
+def ntf_analyzer(NTF, Flow, Fhigh, isPlot=None):
     """
     Analyze the performance of NTF (Noise Transfer Function)
     
