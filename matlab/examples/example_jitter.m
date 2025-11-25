@@ -1,9 +1,9 @@
 close all ; clear; clc; warning("off")
 
 %% constants
-N = 2^14;
-Fs = 10e9;
-J = findBin(Fs, 200e6, N);
+N = 2^12;
+Fs = 1e9;
+J = findBin(Fs, 10000e6, N);
 Fin = J/N * Fs;
 
 A = 0.49;
@@ -58,7 +58,7 @@ for i = 1:length(Tj_list)
 end
 
 %% compute average of N_random runs
-avg_meas_jitter_new = mean(meas_jitter_new, 2);
+meas_jitter = mean(meas_jitter_new, 2);
 avg_meas_SNDR = mean(meas_SNDR, 2);
 
 figure;
@@ -66,8 +66,7 @@ figure;
 %% left axis: jitter
 yyaxis left
 loglog(Tj_list, Tj_list, 'k--', 'LineWidth', 1.5, "DisplayName","set jitter"); hold on;
-loglog(Tj_list, avg_meas_jitter_new, 'bs-', 'LineWidth', 2, 'MarkerSize', 8, "DisplayName","Calculated jitter");
-
+loglog(Tj_list, meas_jitter, 'bo', 'MarkerSize', 8, 'MarkerFaceColor', 'b', "DisplayName", "Calculated jitter");
 ylabel("Calculated jitter (s)", "FontSize", 18);
 
 %% right axis: SNDR
@@ -86,16 +85,3 @@ legend("Location", "southeast", "FontSize", 16);
 grid on;
 set(gca, "FontSize", 16);
 
-
-%%
-
-outputdir = "ADCToolbox_example_output";
-subdir_path = fullfile(outputdir, "jitter_sweep");
-if ~exist(subdir_path, 'dir')
-    mkdir(subdir_path);
-end
-output_filename_base = sprintf('jitter_sweep_Fin_%dMHz_matlab.png', round(Fin/1e6));
-output_filepath = fullfile(subdir_path, output_filename_base);
-
-saveas(gcf, output_filepath);
-fprintf('[Saved image] -> [%s]\n\n', output_filepath);

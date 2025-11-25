@@ -1,6 +1,6 @@
 close all; clc; clear;
 
-data = readmatrix(fullfile("ADCToolbox_example_data","sinewave_glitch_0P100.csv"));
+data = readmatrix(fullfile("test_data","sinewave_noise_10mV.csv"));
 
 [data_fit, freq_est, mag, dc, phi] = sineFit(data);
 err_data = data - data_fit;
