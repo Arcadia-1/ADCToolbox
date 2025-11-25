@@ -1,7 +1,7 @@
-from .sineFit import sine_fit
+from .sine_fit import sine_fit
 
 
-def findFin(data, Fs=1):
+def find_fin(data, Fs=1):
     """
     Find the fundamental frequency of the given signal.
 

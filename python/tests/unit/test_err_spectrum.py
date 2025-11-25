@@ -1,4 +1,4 @@
-"""test_errSpectrum.py - Unit test for error spectrum analysis
+"""test_err_spectrum.py - Unit test for error spectrum analysis
 
 Tests error spectrum plotting with sinewave error data.
 
@@ -16,13 +16,12 @@ from pathlib import Path
 from adctoolbox.common import sine_fit
 from adctoolbox.aout import spec_plot
 
-# Get project root directory
-project_root = Path(__file__).parent.parent.parent
-
+# Get project root directory (two levels up from python/tests/unit)
+project_root = Path(__file__).resolve().parents[3]
 
 def main():
     """Main test function."""
-    input_dir = project_root / "test_data"
+    input_dir = project_root / "dataset"
     output_dir = project_root / "test_output"
 
     # Test datasets - leave empty to auto-search

@@ -11,7 +11,7 @@ import numpy as np
 import matplotlib.pyplot as plt
 
 
-def overflowChk(raw_code, weight, OFB=None):
+def overflow_chk(raw_code, weight, OFB=None):
     """
     Analyze residue distribution at each bit position (matching MATLAB exactly).
 

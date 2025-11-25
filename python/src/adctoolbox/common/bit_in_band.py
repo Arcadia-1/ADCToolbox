@@ -2,7 +2,7 @@
 import numpy as np
 from .alias import alias
 
-def bitInBand(din, bands):
+def bit_in_band(din, bands):
     """
     Extract signal components within specified frequency bands
     

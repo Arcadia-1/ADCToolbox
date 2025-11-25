@@ -4,7 +4,7 @@ from scipy.signal import hilbert
 from .spec_plot import spec_plot
 
 
-def errEnvelopeSpectrum(err_data, Fs=1):
+def err_envelope_spectrum(err_data, Fs=1):
     """
     Compute envelope spectrum using Hilbert transform.
 

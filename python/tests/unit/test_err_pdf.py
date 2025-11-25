@@ -1,4 +1,4 @@
-"""test_errPDF.py - Unit test for errPDF function
+"""test_err_pdf.py - Unit test for errPDF function
 
 Tests the errPDF function with sinewave error data.
 
@@ -17,15 +17,14 @@ import matplotlib.pyplot as plt
 from pathlib import Path
 
 from adctoolbox.common import sine_fit
-from adctoolbox.aout import errPDF
+from adctoolbox.aout import err_pdf
 
-# Get project root directory
-project_root = Path(__file__).parent.parent.parent
-
+# Get project root directory (two levels up from python/tests/unit)
+project_root = Path(__file__).resolve().parents[3]
 
 def main():
     """Main test function."""
-    input_dir = project_root / "test_data"
+    input_dir = project_root / "dataset"
     output_dir = project_root / "test_output"
 
     # Test datasets - leave empty to auto-search
@@ -69,7 +68,7 @@ def main():
 
         # Run errPDF
         plt.figure(figsize=(12, 8))
-        noise_lsb, mu, sigma, KL_divergence, x, fx, gauss_pdf = errPDF(
+        noise_lsb, mu, sigma, KL_divergence, x, fx, gauss_pdf = err_pdf(
             err_data,
             Resolution=12,
             FullScale=np.max(read_data) - np.min(read_data)

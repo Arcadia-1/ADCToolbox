@@ -8,7 +8,7 @@ import numpy as np
 import matplotlib.pyplot as plt
 
 
-def errHistSine(data, bin=100, fin=0, disp=1, mode=0, erange=None):
+def err_hist_sine(data, bin=100, fin=0, disp=1, mode=0, erange=None):
     """
     Error histogram analysis - matches MATLAB errHistSine.m exactly.
 
@@ -35,7 +35,7 @@ def errHistSine(data, bin=100, fin=0, disp=1, mode=0, erange=None):
     N = len(data)
 
     # Sine fit to get ideal signal and error
-    from ..common.sineFit import sine_fit
+    from ..common.sine_fit import sine_fit
     if fin == 0:
         data_fit, fin, mag, dc, phi = sine_fit(data)
     else:

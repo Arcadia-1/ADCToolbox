@@ -1,4 +1,4 @@
-"""test_tomDecomp.py - Unit test for tomDecomp function
+"""test_tom_decomp.py - Unit test for tomDecomp function
 
 Tests the Thompson Decomposition function with sinewave datasets.
 
@@ -16,16 +16,16 @@ matplotlib.use('Agg')  # Non-interactive backend
 import matplotlib.pyplot as plt
 from pathlib import Path
 
-from adctoolbox.common import findFin
-from adctoolbox.aout import tomDecomp
+from adctoolbox.common import find_fin
+from adctoolbox.aout import tom_decomp
 
 # Get project root directory
-project_root = Path(__file__).parent.parent.parent
+project_root = Path(__file__).resolve().parents[3]
 
 
 def main():
     """Main test function."""
-    input_dir = project_root / "test_data"
+    input_dir = project_root / "dataset"
     output_dir = project_root / "test_output"
 
     # Test datasets - leave empty to auto-search
@@ -64,10 +64,10 @@ def main():
         sub_folder.mkdir(parents=True, exist_ok=True)
 
         # Find input frequency
-        re_fin = findFin(read_data)
+        re_fin = find_fin(read_data)
 
         # Run tomDecomp
-        signal, error, indep, dep, phi = tomDecomp(read_data, re_fin, 10, 1)
+        signal, error, indep, dep, phi = tom_decomp(read_data, re_fin, 10, 1)
 
         # Current figure is the decomposition plot
         plt.gcf().suptitle(f'tomDecomp: {dataset_name}')

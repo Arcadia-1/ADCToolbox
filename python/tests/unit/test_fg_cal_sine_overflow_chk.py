@@ -1,10 +1,10 @@
-"""test_FGCalSine_overflowChk.py - Unit test for overflowChk function
+"""test_fg_cal_sine_overflow_chk.py - Unit test for overflow_chk function
 
-Tests the overflowChk function with SAR ADC digital output data.
+Tests the overflow_chk function with SAR ADC digital output data.
 
 Output structure:
-    test_output/<data_set_name>/test_overflowChk/
-        overflowChk_python.png  - overflow check plot
+    test_output/<data_set_name>/test_overflow_chk/
+        overflow_chk_python.png  - overflow check plot
 
 Configuration - assumes running from project root d:\ADCToolbox
 """
@@ -16,20 +16,23 @@ import sys
 from pathlib import Path
 from glob import glob
 
-from adctoolbox.dout import FGCalSine, overflowChk
+from adctoolbox.dout import fg_cal_sine, overflow_chk
 
+
+# Get project root directory (two levels up from python/tests/unit)
+project_root = Path(__file__).resolve().parents[3]
 
 def test_fgcalsine_overflowchk():
-    """Test FGCalSine and overflowChk with SAR ADC data."""
+    """Test FGCalSine and overflow_chk with SAR ADC data."""
 
-    print('=== test_FGCalSine_overflowChk.py ===')
+    print('=== test_fg_cal_sine_overflow_chk.py ===')
 
     # Suppress warnings for cleaner output
     warnings.filterwarnings('ignore')
 
     # Configuration
-    input_dir = Path("test_data")
-    output_dir = Path("test_output")
+    input_dir = project_root / "dataset"
+    output_dir = project_root / "test_output"
 
     # Auto-search for dout_SAR_*.csv files
     file_pattern = str(input_dir / "dout_SAR_*.csv")
@@ -61,20 +64,20 @@ def test_fgcalsine_overflowchk():
             title_string = dataset_name  # Keep underscores as-is in Python
 
             # Create output subfolder
-            sub_folder = output_dir / dataset_name / 'test_overflowChk'
+            sub_folder = output_dir / dataset_name / 'test_overflow_chk'
             sub_folder.mkdir(parents=True, exist_ok=True)
 
             # Run FGCalSine to get calibrated weights
-            weights_cal = FGCalSine(read_data)[0]  # Only need weights
+            weights_cal = fg_cal_sine(read_data)[0]  # Only need weights
 
-            # Run overflowChk
+            # Run overflow_chk
             fig = plt.figure(figsize=(10, 6))
             plt.ioff()  # Turn off interactive mode
-            overflowChk(read_data, weights_cal)
+            overflow_chk(read_data, weights_cal)
             plt.title(title_string)
 
             # Save plot
-            plot_path = sub_folder / 'overflowChk_python.png'
+            plot_path = sub_folder / 'overflow_chk_python.png'
             plt.savefig(plot_path, dpi=150, bbox_inches='tight')
             print(f'  [Saved] {plot_path}\n')
             plt.close(fig)
@@ -94,7 +97,7 @@ def test_fgcalsine_overflowchk():
     # Close any remaining figures
     plt.close('all')
 
-    print(f'[test_FGCalSine_overflowChk COMPLETE] {success_count}/{len(files_list)} passed')
+    print(f'[test_FGCalSine_overflow_chk COMPLETE] {success_count}/{len(files_list)} passed')
     return success_count == len(files_list)
 
 

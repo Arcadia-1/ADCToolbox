@@ -1,4 +1,4 @@
-"""test_FGCalSine.py - Unit test for FGCalSine function
+"""test_fg_cal_sine.py - Unit test for FGCalSine function
 
 Tests the FGCalSine foreground calibration function with SAR/Pipeline digital code data.
 
@@ -20,17 +20,19 @@ import sys
 from pathlib import Path
 from glob import glob
 
-from adctoolbox.dout import FGCalSine
+from adctoolbox.dout import fg_cal_sine
 
+# Get project root directory (two levels up from python/tests/unit)
+project_root = Path(__file__).resolve().parents[3]
 
 def run_fgcal_tests():
     """Test FGCalSine function on digital code datasets."""
 
-    print('=== test_FGCalSine.py ===')
+    print('=== test_fg_cal_sine.py ===')
 
     # Configuration
-    input_dir = Path("test_data")
-    output_dir = Path("test_output")
+    input_dir = project_root / "dataset"
+    output_dir = project_root / "test_output"
 
     # Auto-search for dout_*.csv files
     file_pattern = str(input_dir / "dout_*.csv")
@@ -65,7 +67,7 @@ def run_fgcal_tests():
             sub_folder.mkdir(parents=True, exist_ok=True)
 
             # Run FGCalSine
-            weight, offset, postCal, ideal, err, freqCal = FGCalSine(
+            weight, offset, postCal, ideal, err, freqCal = fg_cal_sine(
                 read_data,
                 freq=0,
                 order=5

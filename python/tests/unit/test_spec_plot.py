@@ -1,4 +1,4 @@
-"""test_specPlot.py - Unit test for spec_plot function
+"""test_spec_plot.py - Unit test for spec_plot function
 
 Tests the spec_plot function with various sinewave datasets.
 
@@ -15,13 +15,13 @@ from pathlib import Path
 
 from adctoolbox.aout import spec_plot
 
-# Get project root directory
-project_root = Path(__file__).parent.parent.parent
+# Get project root directory (two levels up from python/tests/unit)
+project_root = Path(__file__).resolve().parents[3]
 
 
 def main():
     """Main test function."""
-    input_dir = project_root / "test_data"
+    input_dir = project_root / "dataset"
     output_dir = project_root / "test_output"
 
     # Test datasets - leave empty to auto-search

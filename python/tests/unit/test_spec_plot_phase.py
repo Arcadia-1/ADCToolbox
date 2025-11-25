@@ -1,4 +1,4 @@
-"""test_specPlotPhase.py - Unit test for spec_plot_phase function
+"""test_spec_plot_phase.py - Unit test for spec_plot_phase function
 
 Tests the spec_plot_phase function with various sinewave datasets.
 
@@ -16,12 +16,12 @@ from pathlib import Path
 from adctoolbox.aout import spec_plot_phase
 
 # Get project root directory
-project_root = Path(__file__).parent.parent.parent
+project_root = Path(__file__).resolve().parents[3]
 
 
 def main():
     """Main test function."""
-    input_dir = project_root / "test_data"
+    input_dir = project_root / "dataset"
     output_dir = project_root / "test_output"
 
     # Test datasets - leave empty to auto-search
@@ -92,7 +92,7 @@ def main():
         # Print one-line progress
         print(f"[{k}/{len(files_list)}] [test_specPlotPhase] [Fund={fund_mag_dB:.1f}dB] from {current_filename}")
 
-    print("test_specPlotPhase.py complete.")
+    print("test_spec_plot_phase.py complete.")
 
     # Close any remaining figures
     plt.close('all')

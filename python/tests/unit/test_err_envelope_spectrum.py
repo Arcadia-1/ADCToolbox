@@ -1,4 +1,4 @@
-"""test_errEnvelopeSpectrum.py - Unit test for errEnvelopeSpectrum function
+"""test_err_envelope_spectrum.py - Unit test for errEnvelopeSpectrum function
 
 Tests the errEnvelopeSpectrum function with sinewave error data.
 
@@ -14,15 +14,16 @@ import matplotlib.pyplot as plt
 from pathlib import Path
 
 from adctoolbox.common import sine_fit
-from adctoolbox.aout import errEnvelopeSpectrum
+from adctoolbox.aout import err_envelope_spectrum
 
-# Get project root directory
-project_root = Path(__file__).parent.parent.parent
+
+# Get project root directory (two levels up from python/tests/unit)
+project_root = Path(__file__).resolve().parents[3]
 
 
 def main():
     """Main test function."""
-    input_dir = project_root / "test_data"
+    input_dir = project_root / "dataset"
     output_dir = project_root / "test_output"
 
     # Test datasets - leave empty to auto-search
@@ -66,7 +67,7 @@ def main():
 
         # Run errEnvelopeSpectrum
         plt.figure(figsize=(12, 8))
-        errEnvelopeSpectrum(err_data, Fs=1)
+        err_envelope_spectrum(err_data, Fs=1)
         plt.title(f'errEnvelopeSpectrum: {dataset_name}')
 
         # Save plot
