@@ -1,6 +1,6 @@
 # ADCToolbox
 
-ADC Toolbox for signal analysis and processing.
+Toolbox for ADC data analysis and processing.
 
 ## Structure
 
@@ -19,9 +19,9 @@ See `matlab/README.md` for MATLAB toolbox usage.
 
 ### Python
 
-Python implementation is under development.
+Python version to be merged
 
 ## License
 
-[Add your license information here]
+
 
