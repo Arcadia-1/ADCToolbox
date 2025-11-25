@@ -1,4 +1,4 @@
-"""test_errHistSine.py - Unit test for errHistSine function
+"""test_err_hist_sine.py - Unit test for errHistSine function
 
 Tests the errHistSine function with sinewave datasets.
 
@@ -18,15 +18,14 @@ import matplotlib.pyplot as plt
 from pathlib import Path
 
 from adctoolbox.common import sine_fit
-from adctoolbox.aout import errHistSine
+from adctoolbox.aout import err_hist_sine
 
-# Get project root directory
-project_root = Path(__file__).parent.parent.parent
-
+# Get project root directory (two levels up from python/tests/unit)
+project_root = Path(__file__).resolve().parents[3]
 
 def main():
     """Main test function."""
-    input_dir = project_root / "test_data"
+    input_dir = project_root / "dataset"
     output_dir = project_root / "test_output"
 
     # Test datasets - leave empty to auto-search
@@ -68,7 +67,7 @@ def main():
         data_fit, freq, mag, dc, phi = sine_fit(read_data)
 
         # Run errHistSine - Phase mode (mode=0)
-        emean, erms, phase_code, anoi, pnoi, err, xx = errHistSine(
+        emean, erms, phase_code, anoi, pnoi, err, xx = err_hist_sine(
             read_data, bin=360, fin=freq, disp=1, mode=0
         )
 
@@ -98,7 +97,7 @@ def main():
         hist_df.to_csv(hist_path, index=False)
 
         # Run errHistSine - Code mode (mode=1)
-        emean_code, erms_code, code_axis, _, _, _, _ = errHistSine(
+        emean_code, erms_code, code_axis, _, _, _, _ = err_hist_sine(
             read_data, bin=256, fin=freq, disp=1, mode=1
         )
 

@@ -4,7 +4,7 @@ import warnings
 
 # Verified
 
-def FGCalSine(bits, freq=0, rate=0.5, reltol=1e-12, niter=100, order=1, fsearch=0, nomWeight=None):
+def fg_cal_sine(bits, freq=0, rate=0.5, reltol=1e-12, niter=100, order=1, fsearch=0, nomWeight=None):
     """
     FGCalSine — Foreground calibration using a sinewave input
     
@@ -347,7 +347,7 @@ def FGCalSine(bits, freq=0, rate=0.5, reltol=1e-12, niter=100, order=1, fsearch=
             print(f'Freq coarse searching ({i1+1}/5):', end='')
             # Weighted sum of first i1+1 columns
             weighted_sum = bits_patch[:, :i1+1] @ nomWeight[:i1+1]
-            freq_est = findFin(weighted_sum)
+            freq_est = find_fin(weighted_sum)
             freq_estimates.append(freq_est)
             print(f' freq = {freq_est}')
         
@@ -468,7 +468,7 @@ def FGCalSine(bits, freq=0, rate=0.5, reltol=1e-12, niter=100, order=1, fsearch=
     return weight, offset, postCal, ideal, err, freqCal
 
 
-def findFin(signal):
+def find_fin(signal):
     """
     Helper function to estimate normalized frequency Fin/Fs from a signal.
     Uses FFT to find the dominant frequency component.

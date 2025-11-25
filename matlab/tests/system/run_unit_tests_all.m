@@ -1,5 +1,5 @@
-run_unit_tests_common.m
+run_unit_tests_common
 
-run_unit_tests_aout.m
+run_unit_tests_aout
 
-run_unit_tests_dout.m
+run_unit_tests_dout

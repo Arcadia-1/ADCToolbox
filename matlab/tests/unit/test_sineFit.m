@@ -2,14 +2,13 @@
 % Output: test_output/<dataset>/test_sineFit/{metrics,fit_data}_matlab.csv
 
 close all; clc; clear;
-addpath('matlab/aout', 'matlab/common', 'matlab/test/unit');
 
-inputDir = "test_data";
+inputDir = "dataset";
 outputDir = "test_output";
 
 % Test datasets - leave empty to auto-search
 filesList = {
-    "sinewave_jitter_1000fs.csv"
+    % "sinewave_jitter_1000fs.csv"
 };
 filesList = autoSearchFiles(filesList, inputDir, 'sinewave_*.csv');
 

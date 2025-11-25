@@ -53,12 +53,12 @@ def main():
     unit_tests = [
         "tests.unit.test_alias",
         "tests.unit.test_cap2weight",
-        "tests.unit.test_sineFit",
-        "tests.unit.test_specPlot",
-        "tests.unit.test_specPlotPhase",
-        "tests.unit.test_INLSine",
-        "tests.unit.test_FGCalSine",
-        "tests.unit.test_FGCalSine_overflowChk",
+        "tests.unit.test_sine_fit",
+        "tests.unit.test_spec_plot",
+        "tests.unit.test_spec_plot_phase",
+        "tests.unit.test_inl_sine",
+        "tests.unit.test_fg_cal_sine",
+        "tests.unit.test_fg_cal_sine_overflow_chk",
         "tests.unit.compare_sineFit_results",
     ]
 
