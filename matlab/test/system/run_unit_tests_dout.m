@@ -1,2 +1,0 @@
-test_FGCalSine
-test_FGCalSine_overflowChk

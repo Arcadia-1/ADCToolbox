@@ -12,7 +12,13 @@
       "Bash(fi)",
       "Bash(done)",
       "Bash(xargs:*)",
-      "Bash(tree:*)"
+      "Bash(tree:*)",
+      "Bash(cat:*)",
+      "Bash(find:*)",
+      "Bash(dir:*)",
+      "Bash(git grep:*)",
+      "Bash(cd:*)",
+      "WebFetch(domain:github.com)"
     ],
     "deny": [],
     "ask": []

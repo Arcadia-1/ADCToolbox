@@ -172,3 +172,9 @@ MIGRATION_SUMMARY.md
 PYTHON_MIGRATION_TODO.md
 JITTER_DETECTION_FIX_SUMMARY.md
 todo.txt
+
+# =============================================================================
+# Claude Playground (temporary test scripts and experiments)
+# =============================================================================
+
+claude_playground/
