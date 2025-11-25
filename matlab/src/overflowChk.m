@@ -1,14 +1,15 @@
-function overflowChk(raw_code,weight,OFB)
+function data_decom = overflowChk(raw_code,weight,OFB)
 
-if(nargin < 2)
-    OFB = 1;
-end
 
 [N,M] = size(raw_code);
 
 data_decom = zeros([N,M]);
 range_min = zeros([1,M]);
 range_max = zeros([1,M]);
+
+if(nargin <= 2)
+    OFB = M;
+end
 
 for ii = 1:M
     tmp = raw_code(:,ii:end)*weight(ii:end)';

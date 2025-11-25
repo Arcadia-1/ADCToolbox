@@ -30,16 +30,16 @@ def run_unit_tests_aout():
 
     # List of unit tests to run (in alphabetical order)
     unit_tests = [
-        "test_errAutoCorrelation.py",
-        "test_errEnvelopeSpectrum.py",
-        "test_errHistSine.py",
-        "test_errPDF.py",
-        "test_errSpectrum.py",
-        "test_INLSine.py",
+        "test_err_auto_correlation.py",
+        "test_err_envelope_spectrum.py",
+        "test_err_hist_sine.py",
+        "test_err_pdf.py",
+        "test_err_spectrum.py",
+        "test_inl_sine.py",
         "test_jitter_load.py",
-        "test_specPlot.py",
-        "test_specPlotPhase.py",
-        "test_tomDecomp.py",
+        "test_spec_plot.py",
+        "test_spec_plot_phase.py",
+        "test_tom_decomp.py",
     ]
 
     # Base directory for unit tests

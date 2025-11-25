@@ -15,7 +15,7 @@ Fin_list = [400e6, 900e6, 9000e6];
 Tj_list = logspace(-15, -12, 30);
 
 %% Output directory
-outputdir = fullfile('test_data', 'jitter_sweep');
+outputdir = fullfile('dataset', 'jitter_sweep');
 if ~exist(outputdir, 'dir')
     mkdir(outputdir);
 end

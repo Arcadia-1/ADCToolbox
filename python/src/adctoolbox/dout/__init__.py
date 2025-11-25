@@ -1,13 +1,13 @@
 """Digital output (code-level) analysis and calibration tools."""
 
-from .FGCalSine import FGCalSine
-from .FGCalSineOS import fg_cal_sine_os
-from .FGCalSine_2freq import fg_cal_sine_2freq
-from .overflowChk import overflowChk
+from .fg_cal_sine import fg_cal_sine
+from .fg_cal_sine_os import fg_cal_sine_os
+from .fg_cal_sine_2freq import fg_cal_sine_2freq
+from .overflow_chk import overflow_chk
 
 __all__ = [
-    'FGCalSine',
+    'fg_cal_sine',
     'fg_cal_sine_os',
     'fg_cal_sine_2freq',
-    'overflowChk',
+    'overflow_chk',
 ]

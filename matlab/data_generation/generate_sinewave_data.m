@@ -1,11 +1,19 @@
 close all ; clear; clc; warning("off")
 rng(42); % set random seed for reproducibility
+
+data_dir = "dataset";
+if ~exist(data_dir, 'dir')
+    mkdir(data_dir);
+    fprintf("Created output directory: [%s]\n", data_dir);
+end
+
 %% Sinewave with jitter
-Tj_list = logspace(-15, -12, 2); % jitter values (in s) to sweep
+% Tj_list = logspace(-15, -12, 2); % jitter values (in s) to sweep
+Tj_list = 1e-12;
 
 N = 2^13;
-Fs = 10e9;
-J = findBin(Fs, 1000e6, N);
+Fs = 1e9;
+J = findBin(Fs, 300e6, N);
 Fin = J / N * Fs;
 
 ideal_phase = 2 * pi * Fin * (0:N - 1) * 1 / Fs; % ideal phase
@@ -18,7 +26,7 @@ for k = 1:length(Tj_list)
 
     data = sin(ideal_phase+phase_jitter) * 0.49 + 0.5 + randn(1, N) * 1e-6; % jittered signal
 
-    filename = fullfile("test_data", sprintf("sinewave_jitter_%dfs.csv", round(Tj*1e15)));
+    filename = fullfile(data_dir, sprintf("sinewave_jitter_%dfs.csv", round(Tj*1e15)));
     fprintf("[Save data into file] -> [%s]\n", filename);
     writematrix(data, filename)
 end
@@ -42,7 +50,7 @@ for k = 1:length(clipping_list)
     data = min(max(sig, clip_th), 1-clip_th);
 
     str = replace(sprintf("%.3f", clip_th), ".", "P");
-    filename = fullfile("test_data", sprintf("sinewave_clipping_%s.csv", str));
+    filename = fullfile(data_dir, sprintf("sinewave_clipping_%s.csv", str));
     fprintf("[Save data into file] -> [%s]\n", filename);
     writematrix(data, filename)
 end
@@ -69,7 +77,7 @@ for k = 1:length(gain_error_list)
     data = msb * g_err + lsb; % apply interstage gain error
 
     gstr = replace(sprintf("%.2f", g_err), ".", "P");
-    filename = fullfile("test_data", sprintf("sinewave_gain_error_%s.csv", gstr));
+    filename = fullfile(data_dir, sprintf("sinewave_gain_error_%s.csv", gstr));
     fprintf("[Save data into file] -> [%s]\n", filename);
     writematrix(data, filename)
 
@@ -99,7 +107,7 @@ for k = 1:length(kickback_strength_list)
     data = msb + lsb + kb * msb_shifted; % kickback injection
 
     kstr = replace(sprintf("%.3f", kb), ".", "P");
-    filename = fullfile("test_data", sprintf("sinewave_kickback_%s.csv", kstr));
+    filename = fullfile(data_dir, sprintf("sinewave_kickback_%s.csv", kstr));
     fprintf("[Save data into file] -> [%s]\n", filename);
 
     writematrix(data, filename)
@@ -124,7 +132,7 @@ for k = 1:length(glitch_prob_list)
     data = sig + glitch;
 
     pstr = replace(sprintf("%.3f", gprob), ".", "P");
-    filename = fullfile("test_data", sprintf("sinewave_glitch_%s.csv", pstr));
+    filename = fullfile(data_dir, sprintf("sinewave_glitch_%s.csv", pstr));
     fprintf("[Save data into file] -> [%s]\n", filename);
     writematrix(data, filename)
 end
@@ -148,7 +156,7 @@ for k = 1:length(baseline_list)
     data = sig + drift;
 
     bstr = replace(sprintf("%.3f", drift_amp), ".", "P");
-    filename = fullfile("test_data", sprintf("sinewave_drift_%s.csv", bstr));
+    filename = fullfile(data_dir, sprintf("sinewave_drift_%s.csv", bstr));
     fprintf("[Save data into file] -> [%s]\n", filename);
     writematrix(data, filename)
 end
@@ -168,7 +176,7 @@ for k = 1:length(ref_error_list)
     data = msb + lsb + (msb - 0.5) .* ((-1).^(0:N - 1)) * ref_amp;
 
     rstr = replace(sprintf("%.3f", ref_amp), ".", "P");
-    filename = fullfile("test_data", sprintf("sinewave_ref_error_%s.csv", rstr));
+    filename = fullfile(data_dir, sprintf("sinewave_ref_error_%s.csv", rstr));
     fprintf("[Save data into file] -> [%s]\n", filename);
     writematrix(data, filename)
 end
@@ -192,7 +200,7 @@ for k = 1:length(noise_list)
     else
         nstr = sprintf("%dmV", round(noise_amp*1e3)); % mV
     end
-    filename = fullfile("test_data", sprintf("sinewave_noise_%s.csv", nstr));
+    filename = fullfile(data_dir, sprintf("sinewave_noise_%s.csv", nstr));
     fprintf("[Save data into file] -> [%s]\n", filename);
     writematrix(data, filename)
 end
@@ -224,7 +232,7 @@ for k = 1:length(HD2_dB_list)
 
         hd2_str = sprintf("HD2_n%ddB", abs(HD2_dB_list(k)));
         hd3_str = sprintf("HD3_n%ddB", abs(HD3_dB_list(k2)));
-        filename = fullfile("test_data", sprintf("sinewave_%s_%s.csv", hd2_str, hd3_str));
+        filename = fullfile(data_dir, sprintf("sinewave_%s_%s.csv", hd2_str, hd3_str));
         fprintf("[Save data into file] -> [%s]\n", filename);
         writematrix(data, filename);
     end
@@ -252,7 +260,7 @@ for k = 1:length(am_strength_list)
     data = data + randn(1, N) * 1e-6; % tiny white noise
 
     astr = replace(sprintf('%.3f', am_strength), '.', 'P');
-    filename = fullfile("test_data", ...
+    filename = fullfile(data_dir, ...
         sprintf("sinewave_amplitude_modulation_%s.csv", astr));
 
     fprintf("[Save data into file] -> [%s]\n", filename);
@@ -281,7 +289,7 @@ for k = 1:length(am_noise_list)
     data = sinewave_zero_mean .* am_factor + 0.5 + randn(1, N) * 1e-6;
 
     astr = replace(sprintf("%.3f", am_strength), ".", "P");
-    filename = fullfile("test_data", sprintf("sinewave_amplitude_noise_%s.csv", astr));
+    filename = fullfile(data_dir, sprintf("sinewave_amplitude_noise_%s.csv", astr));
     fprintf("[Save data into file] -> [%s]\n", filename);
     writematrix(data, filename);
 end
@@ -314,7 +322,7 @@ for k = 1:length(Nyquist_Zone_Fins)
 
     Zone = ceil(Fin/(Fs / 2));
 
-    filename = fullfile("test_data", sprintf("sinewave_Zone%d_Tj_%dfs.csv", ...
+    filename = fullfile(data_dir, sprintf("sinewave_Zone%d_Tj_%dfs.csv", ...
         Zone, round(Tj*1e15)));
 
     fprintf("[Save data into file] -> [%s]\n", filename);
@@ -347,7 +355,7 @@ for k = 1:length(N_run_list)
         data_batch(iter_run, :) = sinewave + 0.5 + randn(1, N) * 1e-5;
     end
 
-    filename = fullfile("test_data", sprintf("batch_sinewave_Nrun_%d.csv", N_run));
+    filename = fullfile(data_dir, sprintf("batch_sinewave_Nrun_%d.csv", N_run));
 
     fprintf("[Save data into file] -> [%s]\n", filename);
     writematrix(data_batch, filename);

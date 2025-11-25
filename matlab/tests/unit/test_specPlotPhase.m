@@ -9,11 +9,7 @@
 close all; clc; clear;
 
 %% Configuration
-addpath('matlab/aout');
-addpath('matlab/common');
-addpath('matlab/test/unit');
-
-inputDir = "test_data";
+inputDir = "dataset";
 outputDir = "test_output";
 
 % Test datasets - leave empty to auto-search
@@ -52,7 +48,7 @@ for k = 1:length(filesList)
 
     %% Run specPlotPhase
     figure('Visible', 'off');
-    [h, spec, phi, bin, freq_bins] = specPlotPhase(read_data, 'harmonic', 10);
+    [h, spec, phi, bin] = specPlotPhase(read_data, 'harmonic', 10);
     title(['specPlotPhase: ', titleString]);
 
     % Save plot
@@ -61,10 +57,10 @@ for k = 1:length(filesList)
     fprintf('  [Saved] %s\n', plotPath);
 
     % Save data to CSV
-    csvData = [freq_bins, real(spec'), imag(spec'), abs(spec'), angle(spec'), real(phi'), imag(phi')];
+    csvData = [real(spec'), imag(spec'), abs(spec'), angle(spec'), real(phi'), imag(phi')];
     csvData = csvData(2:end,:);
     csvPath = fullfile(subFolder, 'phase_data_matlab.csv');
-    csvHeader = 'freq_bin,spec_real,spec_imag,spec_mag,spec_phase,phi_real,phi_imag';
+    csvHeader = 'spec_real,spec_imag,spec_mag,spec_phase,phi_real,phi_imag';
     writematrix(csvData, csvPath);
 
     % Add header manually by prepending to file

@@ -50,7 +50,7 @@ def compare_results():
 
     if not dataset_folders:
         print("No matching MATLAB and Python results found.")
-        print("Run both test_sineFit.m (MATLAB) and test_sineFit.py (Python) first.")
+        print("Run both test_sineFit.m (MATLAB) and test_sine_fit.py (Python) first.")
         return
 
     print("=== sineFit MATLAB vs Python Comparison ===")

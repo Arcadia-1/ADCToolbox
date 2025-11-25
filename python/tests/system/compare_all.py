@@ -61,7 +61,9 @@ def compare_all():
             results.append((package_name, success, pkg_time, None))
 
             print()
-            if success:
+            if success is None:
+                print(f"[SKIPPED] {package_name} - No MATLAB reference files ({pkg_time:.1f}s)")
+            elif success:
                 print(f"[PASS] {package_name} ({pkg_time:.1f}s)")
             else:
                 print(f"[FAIL] {package_name} - Some files need review ({pkg_time:.1f}s)")
@@ -81,18 +83,30 @@ def compare_all():
     print("=" * 80)
     print()
 
-    passed = sum(1 for _, success, _, _ in results if success)
+    passed = sum(1 for _, success, _, _ in results if success is True)
+    skipped = sum(1 for _, success, _, _ in results if success is None)
+    failed = sum(1 for _, success, _, _ in results if success is False)
     total = len(results)
 
     for package_name, success, pkg_time, error in results:
-        status = "PASS" if success else "FAIL"
+        if success is None:
+            status = "SKIPPED"
+        elif success:
+            status = "PASS"
+        else:
+            status = "FAIL"
         print(f"  [{status}] {package_name:30s} ({pkg_time:6.1f}s)")
         if error:
             print(f"        Error: {error}")
 
     print()
     print(f"[Packages passed]      = {passed}/{total}")
-    print(f"[Success rate]         = {passed/total*100:.1f}%")
+    print(f"[Packages skipped]     = {skipped}/{total}")
+    print(f"[Packages failed]      = {failed}/{total}")
+    if passed + failed > 0:
+        print(f"[Success rate]         = {passed/(passed+failed)*100:.1f}% (of tested)")
+    else:
+        print(f"[Success rate]         = N/A (no comparisons performed)")
     print(f"[Total execution time] = {total_time:.1f} seconds")
     print()
 
@@ -111,16 +125,17 @@ def compare_all():
             print(f"  - {output_file}")
     print()
 
-    if passed == total:
-        print("=" * 80)
+    print("=" * 80)
+    if skipped == total:
+        print("NO COMPARISONS PERFORMED - MATLAB reference files missing")
+        print("Run MATLAB tests first: cd matlab && run_unit_tests_all")
+    elif failed == 0 and passed > 0:
         print("ALL COMPARISONS PASSED!")
-        print("=" * 80)
-    else:
-        print("=" * 80)
-        print(f"WARNING: {total - passed} package(s) had issues")
-        print("=" * 80)
+    elif failed > 0:
+        print(f"WARNING: {failed} package(s) failed comparison")
+    print("=" * 80)
 
-    return passed == total
+    return passed > 0 and failed == 0
 
 
 def main():

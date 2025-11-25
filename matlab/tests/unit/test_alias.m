@@ -4,9 +4,6 @@
 close all; clc; clear;
 
 %% Configuration
-addpath('matlab/common');
-addpath('matlab/test/unit');
-
 outputDir = "test_output";
 
 %% Test Cases - J (input freq), N (sampling freq), expected bin
