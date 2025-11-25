@@ -1,9 +1,9 @@
 """Utility functions and reporting tools."""
 
-from .multimodal_report import multimodal_report
+from .multimodal_report import generate_multimodal_report
 from .calculate_jitter import calculate_jitter
 
 __all__ = [
-    'multimodal_report',
+    'generate_multimodal_report',
     'calculate_jitter',
 ]

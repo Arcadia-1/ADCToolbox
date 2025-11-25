@@ -1,140 +1,236 @@
 """
-Test runner for ADC analysis tools.
+ADCToolbox Test Runner - Run complete test suite with comprehensive report
 
-Edit the 'tools' list at the bottom to select which tools to test.
-Set tools = None to run all tools.
+This is the top-level test runner that executes the system test suite
+and generates a detailed report.
 
-Available tools: specPlot, specPlotPhase, tomDecomp, errHistSine
+Test Hierarchy:
+    run_all_tests.py (this file)
+        └── system/run_unit_tests_all.py
+            ├── system/run_unit_tests_common.py
+            │   ├── unit/test_alias.py
+            │   └── unit/test_sineFit.py
+            ├── system/run_unit_tests_aout.py
+            │   ├── unit/test_specPlot.py
+            │   ├── unit/test_specPlotPhase.py
+            │   ├── unit/test_error_analysis.py
+            │   └── unit/test_INLSine.py
+            └── system/run_unit_tests_dout.py
+                ├── unit/test_FGCalSine.py
+                ├── unit/test_FGCalSine_overflowChk.py
+                └── unit/test_cap2weight.py
+
+Configuration - assumes running from project root d:\ADCToolbox
+
+Usage:
+    cd d:\ADCToolbox
+    python adctoolbox/test/run_all_tests.py
 """
 
-import numpy as np
-import matplotlib.pyplot as plt
-import os
+import subprocess
 import sys
+import time
+from pathlib import Path
+from datetime import datetime
+import re
 
 
-# Add SpecMind directory to path (so ADC_Toolbox_Python can be imported as a package)
-# This allows running the test from any directory
-current_file = os.path.abspath(__file__)
-tests_dir = os.path.dirname(current_file)  # tests/
-adc_toolbox_dir = os.path.dirname(tests_dir)  # ADC_Toolbox_Python/
-specmind_dir = os.path.dirname(adc_toolbox_dir)  # SpecMind/
-sys.path.insert(0, specmind_dir)
+# ============================================================================
+# Configuration
+# ============================================================================
+
+# Output report file
+REPORT_FILE = "test_output/TEST_REPORT.txt"
 
 
-from ADC_Toolbox_Python.spec_plot import spec_plot
-from ADC_Toolbox_Python.specPlotPhase import spec_plot_phase
-from ADC_Toolbox_Python.sineFit import sine_fit
-from ADC_Toolbox_Python.findBin import find_bin
-from ADC_Toolbox_Python.tomDecomp import tomDecomp
-from ADC_Toolbox_Python.errHistSine import errHistPhase, errHistCode
+# ============================================================================
+# Test Execution
+# ============================================================================
 
-ALL_TOOLS = ['specPlot', 'specPlotPhase', 'tomDecomp', 'errHistSine']
+def run_system_tests():
+    """Run the complete system test suite."""
+    print("=" * 80)
+    print("ADCToolbox Python Test Suite Runner")
+    print("=" * 80)
+    print(f"[Started] {datetime.now().strftime('%Y-%m-%d %H:%M:%S')}")
+    print()
 
-FILE_LIST = [
-    "Sine_wave_10_70_bit_nonlinearity.csv", "Sine_wave_13_69_bit.csv",
-    "gain_error_0P95.csv", "gain_error_0P99.csv", "gain_error_1P01.csv", "gain_error_1P05.csv",
-    "clip_0P06.csv", "clip_0P07.csv",
-    "jitter_0P001.csv", "jitter_0P002.csv", "jitter_0P0002.csv",
-    "kickback_0P07.csv", "kickback_0P007.csv",
-]
+    # Run the top-level system test
+    system_test = Path("adctoolbox/test/system/run_unit_tests_all.py")
+
+    start_time = time.time()
+
+    result = subprocess.run(
+        [sys.executable, str(system_test)],
+        capture_output=True,
+        text=True
+    )
+
+    total_time = time.time() - start_time
+
+    return result, total_time
 
 
-def run_tests(tools=None):
-    """Run tests for selected tools."""
-    tools = tools or ALL_TOOLS
-    data_dir = os.path.join(tests_dir, "reference_data")
-    output_dir = os.path.join(tests_dir, "output")
+def parse_test_output(output):
+    """Parse test output to extract metrics."""
+    metrics = {
+        'packages_passed': 0,
+        'packages_total': 0,
+        'success_rate': 0.0,
+        'package_results': []
+    }
 
-    print("=" * 70)
-    print(f"ADC Tools Test Runner\nTools: {', '.join(tools)}\nCases: {len(FILE_LIST)}")
-    print("=" * 70)
+    # Extract package results
+    for line in output.split('\n'):
+        # Match lines like: "  [PASS] Common Package                 (  2.5s)"
+        match = re.match(r'\s*\[(PASS|FAIL)\]\s+(.+?)\s+\((.+?)s\)', line)
+        if match:
+            status, package_name, pkg_time = match.groups()
+            success = (status == 'PASS')
+            metrics['package_results'].append({
+                'name': package_name.strip(),
+                'success': success,
+                'time': float(pkg_time)
+            })
 
-    results = []
+        # Match total passed line
+        match = re.search(r'\[Packages passed\]\s*=\s*(\d+)/(\d+)', line)
+        if match:
+            metrics['packages_passed'] = int(match.group(1))
+            metrics['packages_total'] = int(match.group(2))
 
-    for idx, filename in enumerate(FILE_LIST, 1):
-        case_name = filename.replace(".csv", "")
-        filepath = os.path.join(data_dir, filename)
-        case_dir = os.path.join(output_dir, case_name)
-        os.makedirs(case_dir, exist_ok=True)
+        # Match success rate
+        match = re.search(r'\[Success rate\]\s*=\s*([\d.]+)%', line)
+        if match:
+            metrics['success_rate'] = float(match.group(1))
 
-        print(f"\n[{idx}/{len(FILE_LIST)}] {case_name}")
+    return metrics
 
-        if not os.path.exists(filepath):
-            print("  [ERROR] File not found")
-            results.append(False)
-            continue
 
-        try:
-            data = np.loadtxt(filepath, delimiter=',').flatten()
-            N = len(data)
-            _, freq_est, _, _, _ = sine_fit(data)
-            fin = find_bin(1, freq_est, N) / N
+def generate_report(result, total_time, metrics, report_path):
+    """Generate comprehensive test report."""
+    report_lines = []
 
-            if 'specPlot' in tools:
-                ENoB, SNDR, *_ = spec_plot(data, Fs=1.0, harmonic=0, label=1, OSR=1)
-                plt.savefig(os.path.join(case_dir, "specPlot.png"), dpi=150)
-                plt.close()
-                print(f"  specPlot: ENoB={ENoB:.2f}, SNDR={SNDR:.2f}dB")
+    # Header
+    report_lines.append("=" * 80)
+    report_lines.append("ADCToolbox Python Test Suite - Comprehensive Report")
+    report_lines.append("=" * 80)
+    report_lines.append(f"[Generated] {datetime.now().strftime('%Y-%m-%d %H:%M:%S')}")
+    report_lines.append("")
 
-            if 'specPlotPhase' in tools:
-                result = spec_plot_phase(data, harmonic=50,
-                    save_path=os.path.join(case_dir, "specPlotPhase.png"))
-                print(f"  specPlotPhase: freq_bin={result['freq_bin']}")
+    # Test Hierarchy
+    report_lines.append("=" * 80)
+    report_lines.append("Test Hierarchy")
+    report_lines.append("=" * 80)
+    report_lines.append("run_all_tests.py (top level)")
+    report_lines.append("  └── system/run_unit_tests_all.py")
+    report_lines.append("      ├── system/run_unit_tests_common.py")
+    report_lines.append("      │   ├── unit/test_alias.py")
+    report_lines.append("      │   └── unit/test_sineFit.py")
+    report_lines.append("      ├── system/run_unit_tests_aout.py")
+    report_lines.append("      │   ├── unit/test_specPlot.py")
+    report_lines.append("      │   ├── unit/test_specPlotPhase.py")
+    report_lines.append("      │   ├── unit/test_error_analysis.py")
+    report_lines.append("      │   └── unit/test_INLSine.py")
+    report_lines.append("      └── system/run_unit_tests_dout.py")
+    report_lines.append("          ├── unit/test_FGCalSine.py")
+    report_lines.append("          ├── unit/test_FGCalSine_overflowChk.py")
+    report_lines.append("          └── unit/test_cap2weight.py")
+    report_lines.append("")
 
-            if 'tomDecomp' in tools:
-                signal, error, indep, dep, phi = tomDecomp(data, fin, 50, 0)
-                xlim = min(max(int(1.5 / fin), 100), N)
+    # Summary Statistics
+    report_lines.append("=" * 80)
+    report_lines.append("Summary Statistics")
+    report_lines.append("=" * 80)
+    report_lines.append(f"[Packages tested]      = {metrics['packages_total']}")
+    report_lines.append(f"[Packages passed]      = {metrics['packages_passed']}")
+    report_lines.append(f"[Packages failed]      = {metrics['packages_total'] - metrics['packages_passed']}")
+    report_lines.append(f"[Success rate]         = {metrics['success_rate']:.1f}%")
+    report_lines.append(f"[Total execution time] = {total_time:.1f} seconds")
+    report_lines.append("")
 
-                fig, ax1 = plt.subplots(figsize=(12, 6))
-                ax1.plot(data[:xlim], 'kx', markersize=3, alpha=0.5, label='data')
-                ax1.plot(signal[:xlim], '-', color='gray', linewidth=1.5, label='signal')
-                ax1.set_xlim([0, xlim])
-                ax1.set_ylabel('Signal')
+    # Package Results
+    if metrics['package_results']:
+        report_lines.append("=" * 80)
+        report_lines.append("Package Test Results")
+        report_lines.append("=" * 80)
 
-                ax2 = ax1.twinx()
-                ax2.plot(dep[:xlim], 'r-', label='dep', linewidth=1.5)
-                ax2.plot(indep[:xlim], 'b-', label='indep', linewidth=1)
-                ax2.set_ylabel('Error')
+        for pkg in metrics['package_results']:
+            status = "PASS" if pkg['success'] else "FAIL"
+            report_lines.append(f"  [{status}] {pkg['name']:30s} ({pkg['time']:6.1f}s)")
 
-                ax1.legend(loc='upper left')
-                ax2.legend(loc='upper right')
-                ax1.grid(True, alpha=0.3)
-                plt.tight_layout()
-                plt.savefig(os.path.join(case_dir, "tomDecomp.png"), dpi=150)
-                plt.close()
-                print(f"  tomDecomp: indep_rms={np.sqrt(np.mean(indep**2)):.6f}")
+        report_lines.append("")
 
-            if 'errHistSine' in tools:
-                scaled = data * (2**12)
-                errHistCode(scaled, bin_count=1000, fin=fin,
-                    save_path=os.path.join(case_dir, "errHistSine_code.png"))
-                errHistPhase(scaled, bin_count=1000, fin=fin,
-                    save_path=os.path.join(case_dir, "errHistSine_phase.png"))
-                print("  errHistSine: saved code and phase plots")
+    # Full Output
+    report_lines.append("=" * 80)
+    report_lines.append("Complete Test Output")
+    report_lines.append("=" * 80)
+    report_lines.append(result.stdout)
+    report_lines.append("")
 
-            results.append(True)
+    # Errors (if any)
+    if result.stderr:
+        report_lines.append("=" * 80)
+        report_lines.append("Error Output")
+        report_lines.append("=" * 80)
+        report_lines.append(result.stderr)
+        report_lines.append("")
 
-        except Exception as e:
-            print(f"  [ERROR] {e}")
-            results.append(False)
+    # Footer
+    report_lines.append("=" * 80)
+    if result.returncode == 0:
+        report_lines.append("ALL TESTS PASSED!")
+    else:
+        report_lines.append(f"WARNING: Some tests failed (exit code: {result.returncode})")
+    report_lines.append("=" * 80)
 
-    print("\n" + "=" * 70)
-    print(f"Results: {sum(results)}/{len(results)} OK")
-    print("=" * 70)
+    # Write report to file
+    report_text = '\n'.join(report_lines)
 
-    return all(results)
+    Path(report_path).parent.mkdir(parents=True, exist_ok=True)
+    with open(report_path, 'w', encoding='utf-8') as f:
+        f.write(report_text)
+
+    return report_text
+
+
+# ============================================================================
+# Main Test Runner
+# ============================================================================
+
+def main():
+    """Main test runner."""
+    # Run system tests
+    result, total_time = run_system_tests()
+
+    # Parse output for metrics
+    metrics = parse_test_output(result.stdout)
+
+    # Generate report
+    print()
+    print("=" * 80)
+    print("Generating comprehensive report...")
+    print("=" * 80)
+
+    generate_report(result, total_time, metrics, REPORT_FILE)
+
+    # Print summary to console
+    print()
+    print("=" * 80)
+    print("Test Run Complete")
+    print("=" * 80)
+    print(f"[Packages tested]      = {metrics['packages_total']}")
+    print(f"[Packages passed]      = {metrics['packages_passed']}")
+    print(f"[Success rate]         = {metrics['success_rate']:.1f}%")
+    print(f"[Total execution time] = {total_time:.1f} seconds")
+    print()
+    print(f"[Report saved to]      = {REPORT_FILE}")
+    print("=" * 80)
+
+    # Return success/failure
+    return result.returncode == 0
 
 
 if __name__ == "__main__":
-    # ========== SELECT TOOLS TO TEST ==========
-    tools = [
-        'specPlot',
-        'specPlotPhase',
-        'tomDecomp',
-        'errHistSine',
-    ]
-    # tools = None  # uncomment to run all tools
-    # ==========================================
-
-    sys.exit(0 if run_tests(tools) else 1)
+    success = main()
+    sys.exit(0 if success else 1)

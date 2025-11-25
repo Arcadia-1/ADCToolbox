@@ -1,18 +1,20 @@
 """
 Test alias.py - Frequency Aliasing Analysis
+
+Configuration - assumes running from project root d:\ADCToolbox
+
 Generates txt file showing how Fin values alias into Nyquist bands.
 """
 
-import sys
 import os
 
-from ADC_Toolbox_Python.alias import alias
+from adctoolbox.common import alias
 
 
 def generate_alias_report(Fs=1000, output_path=None):
     """Generate aliasing report for different input frequencies."""
     if output_path is None:
-        output_path = os.path.join(os.path.dirname(__file__), 'output', 'alias_report.txt')
+        output_path = os.path.join('test_output', 'test_alias', 'alias_report.txt')
     os.makedirs(os.path.dirname(output_path), exist_ok=True)
 
     lines = []

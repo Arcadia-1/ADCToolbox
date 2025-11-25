@@ -105,9 +105,11 @@ def tomDecomp(data, re_fin=None, order=10, disp=1):
     indep = data - signal_all
     dep = signal - signal_all  # Fixed: was signal_all - signal
 
-    # 可视化
+    # Visualization
     if disp:
-        plt.figure(figsize=(12, 6))
+        # Only create new figure if one doesn't exist
+        if plt.get_fignums() == []:
+            plt.figure(figsize=(12, 6))
 
         # 左侧Y轴: 信号
         ax1 = plt.gca()

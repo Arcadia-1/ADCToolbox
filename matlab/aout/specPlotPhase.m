@@ -1,4 +1,4 @@
-function [h] = specPlotPhase(data,varargin)
+function [h, spec, phi, bin, freq_bins] = specPlotPhase(data,varargin)
 
 p = inputParser;
 validScalarPosNum = @(x) isnumeric(x) && isscalar(x) && (x > 0);
@@ -82,6 +82,9 @@ spec = max(spec,minR) - minR;
 [~, bin] = max(spec);
 
 spec = phi.*spec;
+
+% Prepare frequency bins for output
+freq_bins = (0:Nd2-1)' / N_fft;
 
 h = polarplot(spec,'k.');
 grid on;

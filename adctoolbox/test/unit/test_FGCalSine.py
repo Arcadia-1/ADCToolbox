@@ -1,24 +1,32 @@
-"""Test FGCalSine.py against MATLAB golden reference."""
+"""Test FGCalSine.py - Foreground calibration for SAR ADC data.
+
+Configuration - assumes running from project root d:\ADCToolbox
+
+Tests FGCalSine function with SAR ADC digital code datasets.
+"""
 
 import numpy as np
 import matplotlib.pyplot as plt
 import os
 import sys
+from pathlib import Path
 
-from ADC_Toolbox_Python.FGCalSine import FGCalSine
-from ADC_Toolbox_Python.spec_plot import spec_plot
+from adctoolbox.dout import FGCalSine
+from adctoolbox.aout import spec_plot
 
 
 def run_fgcal_tests():
-    file_list = [
-        "digital_code_SAR_10_bit.csv",
-        "digital_code_SAR_11_bit.csv",
-        "digital_code_SAR_12_bit.csv",
-    ]
+    """Test FGCalSine function on SAR ADC datasets."""
 
-    current_dir = os.path.dirname(os.path.abspath(__file__))
-    data_dir = os.path.join(os.path.dirname(os.path.dirname(current_dir)), "matlab_reference", "reference_data")
-    output_dir = os.path.join(current_dir, "output")
+    # Configuration - assumes running from project root d:\ADCToolbox
+    input_dir = "test_data"
+    output_dir = "test_output"
+
+    file_list = [
+        "dout_SAR_12b_weight_1.csv",
+        "dout_SAR_12b_weight_2.csv",
+        "dout_SAR_12b_weight_3.csv",
+    ]
 
     print("=" * 60)
     print("Test: FGCalSine (Foreground Calibration)")
@@ -28,8 +36,8 @@ def run_fgcal_tests():
 
     for filename in file_list:
         name = filename.replace(".csv", "")
-        filepath = os.path.join(data_dir, filename)
-        case_dir = os.path.join(output_dir, name)
+        filepath = os.path.join(input_dir, filename)
+        case_dir = os.path.join(output_dir, name, "test_FGCalSine")
         os.makedirs(case_dir, exist_ok=True)
 
         print(f"\n[{name}]")

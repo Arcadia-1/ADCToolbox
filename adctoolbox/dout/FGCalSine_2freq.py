@@ -9,7 +9,7 @@ Ported from MATLAB: FGCalSine_2freq.m
 
 import numpy as np
 from typing import Optional, Tuple, Union, List
-from .alias import alias
+from ..common.alias import alias
 
 
 def fg_cal_sine_2freq(

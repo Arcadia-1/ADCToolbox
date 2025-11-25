@@ -1,7 +1,18 @@
 {
   "permissions": {
     "allow": [
-      "Bash(git add:*)"
+      "Bash(git add:*)",
+      "Bash(nul)",
+      "Bash(dir /B:*)",
+      "Bash(python:*)",
+      "Bash(for test in test_alias test_sineFit test_specPlot test_specPlotPhase test_errPDF test_errHistSine test_errAutoCorrelation test_errEnvelopeSpectrum test_tomDecomp test_INLsine test_FGCalSine test_FGCalSine_overflowChk)",
+      "Bash(do if [ -f \"matlab/test/unit/$test.m\" ])",
+      "Bash(then echo \"✓ $test\")",
+      "Bash(else echo \"✗ $test\")",
+      "Bash(fi)",
+      "Bash(done)",
+      "Bash(xargs:*)",
+      "Bash(tree:*)"
     ],
     "deny": [],
     "ask": []

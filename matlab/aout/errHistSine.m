@@ -13,7 +13,7 @@ function [emean, erms, phase_code, anoi, pnoi, err, xx] = errHistSine(data, vara
 
     p = inputParser;
     addOptional(p, 'bin', 100, @(x) isnumeric(x) && isscalar(x) && (x > 0));
-    addOptional(p, 'fin', 0, @(x) isnumeric(x) && isscalar(x) && (x > 0) && (x < 1));
+    addOptional(p, 'fin', 0, @(x) isnumeric(x) && isscalar(x) && (x > 0) && (x < 100)); % must be relative fin
     addOptional(p, 'disp', 1);
     addOptional(p, 'mode', 0, @(x) isnumeric(x));
     addParameter(p, 'erange', []);  % err filter, only the erros in erange are return to err

@@ -201,9 +201,14 @@ def spec_plot_phase(
     elif save_path:
         plt.close()
 
+    # Prepare outputs matching MATLAB version
+    freq_bins = np.arange(nd2) / n_fft
+
     return {
-        'spec': spec,
-        'freq_bin': bin_fund,
+        'spec': spec_polar,  # Phase-weighted spectrum (complex)
+        'phi': phi_spec,     # Normalized phase (complex)
+        'bin': bin_fund,     # Fundamental bin index
+        'freq_bins': freq_bins,  # Normalized frequency bins
         'harmonics': harmonics_info,
         'mag_db': mag_db,
         'phase': np.angle(spec)
@@ -249,7 +254,7 @@ if __name__ == "__main__":
     )
 
     print(f"\n[Results]")
-    print(f"  Fundamental bin: {result['freq_bin']}")
+    print(f"  Fundamental bin: {result['bin']}")
     print(f"\n  Harmonics:")
     for h in result['harmonics']:
         print(f"    H{h['harmonic']}: bin={h['bin']}, mag={h['magnitude']:.1f}dB, phase={np.degrees(h['phase']):.1f}deg")

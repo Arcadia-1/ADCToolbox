@@ -2,18 +2,10 @@
 
 import numpy as np
 import matplotlib.pyplot as plt
-import os
-import sys
 import warnings
-import glob
+from pathlib import Path
 
-# Add project root to sys.path if needed (for direct script execution)
-_project_root = os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
-if _project_root not in sys.path:
-    sys.path.insert(0, _project_root)
-
-from ADCToolbox_Python.FGCalSine import FGCalSine
-from ADCToolbox_Python.overflowChk import overflowChk
+from adctoolbox.dout import FGCalSine, overflowChk
 
 
 def test_fgcalsine_overflowchk():
@@ -23,8 +15,8 @@ def test_fgcalsine_overflowchk():
     warnings.filterwarnings('ignore')
 
     # Define input and output directories
-    inputdir = os.path.join(_project_root, "ADCToolbox_example_data")
-    outputdir = os.path.join(_project_root, "ADCToolbox_example_output")
+    inputdir = Path("test_data")
+    outputdir = Path("test_output")
 
     # File list
     files_list = [
@@ -36,12 +28,12 @@ def test_fgcalsine_overflowchk():
     # If files_list is empty, search for dout*.csv files
     if not files_list:
         search_pattern = "dout*.csv"
-        matched_files = glob.glob(os.path.join(inputdir, search_pattern))
-        files_list = [os.path.basename(f) for f in matched_files]
+        matched_files = list(inputdir.glob(search_pattern))
+        files_list = [f.name for f in matched_files]
 
     # Process each file
     for current_filename in files_list:
-        data_filepath = os.path.join(inputdir, current_filename)
+        data_filepath = inputdir / current_filename
 
         print(f"[Processing] {current_filename}")
 
@@ -67,12 +59,12 @@ def test_fgcalsine_overflowchk():
         overflowChk(read_code, weights_cal)
 
         # Set title (matching MATLAB format with underscores)
-        name = os.path.splitext(current_filename)[0]
+        name = current_filename.replace('.csv', '')
         title_string = name  # Keep underscores as-is (no escaping needed in Python)
         plt.title(title_string)
 
         # Save figure
-        output_filepath = os.path.join(outputdir, f'{name}_overflowChk_python.png')
+        output_filepath = outputdir / f'{name}_overflowChk_python.png'
         plt.savefig(output_filepath, dpi=150, bbox_inches='tight')
         plt.close(fig)
 
@@ -80,6 +72,9 @@ def test_fgcalsine_overflowchk():
 
     # Re-enable warnings
     warnings.filterwarnings('default')
+
+    # Close any remaining figures
+    plt.close('all')
 
 
 if __name__ == "__main__":

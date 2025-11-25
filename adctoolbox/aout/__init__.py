@@ -1,27 +1,25 @@
 """Analog output (time-domain) analysis tools."""
 
 from .spec_plot import spec_plot
-from .specPlotPhase import specPlotPhase
-from .specPlot2Tone import specPlot2Tone
+from .specPlotPhase import spec_plot_phase
+from .specPlot2Tone import spec_plot_2tone
 from .errEnvelopeSpectrum import errEnvelopeSpectrum
 from .errAutoCorrelation import errAutoCorrelation
 from .errHistSine import errHistSine
 from .errPDF import errPDF
 from .tomDecomp import tomDecomp
 from .INLSine import INLsine
-from .phase_polar_plot import phase_polar_plot
-from .findVinpp import findVinpp
+from .findVinpp import find_vinpp
 
 __all__ = [
     'spec_plot',
-    'specPlotPhase',
-    'specPlot2Tone',
+    'spec_plot_phase',
+    'spec_plot_2tone',
     'errEnvelopeSpectrum',
     'errAutoCorrelation',
     'errHistSine',
     'errPDF',
     'tomDecomp',
     'INLsine',
-    'phase_polar_plot',
-    'findVinpp',
+    'find_vinpp',
 ]

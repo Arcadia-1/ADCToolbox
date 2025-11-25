@@ -2,9 +2,8 @@
 
 import numpy as np
 import sys
-import os
 
-from ADC_Toolbox_Python.cap2weight import cap2weight
+from adctoolbox.common import cap2weight
 
 
 def run_tests():

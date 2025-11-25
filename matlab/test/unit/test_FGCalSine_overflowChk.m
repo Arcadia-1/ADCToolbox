@@ -1,36 +1,68 @@
-close all; clear; clc;warning("off")
+%% test_FGCalSine_overflowChk.m - Unit test for overflowChk function
+% Tests the overflowChk function with SAR ADC digital output data
+%
+% Output structure:
+%   test_output/<data_set_name>/test_overflowChk/
+%       overflowChk_matlab.png  - overflow check plot
 
-inputdir = "ADCToolbox_example_data";
-outputdir = "ADCToolbox_example_output";
+close all; clc; clear;
+warning("off");
 
-files_list = {
-    'dout_SAR_12b_weight_1.csv';...
-    'dout_SAR_12b_weight_2.csv'; ...
-    'dout_SAR_12b_weight_3.csv'; ...
-    };
+%% Configuration
+addpath('matlab/dout');
+addpath('matlab/common');
+addpath('matlab/test/unit');
 
-if isempty(files_list)
-    search_pattern = "dout*.csv";
-    search_results = dir(fullfile(inputdir, search_pattern));
-    files_list = {search_results.name};
+inputDir = "test_data";
+outputDir = "test_output";
+
+% Test datasets - leave empty to auto-search
+filesList = {};
+filesList = autoSearchFiles(filesList, inputDir, 'dout_SAR_*.csv');
+
+if ~isfolder(outputDir)
+    mkdir(outputDir);
 end
 
-% --- Processing Loop ---
-for k = 1:length(files_list)
-    current_filename = files_list{k};
-    data_filepath = fullfile(inputdir, current_filename);
-    read_code = readmatrix(data_filepath);
-    weights_cal = FGCalSine(read_code);
+%% Test Loop
+fprintf('=== test_FGCalSine_overflowChk.m ===\n');
+fprintf('[Testing] %d datasets...\n\n', length(filesList));
 
-    figure;
-    overflowChk(read_code, weights_cal);
+for k = 1:length(filesList)
+    currentFilename = filesList{k};
+    dataFilePath = fullfile(inputDir, currentFilename);
 
-    [~, name, ~] = fileparts(current_filename);
-    title_string = replace(name, '_', '\_');
-    title(title_string)
+    if ~isfile(dataFilePath)
+        fprintf('[%d/%d] %s - NOT FOUND, skipping\n\n', k, length(filesList), currentFilename);
+        continue;
+    end
+    fprintf('[%d/%d] [Processing] %s\n', k, length(filesList), currentFilename);
 
-    output_filepath = fullfile(outputdir, [name, '_overflowChk_matlab.png']);
-    saveas(gcf, output_filepath);
-    fprintf('[Saved image] -> [%s]\n\n', output_filepath);
+    read_data = readmatrix(dataFilePath);
 
+    % Extract dataset name
+    [~, datasetName, ~] = fileparts(currentFilename);
+    titleString = replace(datasetName, '_', '\_');
+
+    % Create output subfolder
+    subFolder = fullfile(outputDir, datasetName, 'test_overflowChk');
+    if ~isfolder(subFolder)
+        mkdir(subFolder);
+    end
+
+    %% Run FGCalSine to get calibrated weights
+    weights_cal = FGCalSine(read_data);
+
+    %% Run overflowChk
+    figure('Visible', 'off');
+    overflowChk(read_data, weights_cal);
+    title(titleString);
+
+    % Save plot
+    plotPath = fullfile(subFolder, 'overflowChk_matlab.png');
+    saveas(gcf, plotPath);
+    fprintf('  [Saved] %s\n\n', plotPath);
+    close(gcf);
 end
+
+fprintf('[test_FGCalSine_overflowChk COMPLETE]\n');

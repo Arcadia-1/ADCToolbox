@@ -14,16 +14,12 @@ reference data files in tests/reference_data directory:
 import numpy as np
 import os
 import sys
+from pathlib import Path
 
-# Add SpecMind directory to path (so ADC_Toolbox_Python can be imported as a package)
-# This allows running the test from any directory
-current_file = os.path.abspath(__file__)
-tests_dir = os.path.dirname(current_file)  # tests/
-adc_toolbox_dir = os.path.dirname(tests_dir)  # ADC_Toolbox_Python/
-specmind_dir = os.path.dirname(adc_toolbox_dir)  # SpecMind/
-sys.path.insert(0, specmind_dir)
+# Add parent directory to path for imports
+sys.path.insert(0, str(Path(__file__).parent.parent.parent))
 
-from ADC_Toolbox_Python.multimodal_report import generate_multimodal_report
+from adctoolbox.utils.multimodal_report import generate_multimodal_report
 
 
 def test_basic_files():

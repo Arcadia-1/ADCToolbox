@@ -1,79 +1,126 @@
-"""Test sineFit.py - sine wave fitting validation."""
+"""
+test_sineFit.py - Unit test for sineFit function
+
+Tests the sine_fit function for sinewave fitting with proper MxN support.
+
+Output structure:
+    test_output/<data_set_name>/test_sineFit/
+        metrics_python.csv      - freq, mag, dc, phi (per column)
+        fit_data_python.csv     - first 1000 samples of data_fit
+"""
 
 import numpy as np
-import sys
+import pandas as pd
 import os
+from pathlib import Path
 
-from ADC_Toolbox_Python.sineFit import sine_fit, find_relative_freq
-
-
-def run_tests():
-    print("Testing sineFit.py")
-    print("=" * 50)
-
-    N, fs = 4096, 1e6
-    results = []
-
-    # Test 1: Basic sine
-    fin = 101 * fs / N
-    t = np.arange(N) / fs
-    signal = 0.9 * np.sin(2 * np.pi * fin * t + np.pi/4) + 0.5
-    _, freq, mag, dc, _ = sine_fit(signal)
-
-    err_f = abs(freq - fin/fs)
-    err_m = abs(mag - 0.9)
-    err_d = abs(dc - 0.5)
-    ok = err_f < 1e-8 and err_m < 1e-4 and err_d < 1e-4
-    results.append(("Basic sine", ok, f"freq_err={err_f:.1e}, mag_err={err_m:.1e}"))
-
-    # Test 2: With noise
-    np.random.seed(42)
-    signal = np.sin(2 * np.pi * fin * t) * 1000 + 2048 + np.random.randn(N) * 10
-    _, freq, mag, _, _ = sine_fit(signal)
-
-    err_f = abs(freq - fin/fs)
-    err_m = abs(mag - 1000) / 1000
-    ok = err_f < 1e-6 and err_m < 0.01
-    results.append(("With noise", ok, f"freq_err={err_f:.1e}, mag_err={err_m*100:.2f}%"))
-
-    # Test 3: Different frequency bins
-    all_ok = True
-    for bin_num in [11, 101, 503, 1021]:
-        fin = bin_num * fs / N
-        signal = np.sin(2 * np.pi * fin * t)
-        _, freq, _, _, _ = sine_fit(signal)
-        if abs(freq - fin/fs) >= 1e-8:
-            all_ok = False
-    results.append(("Multi-freq bins", all_ok, f"bins=[11,101,503,1021]"))
-
-    # Test 4: 2D batch data
-    data = np.zeros((N, 8))
-    fin = 101 * fs / N
-    for i in range(8):
-        data[:, i] = np.sin(2 * np.pi * fin * t + np.random.rand() * 2 * np.pi)
-    _, freq, _, _, _ = sine_fit(data)
-    ok = abs(freq - fin/fs) < 1e-8
-    results.append(("Batch 2D input", ok, f"shape={data.shape}"))
-
-    # Test 5: find_relative_freq
-    signal = 0.5 * np.sin(2 * np.pi * 101 * fs / N * t) + 0.5
-    rel_freq = find_relative_freq(signal)
-    ok = abs(rel_freq - 101/N) < 1e-8
-    results.append(("find_relative_freq", ok, f"err={abs(rel_freq - 101/N):.1e}"))
-
-    # Print results
-    passed = 0
-    for name, ok, info in results:
-        status = "PASS" if ok else "FAIL"
-        print(f"  [{status}] [{name}]: {info}")
-        if ok:
-            passed += 1
-
-    print("-" * 50)
-    print(f"  Total: {passed}/{len(results)} passed")
-    return passed == len(results)
+from adctoolbox.common import sine_fit
 
 
-if __name__ == "__main__":
-    success = run_tests()
-    sys.exit(0 if success else 1)
+def test_sineFit():
+    """Test sineFit function on multiple datasets."""
+
+    # Configuration - assumes running from project root d:\ADCToolbox
+    input_dir = Path("test_data")
+    output_dir = Path("test_output")
+
+    # Test datasets - leave empty to auto-search
+    files_list = [
+        # "batch_sinewave_Nrun_2.csv"
+    ]
+
+    # Auto-search if list is empty
+    if not files_list:
+        search_patterns = ['sinewave_*.csv']
+        files_list = []
+        for pattern in search_patterns:
+            files_list.extend([f.name for f in input_dir.glob(pattern)])
+        print(f"Auto-discovered {len(files_list)} files matching patterns: {', '.join(search_patterns)}")
+
+    if not files_list:
+        raise ValueError(f"No test files found in {input_dir}")
+
+    output_dir.mkdir(exist_ok=True)
+
+    # Test Loop
+    print("=== test_sineFit.py ===")
+    print(f"Testing sine_fit function with {len(files_list)} datasets...\n")
+
+    for k, current_filename in enumerate(files_list, 1):
+        data_file_path = input_dir / current_filename
+
+        if not data_file_path.is_file():
+            print(f"[{k}/{len(files_list)}] {current_filename} - NOT FOUND, skipping\n")
+            continue
+
+        print(f"[{k}/{len(files_list)}] {current_filename} - found")
+
+        # Read data
+        read_data = pd.read_csv(data_file_path, header=None).values
+
+        # Auto-transpose if needed (samples should be in rows, not columns)
+        if read_data.ndim == 2 and read_data.shape[0] < read_data.shape[1]:
+            read_data = read_data.T
+            print(f"  (Auto-transposed to {read_data.shape})")
+
+        # Extract dataset name
+        dataset_name = data_file_path.stem
+
+        # Create output subfolder
+        sub_folder = output_dir / dataset_name / 'test_sineFit'
+        sub_folder.mkdir(parents=True, exist_ok=True)
+
+        # Run sineFit
+        data_fit, freq, mag, dc, phi = sine_fit(read_data)
+
+        # Handle both single column and multi-column results
+        if read_data.shape[1] == 1 or np.isscalar(freq):
+            # Single column case
+            freq_arr = np.array([freq])
+            mag_arr = np.array([mag])
+            dc_arr = np.array([dc])
+            phi_arr = np.array([phi])
+            data_fit_2d = data_fit.reshape(-1, 1)
+        else:
+            # Multi-column case
+            freq_arr = freq
+            mag_arr = mag
+            dc_arr = dc
+            phi_arr = phi
+            data_fit_2d = data_fit
+
+        # Save metrics to CSV
+        metrics_df = pd.DataFrame({
+            'freq': freq_arr,
+            'mag': mag_arr,
+            'dc': dc_arr,
+            'phi': phi_arr
+        })
+        metrics_path = sub_folder / 'metrics_python.csv'
+        metrics_df.to_csv(metrics_path, index=False)
+        print(f"  [Saved] {metrics_path}")
+
+        # Save fit data (first 1000 samples)
+        N_save = min(1000, len(data_fit_2d))
+        fit_df = pd.DataFrame(data_fit_2d[:N_save, :])
+        fit_df.columns = [f'data_fit_{i}' for i in range(fit_df.shape[1])]
+        fit_path = sub_folder / 'fit_data_python.csv'
+        fit_df.to_csv(fit_path, index=False)
+        print(f"  [Saved] {fit_path}")
+
+        # Print metrics summary
+        if len(freq_arr) == 1:
+            print(f"  freq={freq_arr[0]:.8f}, mag={mag_arr[0]:.6f}, "
+                  f"dc={dc_arr[0]:.6f}, phi={phi_arr[0]:.6f} rad\n")
+        else:
+            print(f"  {len(freq_arr)} columns fitted:")
+            print(f"  freq: mean={np.mean(freq_arr):.8f}, std={np.std(freq_arr):.8f}")
+            print(f"  mag:  mean={np.mean(mag_arr):.6f}, std={np.std(mag_arr):.6f}")
+            print(f"  dc:   mean={np.mean(dc_arr):.6f}, std={np.std(dc_arr):.6f}")
+            print(f"  phi:  mean={np.mean(phi_arr):.6f}, std={np.std(phi_arr):.6f}\n")
+
+    print("test_sineFit complete.")
+
+
+if __name__ == '__main__':
+    test_sineFit()

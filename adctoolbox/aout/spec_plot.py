@@ -6,7 +6,7 @@ from ..common.alias import alias
 #已验证
 def spec_plot(data, Fs=1.0, maxCode=None, harmonic=7, winType=1,
                  sideBin=1, logSca=0, label=1, assumedSignal=np.nan, isPlot=1,
-                 nTHD=5, OSR=1, coAvg=0):
+                 nTHD=5, OSR=1, coAvg=0, NFMethod=0):
     """
     specPlot.m 的精确 Python 移植版本
 
@@ -24,6 +24,10 @@ def spec_plot(data, Fs=1.0, maxCode=None, harmonic=7, winType=1,
         nTHD: Number of harmonics for THD calculation (default 5)
         OSR: Oversampling ratio (default 1)
         coAvg: Coherent averaging mode (default 0)
+        NFMethod: Noise floor calculation method (default 0)
+            0 = median-based estimation (assumes normal distribution)
+            1 = trimmed mean (5%-95% range)
+            2 = sum after removing harmonics
     """
     # --- 参数处理 ---
     data = np.asarray(data)
@@ -87,10 +91,13 @@ def spec_plot(data, Fs=1.0, maxCode=None, harmonic=7, winType=1,
         sig = 10**(assumedSignal / 10)
         pwr = assumedSignal
 
-    # --- 绘图 (可选) ---
+    # --- Plotting (optional) ---
     h = None
     if isPlot:
-        plt.figure(figsize=(12, 8))
+        # Only create new figure if one doesn't exist
+        if plt.get_fignums() == []:
+            plt.figure(figsize=(12, 8))
+
         if logSca == 0:
             h, = plt.plot(freq, 10 * np.log10(spec.clip(1e-20)))
         else:
@@ -141,16 +148,39 @@ def spec_plot(data, Fs=1.0, maxCode=None, harmonic=7, winType=1,
     SFDR = 10 * np.log10(sigs / spur) if spur > 0 else 999
     ENoB = (SNDR - 1.76) / 6.02
 
-    # THD 和 SNR - match MATLAB nTHD parameter
+    # Calculate noise floor for SNR based on NFMethod
+    # This must match MATLAB's specPlot.m lines 198-210
+    if NFMethod == 0:
+        # Method 0: Median-based estimation (assumes normal distribution)
+        # MATLAB: noi = median(spec(1:floor(N_fft/2/OSR)))/sqrt((1-2/(9*N_run))^3) *floor(N_fft/2/OSR);
+        spec_for_nf = spec_no_sig[:Nd2_inband]
+        median_val = np.median(spec_for_nf)
+        noi_for_snr = median_val / np.sqrt((1 - 2/(9*ME))**3) * Nd2_inband
+    elif NFMethod == 1:
+        # Method 1: Trimmed mean (5%-95% range)
+        # MATLAB: spec_sort = sort(...); noi = mean(spec_sort(floor(N_fft/2/OSR*0.05):floor(N_fft/2/OSR*0.95)))*floor(N_fft/2/OSR);
+        spec_for_nf = spec_no_sig[:Nd2_inband]
+        spec_sorted = np.sort(spec_for_nf)
+        idx_start = int(np.floor(Nd2_inband * 0.05))
+        idx_end = int(np.floor(Nd2_inband * 0.95))
+        noi_for_snr = np.mean(spec_sorted[idx_start:idx_end]) * Nd2_inband
+    else:
+        # Method 2: Sum after removing harmonics
+        # MATLAB: for i = 2:nTHD ... spec_noise(b) = 0; end; noi = sum(spec_noise(...));
+        spec_noise = np.copy(spec_no_sig)
+        for i in range(2, nTHD + 1):
+            b = alias(bin_ * i, N)  # Python bin_ is 0-based
+            if b < Nd2_inband:
+                spec_noise[b] = 0
+        noi_for_snr = np.sum(spec_noise[:Nd2_inband])
+
+    # Calculate THD
     thd = 0
-    spec_no_harm = np.copy(spec_no_sig)
     for i in range(2, nTHD + 1):
         b = alias(bin_ * i, N)  # Python bin_ is 0-based = MATLAB's (bin-1)
         if b < Nd2_inband:
-            thd += spec_no_harm[b]
-            spec_no_harm[b] = 0
+            thd += spec_no_sig[b]
 
-    noi_for_snr = np.sum(spec_no_harm[:Nd2_inband])
     THD = 10 * np.log10(thd / sigs) if sigs > 0 else -999
     SNR = 10 * np.log10(sig / noi_for_snr) if noi_for_snr > 0 else 999
     NF = SNR - pwr

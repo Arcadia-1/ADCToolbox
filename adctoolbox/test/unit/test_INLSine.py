@@ -2,30 +2,23 @@
 
 import numpy as np
 import matplotlib.pyplot as plt
-import os
-import sys
-import glob
+from pathlib import Path
 
-# Add project root to sys.path if needed (for direct script execution)
-_project_root = os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
-if _project_root not in sys.path:
-    sys.path.insert(0, _project_root)
-
-from ADCToolbox_Python.INLSine import INLsine
+from adctoolbox.aout import INLsine
 
 
 def test_inl_from_sine():
     """Test INLSine function with sinewave data files."""
 
-    # Define input and output directories
-    inputdir = os.path.join(_project_root, "ADCToolbox_example_data")
-    outputdir = os.path.join(_project_root, "ADCToolbox_example_output")
+    # Configuration - assumes running from project root d:\ADCToolbox
+    inputdir = Path("test_data")
+    outputdir = Path("test_output")
 
     # Resolution list to scan
     Resolution_list = [12]
 
     # Create output directory if it doesn't exist
-    os.makedirs(outputdir, exist_ok=True)
+    outputdir.mkdir(exist_ok=True)
 
     # Manual file list (empty means use search patterns)
     manual_files_list = []
@@ -38,8 +31,8 @@ def test_inl_from_sine():
         all_files = []
 
         for pattern in search_patterns:
-            matched_files = glob.glob(os.path.join(inputdir, pattern))
-            all_files.extend([os.path.basename(f) for f in matched_files])
+            matched_files = list(inputdir.glob(pattern))
+            all_files.extend([f.name for f in matched_files])
 
         # Remove duplicates while preserving order
         seen = set()
@@ -51,10 +44,10 @@ def test_inl_from_sine():
 
     # Process each file
     for current_filename in file_list:
-        data_filepath = os.path.join(inputdir, current_filename)
+        data_filepath = inputdir / current_filename
 
         # Extract name without extension
-        name = os.path.splitext(current_filename)[0]
+        name = Path(current_filename).stem
 
         # Load data
         data = np.loadtxt(data_filepath, delimiter=',')
@@ -114,11 +107,11 @@ def test_inl_from_sine():
             plt.xlim([0, expected_max])
 
             # Save figure
-            subdir_path = os.path.join(outputdir, name)
-            os.makedirs(subdir_path, exist_ok=True)
+            subdir_path = outputdir / name
+            subdir_path.mkdir(parents=True, exist_ok=True)
 
             output_filename_base = f'INL_{Resolution}b_{name}_python'
-            output_filepath = os.path.join(subdir_path, f'{output_filename_base}.png')
+            output_filepath = subdir_path / f'{output_filename_base}.png'
 
             plt.tight_layout()
             plt.savefig(output_filepath, dpi=150)
@@ -127,6 +120,9 @@ def test_inl_from_sine():
             # Console output
             print(f'[Resolution = {Resolution}]: DNL = [{min_dnl:.2f}, {max_dnl:.2f}] LSB, INL = [{min_inl:.2f}, {max_inl:+.2f}] LSB')
             print(f'[Saved image] -> [{output_filepath}]\n')
+
+    # Close any remaining figures
+    plt.close('all')
 
 
 if __name__ == "__main__":
