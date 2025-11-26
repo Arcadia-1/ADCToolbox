@@ -3,10 +3,10 @@ close all; clc; clear;
 warning("off");
 
 %% Configuration
-verbose = 1;
+verbose = 0;
 inputDir = "dataset";
 outputDir = "test_output";
-filesList = autoSearchFiles({}, inputDir, 'dout_SAR_*.csv');
+filesList = autoSearchFiles({}, inputDir, 'dout_*.csv');
 if ~isfolder(outputDir), mkdir(outputDir); end
 
 %% Test Loop
