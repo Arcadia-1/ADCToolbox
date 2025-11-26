@@ -3,7 +3,6 @@
 A comprehensive toolbox for **ADC (Analog-to-Digital Converter)** characterization and analysis.
 It delivers clear **multi-angle diagnostic views** of ADC behavior, enabling deeper insight and faster issue location.
 
-**Dual Implementation**: MATLAB and Python with 100% numerical parity validated.
 
 
 ---
@@ -12,7 +11,7 @@ It delivers clear **multi-angle diagnostic views** of ADC behavior, enabling dee
 
 
 <p align="center">
-  <img src="doc/OVERVIEW_sinewave_jitter_1000fs_matlab.png" alt="Comprehensive ADC Error Analysis" width="100%">
+  <img src="doc/OVERVIEW_sinewave_jitter_1000fs_matlab.png" alt="Comprehensive ADC Error Analysis" width="80%">
   <br>
   <em>Comprehensive error analysis with 9 complementary views: time-domain decomposition, frequency spectrum, phase analysis, histograms, error PDF, autocorrelation, and envelope spectrum</em>
 </p>
@@ -84,6 +83,13 @@ It delivers clear **multi-angle diagnostic views** of ADC behavior, enabling dee
   - For delta-sigma ADC characterization
 
 ---
+
+
+**Dual Implementation**
+
+MATLAB and Python with 100% numerical parity validated.
+
+
 
 **Requirements**:
 - Python: numpy, scipy, matplotlib, pandas
