@@ -10,7 +10,7 @@ data_dir = "dataset";
 % User-configurable parameters - specify coefficients directly
 k1_list = [1.0]; % Linear gain (ideal = 1.0)
 k2_list = [0.001]; % 2nd order nonlinearity coefficient
-k3_list = [0.012]; % 3rd order nonlinearity coefficient
+k3_list = [0.01]; % 3rd order nonlinearity coefficient
 % k4_list = [0.001];       % 4th order (uncomment to include)
 % k5_list = [0.001];       % 5th order (uncomment to include)
 
@@ -53,12 +53,12 @@ for idx1 = 1:length(k1_list)
                         k5 * (x_ideal.^5);
 
                     % Add DC offset and small noise for realism
-                    data = y_output + 0.5 + randn(1, N) * 1e-6;
+                    data = y_output + 0.5 + randn(1, N) * 1.5e-4;
 
                     % Build filename: sinewave_INL_k2_xxx_k3_xxx_...
                     % Format: Positive: 0.001 -> 0P0010, Negative: -0.01 -> nP0100
-                    formatK = @(val) string([char(zeros(1, val < 0)+'n'), ...
-                        replace(sprintf("%.4f", abs(val)), ".", "P")]);
+                    formatK = @(val) string(repmat('n',1,val<0)) + ...
+                 replace(sprintf("%.4f", abs(val)), ".", "P");
 
                     filename_parts = "INL";
 
@@ -80,7 +80,7 @@ for idx1 = 1:length(k1_list)
                         filename_parts = filename_parts + "_k5_" + formatK(k5);
                     end
 
-                    filename = fullfile(data_dir, sprintf("sinewave_%s.csv", filename_parts));
+                    filename = fullfile(data_dir, sprintf("sinewave_%s.csv",filename_parts));
                     ENoB = specPlot(data, "isplot", 0);
                     writematrix(data, filename)
                     fprintf("  [ENoB = %0.2f] [Save] %s\n", ENoB, filename);
