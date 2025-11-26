@@ -56,6 +56,7 @@ function [signal, error, indep, dep, phi] = tomDecomp(data, re_fin, order, disp)
         hold on;
         plot(signal,'-','color',[0.5,0.5,0.5]);
         axis([1,min(max(1.5/re_fin,100),length(data)), min(data)*1.1, max(data)*1.1]);
+        ylim([0,max(signal)*1.01])
         ylabel('Signal');
         yyaxis right;
         plot(dep,'r-');
