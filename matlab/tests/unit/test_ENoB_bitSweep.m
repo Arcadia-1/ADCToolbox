@@ -47,7 +47,7 @@ for k = 1:length(filesList)*0+1
     end
 
     %% Run ENoB_bitSweep
-    figure('Visible', 'off');
+    figure('Position', [100, 100, 600, 400], 'Visible', 'on');
     [ENoB_sweep, nBits_vec] = ENoB_bitSweep(read_data, 'freq', 0, 'order', 5, ...
         'harmonic', 5, 'OSR', 1, 'winType', @hamming, 'plot', 1);
     title(['ENoB Bit Sweep: ', titleString]);
