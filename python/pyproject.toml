@@ -10,7 +10,8 @@ readme = "README.md"
 requires-python = ">=3.8"
 license = {text = "MIT"}
 authors = [
-    {name = "ADCToolbox Authors"}
+    {name = "Zhishuai Zhang"},
+    {name = "Lu Jie"}
 ]
 keywords = ["ADC", "analog-to-digital", "converter", "testing", "characterization", "signal-processing"]
 classifiers = [
