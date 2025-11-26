@@ -28,8 +28,8 @@ for i = 1:length(searchPatterns)
     filesList = [filesList; {searchResults.name}'];
 end
 
-fprintf('[Auto-discovered] %d files matching patterns: %s\n', ...
-    length(filesList), strjoin(searchPatterns, ', '));
+fprintf('[%s] %d files matching patterns: %s\n', ...
+    mfilename, length(filesList), strjoin(searchPatterns, ', '));
 
 if isempty(filesList)
     error('No test files found in %s', inputDir);

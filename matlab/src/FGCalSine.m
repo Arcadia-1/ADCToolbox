@@ -20,6 +20,7 @@ function [weight,offset,postCal,ideal,err,freqCal] = FGCalSine(bits,varargin)
 %   - niter: max fine-search iterations, default is 100.
 %   - order: harmonics exclusion order (1 for no exclusion), default is 1.
 %   - fsearch: force fine search (1) or not (0), default is 0.
+%   - verbose: print frequency search progress (1) or not (0), default is 0.
 %   - nomWeight: nominal bit weights (only effective when rank is deficient), default is 2.^(M-1:-1:0).
 %
 % Multi-dataset extension:
@@ -79,6 +80,7 @@ function [weight,offset,postCal,ideal,err,freqCal] = FGCalSine(bits,varargin)
         addOptional(p, 'niter', 100, @(x) isnumeric(x) && isscalar(x) && (x > 0));
         addOptional(p, 'order', 1, @(x) isnumeric(x) && isscalar(x) && (x > 0));
         addOptional(p, 'fsearch', 0, @(x) isnumeric(x) && isscalar(x));
+        addOptional(p, 'verbose', 0, @(x) isnumeric(x) && isscalar(x));
         addParameter(p, 'nomWeight', 2.^(M_orig-1:-1:0));
         parse(p, varargin{:});
         freq = p.Results.freq;
@@ -87,7 +89,8 @@ function [weight,offset,postCal,ideal,err,freqCal] = FGCalSine(bits,varargin)
         rate = p.Results.rate;
         reltol = p.Results.reltol;
         niter = p.Results.niter;
-        fsearch = p.Results.fsearch;  
+        fsearch = p.Results.fsearch;
+        verbose = p.Results.verbose;  
 
         % Normalize freq to vector length Kd
         if isscalar(freq)
@@ -101,7 +104,7 @@ function [weight,offset,postCal,ideal,err,freqCal] = FGCalSine(bits,varargin)
         for k = 1:ND
             if freq(k) == 0 || fsearch == 1
                 [~,~,~,~,~,fk] = FGCalSine(bits_cell{k}, 'freq', freq(k), 'fsearch', 1, ...
-                    'order', order, 'rate', rate, 'reltol', reltol, 'niter', niter, 'nomWeight', nomWeight);
+                    'order', order, 'rate', rate, 'reltol', reltol, 'niter', niter, 'nomWeight', nomWeight, 'verbose', verbose);
                 freq(k) = fk;
             end
         end
@@ -266,15 +269,17 @@ function [weight,offset,postCal,ideal,err,freqCal] = FGCalSine(bits,varargin)
     addOptional(p, 'niter', 100, @(x) isnumeric(x) && isscalar(x) && (x > 0));           % max fine-search iterations
     addOptional(p, 'order', 1, @(x) isnumeric(x) && isscalar(x) && (x > 0));             % harmonics exclusion order (1 for no exclusion)
     addOptional(p, 'fsearch', 0, @(x) isnumeric(x) && isscalar(x));                      % force fine search (1) or not (0)
+    addOptional(p, 'verbose', 0, @(x) isnumeric(x) && isscalar(x));                      % print frequency search progress (1) or not (0)
     addParameter(p, 'nomWeight', 2.^(M-1:-1:0));                                         % nominal bit weights (only effective when rank is deficient)
     parse(p, varargin{:});
-    freq = p.Results.freq;            
-    order = max(round(p.Results.order),1);  
-    nomWeight = p.Results.nomWeight;  
-    rate = p.Results.rate;            
-    reltol = p.Results.reltol;        
-    niter = p.Results.niter;          
-    fsearch = p.Results.fsearch;      
+    freq = p.Results.freq;
+    order = max(round(p.Results.order),1);
+    nomWeight = p.Results.nomWeight;
+    rate = p.Results.rate;
+    reltol = p.Results.reltol;
+    niter = p.Results.niter;
+    fsearch = p.Results.fsearch;
+    verbose = p.Results.verbose;      
     
     % Initialize link and scale tables used to map original columns to a potentially merged, rank-sufficient set of columns (bits_patch)
     L = [1:M];              % link from a column to its correlated column
@@ -335,10 +340,14 @@ function [weight,offset,postCal,ideal,err,freqCal] = FGCalSine(bits,varargin)
         fsearch = 1;
         freq = [];
         for i1 = 1:min(M,5)     % first 5 columns are used to estimate the frequency - WARNING: this may not be a good practice for non-binary bit weighting
-            fprintf('Freq coarse searching (%d/5):',i1);
+            if(verbose)
+                fprintf('Freq coarse searching (%d/5):',i1);
+            end
             % Estimate Fin/Fs using a weighted sum of the top i1 columns
             freq = [freq, findFin(bits_patch(:,1:i1)*nomWeight(1:i1)')];
-            fprintf(' freq = %d\n',freq(end));
+            if(verbose)
+                fprintf(' freq = %d\n',freq(end));
+            end
         end
         freq = median(freq);    % use the median of the estimated frequencies
     end
@@ -414,7 +423,9 @@ function [weight,offset,postCal,ideal,err,freqCal] = FGCalSine(bits,varargin)
             delta_f = x(end)*rate /N;                           % scaled frequency correction
             relerr = rms(x(end)/N*A(:,end)) / sqrt(1+x(M+1+order)^2);  % calculate the relative error
 
-            fprintf('Freq fine iterating (%d): freq = %d, delta_f = %d, rel_err = %d\n',ii,freq,delta_f, relerr);
+            if(verbose)
+                fprintf('Freq fine iterating (%d): freq = %d, delta_f = %d, rel_err = %d\n',ii,freq,delta_f, relerr);
+            end
 
             if(relerr < reltol)
                 break;                   % stop if the relative error is less than the tolerance

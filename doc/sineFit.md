@@ -96,6 +96,45 @@ fprintf('Fit RMS error: %.4f\n', rms(error));
 [fit, freq] = sineFit(data, [], 1e-15, 0.3);  % tol=1e-15, rate=0.3
 ```
 
+### Example 4: Reconstruct Fitted Sinewave from Parameters
+
+To visualize the fit quality, reconstruct a smooth sinewave from the fitted parameters:
+
+```matlab
+% Load data and fit
+data = readmatrix('dataset/sinewave_jitter_1000fs.csv');
+[data_fit, freq, mag, dc, phi] = sineFit(data);
+
+% Plot one period
+period = round(1/freq);
+n_samples = min(max(period, 20), length(data));
+t = 1:n_samples;
+
+% Reconstruct smooth fitted sinewave (10x denser)
+t_dense = linspace(1, n_samples, n_samples*100);
+fitted_sine = mag * cos(2*pi*freq*(t_dense-1) + phi) + dc;
+
+% Plot comparison
+figure('Position', [100, 100, 800, 600]);
+plot(t, data(1:n_samples), '-o', 'LineWidth', 2, 'DisplayName', 'Original Data');
+hold on;
+plot(t_dense, fitted_sine, '--', 'LineWidth', 1, 'DisplayName', 'Fitted Sine');
+xlabel('Sample');
+ylabel('Amplitude');
+legend('Location', 'northwest');
+grid on;
+ylim([min(fitted_sine)-0.15, max(fitted_sine)+0.15]);
+```
+
+**Key points:**
+- Use **`cos`**, not `sin`, to match sineFit's model: `A*cos(θ) + B*sin(θ) + dc`
+- Use **0-indexed** time: `(t_dense-1)` because sineFit uses `time = (0:N-1)'`
+- The reconstruction formula: `mag * cos(2*pi*freq*(n-1) + phi) + dc` where `n` is the 1-indexed sample number
+
+![sineFit Visualization](../test_output/sinewave_jitter_1000fs/test_sineFit/sineFit_matlab.png)
+
+*Figure: Original data (blue circles) vs. fitted sinewave (orange dashed) showing excellent agreement over one period.*
+
 ## Interpretation
 
 | Output | Interpretation |

@@ -1,59 +1,29 @@
 %% test_ENoB_bitSweep.m - Unit test for ENoB_bitSweep function
-% Output: test_output/<dataset>/test_ENoB_bitSweep/
-%   - ENoB_sweep_matlab.png
-%   - ENoB_sweep_data_matlab.csv
-
 close all; clc; clear;
 
 %% Configuration
+verbose = 0;
 inputDir = "dataset";
 outputDir = "test_output";
 filesList = autoSearchFiles({}, inputDir, 'dout_*.csv');
-
-if ~isfolder(outputDir)
-    mkdir(outputDir);
-end
+if ~isfolder(outputDir), mkdir(outputDir); end
 
 %% Test Loop
-fprintf('=== test_ENoB_bitSweep.m ===\n');
-fprintf('[Testing] %d datasets...\n\n', length(filesList));
-
 for k = 1:length(filesList)
     currentFilename = filesList{k};
     dataFilePath = fullfile(inputDir, currentFilename);
+    fprintf('\n[%s] [%d/%d] [%s]\n', mfilename, k, length(filesList), currentFilename);
 
-    if ~isfile(dataFilePath)
-        fprintf('[%d/%d] %s - NOT FOUND\n\n', k, length(filesList), currentFilename);
-        continue;
-    end
-    fprintf('[%d/%d] [Processing] %s\n', k, length(filesList), currentFilename);
+    read_data = readmatrix(dataFilePath);
 
-    [~, datasetName, ~] = fileparts(currentFilename);
-    subFolder = fullfile(outputDir, datasetName, 'test_ENoB_bitSweep');
-    if ~isfolder(subFolder)
-        mkdir(subFolder);
-    end
-
-    %% Run ENoB_bitSweep
-    figure('Position', [100, 100, 800, 600], 'Visible', 'off');
-    [ENoB_sweep, nBits_vec] = ENoB_bitSweep(readmatrix(dataFilePath), ...
+    figure('Position', [100, 100, 800, 600], "Visible", verbose);
+    [ENoB_sweep, nBits_vec] = ENoB_bitSweep(read_data, ...
         'freq', 0, 'order', 5, 'harmonic', 5, 'OSR', 1, 'winType', @hamming);
 
-    title(replace(datasetName, '_', '\_'));
+    [~, datasetName, ~] = fileparts(currentFilename);
+    subFolder = fullfile(outputDir, datasetName, mfilename);
 
-    % Save results
-    saveas(gcf, fullfile(subFolder, 'ENoB_sweep_matlab.png'));
-    fprintf('  [Saved] ENoB_sweep_matlab.png\n');
-    % close(gcf);
-
-    writetable(table(nBits_vec', ENoB_sweep', 'VariableNames', {'nBits', 'ENoB'}), ...
-        fullfile(subFolder, 'ENoB_sweep_data_matlab.csv'));
-    fprintf('  [Saved] ENoB_sweep_data_matlab.csv\n');
-
-    % Summary
-    maxENoB = max(ENoB_sweep(~isnan(ENoB_sweep)));
-    fprintf('  [Results] Max ENoB = %.2f bits (using %d bits)\n\n', ...
-        maxENoB, find(ENoB_sweep == maxENoB, 1));
+    saveFig(subFolder, "ENoB_bitSweep.png", verbose);
+    saveVariable(subFolder, ENoB_sweep, verbose);
+    saveVariable(subFolder, nBits_vec, verbose);
 end
-
-fprintf('[test_ENoB_bitSweep COMPLETE]\n');

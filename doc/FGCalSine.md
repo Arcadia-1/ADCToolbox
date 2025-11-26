@@ -125,37 +125,175 @@ For cell array input:
 
 ### Example 1: Basic Calibration
 
+<table>
+<tr>
+<td width="50%"><b>MATLAB</b></td>
+<td width="50%"><b>Python</b></td>
+</tr>
+<tr>
+<td valign="top">
+
 ```matlab
-bits = readmatrix('dout_SAR_10bit.csv');
-[weight, offset, postCal, ideal, err, freq] = FGCalSine(bits);
+bits = readmatrix('adc_output.csv');
+[weight, offset, postCal, ...
+ ideal, err, freq] = FGCalSine(bits);
 
 fprintf('Frequency: %.6f\n', freq);
 fprintf('Weights: %s\n', mat2str(weight, 4));
 fprintf('Error RMS: %.4f\n', rms(err));
 ```
 
-### Example 2: With Known Frequency
+</td>
+<td valign="top">
+
+```python
+bits = np.loadtxt('adc_output.csv', delimiter=',')
+weight, offset, postCal, \
+    ideal, err, freq = fgcal_sine(bits)
+
+print(f'Frequency: {freq:.6f}')
+print(f'Weights: {weight}')
+print(f'Error RMS: {np.std(err):.4f}')
+```
+
+</td>
+</tr>
+</table>
+
+![Basic Calibration](figures/FGCalSine/basic_calibration.png)
+
+**Key Observations:**
+- **Top panel**: Calibrated signal (blue) matches ideal sinewave (red) closely
+- **Middle panel**: Residual error after calibration (< 0.1 LSB RMS for ideal ADC)
+- **Bottom panel**: Calibrated weights match nominal binary weights for ideal ADC
+
+---
+
+### Example 2: Rank Deficiency Handling
+
+<table>
+<tr>
+<td width="50%"><b>MATLAB</b></td>
+<td width="50%"><b>Python</b></td>
+</tr>
+<tr>
+<td valign="top">
+
+```matlab
+bits = readmatrix('rank_deficient_bits.csv');
+[weight, ~, postCal] = FGCalSine(bits);
+% Warning: Bit 4 correlated with Bit 3
+% Weight(4) will be 0 after patching
+```
+
+</td>
+<td valign="top">
+
+```python
+bits = np.loadtxt('rank_deficient_bits.csv')
+weight, _, postCal = fgcal_sine(bits)
+# Warning: Bit 4 correlated with Bit 3
+# weight[3] will be 0 after patching
+```
+
+</td>
+</tr>
+</table>
+
+![Rank Deficiency](figures/FGCalSine/rank_deficiency.png)
+
+**Key Observations:**
+- **Top-left**: Bits 3 and 4 are identical (perfect correlation)
+- **Top-right**: Correlation matrix shows perfect correlation (value = 1.0)
+- **Bottom-left**: Weight for bit 4 set to 0 after rank patching
+- **Bottom-right**: Calibrated output still usable despite rank deficiency
+
+---
+
+### Example 3: Frequency Search
+
+<table>
+<tr>
+<td width="50%"><b>MATLAB</b></td>
+<td width="50%"><b>Python</b></td>
+</tr>
+<tr>
+<td valign="top">
 
 ```matlab
 bits = readmatrix('adc_output.csv');
-freq = 0.1234;  % Known Fin/Fs
-
-[weight, offset, postCal] = FGCalSine(bits, 'freq', freq, 'order', 5);
+% Auto-detect frequency (freq=0)
+[~, ~, ~, ~, ~, freq] = ...
+    FGCalSine(bits, 'freq', 0, 'fsearch', 1);
+fprintf('Detected: %.6f\n', freq);
 ```
 
-### Example 3: Multi-Dataset Joint Calibration
+</td>
+<td valign="top">
+
+```python
+bits = np.loadtxt('adc_output.csv')
+# Auto-detect frequency (freq=0)
+_, _, _, _, _, freq = \
+    fgcal_sine(bits, freq=0, fsearch=True)
+print(f'Detected: {freq:.6f}')
+```
+
+</td>
+</tr>
+</table>
+
+![Frequency Search](figures/FGCalSine/frequency_search.png)
+
+**Key Observations:**
+- **Top**: FFT shows fundamental peak, coarse estimate via bin location
+- **Bottom-left**: Fine search iteratively converges to true frequency
+- **Bottom-right**: Error minimized at optimal frequency (parabolic shape)
+
+---
+
+### Example 4: Multi-Dataset Joint Calibration
+
+<table>
+<tr>
+<td width="50%"><b>MATLAB</b></td>
+<td width="50%"><b>Python</b></td>
+</tr>
+<tr>
+<td valign="top">
 
 ```matlab
 bits1 = readmatrix('dataset1.csv');
 bits2 = readmatrix('dataset2.csv');
 
-% Joint calibration with different frequencies
-[weight, offset, postCal, ~, ~, freq] = FGCalSine({bits1, bits2});
+% Joint calibration
+[weight, offset, postCal, ~, ~, freq] = ...
+    FGCalSine({bits1, bits2});
 
 fprintf('Dataset 1 freq: %.6f\n', freq(1));
 fprintf('Dataset 2 freq: %.6f\n', freq(2));
-fprintf('Shared weights: %s\n', mat2str(weight, 4));
 ```
+
+</td>
+<td valign="top">
+
+```python
+bits1 = np.loadtxt('dataset1.csv')
+bits2 = np.loadtxt('dataset2.csv')
+
+# Joint calibration
+weight, offset, postCal, _, _, freq = \
+    fgcal_sine([bits1, bits2])
+
+print(f'Dataset 1 freq: {freq[0]:.6f}')
+print(f'Dataset 2 freq: {freq[1]:.6f}')
+```
+
+</td>
+</tr>
+</table>
+
+**Use Case**: Calibrate weights using multiple acquisitions at different frequencies (shared weights, independent harmonics).
 
 ## Interpretation
 
