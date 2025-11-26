@@ -1,6 +1,7 @@
 # ADCToolbox
 
-A comprehensive toolbox for ADC (Analog-to-Digital Converter) testing and characterization.
+A comprehensive toolbox for **ADC (Analog-to-Digital Converter)** characterization and analysis.
+It delivers clear **multi-angle diagnostic views** of ADC behavior, enabling deeper insight and faster issue location.
 
 **Dual Implementation**: MATLAB and Python with 100% numerical parity validated.
 
@@ -107,17 +108,6 @@ ADCToolbox/
 ├── dataset/                 # Test datasets (40+ CSV files)
 └── python/tests/            # Test suite (15 unit tests)
 ```
-
----
-
-## Testing & Validation
-
-**Test Suite**:
-- 15 Python unit tests
-- 14 MATLAB unit tests
-- 96 CSV comparison pairs
-
-**Validation Status**: 100% MATLAB-Python parity across all test cases.
 
 ---
 
