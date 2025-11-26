@@ -1,4 +1,4 @@
-function [emean, erms, phase_code, anoi, pnoi, err, xx, polycoeff] = errHistSine(data, varargin)
+function [emean, erms, phase_code, anoi, pnoi, err, xx, polycoeff, k1_static, k2_static, k3_static] = errHistSine(data, varargin)
 
     % mode = 0 : phase as x axis;
     % mode >= 1 : code as axis;
@@ -11,6 +11,7 @@ function [emean, erms, phase_code, anoi, pnoi, err, xx, polycoeff] = errHistSine
     % err : raw errors of each data point
     % xx : x-axies values (phase / code) corresponding to the raw err
     % polycoeff : polynomial coefficients for static nonlinearity (code mode only)
+    % k1_static, k2_static, k3_static : static transfer function coefficients (code mode with polyorder>0)
 
     p = inputParser;
     addOptional(p, 'bin', 100, @(x) isnumeric(x) && isscalar(x) && (x > 0));
@@ -59,27 +60,42 @@ function [emean, erms, phase_code, anoi, pnoi, err, xx, polycoeff] = errHistSine
         emean = esum./enum;
         for ii = 1:length(data)
             b = min(floor((data(ii)-dat_min)/bin_wid)+1,bin);
-            erms(b) = erms(b) + (err(ii) - emean(b))^2;
+            erms(b) = erms(b) + err(ii)^2;  % Total RMS error from sine fit
         end
         erms = sqrt(erms./enum);
 
         anoi = nan;
         pnoi = nan;
 
-        % Polynomial regression for static nonlinearity
+        % Static nonlinearity extraction using transfer function fit
+        polycoeff = [];
+        k1_static = nan; k2_static = nan; k3_static = nan;
         if(polyorder > 0)
-            % Remove NaN bins for fitting
-            valid_idx = ~isnan(emean);
-            if sum(valid_idx) > polyorder
-                % Normalize x to [-1, 1] for better numerical stability
-                x_norm = 2 * (phase_code(valid_idx) - dat_min) / (dat_max - dat_min) - 1;
-                polycoeff = polyfit(x_norm, emean(valid_idx), polyorder);
+            % Extract transfer function: y = k1*x + k2*x^2 + k3*x^3 + ...
+            % where x = ideal input, y = actual output
+            x_ideal = data_fit - mean(data_fit);  % Zero-mean ideal input
+            y_actual = data - mean(data);         % Zero-mean actual output
+
+            % Normalize for numerical stability
+            x_max = max(abs(x_ideal));
+            x_norm = x_ideal / x_max;
+
+            % Fit polynomial to transfer function
+            if length(x_norm) > polyorder + 1
+                polycoeff = polyfit(x_norm, y_actual, polyorder);
+
+                % Extract denormalized coefficients
+                % k0 = polycoeff(end) - should be ~0 after DC removal
+                k1_static = polycoeff(end-1) / x_max;
+                if polyorder >= 2
+                    k2_static = polycoeff(end-2) / (x_max^2);
+                end
+                if polyorder >= 3
+                    k3_static = polycoeff(end-3) / (x_max^3);
+                end
             else
-                polycoeff = [];
-                warning('Not enough valid bins for polynomial fitting');
+                warning('Not enough data points for polynomial fitting');
             end
-        else
-            polycoeff = [];
         end
 
         if(~isempty(erange))
@@ -95,13 +111,17 @@ function [emean, erms, phase_code, anoi, pnoi, err, xx, polycoeff] = errHistSine
             hold on;
             plot(phase_code,emean,'b-');
 
-            % Plot polynomial fit if available
-            if(~isempty(polycoeff))
-                x_fit = linspace(dat_min, dat_max, 200);
-                x_fit_norm = 2 * (x_fit - dat_min) / (dat_max - dat_min) - 1;
-                y_fit = polyval(polycoeff, x_fit_norm);
-                plot(x_fit, y_fit, 'g-', 'LineWidth', 2);
-                legend('Raw error', 'Mean error', sprintf('Poly fit (order %d)', polyorder));
+            % Add fitted transfer function error curve if polyorder > 0
+            if(~isempty(polycoeff) && polyorder > 0)
+                x_fit_plot = linspace(min(x_ideal), max(x_ideal), 200);
+                y_fit_plot = polyval(polycoeff, x_fit_plot / x_max);
+                % Convert back to code domain for plotting
+                code_fit_plot = x_fit_plot + mean(data);
+                err_fit_plot = x_fit_plot - y_fit_plot;  % err = ideal - actual
+                plot(code_fit_plot, err_fit_plot, 'g-', 'LineWidth', 2);
+                legend('Raw error', 'Mean error', 'Fitted error curve');
+            else
+                legend('Raw error', 'Mean error');
             end
 
             axis([dat_min,dat_max,min(err),max(err)]);
@@ -113,10 +133,17 @@ function [emean, erms, phase_code, anoi, pnoi, err, xx, polycoeff] = errHistSine
             end
 
             subplot(2,1,2);
+            % Show RMS error bars
             bar(phase_code,erms);
             axis([dat_min,dat_max,0,max(erms)*1.1]);
             xlabel('code');
             ylabel('RMS error');
+            if(~isempty(polycoeff) && polyorder > 0)
+                % Add text annotation with extracted coefficients
+                text(dat_min + (dat_max-dat_min)*0.02, max(erms)*1.05, ...
+                     sprintf('k1=%.6f, k2=%.6f, k3=%.6f', k1_static, k2_static, k3_static), ...
+                     'FontSize', 14, 'VerticalAlignment', 'top');
+            end
         end
 
     else
@@ -128,6 +155,7 @@ function [emean, erms, phase_code, anoi, pnoi, err, xx, polycoeff] = errHistSine
         erms = zeros([1,bin]);
 
         polycoeff = [];  % Not applicable in phase mode
+        k1_static = nan; k2_static = nan; k3_static = nan;
     
         for ii = 1:length(data)
             b = mod(round(xx(ii)/360*bin),bin)+1;
@@ -137,7 +165,7 @@ function [emean, erms, phase_code, anoi, pnoi, err, xx, polycoeff] = errHistSine
         emean = esum./enum;
         for ii = 1:length(data)
             b = mod(round(xx(ii)/360*bin),bin)+1;
-            erms(b) = erms(b) + (err(ii) - emean(b))^2;
+            erms(b) = erms(b) + err(ii)^2;  % Total RMS error from sine fit
         end
         erms = sqrt(erms./enum);
 

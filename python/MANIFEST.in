@@ -1,0 +1,23 @@
+# Include documentation files
+include README.md
+include LICENSE
+
+# Exclude examples (keep in repo only, not in pip package)
+prune examples
+
+# Exclude tests (not needed in distribution)
+prune tests
+
+# Exclude development files
+exclude .gitignore
+exclude .gitlab-ci.yml
+exclude .github
+exclude tox.ini
+exclude pytest.ini
+
+# Exclude Python cache files
+global-exclude __pycache__
+global-exclude *.py[co]
+global-exclude .DS_Store
+global-exclude *.so
+global-exclude *.dylib

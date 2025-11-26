@@ -13,8 +13,8 @@ end
 
 % User-configurable parameters - specify coefficients directly
 k1_list = [1.0];           % Linear gain (ideal = 1.0)
-k2_list = [0.05, 0.1];     % 2nd order nonlinearity coefficient
-k3_list = [0.05, 0.1];     % 3rd order nonlinearity coefficient
+k2_list = [0.0];     % 2nd order nonlinearity coefficient
+k3_list = [0.01];     % 3rd order nonlinearity coefficient
 % k4_list = [0.01];        % 4th order (uncomment to include)
 % k5_list = [0.01];        % 5th order (uncomment to include)
 
@@ -61,7 +61,7 @@ for n_idx = 1:length(N_list)
                                    k5 * (x_ideal.^5);
 
                         % Add DC offset and small noise for realism
-                        data = y_output + 0.5 + randn(1, N) * 1e-6;
+                        data = y_output + 0.5 + randn(1, N) * 1e-4;
 
                         % Build filename with coefficient values
                         k1_str = sprintf("k1_%.3f", k1);
@@ -83,7 +83,7 @@ for n_idx = 1:length(N_list)
                         n_str = sprintf("N_%d", N);
                         filename_str = filename_str + "_" + n_str;
 
-                        filename = fullfile(data_dir, sprintf("static_nonlin_%s.csv", filename_str));
+                        filename = fullfile(data_dir, sprintf("sinewave_static_nonlin_%s.csv", filename_str));
 
                         fprintf("[Save data into file] -> [%s]\n", filename);
                         fprintf("  Coefficients: k1=%.4f, k2=%.4f, k3=%.4f, k4=%.4f, k5=%.4f\n", ...
