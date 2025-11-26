@@ -13,8 +13,6 @@ testCases = [
 ];
 
 %% Run Tests
-fprintf('=== test_alias.m ===\n');
-
 nTests = size(testCases, 1);
 results = zeros(nTests, 3);
 
