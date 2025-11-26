@@ -9,8 +9,8 @@ N_LAST_STAGE = 4; % N_8 = 4 bits for the final stage
 
 N = 2^13;
 J = findBin(1, 0.0789, N);
-A = 1; % Full scale amplitude
-sig = A * sin((0:N - 1)*J*2*pi/N) + randn(1,N)*1e-6; % Base sinewave (zero mean)
+A = 0.49; % Full scale amplitude
+sig = A * sin((0:N - 1)*J*2*pi/N) + randn(1,N)*1e-6 + 0.5; % Base sinewave (zero mean)
 
 N_i = N_BITS_PER_STAGE;
 G_i = GAIN_PER_STAGE;
@@ -68,6 +68,11 @@ dout = cell2mat(digital_code_cells);
 weights = cell2mat(weights_cells);
 weights = weights / sum(weights); % Normalize weights
 
+ENoB1 = specPlot(digital_code_cells{1}*weights_cells{1}', "isplot", 0);
+ENoB = specPlot(dout*weights', "isplot", 0);
+fprintf("[%s] [ENoB1 = %0.2f bits] [ENoB2 = %0.2f bits]\n", mfilename, ENoB1, ENoB);
+
+
 total_redundancy = redundancy * (N_STAGES - 1); % Redundancy only applied in stages 1 to 7
 effective_res = total_bits - total_redundancy;
 
@@ -79,7 +84,7 @@ title_str = sprintf('8-stage Pipeline ADC (N_i=%d, G_i=%d, N_8=%d, Resolution=%.
     N_BITS_PER_STAGE, GAIN_PER_STAGE, N_LAST_STAGE, effective_res);
 title(title_str);
 
-filename = fullfile("dataset", sprintf("dout_Pipeline_3bx2x%d_4b.csv", N_STAGES));
+filename = fullfile("dataset", sprintf("dout_Pipeline_3bx4x%d_4b.csv", N_STAGES));
 fprintf("[Save data into file] -> [%s]\n", filename);
 writematrix(dout, filename);
 

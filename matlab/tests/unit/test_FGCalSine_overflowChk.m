@@ -3,10 +3,11 @@ close all; clc; clear;
 warning("off");
 
 %% Configuration
-verbose = 0;
+verbose = 1;
 inputDir = "dataset";
 outputDir = "test_output";
-filesList = autoSearchFiles({}, inputDir, 'dout_*.csv');
+filesList = {"dout_Pipeline_4bx8_8b.csv"};
+filesList = autoSearchFiles(filesList, inputDir, 'dout_*.csv');
 if ~isfolder(outputDir), mkdir(outputDir); end
 
 %% Test Loop
@@ -18,11 +19,16 @@ for k = 1:length(filesList)
     titleString = replace(datasetName, '_', '\_');
 
     read_data = readmatrix(dataFilePath);
-    weights_cal = FGCalSine(read_data);
+    [weights_cal, offset, postCal, ideal, err, freqCal] = FGCalSine(read_data);
+
+
+    ENoB = specPlot(postCal, "isplot", 0);
+    fprintf("[%s] [ENoB = %0.2f bits]\n", mfilename, ENoB);
+
 
     figure('Position', [100, 100, 800, 600], "Visible", verbose);
     data_decom = overflowChk(read_data, weights_cal);
-    title(['overflowChk: ',titleString]);
+    title(['overflowChk: ', titleString]);
     set(gca, "FontSize", 16);
 
     subFolder = fullfile(outputDir, datasetName, mfilename);
