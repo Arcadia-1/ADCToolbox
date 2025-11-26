@@ -176,5 +176,6 @@ project_log.md
 # =============================================================================
 # Claude Playground (temporary test scripts and experiments)
 # =============================================================================
+.claude
 
 agent_playground/
