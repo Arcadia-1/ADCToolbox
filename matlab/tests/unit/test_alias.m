@@ -1,58 +1,39 @@
-%% test_alias.m - Unit test for alias function
-% Output: test_output/test_alias/alias_results_matlab.csv
-
+%% test_alias.m
 close all; clc; clear;
 
-%% Configuration
-outputDir = "test_output";
-
-%% Test Cases - J (input freq), N (sampling freq), expected bin
+%% Test Cases: [J, N, expected_bin]
 testCases = [
-    100,    1024,   100;    % No aliasing (J < N/2)
-    600,    1024,   424;    % Aliasing (J > N/2)
-    512,    1024,   512;    % Nyquist
-    1024,   1024,   0;      % At sample rate
-    1100,   1024,   76;     % Above sample rate
-    2048,   1024,   0;      % 2x sample rate
-    2100,   1024,   52;     % Above 2x sample rate
+    100,    1024,   100;
+    600,    1024,   424;
+    512,    1024,   512;
+    1024,   1024,   0;
+    1100,   1024,   76;
+    2048,   1024,   0;
+    2100,   1024,   52;
 ];
 
 %% Run Tests
 fprintf('=== test_alias.m ===\n');
-fprintf('[Testing] %d cases...\n\n', size(testCases, 1));
 
-results = zeros(size(testCases, 1), 4);
-allPass = true;
+nTests = size(testCases, 1);
+results = zeros(nTests, 3);
 
-for k = 1:size(testCases, 1)
+for k = 1:nTests
     J = testCases(k, 1);
     N = testCases(k, 2);
     expected = testCases(k, 3);
     bin = alias(J, N);
 
-    results(k, :) = [J, N, bin, expected];
+    results(k, :) = [J, N, bin];
+    pass = (bin == expected);
 
-    if bin == expected
-        status = 'PASS';
-    else
-        status = 'FAIL';
-        allPass = false;
-    end
-
-    fprintf('[%d/%d] alias(%4.1d, %4.1d) = %4.1d (expected %4.1d) - %s\n', ...
-        k, size(testCases, 1), J, N, bin, expected, status);
+    fprintf('[%d/%d] alias(%4d, %4d) = %4d (expected %4d) - %s\n', ...
+        k, nTests, J, N, bin, expected, char('PASS' * pass + 'FAIL' * ~pass));
 end
 
 %% Save Results
-subFolder = fullfile(outputDir, 'test_alias');
-if ~isfolder(subFolder), mkdir(subFolder); end
+outFolder = "test_output/test_alias";
+if ~isfolder(outFolder), mkdir(outFolder); end
 
-csvPath = fullfile(subFolder, 'alias_results_matlab.csv');
-writetable(array2table(results, 'VariableNames', {'J','N','bin','expected'}), csvPath);
-
-fprintf('\n  [Saved] %s\n', csvPath);
-if allPass
-    fprintf('\n[test_alias PASSED]\n');
-else
-    fprintf('\n[test_alias FAILED - Some tests failed]\n');
-end
+writetable(array2table(results, 'VariableNames', {'J','N','aliased_bin'}), ...
+           fullfile(outFolder, 'alias_results_matlab.csv'));

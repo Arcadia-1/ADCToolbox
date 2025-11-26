@@ -1,16 +1,11 @@
+%% test_jitter_load.m - Unit test for jitter analysis
 close all; clear; clc; warning("off")
 
-%% Test jitter analysis with deterministic data
-% Input: test_data/jitter_sweep/
-% Output: test_output/jitter_sweep/
-
 %% Configuration
+verbose = 0;
 inputDir = fullfile('dataset', 'jitter_sweep');
 outputDir = fullfile('test_output', 'jitter_sweep');
-
-if ~exist(outputDir, 'dir')
-    mkdir(outputDir);
-end
+if ~exist(outputDir, 'dir'), mkdir(outputDir); end
 
 config_filepath = fullfile(inputDir, 'config.csv');
 if ~exist(config_filepath, 'file')
@@ -29,16 +24,10 @@ freq_metadata_filepath = fullfile(inputDir, 'frequency_list.csv');
 freq_metadata = readmatrix(freq_metadata_filepath);
 Fin_list_nominal = freq_metadata(:, 1);
 
-fprintf('=== test_jitter_load.m ===\n');
-fprintf('[Input dir] %s\n', inputDir);
-fprintf('[Output dir] %s\n', outputDir);
-fprintf('[Fs from config] %.3e Hz\n', Fs_expected);
-fprintf('[N from config] %d\n\n', N_expected);
 %% Analyze each frequency
 for i_freq = 1:length(Fin_list_nominal)
-
     Fin_nominal = Fin_list_nominal(i_freq);
-    fprintf('[Analyzing] Nominal Fin = %d MHz\n', round(Fin_nominal/1e6));
+    fprintf('\n[%s] [%d/%d] [Fin = %d MHz]\n', mfilename, i_freq, length(Fin_list_nominal), round(Fin_nominal/1e6));
 
     meas_jitter = zeros(length(Tj_list), 1);
     meas_SNDR = zeros(length(Tj_list), 1);
@@ -48,7 +37,6 @@ for i_freq = 1:length(Fin_list_nominal)
     anoi_array = zeros(length(Tj_list), 1);
 
     for i_tj = 1:length(Tj_list)
-
         Tj = Tj_list(i_tj);
         set_jitter(i_tj) = Tj;
 
@@ -83,22 +71,11 @@ for i_freq = 1:length(Fin_list_nominal)
             'label', 1, 'harmonic', 0, 'winType', @hann, ...
             'OSR', 1, 'coAvg', 0, "isPlot", 0);
         meas_SNDR(i_tj) = SNDR;
-
-        if mod(i_tj, 5) == 0
-            fprintf('  [Tj idx %02d/%02d] Fin=%.2fMHz, Set Tj=%.2f fs -> Meas=%.2f fs, [pnoi]=%.3e rad, [SNDR]=%.2f dB\n', ...
-                i_tj, length(Tj_list), Fin_fit/1e6, Tj*1e15, jitter_rms*1e15, pnoi, SNDR);
-        end
-
     end
 
-    fprintf('\n');
-
     Fin_actual_mean = mean(actual_Fin);
-    fprintf('[Extracted Fin from data] = %.6f MHz (nominal was %.6f MHz)\n', ...
-        Fin_actual_mean/1e6, Fin_nominal/1e6);
-    %% Plot results
-    figure('Position', [100, 100, 1000, 600]);
 
+    figure('Position', [100, 100, 1000, 600], "Visible", verbose);
     yyaxis left
     loglog(set_jitter, set_jitter, 'k--', 'LineWidth', 1.5, "DisplayName", "Set jitter");
     hold on;
@@ -118,10 +95,8 @@ for i_freq = 1:length(Fin_list_nominal)
     set(gca, "FontSize", 16);
 
     output_filename = sprintf('jitter_analysis_Fin_%dMHz_matlab.png', round(Fin_nominal/1e6));
-    output_filepath = fullfile(outputDir, output_filename);
-    saveas(gcf, output_filepath);
-    fprintf('[Saved plot] -> [%s]\n\n', output_filepath);
-    %% Save results to CSV
+    saveFig(outputDir, output_filename, verbose);
+
     results_filename = sprintf('jitter_results_Fin_%dMHz_matlab.csv', round(Fin_nominal/1e6));
     results_filepath = fullfile(outputDir, results_filename);
 
@@ -134,8 +109,4 @@ for i_freq = 1:length(Fin_list_nominal)
             pnoi_array(i), anoi_array(i), meas_SNDR(i), actual_Fin(i));
     end
     fclose(fid);
-    fprintf('[Saved results] -> [%s]\n\n', results_filepath);
-
 end
-
-fprintf('[test_jitter_load COMPLETE]\n');

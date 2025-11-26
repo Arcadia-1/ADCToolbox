@@ -1,70 +1,46 @@
-%% test_sineFit.m - Unit test for sineFit function
-% Output: test_output/<dataset>/test_sineFit/{metrics,fit_data}_matlab.csv
-
+%% test_sineFit.m
 close all; clc; clear;
 
+%% Configuration
+verbose = 1;
 inputDir = "dataset";
 outputDir = "test_output";
-
-% Test datasets - leave empty to auto-search
-filesList = {
-    % "sinewave_jitter_1000fs.csv"
-};
-filesList = autoSearchFiles(filesList, inputDir, 'sinewave_*.csv');
-
-if isempty(filesList)
-    error('No test files found in %s', inputDir);
-end
+filesList = autoSearchFiles({}, inputDir, 'sinewave_*.csv');
+if ~isfolder(outputDir), mkdir(outputDir); end
 
 %% Test Loop
-fprintf('=== test_sineFit.m ===\n');
-fprintf('[Testing] %d datasets...\n\n', length(filesList));
-
 for k = 1:length(filesList)
     currentFilename = filesList{k};
     filepath = fullfile(inputDir, currentFilename);
+    fprintf('\n[%s] [%d/%d] [%s]\n', mfilename, k, length(filesList), currentFilename);
 
-    if ~isfile(filepath)
-        fprintf('[%d/%d] %s - NOT FOUND, skipping\n\n', k, length(filesList), currentFilename);
-        continue;
-    end
-    fprintf('[%d/%d] [Processing] %s\n', k, length(filesList), currentFilename);
-
-    % Read and fit
     read_data = readmatrix(filepath);
     [data_fit, freq, mag, dc, phi] = sineFit(read_data);
-    n_cols = length(freq);
 
-    % Create output folder
+    figure('Position', [100, 100, 800, 600], "Visible", verbose);
+    period = round(1/freq);
+    n_samples = min(max(period, 20), length(read_data));
+    t = 1:n_samples;
+
+    plot(t, read_data(1:n_samples), '-o', 'LineWidth', 2, 'DisplayName', 'Original Data');
+    hold on;
+
+    t_dense = linspace(1, n_samples, n_samples*100);
+    fitted_sine = mag * cos(2*pi*freq*(t_dense - 1)+phi) + dc;
+    plot(t_dense, fitted_sine, '--', 'LineWidth', 1, 'DisplayName', 'Fitted Sine');
+
+    xlabel('Sample');
+    ylabel('Amplitude');
+    legend('Location', 'northwest');
+    grid on;
+    ylim([min(fitted_sine) - 0.15, max(fitted_sine) + 0.15])
+
     [~, datasetName, ~] = fileparts(currentFilename);
-    subFolder = fullfile(outputDir, datasetName, 'test_sineFit');
-    if ~isfolder(subFolder), mkdir(subFolder); end
-
-    % Save metrics
-    writetable(table(freq(:), mag(:), dc(:), phi(:), ...
-        'VariableNames', {'freq','mag','dc','phi'}), ...
-        fullfile(subFolder, 'metrics_matlab.csv'));
-
-    % Save fit data as column vector (sensible format!)
-    N_save = min(1000, size(data_fit, 1));
-    if size(data_fit, 2) == 1
-        % Single column: use simple name 'data_fit'
-        fitTable = table(data_fit(1:N_save), 'VariableNames', {'data_fit'});
-    else
-        % Multiple columns: use indexed names
-        fitTable = array2table(data_fit(1:N_save, :));
-        fitTable.Properties.VariableNames = arrayfun(@(i) sprintf('data_fit_%d', i-1), ...
-            1:size(data_fit,2), 'UniformOutput', false);
-    end
-    writetable(fitTable, fullfile(subFolder, 'fit_data_matlab.csv'));
-
-    % Print summary
-    if n_cols == 1
-        fprintf('  [Results] size(data_fit)=[%d, %d], freq=%.8f, mag=%.6f, dc=%.6f, phi=%.6f\n\n', size(data_fit), freq, mag, dc, phi);
-    else
-        fprintf('  [Results] %d cols: freq=%.8f±%.2e, mag=%.6f±%.2e\n\n', ...
-            n_cols, mean(freq), std(freq), mean(mag), std(mag));
-    end
+    subFolder = fullfile(outputDir, datasetName, mfilename);
+    saveFig(subFolder, "sineFit_matlab.png", verbose);
+    saveVariable(subFolder, freq, verbose);
+    saveVariable(subFolder, mag, verbose);
+    saveVariable(subFolder, dc, verbose);
+    saveVariable(subFolder, phi, verbose);
+    saveVariable(subFolder, data_fit, verbose);
 end
-
-fprintf('[test_sineFit COMPLETE]\n');

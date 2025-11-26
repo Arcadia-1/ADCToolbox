@@ -52,4 +52,5 @@ plot(lags, acf, 'LineWidth', 2);
 grid on;
 xlabel("Lag (samples)");
 ylabel("Autocorrelation");
-% ylim([-1.2,1.2])
+
+set(gca, "fontsize", 16)
