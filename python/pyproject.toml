@@ -42,10 +42,10 @@ dev = [
 ]
 
 [project.urls]
-Homepage = "https://github.com/yourusername/ADCToolbox"
-Documentation = "https://github.com/yourusername/ADCToolbox#readme"
-Repository = "https://github.com/yourusername/ADCToolbox"
-Issues = "https://github.com/yourusername/ADCToolbox/issues"
+Homepage = "https://github.com/Arcadia-1/ADCToolbox"
+Documentation = "https://github.com/Arcadia-1/ADCToolbox#readme"
+Repository = "https://github.com/Arcadia-1/ADCToolbox"
+Issues = "https://github.com/Arcadia-1/ADCToolbox/issues"
 
 [tool.setuptools.packages.find]
 where = ["src"]
