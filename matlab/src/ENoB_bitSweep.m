@@ -63,8 +63,6 @@ end
 ENoB_sweep = zeros(1, M);
 nBits_vec = 1:M;
 
-fprintf('ENoB_bitSweep: Sweeping through %d bit configurations...\n', M);
-
 % Sweep through different numbers of bits
 for nBits = 1:M
     fprintf('  [%d/%d] Testing with %d bits... ', nBits, M, nBits);
@@ -91,7 +89,7 @@ end
 
 % Create plot if requested
 if doPlot
-    plot(nBits_vec, ENoB_sweep, 'o-', 'LineWidth', 2, 'MarkerSize', 8, 'MarkerFaceColor', 'b');
+    plot(nBits_vec, ENoB_sweep, 'o-k', 'LineWidth', 2, 'MarkerSize', 8, 'MarkerFaceColor', 'k');
     hold on;
     grid on;
     xlabel('Number of Bits Used for Calibration', 'FontSize', 16);

@@ -35,6 +35,7 @@ for k = 1:length(filesList)
     end
 
     %% Run ENoB_bitSweep
+    figure('Position', [100, 100, 800, 600], 'Visible', 'off');
     [ENoB_sweep, nBits_vec] = ENoB_bitSweep(readmatrix(dataFilePath), ...
         'freq', 0, 'order', 5, 'harmonic', 5, 'OSR', 1, 'winType', @hamming);
 
@@ -43,7 +44,7 @@ for k = 1:length(filesList)
     % Save results
     saveas(gcf, fullfile(subFolder, 'ENoB_sweep_matlab.png'));
     fprintf('  [Saved] ENoB_sweep_matlab.png\n');
-    close(gcf);
+    % close(gcf);
 
     writetable(table(nBits_vec', ENoB_sweep', 'VariableNames', {'nBits', 'ENoB'}), ...
         fullfile(subFolder, 'ENoB_sweep_data_matlab.csv'));
