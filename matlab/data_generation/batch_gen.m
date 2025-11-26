@@ -29,6 +29,7 @@ gen_sinewave_static_nonlinearity
 
 generate_jitter_sweep_data
 
+generate_pipeline2s_dout
 generate_pipeline3s_dout
 generate_pipeline8s_dout
 generate_sar_dout
