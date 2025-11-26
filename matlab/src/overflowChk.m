@@ -1,10 +1,14 @@
 function overflowChk(raw_code,weight,OFB)
 
-if(nargin < 2)
-    OFB = 1;
+[N,M] = size(raw_code);
+if(N < M)
+    raw_code = raw_code';
+    [N,M] = size(raw_code);
 end
 
-[N,M] = size(raw_code);
+if(nargin < 3)
+    OFB = M;
+end
 
 data_decom = zeros([N,M]);
 range_min = zeros([1,M]);
@@ -12,11 +16,6 @@ range_max = zeros([1,M]);
 
 for ii = 1:M
     tmp = raw_code(:,ii:end)*weight(ii:end)';
-    
-%     [~,im] = max(tmp);
-%     tmp(im) = (2^(M-ii+1)-1)/2;
-%     [~,im] = min(tmp);
-%     tmp(im) = (2^(M-ii+1)-1)/2;
     
     data_decom(:,ii) = tmp / sum(weight(ii:end));
     range_min(ii) = min(tmp) / sum(weight(ii:end));
@@ -35,17 +34,17 @@ plot((1:M),range_min,'-r');
 plot((1:M),range_max,'-r');
 for ii = 1:M
 
-    h = scatter(ones([1,N])*ii, data_decom(:,ii), 'MarkerFaceColor','b','MarkerEdgeColor','b'); 
-    h.MarkerFaceAlpha = 0.01;
-    h.MarkerEdgeAlpha = 0.01;
+    h = scatter(ones([1,sum(non_ovf)])*ii, data_decom(non_ovf,ii), 'MarkerFaceColor','b','MarkerEdgeColor','b'); 
+    h.MarkerFaceAlpha = min(max(10/N,0.01),1);
+    h.MarkerEdgeAlpha = min(max(10/N,0.01),1);
     
     h = scatter(ones([1,sum(ovf_one)])*ii-0.2, data_decom(ovf_one,ii), 'MarkerFaceColor','r','MarkerEdgeColor','r'); 
-    h.MarkerFaceAlpha = 0.01;
-    h.MarkerEdgeAlpha = 0.01;
+    h.MarkerFaceAlpha = min(max(10/N,0.01),1);
+    h.MarkerEdgeAlpha = min(max(10/N,0.01),1);
     
     h = scatter(ones([1,sum(ovf_zero)])*ii+0.2, data_decom(ovf_zero,ii), 'MarkerFaceColor','y','MarkerEdgeColor','y'); 
-    h.MarkerFaceAlpha = 0.01;
-    h.MarkerEdgeAlpha = 0.01;
+    h.MarkerFaceAlpha = min(max(10/N,0.01),1);
+    h.MarkerEdgeAlpha = min(max(10/N,0.01),1);
     
     text(ii, -0.05, [num2str(sum(data_decom(:,ii) <= 0)/N*100,'%.1f'),'%']);
     text(ii, 1.05, [num2str(sum(data_decom(:,ii) >= 1)/N*100,'%.1f'),'%']);
