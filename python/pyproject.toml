@@ -48,5 +48,9 @@ Documentation = "https://github.com/Arcadia-1/ADCToolbox#readme"
 Repository = "https://github.com/Arcadia-1/ADCToolbox"
 Issues = "https://github.com/Arcadia-1/ADCToolbox/issues"
 
+[tool.setuptools]
+include-package-data = true
+
 [tool.setuptools.packages.find]
 where = ["src"]
+include = ["adctoolbox*"]
