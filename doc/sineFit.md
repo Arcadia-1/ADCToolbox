@@ -131,7 +131,7 @@ ylim([min(fitted_sine)-0.15, max(fitted_sine)+0.15]);
 - Use **0-indexed** time: `(t_dense-1)` because sineFit uses `time = (0:N-1)'`
 - The reconstruction formula: `mag * cos(2*pi*freq*(n-1) + phi) + dc` where `n` is the 1-indexed sample number
 
-![sineFit Visualization](../test_output/sinewave_jitter_1000fs/test_sineFit/sineFit_matlab.png)
+![sineFit Visualization](figures/sineFit_matlab.png)
 
 *Figure: Original data (blue circles) vs. fitted sinewave (orange dashed) showing excellent agreement over one period.*
 
