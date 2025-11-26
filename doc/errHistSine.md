@@ -1,8 +1,6 @@
 # errHistSine
 
-## Overview
-
-Analyzes ADC errors by comparing measured data against a fitted sine wave. Provides statistical error analysis and decomposes noise into amplitude and phase components.
+Analyzes ADC errors by comparing measured data against a fitted sine wave. Decomposes noise into amplitude and phase components.
 
 ## Syntax
 
@@ -12,215 +10,119 @@ Analyzes ADC errors by comparing measured data against a fitted sine wave. Provi
 
 ### Parameters
 
-| Parameter | Default | Description |
-|-----------|---------|-------------|
-| `data` | (required) | Input ADC data vector |
+| Name | Default | Description |
+|------|---------|-------------|
+| `data` | required | Input ADC data vector |
 | `bin` | 100 | Number of histogram bins |
-| `fin` | 0 (auto) | Normalized frequency (0-1), cycles per sample |
-| `disp` | 1 | Display plots: 1=yes, 0=no |
-| `mode` | 0 | 0=phase mode, ≥1=code mode |
-| `erange` | [] | Filter errors: `[min, max]` range on x-axis |
+| `fin` | 0 | Normalized frequency (0-1), 0 = auto-detect |
+| `disp` | 1 | Show plots (1) or not (0) |
+| `mode` | 0 | 0 = phase mode, ≥1 = code mode |
+| `erange` | [] | Filter errors to `[min, max]` range |
 
-### Outputs
+### Returns
 
 | Output | Description |
 |--------|-------------|
-| `emean` | Mean error per bin (reveals INL in code mode) |
+| `emean` | Mean error per bin (INL in code mode) |
 | `erms` | RMS error per bin |
-| `phase_code` | Bin centers (phase in degrees or code values) |
+| `phase_code` | Bin centers (degrees or codes) |
 | `anoi` | Amplitude noise RMS (phase mode only) |
 | `pnoi` | Phase noise RMS in radians (phase mode only) |
-| `err` | Raw errors (filtered if `erange` specified) |
-| `xx` | X-axis values for `err` |
+| `err` | Raw errors (filtered by erange if set) |
+| `xx` | X-axis values for err |
 
-## Algorithm
+## How It Works
 
-### 1. Sine Wave Fitting
+**1. Fits a sine wave** to your data: `data_fit[n] = A·sin(2πfn + φ) + DC`
 
-```
-data_fit[n] = A · sin(2π · f_in · n + φ) + DC
-```
+**2. Calculates errors** between fit and actual data: `err = data_fit - data`
 
-Where: $A$ = amplitude, $f_{in}$ = normalized frequency, $\varphi$ = phase, $DC$ = offset
+**3. Groups errors into bins** by phase (0-360°) or by code value
 
-### 2. Error Calculation
+**4. Computes statistics** for each bin:
+   - Mean error: average systematic error
+   - RMS error: total variation including noise
 
-```
-err[n] = data_fit[n] - data[n]
-```
-
-### 3. Binning
-
-**Phase Mode** (θ in degrees):
-
-```
-θ[n] = mod((φ/π) × 180 + n · f_in · 360, 360)
-```
-
-**Code Mode**:
-
-```
-bin_index = min(floor((data[n] - data_min) / bin_width) + 1, N_bins)
-```
-
-### 4. Statistics per Bin
-
-**Mean error:**
-
-```
-emean[b] = (1/N_b) Σ err[i]  for i in bin b
-```
-
-**RMS error:**
-
-```
-erms[b] = sqrt((1/N_b) Σ (err[i] - emean[b])²)  for i in bin b
-```
-
-### 5. Noise Decomposition (Phase Mode Only)
-
-Models RMS error variance as a combination of amplitude and phase noise:
-
-```
-erms²(θ) = σ²_A · cos²(θ) + (A · σ_φ)² · sin²(θ) + σ²_bl
-```
-
-Solved via least-squares:
-
-```
-┌                              ┐   ┌         ┐   ┌            ┐
-│ cos²(θ₁)  sin²(θ₁)  1        │   │ σ²_A    │   │ erms²(θ₁)  │
-│ cos²(θ₂)  sin²(θ₂)  1        │ · │ A²σ²_φ  │ = │ erms²(θ₂)  │
-│    ⋮         ⋮      ⋮        │   │ σ²_bl   │   │     ⋮      │
-│ cos²(θₙ)  sin²(θₙ)  1        │   └         ┘   │ erms²(θₙ)  │
-└                              ┘                   └            ┘
-```
-
-**Outputs:**
-- `anoi = σ_A` (amplitude noise)
-- `pnoi = σ_φ` (phase noise in radians)
-
-**Robust fallback**: If solution yields negative/imaginary values, tries phase-only, amplitude-only, or baseline-only fits.
-
-## Physical Interpretation
-
-### Amplitude Noise (anoi)
-- **Sources**: reference noise, comparator noise, thermal noise
-- **Units**: same as input data (LSB or volts)
-- **Normalized**: `anoi/mag` (unitless fraction)
-
-### Phase Noise (pnoi)
-- **Sources**: sampling clock jitter, timing uncertainty
-- **Units**: radians
-- **Convert to timing jitter**:
-
-```
-δt_rms = pnoi / (2π · f_in · f_s)
-```
-
-Where `f_s` = sampling rate in Hz
-
-**Example**: If `pnoi = 0.001` rad, `f_in = 0.1`, `f_s = 1 GHz`:
-```
-δt_rms = 0.001 / (2π · 0.1 · 1e9) ≈ 1.59 ps
-```
-
-### SNR Contributions
-
-**From amplitude noise:**
-```
-SNR_amp [dBc] = 20·log₁₀(A / (√2 · anoi))
-```
-
-**From phase noise:**
-```
-SNR_phase [dBc] = 20·log₁₀(1 / (√2 · pnoi))
-```
-
-**Combined (uncorrelated noise):**
-```
-SNR_total = -10·log₁₀(10^(-SNR_amp/10) + 10^(-SNR_phase/10))
-```
+**5. Decomposes noise** (phase mode only):
+   - Separates **amplitude noise** (voltage noise) from **phase noise** (timing jitter)
+   - Uses least-squares to solve: `erms²(θ) = σ²_A·cos²(θ) + (A·σ_φ)²·sin²(θ) + baseline`
+   - Amplitude noise dominates at peaks, phase noise dominates at zero crossings
 
 ## Usage Examples
 
-### Phase Mode: Noise Decomposition
+### Measure Amplitude and Phase Noise
 
 ```matlab
-% Generate noisy sine wave
+% Generate test signal
 N = 10000; fin = 0.1;
 data = sin(2*pi*fin*(0:N-1)) + 0.01*randn(1,N);
 
 % Analyze
-[emean, erms, phase, anoi, pnoi] = errHistSine(data, 'fin', fin);
+[~, ~, ~, anoi, pnoi] = errHistSine(data, 'fin', fin);
 fprintf('Amplitude Noise: %.4f\n', anoi);
 fprintf('Phase Noise: %.4f rad\n', pnoi);
 ```
 
-### Code Mode: INL Measurement
+### Measure ADC INL
 
 ```matlab
-% ADC output codes
+% Load ADC codes
 adc_codes = load('adc_output.mat');
 
 % Measure INL
-[INL, erms, codes] = errHistSine(adc_codes, 'mode', 1, 'bin', 256);
+[INL, ~, codes] = errHistSine(adc_codes, 'mode', 1, 'bin', 256);
 fprintf('Peak INL: %.3f LSB\n', max(abs(INL)));
+plot(codes, INL); xlabel('Code'); ylabel('INL [LSB]');
 ```
 
-## Key Formulas
+## Physical Interpretation
+
+### Amplitude Noise (anoi)
+Voltage noise from references, comparators, thermal sources. Units match your data (LSB or volts).
+
+### Phase Noise (pnoi)
+Timing jitter in radians. Convert to time jitter: **δt_rms = pnoi / (2π·f_in·f_s)**
+
+**Example:** pnoi = 0.001 rad at f_in = 0.1 and f_s = 1 GHz → δt_rms ≈ 1.59 ps
+
+### SNR from Noise Components
+
+- **Amplitude SNR:** `20·log₁₀(A/(√2·anoi))` [dBc]
+- **Phase SNR:** `20·log₁₀(1/(√2·pnoi))` [dBc]
+- **Total SNR:** `-10·log₁₀(10^(-SNR_amp/10) + 10^(-SNR_phase/10))`
+
+## Key Metrics
 
 ### Normalized Frequency
+**f_in = f_signal / f_sampling** where f_in < 0.5 (Nyquist)
 
-```
-f_in = f_signal / f_sampling ∈ (0, 0.5)  [Nyquist criterion]
-```
-
-**Coherent sampling**: `f_in = M/N` where M and N are integers (M cycles in N samples)
+For coherent sampling use f_in = M/N (M cycles in N samples)
 
 ### INL/DNL (Code Mode)
+- **INL[k] = emean[k]** - Integral nonlinearity at code k
+- **DNL[k] ≈ INL[k] - INL[k-1]** - Differential nonlinearity
+- **Peak INL = max|emean|**
 
-```
-INL[k] = emean[k]
+### ENOB (Effective Bits)
+**ENOB = log₂(mag / (√2·erms_total))** where erms_total combines all noise sources
 
-DNL[k] ≈ INL[k] - INL[k-1]
-
-INL_peak = max|emean[k]| over all codes k
-
-INL_rms = sqrt((1/N) Σ emean[k]²)
-```
-
-### ENOB (Effective Number of Bits)
-
-```
-ENOB = log₂(mag / (√2 · erms_total))
-```
-
-where `erms_total = sqrt(anoi² + (pnoi·mag)² + σ²_bl)`
-
-**Relationship to SINAD:**
-```
-SINAD [dB] = 6.02 · ENOB + 1.76
-ENOB = (SINAD - 1.76) / 6.02
-```
+**SINAD = 6.02·ENOB + 1.76** [dB]
 
 ## Applications
 
-- **ADC Characterization**: INL/DNL measurement (code mode)
-- **Noise Analysis**: Separate amplitude vs. phase noise sources
-- **Jitter Testing**: Phase noise → aperture jitter quantification
-- **Clock Quality**: Phase noise indicates clock performance
+- **ADC Testing** - Measure INL/DNL in code mode
+- **Noise Analysis** - Separate voltage noise from timing jitter
+- **Jitter Testing** - Quantify aperture jitter from phase noise
+- **Clock Quality** - Evaluate sampling clock performance
 
-## Implementation Notes
+## Notes
 
-- Auto-transposes row vectors
-- Phase mode: ideal for dynamic testing with coherent sine inputs
-- Code mode: ideal for static testing (ramp/histogram method)
-- Noise decomposition uses least-squares with robust fallback
-- Plots generated when `disp=1` show error vs. phase/code and RMS profiles
+- Automatically handles row or column vectors
+- **Phase mode**: Best for dynamic testing with sine waves
+- **Code mode**: Best for static testing (histogram method)
+- Noise decomposition uses robust least-squares with fallbacks
+- Set `disp=0` for batch processing without plots
 
 ## See Also
 
-- `sineFit` - Sine wave fitting (used internally)
-- `errPDF` - Error probability distribution
-- `errAutoCorrelation` - Error autocorrelation analysis
+`sineFit` · `errPDF` · `errAutoCorrelation`
