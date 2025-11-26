@@ -1,7 +1,7 @@
 close all; clear; clc; warning("off")
 rng(42); % set random seed for reproducibility
 
-data_dir = "dataset";
+data_dir = "dataset/non_lin";  % Subfolder for nonlinearity test data
 if ~exist(data_dir, 'dir')
     mkdir(data_dir);
     fprintf("Created output directory: [%s]\n", data_dir);
@@ -9,11 +9,11 @@ end
 
 %% Sinewave with controllable HD2, HD3, HD4, HD5 distortion
 % User-configurable parameters
-HD2_dB_list = [-60, -70];     % HD2 levels in dB (can be freely set or swept)
-HD3_dB_list = [-60, -70];     % HD3 levels in dB
+HD2_dB_list = [-30, -70];     % HD2 levels in dB (can be freely set or swept)
+HD3_dB_list = [-30, -70];     % HD3 levels in dB
 % HD4_dB_list = [-90];     % HD4 levels in dB (comment out to exclude)
 % HD5_dB_list = [-90];     % HD5 levels in dB (comment out to exclude)
-N_list = 2.^(6:8);  % FFT points (can be freely set or swept)
+N_list = 2.^(8);  % FFT points (can be freely set or swept)
 
 % Check which harmonics are defined
 use_HD4 = exist('HD4_dB_list', 'var');
@@ -77,23 +77,22 @@ for n_idx = 1:length(N_list)
                     hd2_str = sprintf("HD2_n%ddB", abs(HD2_dB_list(idx2)));
                     hd3_str = sprintf("HD3_n%ddB", abs(HD3_dB_list(idx3)));
 
-                    filename_parts = {hd2_str, hd3_str};
+                    filename_str = hd2_str + "_" + hd3_str;
 
                     if use_HD4
                         hd4_str = sprintf("HD4_n%ddB", abs(HD4_dB_list(idx4)));
-                        filename_parts{end+1} = hd4_str;
+                        filename_str = filename_str + "_" + hd4_str;
                     end
 
                     if use_HD5
                         hd5_str = sprintf("HD5_n%ddB", abs(HD5_dB_list(idx5)));
-                        filename_parts{end+1} = hd5_str;
+                        filename_str = filename_str + "_" + hd5_str;
                     end
 
                     n_str = sprintf("N_%d", N);
-                    filename_parts{end+1} = n_str;
+                    filename_str = filename_str + "_" + n_str;
 
-                    filename = fullfile(data_dir, sprintf("sinewave_%s.csv", ...
-                        strjoin(filename_parts, '_')));
+                    filename = fullfile(data_dir, sprintf("sinewave_%s.csv", filename_str));
 
                     fprintf("[Save data into file] -> [%s]\n", filename);
                     writematrix(data, filename);
