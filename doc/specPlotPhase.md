@@ -66,6 +66,22 @@ runs = [run1; run2; run3];  % 3×N matrix
 % Phase-coherent averaging preserves harmonic relationships
 ```
 
+### Example 3: Jitter Analysis Visualization
+
+```matlab
+% Load data with jitter
+data = readmatrix('dataset/sinewave_jitter_1000fs.csv');
+
+% Create phase plot with 10 harmonics
+figure('Position', [100, 100, 800, 600]);
+[h, spec, phi, bin] = specPlotPhase(data, 'harmonic', 10);
+set(gca, 'FontSize', 16);
+```
+
+![Spectrum Phase Plot](figures/specPlotPhase_matlab.png)
+
+*Figure: Polar spectrum showing fundamental (red) and harmonics (blue) with phase information. The noise floor appears as a circular cloud, while the fundamental and harmonics show clear directional alignment at 0° with jitter-induced phase noise.*
+
 ## Interpretation
 
 | Observation | Meaning |
