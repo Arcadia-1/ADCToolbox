@@ -4,9 +4,17 @@ A comprehensive toolbox for ADC (Analog-to-Digital Converter) testing and charac
 
 **Dual Implementation**: MATLAB and Python with 100% numerical parity validated.
 
+
 ---
 
 ## Features
+
+
+<p align="center">
+  <img src="doc/OVERVIEW_sinewave_jitter_1000fs_matlab.png" alt="Comprehensive ADC Error Analysis" width="100%">
+  <br>
+  <em>Comprehensive error analysis with 9 complementary views: time-domain decomposition, frequency spectrum, phase analysis, histograms, error PDF, autocorrelation, and envelope spectrum</em>
+</p>
 
 - **Spectrum Analysis**: ENOB, SNDR, SFDR, SNR, THD, Noise Floor
 - **Error Analysis**: PDF, Autocorrelation, Envelope Spectrum, Histogram Analysis
