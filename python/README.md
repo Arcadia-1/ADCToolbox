@@ -21,6 +21,12 @@ Delivers clear **multi-angle diagnostic views** of ADC behavior, enabling deeper
 pip install adctoolbox
 ```
 
+or (recommended)
+
+```bash
+uv pip install adctoolbox
+```
+
 **Requirements**: Python >= 3.8, numpy, scipy, matplotlib, pandas
 
 ---
