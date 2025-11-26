@@ -138,7 +138,7 @@ The following figures show real ENoB sweep analysis from two 12-bit SAR ADC data
 <table>
 <tr>
 <td width="50%">
-<img src="doc\ENoB_sweep_matlab.png" width="80%">
+<img src="ENoB_sweep_matlab.png" width="80%">
 <br><b>Case 1: Ideal Calibration (no redundancy)</b>
 <ul>
 <li>All bits contribute ~1.0 ENoB (black annotations)</li>
@@ -148,7 +148,7 @@ The following figures show real ENoB sweep analysis from two 12-bit SAR ADC data
 </ul>
 </td>
 <td width="50%">
-<img src="doc\ENoB_sweep_matlab.png" width="80%">
+<img src="ENoB_sweep_matlab.png" width="80%">
 <br><b>Case 2: With Bit Issues (redundancy detected)</b>
 <ul>
 <li><b>Bits 4-5</b>: Degraded (+0.58, +0.38 red) → Weight errors</li>
