@@ -1,4 +1,6 @@
 function saveVariable(folder, var, verbose)
+% saveVariable Save a variable to CSV with auto truncation.
+
 if nargin < 3, verbose = 0; end
 varName = inputname(2);
 if isempty(varName)
