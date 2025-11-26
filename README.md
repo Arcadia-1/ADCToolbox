@@ -11,7 +11,7 @@ It delivers clear **multi-angle diagnostic views** of ADC behavior, enabling dee
 
 
 <p align="center">
-  <img src="doc/OVERVIEW_sinewave_jitter_1000fs_matlab.png" alt="Comprehensive ADC Error Analysis" width="80%">
+  <img src="doc/figures/OVERVIEW_sinewave_jitter_1000fs_matlab.png" alt="Comprehensive ADC Error Analysis" width="80%">
   <br>
   <em>Example: comprehensive analysis on a sinewave data with 9  views</em>
 </p>
