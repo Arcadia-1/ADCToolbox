@@ -1,6 +1,6 @@
-function [emean, erms, phase_code, anoi, pnoi, err, xx] = errHistSine(data, varargin)
+function [emean, erms, phase_code, anoi, pnoi, err, xx, polycoeff] = errHistSine(data, varargin)
 
-    % mode = 0 : phase as x axis; 
+    % mode = 0 : phase as x axis;
     % mode >= 1 : code as axis;
 
     % emean : mean error over phase / code
@@ -10,6 +10,7 @@ function [emean, erms, phase_code, anoi, pnoi, err, xx] = errHistSine(data, vara
     % pnoi : phase noise (phase jitter)
     % err : raw errors of each data point
     % xx : x-axies values (phase / code) corresponding to the raw err
+    % polycoeff : polynomial coefficients for static nonlinearity (code mode only)
 
     p = inputParser;
     addOptional(p, 'bin', 100, @(x) isnumeric(x) && isscalar(x) && (x > 0));
@@ -17,12 +18,14 @@ function [emean, erms, phase_code, anoi, pnoi, err, xx] = errHistSine(data, vara
     addOptional(p, 'disp', 1);
     addOptional(p, 'mode', 0, @(x) isnumeric(x));
     addParameter(p, 'erange', []);  % err filter, only the erros in erange are return to err
+    addParameter(p, 'polyorder', 0, @(x) isnumeric(x) && isscalar(x) && (x >= 0));  % polynomial order for code mode
     parse(p, varargin{:});
     bin = round(p.Results.bin);
     fin = p.Results.fin;
     disp = p.Results.disp;
     codeMode = p.Results.mode;
     erange = p.Results.erange;
+    polyorder = round(p.Results.polyorder);
 
     [N,M] = size(data);
     if(M == 1)
@@ -63,6 +66,22 @@ function [emean, erms, phase_code, anoi, pnoi, err, xx] = errHistSine(data, vara
         anoi = nan;
         pnoi = nan;
 
+        % Polynomial regression for static nonlinearity
+        if(polyorder > 0)
+            % Remove NaN bins for fitting
+            valid_idx = ~isnan(emean);
+            if sum(valid_idx) > polyorder
+                % Normalize x to [-1, 1] for better numerical stability
+                x_norm = 2 * (phase_code(valid_idx) - dat_min) / (dat_max - dat_min) - 1;
+                polycoeff = polyfit(x_norm, emean(valid_idx), polyorder);
+            else
+                polycoeff = [];
+                warning('Not enough valid bins for polynomial fitting');
+            end
+        else
+            polycoeff = [];
+        end
+
         if(~isempty(erange))
             eid = (xx >= erange(1)) & (xx <= erange(2));
             xx = xx(eid);
@@ -71,10 +90,20 @@ function [emean, erms, phase_code, anoi, pnoi, err, xx] = errHistSine(data, vara
 
         if(disp)
             subplot(2,1,1);
-    
+
             plot(data,err,'r.');
             hold on;
             plot(phase_code,emean,'b-');
+
+            % Plot polynomial fit if available
+            if(~isempty(polycoeff))
+                x_fit = linspace(dat_min, dat_max, 200);
+                x_fit_norm = 2 * (x_fit - dat_min) / (dat_max - dat_min) - 1;
+                y_fit = polyval(polycoeff, x_fit_norm);
+                plot(x_fit, y_fit, 'g-', 'LineWidth', 2);
+                legend('Raw error', 'Mean error', sprintf('Poly fit (order %d)', polyorder));
+            end
+
             axis([dat_min,dat_max,min(err),max(err)]);
             ylabel('error');
             xlabel('code');
@@ -82,7 +111,7 @@ function [emean, erms, phase_code, anoi, pnoi, err, xx] = errHistSine(data, vara
             if(~isempty(erange))
                 plot(xx,err,'m.');
             end
-    
+
             subplot(2,1,2);
             bar(phase_code,erms);
             axis([dat_min,dat_max,0,max(erms)*1.1]);
@@ -97,6 +126,8 @@ function [emean, erms, phase_code, anoi, pnoi, err, xx] = errHistSine(data, vara
         enum = zeros([1,bin]);
         esum = zeros([1,bin]);
         erms = zeros([1,bin]);
+
+        polycoeff = [];  % Not applicable in phase mode
     
         for ii = 1:length(data)
             b = mod(round(xx(ii)/360*bin),bin)+1;

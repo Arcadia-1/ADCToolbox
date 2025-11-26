@@ -5,7 +5,7 @@ Analyzes ADC errors by comparing measured data against a fitted sine wave. Decom
 ## Syntax
 
 ```matlab
-[emean, erms, phase_code, anoi, pnoi, err, xx] = errHistSine(data, ...)
+[emean, erms, phase_code, anoi, pnoi, err, xx, polycoeff] = errHistSine(data, ...)
 ```
 
 ### Parameters
@@ -18,6 +18,7 @@ Analyzes ADC errors by comparing measured data against a fitted sine wave. Decom
 | `disp` | 1 | Show plots (1) or not (0) |
 | `mode` | 0 | 0 = phase mode, ≥1 = code mode |
 | `erange` | [] | Filter errors to `[min, max]` range |
+| `polyorder` | 0 | Polynomial order for static nonlinearity fitting (code mode only) |
 
 ### Returns
 
@@ -30,6 +31,7 @@ Analyzes ADC errors by comparing measured data against a fitted sine wave. Decom
 | `pnoi` | Phase noise RMS in radians (phase mode only) |
 | `err` | Raw errors (filtered by erange if set) |
 | `xx` | X-axis values for err |
+| `polycoeff` | Polynomial coefficients for static nonlinearity (code mode with polyorder>0) |
 
 ## How It Works
 
@@ -47,6 +49,13 @@ Analyzes ADC errors by comparing measured data against a fitted sine wave. Decom
    - Separates **amplitude noise** (voltage noise) from **phase noise** (timing jitter)
    - Uses least-squares to solve: `erms²(θ) = σ²_A·cos²(θ) + (A·σ_φ)²·sin²(θ) + baseline`
    - Amplitude noise dominates at peaks, phase noise dominates at zero crossings
+
+**6. Polynomial regression** (code mode with polyorder>0):
+   - Fits a polynomial to the INL curve: `INL(x) = p_n·x^n + ... + p_1·x + p_0`
+   - Extracts static nonlinearity coefficients
+   - Input is normalized to [-1, 1] for numerical stability
+   - Returns polynomial coefficients from highest to lowest order
+   - Useful for characterizing transfer function nonlinearity
 
 ## Usage Examples
 
@@ -73,6 +82,25 @@ adc_codes = load('adc_output.mat');
 [INL, ~, codes] = errHistSine(adc_codes, 'mode', 1, 'bin', 256);
 fprintf('Peak INL: %.3f LSB\n', max(abs(INL)));
 plot(codes, INL); xlabel('Code'); ylabel('INL [LSB]');
+```
+
+### Extract Static Nonlinearity Coefficients
+
+```matlab
+% Load ADC codes
+adc_codes = load('adc_output.mat');
+
+% Fit 5th-order polynomial to static nonlinearity
+[INL, ~, codes, ~, ~, ~, ~, polycoeff] = ...
+    errHistSine(adc_codes, 'mode', 1, 'bin', 256, 'polyorder', 5);
+
+% Display coefficients
+fprintf('Polynomial coefficients (high to low order):\n');
+for i = 1:length(polycoeff)
+    fprintf('  p%d = %.6e\n', length(polycoeff)-i, polycoeff(i));
+end
+
+% The plot will show the polynomial fit in green
 ```
 
 ## Physical Interpretation
@@ -114,6 +142,7 @@ For coherent sampling use f_in = M/N (M cycles in N samples)
 - **Noise Analysis** - Separate voltage noise from timing jitter
 - **Jitter Testing** - Quantify aperture jitter from phase noise
 - **Clock Quality** - Evaluate sampling clock performance
+- **Transfer Function Characterization** - Extract polynomial coefficients of static nonlinearity
 
 ## Notes
 
