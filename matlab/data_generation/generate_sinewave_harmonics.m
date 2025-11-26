@@ -9,11 +9,11 @@ end
 
 %% Sinewave with controllable HD2, HD3, HD4, HD5 distortion
 % User-configurable parameters
-HD2_dB_list = [-30, -70];     % HD2 levels in dB (can be freely set or swept)
-HD3_dB_list = [-30, -70];     % HD3 levels in dB
+HD2_dB_list = [-60];     % HD2 levels in dB (can be freely set or swept)
+HD3_dB_list = [-50];     % HD3 levels in dB
 % HD4_dB_list = [-90];     % HD4 levels in dB (comment out to exclude)
 % HD5_dB_list = [-90];     % HD5 levels in dB (comment out to exclude)
-N_list = 2.^(8);  % FFT points (can be freely set or swept)
+N_list = 2.^(12);  % FFT points (can be freely set or swept)
 
 % Check which harmonics are defined
 use_HD4 = exist('HD4_dB_list', 'var');
