@@ -8,5 +8,5 @@ if verbose
     fprintf("  [%s]->[%s]\n", mfilename, filePath);
 end
 
-% close all;
+close all;
 end

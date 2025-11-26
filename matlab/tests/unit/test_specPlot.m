@@ -18,11 +18,11 @@ for k = 1:length(filesList)
 
     figure('Position', [100, 100, 800, 600], "Visible", verbose);
     [ENoB, SNDR, SFDR, SNR, THD, pwr, NF, ~] = specPlot(read_data, 'label', 1, 'harmonic', 5, 'OSR', 1);
+    set(gca, "FontSize",16)
 
     [~, datasetName, ~] = fileparts(currentFilename);
     subFolder = fullfile(outputDir, datasetName, mfilename);
-
-    saveFig(subFolder, "spectrum.png", verbose);
+    saveFig(subFolder, "specPlot_matlab.png", verbose);
     saveVariable(subFolder, ENoB, verbose);
     saveVariable(subFolder, SNDR, verbose);
     saveVariable(subFolder, SFDR, verbose);

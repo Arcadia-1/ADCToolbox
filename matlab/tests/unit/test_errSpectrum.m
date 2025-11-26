@@ -2,7 +2,7 @@
 close all; clc; clear;
 
 %% Configuration
-verbose = 0;
+verbose = 1;
 inputDir = "dataset";
 outputDir = "test_output";
 filesList = autoSearchFiles({}, inputDir, 'sinewave_*.csv');
@@ -22,10 +22,10 @@ for k = 1:length(filesList)
     figure('Position', [100, 100, 800, 600], "Visible", verbose);
     [data_fit, freq_est, mag, dc, phi] = sineFit(read_data);
     err_data = read_data - data_fit;
-    [~, ~, ~, ~, ~, ~, ~, h] = specPlot(err_data, "label", 0);
+    specPlot(err_data, "label", 0);
     title(['errSpectrum: ', titleString]);
+    set(gca, "FontSize", 16);
 
     subFolder = fullfile(outputDir, datasetName, mfilename);
-
     saveFig(subFolder, "errSpectrum_matlab.png", verbose);
 end
