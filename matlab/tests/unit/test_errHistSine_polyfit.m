@@ -55,6 +55,13 @@ for k = 1 %:length(filesList)
     % Get frequency
     [~, freq, ~, ~, ~] = sineFit(read_data);
 
+    % Extract coefficients using FFT method (most accurate)
+    [k1_fft, k2_fft, k3_fft, k4_fft, k5_fft] = extractCoeffsFromFFT(read_data, freq);
+    fprintf('  [FFT-based Extraction (Reference)]\n');
+    fprintf('    k1 (gain) = %.6e\n', k1_fft);
+    fprintf('    k2 (HD2)  = %.6e\n', k2_fft);
+    fprintf('    k3 (HD3)  = %.6e\n', k3_fft);
+
     % Calculate expected coefficients from filename
     [k0_exp, k1_exp, k2_exp, k3_exp, k4_exp, k5_exp] = calcExpectedCoeffs(currentFilename);
     fprintf('  [Expected Coefficients from Generation]\n');
@@ -88,6 +95,14 @@ for k = 1 %:length(filesList)
     expPath = fullfile(subFolder, 'expected_coefficients_matlab.csv');
     writetable(expTable, expPath);
     fprintf('  [Saved] %s\n', expPath);
+
+    % Save FFT-extracted coefficients to CSV
+    fftCoeffs = [k1_fft, k2_fft, k3_fft];
+    fftNames = {'k1_gain_fft', 'k2_HD2_fft', 'k3_HD3_fft'};
+    fftTable = array2table(fftCoeffs, 'VariableNames', fftNames);
+    fftPath = fullfile(subFolder, 'coefficients_fft_matlab.csv');
+    writetable(fftTable, fftPath);
+    fprintf('  [Saved] %s\n', fftPath);
 
     %% Test different polynomial orders
     for p = 1:length(polyOrders)
@@ -146,26 +161,85 @@ for k = 1 %:length(filesList)
             end
 
             % Compare extracted vs expected coefficients
-            fprintf('    [Comparison: Extracted vs Expected]\n');
+            fprintf('    [Comparison: Polynomial Fit vs FFT vs Expected]\n');
             k0_extracted = polycoeff(end);
             k1_extracted = 1 + polycoeff(end-1);
 
-            fprintf('      k0: extracted=%.6e, expected=%.6e, error=%.2f%%\n', ...
-                k0_extracted, k0_exp, abs(k0_extracted - k0_exp) / abs(k0_exp) * 100);
-            fprintf('      k1: extracted=%.6e, expected=%.6e, error=%.2f%%\n', ...
-                k1_extracted, k1_exp, abs(k1_extracted - k1_exp) / abs(k1_exp) * 100);
+            fprintf('      k1 (gain):\n');
+            fprintf('        Polyfit:  %.6e  (error vs expected: %.2f%%, vs FFT: %.2f%%)\n', ...
+                k1_extracted, abs(k1_extracted - k1_exp) / abs(k1_exp) * 100, ...
+                abs(k1_extracted - k1_fft) / abs(k1_fft) * 100);
+            fprintf('        FFT:      %.6e  (error vs expected: %.2f%%)\n', ...
+                k1_fft, abs(k1_fft - k1_exp) / abs(k1_exp) * 100);
+            fprintf('        Expected: %.6e\n', k1_exp);
 
             if length(polycoeff) >= 3 && ~isnan(k2_exp)
                 k2_extracted = polycoeff(end-2);
-                fprintf('      k2: extracted=%.6e, expected=%.6e, error=%.2f%%\n', ...
-                    k2_extracted, k2_exp, abs(k2_extracted - k2_exp) / abs(k2_exp) * 100);
+                fprintf('      k2 (HD2):\n');
+                fprintf('        Polyfit:  %.6e  (error vs expected: %.2f%%, vs FFT: %.2f%%)\n', ...
+                    k2_extracted, abs(k2_extracted - k2_exp) / abs(k2_exp) * 100, ...
+                    abs(k2_extracted - k2_fft) / abs(k2_fft) * 100);
+                fprintf('        FFT:      %.6e  (error vs expected: %.2f%%)\n', ...
+                    k2_fft, abs(k2_fft - k2_exp) / abs(k2_exp) * 100);
+                fprintf('        Expected: %.6e\n', k2_exp);
             end
 
             if length(polycoeff) >= 4 && ~isnan(k3_exp)
                 k3_extracted = polycoeff(end-3);
-                fprintf('      k3: extracted=%.6e, expected=%.6e, error=%.2f%%\n', ...
-                    k3_extracted, k3_exp, abs(k3_extracted - k3_exp) / abs(k3_exp) * 100);
+                fprintf('      k3 (HD3):\n');
+                fprintf('        Polyfit:  %.6e  (error vs expected: %.2f%%, vs FFT: %.2f%%)\n', ...
+                    k3_extracted, abs(k3_extracted - k3_exp) / abs(k3_exp) * 100, ...
+                    abs(k3_extracted - k3_fft) / abs(k3_fft) * 100);
+                fprintf('        FFT:      %.6e  (error vs expected: %.2f%%)\n', ...
+                    k3_fft, abs(k3_fft - k3_exp) / abs(k3_exp) * 100);
+                fprintf('        Expected: %.6e\n', k3_exp);
             end
+
+            % Save comparison table (expected vs polyfit vs FFT)
+            compNames = {};
+            compExpected = [];
+            compPolyfit = [];
+            compFFT = [];
+            compPolyfitError = [];
+            compFFTError = [];
+
+            % k1
+            compNames = [compNames, {'k1_gain'}];
+            compExpected = [compExpected, k1_exp];
+            compPolyfit = [compPolyfit, k1_extracted];
+            compFFT = [compFFT, k1_fft];
+            compPolyfitError = [compPolyfitError, abs(k1_extracted - k1_exp) / abs(k1_exp) * 100];
+            compFFTError = [compFFTError, abs(k1_fft - k1_exp) / abs(k1_exp) * 100];
+
+            % k2
+            if length(polycoeff) >= 3 && ~isnan(k2_exp)
+                k2_extracted = polycoeff(end-2);
+                compNames = [compNames, {'k2_HD2'}];
+                compExpected = [compExpected, k2_exp];
+                compPolyfit = [compPolyfit, k2_extracted];
+                compFFT = [compFFT, k2_fft];
+                compPolyfitError = [compPolyfitError, abs(k2_extracted - k2_exp) / abs(k2_exp) * 100];
+                compFFTError = [compFFTError, abs(k2_fft - k2_exp) / abs(k2_exp) * 100];
+            end
+
+            % k3
+            if length(polycoeff) >= 4 && ~isnan(k3_exp)
+                k3_extracted = polycoeff(end-3);
+                compNames = [compNames, {'k3_HD3'}];
+                compExpected = [compExpected, k3_exp];
+                compPolyfit = [compPolyfit, k3_extracted];
+                compFFT = [compFFT, k3_fft];
+                compPolyfitError = [compPolyfitError, abs(k3_extracted - k3_exp) / abs(k3_exp) * 100];
+                compFFTError = [compFFTError, abs(k3_fft - k3_exp) / abs(k3_exp) * 100];
+            end
+
+            compTable = table(compNames', compExpected', compPolyfit', compPolyfitError', ...
+                              compFFT', compFFTError', ...
+                'VariableNames', {'Coefficient', 'Expected', 'Polyfit', 'Polyfit_Error_Pct', ...
+                                  'FFT', 'FFT_Error_Pct'});
+            compPath = fullfile(subFolder, sprintf('comparison_order%d_matlab.csv', polyOrder));
+            writetable(compTable, compPath);
+            fprintf('    [Saved] %s\n', compPath);
 
             % Save transfer function coefficients to CSV
             k0 = polycoeff(end);
