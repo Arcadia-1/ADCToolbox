@@ -1,2 +1,4 @@
 test_FGCalSine
 test_FGCalSine_overflowChk
+
+test_ENoB_bitSweep
