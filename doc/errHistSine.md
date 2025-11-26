@@ -37,79 +37,110 @@ Analyzes ADC errors by comparing measured data against a fitted sine wave. Provi
 
 ### 1. Sine Wave Fitting
 
-$$\text{data\_fit}[n] = A \cdot \sin(2\pi f_{in} n + \varphi) + DC$$
+```
+data_fit[n] = A · sin(2π · f_in · n + φ) + DC
+```
+
+Where: $A$ = amplitude, $f_{in}$ = normalized frequency, $\varphi$ = phase, $DC$ = offset
 
 ### 2. Error Calculation
 
-$$\text{err}[n] = \text{data\_fit}[n] - \text{data}[n]$$
+```
+err[n] = data_fit[n] - data[n]
+```
 
 ### 3. Binning
 
-**Phase Mode** ($\theta$ in degrees):
+**Phase Mode** (θ in degrees):
 
-$$\theta[n] = \text{mod}\left(\frac{\varphi}{\pi} \times 180 + n \cdot f_{in} \cdot 360, 360\right)$$
+```
+θ[n] = mod((φ/π) × 180 + n · f_in · 360, 360)
+```
 
 **Code Mode**:
 
-$$\text{bin\_index} = \min\left(\left\lfloor\frac{\text{data}[n] - \text{data}_{\min}}{\text{bin\_width}}\right\rfloor + 1, N_{bins}\right)$$
+```
+bin_index = min(floor((data[n] - data_min) / bin_width) + 1, N_bins)
+```
 
 ### 4. Statistics per Bin
 
-$$\text{emean}[b] = \frac{1}{N_b} \sum_{i \in b} \text{err}[i]$$
+**Mean error:**
 
-$$\text{erms}[b] = \sqrt{\frac{1}{N_b} \sum_{i \in b} \left(\text{err}[i] - \text{emean}[b]\right)^2}$$
+```
+emean[b] = (1/N_b) Σ err[i]  for i in bin b
+```
+
+**RMS error:**
+
+```
+erms[b] = sqrt((1/N_b) Σ (err[i] - emean[b])²)  for i in bin b
+```
 
 ### 5. Noise Decomposition (Phase Mode Only)
 
 Models RMS error variance as a combination of amplitude and phase noise:
 
-$$\text{erms}^2(\theta) = \sigma^2_A \cdot \cos^2(\theta) + (A \cdot \sigma_\varphi)^2 \cdot \sin^2(\theta) + \sigma^2_{bl}$$
+```
+erms²(θ) = σ²_A · cos²(θ) + (A · σ_φ)² · sin²(θ) + σ²_bl
+```
 
 Solved via least-squares:
 
-$$\begin{bmatrix}
-\cos^2(\theta_1) & \sin^2(\theta_1) & 1 \\
-\vdots & \vdots & \vdots \\
-\cos^2(\theta_n) & \sin^2(\theta_n) & 1
-\end{bmatrix}
-\begin{bmatrix}
-\sigma^2_A \\
-A^2 \sigma^2_\varphi \\
-\sigma^2_{bl}
-\end{bmatrix}
-=
-\begin{bmatrix}
-\text{erms}^2(\theta_1) \\
-\vdots \\
-\text{erms}^2(\theta_n)
-\end{bmatrix}$$
+```
+┌                              ┐   ┌         ┐   ┌            ┐
+│ cos²(θ₁)  sin²(θ₁)  1        │   │ σ²_A    │   │ erms²(θ₁)  │
+│ cos²(θ₂)  sin²(θ₂)  1        │ · │ A²σ²_φ  │ = │ erms²(θ₂)  │
+│    ⋮         ⋮      ⋮        │   │ σ²_bl   │   │     ⋮      │
+│ cos²(θₙ)  sin²(θₙ)  1        │   └         ┘   │ erms²(θₙ)  │
+└                              ┘                   └            ┘
+```
 
-Output: $\text{anoi} = \sigma_A$, $\text{pnoi} = \sigma_\varphi$
+**Outputs:**
+- `anoi = σ_A` (amplitude noise)
+- `pnoi = σ_φ` (phase noise in radians)
 
 **Robust fallback**: If solution yields negative/imaginary values, tries phase-only, amplitude-only, or baseline-only fits.
 
 ## Physical Interpretation
 
 ### Amplitude Noise (anoi)
-- Sources: reference noise, comparator noise, thermal noise
-- Units: same as input data (LSB or volts)
+- **Sources**: reference noise, comparator noise, thermal noise
+- **Units**: same as input data (LSB or volts)
+- **Normalized**: `anoi/mag` (unitless fraction)
 
 ### Phase Noise (pnoi)
-- Sources: sampling clock jitter, timing uncertainty
-- Units: radians
-- Convert to timing jitter:
+- **Sources**: sampling clock jitter, timing uncertainty
+- **Units**: radians
+- **Convert to timing jitter**:
 
-$$\delta t_{\text{rms}} = \frac{\text{pnoi}}{2\pi f_{in} f_s}$$
+```
+δt_rms = pnoi / (2π · f_in · f_s)
+```
 
-**Example**: $\text{pnoi} = 0.001$ rad, $f_{in} = 0.1$, $f_s = 1$ GHz → $\delta t_{\text{rms}} \approx 1.59$ ps
+Where `f_s` = sampling rate in Hz
+
+**Example**: If `pnoi = 0.001` rad, `f_in = 0.1`, `f_s = 1 GHz`:
+```
+δt_rms = 0.001 / (2π · 0.1 · 1e9) ≈ 1.59 ps
+```
 
 ### SNR Contributions
 
-$$\text{SNR}_{\text{amp}} = 20 \log_{10}\left(\frac{A}{\sqrt{2} \cdot \text{anoi}}\right) \text{ [dBc]}$$
+**From amplitude noise:**
+```
+SNR_amp [dBc] = 20·log₁₀(A / (√2 · anoi))
+```
 
-$$\text{SNR}_{\text{phase}} = 20 \log_{10}\left(\frac{1}{\sqrt{2} \cdot \text{pnoi}}\right) \text{ [dBc]}$$
+**From phase noise:**
+```
+SNR_phase [dBc] = 20·log₁₀(1 / (√2 · pnoi))
+```
 
-$$\text{SNR}_{\text{total}} = -10 \log_{10}\left(10^{-\text{SNR}_{\text{amp}}/10} + 10^{-\text{SNR}_{\text{phase}}/10}\right)$$
+**Combined (uncorrelated noise):**
+```
+SNR_total = -10·log₁₀(10^(-SNR_amp/10) + 10^(-SNR_phase/10))
+```
 
 ## Usage Examples
 
@@ -141,25 +172,37 @@ fprintf('Peak INL: %.3f LSB\n', max(abs(INL)));
 
 ### Normalized Frequency
 
-$$f_{in} = \frac{f_{\text{signal}}}{f_{\text{sampling}}} \in (0, 0.5) \quad \text{(Nyquist)}$$
+```
+f_in = f_signal / f_sampling ∈ (0, 0.5)  [Nyquist criterion]
+```
 
-Coherent sampling: $f_{in} = M/N$ (integers)
+**Coherent sampling**: `f_in = M/N` where M and N are integers (M cycles in N samples)
 
 ### INL/DNL (Code Mode)
 
-$$\text{INL}[k] = \text{emean}[k]$$
+```
+INL[k] = emean[k]
 
-$$\text{DNL}[k] \approx \text{INL}[k] - \text{INL}[k-1]$$
+DNL[k] ≈ INL[k] - INL[k-1]
 
-$$\text{INL}_{\text{peak}} = \max_k |\text{emean}[k]|$$
+INL_peak = max|emean[k]| over all codes k
 
-### ENOB
+INL_rms = sqrt((1/N) Σ emean[k]²)
+```
 
-$$\text{ENOB} = \log_2\left(\frac{\text{mag}}{\sqrt{2} \cdot \text{erms}_{\text{total}}}\right)$$
+### ENOB (Effective Number of Bits)
 
-where $\text{erms}_{\text{total}} = \sqrt{\text{anoi}^2 + (\text{pnoi} \cdot \text{mag})^2 + \sigma^2_{bl}}$
+```
+ENOB = log₂(mag / (√2 · erms_total))
+```
 
-$$\text{SINAD [dB]} = 6.02 \cdot \text{ENOB} + 1.76$$
+where `erms_total = sqrt(anoi² + (pnoi·mag)² + σ²_bl)`
+
+**Relationship to SINAD:**
+```
+SINAD [dB] = 6.02 · ENOB + 1.76
+ENOB = (SINAD - 1.76) / 6.02
+```
 
 ## Applications
 

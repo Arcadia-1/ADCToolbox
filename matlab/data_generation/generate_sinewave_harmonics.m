@@ -11,14 +11,23 @@ end
 % User-configurable parameters
 HD2_dB_list = [-60, -70];     % HD2 levels in dB (can be freely set or swept)
 HD3_dB_list = [-60, -70];     % HD3 levels in dB
-% HD4_dB_list = [-90];     % HD4 levels in dB
-% HD5_dB_list = [-90];     % HD5 levels in dB
+% HD4_dB_list = [-90];     % HD4 levels in dB (comment out to exclude)
+% HD5_dB_list = [-90];     % HD5 levels in dB (comment out to exclude)
 N_list = 2^(6:8);  % FFT points (can be freely set or swept)
+
+% Check which harmonics are defined
+use_HD4 = exist('HD4_dB_list', 'var');
+use_HD5 = exist('HD5_dB_list', 'var');
+
+% Set default list for undefined harmonics (single loop iteration)
+if ~use_HD4, HD4_dB_list = NaN; end
+if ~use_HD5, HD5_dB_list = NaN; end
 
 % Fundamental frequency parameters
 Fs = 1e9;                     % Sampling frequency (Hz)
 Fin_ratio = 0.0789;           % Normalized frequency (Fin/Fs)
 
+file_count = 0;
 for n_idx = 1:length(N_list)
     N = N_list(n_idx);
     J = findBin(1, Fin_ratio, N);
@@ -34,8 +43,6 @@ for n_idx = 1:length(N_list)
                     % Convert target HD levels (dB) to linear amplitude ratios
                     hd2_amp = 10^(HD2_dB_list(idx2) / 20);
                     hd3_amp = 10^(HD3_dB_list(idx3) / 20);
-                    hd4_amp = 10^(HD4_dB_list(idx4) / 20);
-                    hd5_amp = 10^(HD5_dB_list(idx5) / 20);
 
                     % Calculate polynomial coefficients for each harmonic
                     % HD2: 2nd harmonic amplitude = coef2 * A / 2
@@ -44,35 +51,53 @@ for n_idx = 1:length(N_list)
                     % HD3: 3rd harmonic amplitude = coef3 * A^2 / 4
                     coef3 = hd3_amp / (A^2 / 4);
 
-                    % HD4: 4th harmonic amplitude = coef4 * A^3 / 8
-                    coef4 = hd4_amp / (A^3 / 8);
-
-                    % HD5: 5th harmonic amplitude = coef5 * A^4 / 16
-                    coef5 = hd5_amp / (A^4 / 16);
-
-                    % Generate distorted waveform using polynomial nonlinearity
-                    % y = x + c2*x^2 + c3*x^3 + c4*x^4 + c5*x^5
+                    % Generate distorted waveform: start with base harmonics
                     distorted = sinewave + ...
                                 coef2 * (sinewave.^2) + ...
-                                coef3 * (sinewave.^3) + ...
-                                coef4 * (sinewave.^4) + ...
-                                coef5 * (sinewave.^5);
+                                coef3 * (sinewave.^3);
+
+                    % Add HD4 if defined
+                    if use_HD4
+                        hd4_amp = 10^(HD4_dB_list(idx4) / 20);
+                        coef4 = hd4_amp / (A^3 / 8);
+                        distorted = distorted + coef4 * (sinewave.^4);
+                    end
+
+                    % Add HD5 if defined
+                    if use_HD5
+                        hd5_amp = 10^(HD5_dB_list(idx5) / 20);
+                        coef5 = hd5_amp / (A^4 / 16);
+                        distorted = distorted + coef5 * (sinewave.^5);
+                    end
 
                     % Add DC offset and small noise for realism
                     data = distorted + 0.5 + randn(1, N) * 1e-6;
 
-                    % Format filename: HD2_xx_HD3_xx_HD4_xx_HD5_xx_N_xxxx.csv
+                    % Build filename dynamically based on which harmonics are defined
                     hd2_str = sprintf("HD2_n%ddB", abs(HD2_dB_list(idx2)));
                     hd3_str = sprintf("HD3_n%ddB", abs(HD3_dB_list(idx3)));
-                    hd4_str = sprintf("HD4_n%ddB", abs(HD4_dB_list(idx4)));
-                    hd5_str = sprintf("HD5_n%ddB", abs(HD5_dB_list(idx5)));
-                    n_str = sprintf("N_%d", N);
 
-                    filename = fullfile(data_dir, sprintf("sinewave_%s_%s_%s_%s_%s.csv", ...
-                        hd2_str, hd3_str, hd4_str, hd5_str, n_str));
+                    filename_parts = {hd2_str, hd3_str};
+
+                    if use_HD4
+                        hd4_str = sprintf("HD4_n%ddB", abs(HD4_dB_list(idx4)));
+                        filename_parts{end+1} = hd4_str;
+                    end
+
+                    if use_HD5
+                        hd5_str = sprintf("HD5_n%ddB", abs(HD5_dB_list(idx5)));
+                        filename_parts{end+1} = hd5_str;
+                    end
+
+                    n_str = sprintf("N_%d", N);
+                    filename_parts{end+1} = n_str;
+
+                    filename = fullfile(data_dir, sprintf("sinewave_%s.csv", ...
+                        strjoin(filename_parts, '_')));
 
                     fprintf("[Save data into file] -> [%s]\n", filename);
                     writematrix(data, filename);
+                    file_count = file_count + 1;
                 end
             end
         end
@@ -80,6 +105,4 @@ for n_idx = 1:length(N_list)
 end
 
 fprintf("\n=== Generation Complete ===\n");
-fprintf("Total files generated: %d\n", ...
-    length(N_list) * length(HD2_dB_list) * length(HD3_dB_list) * ...
-    length(HD4_dB_list) * length(HD5_dB_list));
+fprintf("Total files generated: %d\n", file_count);
