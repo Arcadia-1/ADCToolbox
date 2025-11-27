@@ -23,6 +23,6 @@ for k = 1:length(filesList)
 
     [~, datasetName, ~] = fileparts(currentFilename);
     subFolder = fullfile(outputDir, datasetName, mfilename);
-    saveFig(subFolder, "bitActivity.png", verbose);
+    saveFig(subFolder, "bitActivity_matlab.png", verbose);
     saveVariable(subFolder, bit_usage, verbose);
 end

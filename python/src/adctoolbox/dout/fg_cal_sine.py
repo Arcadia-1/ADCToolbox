@@ -4,15 +4,15 @@ import warnings
 
 # Verified
 
-def fg_cal_sine(bits, freq=0, rate=0.5, reltol=1e-12, niter=100, order=1, fsearch=0, nomWeight=None):
+def fg_cal_sine(bits, freq=0, rate=0.5, reltol=1e-12, niter=100, order=1, fsearch=0, verbose=0, nomWeight=None):
     """
     FGCalSine — Foreground calibration using a sinewave input
-    
+
     This function estimates per-bit weights and a DC offset for an ADC by
     fitting the weighted sum of raw bit columns to a sine series at a given
     (or estimated) normalized frequency Fin/Fs. It optionally performs a
     coarse and fine frequency search to refine the input tone frequency.
-    
+
     Parameters
     ----------
     bits : ndarray or list of ndarrays
@@ -32,10 +32,12 @@ def fg_cal_sine(bits, freq=0, rate=0.5, reltol=1e-12, niter=100, order=1, fsearc
         Harmonics exclusion order (1 for no exclusion), default is 1.
     fsearch : int, optional
         Force fine search (1) or not (0), default is 0.
+    verbose : int, optional
+        Print frequency search progress (1) or not (0), default is 0.
     nomWeight : array-like, optional
         Nominal bit weights (only effective when rank is deficient).
         Default is 2^(M-1) down to 2^0.
-    
+
     Returns
     -------
     weight : ndarray
@@ -103,9 +105,9 @@ def fg_cal_sine(bits, freq=0, rate=0.5, reltol=1e-12, niter=100, order=1, fsearc
         # Per-dataset frequency search (only for unknown entries or if forced)
         for k in range(ND):
             if freq[k] == 0 or fsearch == 1:
-                _, _, _, _, _, fk = FGCalSine(
+                _, _, _, _, _, fk = fg_cal_sine(
                     bits_cell[k], freq=freq[k], fsearch=1, order=order,
-                    rate=rate, reltol=reltol, niter=niter, nomWeight=nomWeight
+                    rate=rate, reltol=reltol, niter=niter, verbose=verbose, nomWeight=nomWeight
                 )
                 freq[k] = fk
         
@@ -341,16 +343,18 @@ def fg_cal_sine(bits, freq=0, rate=0.5, reltol=1e-12, niter=100, order=1, fsearc
     if freq == 0:
         fsearch = 1
         freq_estimates = []
-        
+
         # Use first min(M, 5) columns to estimate frequency
         for i1 in range(min(M, 5)):
-            print(f'Freq coarse searching ({i1+1}/5):', end='')
+            if verbose:
+                print(f'Freq coarse searching ({i1+1}/5):', end='')
             # Weighted sum of first i1+1 columns
             weighted_sum = bits_patch[:, :i1+1] @ nomWeight[:i1+1]
             freq_est = find_fin(weighted_sum)
             freq_estimates.append(freq_est)
-            print(f' freq = {freq_est}')
-        
+            if verbose:
+                print(f' freq = {freq_est}')
+
         freq = np.median(freq_estimates)
     
     # Build harmonic basis matrices
@@ -426,9 +430,10 @@ def fg_cal_sine(bits, freq=0, rate=0.5, reltol=1e-12, niter=100, order=1, fsearc
             # Compute frequency correction
             delta_f = x[-1] * rate / N
             relerr = np.sqrt(np.mean((x[-1] / N * A[:, -1])**2)) / np.sqrt(1 + x[M + order]**2)
-            
-            print(f'Freq fine iterating ({ii+1}): freq = {freq}, delta_f = {delta_f}, rel_err = {relerr}')
-            
+
+            if verbose:
+                print(f'Freq fine iterating ({ii+1}): freq = {freq}, delta_f = {delta_f}, rel_err = {relerr}')
+
             # Stop if relative error is below tolerance
             if relerr < reltol:
                 break

@@ -10,7 +10,6 @@ Output structure:
 """
 
 import numpy as np
-import pandas as pd
 import matplotlib
 matplotlib.use('Agg')  # Non-interactive backend
 import matplotlib.pyplot as plt
@@ -18,6 +17,8 @@ from pathlib import Path
 
 from adctoolbox.common import find_fin
 from adctoolbox.aout import tom_decomp
+from save_variable import save_variable
+from save_fig import save_fig
 
 # Get project root directory
 project_root = Path(__file__).resolve().parents[3]
@@ -73,34 +74,22 @@ def main():
         plt.gcf().suptitle(f'tomDecomp: {dataset_name}')
 
         # Save plot
-        plot_path = sub_folder / 'tomDecomp_python.png'
-        plt.savefig(plot_path, dpi=150, bbox_inches='tight')
-        plt.close()
+        save_fig(sub_folder, 'tomDecomp_python.png')
 
-        # Save decomposition data (first 1000 samples for comparison)
-        N_save = min(1000, len(signal))
-        decomp_df = pd.DataFrame({
-            'signal': signal[:N_save],
-            'error': error[:N_save],
-            'indep': indep[:N_save],
-            'dep': dep[:N_save]
-        })
-        decomp_path = sub_folder / 'decomp_data_python.csv'
-        decomp_df.to_csv(decomp_path, index=False)
-
-        # Save metrics
+        # Calculate metrics
         rms_error = np.sqrt(np.mean(error**2))
         rms_indep = np.sqrt(np.mean(indep**2))
         rms_dep = np.sqrt(np.mean(dep**2))
 
-        metrics_df = pd.DataFrame([{
-            'phi': phi,
-            'rms_error': rms_error,
-            'rms_indep': rms_indep,
-            'rms_dep': rms_dep
-        }])
-        metrics_path = sub_folder / 'metrics_python.csv'
-        metrics_df.to_csv(metrics_path, index=False)
+        # Save each variable to separate CSV (matching MATLAB format)
+        save_variable(sub_folder, signal, 'signal')
+        save_variable(sub_folder, error, 'error')
+        save_variable(sub_folder, indep, 'indep')
+        save_variable(sub_folder, dep, 'dep')
+        save_variable(sub_folder, phi, 'phi')
+        save_variable(sub_folder, rms_error, 'rms_error')
+        save_variable(sub_folder, rms_indep, 'rms_indep')
+        save_variable(sub_folder, rms_dep, 'rms_dep')
 
         # Print one-line progress
         print(f"[{k}/{len(files_list)}] [test_tomDecomp] [rms_err={rms_error:.6f}] from {current_filename}")

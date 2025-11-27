@@ -9,11 +9,12 @@ Output structure:
 """
 
 import numpy as np
-import pandas as pd
 import matplotlib.pyplot as plt
 from pathlib import Path
 
 from adctoolbox.aout import spec_plot
+from save_variable import save_variable
+from save_fig import save_fig
 
 # Get project root directory (two levels up from python/tests/unit)
 project_root = Path(__file__).resolve().parents[3]
@@ -73,18 +74,15 @@ def main():
         # Update title
         plt.title(f'specPlot: {dataset_name}')
 
-        # Save plot
-        plot_path = sub_folder / 'spectrum_python.png'
-        plt.savefig(plot_path, dpi=100, bbox_inches='tight')
-        plt.close()
-
-        # Save metrics to CSV
-        metrics_df = pd.DataFrame([{
-            'ENoB': ENoB, 'SNDR': SNDR, 'SFDR': SFDR,
-            'SNR': SNR, 'THD': THD, 'pwr': pwr, 'NF': NF
-        }])
-        metrics_path = sub_folder / 'metrics_python.csv'
-        metrics_df.to_csv(metrics_path, index=False)
+        # Save plot and variables
+        save_fig(sub_folder, 'spectrum_python.png', dpi=100)
+        save_variable(sub_folder, ENoB, 'ENoB')
+        save_variable(sub_folder, SNDR, 'SNDR')
+        save_variable(sub_folder, SFDR, 'SFDR')
+        save_variable(sub_folder, SNR, 'SNR')
+        save_variable(sub_folder, THD, 'THD')
+        save_variable(sub_folder, pwr, 'pwr')
+        save_variable(sub_folder, NF, 'NF')
 
         # Print one-line progress
         print(f"[{k}/{len(files_list)}] [test_specPlot] [ENoB={ENoB:.2f}] from {current_filename}")

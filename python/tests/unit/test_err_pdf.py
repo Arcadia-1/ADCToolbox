@@ -4,13 +4,16 @@ Tests the errPDF function with sinewave error data.
 
 Output structure:
   test_output/<data_set_name>/test_errPDF/
-      metrics_python.csv      - mu, sigma, KL_divergence
-      pdf_data_python.csv     - x, fx, gauss_pdf
+      mu_python.csv           - Mean value
+      sigma_python.csv        - Standard deviation
+      KL_divergence_python.csv - KL divergence metric
+      x_python.csv            - Histogram bin centers
+      fx_python.csv           - Histogram values
+      gauss_pdf_python.csv    - Gaussian PDF values
       errPDF_python.png       - PDF plot
 """
 
 import numpy as np
-import pandas as pd
 import matplotlib
 matplotlib.use('Agg')  # Non-interactive backend
 import matplotlib.pyplot as plt
@@ -18,6 +21,7 @@ from pathlib import Path
 
 from adctoolbox.common import sine_fit
 from adctoolbox.aout import err_pdf
+from save_variable import save_variable
 
 # Get project root directory (two levels up from python/tests/unit)
 project_root = Path(__file__).resolve().parents[3]
@@ -80,23 +84,13 @@ def main():
         plt.savefig(plot_path, dpi=150, bbox_inches='tight')
         plt.close()
 
-        # Save metrics to CSV
-        metrics_df = pd.DataFrame([{
-            'mu': mu,
-            'sigma': sigma,
-            'KL_divergence': KL_divergence
-        }])
-        metrics_path = sub_folder / 'metrics_python.csv'
-        metrics_df.to_csv(metrics_path, index=False)
-
-        # Save PDF data to CSV
-        pdf_df = pd.DataFrame({
-            'x': x,
-            'fx': fx,
-            'gauss_pdf': gauss_pdf
-        })
-        pdf_path = sub_folder / 'pdf_data_python.csv'
-        pdf_df.to_csv(pdf_path, index=False)
+        # Save each variable to separate CSV (matching MATLAB format)
+        save_variable(sub_folder, mu, 'mu')
+        save_variable(sub_folder, sigma, 'sigma')
+        save_variable(sub_folder, KL_divergence, 'KL_divergence')
+        save_variable(sub_folder, x, 'x')
+        save_variable(sub_folder, fx, 'fx')
+        save_variable(sub_folder, gauss_pdf, 'gauss_pdf')
 
         # Print one-line progress
         print(f"[{k}/{len(files_list)}] [test_errPDF] [KL_div={KL_divergence:.4f}] from {current_filename}")

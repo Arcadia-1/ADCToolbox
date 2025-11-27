@@ -79,37 +79,36 @@ def compare_test_results():
 
     output_dir = Path('test_output')
 
-    # Define test mappings (MATLAB folder -> Python folder -> files to compare)
+    print('[compare_all_results]')
+    print(f'  [search] -> [{output_dir}]')
+    print()
+
+    # Define test mappings (test folder -> files to compare)
     test_configs = {
         'bit_activity': {
-            'matlab_folder': 'test_bitActivity',
-            'python_folder': 'test_bit_activity',
+            'test_folder': 'test_bitActivity',
             'files': [('bit_usage_matlab.csv', 'bit_usage_python.csv', 'bit_usage', 1e-6)],
         },
         'weight_scaling': {
-            'matlab_folder': 'test_weightScaling',
-            'python_folder': 'test_weight_scaling',
+            'test_folder': 'test_weightScaling',
             'files': [
                 ('radix_matlab.csv', 'radix_python.csv', 'radix', 1e-6),
                 ('weight_cal_matlab.csv', 'weight_cal_python.csv', 'weight_cal', 1e-6),
             ],
         },
         'enob_bit_sweep': {
-            'matlab_folder': 'test_ENoB_bitSweep',
-            'python_folder': 'test_enob_bit_sweep',
+            'test_folder': 'test_ENoB_bitSweep',
             'files': [('ENoB_sweep_matlab.csv', 'ENoB_sweep_python.csv', 'ENoB_sweep', 0.01)],
         },
         'sine_fit': {
-            'matlab_folder': 'test_sineFit',
-            'python_folder': 'test_sine_fit',
+            'test_folder': 'test_sineFit',
             'files': [
                 ('freq_est_matlab.csv', 'freq_est_python.csv', 'freq_est', 1e-6),
                 ('mag_matlab.csv', 'mag_python.csv', 'mag', 1e-6),
             ],
         },
         'fg_cal_sine': {
-            'matlab_folder': 'test_FGCalSine',
-            'python_folder': 'test_fg_cal_sine',
+            'test_folder': 'test_FGCalSine',
             'files': [
                 ('weight_matlab.csv', 'weight_python.csv', 'weight', 1e-6),
                 ('offset_matlab.csv', 'offset_python.csv', 'offset', 1e-6),
@@ -130,30 +129,42 @@ def compare_test_results():
         print('-'*90)
 
         # Find datasets
-        matlab_folders = list(output_dir.glob(f'*/{config["matlab_folder"]}'))
+        test_folders = list(output_dir.glob(f'*/{config["test_folder"]}'))
 
-        if not matlab_folders:
+        if not test_folders:
             print(f'  No datasets found for {test_name}')
             continue
 
-        for matlab_folder in sorted(matlab_folders):
-            dataset_name = matlab_folder.parent.name
-            python_folder = output_dir / dataset_name / config['python_folder']
+        for test_folder in sorted(test_folders):
+            dataset_name = test_folder.parent.name
 
             print(f'\n  [{dataset_name}]')
 
             for matlab_file, python_file, var_name, tolerance in config['files']:
-                matlab_path = matlab_folder / matlab_file
-                python_path = python_folder / python_file
+                matlab_path = test_folder / matlab_file
+                python_path = test_folder / python_file
+
+                # Show file paths
+                print(f'    [MATLAB] -> [{matlab_path}]', end=' ')
+                if matlab_path.exists():
+                    print('OK', end='')
+                else:
+                    print('NOT FOUND', end='')
+
+                print(f' | [Python] -> [{python_path}]', end=' ')
+                if python_path.exists():
+                    print('OK')
+                else:
+                    print('NOT FOUND')
 
                 status, message = compare_csv_files(matlab_path, python_path, tolerance, var_name)
                 overall_stats[status] += 1
 
                 status_symbol = {
-                    'PASS': '✓',
-                    'WARN': '!',
-                    'FAIL': '✗',
-                    'SKIP': '-'
+                    'PASS': 'OK',
+                    'WARN': 'WARN',
+                    'FAIL': 'FAIL',
+                    'SKIP': 'SKIP'
                 }[status]
 
                 print(f'    [{status_symbol}] {var_name:<15} {message}')
