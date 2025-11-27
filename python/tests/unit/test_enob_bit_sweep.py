@@ -34,7 +34,7 @@ for k, filepath in enumerate(files_list, 1):
         read_data, freq=0, order=5, harmonic=5, osr=1, win_type=4, plot=True)
 
     dataset_name = filepath.stem
-    sub_folder = output_dir / dataset_name / 'test_enob_bit_sweep'
+    sub_folder = output_dir / dataset_name / 'test_ENoB_bitSweep'
     sub_folder.mkdir(parents=True, exist_ok=True)
 
     # Save figure

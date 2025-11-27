@@ -64,7 +64,7 @@ def test_fgcalsine_overflowchk():
             title_string = dataset_name  # Keep underscores as-is in Python
 
             # Create output subfolder
-            sub_folder = output_dir / dataset_name / 'test_overflow_chk'
+            sub_folder = output_dir / dataset_name / 'test_FGCalSine_overflowChk'
             sub_folder.mkdir(parents=True, exist_ok=True)
 
             # Run FGCalSine to get calibrated weights

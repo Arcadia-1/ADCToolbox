@@ -14,16 +14,51 @@ def compare_results():
 
     output_dir = Path('test_output')
 
+    print('[compare_weight_scaling]')
+    print(f'  [search] -> [{output_dir}]')
+    print()
+
     # Find all datasets with both MATLAB and Python results
     datasets = []
-    for matlab_folder in output_dir.glob('*/test_weightScaling'):
-        dataset_name = matlab_folder.parent.name
-        python_folder = output_dir / dataset_name / 'test_weight_scaling'
-        if python_folder.exists():
+
+    print('[Searching for datasets]')
+    for test_folder in output_dir.glob('*/test_weightScaling'):
+        dataset_name = test_folder.parent.name
+
+        matlab_radix = test_folder / 'radix_matlab.csv'
+        python_radix = test_folder / 'radix_python.csv'
+
+        print(f'  [dataset] [{dataset_name}]')
+        print(f'    [MATLAB] -> [{matlab_radix}]', end='')
+        if matlab_radix.exists():
+            print(' OK')
+        else:
+            print(' NOT FOUND')
+
+        print(f'    [Python] -> [{python_radix}]', end='')
+        if python_radix.exists():
+            print(' OK')
+        else:
+            print(' NOT FOUND')
+
+        if matlab_radix.exists() and python_radix.exists():
             datasets.append(dataset_name)
+            print(f'    [status] MATCHED')
+        else:
+            print(f'    [status] INCOMPLETE')
+    print()
 
     if not datasets:
-        print('[WARNING] No matching datasets found. Run both MATLAB and Python tests first.')
+        print('[FAIL] No matching datasets found.')
+        print()
+        print('To fix this:')
+        print('  1. Run MATLAB test:')
+        print('     >> cd matlab/tests/unit')
+        print('     >> test_weightScaling')
+        print('  2. Run Python test:')
+        print('     >> cd d:\\ADCToolbox')
+        print('     >> python python/tests/unit/test_weight_scaling.py')
+        print('  3. Re-run this comparison script')
         return
 
     print('='*80)
@@ -36,11 +71,11 @@ def compare_results():
     for dataset in sorted(datasets):
         print(f'[{dataset}]')
 
-        matlab_radix = output_dir / dataset / 'test_weightScaling' / 'radix_matlab.csv'
-        python_radix = output_dir / dataset / 'test_weight_scaling' / 'radix_python.csv'
-
-        matlab_weight = output_dir / dataset / 'test_weightScaling' / 'weight_cal_matlab.csv'
-        python_weight = output_dir / dataset / 'test_weight_scaling' / 'weight_cal_python.csv'
+        test_folder = output_dir / dataset / 'test_weightScaling'
+        matlab_radix = test_folder / 'radix_matlab.csv'
+        python_radix = test_folder / 'radix_python.csv'
+        matlab_weight = test_folder / 'weight_cal_matlab.csv'
+        python_weight = test_folder / 'weight_cal_python.csv'
 
         # Compare radix
         if matlab_radix.exists() and python_radix.exists():

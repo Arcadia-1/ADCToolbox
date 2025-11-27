@@ -40,7 +40,7 @@ for k, filepath in enumerate(files_list, 1):
     plt.gca().tick_params(labelsize=16)
 
     dataset_name = filepath.stem
-    sub_folder = output_dir / dataset_name / 'test_weight_scaling'
+    sub_folder = output_dir / dataset_name / 'test_weightScaling'
     sub_folder.mkdir(parents=True, exist_ok=True)
 
     # Save figure

@@ -5,8 +5,11 @@ Tests the sine_fit function for sinewave fitting with proper MxN support.
 
 Output structure:
     test_output/<data_set_name>/test_sineFit/
-        metrics_python.csv      - freq, mag, dc, phi (per column)
-        fit_data_python.csv     - first 1000 samples of data_fit
+        freq_python.csv         - Frequency estimates
+        mag_python.csv          - Magnitude estimates
+        dc_python.csv           - DC offset estimates
+        phi_python.csv          - Phase estimates
+        data_fit_python.csv     - First 1000 samples of fitted data
 """
 
 import numpy as np
@@ -15,6 +18,7 @@ import os
 from pathlib import Path
 
 from adctoolbox.common import sine_fit
+from save_variable import save_variable
 
 # Get project root directory (two levels up from python/tests/unit)
 project_root = Path(__file__).resolve().parents[3]
@@ -91,27 +95,12 @@ def test_sineFit():
             phi_arr = phi
             data_fit_2d = data_fit
 
-        # Save metrics to CSV
-        metrics_df = pd.DataFrame({
-            'freq': freq_arr,
-            'mag': mag_arr,
-            'dc': dc_arr,
-            'phi': phi_arr
-        })
-        metrics_path = sub_folder / 'metrics_python.csv'
-        metrics_df.to_csv(metrics_path, index=False)
-        print(f"  [Saved] {metrics_path}")
-
-        # Save fit data as column vector (N rows × 1 column) - sensible format!
-        # Extract first column if multi-column (for single-signal datasets)
-        if data_fit_2d.shape[1] == 1:
-            fit_df = pd.DataFrame({'data_fit': data_fit_2d[:, 0]})
-        else:
-            # For multi-column, save all columns properly
-            fit_df = pd.DataFrame(data_fit_2d, columns=[f'data_fit_{i}' for i in range(data_fit_2d.shape[1])])
-        fit_path = sub_folder / 'fit_data_python.csv'
-        fit_df.to_csv(fit_path, index=False)
-        print(f"  [Saved] {fit_path}")
+        # Save each variable to separate CSV (matching MATLAB format)
+        save_variable(sub_folder, freq_arr, 'freq')
+        save_variable(sub_folder, mag_arr, 'mag')
+        save_variable(sub_folder, dc_arr, 'dc')
+        save_variable(sub_folder, phi_arr, 'phi')
+        save_variable(sub_folder, data_fit_2d, 'data_fit')
 
         # Print metrics summary
         if len(freq_arr) == 1:

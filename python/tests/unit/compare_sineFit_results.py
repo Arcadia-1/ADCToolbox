@@ -32,25 +32,59 @@ def compare_results():
 
     output_dir = project_root / "test_output"
 
+    print('[compare_sineFit_results]')
+    print(f'  [search] -> [{output_dir}]')
+    print()
+
     # Find all dataset folders that have test_sineFit results
     dataset_folders = []
     search_patterns = ["sinewave_*", "batch_sinewave_*"]
 
+    print('[Searching for datasets]')
     for pattern in search_patterns:
+        print(f'  [pattern] [{pattern}]')
         for folder in output_dir.glob(pattern):
             if not folder.is_dir():
                 continue
             test_folder = folder / "test_sineFit"
+            matlab_metrics = test_folder / "metrics_matlab.csv"
+            python_metrics = test_folder / "metrics_python.csv"
+
+            print(f'    [dataset] [{folder.name}]')
+            print(f'      [MATLAB] -> [{matlab_metrics}]', end='')
+            if matlab_metrics.exists():
+                print(' OK')
+            else:
+                print(' NOT FOUND')
+
+            print(f'      [Python] -> [{python_metrics}]', end='')
+            if python_metrics.exists():
+                print(' OK')
+            else:
+                print(' NOT FOUND')
+
             if test_folder.exists():
-                matlab_metrics = test_folder / "metrics_matlab.csv"
-                python_metrics = test_folder / "metrics_python.csv"
                 if matlab_metrics.exists() and python_metrics.exists():
                     if folder.name not in dataset_folders:  # Avoid duplicates
                         dataset_folders.append(folder.name)
+                        print(f'      [status] MATCHED')
+                else:
+                    print(f'      [status] INCOMPLETE')
+            else:
+                print(f'      [status] NO TEST FOLDER')
+    print()
 
     if not dataset_folders:
-        print("No matching MATLAB and Python results found.")
-        print("Run both test_sineFit.m (MATLAB) and test_sine_fit.py (Python) first.")
+        print('[FAIL] No matching MATLAB and Python results found.')
+        print()
+        print('To fix this:')
+        print('  1. Run MATLAB test:')
+        print('     >> cd matlab/tests/unit')
+        print('     >> test_sineFit')
+        print('  2. Run Python test:')
+        print('     >> cd d:\\ADCToolbox')
+        print('     >> python python/tests/unit/test_sine_fit.py')
+        print('  3. Re-run this comparison script')
         return
 
     print("=== sineFit MATLAB vs Python Comparison ===")
