@@ -1,7 +1,7 @@
 function [data_fit,freq,mag,dc,phi] = sineFit(data,f0,tol,rate)
 %SINEFIT Four-parameter iterative sine wave fitting (legacy)
 %   DEPRECATED: This function is maintained for backward compatibility.
-%   Please use SINEFIT (lowercase) instead.
+%   Please use sinefit (lowercase) instead.
 %
 %   This function is a wrapper that calls sinefit with the same
 %   functionality. All new code should use sinefit directly.
