@@ -5,7 +5,7 @@ close all; clc; clear; warning("off")
 verbose = 0;
 inputDir = "dataset";
 outputDir = "test_output";
-filesList = {"sinewave_amplitude_noise_0P001.csv"};
+filesList = {};
 filesList = autoSearchFiles(filesList, inputDir, 'sinewave_*.csv', 'batch_sinewave_*.csv');
 if ~isfolder(outputDir), mkdir(outputDir); end
 

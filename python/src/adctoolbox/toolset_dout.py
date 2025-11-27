@@ -68,7 +68,7 @@ def toolset_dout(bits, output_dir, visible=False, order=5, prefix='dout'):
         digital_codes_nominal = bits @ nominal_weights
         fig = plt.figure(figsize=(10, 7.5))
         enob_nom, sndr_nom, sfdr_nom, snr_nom, thd_nom, _, _, _ = spec_plot(
-            digital_codes_nominal, label=1, harmonic=5, osr=1, win_type='hamming')
+            digital_codes_nominal, label=1, harmonic=5, OSR=1, winType=4)
         plt.title('Digital Spectrum: Nominal Weights')
         plt.gca().tick_params(labelsize=16)
         png_path = output_dir / f'{prefix}_1_spectrum_nominal.png'
@@ -76,7 +76,7 @@ def toolset_dout(bits, output_dir, visible=False, order=5, prefix='dout'):
         if not visible:
             plt.close(fig)
         status['tools_completed'][0] = 1
-        print(f' OK → [{png_path}]')
+        print(f' OK -> [{png_path}]')
     except Exception as e:
         print(f' FAIL {str(e)}')
         status['errors'].append(f'Tool 1: {str(e)}')
@@ -89,7 +89,7 @@ def toolset_dout(bits, output_dir, visible=False, order=5, prefix='dout'):
         digital_codes_calibrated = bits @ weight_cal
         fig = plt.figure(figsize=(10, 7.5))
         enob_cal, sndr_cal, sfdr_cal, snr_cal, thd_cal, _, _, _ = spec_plot(
-            digital_codes_calibrated, label=1, harmonic=5, osr=1, win_type='hamming')
+            digital_codes_calibrated, label=1, harmonic=5, OSR=1, winType=4)
         plt.title('Digital Spectrum: Calibrated Weights')
         plt.gca().tick_params(labelsize=16)
         png_path = output_dir / f'{prefix}_2_spectrum_calibrated.png'
@@ -98,7 +98,7 @@ def toolset_dout(bits, output_dir, visible=False, order=5, prefix='dout'):
             plt.close(fig)
         status['tools_completed'][1] = 1
         improvement = enob_cal - enob_nom
-        print(f' OK (+{improvement:.2f} ENoB) → [{png_path}]')
+        print(f' OK (+{improvement:.2f} ENoB) -> [{png_path}]')
     except Exception as e:
         print(f' FAIL {str(e)}')
         status['errors'].append(f'Tool 2: {str(e)}')

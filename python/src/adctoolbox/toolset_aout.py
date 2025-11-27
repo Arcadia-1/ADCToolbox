@@ -168,7 +168,7 @@ def toolset_aout(aout_data, output_dir, visible=False, resolution=11, prefix='ao
     try:
         fig = plt.figure(figsize=(10, 7.5))
         _, mu, sigma, kl_div, x, fx, gauss_pdf = err_pdf(
-            err_data, resolution=resolution, full_scale=full_scale)
+            err_data, Resolution=resolution, FullScale=full_scale)
         plt.title('errPDF: Error PDF')
         plt.gca().tick_params(labelsize=14)
         png_path = output_dir / f'{prefix}_6_errPDF.png'
@@ -185,7 +185,7 @@ def toolset_aout(aout_data, output_dir, visible=False, resolution=11, prefix='ao
     print('[7/9][errAutoCorrelation]', end='')
     try:
         fig = plt.figure(figsize=(10, 7.5))
-        acf, lags = err_auto_correlation(err_data, max_lag=200, normalize=True)
+        acf, lags = err_auto_correlation(err_data, MaxLag=200, Normalize=True)
         plt.title('errAutoCorrelation: Error Autocorrelation')
         plt.gca().tick_params(labelsize=14)
         png_path = output_dir / f'{prefix}_7_errAutoCorrelation.png'
@@ -219,7 +219,7 @@ def toolset_aout(aout_data, output_dir, visible=False, resolution=11, prefix='ao
     print('[9/9][errEnvelopeSpectrum]', end='')
     try:
         fig = plt.figure(figsize=(10, 7.5))
-        err_envelope_spectrum(err_data, fs=1)
+        err_envelope_spectrum(err_data, Fs=1)
         plt.title('errEnvelopeSpectrum: Error Envelope Spectrum')
         plt.gca().tick_params(labelsize=14)
         png_path = output_dir / f'{prefix}_9_errEnvelopeSpectrum.png'
