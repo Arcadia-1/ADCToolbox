@@ -1,4 +1,4 @@
-%% test_toolset_dout.m - Run 4 digital analysis tools on ADC digital output
+%% test_toolset_dout.m - Run 6 digital analysis tools on ADC digital output
 close all; clc; clear; warning("off")
 
 %% Configuration
@@ -63,35 +63,21 @@ for k = 1:length(filesList)
         title(sprintf('Calibrated Weights: %s', datasetName), 'Interpreter', 'none');
         set(gca, "FontSize", 16);
         saveFig(subFolder, "dout_2_spectrum_calibrated.png", verbose);
-
-        % Print improvement
-        if exist('ENoB_nom', 'var')
-            improvement_ENoB = ENoB_cal - ENoB_nom;
-            improvement_SNDR = SNDR_cal - SNDR_nom;
-            fprintf('  Improvement: +%.2f ENoB, +%.2f dB SNDR\n', improvement_ENoB, improvement_SNDR);
-        end
     catch ME
         fprintf('    [Error] Calibrated spectrum: %s\n', ME.message);
     end
 
     % =========================================================================
-    % Tool 3: ENoB Bit Sweep
+    % Tool 3: Bit Activity
     % =========================================================================
     try
-        if ~exist('freqCal', 'var')
-            [~, ~, ~, ~, ~, freqCal] = FGCalSine(bits, 'freq', 0, 'order', Order);
-        end
-
         figure('Position', [100, 100, 800, 600], 'Visible', verbose);
-        [ENoB_sweep, nBits_vec] = ENoB_bitSweep(bits, 'freq', freqCal, ...
-            'order', Order, 'harmonic', 5, 'OSR', 1, 'winType', @hamming);
-        title(sprintf('ENoB Bit Sweep: %s', datasetName), 'Interpreter', 'none');
+        bit_usage = bitActivity(bits, 'AnnotateExtremes', true);
+        title(sprintf('Bit Activity: %s', datasetName), 'Interpreter', 'none');
         set(gca, "FontSize", 16);
-        saveFig(subFolder, "dout_3_ENoB_sweep.png", verbose);
-
-        fprintf('  Max ENoB: %.2f at %d bits\n', max(ENoB_sweep), nBits_vec(ENoB_sweep == max(ENoB_sweep)));
+        saveFig(subFolder, "dout_3_bitActivity.png", verbose);
     catch ME
-        fprintf('    [Error] ENoB sweep: %s\n', ME.message);
+        fprintf('    [Error] Bit activity: %s\n', ME.message);
     end
 
     % =========================================================================
@@ -111,27 +97,68 @@ for k = 1:length(filesList)
         fprintf('    [Error] Overflow check: %s\n', ME.message);
     end
 
+    % =========================================================================
+    % Tool 5: Weight Scaling
+    % =========================================================================
+    try
+        if ~exist('weight_cal', 'var')
+            [weight_cal, ~, ~, ~, ~, ~] = FGCalSine(bits, 'freq', 0, 'order', Order);
+        end
+
+        figure('Position', [100, 100, 800, 600], 'Visible', verbose);
+        radix = weightScaling(weight_cal);
+        title(sprintf('Weight Scaling: %s', datasetName), 'Interpreter', 'none');
+        set(gca, "FontSize", 16);
+        saveFig(subFolder, "dout_5_weightScaling.png", verbose);
+    catch ME
+        fprintf('    [Error] Weight scaling: %s\n', ME.message);
+    end
+
+    % =========================================================================
+    % Tool 6: ENoB Bit Sweep
+    % =========================================================================
+    try
+        if ~exist('freqCal', 'var')
+            [~, ~, ~, ~, ~, freqCal] = FGCalSine(bits, 'freq', 0, 'order', Order);
+        end
+
+        figure('Position', [100, 100, 800, 600], 'Visible', verbose);
+        [ENoB_sweep, nBits_vec] = ENoB_bitSweep(bits, 'freq', freqCal, ...
+            'order', Order, 'harmonic', 5, 'OSR', 1, 'winType', @hamming);
+        title(sprintf('ENoB Bit Sweep: %s', datasetName), 'Interpreter', 'none');
+        set(gca, "FontSize", 16);
+        saveFig(subFolder, "dout_6_ENoB_sweep.png", verbose);
+
+        fprintf('  Max ENoB: %.2f at %d bits\n', max(ENoB_sweep), nBits_vec(ENoB_sweep == max(ENoB_sweep)));
+    catch ME
+        fprintf('    [Error] ENoB sweep: %s\n', ME.message);
+    end
+
     %%
     % =========================================================================
-    % Create Panel Overview (2x2 grid)
+    % Create Panel Overview (3x2 grid)
     % =========================================================================
 
     plotFiles = {; ...
         fullfile(subFolder, 'dout_1_spectrum_nominal.png'); ...
         fullfile(subFolder, 'dout_2_spectrum_calibrated.png'); ...
-        fullfile(subFolder, 'dout_3_ENoB_sweep.png'); ...
+        fullfile(subFolder, 'dout_3_bitActivity.png'); ...
         fullfile(subFolder, 'dout_4_overflowChk.png'); ...
+        fullfile(subFolder, 'dout_5_weightScaling.png'); ...
+        fullfile(subFolder, 'dout_6_ENoB_sweep.png'); ...
         };
 
     plotLabels = {; ...
         '(1) Nominal Weights'; ...
         '(2) Calibrated Weights'; ...
-        '(3) ENoB Bit Sweep'; ...
+        '(3) Bit Activity'; ...
         '(4) Overflow Check'; ...
+        '(5) Weight Scaling'; ...
+        '(6) ENoB Bit Sweep'; ...
         };
 
-    fig = figure('Position', [50, 50, 1600, 1200], 'Visible', verbose);
-    tlo = tiledlayout(fig, 2, 2, 'TileSpacing', 'compact', 'Padding', 'compact');
+    fig = figure('Position', [50, 50, 1600, 1800], 'Visible', verbose);
+    tlo = tiledlayout(fig, 3, 2, 'TileSpacing', 'compact', 'Padding', 'compact');
 
     for p = 1:length(plotFiles)
         nexttile(tlo, p);
@@ -168,7 +195,8 @@ for k = 1:length(filesList)
 
     panelPath = fullfile(subFolder, 'PANEL_DOUT.png');
     exportgraphics(fig, panelPath, 'Resolution', 600);
+    close(fig);
     fprintf('  [%s]->[%s]\n', mfilename, panelPath);
-end
 
-fprintf('=== DOUT Toolset Test Complete ===\n');
+    fprintf('  [Done] %s\n\n', datasetName);
+end
