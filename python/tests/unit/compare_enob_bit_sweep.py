@@ -14,16 +14,51 @@ def compare_results():
 
     output_dir = Path('test_output')
 
+    print('[compare_enob_bit_sweep]')
+    print(f'  [search] -> [{output_dir}]')
+    print()
+
     # Find all datasets with both MATLAB and Python results
     datasets = []
-    for matlab_folder in output_dir.glob('*/test_ENoB_bitSweep'):
-        dataset_name = matlab_folder.parent.name
-        python_folder = output_dir / dataset_name / 'test_enob_bit_sweep'
-        if python_folder.exists():
+
+    print('[Searching for datasets]')
+    for test_folder in output_dir.glob('*/test_ENoB_bitSweep'):
+        dataset_name = test_folder.parent.name
+
+        matlab_file = test_folder / 'ENoB_sweep_matlab.csv'
+        python_file = test_folder / 'ENoB_sweep_python.csv'
+
+        print(f'  [dataset] [{dataset_name}]')
+        print(f'    [MATLAB] -> [{matlab_file}]', end='')
+        if matlab_file.exists():
+            print(' OK')
+        else:
+            print(' NOT FOUND')
+
+        print(f'    [Python] -> [{python_file}]', end='')
+        if python_file.exists():
+            print(' OK')
+        else:
+            print(' NOT FOUND')
+
+        if matlab_file.exists() and python_file.exists():
             datasets.append(dataset_name)
+            print(f'    [status] MATCHED')
+        else:
+            print(f'    [status] INCOMPLETE')
+    print()
 
     if not datasets:
-        print('[WARNING] No matching datasets found. Run both MATLAB and Python tests first.')
+        print('[FAIL] No matching datasets found.')
+        print()
+        print('To fix this:')
+        print('  1. Run MATLAB test:')
+        print('     >> cd matlab/tests/unit')
+        print('     >> test_ENoB_bitSweep')
+        print('  2. Run Python test:')
+        print('     >> cd d:\\ADCToolbox')
+        print('     >> python python/tests/unit/test_enob_bit_sweep.py')
+        print('  3. Re-run this comparison script')
         return
 
     print('='*80)
@@ -36,8 +71,9 @@ def compare_results():
     for dataset in sorted(datasets):
         print(f'[{dataset}]')
 
-        matlab_enob = output_dir / dataset / 'test_ENoB_bitSweep' / 'ENoB_sweep_matlab.csv'
-        python_enob = output_dir / dataset / 'test_enob_bit_sweep' / 'ENoB_sweep_python.csv'
+        test_folder = output_dir / dataset / 'test_ENoB_bitSweep'
+        matlab_enob = test_folder / 'ENoB_sweep_matlab.csv'
+        python_enob = test_folder / 'ENoB_sweep_python.csv'
 
         if not matlab_enob.exists():
             print(f'  [SKIP] MATLAB file not found')

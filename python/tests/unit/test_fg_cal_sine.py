@@ -15,12 +15,12 @@ Configuration - assumes running from project root d:\ADCToolbox
 """
 
 import numpy as np
-import pandas as pd
 import sys
 from pathlib import Path
 from glob import glob
 
 from adctoolbox.dout import fg_cal_sine
+from save_variable import save_variable
 
 # Get project root directory (two levels up from python/tests/unit)
 project_root = Path(__file__).resolve().parents[3]
@@ -73,44 +73,13 @@ def run_fgcal_tests():
                 order=5
             )
 
-            # Save weight to CSV
-            weight_table = pd.DataFrame({
-                'bit_index': np.arange(1, len(weight) + 1),
-                'weight': weight
-            })
-            weight_path = sub_folder / 'weight_python.csv'
-            weight_table.to_csv(weight_path, index=False)
-            print(f'  [Saved] {weight_path}')
-
-            # Save offset to CSV
-            offset_table = pd.DataFrame({'offset': [offset]})
-            offset_path = sub_folder / 'offset_python.csv'
-            offset_table.to_csv(offset_path, index=False)
-            print(f'  [Saved] {offset_path}')
-
-            # Save freqCal to CSV
-            freqCal_table = pd.DataFrame({'freqCal': [freqCal]})
-            freqCal_path = sub_folder / 'freqCal_python.csv'
-            freqCal_table.to_csv(freqCal_path, index=False)
-            print(f'  [Saved] {freqCal_path}')
-
-            # Save postCal, ideal, err (first 1000 samples)
-            N_save = min(1000, len(postCal))
-
-            postCal_table = pd.DataFrame({'postCal': postCal[:N_save]})
-            postCal_path = sub_folder / 'postCal_python.csv'
-            postCal_table.to_csv(postCal_path, index=False)
-            print(f'  [Saved] {postCal_path}')
-
-            ideal_table = pd.DataFrame({'ideal': ideal[:N_save]})
-            ideal_path = sub_folder / 'ideal_python.csv'
-            ideal_table.to_csv(ideal_path, index=False)
-            print(f'  [Saved] {ideal_path}')
-
-            err_table = pd.DataFrame({'err': err[:N_save]})
-            err_path = sub_folder / 'err_python.csv'
-            err_table.to_csv(err_path, index=False)
-            print(f'  [Saved] {err_path}')
+            # Save each variable to separate CSV (matching MATLAB format)
+            save_variable(sub_folder, weight, 'weight')
+            save_variable(sub_folder, offset, 'offset')
+            save_variable(sub_folder, freqCal, 'freqCal')
+            save_variable(sub_folder, postCal, 'postCal')
+            save_variable(sub_folder, ideal, 'ideal')
+            save_variable(sub_folder, err, 'err')
 
             # Print summary
             err_rms = np.sqrt(np.mean(err**2))
