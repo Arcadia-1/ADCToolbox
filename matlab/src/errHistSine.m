@@ -24,8 +24,8 @@ function [emean, erms, phase_code, anoi, pnoi, err, xx] = errHistSine(data, vara
     codeMode = p.Results.mode;
     erange = p.Results.erange;
 
-    [N,M] = size(data);
-    if(M == 1)
+    S = size(data);
+    if(S(1) < S(2))
         data = data';
     end
 

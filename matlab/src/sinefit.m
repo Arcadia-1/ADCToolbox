@@ -26,7 +26,7 @@ function [fitout,freq,mag,dc,phi] = sinefit(sig,f0,tol,rate)
 %
 %   Outputs:
 %     fitout - Fitted sine wave signal
-%       Vector (same orientation as input sig)
+%       Vector (column)
 %     freq - Fitted normalized frequency (cycles per sample)
 %       Scalar, Range: [0, 0.5]
 %     mag - Fitted signal amplitude (peak value)
@@ -152,7 +152,7 @@ function [fitout,freq,mag,dc,phi] = sinefit(sig,f0,tol,rate)
             'Failed to converge in 100 iterations. Relative error = %.2e', relerr);
     end
 
-    % Generate fitted signal (maintain column orientation)
+    % Generate fitted signal
     fitout = A*cos(theta)+B*sin(theta)+dc;
 
     % Convert to magnitude-phase form
