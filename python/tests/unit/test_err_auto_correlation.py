@@ -4,12 +4,12 @@ Tests the errAutoCorrelation function with sinewave error data.
 
 Output structure:
   test_output/<data_set_name>/test_errAutoCorrelation/
-      acf_data_python.csv     - lags, acf
+      lags_python.csv         - Lag values
+      acf_python.csv          - Autocorrelation values
       errACF_python.png       - ACF plot
 """
 
 import numpy as np
-import pandas as pd
 import matplotlib
 matplotlib.use('Agg')  # Non-interactive backend
 import matplotlib.pyplot as plt
@@ -17,6 +17,8 @@ from pathlib import Path
 
 from adctoolbox.common import sine_fit
 from adctoolbox.aout import err_auto_correlation
+from save_variable import save_variable
+from save_fig import save_fig
 
 
 # Get project root directory (two levels up from python/tests/unit)
@@ -72,18 +74,10 @@ def main():
         acf, lags = err_auto_correlation(err_data, MaxLag=200)
         plt.title(f'errAutoCorrelation: {dataset_name}')
 
-        # Save plot
-        plot_path = sub_folder / 'errACF_python.png'
-        plt.savefig(plot_path, dpi=150, bbox_inches='tight')
-        plt.close()
-
-        # Save ACF data to CSV
-        acf_df = pd.DataFrame({
-            'lags': lags,
-            'acf': acf
-        })
-        acf_path = sub_folder / 'acf_data_python.csv'
-        acf_df.to_csv(acf_path, index=False)
+        # Save plot and variables
+        save_fig(sub_folder, 'errACF_python.png')
+        save_variable(sub_folder, lags, 'lags')
+        save_variable(sub_folder, acf, 'acf')
 
         # Get ACF at lag 0 for display
         acf_0 = acf[np.where(lags == 0)[0][0]] if 0 in lags else acf[0]

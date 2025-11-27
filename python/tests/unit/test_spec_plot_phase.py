@@ -5,15 +5,21 @@ Tests the spec_plot_phase function with various sinewave datasets.
 Output structure:
   test_output/<data_set_name>/test_specPlotPhase/
       phase_python.png        - Phase polar plot
-      phase_data_python.csv   - Spectrum data with phase information
+      freq_bin_python.csv     - Frequency bins
+      spec_real_python.csv    - Spectrum real part
+      spec_imag_python.csv    - Spectrum imaginary part
+      spec_mag_python.csv     - Spectrum magnitude
+      spec_phase_python.csv   - Spectrum phase
+      phi_real_python.csv     - Phi real part
+      phi_imag_python.csv     - Phi imaginary part
 """
 
 import numpy as np
-import pandas as pd
 import matplotlib.pyplot as plt
 from pathlib import Path
 
 from adctoolbox.aout import spec_plot_phase
+from save_variable import save_variable
 
 # Get project root directory
 project_root = Path(__file__).resolve().parents[3]
@@ -68,23 +74,19 @@ def main():
         spec = result['spec']
         freq_bins = result['freq_bins']
 
-        # Create dataframe matching MATLAB output format
-        phase_df = pd.DataFrame({
-            'freq_bin': freq_bins,
-            'spec_real': np.real(spec[:len(freq_bins)]),
-            'spec_imag': np.imag(spec[:len(freq_bins)]),
-            'spec_mag': np.abs(spec[:len(freq_bins)]),
-            'spec_phase': np.angle(spec[:len(freq_bins)]),
-            'phi_real': np.real(result['phi'][:len(freq_bins)]),
-            'phi_imag': np.imag(result['phi'][:len(freq_bins)])
-        })
+        # Remove first element (DC bin) to match MATLAB format
+        freq_bins_no_dc = freq_bins[1:]
+        spec_no_dc = spec[1:len(freq_bins)]
+        phi_no_dc = result['phi'][1:len(freq_bins)]
 
-        # Remove first row (DC bin) to match MATLAB format
-        phase_df = phase_df.iloc[1:]
-
-        # Save phase data to CSV
-        phase_data_path = sub_folder / 'phase_data_python.csv'
-        phase_df.to_csv(phase_data_path, index=False)
+        # Save each variable to separate CSV (matching MATLAB format)
+        save_variable(sub_folder, freq_bins_no_dc, 'freq_bin')
+        save_variable(sub_folder, np.real(spec_no_dc), 'spec_real')
+        save_variable(sub_folder, np.imag(spec_no_dc), 'spec_imag')
+        save_variable(sub_folder, np.abs(spec_no_dc), 'spec_mag')
+        save_variable(sub_folder, np.angle(spec_no_dc), 'spec_phase')
+        save_variable(sub_folder, np.real(phi_no_dc), 'phi_real')
+        save_variable(sub_folder, np.imag(phi_no_dc), 'phi_imag')
 
         # Get fundamental frequency magnitude for display
         fund_mag_dB = result['harmonics'][0]['magnitude'] if result['harmonics'] else 0.0

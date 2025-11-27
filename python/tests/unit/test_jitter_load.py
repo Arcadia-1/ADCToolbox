@@ -13,6 +13,8 @@ from pathlib import Path
 
 from adctoolbox.common import sine_fit
 from adctoolbox.aout import spec_plot, err_hist_sine
+from save_variable import save_variable
+from save_fig import save_fig
 
 # Get project root directory
 project_root = Path(__file__).resolve().parents[3]
@@ -141,29 +143,23 @@ def main():
         lines2, labels2 = ax2.get_legend_handles_labels()
         ax1.legend(lines1 + lines2, labels1 + labels2, loc='lower right', fontsize=16)
 
+        # Save plot
         output_filename = f'jitter_analysis_Fin_{round(Fin_nominal/1e6)}MHz_python.png'
-        output_filepath = output_dir / output_filename
-        plt.savefig(output_filepath, dpi=150, bbox_inches='tight')
-        plt.close()
-        print(f'[Saved plot] -> [{output_filepath}]\n')
+        save_fig(output_dir, output_filename)
+        print(f'[Saved plot] -> [{output_dir / output_filename}]\n')
 
-        # Save results to CSV
-        results_filename = f'jitter_results_Fin_{round(Fin_nominal/1e6)}MHz_python.csv'
-        results_filepath = output_dir / results_filename
-
-        results_df = pd.DataFrame({
-            'Tj_idx': np.arange(1, len(Tj_list) + 1),
-            'set_jitter_s': set_jitter,
-            'set_jitter_fs': set_jitter * 1e15,
-            'meas_jitter_s': meas_jitter,
-            'meas_jitter_fs': meas_jitter * 1e15,
-            'pnoi_rad': pnoi_array,
-            'anoi': anoi_array,
-            'SNDR_dB': meas_SNDR,
-            'actual_Fin_Hz': actual_Fin
-        })
-        results_df.to_csv(results_filepath, index=False, float_format='%.12e')
-        print(f'[Saved results] -> [{results_filepath}]\n')
+        # Save each variable to separate CSV (matching MATLAB format)
+        # Create frequency-specific prefix for filenames
+        freq_prefix = f'Fin_{round(Fin_nominal/1e6)}MHz'
+        save_variable(output_dir, np.arange(1, len(Tj_list) + 1), f'{freq_prefix}_Tj_idx')
+        save_variable(output_dir, set_jitter, f'{freq_prefix}_set_jitter_s')
+        save_variable(output_dir, set_jitter * 1e15, f'{freq_prefix}_set_jitter_fs')
+        save_variable(output_dir, meas_jitter, f'{freq_prefix}_meas_jitter_s')
+        save_variable(output_dir, meas_jitter * 1e15, f'{freq_prefix}_meas_jitter_fs')
+        save_variable(output_dir, pnoi_array, f'{freq_prefix}_pnoi_rad')
+        save_variable(output_dir, anoi_array, f'{freq_prefix}_anoi')
+        save_variable(output_dir, meas_SNDR, f'{freq_prefix}_SNDR_dB')
+        save_variable(output_dir, actual_Fin, f'{freq_prefix}_actual_Fin_Hz')
 
     print('[test_jitter_load complete]')
 

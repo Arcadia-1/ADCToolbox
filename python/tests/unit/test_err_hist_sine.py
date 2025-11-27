@@ -4,14 +4,19 @@ Tests the errHistSine function with sinewave datasets.
 
 Output structure:
   test_output/<data_set_name>/test_errHistSine/
-      metrics_python.csv          - anoi, pnoi
-      phase_histogram_python.csv  - phase_code, emean, erms
+      anoi_python.csv             - Amplitude noise
+      pnoi_python.csv             - Phase noise
+      phase_code_python.csv       - Phase codes
+      emean_python.csv            - Error mean (phase)
+      erms_python.csv             - Error RMS (phase)
+      code_axis_python.csv        - Code axis values
+      emean_code_python.csv       - Error mean (code)
+      erms_code_python.csv        - Error RMS (code)
       errHistSine_phase_python.png
       errHistSine_code_python.png
 """
 
 import numpy as np
-import pandas as pd
 import matplotlib
 matplotlib.use('Agg')  # Non-interactive backend
 import matplotlib.pyplot as plt
@@ -19,6 +24,8 @@ from pathlib import Path
 
 from adctoolbox.common import sine_fit
 from adctoolbox.aout import err_hist_sine
+from save_variable import save_variable
+from save_fig import save_fig
 
 # Get project root directory (two levels up from python/tests/unit)
 project_root = Path(__file__).resolve().parents[3]
@@ -74,27 +81,13 @@ def main():
         # Current figure is the phase plot
         plt.gcf().suptitle(f'errHistSine (phase): {dataset_name}')
 
-        # Save phase plot
-        plot_path = sub_folder / 'errHistSine_phase_python.png'
-        plt.savefig(plot_path, dpi=150, bbox_inches='tight')
-        plt.close()
-
-        # Save metrics
-        metrics_df = pd.DataFrame([{
-            'anoi': anoi,
-            'pnoi': pnoi
-        }])
-        metrics_path = sub_folder / 'metrics_python.csv'
-        metrics_df.to_csv(metrics_path, index=False)
-
-        # Save histogram data
-        hist_df = pd.DataFrame({
-            'phase_code': phase_code,
-            'emean': emean,
-            'erms': erms
-        })
-        hist_path = sub_folder / 'phase_histogram_python.csv'
-        hist_df.to_csv(hist_path, index=False)
+        # Save phase plot and variables
+        save_fig(sub_folder, 'errHistSine_phase_python.png')
+        save_variable(sub_folder, anoi, 'anoi')
+        save_variable(sub_folder, pnoi, 'pnoi')
+        save_variable(sub_folder, phase_code, 'phase_code')
+        save_variable(sub_folder, emean, 'emean')
+        save_variable(sub_folder, erms, 'erms')
 
         # Run errHistSine - Code mode (mode=1)
         emean_code, erms_code, code_axis, _, _, _, _ = err_hist_sine(
@@ -104,19 +97,11 @@ def main():
         # Current figure is the code plot
         plt.gcf().suptitle(f'errHistSine (code): {dataset_name}')
 
-        # Save code plot
-        plot_path = sub_folder / 'errHistSine_code_python.png'
-        plt.savefig(plot_path, dpi=150, bbox_inches='tight')
-        plt.close()
-
-        # Save code histogram data
-        code_hist_df = pd.DataFrame({
-            'code': code_axis,
-            'emean': emean_code,
-            'erms': erms_code
-        })
-        code_hist_path = sub_folder / 'code_histogram_python.csv'
-        code_hist_df.to_csv(code_hist_path, index=False)
+        # Save code plot and variables
+        save_fig(sub_folder, 'errHistSine_code_python.png')
+        save_variable(sub_folder, code_axis, 'code_axis')
+        save_variable(sub_folder, emean_code, 'emean_code')
+        save_variable(sub_folder, erms_code, 'erms_code')
 
         # Print one-line progress
         print(f"[{k}/{len(files_list)}] [test_errHistSine] [pnoi={pnoi:.6f}rad] from {current_filename}")
