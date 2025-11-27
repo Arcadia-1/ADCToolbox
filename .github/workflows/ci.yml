@@ -1,4 +1,4 @@
-name: CI - Code Quality
+name: CI - Smoke Tests
 
 on:
   pull_request:
@@ -7,8 +7,8 @@ on:
     branches: [ main ]
 
 jobs:
-  matlab-syntax-check:
-    name: MATLAB Syntax Check
+  matlab-tests:
+    name: MATLAB Smoke Tests
     runs-on: ubuntu-latest
 
     steps:
@@ -20,35 +20,61 @@ jobs:
         with:
           release: R2024b
 
-      - name: Check MATLAB syntax
+      - name: Run MATLAB smoke tests
         uses: matlab-actions/run-command@v2
         with:
           command: |
-            fprintf('=== MATLAB Syntax Check ===\n');
-            srcFiles = dir(fullfile('matlab', 'src', '*.m'));
-            fprintf('Found %d files in matlab/src/\n', length(srcFiles));
-            hasErrors = false;
-            for i = 1:length(srcFiles)
-              filePath = fullfile(srcFiles(i).folder, srcFiles(i).name);
-              try
-                info = checkcode(filePath);
-                if isempty(info)
-                  fprintf('✓ %s\n', srcFiles(i).name);
-                else
-                  fprintf('⚠ %s has %d warnings\n', srcFiles(i).name, length(info));
-                end
-              catch ME
-                fprintf('✗ %s: %s\n', srcFiles(i).name, ME.message);
-                hasErrors = true;
-              end
-            end
-            if hasErrors
-              error('Syntax errors found');
-            end
-            fprintf('\n✓ All MATLAB files are syntactically valid\n');
+            fprintf('=== MATLAB Smoke Tests ===\n\n');
 
-  python-syntax-check:
-    name: Python Syntax Check
+            % Add source to path
+            addpath(genpath('matlab/src'));
+
+            % Test 1: alias (no dataset needed)
+            fprintf('[1/3] Testing alias...\n');
+            cd matlab/tests/unit;
+            try
+              test_alias;
+              fprintf('✓ alias test passed\n\n');
+            catch ME
+              fprintf('✗ alias test failed: %s\n', ME.message);
+              cd ../..;
+              exit(1);
+            end
+            cd ../..;
+
+            % Test 2: Generate small dataset and test sineFit
+            fprintf('[2/3] Testing sineFit...\n');
+            try
+              % Generate minimal sine wave data
+              N = 1024;
+              t = (0:N-1)'/N;
+              Fin = 101;
+              aout = sin(2*pi*Fin*t) + 0.01*randn(N,1);
+
+              % Test sineFit
+              [A, B, C, Fin_est, phi] = sineFit(aout);
+              assert(abs(Fin_est - Fin) < 1, 'Frequency estimation failed');
+              fprintf('✓ sineFit test passed (Fin: %.2f Hz)\n\n', Fin_est);
+            catch ME
+              fprintf('✗ sineFit test failed: %s\n', ME.message);
+              exit(1);
+            end
+
+            % Test 3: specPlot
+            fprintf('[3/3] Testing specPlot...\n');
+            try
+              [ENoB, SNDR, SNR, SFDR, HD2, HD3] = specPlot(aout, 'Fin', Fin, 'Fs', N, 'verbose', false);
+              assert(ENoB > 0 && ENoB < 20, 'Invalid ENoB');
+              fprintf('✓ specPlot test passed (ENoB: %.2f bits)\n\n', ENoB);
+            catch ME
+              fprintf('✗ specPlot test failed: %s\n', ME.message);
+              exit(1);
+            end
+
+            fprintf('=== All MATLAB smoke tests passed ===\n');
+
+  python-tests:
+    name: Python Smoke Tests
     runs-on: ubuntu-latest
 
     steps:
@@ -60,11 +86,52 @@ jobs:
         with:
           python-version: '3.11'
 
-      - name: Check Python syntax
+      - name: Install dependencies
         run: |
-          echo "=== Python Syntax Check ==="
-          find python/adctoolbox -name "*.py" -type f | while read file; do
-            python -m py_compile "$file" && echo "✓ $file" || { echo "✗ $file"; exit 1; }
-          done
+          pip install numpy pandas matplotlib scipy
+
+      - name: Run Python smoke tests
+        env:
+          PYTHONPATH: python
+        run: |
+          echo "=== Python Smoke Tests ==="
           echo ""
-          echo "✓ All Python files are syntactically valid"
+
+          # Test 1: Import check
+          echo "[1/3] Testing imports..."
+          python -c "
+          from adctoolbox.common import alias
+          from adctoolbox.aout import sine_fit, spec_plot
+          print('✓ All imports successful')
+          "
+          echo ""
+
+          # Test 2: alias function
+          echo "[2/3] Testing alias function..."
+          python -c "
+          from adctoolbox.common import alias
+          result = alias(600, 1024)
+          expected = 424
+          assert abs(result - expected) < 0.01, f'Expected {expected}, got {result}'
+          print(f'✓ alias test passed (600 Hz -> {result} Hz)')
+          "
+          echo ""
+
+          # Test 3: sineFit function
+          echo "[3/3] Testing sineFit function..."
+          python -c "
+          import numpy as np
+          from adctoolbox.aout import sine_fit
+
+          N = 1024
+          Fin = 101
+          t = np.arange(N) / N
+          aout = np.sin(2 * np.pi * Fin * t) + 0.01 * np.random.randn(N)
+
+          A, B, C, Fin_est, phi = sine_fit(aout)
+          assert abs(Fin_est - Fin) < 1, f'Frequency estimation failed: expected {Fin}, got {Fin_est}'
+          print(f'✓ sineFit test passed (Fin: {Fin_est:.2f} Hz)')
+          "
+          echo ""
+
+          echo "=== All Python smoke tests passed ==="
