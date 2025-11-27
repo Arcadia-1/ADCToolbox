@@ -1,72 +1,161 @@
-function [data_fit,freq,mag,dc,phi] = sineFit(data,f0,tol,rate)
+function [fitout,freq,mag,dc,phi] = sinefit(sig,f0,tol,rate)
+%SINEFIT Four-parameter iterative sine wave fitting
+%   This function performs a 4-parameter sine wave fit to input signal using
+%   an iterative least-squares method. The four parameters are: amplitude,
+%   phase, DC offset, and frequency. The frequency is refined iteratively
+%   using a gradient descent approach until convergence.
+%
+%   Syntax:
+%     [fitout, freq, mag, dc, phi] = SINEFIT(sig)
+%     [fitout, freq, mag, dc, phi] = SINEFIT(sig, f0)
+%     [fitout, freq, mag, dc, phi] = SINEFIT(sig, f0, tol)
+%     [fitout, freq, mag, dc, phi] = SINEFIT(sig, f0, tol, rate)
+%
+%   Inputs:
+%     sig - Input signal to be fitted
+%       Vector (row or column) or Matrix (averaged across columns)
+%     f0 - Initial frequency estimate (normalized by sample count)
+%       Scalar, Range: [0, 0.5]
+%       Default: Estimated from FFT peak with parabolic interpolation
+%     tol - Convergence tolerance for relative error
+%       Scalar, positive real number
+%       Default: 1e-12
+%     rate - Step size rate for frequency update (learning rate)
+%       Scalar, Range: (0, 1]
+%       Default: 0.5
+%
+%   Outputs:
+%     fitout - Fitted sine wave signal
+%       Vector (same orientation as input sig)
+%     freq - Fitted normalized frequency (cycles per sample)
+%       Scalar, Range: [0, 0.5]
+%     mag - Fitted signal amplitude (peak value)
+%       Scalar, non-negative
+%     dc - Fitted DC offset
+%       Scalar
+%     phi - Fitted phase in radians
+%       Scalar, Range: [-pi, pi]
+%       
+%     Convention: fitout = mag*cos(2*pi*freq*t + phi) + dc
+%
+%   Examples:
+%     % Fit a noisy sine wave with known frequency
+%     t = 0:99;
+%     sig = 3*cos(2*pi*0.1*t - pi/4) + 0.5 + 0.1*randn(1,100);
+%     [fitout, freq, mag, dc, phi] = sinefit(sig, 0.1);
+%
+%   Algorithm:
+%     1. Initial 3-parameter fit (A, B, dc) using linear least squares
+%        with cos/sin basis at estimated frequency
+%     2. Iterative refinement: compute gradient of frequency error,
+%        update frequency, and re-solve least squares
+%     3. Converge when relative frequency error < tol or 100 iterations
+%     4. Convert to amplitude-phase form: mag = sqrt(A^2+B^2), phi = atan2(B,A)
+%
+%   Notes:
+%     - For matrix input, signal is averaged across columns first
+%     - Maximum 100 iterations
+%     - Frequency f0 is normalized: f0 = f_Hz / f_sample
+%     - Phase convention: positive phase = signal leads cos(2*pi*freq*t)
+%
+%   See also: fft, lsqcurvefit, nlinfit
 
-    % data - the data to be fitted 
-    % f0 - an estimated relative frequency (optional)
-    % data_fit - the fitted sinewave
+    % Input validation
+    if ~isnumeric(sig) || ~isreal(sig)
+        error('sinefit:invalidInput', 'Input signal must be a real numeric array.');
+    end
 
-    [N,M] = size(data); 
+    if isempty(sig)
+        error('sinefit:emptyInput', 'Input signal cannot be empty.');
+    end
+
+    % Reshape input to column vector and average across columns
+    [N,M] = size(sig);
     if(N == 1)
-       data = data';
+       sig = sig';
        N = M;
     end
-    data = mean(data,2);
-    
+    sig = mean(sig,2);
+
+    % Automatic frequency estimation using FFT with parabolic interpolation
     if(nargin < 2)
-        spec = abs(fft(data));
-        spec(1) = 0;
+        spec = abs(fft(sig));
+        spec(1) = 0;  % Remove DC component
         spec = spec(1:floor(N/2));
-        
+
+        % Find peak bin
         [~,k0] = max(spec);
+
+        % Parabolic interpolation: determine which neighbor is higher
         if(spec(min(max(k0+1,1),N/2)) > spec(min(max(k0-1,1),N/2)))
-            r = 1;
+            r = 1;  % Right neighbor is higher
         else
-            r = -1;
+            r = -1;  % Left neighbor is higher
         end
-        
+
+        % Refine frequency estimate using parabolic fit
         f0 = (k0-1 + r*spec(k0+r)/(spec(k0)+spec(k0+r)))/N;
-        
+
     end
 
+    % Set default tolerance
     if(nargin < 3)
         tol = 1e-12;
     end
 
+    % Set default learning rate
     if(nargin < 4)
         rate = 0.5;
     end
 
+    % Initial 3-parameter linear least squares fit (cos, sin, dc)
     time = (0:N-1)';
     theta = 2*pi*f0*time;
     M = [cos(theta), sin(theta), ones([N,1])];
-    x = linsolve(M,data);
-    A = x(1);   % coefficient of cos
-    B = x(2);   % coefficient of sin
-    dc = x(3);   % DC component
+    x = linsolve(M,sig);
+    A = x(1);   % Coefficient of cos(theta)
+    B = x(2);   % Coefficient of sin(theta)
+    dc = x(3);  % DC component
 
+    % Iterative frequency refinement
     freq = f0;
     delta_f = 0;
 
     for ii = 1:100
 
+        % Update frequency
         freq = freq+delta_f;
         theta = 2*pi*freq*time;
+
+        % Construct least squares matrix with frequency gradient column
+        % The 4th column is the partial derivative of the signal w.r.t. frequency
         M = [cos(theta), sin(theta), ones([N,1]), (-A*2*pi*time.*sin(theta)+B*2*pi*time.*cos(theta))/N];
-        x = linsolve(M,data);
+        x = linsolve(M,sig);
         A = x(1);
         B = x(2);
         dc = x(3);
-        delta_f = x(4)*rate/N;
-        relerr = rms(x(end)/N*A(:,end)) / sqrt(x(1)^2+x(2)^2);
+        delta_f = x(4)*rate/N;  % Frequency update scaled by learning rate
 
-        % fprintf('Freq fine iterating (%d): freq = %d, delta_f = %d, rel_err = %d\n', ii,freq,delta_f, relerr);
-       
+        % Relative error in frequency update
+        relerr = abs(x(4)) / sqrt(x(1)^2+x(2)^2);
+
+        % Check convergence
         if(relerr < tol)
             break;
         end
 
     end
 
-    data_fit = (A*cos(theta)+B*sin(theta)+dc)';
+    % Warn if not converged
+    if ii == 100 && relerr >= tol
+        warning('sinefit:noConvergence', ...
+            'Failed to converge in 100 iterations. Relative error = %.2e', relerr);
+    end
+
+    % Generate fitted signal (maintain column orientation)
+    fitout = A*cos(theta)+B*sin(theta)+dc;
+
+    % Convert to magnitude-phase form
     mag = sqrt(A^2+B^2);
-    phi = -atan2(B,A);
+    phi = -atan2(B,A);  % Negative sign for convention: mag*cos(2*pi*freq*t + phi)
 end
