@@ -29,26 +29,43 @@ jobs:
           export PYTHONPATH="${GITHUB_WORKSPACE}/python/src:${PYTHONPATH}"
           python -c "
           import numpy as np
-          from adctoolbox.common import alias
-          print('Hello World')
+          from adctoolbox.common import alias, sine_fit
+          from adctoolbox.aout import spec_plot
 
-          # Test alias function
+          print('=== Python ADC Toolbox Tests ===\n')
+
+          # Test 1: alias function
+          print('[1/4] Testing alias function...')
           result = alias(600, 1024)
           expected = 424
-          print(f'Testing alias function: alias(600, 1024) = {result}')
           assert abs(result - expected) < 0.01, f'Expected {expected}, got {result}'
-          print(f'✓ alias test passed!')
+          print(f'  ✓ alias(600, 1024) = {result} (expected {expected})\n')
 
-          # Create a sinewave
+          # Test 2: Generate sinewave
+          print('[2/4] Generating test sinewave...')
           N = 1024
           Fin_bin = 101
           t = np.arange(N)
-          sinewave = np.sin(2 * np.pi * Fin_bin / N * t)
+          aout = np.sin(2 * np.pi * Fin_bin / N * t) + 0.01 * np.random.randn(N)
+          print(f'  ✓ Created {len(aout)} samples (Min: {aout.min():.3f}, Max: {aout.max():.3f})\n')
 
-          print(f'Created sinewave with {len(sinewave)} samples')
-          print(f'Min: {sinewave.min():.3f}, Max: {sinewave.max():.3f}')
+          # Test 3: sine_fit function
+          print('[3/4] Testing sine_fit function...')
+          data_fit, freq_normalized, mag, dc, phi = sine_fit(aout)
+          Fin_bin_estimated = freq_normalized * N
+          error_bins = abs(Fin_bin_estimated - Fin_bin)
+          assert error_bins < 1, f'Frequency estimation failed: expected {Fin_bin} bins, got {Fin_bin_estimated:.2f} bins'
+          print(f'  ✓ Frequency: {freq_normalized:.6f} ({Fin_bin_estimated:.1f} bins, error: {error_bins:.3f})')
+          print(f'  ✓ Magnitude: {mag:.4f}, DC: {dc:.6f}, Phase: {phi:.4f} rad\n')
 
-          # Save to file
-          np.savetxt('sinewave.txt', sinewave)
-          print('Sinewave saved to sinewave.txt')
+          # Test 4: spec_plot function
+          print('[4/4] Testing spec_plot function...')
+          ENoB, SNDR, SNR, SFDR, HD2, HD3 = spec_plot(aout, Fin=Fin_bin, Fs=N, verbose=False)
+          assert ENoB > 0 and ENoB < 20, f'Invalid ENoB: {ENoB}'
+          assert SNDR > 0, f'Invalid SNDR: {SNDR}'
+          print(f'  ✓ ENoB: {ENoB:.2f} bits')
+          print(f'  ✓ SNDR: {SNDR:.2f} dB, SNR: {SNR:.2f} dB')
+          print(f'  ✓ SFDR: {SFDR:.2f} dB, HD2: {HD2:.2f} dB, HD3: {HD3:.2f} dB\n')
+
+          print('=== All tests passed ===')
           "
