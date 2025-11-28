@@ -26,9 +26,18 @@ jobs:
 
       - name: Run Python test
         run: |
+          export PYTHONPATH="${GITHUB_WORKSPACE}/python:${PYTHONPATH}"
           python -c "
           import numpy as np
+          from adctoolbox.common import alias
           print('Hello World')
+
+          # Test alias function
+          result = alias(600, 1024)
+          expected = 424
+          print(f'Testing alias function: alias(600, 1024) = {result}')
+          assert abs(result - expected) < 0.01, f'Expected {expected}, got {result}'
+          print(f'✓ alias test passed!')
 
           # Create a sinewave
           N = 1024
