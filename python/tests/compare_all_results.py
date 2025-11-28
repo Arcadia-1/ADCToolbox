@@ -39,7 +39,15 @@ def compare_csv_files(matlab_file, python_file, tolerance=1e-6, name=''):
         return 'SKIP', f'Python file not found'
 
     try:
-        matlab_data = np.loadtxt(matlab_file, delimiter=',')
+        # MATLAB CSV: has headers + horizontal layout (var_1,var_2,...)
+        # Python CSV: no headers + vertical layout
+        try:
+            matlab_data = np.loadtxt(matlab_file, delimiter=',')
+        except ValueError:
+            # Has headers, skip first row and flatten
+            matlab_data = np.loadtxt(matlab_file, delimiter=',', skiprows=1)
+            matlab_data = matlab_data.flatten()
+
         python_data = np.loadtxt(python_file, delimiter=',')
 
         # Handle scalar vs array
@@ -103,8 +111,10 @@ def compare_test_results():
         'sine_fit': {
             'test_folder': 'test_sineFit',
             'files': [
-                ('freq_est_matlab.csv', 'freq_est_python.csv', 'freq_est', 1e-6),
+                ('freq_matlab.csv', 'freq_python.csv', 'freq', 1e-6),
                 ('mag_matlab.csv', 'mag_python.csv', 'mag', 1e-6),
+                ('dc_matlab.csv', 'dc_python.csv', 'dc', 1e-6),
+                ('phi_matlab.csv', 'phi_python.csv', 'phi', 1e-6),
             ],
         },
         'fg_cal_sine': {
