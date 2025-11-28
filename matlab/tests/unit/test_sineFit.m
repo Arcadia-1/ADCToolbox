@@ -5,7 +5,9 @@ close all; clc; clear;
 verbose = 0;
 inputDir = "dataset";
 outputDir = "test_output";
-filesList = autoSearchFiles({}, inputDir, 'sinewave_*.csv');
+
+filesList ={};
+filesList = autoSearchFiles(filesList, inputDir, 'sinewave_*.csv');
 if ~isfolder(outputDir), mkdir(outputDir); end
 
 %% Test Loop
