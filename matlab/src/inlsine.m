@@ -1,6 +1,6 @@
 function [INL, DNL, code] = INLsine(data, clip)
 
-    if(nargin < 3)
+    if(nargin < 2)
         clip = 0.01;    % INL DNL 误差排除比例
     end
 
