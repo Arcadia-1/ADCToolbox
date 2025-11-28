@@ -22,7 +22,7 @@ jobs:
 
       - name: Install dependencies
         run: |
-          pip install numpy
+          pip install numpy pandas matplotlib scipy
 
       - name: Run Python test
         run: |
