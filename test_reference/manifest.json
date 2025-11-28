@@ -1,0 +1,26 @@
+{
+  "description": "Golden reference datasets for cross-platform validation",
+  "purpose": "CI validates that Python outputs match MATLAB reference implementation",
+  "datasets": [
+    {
+      "name": "sinewave_jitter_400fs",
+      "category": "analog",
+      "description": "Sinewave with 400fs jitter - baseline analog analysis test",
+      "input": "dataset/sinewave_jitter_400fs.csv",
+      "tests": [
+        "test_sineFit",
+        "test_specPlot",
+        "test_errPDF",
+        "test_errAutoCorrelation",
+        "test_tomDecomp"
+      ],
+      "enabled": true
+    }
+  ],
+  "workflow": {
+    "update_reference": "Run MATLAB tests locally, then copy test_output/ results to test_reference/",
+    "ci_validation": "CI loads dataset/, runs Python, compares against test_reference/"
+  },
+  "version": "1.0",
+  "last_updated": "2025-01-28"
+}

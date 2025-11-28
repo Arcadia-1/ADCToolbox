@@ -2,7 +2,7 @@
 close all; clc; clear;
 
 %% Configuration
-verbose = 0;
+verbose = 1;
 inputDir = "dataset";
 outputDir = "test_output";
 filesList = autoSearchFiles({}, inputDir, 'sinewave_*.csv', 'batch_sinewave_*.csv');
