@@ -59,7 +59,7 @@ function [sine, err, har, oth] = tomdec(sig, varargin)
     p = inputParser;
     addOptional(p, 'freq', -1, @(x) isnumeric(x) && isscalar(x) && (x >= 0) && (x <= 0.5));
     addOptional(p, 'order', 10, @(x) isnumeric(x) && isscalar(x) && (x > 0));
-    addOptional(p, 'disp', nargout == 0, @(x) islogical(x));
+    addOptional(p, 'disp', nargout == 0, @(x) islogical(x) || (isnumeric(x) && isscalar(x)));
     parse(p, varargin{:});
     freq = p.Results.freq;
     order = round(p.Results.order);
