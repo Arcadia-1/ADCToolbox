@@ -1,4 +1,4 @@
-function [INL, DNL, code] = INLsine(data, clip)
+function [INL, DNL, code] = inlsine(data, clip)
 
     if(nargin < 2)
         clip = 0.01;    % INL DNL 误差排除比例
