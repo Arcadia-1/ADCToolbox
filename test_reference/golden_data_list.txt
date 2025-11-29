@@ -1,0 +1,12 @@
+# Golden Data List
+#
+# This file specifies which datasets should be used for golden reference testing.
+# Unit tests process ALL datasets, but golden references only use this subset
+# to keep test_reference/ small and CI fast.
+#
+# Format: One dataset filename per line (no path, just filename)
+# Lines starting with # are comments
+
+# Sinewave datasets for golden reference (5-10 files recommended)
+sinewave_jitter_400fs.csv
+sinewave_noise_270uV.csv
