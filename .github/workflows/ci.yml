@@ -70,3 +70,35 @@ jobs:
 
           print('=== All tests passed ===')
           "
+
+  python-regression-tests:
+    name: Python Regression Tests
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+
+      - name: Install dependencies
+        run: |
+          pip install numpy pandas matplotlib scipy
+
+      - name: Run Python golden tests
+        run: |
+          export PYTHONPATH="${GITHUB_WORKSPACE}/python/src:${PYTHONPATH}"
+          cd python/tests/generate_golden_reference
+
+          echo "=== Running Python Golden Tests ==="
+          python run_python_tests.py
+
+      - name: Compare against golden references
+        run: |
+          export PYTHONPATH="${GITHUB_WORKSPACE}/python/src:${PYTHONPATH}"
+
+          echo "=== Regression Test: Python vs Golden ==="
+          python python/tests/validation/compare_regression.py

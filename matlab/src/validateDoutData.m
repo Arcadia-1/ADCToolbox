@@ -4,60 +4,61 @@ function validateDoutData(bits)
 %   validateDoutData(bits)
 %
 % Throws error if data is invalid with descriptive message
+% See user_preference.md for validation thresholds
 
-if ~isnumeric(bits)
-    error('Data must be numeric, got %s', class(bits));
+% Validation thresholds (see user_preference.md)
+MIN_SAMPLES = 100;
+MIN_BITS = 2;
+MAX_BITS = 32;
+
+% Check basic types
+if ~isnumeric(bits) || ~isreal(bits)
+    error('[Data must be real numeric, got %s]', class(bits));
 end
 
-if ~isreal(bits)
-    error('Data must be real-valued, got complex numbers');
-end
-
-if any(isnan(bits(:)))
-    error('Data contains NaN values');
-end
-
-if any(isinf(bits(:)))
-    error('Data contains Inf values');
+if any(isnan(bits(:))) || any(isinf(bits(:)))
+    error('[Data contains NaN or Inf values]');
 end
 
 if isempty(bits)
-    error('Data is empty');
+    error('[Data is empty]');
 end
 
+% Check matrix format
 if ~ismatrix(bits) || isvector(bits)
-    error('Data must be 2D matrix (N samples x B bits), got size [%s]', num2str(size(bits)));
+    error('[Data must be 2D matrix (N×B), got size %s]', num2str(size(bits)));
 end
 
-unique_vals = unique(bits(:));
-if ~all(ismember(unique_vals, [0, 1]))
-    error('Data must contain only binary values (0 or 1), found values: %s', mat2str(unique_vals'));
+% Check binary values
+if ~all(ismember(bits(:), [0, 1]))
+    unique_vals = unique(bits(:));
+    error('[Data must be binary (0 or 1), found: %s]', mat2str(unique_vals'));
 end
 
+% Check dimensions
 [nSamples, nBits] = size(bits);
-
-if nSamples < 100
-    error('Insufficient samples (%d), need at least 100', nSamples);
+if nSamples < MIN_SAMPLES
+    error('[Insufficient samples: %d, need ≥%d]', nSamples, MIN_SAMPLES);
 end
 
-if nBits < 2
-    error('Insufficient bits (%d), need at least 2', nBits);
+if nBits < MIN_BITS
+    error('[Insufficient bits: %d, need ≥%d]', nBits, MIN_BITS);
 end
 
-if nBits > 32
-    warning('Unusual bit count (%d), verify this is correct', nBits);
+if nBits > MAX_BITS
+    warning('[Unusual bit count: %d, expected <%d]', nBits, MAX_BITS);
 end
 
-stuck_bits = sum(bits, 1);
-all_zero_bits = find(stuck_bits == 0);
-all_one_bits = find(stuck_bits == nSamples);
+% Check for stuck bits
+stuck_low = find(sum(bits, 1) == 0);
+stuck_high = find(sum(bits, 1) == nSamples);
 
-if ~isempty(all_zero_bits)
-    warning('Bit(s) stuck at 0: %s', mat2str(all_zero_bits));
+if ~isempty(stuck_low)
+    warning('[Bit(s) stuck at 0: %s]', mat2str(stuck_low));
 end
 
-if ~isempty(all_one_bits)
-    warning('Bit(s) stuck at 1: %s', mat2str(all_one_bits));
+if ~isempty(stuck_high)
+    warning('[Bit(s) stuck at 1: %s]', mat2str(stuck_high));
 end
 
 end

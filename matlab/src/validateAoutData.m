@@ -4,44 +4,35 @@ function validateAoutData(aout_data)
 %   validateAoutData(aout_data)
 %
 % Throws error if data is invalid with descriptive message
+% See user_preference.md for validation thresholds
 
-if ~isnumeric(aout_data)
-    error('Data must be numeric, got %s', class(aout_data));
+% Validation thresholds (see user_preference.md)
+MIN_SAMPLES = 100;
+MIN_RANGE = 1e-10;
+
+% Check basic types
+if ~isnumeric(aout_data) || ~isreal(aout_data)
+    error('[Data must be real numeric, got %s]', class(aout_data));
 end
 
-if ~isreal(aout_data)
-    error('Data must be real-valued, got complex numbers');
-end
-
-if any(isnan(aout_data(:)))
-    error('Data contains NaN values');
-end
-
-if any(isinf(aout_data(:)))
-    error('Data contains Inf values');
+if any(isnan(aout_data(:))) || any(isinf(aout_data(:)))
+    error('[Data contains NaN or Inf values]');
 end
 
 if isempty(aout_data)
-    error('Data is empty');
+    error('[Data is empty]');
 end
 
-if isvector(aout_data)
-    nSamples = length(aout_data);
-else
-    nSamples = size(aout_data, 2);
+% Check sample count
+nSamples = numel(aout_data);
+if nSamples < MIN_SAMPLES
+    error('[Insufficient samples: %d, need ≥%d]', nSamples, MIN_SAMPLES);
 end
 
-if nSamples < 100
-    error('Insufficient samples (%d), need at least 100', nSamples);
-end
-
+% Check signal variation
 data_range = max(aout_data(:)) - min(aout_data(:));
-if data_range == 0
-    error('Data is constant (no variation)');
-end
-
-if data_range < 1e-10
-    error('Data range too small (%.2e), likely invalid', data_range);
+if data_range < MIN_RANGE
+    error('[No signal variation: range=%.2e, need >%.2e]', data_range, MIN_RANGE);
 end
 
 end
