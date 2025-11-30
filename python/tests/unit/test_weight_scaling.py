@@ -10,7 +10,7 @@ _project_root = Path(__file__).parent.parent.parent.parent
 if str(_project_root) not in sys.path:
     sys.path.insert(0, str(_project_root))
 
-from python.src.adctoolbox.weight_scaling import weight_scaling
+from adctoolbox.dout.weight_scaling import weight_scaling
 from python.src.adctoolbox.dout.fg_cal_sine import fg_cal_sine
 
 # Configuration
