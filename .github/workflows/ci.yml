@@ -29,4 +29,4 @@ jobs:
 
       - name: Run basic pytest
         run: |
-          pytest python/tests/unit/test_basic.py -q
+          pytest python/tests/unit/test_basic.py
