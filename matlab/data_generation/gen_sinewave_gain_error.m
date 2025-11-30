@@ -2,7 +2,7 @@
 close all; clear; clc; warning("off");
 rng(42);
 
-data_dir = "dataset";
+data_dir = "dataset/aout";
 
 %% Sinewave with 2-step quantization gain error
 gain_error_list = [0.985]; % interstage gain error values

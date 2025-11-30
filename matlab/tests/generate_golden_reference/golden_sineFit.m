@@ -8,7 +8,7 @@ close all; clc; clear;
 %% Configuration
 verbose = 0;
 inputDir = "dataset";
-outputDir = "test_reference";
+outputDir = "test_output";
 
 % Read golden data list
 goldenListFile = "test_reference/golden_data_list.txt";

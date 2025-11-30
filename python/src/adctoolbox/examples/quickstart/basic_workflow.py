@@ -20,6 +20,9 @@ from adctoolbox.aout import spec_plot, tom_decomp, err_hist_sine
 from adctoolbox.dout import fg_cal_sine
 from adctoolbox.common import find_bin, sine_fit
 
+# For loading packaged example data (optional)
+from adctoolbox.examples.data import get_example_data_path
+
 # Create output directory
 import os
 output_dir = "../output"
@@ -28,6 +31,13 @@ os.makedirs(output_dir, exist_ok=True)
 print("=" * 70)
 print("ADCToolbox Quickstart: Basic ADC Analysis Workflow")
 print("=" * 70)
+
+# NOTE: This quickstart uses synthetic data to demonstrate the complete workflow.
+# To analyze real example data included with the package, use:
+#   data_file = get_example_data_path('sinewave_jitter_400fs.csv')
+#   signal = np.loadtxt(data_file, delimiter=',')
+#   # Then skip to Step 3 for analysis
+# See examples/aout/ and examples/common/ for simpler real-data examples.
 
 #%% Step 1: Generate or Load ADC Data
 print("\nStep 1: Generate Test ADC Data")

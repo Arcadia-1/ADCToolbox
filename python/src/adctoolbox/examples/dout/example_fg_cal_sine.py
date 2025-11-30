@@ -17,6 +17,7 @@ import matplotlib.pyplot as plt
 from adctoolbox.dout import fg_cal_sine
 from adctoolbox.aout import spec_plot
 from adctoolbox.common import find_bin
+from adctoolbox.examples.data import get_example_data_path
 
 # Create output directory
 import os
@@ -25,6 +26,65 @@ os.makedirs(output_dir, exist_ok=True)
 
 print("=" * 70)
 print("Example: fg_cal_sine - Foreground Calibration using Sinewave")
+print("=" * 70)
+
+#%% Example 0: Calibrate Real Digital Output Data
+print("\nExample 0: Calibrate Real Digital Output Data")
+print("-" * 70)
+
+# Load example bits data (included with package)
+data_file = get_example_data_path('dout_SAR_12b_weight_1.csv')
+bits_real = np.loadtxt(data_file, delimiter=',', dtype=int)
+
+print(f"\nLoaded example data:")
+print(f"  File: dout_SAR_12b_weight_1.csv (12-bit SAR ADC)")
+print(f"  Samples: {bits_real.shape[0]}")
+print(f"  Bits: {bits_real.shape[1]}")
+print(f"\nFirst 3 samples:")
+for i in range(min(3, bits_real.shape[0])):
+    print(f"  {i}: {bits_real[i]}")
+
+# Run calibration on real data
+weight_real, offset_real, aout_cal_real, aout_ideal_real, err_real, freq_real = fg_cal_sine(
+    bits_real,
+    freq=0,  # Auto-detect frequency
+    order=5
+)
+
+print(f"\nCalibration Results:")
+print(f"  Detected frequency: {freq_real:.6f}")
+print(f"  DC offset: {offset_real:.6f}")
+print(f"  Calibration error RMS: {np.std(err_real):.6f}")
+print(f"\nEstimated weights:")
+for i, w in enumerate(weight_real):
+    print(f"  Bit {bits_real.shape[1]-1-i:2d}: {w:.6f}")
+
+# Analyze performance
+fig_real, axes = plt.subplots(1, 2, figsize=(16, 6))
+
+# Uncalibrated (using ideal binary weights)
+ideal_weights = 2.0 ** np.arange(bits_real.shape[1] - 1, -1, -1)
+aout_uncal_real = np.dot(bits_real, ideal_weights)
+
+plt.sca(axes[0])
+enob_uncal, sndr_uncal, _, _, _, _, _, _ = spec_plot(aout_uncal_real, label=True, harmonic=5)
+axes[0].set_title(f'Before Calibration\nENoB: {enob_uncal:.2f} bits')
+
+plt.sca(axes[1])
+enob_cal, sndr_cal, _, _, _, _, _, _ = spec_plot(aout_cal_real, label=True, harmonic=5)
+axes[1].set_title(f'After Calibration\nENoB: {enob_cal:.2f} bits')
+
+plt.tight_layout()
+plt.savefig(os.path.join(output_dir, 'fg_cal_real_data.png'), dpi=150)
+plt.close()
+
+print(f"\nPerformance Improvement:")
+print(f"  ENoB:  {enob_uncal:.2f} → {enob_cal:.2f} bits (+{enob_cal - enob_uncal:.2f})")
+print(f"  SNDR:  {sndr_uncal:.2f} → {sndr_cal:.2f} dB (+{sndr_cal - sndr_uncal:.2f})")
+
+#%% Additional Educational Examples with Synthetic Data
+print("\n" + "=" * 70)
+print("Additional Educational Examples with Synthetic Data")
 print("=" * 70)
 
 #%% Generate Test Signal with Bit Weight Errors

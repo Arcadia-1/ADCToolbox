@@ -2,7 +2,7 @@
 close all; clear; clc; warning("off");
 rng(42);
 
-data_dir = "dataset";
+data_dir = "dataset/aout";
 
 %% Sinewave with 2-step quantization kickback
 kickback_strength_list = 0.015; % kickback coupling strength

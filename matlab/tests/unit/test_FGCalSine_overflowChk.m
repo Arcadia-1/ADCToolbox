@@ -4,7 +4,7 @@ warning("off");
 
 %% Configuration
 verbose = 1;
-inputDir = "dataset";
+inputDir = "dataset/dout";
 outputDir = "test_output";
 filesList = {"dout_Pipeline_4bx8_8b.csv"};
 filesList = autoSearchFiles(filesList, inputDir, 'dout_*.csv');

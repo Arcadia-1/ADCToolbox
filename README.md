@@ -121,6 +121,43 @@ addpath(genpath('matlab/src'))
 
 ---
 
+## Data Organization
+
+ADCToolbox uses a three-tier data structure following industry best practices:
+
+### 1. Example Data (Included in pip)
+**Size:** ~740 KB (5 files)
+**Access:** Automatically included with `pip install adctoolbox`
+
+```python
+from adctoolbox.examples.data import get_example_data_path
+import numpy as np
+
+# Load example data
+data_path = get_example_data_path('sinewave_jitter_400fs.csv')
+signal = np.loadtxt(data_path, delimiter=',')
+
+# List available examples
+from adctoolbox.examples.data import list_example_data
+print(list_example_data())
+```
+
+### 2. CI Golden Reference (In repo only)
+**Size:** ~412 KB (2 datasets in `test_reference/`)
+**Purpose:** Regression testing (MATLAB = source of truth)
+**Access:** Clone the repository
+
+### 3. Full Dataset (In repo, not in pip)
+**Size:** ~12 MB (22+ files in `dataset/`)
+**Purpose:** Research, benchmarking, comprehensive testing
+**Access:** Clone the repository - included in git
+
+**Example data** is for tutorials and quick prototyping.
+**Full dataset** is for comprehensive testing and development.
+**CI golden** is for automated regression testing.
+
+---
+
 ## Project Structure
 
 ```
@@ -133,10 +170,13 @@ ADCToolbox/
 │   ├── aout/                # Analog output analysis
 │   ├── common/              # Common utilities
 │   ├── dout/                # Digital output calibration
+│   ├── examples/            # Example scripts (included in pip)
+│   │   └── data/            # Example datasets (~740 KB)
 │   ├── oversampling/        # Oversampling analysis
 │   └── utils/               # Utility functions
-├── dataset/                 # Test datasets (40+ CSV files)
-└── python/tests/            # Test suite (15 unit tests)
+├── dataset/                 # Full dataset (22+ files, ~12 MB, in git, not in pip)
+├── test_reference/          # CI golden reference (MATLAB source of truth)
+└── python/tests/            # Test suite (21 unit tests)
 ```
 
 ---

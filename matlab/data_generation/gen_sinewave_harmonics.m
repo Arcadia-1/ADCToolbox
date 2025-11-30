@@ -2,7 +2,7 @@
 close all; clear; clc; warning("off");
 rng(42);
 
-data_dir = "dataset";
+data_dir = "dataset/aout";
 
 %% Sinewave with specific HD2 / HD3 distortion levels
 HD2_dB_list = -65; % Target HD2 levels in dB

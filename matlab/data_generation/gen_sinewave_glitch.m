@@ -2,7 +2,7 @@
 close all; clear; clc; warning("off");
 rng(42);
 
-data_dir = "dataset";
+data_dir = "dataset/aout";
 
 %% Sinewave with random glitch injection
 glitch_prob_list = [0.00015]; % 0.1%, 1%, 10%

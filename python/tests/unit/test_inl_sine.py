@@ -13,7 +13,7 @@ def test_inl_from_sine():
     """Test INLSine function with sinewave data files."""
 
     # Configuration - assumes running from project root d:\ADCToolbox
-    input_dir = project_root / "dataset"
+    input_dir = project_root / "dataset" / "aout"
     output_dir = project_root / "test_output"
 
     # Resolution list to scan

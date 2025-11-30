@@ -14,7 +14,7 @@ from python.src.adctoolbox.toolset_dout import toolset_dout
 
 # Configuration
 verbose = False
-input_dir = Path('dataset')
+input_dir = Path('dataset') / 'dout'
 output_dir = Path('test_output')
 order = 5
 

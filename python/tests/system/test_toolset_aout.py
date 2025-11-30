@@ -14,7 +14,7 @@ from python.src.adctoolbox.toolset_aout import toolset_aout
 
 # Configuration
 verbose = False
-input_dir = Path('dataset')
+input_dir = Path('dataset') / 'aout'
 output_dir = Path('test_output')
 resolution = 11
 

@@ -44,7 +44,7 @@ for k = 1:length(CDAC_lists)
     [ENoB, SNDR, ~] = specPlot(aout, 'label', 1, 'harmonic', 5, 'winType', @hann, 'OSR', 1, 'coAvg', 0);
 
     N_bit = round(resolution);
-    filename = fullfile("dataset", sprintf("dout_SAR_%db_weight_%d.csv", N_bit, k));
+    filename = fullfile("dataset/dout", sprintf("dout_SAR_%db_weight_%d.csv", N_bit, k));
     fprintf("[Save data into file] -> [%s]\n", filename);
     writematrix(dout, filename);
 end

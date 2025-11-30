@@ -19,7 +19,7 @@ from adctoolbox.common import alias
 def golden_alias():
     """Generate alias report for golden reference."""
 
-    output_path = project_root / 'test_reference' / 'test_alias' / 'alias_report_python.txt'
+    output_path = project_root / 'test_output' / 'test_alias' / 'alias_report_python.txt'
     output_path.parent.mkdir(parents=True, exist_ok=True)
 
     lines = []
