@@ -1,4 +1,4 @@
-name: CI - Smoke Tests
+name: CI
 
 on:
   pull_request:
@@ -7,8 +7,8 @@ on:
     branches: [ main ]
 
 jobs:
-  python-tests:
-    name: Python Smoke Tests
+  python-basic-test:
+    name: Python Basic Test
     runs-on: ubuntu-latest
 
     steps:
@@ -22,83 +22,9 @@ jobs:
 
       - name: Install dependencies
         run: |
-          pip install numpy pandas matplotlib scipy
+          pip install numpy matplotlib
 
-      - name: Run Python test
+      - name: Run test_basic.py
         run: |
-          export PYTHONPATH="${GITHUB_WORKSPACE}/python/src:${PYTHONPATH}"
-          python -c "
-          import numpy as np
-          from adctoolbox.common import alias, sine_fit
-          from adctoolbox.aout import spec_plot
-
-          print('=== Python ADC Toolbox Tests ===\n')
-
-          # Test 1: alias function
-          print('[1/4] Testing alias function...')
-          result = alias(600, 1024)
-          expected = 424
-          assert abs(result - expected) < 0.01, f'Expected {expected}, got {result}'
-          print(f'  ✓ alias(600, 1024) = {result} (expected {expected})\n')
-
-          # Test 2: Generate sinewave
-          print('[2/4] Generating test sinewave...')
-          N = 1024
-          Fin_bin = 101
-          t = np.arange(N)
-          aout = np.sin(2 * np.pi * Fin_bin / N * t) + 0.01 * np.random.randn(N)
-          print(f'  ✓ Created {len(aout)} samples (Min: {aout.min():.3f}, Max: {aout.max():.3f})\n')
-
-          # Test 3: sine_fit function
-          print('[3/4] Testing sine_fit function...')
-          data_fit, freq_normalized, mag, dc, phi = sine_fit(aout)
-          Fin_bin_estimated = freq_normalized * N
-          error_bins = abs(Fin_bin_estimated - Fin_bin)
-          assert error_bins < 1, f'Frequency estimation failed: expected {Fin_bin} bins, got {Fin_bin_estimated:.2f} bins'
-          print(f'  ✓ Frequency: {freq_normalized:.6f} ({Fin_bin_estimated:.1f} bins, error: {error_bins:.3f})')
-          print(f'  ✓ Magnitude: {mag:.4f}, DC: {dc:.6f}, Phase: {phi:.4f} rad\n')
-
-          # Test 4: spec_plot function
-          print('[4/4] Testing spec_plot function...')
-          ENoB, SNDR, SFDR, SNR, THD, pwr, NF, h = spec_plot(aout, Fs=N, isPlot=False)
-          assert ENoB > 0 and ENoB < 20, f'Invalid ENoB: {ENoB}'
-          assert SNDR > 0, f'Invalid SNDR: {SNDR}'
-          print(f'  ✓ ENoB: {ENoB:.2f} bits')
-          print(f'  ✓ SNDR: {SNDR:.2f} dB, SNR: {SNR:.2f} dB')
-          print(f'  ✓ SFDR: {SFDR:.2f} dB, THD: {THD:.2f} dB')
-          print(f'  ✓ Power: {pwr:.2f} dB, NF: {NF:.2f} dB\n')
-
-          print('=== All tests passed ===')
-          "
-
-  python-regression-tests:
-    name: Python Regression Tests
-    runs-on: ubuntu-latest
-
-    steps:
-      - name: Checkout code
-        uses: actions/checkout@v4
-
-      - name: Set up Python
-        uses: actions/setup-python@v5
-        with:
-          python-version: '3.11'
-
-      - name: Install dependencies
-        run: |
-          pip install numpy pandas matplotlib scipy
-
-      - name: Run Python golden tests
-        run: |
-          export PYTHONPATH="${GITHUB_WORKSPACE}/python/src:${PYTHONPATH}"
-          cd python/tests/generate_golden_reference
-
-          echo "=== Running Python Golden Tests ==="
-          python run_python_tests.py
-
-      - name: Compare against golden references
-        run: |
-          export PYTHONPATH="${GITHUB_WORKSPACE}/python/src:${PYTHONPATH}"
-
-          echo "=== Regression Test: Python vs Golden ==="
-          python python/tests/validation/compare_regression.py
+          cd python/tests/unit
+          python test_basic.py

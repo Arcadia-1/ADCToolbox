@@ -24,10 +24,9 @@ else
     end
 end
 
-T = table(var);
 fileName = sprintf('%s_matlab.csv', varName);
 filePath = fullfile(folder, fileName);
-writetable(T, filePath);
+writematrix(var, filePath);
 
 if verbose
     fprintf("  [%s]->[%s]\n", mfilename, filePath);

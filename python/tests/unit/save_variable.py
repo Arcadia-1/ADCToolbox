@@ -60,7 +60,7 @@ def save_variable(folder, var, var_name, verbose=False):
     if np.issubdtype(var_truncated.dtype, np.integer):
         fmt = '%d'
     else:
-        fmt = '%.10f'
+        fmt = '%.16f'
 
     np.savetxt(file_path, var_truncated, delimiter=',', fmt=fmt)
 
