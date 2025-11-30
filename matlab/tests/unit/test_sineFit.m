@@ -2,8 +2,8 @@
 close all; clc; clear;
 
 %% Configuration
-verbose = 0;
-inputDir = "dataset/aout";
+verbose = 1;
+inputDir = "dataset/aout/sinewave";
 outputDir = "test_output";
 
 filesList ={};

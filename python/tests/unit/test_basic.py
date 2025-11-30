@@ -13,7 +13,7 @@ Output structure:
 
 import numpy as np
 import matplotlib.pyplot as plt
-from .utils import save_variable, save_fig
+from tests.unit._utils import save_variable, save_fig
 
 plt.rcParams['font.size'] = 14
 

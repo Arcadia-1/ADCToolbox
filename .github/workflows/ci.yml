@@ -25,7 +25,7 @@ jobs:
       - name: Install dependencies
         run: |
           uv pip install numpy matplotlib pandas pytest --system
-          # uv pip install . --system
+          pip install -e ./python
 
       - name: Run basic pytest
         run: |

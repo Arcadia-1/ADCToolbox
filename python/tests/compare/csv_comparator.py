@@ -24,7 +24,9 @@ class CSVComparator:
             # Use numpy.loadtxt for simple numeric files
             arr_py = np.loadtxt(py_path, delimiter=',', ndmin=1)
             arr_mat = np.loadtxt(mat_path, delimiter=',', ndmin=1)
-
+            arr_py = np.squeeze(arr_py)
+            arr_mat = np.squeeze(arr_mat)
+            
             # 2. Shape Check
             if arr_py.shape != arr_mat.shape:
                 return self._build_result(

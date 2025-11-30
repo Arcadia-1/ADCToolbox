@@ -2,7 +2,8 @@
 close all; clear; clc; warning("off");
 rng(42); % set random seed for reproducibility
 
-data_dir = "dataset/aout";
+subFolder = "dataset/aout/sinewave";
+if ~isfolder(subFolder), mkdir(subFolder); end
 
 %% Sinewave with jitter
 % Tj_list = logspace(-15, -12, 2); % jitter values (in s) to sweep
@@ -24,7 +25,7 @@ for k = 1:length(Tj_list)
     data = sin(ideal_phase+phase_jitter) * 0.49 + 0.5 + randn(1, N) * 1e-6; % jittered signal
     
 
-    filename = fullfile(data_dir, sprintf("sinewave_jitter_%dfs.csv", round(Tj*1e15)));
+    filename = fullfile(subFolder, sprintf("sinewave_jitter_%dfs.csv", round(Tj*1e15)));
     ENoB = specPlot(data,"isplot",0);
     writematrix(data, filename)
     fprintf("  [ENoB = %0.2f] [Save] %s\n", ENoB, filename);
