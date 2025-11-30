@@ -6,7 +6,7 @@ def test_compare_all_types(project_root):
     Validates Vector, Matrix, and Scalar generation against MATLAB reference.
     Strict equality check (Absolute Error only).
     """
-    base_dir = project_root / 'test_output' / 'test_basic'
+    base_dir = project_root / 'test_reference' / 'test_basic'
     
     # 1. Define the targets
     targets = [
