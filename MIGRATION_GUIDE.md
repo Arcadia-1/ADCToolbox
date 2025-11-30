@@ -29,7 +29,7 @@ Upgrade and start using examples:
 
 ```bash
 pip install --upgrade adctoolbox
-python -m adctoolbox.examples.quickstart.basic_workflow
+python -m adctoolbox.examples.quickstart.example_00_basic_workflow
 ```
 
 Or access example data programmatically:

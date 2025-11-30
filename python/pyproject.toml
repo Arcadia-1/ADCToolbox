@@ -48,6 +48,14 @@ Documentation = "https://github.com/Arcadia-1/ADCToolbox#readme"
 Repository = "https://github.com/Arcadia-1/ADCToolbox"
 Issues = "https://github.com/Arcadia-1/ADCToolbox/issues"
 
+[project.scripts]
+# CLI entry points for examples (easiest for users)
+adctoolbox-quickstart = "adctoolbox.examples.quickstart.example_00_basic_workflow:main"
+adctoolbox-example-sine-fit = "adctoolbox.examples.common.example_00_sine_fit:main"
+adctoolbox-example-spec-plot = "adctoolbox.examples.aout.example_00_spec_plot:main"
+adctoolbox-example-calibration = "adctoolbox.examples.dout.example_00_fg_cal_sine:main"
+adctoolbox-example-workflow = "adctoolbox.examples.workflows.example_00_complete_adc_analysis:main"
+
 [tool.setuptools]
 include-package-data = true
 

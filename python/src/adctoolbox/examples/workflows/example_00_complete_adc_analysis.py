@@ -427,3 +427,10 @@ print("  9_error_autocorrelation.png   - Error correlation")
 print("\n" + "=" * 80)
 print("Analysis workflow completed successfully!")
 print("=" * 80)
+
+def main():
+    """Entry point for CLI command."""
+    pass  # Script already executed at module level
+
+if __name__ == "__main__":
+    main()

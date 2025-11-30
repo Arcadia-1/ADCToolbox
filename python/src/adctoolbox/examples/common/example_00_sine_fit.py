@@ -15,11 +15,14 @@ from adctoolbox.examples.data import get_example_data_path
 
 # Create output directory
 import os
-output_dir = "../output"
-os.makedirs(output_dir, exist_ok=True)
+from pathlib import Path
+output_dir = Path(__file__).parent.parent / "output"
+output_dir.mkdir(parents=True, exist_ok=True)
 
 print("=" * 70)
 print("Example: sine_fit - Sine Wave Parameter Extraction")
+print("=" * 70)
+print(f"\nOutput directory: {output_dir.absolute()}")
 print("=" * 70)
 
 #%% Example 0: Fit Real Example Data
@@ -30,25 +33,16 @@ print("-" * 70)
 data_file = get_example_data_path('sinewave_gain_error_0P98.csv')
 real_signal = np.loadtxt(data_file, delimiter=',')
 
-print(f"\nLoaded example data:")
-print(f"  File: sinewave_gain_error_0P98.csv")
-print(f"  Samples: {len(real_signal)}")
-print(f"  Range: [{real_signal.min():.4f}, {real_signal.max():.4f}]")
+print(f"\n[Loaded example data] File=sinewave_gain_error_0P98.csv, Samples={len(real_signal)}, Range=[{real_signal.min():.4f}, {real_signal.max():.4f}]")
 
 # Fit real data
 signal_fit_real, freq_real, amp_real, dc_real, phi_real = sine_fit(real_signal)
 
-print(f"\nExtracted Parameters from Real Data:")
-print(f"  Frequency: {freq_real:.6f}")
-print(f"  Amplitude: {amp_real:.4f}")
-print(f"  DC offset: {dc_real:.4f}")
-print(f"  Phase:     {phi_real:.4f} rad ({np.degrees(phi_real):.2f}°)")
+print(f"[Extracted Parameters] Frequency={freq_real:.6f}, Amplitude={amp_real:.4f}, DC offset={dc_real:.4f}, Phase={phi_real:.4f} rad ({np.degrees(phi_real):.2f}°)")
 
 # Calculate residual
 residual_real = real_signal - signal_fit_real
-print(f"\nFit Quality:")
-print(f"  RMS error: {np.std(residual_real):.4f}")
-print(f"  Max error: {np.max(np.abs(residual_real)):.4f}")
+print(f"[Fit Quality] RMS error={np.std(residual_real):.4f}, Max error={np.max(np.abs(residual_real)):.4f}")
 
 # Plot real data
 t_real = np.arange(len(real_signal))
@@ -69,8 +63,10 @@ axes[1].set_title(f'Residual Error (RMS: {np.std(residual_real):.4f})')
 axes[1].grid(True, alpha=0.3)
 
 plt.tight_layout()
-plt.savefig(os.path.join(output_dir, 'sine_fit_real_data.png'), dpi=150)
+plot_path = output_dir / 'sine_fit_real_data.png'
+plt.savefig(plot_path, dpi=150)
 plt.close()
+print(f"  [save]->[{plot_path.absolute()}]")
 
 #%% Additional Examples with Synthetic Data
 print("\n" + "=" * 70)
@@ -92,26 +88,16 @@ phi_true = np.pi / 4  # True phase (45 degrees)
 t = np.arange(N)
 signal_clean = A_true * np.sin(2 * np.pi * Fin_true * t + phi_true) + DC_true
 
-print(f"\nTrue Parameters:")
-print(f"  Frequency: {Fin_true:.6f}")
-print(f"  Amplitude: {A_true:.4f}")
-print(f"  DC offset: {DC_true:.4f}")
-print(f"  Phase:     {phi_true:.4f} rad ({np.degrees(phi_true):.2f}°)")
+print(f"\n[True Parameters] Frequency={Fin_true:.6f}, Amplitude={A_true:.4f}, DC offset={DC_true:.4f}, Phase={phi_true:.4f} rad ({np.degrees(phi_true):.2f}°)")
 
 # Fit sinewave
 signal_fit, freq_est, amp_est, dc_est, phi_est = sine_fit(signal_clean)
 
-print(f"\nEstimated Parameters:")
-print(f"  Frequency: {freq_est:.6f} (error: {abs(freq_est - Fin_true):.2e})")
-print(f"  Amplitude: {amp_est:.4f} (error: {abs(amp_est - A_true):.2e})")
-print(f"  DC offset: {dc_est:.4f} (error: {abs(dc_est - DC_true):.2e})")
-print(f"  Phase:     {phi_est:.4f} rad ({np.degrees(phi_est):.2f}°, error: {abs(phi_est - phi_true):.2e} rad)")
+print(f"[Estimated Parameters] Frequency={freq_est:.6f} (error={abs(freq_est - Fin_true):.2e}), Amplitude={amp_est:.4f} (error={abs(amp_est - A_true):.2e}), DC offset={dc_est:.4f} (error={abs(dc_est - DC_true):.2e}), Phase={phi_est:.4f} rad ({np.degrees(phi_est):.2f}°, error={abs(phi_est - phi_true):.2e} rad)")
 
 # Calculate residual error
 residual = signal_clean - signal_fit
-print(f"\nFit Quality:")
-print(f"  RMS error: {np.std(residual):.2e}")
-print(f"  Max error: {np.max(np.abs(residual)):.2e}")
+print(f"[Fit Quality] RMS error={np.std(residual):.2e}, Max error={np.max(np.abs(residual)):.2e}")
 
 # Plot
 fig1, axes = plt.subplots(2, 1, figsize=(12, 8))
@@ -133,8 +119,10 @@ axes[1].set_title(f'Residual Error (RMS: {np.std(residual):.2e})')
 axes[1].grid(True, alpha=0.3)
 
 plt.tight_layout()
-plt.savefig(os.path.join(output_dir, 'sine_fit_clean.png'), dpi=150)
+plot_path = output_dir / 'sine_fit_clean.png'
+plt.savefig(plot_path, dpi=150)
 plt.close()
+print(f"  [save]->[{plot_path.absolute()}]")
 
 #%% Example 2: Fit Noisy Sinewave
 print("\n" + "=" * 70)
@@ -145,21 +133,15 @@ print("-" * 70)
 noise_level = 0.01
 signal_noisy = signal_clean + np.random.randn(N) * noise_level
 
-print(f"\nNoise level (RMS): {noise_level}")
+print(f"\n[Noise level] RMS={noise_level}")
 
 # Fit noisy signal
 signal_fit_noisy, freq_noisy, amp_noisy, dc_noisy, phi_noisy = sine_fit(signal_noisy)
 
-print(f"\nEstimated Parameters (with noise):")
-print(f"  Frequency: {freq_noisy:.6f} (error: {abs(freq_noisy - Fin_true):.2e})")
-print(f"  Amplitude: {amp_noisy:.4f} (error: {abs(amp_noisy - A_true):.2e})")
-print(f"  DC offset: {dc_noisy:.4f} (error: {abs(dc_noisy - DC_true):.2e})")
-print(f"  Phase:     {phi_noisy:.4f} rad (error: {abs(phi_noisy - phi_true):.2e} rad)")
+print(f"[Estimated Parameters with noise] Frequency={freq_noisy:.6f} (error={abs(freq_noisy - Fin_true):.2e}), Amplitude={amp_noisy:.4f} (error={abs(amp_noisy - A_true):.2e}), DC offset={dc_noisy:.4f} (error={abs(dc_noisy - DC_true):.2e}), Phase={phi_noisy:.4f} rad (error={abs(phi_noisy - phi_true):.2e} rad)")
 
 residual_noisy = signal_noisy - signal_fit_noisy
-print(f"\nFit Quality:")
-print(f"  RMS error: {np.std(residual_noisy):.4f}")
-print(f"  (Close to noise level: {noise_level})")
+print(f"[Fit Quality] RMS error={np.std(residual_noisy):.4f} (close to noise level={noise_level})")
 
 # Plot
 fig2, axes = plt.subplots(2, 1, figsize=(12, 8))
@@ -181,8 +163,10 @@ axes[1].set_title(f'Residual Error (RMS: {np.std(residual_noisy):.4f})')
 axes[1].grid(True, alpha=0.3)
 
 plt.tight_layout()
-plt.savefig(os.path.join(output_dir, 'sine_fit_noisy.png'), dpi=150)
+plot_path = output_dir / 'sine_fit_noisy.png'
+plt.savefig(plot_path, dpi=150)
 plt.close()
+print(f"  [save]->[{plot_path.absolute()}]")
 
 #%% Example 3: Fit Signal with Harmonics
 print("\n" + "=" * 70)
@@ -197,21 +181,15 @@ signal_harmonic = (signal_clean +
                    HD2_amp * np.sin(2 * 2 * np.pi * Fin_true * t) +
                    HD3_amp * np.sin(3 * 2 * np.pi * Fin_true * t))
 
-print(f"\nSignal with harmonics:")
-print(f"  HD2 amplitude: {HD2_amp:.4f}")
-print(f"  HD3 amplitude: {HD3_amp:.4f}")
+print(f"\n[Signal with harmonics] HD2 amplitude={HD2_amp:.4f}, HD3 amplitude={HD3_amp:.4f}")
 
 # Fit fundamental only
 signal_fit_fund, freq_fund, amp_fund, dc_fund, phi_fund = sine_fit(signal_harmonic)
 
-print(f"\nFitted Fundamental Parameters:")
-print(f"  Frequency: {freq_fund:.6f}")
-print(f"  Amplitude: {amp_fund:.4f}")
-print(f"  DC offset: {dc_fund:.4f}")
+print(f"[Fitted Fundamental] Frequency={freq_fund:.6f}, Amplitude={amp_fund:.4f}, DC offset={dc_fund:.4f}")
 
 residual_harmonic = signal_harmonic - signal_fit_fund
-print(f"\nResidual (contains harmonics):")
-print(f"  RMS: {np.std(residual_harmonic):.4f}")
+print(f"[Residual contains harmonics] RMS={np.std(residual_harmonic):.4f}")
 
 # Plot
 fig3, axes = plt.subplots(3, 1, figsize=(12, 10))
@@ -241,8 +219,10 @@ axes[2].legend()
 axes[2].grid(True, alpha=0.3)
 
 plt.tight_layout()
-plt.savefig(os.path.join(output_dir, 'sine_fit_harmonics.png'), dpi=150)
+plot_path = output_dir / 'sine_fit_harmonics.png'
+plt.savefig(plot_path, dpi=150)
 plt.close()
+print(f"  [save]->[{plot_path.absolute()}]")
 
 #%% Example 4: Batch Fitting (Multiple Signals)
 print("\n" + "=" * 70)
@@ -290,19 +270,19 @@ axes[1].legend()
 axes[1].grid(True, alpha=0.3)
 
 plt.tight_layout()
-plt.savefig(os.path.join(output_dir, 'sine_fit_sweep.png'), dpi=150)
+plot_path = output_dir / 'sine_fit_sweep.png'
+plt.savefig(plot_path, dpi=150)
 plt.close()
+print(f"  [save]->[{plot_path.absolute()}]")
 
-print(f"\nFrequency Estimation Accuracy:")
-print(f"  Mean error:   {np.mean(f_error_arr):.2e}")
-print(f"  Max error:    {np.max(f_error_arr):.2e}")
-print(f"  Std dev:      {np.std(f_error_arr):.2e}")
+print(f"\n[Frequency Estimation Accuracy] Mean error={np.mean(f_error_arr):.2e}, Max error={np.max(f_error_arr):.2e}, Std dev={np.std(f_error_arr):.2e}")
 
 #%% Summary
 print("\n" + "=" * 70)
 print("Summary")
 print("=" * 70)
-print(f"\nGenerated figures saved to: {output_dir}/")
+print(f"\nGenerated figures saved to: {output_dir.absolute()}/")
+print("  - sine_fit_real_data.png  (Real example data fit)")
 print("  - sine_fit_clean.png      (Clean signal fit)")
 print("  - sine_fit_noisy.png      (Noisy signal fit)")
 print("  - sine_fit_harmonics.png  (Signal with harmonics)")
@@ -318,3 +298,10 @@ print("  5. Use for: ADC characterization, signal analysis, error extraction")
 print("\n" + "=" * 70)
 print("Example completed successfully!")
 print("=" * 70)
+
+def main():
+    """Entry point for CLI command."""
+    pass  # Script already executed at module level
+
+if __name__ == "__main__":
+    main()

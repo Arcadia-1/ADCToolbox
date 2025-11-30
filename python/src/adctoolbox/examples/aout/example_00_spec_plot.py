@@ -239,3 +239,10 @@ print("  4. Oversampling (OSR>1) improves SNR by processing only in-band noise")
 print("\n" + "=" * 60)
 print("Example completed successfully!")
 print("=" * 60)
+
+def main():
+    """Entry point for CLI command."""
+    pass  # Script already executed at module level
+
+if __name__ == "__main__":
+    main()
