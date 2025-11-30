@@ -8,7 +8,8 @@ saveas(gcf, filePath);
 
 if verbose
     fprintf("  [%s]->[%s]\n", mfilename, filePath);
+
+    pause(2)
 end
-pause(2)
 close all;
 end
