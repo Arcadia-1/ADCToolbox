@@ -2,7 +2,8 @@
 close all; clear; clc; warning("off");
 rng(42);
 
-data_dir = "dataset/aout";
+subFolder = "dataset/aout/sinewave";
+if ~isfolder(subFolder), mkdir(subFolder); end
 
 %% Sinewave with additive noise
 noise_list = [2.7e-4]; % 100uV, 1mV, 10mV
@@ -23,7 +24,7 @@ for k = 1:length(noise_list)
     else
         nstr = sprintf("%dmV", round(noise_amp*1e3)); % mV
     end
-    filename = fullfile(data_dir, sprintf("sinewave_noise_%s.csv", nstr));
+    filename = fullfile(subFolder, sprintf("sinewave_noise_%s.csv", nstr));
     ENoB = specPlot(data,"isplot",0);
     writematrix(data, filename)
     fprintf("  [ENoB = %0.2f] [Save] %s\n", ENoB, filename);
