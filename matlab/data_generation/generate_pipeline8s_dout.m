@@ -84,7 +84,7 @@ title_str = sprintf('8-stage Pipeline ADC (N_i=%d, G_i=%d, N_8=%d, Resolution=%.
     N_BITS_PER_STAGE, GAIN_PER_STAGE, N_LAST_STAGE, effective_res);
 title(title_str);
 
-filename = fullfile("dataset", sprintf("dout_Pipeline_3bx4x%d_4b.csv", N_STAGES));
+filename = fullfile("dataset/dout", sprintf("dout_Pipeline_3bx4x%d_4b.csv", N_STAGES));
 fprintf("[Save data into file] -> [%s]\n", filename);
 writematrix(dout, filename);
 

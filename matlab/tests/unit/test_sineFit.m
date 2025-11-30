@@ -3,7 +3,7 @@ close all; clc; clear;
 
 %% Configuration
 verbose = 0;
-inputDir = "dataset";
+inputDir = "dataset/aout";
 outputDir = "test_output";
 
 filesList ={};

@@ -2,7 +2,7 @@
 close all; clear; clc; warning("off");
 rng(42);
 
-data_dir = "dataset";
+data_dir = "dataset/aout";
 
 %% Sinewave with Amplitude Noise (Random Amplitude Noise)
 am_noise_list = [0.00075]; % AM noise strength (e.g., 0.1% to 1%)

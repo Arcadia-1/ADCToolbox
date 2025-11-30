@@ -2,11 +2,18 @@
 include README.md
 include LICENSE
 
-# Exclude examples (keep in repo only, not in pip package)
-prune examples
+# INCLUDE examples and example data (NEW - part of package)
+graft src/adctoolbox/examples
+global-exclude *.pyc __pycache__
 
 # Exclude tests (not needed in distribution)
 prune tests
+
+# Exclude test reference (CI only)
+prune ../test_reference
+
+# Exclude full dataset (in git, but NOT in pip package)
+prune ../dataset
 
 # Exclude development files
 exclude .gitignore

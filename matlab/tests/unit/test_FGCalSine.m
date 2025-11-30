@@ -2,7 +2,7 @@
 close all; clc; clear;
 %% Configuration
 verbose = 0;
-inputDir = "dataset";
+inputDir = "dataset/dout";
 outputDir = "test_output";
 filesList = {}; % Test data - leave empty to auto-search
 filesList = autoSearchFiles(filesList, inputDir, 'dout_*.csv');

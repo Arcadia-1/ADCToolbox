@@ -2,7 +2,7 @@
 close all; clear; clc; warning("off");
 rng(42); % set random seed for reproducibility
 
-data_dir = "dataset";
+data_dir = "dataset/aout";
 
 %% Sinewave with jitter
 % Tj_list = logspace(-15, -12, 2); % jitter values (in s) to sweep

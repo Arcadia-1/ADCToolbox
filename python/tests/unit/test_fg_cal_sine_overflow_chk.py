@@ -31,7 +31,7 @@ def test_fgcalsine_overflowchk():
     warnings.filterwarnings('ignore')
 
     # Configuration
-    input_dir = project_root / "dataset"
+    input_dir = project_root / "dataset" / "dout"
     output_dir = project_root / "test_output"
 
     # Auto-search for dout_SAR_*.csv files

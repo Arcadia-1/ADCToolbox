@@ -3,7 +3,7 @@ close all; clc; clear;
 
 %% Configuration
 verbose = 0;
-inputDir = "dataset";
+inputDir = "dataset/aout";
 outputDir = "test_output";
 filesList = autoSearchFiles({}, inputDir, 'sinewave_*.csv');
 if ~isfolder(outputDir), mkdir(outputDir); end

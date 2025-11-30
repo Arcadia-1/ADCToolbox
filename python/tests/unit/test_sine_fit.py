@@ -27,7 +27,7 @@ def test_sineFit():
     """Test sineFit function on multiple datasets."""
 
     # Configuration
-    input_dir = project_root / "dataset"
+    input_dir = project_root / "dataset" / "aout"
     output_dir = project_root / "test_output"
 
     # Test datasets - leave empty to auto-search

@@ -31,7 +31,7 @@ def run_fgcal_tests():
     print('=== test_fg_cal_sine.py ===')
 
     # Configuration
-    input_dir = project_root / "dataset"
+    input_dir = project_root / "dataset" / "dout"
     output_dir = project_root / "test_output"
 
     # Auto-search for dout_*.csv files
