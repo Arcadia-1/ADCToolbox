@@ -12,19 +12,21 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-      - name: Checkout code
-        uses: actions/checkout@v4
+      - uses: actions/checkout@v4
 
       - name: Set up Python
         uses: actions/setup-python@v5
         with:
           python-version: '3.11'
 
+      - name: Install UV
+        run: pip install uv
+
       - name: Install dependencies
         run: |
-          pip install numpy matplotlib
+          uv pip install numpy matplotlib pytest --system
+          # uv pip install . --system
 
-      - name: Run test_basic.py
+      - name: Run basic pytest
         run: |
-          cd python/tests/unit
-          python test_basic.py
+          pytest python/tests/unit/test_basic.py -q
