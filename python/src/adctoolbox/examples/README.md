@@ -24,40 +24,42 @@ signal = np.loadtxt(data_path, delimiter=',')
 
 ## Directory Structure
 
+Examples are numbered within each directory to show recommended learning progression:
+
 ```
 examples/
-├── quickstart/          # Quick start guides
-│   └── basic_workflow.py      # Basic ADC analysis workflow
+├── quickstart/          # Quick start guides (START HERE)
+│   └── example_00_basic_workflow.py      # Basic ADC analysis workflow
 │
-├── aout/                # Analog output analysis examples
-│   ├── example_spec_plot.py
-│   ├── example_spec_plot_phase.py
-│   ├── example_tom_decomp.py
-│   ├── example_err_hist_sine.py
-│   ├── example_err_pdf.py
-│   ├── example_err_auto_correlation.py
-│   ├── example_err_envelope_spectrum.py
-│   ├── example_inl_sine.py
-│   └── example_spec_plot_2tone.py
+├── common/              # Common utilities examples (learn these early)
+│   ├── example_00_sine_fit.py
+│   ├── example_01_find_bin.py
+│   ├── example_02_find_fin.py
+│   └── example_03_alias.py
+│
+├── aout/                # Analog output analysis examples (main tools)
+│   ├── example_00_spec_plot.py
+│   ├── example_01_spec_plot_phase.py
+│   ├── example_02_err_pdf.py
+│   ├── example_03_err_hist_sine.py
+│   ├── example_04_err_auto_correlation.py
+│   ├── example_05_err_envelope_spectrum.py
+│   ├── example_06_tom_decomp.py
+│   ├── example_07_inl_sine.py
+│   └── example_08_spec_plot_2tone.py
 │
 ├── dout/                # Digital output calibration examples
-│   ├── example_fg_cal_sine.py
-│   ├── example_fg_cal_sine_os.py
-│   ├── example_fg_cal_sine_2freq.py
-│   └── example_overflow_chk.py
-│
-├── common/              # Common utilities examples
-│   ├── example_sine_fit.py
-│   ├── example_find_bin.py
-│   ├── example_find_fin.py
-│   └── example_alias.py
+│   ├── example_00_fg_cal_sine.py
+│   ├── example_01_fg_cal_sine_os.py
+│   ├── example_02_fg_cal_sine_2freq.py
+│   └── example_03_overflow_chk.py
 │
 ├── data_generation/     # Data generation examples
 │   └── example_generate_test_data.py
 │
-└── workflows/           # Complete workflow examples
-    ├── complete_adc_analysis.py
-    └── calibration_workflow.py
+└── workflows/           # Complete workflow examples (advanced)
+    ├── example_00_complete_adc_analysis.py
+    └── example_01_calibration_workflow.py
 ```
 
 ## Quick Start
@@ -124,23 +126,47 @@ End-to-end examples combining multiple tools:
 
 ## Running Examples
 
-### Run a single example:
+### Four Ways to Run Examples:
+
+After `pip install adctoolbox`, you can run examples using any of these methods:
+
+#### 1. CLI Commands (Easiest - Recommended)
 ```bash
-cd examples/quickstart
-python basic_workflow.py
+adctoolbox-quickstart                    # Start here
+adctoolbox-example-sine-fit              # Learn sine fitting
+adctoolbox-example-spec-plot             # Spectrum analysis
+adctoolbox-example-calibration           # Digital calibration
+adctoolbox-example-workflow              # Complete workflow
 ```
 
-### Run AOUT examples:
+#### 2. Python Module (Explicit)
 ```bash
-cd examples/aout
-python example_spec_plot.py
+python -m adctoolbox.examples.quickstart.example_00_basic_workflow
+python -m adctoolbox.examples.common.example_00_sine_fit
+python -m adctoolbox.examples.aout.example_00_spec_plot
+python -m adctoolbox.examples.dout.example_00_fg_cal_sine
+python -m adctoolbox.examples.workflows.example_00_complete_adc_analysis
 ```
 
-### Run DOUT examples:
-```bash
-cd examples/dout
-python example_fg_cal_sine.py
+#### 3. From Python Shell
+```python
+from adctoolbox.examples.quickstart import example_00_basic_workflow
+# Script runs on import
 ```
+
+#### 4. Direct Execution (Development)
+```bash
+cd /path/to/adctoolbox/python/src/adctoolbox/examples
+python common/example_00_sine_fit.py
+```
+
+### Recommended Learning Path:
+
+1. **Start with quickstart** → `adctoolbox-quickstart`
+2. **Learn common utilities** → `adctoolbox-example-sine-fit`
+3. **Explore spectrum analysis** → `adctoolbox-example-spec-plot`
+4. **Try calibration** → `adctoolbox-example-calibration`
+5. **Advanced workflows** → `adctoolbox-example-workflow`
 
 ## Example Data
 

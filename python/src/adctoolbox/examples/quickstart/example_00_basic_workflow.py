@@ -164,9 +164,9 @@ print("\n  6a. Time-domain error decomposition (Thompson method)...")
 fig_tom = plt.figure(figsize=(12, 10))
 signal_tom, error, indep, dep, phi = tom_decomp(
     calibrated_output,
-    freq_detected,
-    num_harmonics=10,
-    display=True
+    re_fin=freq_detected,
+    order=10,
+    disp=1
 )
 plt.suptitle('Error Decomposition Analysis')
 plt.tight_layout()
@@ -250,3 +250,10 @@ print("   - Change number of harmonics for analysis")
 print("   - Modify calibration polynomial order")
 
 print("\n" + "=" * 70)
+
+def main():
+    """Entry point for CLI command."""
+    pass  # Script already executed at module level
+
+if __name__ == "__main__":
+    main()
