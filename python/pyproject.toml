@@ -15,6 +15,9 @@ dependencies = [
     "scipy>=1.6.0",
 ]
 
+[project.scripts]
+adctoolbox-get-examples = "adctoolbox.cli:copy_examples"
+
 [tool.setuptools]
 package-dir = {"" = "src"}
 
