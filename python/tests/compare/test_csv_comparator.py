@@ -4,10 +4,11 @@ from .csv_comparator import CSVComparator
 def test_compare_all_types(project_root):
     """
     Validates Vector, Matrix, and Scalar generation against MATLAB reference.
-    Strict equality check (Absolute Error only).
+    Compares fresh Python output vs golden MATLAB reference.
     """
-    base_dir = project_root / 'test_reference' / 'test_basic'
-    
+    python_output_dir = project_root / 'test_output' / 'test_basic'
+    matlab_reference_dir = project_root / 'test_reference' / 'test_basic'
+
     # 1. Define the targets
     targets = [
         "sinewave",    # Vector
@@ -16,12 +17,12 @@ def test_compare_all_types(project_root):
     ]
 
     comparator = CSVComparator()
-    failures = [] 
+    failures = []
 
     # 2. Iterate
     for name in targets:
-        py_csv = base_dir / f"{name}_python.csv"
-        mat_csv = base_dir / f"{name}_matlab.csv"
+        py_csv = python_output_dir / f"{name}_python.csv"
+        mat_csv = matlab_reference_dir / f"{name}_matlab.csv"
 
         print()
         print(f"Python: [{py_csv}]\nMatlab: [{mat_csv}]")
