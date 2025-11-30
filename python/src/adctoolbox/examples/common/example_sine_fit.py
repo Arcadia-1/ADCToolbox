@@ -11,6 +11,7 @@ model to the data: y = A*sin(2*pi*f*t + phi) + DC
 import numpy as np
 import matplotlib.pyplot as plt
 from adctoolbox.common import sine_fit, find_bin
+from adctoolbox.examples.data import get_example_data_path
 
 # Create output directory
 import os
@@ -19,6 +20,61 @@ os.makedirs(output_dir, exist_ok=True)
 
 print("=" * 70)
 print("Example: sine_fit - Sine Wave Parameter Extraction")
+print("=" * 70)
+
+#%% Example 0: Fit Real Example Data
+print("\nExample 0: Fit Real Example Data")
+print("-" * 70)
+
+# Load example data file (included with package)
+data_file = get_example_data_path('sinewave_gain_error_0P98.csv')
+real_signal = np.loadtxt(data_file, delimiter=',')
+
+print(f"\nLoaded example data:")
+print(f"  File: sinewave_gain_error_0P98.csv")
+print(f"  Samples: {len(real_signal)}")
+print(f"  Range: [{real_signal.min():.4f}, {real_signal.max():.4f}]")
+
+# Fit real data
+signal_fit_real, freq_real, amp_real, dc_real, phi_real = sine_fit(real_signal)
+
+print(f"\nExtracted Parameters from Real Data:")
+print(f"  Frequency: {freq_real:.6f}")
+print(f"  Amplitude: {amp_real:.4f}")
+print(f"  DC offset: {dc_real:.4f}")
+print(f"  Phase:     {phi_real:.4f} rad ({np.degrees(phi_real):.2f}°)")
+
+# Calculate residual
+residual_real = real_signal - signal_fit_real
+print(f"\nFit Quality:")
+print(f"  RMS error: {np.std(residual_real):.4f}")
+print(f"  Max error: {np.max(np.abs(residual_real)):.4f}")
+
+# Plot real data
+t_real = np.arange(len(real_signal))
+fig_real, axes = plt.subplots(2, 1, figsize=(12, 8))
+
+axes[0].plot(t_real[:200], real_signal[:200], 'b.-', label='Real Data', alpha=0.7)
+axes[0].plot(t_real[:200], signal_fit_real[:200], 'r--', label='Fitted', linewidth=2)
+axes[0].set_xlabel('Sample Index')
+axes[0].set_ylabel('Amplitude')
+axes[0].set_title('Real Example Data - Sine Fit (First 200 samples)')
+axes[0].legend()
+axes[0].grid(True, alpha=0.3)
+
+axes[1].plot(t_real, residual_real, 'g-', alpha=0.7)
+axes[1].set_xlabel('Sample Index')
+axes[1].set_ylabel('Residual Error')
+axes[1].set_title(f'Residual Error (RMS: {np.std(residual_real):.4f})')
+axes[1].grid(True, alpha=0.3)
+
+plt.tight_layout()
+plt.savefig(os.path.join(output_dir, 'sine_fit_real_data.png'), dpi=150)
+plt.close()
+
+#%% Additional Examples with Synthetic Data
+print("\n" + "=" * 70)
+print("Additional Educational Examples with Synthetic Data")
 print("=" * 70)
 
 #%% Example 1: Fit Clean Sinewave

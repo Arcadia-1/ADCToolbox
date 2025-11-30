@@ -54,3 +54,7 @@ include-package-data = true
 [tool.setuptools.packages.find]
 where = ["src"]
 include = ["adctoolbox*"]
+
+[tool.setuptools.package-data]
+"adctoolbox.examples.data" = ["*.csv"]
+"adctoolbox.examples" = ["*.md"]

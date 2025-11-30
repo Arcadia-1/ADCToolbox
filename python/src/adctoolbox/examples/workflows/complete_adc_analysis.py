@@ -30,6 +30,9 @@ from adctoolbox.aout import (spec_plot, spec_plot_phase, tom_decomp,
                              err_hist_sine, err_pdf, err_auto_correlation)
 from adctoolbox.common import find_bin, sine_fit
 
+# For loading packaged example data (optional)
+from adctoolbox.examples.data import get_example_data_path
+
 # Create output directory with timestamp
 import os
 timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
@@ -40,6 +43,13 @@ print("=" * 80)
 print("Complete ADC Analysis Workflow")
 print("=" * 80)
 print(f"\nOutput directory: {output_dir}")
+
+# NOTE: This workflow uses synthetic data to demonstrate the complete analysis.
+# To analyze real digital output data included with the package, use:
+#   data_file = get_example_data_path('dout_SAR_12b_weight_1.csv')
+#   bits = np.loadtxt(data_file, delimiter=',', dtype=int)
+#   # Then skip data generation and proceed to calibration
+# See examples/dout/example_fg_cal_sine.py for a real-data example.
 
 #%% Configuration
 print("\n" + "=" * 80)

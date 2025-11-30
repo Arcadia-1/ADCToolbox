@@ -2,6 +2,26 @@
 
 This directory contains example scripts demonstrating how to use the ADCToolbox Python package.
 
+## Accessing Example Data
+
+All examples now include packaged data files that work immediately after installation:
+
+```python
+from adctoolbox.examples.data import get_example_data_path
+import numpy as np
+
+# Load example data
+data_path = get_example_data_path('sinewave_jitter_400fs.csv')
+signal = np.loadtxt(data_path, delimiter=',')
+```
+
+**Available datasets:**
+- `sinewave_jitter_400fs.csv` - Jitter impairment (145 KB)
+- `sinewave_noise_270uV.csv` - Noise analysis (145 KB)
+- `sinewave_gain_error_0P98.csv` - Gain/INL demo (113 KB)
+- `sinewave_clipping_0P012.csv` - Non-ideal conditions (139 KB)
+- `dout_SAR_12b_weight_1.csv` - SAR calibration (200 KB)
+
 ## Directory Structure
 
 ```

@@ -2,7 +2,7 @@
 close all; clear; clc; warning("off");
 rng(42);
 
-data_dir = "dataset";
+data_dir = "dataset/aout";
 
 %% Sinewave in Nyquist Zones 2 to 4
 N = 2^13;

@@ -16,6 +16,7 @@ import numpy as np
 import matplotlib.pyplot as plt
 from adctoolbox.aout import spec_plot
 from adctoolbox.common import find_bin
+from adctoolbox.examples.data import get_example_data_path
 
 # Create output directory
 import os
@@ -26,8 +27,46 @@ print("=" * 60)
 print("Example: spec_plot - Frequency Spectrum Analysis")
 print("=" * 60)
 
-#%% Generate Test Signal
-# Create a sinewave with some harmonic distortion and noise
+#%% Example 0: Analyze Real Example Data
+print("\nExample 0: Analyze Packaged Example Data")
+print("-" * 60)
+
+# Load example data file (included with package)
+data_file = get_example_data_path('sinewave_jitter_400fs.csv')
+real_signal = np.loadtxt(data_file, delimiter=',')
+
+print(f"\nLoaded example data:")
+print(f"  File: sinewave_jitter_400fs.csv")
+print(f"  Samples: {len(real_signal)}")
+print(f"  Range: [{real_signal.min():.4f}, {real_signal.max():.4f}]")
+
+# Analyze real data
+fig0 = plt.figure(figsize=(12, 8))
+enob_real, sndr_real, sfdr_real, snr_real, thd_real, pwr_real, nf_real, h_real = spec_plot(
+    real_signal,
+    label=True,
+    harmonic=5,
+    win_type='hamming'
+)
+
+plt.title('Spectrum Analysis - Real Example Data (Jitter Impairment)')
+plt.tight_layout()
+plt.savefig(os.path.join(output_dir, 'spec_plot_real_data.png'), dpi=150)
+plt.close()
+
+print(f"\nReal Data Performance Metrics:")
+print(f"  ENoB:  {enob_real:.2f} bits")
+print(f"  SNDR:  {sndr_real:.2f} dB")
+print(f"  SFDR:  {sfdr_real:.2f} dB")
+print(f"  SNR:   {snr_real:.2f} dB")
+print(f"  THD:   {thd_real:.2f} dB")
+
+#%% Generate Test Signal (for educational demonstrations)
+print("\n" + "=" * 60)
+print("Additional Examples with Synthetic Data")
+print("=" * 60)
+print("\nGenerating Test Signal with Known Parameters...")
+print("-" * 60)
 
 N = 2**13  # Number of samples (8192)
 Fs = 1.0   # Normalized sampling frequency

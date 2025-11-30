@@ -2,7 +2,7 @@
 close all; clear; clc; warning("off");
 rng(42);
 
-data_dir = "dataset";
+data_dir = "dataset/aout";
 %% Sinewave with Static Nonlinearity (INL - Transfer Function)
 % Direct transfer function: y = k1*x + k2*x^2 + k3*x^3 + k4*x^4 + k5*x^5
 % This models point-by-point static nonlinearity (INL)

@@ -27,7 +27,7 @@ project_root = Path(__file__).resolve().parents[3]
 
 def main():
     """Main test function."""
-    input_dir = project_root / "dataset"
+    input_dir = project_root / "dataset" / "aout"
     output_dir = project_root / "test_output"
 
     # Test datasets - leave empty to auto-search

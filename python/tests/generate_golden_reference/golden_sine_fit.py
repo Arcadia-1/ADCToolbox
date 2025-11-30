@@ -28,7 +28,7 @@ def golden_sineFit():
 
     # Configuration
     input_dir = project_root / "dataset"
-    output_dir = project_root / "test_reference"
+    output_dir = project_root / "test_output"
 
     # Read golden data list
     golden_list_file = project_root / "test_reference" / "golden_data_list.txt"

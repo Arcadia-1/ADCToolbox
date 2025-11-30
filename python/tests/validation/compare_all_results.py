@@ -15,7 +15,7 @@ import sys
 import argparse
 
 # Add project root to sys.path
-_project_root = Path(__file__).parent.parent.parent
+_project_root = Path(__file__).parent.parent.parent.parent
 if str(_project_root) not in sys.path:
     sys.path.insert(0, str(_project_root))
 
@@ -109,16 +109,18 @@ def compare_test_results(mode='parity'):
         'regression' - Compare Python test_output/ vs test_reference/
     """
     if mode == 'regression':
-        # Regression mode: compare test_output vs test_reference
-        test_output_dir = Path('test_output')
-        golden_ref_dir = Path('test_reference')
-        label1 = 'Golden'
-        label2 = 'Current'
-        compare_suffix = 'python'  # Only compare Python files
-        title = f'Regression Test: Python output vs Golden reference'
+        # Regression mode: compare MATLAB golden vs Python current
+        # MATLAB in test_reference/ is the golden reference (reference implementation)
+        # Python in test_output/ is the new output to validate
+        test_output_dir = _project_root / 'test_output'
+        golden_ref_dir = _project_root / 'test_reference'
+        label1 = 'MATLAB Golden'
+        label2 = 'Python Current'
+        compare_suffix = None  # Compare MATLAB golden vs Python current
+        title = f'Regression Test: Python vs MATLAB Golden Reference'
     else:
         # Parity mode: compare MATLAB vs Python
-        test_output_dir = Path('test_output')
+        test_output_dir = _project_root / 'test_output'
         golden_ref_dir = test_output_dir  # Both in same dir
         label1 = 'MATLAB'
         label2 = 'Python'
@@ -195,11 +197,11 @@ def compare_test_results(mode='parity'):
 
             for file1_name, file2_name, var_name, tolerance in config['files']:
                 if mode == 'regression':
-                    # Regression: compare test_reference/*_python.csv vs test_output/*_python.csv
-                    if compare_suffix and f'_{compare_suffix}' not in file2_name:
-                        continue  # Skip non-Python files
-                    file1_path = golden_ref_dir / dataset_name / config['test_folder'] / file2_name  # golden
-                    file2_path = test_folder / file2_name  # current output
+                    # Regression: compare MATLAB golden vs Python current
+                    # test_reference has MATLAB golden (the reference implementation)
+                    # test_output has NEW Python output from CI
+                    file1_path = golden_ref_dir / dataset_name / config['test_folder'] / file1_name  # MATLAB golden
+                    file2_path = test_folder / file2_name  # Python current output
                 else:
                     # Parity: compare MATLAB vs Python in test_output
                     file1_path = test_folder / file1_name  # MATLAB

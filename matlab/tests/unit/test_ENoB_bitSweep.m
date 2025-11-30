@@ -3,7 +3,7 @@ close all; clc; clear;
 
 %% Configuration
 verbose = 0;
-inputDir = "dataset";
+inputDir = "dataset/dout";
 outputDir = "test_output";
 filesList = autoSearchFiles({}, inputDir, 'dout_*.csv');
 if ~isfolder(outputDir), mkdir(outputDir); end
