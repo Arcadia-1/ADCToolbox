@@ -318,3 +318,10 @@ print("  5. Higher polynomial order (e.g., order=5) captures more nonlinearity")
 print("\n" + "=" * 70)
 print("Example completed successfully!")
 print("=" * 70)
+
+def main():
+    """Entry point for CLI command."""
+    pass  # Script already executed at module level
+
+if __name__ == "__main__":
+    main()

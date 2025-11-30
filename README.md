@@ -104,6 +104,19 @@ cd ADCToolbox
 pip install -e python/
 ```
 
+**Run examples:**
+```bash
+# Easiest way (CLI commands installed automatically)
+adctoolbox-quickstart                    # Start here
+adctoolbox-example-sine-fit              # Sine fitting
+adctoolbox-example-spec-plot             # Spectrum analysis
+adctoolbox-example-calibration           # Digital calibration
+adctoolbox-example-workflow              # Complete workflow
+
+# Or use Python module path
+python -m adctoolbox.examples.quickstart.example_00_basic_workflow
+```
+
 **Requirements:**
 - Python 3.8+
 - numpy, scipy, matplotlib, pandas
