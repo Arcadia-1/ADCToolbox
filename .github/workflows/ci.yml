@@ -24,9 +24,13 @@ jobs:
 
       - name: Install dependencies
         run: |
-          uv pip install numpy matplotlib pytest --system
+          uv pip install numpy matplotlib pandas pytest --system
           # uv pip install . --system
 
       - name: Run basic pytest
         run: |
-          pytest python/tests/unit/test_basic.py
+          pytest python/tests/unit/test_basic.py -q
+
+      - name: Run CSV comparator test
+        run: |
+          pytest python/tests/compare/test_csv_comparator.py -q

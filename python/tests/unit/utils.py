@@ -5,7 +5,7 @@ import matplotlib.pyplot as plt
 from pathlib import Path
 
 
-def save_fig(folder, png_filename, verbose=False, dpi=150, close_fig=True):
+def save_fig(folder, png_filename, verbose=True, dpi=150, close_fig=True):
     """Save current figure to PNG file (matches MATLAB saveFig.m)."""
     folder = Path(folder)
     folder.mkdir(parents=True, exist_ok=True)
@@ -21,7 +21,7 @@ def save_fig(folder, png_filename, verbose=False, dpi=150, close_fig=True):
     return file_path
 
 
-def save_variable(folder, var, var_name, verbose=False):
+def save_variable(folder, var, var_name, verbose=True):
     """Save variable to CSV with auto truncation (matches MATLAB saveVariable.m)."""
     folder = Path(folder)
     folder.mkdir(parents=True, exist_ok=True)

@@ -42,6 +42,13 @@ ylabel('Amplitude');
 title(sprintf('Zoomed View (First %d Periods)', n_periods));
 set(gca, 'FontSize', 14);
 ylim([min(sinewave_zoom) - 0.1, max(sinewave_zoom) + 0.1]);
+
+
 %% Save results
 saveFig(subFolder, "sinewave_basic_matlab.png", verbose);
 saveVariable(subFolder, sinewave, verbose);
+
+test_matrix = reshape(sinewave, 4, N/4);
+test_scalar = mean(sinewave);
+saveVariable(subFolder, test_matrix, verbose);
+saveVariable(subFolder, test_scalar, verbose);
