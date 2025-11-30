@@ -21,7 +21,7 @@ Usage:
 >>> from adctoolbox.dout import fg_cal_sine
 """
 
-__version__ = '0.1.0'
+__version__ = '0.2.0'
 
 # Expose submodules for convenience
 from . import common
