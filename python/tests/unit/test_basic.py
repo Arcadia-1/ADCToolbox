@@ -13,16 +13,15 @@ Output structure:
 
 import numpy as np
 import matplotlib.pyplot as plt
-from pathlib import Path
 from .utils import save_variable, save_fig
 
 plt.rcParams['font.size'] = 14
 
 def test_basic(project_root):
     """Generate basic sine wave, plot it, and save to CSV."""
-    verbose = True
     test_output_dir = project_root / "test_output" / "test_basic"
     test_output_dir.mkdir(parents=True, exist_ok=True)
+    print(f"[INFO] Test output directory: [{test_output_dir}]")
 
     # Configuration (must match MATLAB test_basic.m)
     N = 1024
@@ -66,5 +65,10 @@ def test_basic(project_root):
     plt.tight_layout()
 
     # Save figure and variable
-    save_fig(test_output_dir, "sinewave_basic_python.png", verbose=verbose)
-    save_variable(test_output_dir, sinewave, 'sinewave', verbose=verbose)
+    save_fig(test_output_dir, "sinewave_basic_python.png")
+    save_variable(test_output_dir, sinewave, 'sinewave')
+    
+    test_matrix = sinewave.reshape((4, int(N/4)), order='F')
+    test_scalar = np.mean(sinewave)
+    save_variable(test_output_dir, test_matrix, 'test_matrix')
+    save_variable(test_output_dir, test_scalar, 'test_scalar')
