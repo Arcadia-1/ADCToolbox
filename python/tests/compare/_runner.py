@@ -113,4 +113,5 @@ def run_comparison_suite(project_root, matlab_test_name,
     if failures:
         print("\n[FAILURES DETAILS]")
         print("\n".join(f"  x {f}" for f in failures))
-        pytest.fail(f"Comparison failed for {len(failures)} item(s).")
+        
+        raise AssertionError(f"Comparison failed for {len(failures)} item(s). check logs for details.")
