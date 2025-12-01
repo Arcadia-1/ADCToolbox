@@ -3,9 +3,15 @@
 Tests the spec_plot function with various sinewave datasets.
 
 Output structure:
-  test_output/<data_set_name>/test_specPlot/
-      metrics_python.csv      - ENoB, SNDR, SFDR, SNR, THD, pwr, NF
-      spectrum_python.png     - Spectrum plot
+  test_output/test_spec_plot/<dataset_name>/
+      ENoB_python.csv
+      SNDR_python.csv
+      SFDR_python.csv
+      SNR_python.csv
+      THD_python.csv
+      pwr_python.csv
+      NF_python.csv
+      spectrum_python.png
 """
 
 import numpy as np
@@ -13,85 +19,64 @@ import matplotlib.pyplot as plt
 from pathlib import Path
 
 from adctoolbox.aout import spec_plot
-from save_variable import save_variable
-from save_fig import save_fig
+from tests._utils import auto_search_files, save_variable, save_fig
 
-# Get project root directory (two levels up from python/tests/unit)
-project_root = Path(__file__).resolve().parents[3]
+plt.rcParams['font.size'] = 14
+plt.rcParams['axes.grid'] = True
 
 
-def main():
-    """Main test function."""
-    input_dir = project_root / "dataset" / "aout"
+def test_spec_plot(project_root):
+    """Test spec_plot function on sinewave datasets."""
+    input_dir = project_root / "dataset" / "aout" / "sinewave"
     output_dir = project_root / "test_output"
 
-    # Test datasets - leave empty to auto-search
     files_list = []
+    files_list = auto_search_files(files_list, input_dir, 'sinewave_*.csv')
 
-    # Auto-search if list is empty
-    if not files_list:
-        search_patterns = ['sinewave_*.csv', 'batch_sinewave_*.csv']
-        files_list = []
-        for pattern in search_patterns:
-            files_list.extend([f.name for f in input_dir.glob(pattern)])
-        print(f"Auto-discovered {len(files_list)} files\n")
+    output_dir.mkdir(parents=True, exist_ok=True)
+    success_count = 0
 
-    if not files_list:
-        print(f"ERROR: No test files found in {input_dir}")
-        return
+    for k, current_filename in enumerate(files_list, 1):
+        try:
+            data_file_path = input_dir / current_filename
+            print(f"[{k}/{len(files_list)}] Processing: [{current_filename}]")
 
-    # Create output directory
-    output_dir.mkdir(exist_ok=True)
+            # Read data as 2D array (spec_plot expects 2D)
+            read_data = np.loadtxt(data_file_path, delimiter=',', ndmin=2)
 
-    # Test Loop
-    for k, current_filename in enumerate(files_list, start=1):
-        data_file_path = input_dir / current_filename
+            dataset_name = data_file_path.stem
+            sub_folder = output_dir / dataset_name / "test_spec_plot"
+            sub_folder.mkdir(parents=True, exist_ok=True)
 
-        if not data_file_path.is_file():
-            print(f"[{k}/{len(files_list)}] [test_specPlot] [ERROR] File not found: {current_filename}")
+            # Run spec_plot
+            plt.figure(figsize=(12, 8))
+            ENoB, SNDR, SFDR, SNR, THD, pwr, NF, _ = spec_plot(
+                read_data,
+                label=1,
+                harmonic=5,
+                OSR=1,
+                NFMethod=0
+            )
+
+            plt.title(f'Spectrum: {dataset_name}')
+
+            # Save outputs
+            save_fig(sub_folder, 'spectrum_python.png', dpi=100)
+            save_variable(sub_folder, ENoB, 'ENoB')
+            save_variable(sub_folder, SNDR, 'SNDR')
+            save_variable(sub_folder, SFDR, 'SFDR')
+            save_variable(sub_folder, SNR, 'SNR')
+            save_variable(sub_folder, THD, 'THD')
+            save_variable(sub_folder, pwr, 'pwr')
+            save_variable(sub_folder, NF, 'NF')
+
+            success_count += 1
+
+        except Exception as e:
+            print(f"  [ERROR] {str(e)}")
             continue
 
-        # Read data
-        read_data = np.loadtxt(data_file_path, delimiter=',', ndmin=2)
-
-        # Extract dataset name
-        dataset_name = data_file_path.stem
-
-        # Create output subfolder
-        sub_folder = output_dir / dataset_name / 'test_specPlot'
-        sub_folder.mkdir(parents=True, exist_ok=True)
-
-        # Run spec_plot
-        plt.figure(figsize=(12, 8))
-        ENoB, SNDR, SFDR, SNR, THD, pwr, NF, _ = spec_plot(
-            read_data,
-            label=1,
-            harmonic=5,
-            OSR=1,
-            NFMethod=0
-        )
-
-        # Update title
-        plt.title(f'specPlot: {dataset_name}')
-
-        # Save plot and variables
-        save_fig(sub_folder, 'spectrum_python.png', dpi=100)
-        save_variable(sub_folder, ENoB, 'ENoB')
-        save_variable(sub_folder, SNDR, 'SNDR')
-        save_variable(sub_folder, SFDR, 'SFDR')
-        save_variable(sub_folder, SNR, 'SNR')
-        save_variable(sub_folder, THD, 'THD')
-        save_variable(sub_folder, pwr, 'pwr')
-        save_variable(sub_folder, NF, 'NF')
-
-        # Print one-line progress
-        print(f"[{k}/{len(files_list)}] [test_specPlot] [ENoB={ENoB:.2f}] from {current_filename}")
-
-    print("[test_specPlot complete]")
-
-    # Close any remaining figures
+    print("-" * 60)
+    print(f"[DONE] Test complete. Success: {success_count}/{len(files_list)}")
     plt.close('all')
 
-
-if __name__ == "__main__":
-    main()

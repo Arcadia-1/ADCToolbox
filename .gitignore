@@ -178,5 +178,6 @@ project_log.md
 # =============================================================================
 .claude
 
+dataset/*
 agent_playground/
 matlab/debug

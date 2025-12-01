@@ -3,57 +3,148 @@
 import numpy as np
 import matplotlib.pyplot as plt
 from pathlib import Path
-from typing import List, Union
+from typing import List, Union, Optional, Callable
+
+
+def _glob_search(
+    search_dir: Union[str, Path],
+    pattern: str = "*",
+    filter_func: Optional[Callable[[Path], bool]] = None,
+    extract_func: Optional[Callable[[Path], str]] = None
+) -> List[str]:
+    """
+    Generic glob search utility.
+
+    Args:
+        search_dir: Directory to search in
+        pattern: Glob pattern (default: "*")
+        filter_func: Optional filter function for found items
+        extract_func: Optional function to extract desired string from Path
+
+    Returns:
+        List[str]: Sorted list of results
+    """
+    search_path = Path(search_dir)
+
+    # Find all matching items
+    found = search_path.glob(pattern)
+
+    # Apply filter if provided
+    if filter_func:
+        found = [p for p in found if filter_func(p)]
+    else:
+        found = list(found)
+
+    # Extract desired string from each Path
+    if extract_func:
+        results = [extract_func(p) for p in found]
+    else:
+        results = [p.name for p in found]
+
+    return sorted(results)
+
 
 def auto_search_files(file_list: List[str], input_dir: Union[str, Path], *patterns: str) -> List[str]:
     """
     Auto-search for files if the input list is empty.
-    
+
     Equivalent to MATLAB's autoSearchFiles.
-    
+
     Args:
         file_list (list): Existing list of filenames. If not empty, returned as-is.
         input_dir (Path or str): Directory to search in.
         *patterns (str): Search patterns (e.g., 'sinewave_*.csv', '*.txt').
-        
+
     Returns:
         List[str]: The original list (if not empty) or the discovered filenames.
-        
+
     Raises:
         FileNotFoundError: If no files are found after search.
     """
-    # 1. Early return: User manually specified files
+    # Early return: User manually specified files
     if file_list:
         return file_list
 
-    # 2. Setup directory
     input_path = Path(input_dir)
     if not input_path.exists():
         raise FileNotFoundError(f"Input directory does not exist: {input_path}")
 
-    # 3. Perform Search
-    discovered_files = []
-    # Default pattern if none provided
+    # Use default pattern if none provided
     search_patterns = patterns if patterns else ["*.csv"]
-    
+
+    # Search for all patterns
+    discovered_files = []
     for pattern in search_patterns:
-        # Use sorted() for deterministic order (essential for reproducibility)
-        found = sorted([f.name for f in input_path.glob(pattern)])
+        found = _glob_search(input_path, pattern, filter_func=lambda p: p.is_file())
         discovered_files.extend(found)
 
-    # Remove duplicates if any (e.g. if patterns overlap)
-    # Using dict.fromkeys to preserve order (set() loses order)
+    # Remove duplicates while preserving order
     discovered_files = list(dict.fromkeys(discovered_files))
 
-    # 4. Logging and Validation
+    # Logging and validation
     patterns_str = ", ".join(search_patterns)
-    print(f"[auto_search_files] Discovered [{len(discovered_files)}] files in [{input_path}] matching [{patterns_str}]")
+    print(f"[auto_search_files] [{len(discovered_files)}] files in [{input_path}] matching [{patterns_str}]")
 
     if not discovered_files:
         raise FileNotFoundError(f"No test files found in {input_path} matching {search_patterns}")
-        
+
     return discovered_files
 
+
+def discover_test_datasets(reference_dir: Union[str, Path], subfolder: str = "test_sineFit") -> List[str]:
+    """
+    Auto-discover test datasets by looking for subdirectories with specified test folder.
+
+    Used by comparison tests to find all datasets with golden references.
+
+    Args:
+        reference_dir: Path to test_reference directory
+        subfolder: Name of subfolder to look for (default: "test_sineFit")
+
+    Returns:
+        List[str]: Dataset names (sorted)
+    """
+    def has_subfolder(p: Path) -> bool:
+        return p.is_dir() and (p / subfolder).exists()
+
+    datasets = _glob_search(reference_dir, pattern="*", filter_func=has_subfolder)
+
+    print(f"[discover_test_datasets] Found [{len(datasets)}] dataset(s) with [{subfolder}] subfolder")
+
+    return datasets
+
+
+def discover_test_variables(test_dir: Union[str, Path], pattern: str = "*_matlab.csv") -> List[str]:
+    """
+    Auto-discover test variables by searching for files matching pattern.
+
+    Used by comparison tests to find all variables in a dataset.
+
+    Args:
+        test_dir: Path to dataset's test folder directory
+        pattern: Glob pattern to search for (default: "*_matlab.csv")
+
+    Returns:
+        List[str]: Variable names (sorted)
+    """
+    # Extract variable name by removing suffix
+    suffix = pattern.replace("*", "")  # "_matlab.csv"
+    suffix_base = suffix.replace(".csv", "")  # "_matlab"
+
+    def extract_variable_name(p: Path) -> str:
+        return p.stem.replace(suffix_base, "")
+
+    variables = _glob_search(
+        test_dir,
+        pattern=pattern,
+        filter_func=lambda p: p.is_file(),
+        extract_func=extract_variable_name
+    )
+
+    # Get dataset name from parent directory for logging
+    print(f"[discover_test_variables] Found [{len(variables)}] variable(s): {', '.join(variables)}")
+
+    return variables
 
 
 def save_fig(folder, png_filename, verbose=True, dpi=150, close_fig=True):
