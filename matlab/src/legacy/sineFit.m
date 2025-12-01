@@ -1,10 +1,10 @@
 function [data_fit,freq,mag,dc,phi] = sineFit(data,f0,tol,rate)
 %SINEFIT Four-parameter iterative sine wave fitting (legacy)
 %   DEPRECATED: This function is maintained for backward compatibility.
-%   Please use sinefit (lowercase) instead.
+%   Please use sinfit (lowercase) instead.
 %
-%   This function is a wrapper that calls sinefit with the same
-%   functionality. All new code should use sinefit directly.
+%   This function is a wrapper that calls sinfit with the same
+%   functionality. All new code should use sinfit directly.
 %
 %   Legacy interface:
 %     [data_fit, freq, mag, dc, phi] = SINEFIT(data, f0, tol, rate)
@@ -22,17 +22,17 @@ function [data_fit,freq,mag,dc,phi] = sineFit(data,f0,tol,rate)
 %     dc - Fitted DC offset
 %     phi - Fitted phase in radians
 %
-%   See also: sinefit
+%   See also: sinfit
 
-    % Call the new sinefit function with appropriate arguments
+    % Call the new sinfit function with appropriate arguments
     if nargin == 1
-        [data_fit,freq,mag,dc,phi] = sinefit(data);
+        [data_fit,freq,mag,dc,phi] = sinfit(data);
     elseif nargin == 2
-        [data_fit,freq,mag,dc,phi] = sinefit(data,f0);
+        [data_fit,freq,mag,dc,phi] = sinfit(data,f0);
     elseif nargin == 3
-        [data_fit,freq,mag,dc,phi] = sinefit(data,f0,tol);
+        [data_fit,freq,mag,dc,phi] = sinfit(data,f0,tol);
     else
-        [data_fit,freq,mag,dc,phi] = sinefit(data,f0,tol,rate);
+        [data_fit,freq,mag,dc,phi] = sinfit(data,f0,tol,rate);
     end
 
 end
