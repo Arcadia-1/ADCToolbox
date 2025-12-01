@@ -107,10 +107,12 @@ def spec_plot(data, Fs=1.0, maxCode=None, harmonic=7, winType=1,
         plt.grid(True, which='both', linestyle='--')
 
         if label:
+            # Highlight fundamental signal bins
             if logSca == 0:
-                plt.plot(freq[start:end], 10 * np.log10(spec[start:end].clip(1e-20)), 'r-', linewidth=1.5)
+                plt.plot(freq[start:end], 10 * np.log10(spec[start:end].clip(1e-20)), 'r-', linewidth=0.5)
+                plt.plot(freq[bin_], 10 * np.log10(spec[bin_].clip(1e-20)), 'ro', linewidth=0.5)
             else:
-                plt.semilogx(freq[start:end], 10 * np.log10(spec[start:end].clip(1e-20)), 'r-', linewidth=1.5)
+                plt.semilogx(freq[start:end], 10 * np.log10(spec[start:end].clip(1e-20)), 'r-', linewidth=0.5)
 
         if label and harmonic > 0:
             for i in range(2, harmonic + 1):
@@ -194,6 +196,9 @@ def spec_plot(data, Fs=1.0, maxCode=None, harmonic=7, winType=1,
         plt.ylim(minx, 0)
 
         if label:
+            # OSR boundary line (vertical dashed line at Fs/2/OSR)
+            plt.plot([Fs/2/OSR, Fs/2/OSR], [0, -1000], '--', color='gray', linewidth=1)
+
             # Determine text position based on fundamental bin location
             if OSR > 1:
                 TX = 10**(np.log10(Fs)*0.01 + np.log10(Fs/N)*0.99)
@@ -205,20 +210,23 @@ def spec_plot(data, Fs=1.0, maxCode=None, harmonic=7, winType=1,
 
             TYD = minx * 0.06
 
-            # Format Fs text
-            if Fs >= 1e9:
-                txt_fs = f'{Fs/1e9:.1f}G'
-            elif Fs >= 1e6:
-                txt_fs = f'{Fs/1e6:.1f}M'
-            elif Fs >= 1e3:
-                txt_fs = f'{Fs/1e3:.1f}K'
-            elif Fs >= 1:
-                txt_fs = f'{Fs:.1f}'
-            else:
-                txt_fs = f'{Fs:.3f}'
+            # Format frequency text helper
+            def format_freq(f):
+                if f >= 1e9:
+                    return f'{f/1e9:.1f}G'
+                elif f >= 1e6:
+                    return f'{f/1e6:.1f}M'
+                elif f >= 1e3:
+                    return f'{f/1e3:.1f}K'
+                elif f >= 1:
+                    return f'{f:.1f}'
+                else:
+                    return f'{f:.3f}'
 
-            # Format Fin text
+            txt_fs = format_freq(Fs)
             Fin = bin_/N * Fs
+
+            # Special case for Fin formatting (matches MATLAB line 259)
             if Fin >= 1e9:
                 txt_fin = f'{Fin/1e9:.1f}G'
             elif Fin >= 1e6:
@@ -226,14 +234,14 @@ def spec_plot(data, Fs=1.0, maxCode=None, harmonic=7, winType=1,
             elif Fin >= 1e3:
                 txt_fin = f'{Fin/1e3:.1f}K'
             elif Fin >= 1:
-                txt_fin = f'{Fin/1e3:.1f}'
+                txt_fin = f'{Fin/1e3:.1f}'  # Note: /1e3 for values >= 1 Hz
             else:
                 txt_fin = f'{bin_/N*Fs:.3f}'
 
             # NSD calculation
             NSD = NF + 10*np.log10(Fs/2/OSR)
 
-            # Add text annotations
+            # Metric annotations (left side)
             plt.text(TX, TYD, f'Fin/Fs = {txt_fin} / {txt_fs} Hz', fontsize=10)
             plt.text(TX, TYD*2, f'ENoB = {ENoB:.2f}', fontsize=10)
             plt.text(TX, TYD*3, f'SNDR = {SNDR:.2f} dB', fontsize=10)
@@ -241,28 +249,37 @@ def spec_plot(data, Fs=1.0, maxCode=None, harmonic=7, winType=1,
             plt.text(TX, TYD*5, f'THD = {THD:.2f} dB', fontsize=10)
             plt.text(TX, TYD*6, f'SNR = {SNR:.2f} dB', fontsize=10)
             plt.text(TX, TYD*7, f'Noise Floor = {NF:.2f} dB', fontsize=10)
+            plt.text(TX, TYD*8, f'NSD = {NSD:.2f} dBFS/Hz', fontsize=10)
 
-            # Add Sig label
+            # Noise floor baseline (red dashed horizontal line)
+            nf_level = -(NF + 10*np.log10(N/2/OSR))
+            if OSR > 1:
+                plt.semilogx([Fs/N, Fs/2/OSR], [nf_level, nf_level], 'r--', linewidth=1)
+                plt.text(TX, TYD*9, f'OSR = {OSR:.2f}', fontsize=10)
+            else:
+                plt.plot([0, Fs/2], [nf_level, nf_level], 'r--', linewidth=1)
+
+            # Signal annotation (near fundamental peak)
             if OSR > 1:
                 plt.text(freq[bin_], min(pwr, TYD/2), f'Sig = {pwr:.2f} dB', fontsize=10)
-                plt.text(TX, TYD*8, f'NSD = {NSD:.2f} dBFS/Hz', fontsize=10)
             else:
                 if bin_/N > 0.4:
-                    plt.text(freq[bin_] * (1-0.01/bin_*N), min(pwr, TYD/2), f'Sig = {pwr:.2f} dB',
+                    plt.text((bin_/N - 0.01) * Fs, min(pwr, TYD/2), f'Sig = {pwr:.2f} dB',
                              ha='right', fontsize=10)
                 else:
-                    plt.text(freq[bin_] * (1+0.01/bin_*N), min(pwr, TYD/2), f'Sig = {pwr:.2f} dB', fontsize=10)
-                plt.text(TX, TYD*8, f'NSD = {NSD:.2f} dBFS/Hz', fontsize=10)
+                    plt.text((bin_/N + 0.01) * Fs, min(pwr, TYD/2), f'Sig = {pwr:.2f} dB', fontsize=10)
 
             plt.xlabel('Freq (Hz)', fontsize=10)
             plt.ylabel('dBFS', fontsize=10)
 
-        # Title for batch data
+        # Title
         if M > 1:
             if coAvg:
                 plt.title(f'Power Spectrum ({M}x Jointed)', fontsize=12)
             else:
                 plt.title(f'Power Spectrum ({M}x Averanged)', fontsize=12)
+        else:
+            plt.title('Power Spectrum', fontsize=12)
 
     if not isPlot:
         h = None

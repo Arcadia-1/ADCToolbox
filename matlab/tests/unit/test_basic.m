@@ -2,7 +2,7 @@
 close all; clc; clear;
 %% Configuration
 verbose = 0;
-subFolder = fullfile("test_reference", mfilename);
+subFolder = fullfile("test_output", mfilename);
 if ~isfolder(subFolder), mkdir(subFolder); end
 %% Generate sine wave
 N = 1024; % Number of samples

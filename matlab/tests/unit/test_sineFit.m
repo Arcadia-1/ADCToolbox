@@ -2,7 +2,7 @@
 close all; clc; clear;
 
 %% Configuration
-verbose = 1;
+verbose = 0;
 inputDir = "dataset/aout/sinewave";
 outputDir = "test_output";
 
