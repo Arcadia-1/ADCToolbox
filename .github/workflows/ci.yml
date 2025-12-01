@@ -31,6 +31,8 @@ jobs:
         run: |
           pytest python/tests/unit/test_basic.py -q
 
-      - name: Run CSV comparator test
+      - name: Run comparison tests
         run: |
-          pytest python/tests/compare/test_csv_comparator.py -q
+          pytest python/tests/compare/test_compare_sine_fit.py -q
+          pytest python/tests/compare/test_compare_spec_plot.py -q
+          pytest python/tests/compare/test_compare_spec_plot_phase.py -q
