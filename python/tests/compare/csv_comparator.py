@@ -2,6 +2,7 @@ import numpy as np
 from pathlib import Path
 from typing import Dict, Any, Union
 
+
 class CSVComparator:
     """
     Strict CSV Comparator.

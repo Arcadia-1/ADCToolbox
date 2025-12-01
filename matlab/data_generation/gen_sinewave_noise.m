@@ -9,8 +9,8 @@ if ~isfolder(subFolder), mkdir(subFolder); end
 noise_list = [2.7e-4]; % 100uV, 1mV, 10mV
 
 N = 2^13;
-Fs = 10e9;
-J = findBin(Fs, 1000e6, N);
+Fs = 1e9;
+J = findBin(Fs, 300e6, N);
 Fin = J / N * Fs;
 ideal_phase = 2 * pi * Fin * (0:N - 1) * 1 / Fs;
 
