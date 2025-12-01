@@ -11,7 +11,7 @@ This example is designed for educational purposes and can be run immediately
 after installing ADCToolbox via pip.
 
 Usage:
-    python -m adctoolbox.examples.basic.example_00_basic
+    python example_00_basic.py
 """
 
 import numpy as np
@@ -22,34 +22,11 @@ from pathlib import Path
 plt.rcParams['font.size'] = 14
 
 
-def save_csv(output_dir, data, filename):
-    """Save data to CSV file."""
-    filepath = output_dir / filename
-    data = np.atleast_1d(data)
-
-    # Truncate to max 1000 elements (matching MATLAB convention)
-    if data.ndim == 1:
-        data = data[:1000]
-    elif data.shape[0] > data.shape[1]:
-        data = data[:1000, :]
-    else:
-        data = data[:, :1000]
-
-    fmt = '%d' if np.issubdtype(data.dtype, np.integer) else '%.16f'
-    np.savetxt(filepath, data, delimiter=',', fmt=fmt)
-
-    print(f"  [save]->[{filepath.absolute()}]")
-    return filepath
-
-
 def main():
     """Generate a basic sine wave, plot it, and save outputs."""
 
-    print("\n" + "="*60)
-    print("ADCToolbox - Basic Sine Wave Example")
-    print("="*60)
-
-    # Create output directory for this example
+    # 1. Setup Output Directory
+    # Using relative path so it creates 'output' folder right next to this script
     output_dir = Path(__file__).parent / "output"
     output_dir.mkdir(parents=True, exist_ok=True)
 
@@ -113,30 +90,36 @@ def main():
     # ========================================
     # Step 5: Save figure
     # ========================================
-    fig_path = output_dir / "sinewave_basic_python.png"
+    fig_path = output_dir / "exp00_sinewave_basic_python.png"
     plt.savefig(fig_path, dpi=150, bbox_inches='tight')
     plt.close()
 
-    print(f"  [save]->[{fig_path.absolute()}]")
+    print(f"  [save figure] -> [{fig_path.name}]")
 
     # ========================================
     # Step 6: Save data to CSV files
     # ========================================
-    # Save vector (1D array - the sine wave)
-    save_csv(output_dir, sinewave, 'sinewave_python.csv')
+    
+    # 1. Save Vector (The sine wave itself)
+    csv_vec = output_dir / "exp00_sinewave_python.csv"
+    np.savetxt(csv_vec, sinewave, delimiter=',', fmt='%.16f')
+    print(f"  [save vector] -> [{csv_vec.name}]")
 
-    # Save matrix (2D array - reshape sine wave into 4x256 matrix)
-    # Using Fortran order ('F') to match MATLAB column-major ordering
+    # 2. Save Matrix (Reshape to 4x256, Fortran order to match MATLAB)
+    # Using order='F' ensures the data layout matches MATLAB's column-major reshape
     test_matrix = sinewave.reshape((4, int(N/4)), order='F')
-    save_csv(output_dir, test_matrix, 'test_matrix_python.csv')
+    csv_mat = output_dir / "exp00_test_matrix_python.csv"
+    np.savetxt(csv_mat, test_matrix, delimiter=',', fmt='%.16f')
+    print(f"  [save matrix] -> [{csv_mat.name}]")
 
-    # Save scalar (single value - mean of sine wave)
+    # 3. Save Scalar (Mean value)
+    # Note: scalars must be wrapped in [] for savetxt
     test_scalar = np.mean(sinewave)
-    save_csv(output_dir, test_scalar, 'test_scalar_python.csv')
+    csv_scalar = output_dir / "exp00_test_scalar_python.csv"
+    np.savetxt(csv_scalar, [test_scalar], delimiter=',', fmt='%.16f')
+    print(f"  [save scalar] -> [{csv_scalar.name}]")
 
-    print("\n[PASS] Basic sine wave example completed successfully!")
-    print("="*60 + "\n")
-
+    print("\n[DONE] Example 00 completed successfully! Please check the figures.\n")
 
 if __name__ == "__main__":
     main()
