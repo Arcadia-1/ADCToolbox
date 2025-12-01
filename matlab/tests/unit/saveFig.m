@@ -9,7 +9,7 @@ saveas(gcf, filePath);
 if verbose
     fprintf("  [%s]->[%s]\n", mfilename, filePath);
 
-    pause(2)
+    pause(1)
 end
 close all;
 end
