@@ -1,15 +1,15 @@
-function [fitout,freq,mag,dc,phi] = sinefit(sig,f0,tol,rate)
-%SINEFIT Four-parameter iterative sine wave fitting
+function [fitout,freq,mag,dc,phi] = sinfit(sig,f0,tol,rate)
+%SINFIT Four-parameter iterative sine wave fitting
 %   This function performs a 4-parameter sine wave fit to input signal using
 %   an iterative least-squares method. The four parameters are: amplitude,
 %   phase, DC offset, and frequency. The frequency is refined iteratively
 %   using a gradient descent approach until convergence.
 %
 %   Syntax:
-%     [fitout, freq, mag, dc, phi] = SINEFIT(sig)
-%     [fitout, freq, mag, dc, phi] = SINEFIT(sig, f0)
-%     [fitout, freq, mag, dc, phi] = SINEFIT(sig, f0, tol)
-%     [fitout, freq, mag, dc, phi] = SINEFIT(sig, f0, tol, rate)
+%     [fitout, freq, mag, dc, phi] = SINFIT(sig)
+%     [fitout, freq, mag, dc, phi] = SINFIT(sig, f0)
+%     [fitout, freq, mag, dc, phi] = SINFIT(sig, f0, tol)
+%     [fitout, freq, mag, dc, phi] = SINFIT(sig, f0, tol, rate)
 %
 %   Inputs:
 %     sig - Input signal to be fitted
@@ -35,14 +35,14 @@ function [fitout,freq,mag,dc,phi] = sinefit(sig,f0,tol,rate)
 %       Scalar
 %     phi - Fitted phase in radians
 %       Scalar, Range: [-pi, pi]
-%       
+%
 %     Convention: fitout = mag*cos(2*pi*freq*t + phi) + dc
 %
 %   Examples:
 %     % Fit a noisy sine wave with known frequency
 %     t = 0:99;
 %     sig = 3*cos(2*pi*0.1*t - pi/4) + 0.5 + 0.1*randn(1,100);
-%     [fitout, freq, mag, dc, phi] = sinefit(sig, 0.1);
+%     [fitout, freq, mag, dc, phi] = sinfit(sig, 0.1);
 %
 %   Algorithm:
 %     1. Initial 3-parameter fit (A, B, dc) using linear least squares
@@ -62,11 +62,11 @@ function [fitout,freq,mag,dc,phi] = sinefit(sig,f0,tol,rate)
 
     % Input validation
     if ~isnumeric(sig) || ~isreal(sig)
-        error('sinefit:invalidInput', 'Input signal must be a real numeric array.');
+        error('sinfit:invalidInput', 'Input signal must be a real numeric array.');
     end
 
     if isempty(sig)
-        error('sinefit:emptyInput', 'Input signal cannot be empty.');
+        error('sinfit:emptyInput', 'Input signal cannot be empty.');
     end
 
     % Reshape input to column vector and average across columns
@@ -148,7 +148,7 @@ function [fitout,freq,mag,dc,phi] = sinefit(sig,f0,tol,rate)
 
     % Warn if not converged
     if ii == 100 && relerr >= tol
-        warning('sinefit:noConvergence', ...
+        warning('sinfit:noConvergence', ...
             'Failed to converge in 100 iterations. Relative error = %.2e', relerr);
     end
 

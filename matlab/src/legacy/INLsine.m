@@ -1,10 +1,10 @@
 function [INL, DNL, code] = INLsine(data, clip)
 %INLSINE Calculate INL and DNL from sine wave histogram test (legacy)
 %   DEPRECATED: This function is maintained for backward compatibility.
-%   Please use inlsine (lowercase) instead.
+%   Please use inlsin (lowercase) instead.
 %
-%   This function is a wrapper that calls inlsine with the same
-%   functionality. All new code should use inlsine directly.
+%   This function is a wrapper that calls inlsin with the same
+%   functionality. All new code should use inlsin directly.
 %
 %   Legacy interface:
 %     [INL, DNL, code] = INLSINE(data, clip)
@@ -22,17 +22,17 @@ function [INL, DNL, code] = INLsine(data, clip)
 %     code - Code values corresponding to INL/DNL measurements
 %
 %   Notes:
-%     - The new inlsine function has additional display functionality
+%     - The new inlsin function has additional display functionality
 %     - This wrapper disables auto-display to maintain legacy behavior
 %
-%   See also: inlsine
+%   See also: inlsin
 
-    % Call the new inlsine function with appropriate arguments
+    % Call the new inlsin function with appropriate arguments
     % Always disable display to maintain legacy behavior
     if nargin == 1
-        [INL, DNL, code] = inlsine(data, 0.01, false);
+        [INL, DNL, code] = inlsin(data, 0.01, false);
     else
-        [INL, DNL, code] = inlsine(data, clip, false);
+        [INL, DNL, code] = inlsin(data, clip, false);
     end
 
 end

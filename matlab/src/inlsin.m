@@ -1,16 +1,16 @@
-function [inl, dnl, code] = inlsine(data, varargin)
-%INLSINE Calculate ADC's INL and DNL from sinewave data by histogram method
+function [inl, dnl, code] = inlsin(data, varargin)
+%INLSIN Calculate ADC's INL and DNL from sinewave data by histogram method
 %   This function computes Integral Nonlinearity (INL) and Differential
 %   Nonlinearity (DNL) of an ADC using the histogram method.
 %   The method assumes the input is a pure sinewave and uses the
 %   cumulative histogram to reconstruct the transfer curve.
 %
 %   Syntax:
-%     [inl, dnl, code] = INLSINE(data)
-%     [inl, dnl, code] = INLSINE(data, excl)
-%     [inl, dnl, code] = INLSINE(data, excl, disp)
+%     [inl, dnl, code] = INLSIN(data)
+%     [inl, dnl, code] = INLSIN(data, excl)
+%     [inl, dnl, code] = INLSIN(data, excl, disp)
 %   or using parameter pairs:
-%     [inl, dnl, code] = INLSINE(data, 'name', value, ...)
+%     [inl, dnl, code] = INLSIN(data, 'name', value, ...)
 %
 %   Inputs:
 %     data - ADC output codes from sinewave input
@@ -37,16 +37,16 @@ function [inl, dnl, code] = inlsine(data, varargin)
 %     % Generate ADC output from sine wave and calculate INL/DNL
 %     t = linspace(0, 2*pi, 10000);
 %     data = round(127.5 + 127.5*sin(t));  % 8-bit ADC
-%     [inl, dnl, code] = inlsine(data);
+%     [inl, dnl, code] = inlsin(data);
 %
 %     % Custom exclusion ratio to exclude more endpoints
-%     [inl, dnl, code] = inlsine(data, 0.05);  % Exclude 5% from each end
+%     [inl, dnl, code] = inlsin(data, 0.05);  % Exclude 5% from each end
 %
 %     % Force display with outputs
-%     [inl, dnl, code] = inlsine(data, 0.01, true);
+%     [inl, dnl, code] = inlsin(data, 0.01, true);
 %
 %     % Auto-display when no outputs
-%     inlsine(data)
+%     inlsin(data)
 %
 %   Notes:
 %     - Input data should be integer ADC codes (non-integer will be rounded)
@@ -73,12 +73,12 @@ function [inl, dnl, code] = inlsine(data, varargin)
 
     % Input validation
     if ~isnumeric(data) || ~isreal(data)
-        error('inlsine:invalidData', 'Input data must be real numeric values.');
+        error('inlsin:invalidData', 'Input data must be real numeric values.');
     end
 
     % Check if data is integer (use tolerance to avoid floating-point precision issues)
     if any(abs(data(:) - round(data(:))) > 2*eps)
-        warning('inlsine:nonIntegerData', 'Input data contains non-integer values. Rounding to nearest integer.');
+        warning('inlsin:nonIntegerData', 'Input data contains non-integer values. Rounding to nearest integer.');
         data = round(data);
     end
 
@@ -126,8 +126,8 @@ function [inl, dnl, code] = inlsine(data, varargin)
 
     % Display results if requested
     if disp_flag
-        subplot(2,1,1);        
-        plot(code, dnl, 'k-');       
+        subplot(2,1,1);
+        plot(code, dnl, 'k-');
         missing = (dnl <= -1);
         if(sum(missing) > 0)
             hold on;
