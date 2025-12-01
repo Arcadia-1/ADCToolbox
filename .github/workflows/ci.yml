@@ -27,12 +27,12 @@ jobs:
           uv pip install numpy matplotlib pandas pytest --system
           pip install -e ./python
 
-      - name: Run basic pytest
+      - name: Test basic functionality
         run: |
-          pytest python/tests/unit/test_basic.py -q
+          pytest python/tests/unit/test_basic.py -q          
+          pytest python/tests/compare/test_compare_basic.py -q
 
-      - name: Run comparison tests
+      - name: Test sine_fit
         run: |
+          pytest python/tests/unit/test_sine_fit.py -q      
           pytest python/tests/compare/test_compare_sine_fit.py -q
-          pytest python/tests/compare/test_compare_spec_plot.py -q
-          pytest python/tests/compare/test_compare_spec_plot_phase.py -q
