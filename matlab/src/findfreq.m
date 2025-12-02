@@ -52,7 +52,7 @@ function freq = findfreq(sig,fs)
     end
 
     % Fit sine wave to extract normalized frequency
-    [~,freq,~,~,~] = sinefit(sig);
+    [~,freq,~,~,~] = sinfit(sig);
 
     % Scale by sampling frequency to get actual frequency in Hz
     freq = freq*fs;

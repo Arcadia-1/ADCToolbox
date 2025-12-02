@@ -17,7 +17,7 @@ def _process_err_hist_sine_code(raw_data, sub_folder, dataset_name, figures_fold
     4. Save plot
     """
     # 1. Find fundamental frequency
-    freq = find_fin(raw_data, Fs=1)
+    freq = find_fin(raw_data, fs=1)
 
     # 2. Error Histogram Analysis (Code Mode)
     emean_code, erms_code, code_axis, _, _, _, _, polycoeff, k1, k2, k3 = err_hist_sine(
@@ -49,9 +49,7 @@ def test_err_hist_sine_code(project_root):
     """
     run_unit_test_batch(
         project_root=project_root,
-        input_subpath="dataset/aout/sinewave",
+        input_subpath="dataset",
         test_module_name="test_err_hist_sine_code",
-        file_pattern="sinewave_*.csv",
-        output_subpath="test_output",
-        process_callback=_process_err_hist_sine_code
+        file_pattern="sinewave_*.csv",        process_callback=_process_err_hist_sine_code
     )

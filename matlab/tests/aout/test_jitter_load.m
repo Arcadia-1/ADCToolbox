@@ -56,20 +56,20 @@ for i_freq = 1:length(Fin_list_nominal)
             warning('[N mismatch] Data has N=%d, config expects N=%d', N, N_expected);
         end
 
-        f_norm = findFin(read_data);
+        f_norm = findfreq(read_data);
         Fin_fit = f_norm * Fs_expected;
-        
-        [emean, erms, phase_code, anoi, pnoi] = errHistSine(read_data, 99, f_norm, 0);
+
+        [emean, erms, xx, anoi, pnoi] = errsin(read_data, 'bin', 99, 'fin', f_norm, 'disp', 0, 'xaxis', 'phase');
         pnoi_array(i_tj) = pnoi;
         anoi_array(i_tj) = anoi;
 
         jitter_rms = pnoi / (2 * pi * Fin_fit);
         meas_jitter(i_tj) = jitter_rms;
 
-        [ENoB, SNDR, SFDR, SNR, THD, pwr, NF, h] = specPlot(read_data, ...
-            'label', 1, 'harmonic', 0, 'winType', @hann, ...
-            'OSR', 1, 'coAvg', 0, "isPlot", 0);
-        meas_SNDR(i_tj) = SNDR;
+        [enob, sndr, sfdr, snr, thd, sigpwr, noi, nsd, h] = plotspec(read_data, ...
+            'label', 1, 'harmonic', 0, 'window', @hann, ...
+            'OSR', 1, 'averageMode', 0, "disp", 0);
+        meas_SNDR(i_tj) = sndr;
     end
 
     figure('Position', [100, 100, 800, 600], "Visible", verbose);

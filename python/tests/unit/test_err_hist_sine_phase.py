@@ -17,7 +17,7 @@ def _process_err_hist_sine_phase(raw_data, sub_folder, dataset_name, figures_fol
     4. Save plot
     """
     # 1. Find fundamental frequency
-    freq = find_fin(raw_data, Fs=1)
+    freq = find_fin(raw_data, fs=1)
 
     # 2. Error Histogram Analysis (Phase Mode)
     emean, erms, phase_code, anoi, pnoi, _, _, _, _, _, _ = err_hist_sine(
@@ -47,9 +47,7 @@ def test_err_hist_sine_phase(project_root):
     """
     run_unit_test_batch(
         project_root=project_root,
-        input_subpath="dataset/aout/sinewave",
+        input_subpath="dataset",
         test_module_name="test_err_hist_sine_phase",
-        file_pattern="sinewave_*.csv",
-        output_subpath="test_output",
-        process_callback=_process_err_hist_sine_phase
+        file_pattern="sinewave_*.csv",        process_callback=_process_err_hist_sine_phase
     )

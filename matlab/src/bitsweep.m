@@ -1,4 +1,4 @@
-function [ENoB_sweep, nBits_vec] = bsweep(bits, varargin)
+function [ENoB_sweep, nBits_vec] = bitsweep(bits, varargin)
 
 [N, M] = size(bits);
 if N < M, bits = bits'; [N, M] = size(bits); end
@@ -30,7 +30,7 @@ for nBits = 1:M
     bits_subset = bits(:, 1:nBits);
 
     try
-        [~, ~, postCal_temp, ~, ~, ~] = FGCalSine(bits_subset, 'freq', freq, 'order', order);
+        [~, ~, postCal_temp, ~, ~, ~] = wcalsine(bits_subset, 'freq', freq, 'order', order);
         [ENoB_temp, ~, ~, ~, ~, ~, ~, ~] = specPlot(postCal_temp, ...
             'label', 0, 'harmonic', harmonic, 'OSR', OSR, 'winType', winType);
         ENoB_sweep(nBits) = ENoB_temp;

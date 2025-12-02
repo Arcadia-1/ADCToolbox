@@ -24,8 +24,8 @@ def _process_err_pdf(raw_data, sub_folder, dataset_name, figures_folder, test_na
     plt.figure(figsize=(12, 8))
     noise_lsb, mu, sigma, KL_divergence, x, fx, gauss_pdf = err_pdf(
         err_data,
-        Resolution=12,
-        FullScale=np.max(raw_data) - np.min(raw_data)
+        resolution=12,
+        full_scale=np.max(raw_data) - np.min(raw_data)
     )
     plt.title(f'errPDF: {dataset_name}')
 
@@ -47,9 +47,8 @@ def test_err_pdf(project_root):
     """
     run_unit_test_batch(
         project_root=project_root,
-        input_subpath="dataset/aout/sinewave",
-        test_module_name="test_errPDF",
+        input_subpath="dataset",
+        test_module_name="test_err_pdf",
         file_pattern="sinewave_*.csv",
-        output_subpath="test_output",
         process_callback=_process_err_pdf
     )

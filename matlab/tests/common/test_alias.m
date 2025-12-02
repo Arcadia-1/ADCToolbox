@@ -1,4 +1,3 @@
-%% test_alias.m
 close all; clc; clear;
 
 %% Test Cases: [J, N, expected_bin]

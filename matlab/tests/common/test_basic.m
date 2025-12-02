@@ -1,17 +1,16 @@
-%% test_basic.m - Generate and plot a basic sine wave
 close all; clc; clear;
+
 %% Configuration
 verbose = 0;
-outputDir = "test_data";
+outputDir = "test_output/test_basic";
 figureDir = "test_plots";
-subFolder = fullfile(outputDir, mfilename);
-if ~isfolder(subFolder), mkdir(subFolder); end
+if ~isfolder(outputDir), mkdir(outputDir); end
 %% Generate sine wave
-N = 1024; % Number of samples
-Fs = 1e3; % Sampling frequency (Hz)
-Fin = 99; % Input frequency (Hz)
-A = 0.49; % Amplitude
-DC = 0.5; % DC offset
+N = 1024;
+Fs = 1e3;
+Fin = 99;
+A = 0.49;
+DC = 0.5;
 
 t = (0:N - 1)' / Fs;
 sinewave = A * sin(2*pi*Fin*t) + DC;
@@ -47,11 +46,9 @@ ylim([min(sinewave_zoom) - 0.1, max(sinewave_zoom) + 0.1]);
 
 
 %% Save results
-figureName = sprintf("%s_%s_matlab.png", mfilename, mfilename);  % test_basic_test_basic_matlab.png
+figureName = "test_basic_matlab.png";
 saveFig(figureDir, figureName, verbose);
-saveVariable(subFolder, sinewave, verbose);
 
-test_matrix = reshape(sinewave, 4, N/4);
-test_scalar = mean(sinewave);
-saveVariable(subFolder, test_matrix, verbose);
-saveVariable(subFolder, test_scalar, verbose);
+% Save sinewave data (first 1000 samples to match Python)
+csvwrite(fullfile(outputDir, 'sinewave_matlab.csv'), sinewave(1:1000));
+fprintf('[Sinewave data] saved to: %s/sinewave_matlab.csv\n', outputDir);

@@ -21,7 +21,7 @@ def _process_err_envelope_spectrum(raw_data, sub_folder, dataset_name, figures_f
 
     # Run errEnvelopeSpectrum
     plt.figure(figsize=(12, 8))
-    err_envelope_spectrum(err_data, Fs=1)
+    err_envelope_spectrum(err_data, fs=1)
     plt.title(f'errEnvelopeSpectrum: {dataset_name}')
 
     # Save plot
@@ -34,9 +34,7 @@ def test_err_envelope_spectrum(project_root):
     """
     run_unit_test_batch(
         project_root=project_root,
-        input_subpath="dataset/aout/sinewave",
-        test_module_name="test_errEnvelopeSpectrum",
-        file_pattern="sinewave_*.csv",
-        output_subpath="test_output",
-        process_callback=_process_err_envelope_spectrum
+        input_subpath="dataset",
+        test_module_name="test_err_envelope_spectrum",
+        file_pattern="sinewave_*.csv",        process_callback=_process_err_envelope_spectrum
     )

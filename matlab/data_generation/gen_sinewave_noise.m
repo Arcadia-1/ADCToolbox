@@ -1,30 +1,19 @@
-%% Generate sinewave with additive noise
-close all; clear; clc; warning("off");
-rng(42);
-subFolder = fullfile("dataset", "sinewave");
-if ~exist(subFolder, 'dir'), mkdir(subFolder); end
+%% Centralized Configuration for Sinewave Generation 
+common_gen_sinewave;
 
 %% Sinewave with additive noise
-noise_list = [2.7e-4]; % 100uV, 1mV, 10mV
+noise_list = 200e-6;
 
-N = 2^13;
-Fs = 1e9;
-J = findBin(Fs, 300e6, N);
-Fin = J / N * Fs;
-ideal_phase = 2 * pi * Fin * (0:N - 1) * 1 / Fs;
+ideal_phase = 2 * pi * Fin * (0:N - 1)' * 1 / Fs;
 
 for k = 1:length(noise_list)
-    noise_amp = noise_list(k);
+    Noise_rms = noise_list(k);
 
-    data = sin(ideal_phase) * 0.49 + 0.5 + randn(1, N) * noise_amp;
+    data = A * sin(ideal_phase) + DC + randn(N, 1) * Noise_rms;
 
-    if noise_amp < 1e-3
-        nstr = sprintf("%duV", round(noise_amp*1e6)); % µV
-    else
-        nstr = sprintf("%dmV", round(noise_amp*1e3)); % mV
-    end
+    nstr = sprintf("%duV", round(noise_amp*1e6));
     filename = fullfile(subFolder, sprintf("sinewave_noise_%s.csv", nstr));
-    ENoB = specPlot(data,"isplot",0);
+    ENoB = plotspec(data,"isplot",0);
     writematrix(data, filename)
     fprintf("  [ENoB = %0.2f] [Save] %s\n", ENoB, filename);
 end

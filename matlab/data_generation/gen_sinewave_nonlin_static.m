@@ -1,8 +1,5 @@
-%% Generate sinewave with Static Nonlinearity (INL - Transfer Function)
-close all; clear; clc; warning("off");
-rng(42);
-subFolder = fullfile("dataset", "sinewave");
-if ~isfolder(subFolder), mkdir(subFolder); end
+%% Centralized Configuration for Sinewave Generation
+common_gen_sinewave;
 
 %% Sinewave with Static Nonlinearity (INL - Transfer Function)
 % Direct transfer function: y = k1*x + k2*x^2 + k3*x^3 + k4*x^4 + k5*x^5
@@ -23,15 +20,8 @@ use_k5 = exist('k5_list', 'var');
 if ~use_k4, k4_list = 0; end
 if ~use_k5, k5_list = 0; end
 
-% Signal parameters
-N = 2^13;
-Fs = 1e9;
-J = findBin(Fs, 80e6, N);
-Fin = J / N * Fs;
-A = 0.499; % Amplitude (peak, zero-mean)
 
-% Generate IDEAL input sine wave (this is x in the transfer function)
-x_ideal = A * sin((0:N - 1)*J*2*pi/N);
+sig = A * sin(ideal_phase);
 
 for idx1 = 1:length(k1_list)
     for idx2 = 1:length(k2_list)
@@ -47,14 +37,14 @@ for idx1 = 1:length(k1_list)
 
                     % Apply STATIC transfer function point-by-point
                     % y = k1*x + k2*x^2 + k3*x^3 + k4*x^4 + k5*x^5
-                    y_output = k1 * x_ideal + ...
-                        k2 * (x_ideal.^2) + ...
-                        k3 * (x_ideal.^3) + ...
-                        k4 * (x_ideal.^4) + ...
-                        k5 * (x_ideal.^5);
+                    y_output = k1 * sig + ...
+                        k2 * (sig.^2) + ...
+                        k3 * (sig.^3) + ...
+                        k4 * (sig.^4) + ...
+                        k5 * (sig.^5);
 
                     % Add DC offset and small noise for realism
-                    data = y_output + 0.5 + randn(1, N) * 1e-4;
+                    data = y_output + 0.5 + randn(N, 1) * 1e-4;
 
                     % Build filename: sinewave_INL_k2_xxx_k3_xxx_...
                     % Format: Positive: 0.001 -> 0P0010, Negative: -0.01 -> nP0100
@@ -82,7 +72,7 @@ for idx1 = 1:length(k1_list)
                     end
 
                     filename = fullfile(subFolder, sprintf("sinewave_nonlin%s.csv",filename_parts));
-                    ENoB = specPlot(data, "isplot", 0);
+                    ENoB = plotspec(data, "isplot", 0);
                     writematrix(data, filename)
                     fprintf("  [ENoB = %0.2f] [Save] %s\n", ENoB, filename);
                 end

@@ -33,10 +33,8 @@ def test_enob_bit_sweep(project_root):
     """
     run_unit_test_batch(
         project_root=project_root,
-        input_subpath="dataset/dout",
+        input_subpath="dataset",
         test_module_name="test_enob_bit_sweep",
-        file_pattern="dout_*.csv",
-        output_subpath="test_output",
-        process_callback=_process_enob_bit_sweep,
+        file_pattern="dout_*.csv",        process_callback=_process_enob_bit_sweep,
         flatten=False  # Digital output data is 2D (N samples x M bits)
     )
