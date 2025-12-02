@@ -1,14 +1,14 @@
-%% test_specPlot.m
+%% test_FGCalSine_overflowChk.m - Unit test for overflowChk function
 close all; clc; clear;
+warning("off");
 
 %% Configuration
 verbose = 0;
-inputDir = fullfile("dataset", "sinewave");
+inputDir = fullfile("dataset", "dout");
 outputDir = "test_data";
 figureDir = "test_plots";
-
-filesList ={};
-filesList = autoSearchFiles(filesList, inputDir, 'sinewave_*.csv', 'batch_sinewave_*.csv');
+filesList = {};
+filesList = autoSearchFiles(filesList, inputDir, 'dout_*.csv');
 if ~isfolder(outputDir), mkdir(outputDir); end
 
 %% Test Loop
@@ -16,23 +16,22 @@ for k = 1:length(filesList)
     currentFilename = filesList{k};
     dataFilePath = fullfile(inputDir, currentFilename);
     fprintf('[%s] [%d/%d] [%s]\n', mfilename, k, length(filesList), currentFilename);
+    [~, datasetName, ~] = fileparts(currentFilename);
+    titleString = replace(datasetName, '_', '\_');
 
     read_data = readmatrix(dataFilePath);
+    [weights_cal, offset, postCal, ideal, err, freqCal] = wcalsine(read_data);
+
+    enob = plotspec(postCal, "disp", 0);
+    fprintf("[%s] [ENoB = %0.2f bits]\n", mfilename, enob);
 
     figure('Position', [100, 100, 800, 600], "Visible", verbose);
-    [ENoB, SNDR, SFDR, SNR, THD, pwr, NF, ~] = specPlot(read_data, 'label', 1, 'harmonic', 5, 'OSR', 1);
-    set(gca, "FontSize",16)
+    ovfchk(read_data, weights_cal);
+    title(['ovfchk: ', titleString]);
+    set(gca, "FontSize", 16);
 
-    [~, datasetName, ~] = fileparts(currentFilename);
     subFolder = fullfile(outputDir, datasetName, mfilename);
 
     figureName = sprintf("%s_%s_matlab.png", datasetName, mfilename);
     saveFig(figureDir, figureName, verbose);
-    saveVariable(subFolder, ENoB, verbose);
-    saveVariable(subFolder, SNDR, verbose);
-    saveVariable(subFolder, SFDR, verbose);
-    saveVariable(subFolder, SNR, verbose);
-    saveVariable(subFolder, THD, verbose);
-    saveVariable(subFolder, pwr, verbose);
-    saveVariable(subFolder, NF, verbose);
 end

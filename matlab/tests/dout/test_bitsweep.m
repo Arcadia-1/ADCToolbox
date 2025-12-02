@@ -1,15 +1,5 @@
-%% test_specPlotPhase.m
-close all; clc; clear;
-
-%% Configuration
-verbose = 0;
-inputDir = fullfile("dataset", "sinewave");
-outputDir = "test_data";
-figureDir = "test_plots";
-
-filesList ={};
-filesList = autoSearchFiles(filesList, inputDir, 'sinewave_*.csv', 'batch_sinewave_*.csv');
-if ~isfolder(outputDir), mkdir(outputDir); end
+%% Centralized Configuration for Dout Test
+common_test_dout;
 
 %% Test Loop
 for k = 1:length(filesList)
@@ -20,14 +10,14 @@ for k = 1:length(filesList)
     read_data = readmatrix(dataFilePath);
 
     figure('Position', [100, 100, 800, 600], "Visible", verbose);
-    [h, spec, phi, bin] = specPlotPhase(read_data, 'harmonic', 10);
-    set(gca, "FontSize",16)
+    [ENoB_sweep, nBits_vec] = bitsweep(read_data, ...
+        'freq', 0, 'order', 5, 'harmonic', 5, 'OSR', 1, 'winType', @hamming);
 
     [~, datasetName, ~] = fileparts(currentFilename);
     subFolder = fullfile(outputDir, datasetName, mfilename);
+
     figureName = sprintf("%s_%s_matlab.png", datasetName, mfilename);
     saveFig(figureDir, figureName, verbose);
-    saveVariable(subFolder, spec, verbose);
-    saveVariable(subFolder, phi, verbose);
-    saveVariable(subFolder, bin, verbose);
+    saveVariable(subFolder, ENoB_sweep, verbose);
+    saveVariable(subFolder, nBits_vec, verbose);
 end

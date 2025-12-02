@@ -20,7 +20,7 @@ for k = 1:length(filesList)
     [~, datasetName, ~] = fileparts(currentFilename);
 
     read_data = readmatrix(dataFilePath);
-    [data_fit, ~, ~, ~, ~] = sineFit(read_data);
+    [data_fit, ~, ~, ~, ~] = sinfit(read_data);
     err_data = read_data - data_fit;
 
     figure('Position', [100, 100, 800, 600], "Visible", verbose);

@@ -12,7 +12,7 @@ N = 2^13;
 Fs = 1e9;
 J = findBin(Fs, 80e6, N);
 A = 0.499;
-sinewave = A * sin((0:N - 1)*J*2*pi/N); % Base sinewave (zero mean)
+sinewave = A * sin((0:N - 1)'*J*2*pi/N); % Base sinewave (zero mean)
 
 for k = 1:length(HD2_dB_list)
     for k2 = 1:length(HD3_dB_list)
@@ -29,7 +29,7 @@ for k = 1:length(HD2_dB_list)
         % Generate distorted waveform (zero-mean → nonlinear → add DC)
         % Add small noise for practical simulation
         data = sinewave + coef2 * (sinewave.^2) + coef3 * (sinewave.^3);
-        data = data + 0.5 + randn(1, N) * 1e-4;
+        data = data + 0.5 + randn(N, 1) * 1e-4;
 
         hd2_str = sprintf("HD2_n%0.0fdB", abs(HD2_dB_list(k)));
         hd3_str = sprintf("HD3_n%0.0fdB", abs(HD3_dB_list(k2)));

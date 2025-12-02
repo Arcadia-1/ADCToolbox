@@ -1,4 +1,4 @@
-%% test_tomDecomp.m
+%% test_errSpectrum.m - Unit test for error spectrum analysis
 close all; clc; clear;
 
 %% Configuration
@@ -10,7 +10,6 @@ figureDir = "test_plots";
 filesList ={};
 filesList = autoSearchFiles(filesList, inputDir, 'sinewave_*.csv');
 if ~isfolder(outputDir), mkdir(outputDir); end
-
 %% Test Loop
 for k = 1:length(filesList)
     currentFilename = filesList{k};
@@ -22,20 +21,15 @@ for k = 1:length(filesList)
     [~, datasetName, ~] = fileparts(currentFilename);
     titleString = replace(datasetName, '_', '\_');
 
-    relative_fin = findFin(read_data);
-
     figure('Position', [100, 100, 800, 600], "Visible", verbose);
-    [signal, error, indep, dep, phi] = tomDecomp(read_data, relative_fin, 10, 1);
-    title(['tomDecomp: ', titleString]);
-    set(gca, "FontSize",16)
+    [data_fit, freq_est, mag, dc, phi] = sinfit(read_data);
+    err_data = read_data - data_fit;
+    plotspec(err_data, "label", 0);
+    title(['errSpectrum: ', titleString]);
+    set(gca, "FontSize", 16);
 
     subFolder = fullfile(outputDir, datasetName, mfilename);
 
     figureName = sprintf("%s_%s_matlab.png", datasetName, mfilename);
     saveFig(figureDir, figureName, verbose);
-    saveVariable(subFolder, signal, verbose);
-    saveVariable(subFolder, error, verbose);
-    saveVariable(subFolder, indep, verbose);
-    saveVariable(subFolder, dep, verbose);
-    saveVariable(subFolder, phi, verbose);
 end

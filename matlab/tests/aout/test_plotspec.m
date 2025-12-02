@@ -1,14 +1,14 @@
-%% test_ENoB_bitSweep.m - Unit test for ENoB_bitSweep function
+%% test_specPlot.m
 close all; clc; clear;
 
 %% Configuration
 verbose = 0;
-inputDir = fullfile("dataset");
-outputDir = "test_data";
+inputDir = fullfile("dataset", "sinewave");
+outputDir = "test_output";
 figureDir = "test_plots";
 
 filesList ={};
-filesList = autoSearchFiles(filesList, inputDir, 'dout_*.csv');
+filesList = autoSearchFiles(filesList, inputDir, 'sinewave_*.csv', 'batch_sinewave_*.csv');
 if ~isfolder(outputDir), mkdir(outputDir); end
 
 %% Test Loop
@@ -20,14 +20,20 @@ for k = 1:length(filesList)
     read_data = readmatrix(dataFilePath);
 
     figure('Position', [100, 100, 800, 600], "Visible", verbose);
-    [ENoB_sweep, nBits_vec] = ENoB_bitSweep(read_data, ...
-        'freq', 0, 'order', 5, 'harmonic', 5, 'OSR', 1, 'winType', @hamming);
+    [enob, sndr, sfdr, snr, thd, sigpwr, noi, nsd, h] = plotspec(read_data, 'label', 1, 'harmonic', 5, 'OSR', 1);
+    set(gca, "FontSize",16)
 
     [~, datasetName, ~] = fileparts(currentFilename);
     subFolder = fullfile(outputDir, datasetName, mfilename);
 
     figureName = sprintf("%s_%s_matlab.png", datasetName, mfilename);
     saveFig(figureDir, figureName, verbose);
-    saveVariable(subFolder, ENoB_sweep, verbose);
-    saveVariable(subFolder, nBits_vec, verbose);
+    saveVariable(subFolder, enob, verbose);
+    saveVariable(subFolder, sndr, verbose);
+    saveVariable(subFolder, sfdr, verbose);
+    saveVariable(subFolder, snr, verbose);
+    saveVariable(subFolder, thd, verbose);
+    saveVariable(subFolder, sigpwr, verbose);
+    saveVariable(subFolder, noi, verbose);
+    saveVariable(subFolder, nsd, verbose);
 end
