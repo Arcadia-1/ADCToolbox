@@ -24,8 +24,8 @@ nBits = size(bits, 2);
 
 % --- 2. Critical Pre-calculation ---
 % We calculate calibration weights once.
-% If FGCalSine fails here, the script stops immediately.
-[w_cal, ~, ~, ~, ~, f_cal] = FGCalSine(bits, 'freq', 0, 'order', opts.Order);
+% If wcalsine fails here, the script stops immediately.
+[w_cal, ~, ~, ~, ~, f_cal] = wcalsine(bits, 'freq', 0, 'order', opts.Order, 'verbose', 0);
 
 % --- 3. Run Tools Sequentially ---
 
@@ -33,26 +33,26 @@ nBits = size(bits, 2);
 fprintf('[1/6] Spectrum (Nominal)...');
 f = figure('Visible', figVis, 'Position', [100, 100, 800, 600]);
 digitalCodes = bits * (2.^(nBits - 1:-1:0))';
-specPlot(digitalCodes, 'label', 1, 'harmonic', 5, 'OSR', 1, 'winType', @hamming);
+plotspec(digitalCodes, 'label', 1, 'harmonic', 5, 'OSR', 1, 'window', @hann);
 save_and_close(f, outputDir, opts.Prefix, '1_spectrum_nominal', 'Spectrum (Nominal)');
 
 % Tool 2: Calibrated Spectrum (Uses calculated weights)
 fprintf('[2/6] Spectrum (Calibrated)...');
 f = figure('Visible', figVis, 'Position', [100, 100, 800, 600]);
 digitalCodes_cal = bits * w_cal';
-specPlot(digitalCodes_cal, 'label', 1, 'harmonic', 5, 'OSR', 1, 'winType', @hamming);
+plotspec(digitalCodes_cal, 'label', 1, 'harmonic', 5, 'OSR', 1, 'window', @hann);
 save_and_close(f, outputDir, opts.Prefix, '2_spectrum_calibrated', 'Spectrum (Calibrated)');
 
 % Tool 3: Bit Activity (Toggle rate analysis)
 fprintf('[3/6] Bit Activity...');
-f = figure('Visible', figVis, 'Position', [100, 100, 800, 600]);
-bitActivity(bits, 'AnnotateExtremes', true);
+f = figure('Visible', figVis, 'Position', [100, 100, 1000, 750]);
+bitact(bits, 'annotateExtremes', true);
 save_and_close(f, outputDir, opts.Prefix, '3_bitActivity', 'Bit Activity');
 
 % Tool 4: Overflow Check (Decomposition check)
 fprintf('[4/6] Overflow Check...');
-f = figure('Visible', figVis, 'Position', [100, 100, 800, 600]);
-overflowChk(bits, w_cal);
+f = figure('Visible', figVis, 'Position', [100, 100, 1000, 600]);
+ovfchk(bits, w_cal);
 save_and_close(f, outputDir, opts.Prefix, '4_overflowChk', 'Overflow Check');
 
 % Tool 5: Weight Scaling (Radix analysis)
@@ -64,7 +64,7 @@ save_and_close(f, outputDir, opts.Prefix, '5_weightScaling', 'Weight Scaling');
 % Tool 6: ENoB Sweep (Performance vs Number of Bits)
 fprintf('[6/6] ENoB Sweep...');
 f = figure('Visible', figVis, 'Position', [100, 100, 800, 600]);
-ENoB_bitSweep(bits, 'freq', f_cal, 'order', opts.Order, 'harmonic', 5, 'OSR', 1, 'winType', @hamming);
+bitsweep(bits, 'freq', f_cal, 'order', opts.Order, 'harmonic', 5, 'OSR', 1, 'winType', @hamming);
 save_and_close(f, outputDir, opts.Prefix, '6_ENoB_sweep', 'ENoB Bit Sweep');
 
 % --- 4. Generate Summary Panel ---

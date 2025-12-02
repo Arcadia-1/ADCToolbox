@@ -4,6 +4,7 @@ import matplotlib.pyplot as plt
 from adctoolbox.common import sine_fit
 from tests._utils import save_variable, save_fig
 from tests.unit._runner import run_unit_test_batch
+from tests import config
 
 plt.rcParams['font.size'] = 14
 plt.rcParams['axes.grid'] = True
@@ -55,7 +56,5 @@ def test_sine_fit(project_root):
     """
     run_unit_test_batch(
         project_root=project_root,
-        input_subpath="dataset",
-        test_module_name="test_sine_fit",
-        file_pattern="sinewave_*.csv",        process_callback=_process_sine_fit
+        input_subpath=config.AOUT['input_path'], test_module_name="test_sine_fit", file_pattern=config.AOUT['file_pattern'],        process_callback=_process_sine_fit
     )

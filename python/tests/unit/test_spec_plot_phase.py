@@ -4,6 +4,7 @@ import matplotlib.pyplot as plt
 
 from adctoolbox.aout import spec_plot_phase
 from tests._utils import auto_search_files, save_variable
+from tests import config
 
 plt.rcParams['font.size'] = 14
 plt.rcParams['axes.grid'] = True
@@ -12,11 +13,11 @@ def test_spec_plot_phase(project_root):
     """
     Batch runner for spec_plot_phase (Single Channel Version).
     """
-    input_dir = project_root / "reference_dataset" / "sinewave"
+    input_dir = project_root / config.AOUT['input_path']
     output_dir = project_root / "test_output"
 
     files_list = []
-    files_list = auto_search_files(files_list, input_dir, 'sinewave_*.csv')
+    files_list = auto_search_files(files_list, input_dir, config.AOUT['file_pattern'])
 
     output_dir.mkdir(parents=True, exist_ok=True)
     success_count = 0

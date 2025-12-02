@@ -1,6 +1,6 @@
 close all; clear; clc; warning("off")
 rng(42);
-subFolder = fullfile("dataset", "jitter_sweep");
+subFolder = fullfile("test_dataset", "jitter_sweep");
 if ~exist(subFolder, 'dir'), mkdir(subFolder); end
 
 %% Generate deterministic jitter sweep test data

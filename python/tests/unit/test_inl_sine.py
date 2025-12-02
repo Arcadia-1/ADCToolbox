@@ -4,6 +4,7 @@ import matplotlib.pyplot as plt
 from adctoolbox.aout import inl_sine
 from tests._utils import save_fig
 from tests.unit._runner import run_unit_test_batch
+from tests import config
 
 plt.rcParams['font.size'] = 14
 plt.rcParams['axes.grid'] = True
@@ -72,7 +73,5 @@ def test_inl_sine(project_root):
     """
     run_unit_test_batch(
         project_root=project_root,
-        input_subpath="dataset",
-        test_module_name="test_inl_sine",
-        file_pattern="sinewave_*.csv",        process_callback=_process_inl_sine
+        input_subpath=config.AOUT['input_path'], test_module_name="test_inl_sine", file_pattern=config.AOUT['file_pattern'],        process_callback=_process_inl_sine
     )

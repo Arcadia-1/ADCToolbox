@@ -114,7 +114,7 @@ function [sine, err, har, oth] = tomdec(sig, varargin)
         plot(sig,'kx');
         hold on;
         plot(sine,'-','color',[0.5,0.5,0.5]);
-        axis([1,min(max(1.5/freq,100),length(sig)), min(sig)*1.1, max(sig)*1.1]);
+        axis([1,min(max(1.5/freq,50),length(sig)), min(sig)*1.1, max(sig)*1.1]);
         ylabel('Signal');
 
         % Right y-axis: error components
@@ -122,7 +122,7 @@ function [sine, err, har, oth] = tomdec(sig, varargin)
         plot(har,'r-');
         hold on;
         plot(oth,'b-');
-        axis([1,min(max(1.5/freq,100),length(sig)), min(err)*1.1, max(err)*1.1]);
+        axis([1,min(max(1.5/freq,50),length(sig)), min(err)*1.1, max(err)*1.1]);
         ylabel('Error');
         xlabel('Samples');
         legend('signal','sinewave','harmonics','other errors');

@@ -11,7 +11,7 @@ for k = 1:length(noise_list)
 
     data = A * sin(ideal_phase) + DC + randn(N, 1) * Noise_rms;
 
-    nstr = sprintf("%duV", round(noise_amp*1e6));
+    nstr = sprintf("%duV", round(Noise_rms*1e6));
     filename = fullfile(subFolder, sprintf("sinewave_noise_%s.csv", nstr));
     ENoB = plotspec(data,"isplot",0);
     writematrix(data, filename)

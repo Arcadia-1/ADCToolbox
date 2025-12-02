@@ -147,9 +147,8 @@ def tom_decomp(data, re_fin=None, order=10, disp=1):
         ax1.grid(True, alpha=0.3)
         plt.tight_layout()
 
-    # Close figure to prevent memory leak
-    if disp and fig is not None:
-        plt.close(fig)
+    # Note: Figure is left open for caller to save/close
+    # (tests need to save the figure before closing)
 
     return signal, error, indep, dep, phi
 

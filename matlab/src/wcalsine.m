@@ -30,6 +30,9 @@ function [weight,offset,postcal,ideal,err,freqcal] = wcalsine(bits,varargin)
 %       Positive integer
 %     fsearch - Force fine frequency search. Default: 0
 %       Logical or {0, 1}
+%     verbose - Enable verbose output during frequency search. Default: 0
+%       Logical or {0, 1}
+%       Set to 1 to print frequency search progress messages
 %     nomWeight - Nominal bit weights for rank deficiency handling. Default: [2^(M-1), ..., 2, 1]
 %       Vector [1×M]
 %
@@ -57,6 +60,9 @@ function [weight,offset,postcal,ideal,err,freqcal] = wcalsine(bits,varargin)
 %     % Multi-dataset calibration with harmonic exclusion
 %     [wgt, off] = wcalsine({bits1, bits2}, 'freq', [0.1, 0.2], 'order', 3)
 %
+%     % Enable verbose output to see frequency search progress
+%     [wgt, off, cal, ideal, err, freq] = wcalsine(bits, 'verbose', 1)
+%
 %   Notes:
 %     - For multi-dataset calibration, weights and offset are shared across all
 %       datasets, but each dataset's frequency and harmonics are independent
@@ -67,7 +73,7 @@ function [weight,offset,postcal,ideal,err,freqcal] = wcalsine(bits,varargin)
 %     - Polarity is automatically enforced to be positive (sum(weight) > 0)
 %
 %   See also: inlsine, findFin, alias
-
+warning("off")
     % ==========================
     % Multi-dataset (cell) path
     % ==========================
@@ -108,6 +114,7 @@ function [weight,offset,postcal,ideal,err,freqcal] = wcalsine(bits,varargin)
         addOptional(p, 'niter', 100, @(x) isnumeric(x) && isscalar(x) && (x > 0));
         addOptional(p, 'order', 1, @(x) isnumeric(x) && isscalar(x) && (x > 0));
         addOptional(p, 'fsearch', 0, @(x) isnumeric(x) && isscalar(x));
+        addOptional(p, 'verbose', 0, @(x) isnumeric(x) && isscalar(x) && ismember(x, [0, 1]));
         addParameter(p, 'nomWeight', 2.^(M_orig-1:-1:0));
         parse(p, varargin{:});
         freq = p.Results.freq;
@@ -117,6 +124,7 @@ function [weight,offset,postcal,ideal,err,freqcal] = wcalsine(bits,varargin)
         reltol = p.Results.reltol;
         niter = p.Results.niter;
         fsearch = p.Results.fsearch;
+        verbose = p.Results.verbose;
 
         % Normalize freq to vector length ND
         if isscalar(freq)
@@ -130,7 +138,7 @@ function [weight,offset,postcal,ideal,err,freqcal] = wcalsine(bits,varargin)
         for k = 1:ND
             if freq(k) == 0 || fsearch == 1
                 [~,~,~,~,~,fk] = wcalsine(bits_cell{k}, 'freq', freq(k), 'fsearch', 1, ...
-                    'order', order, 'rate', rate, 'reltol', reltol, 'niter', niter, 'nomWeight', nomWeight);
+                    'order', order, 'rate', rate, 'reltol', reltol, 'niter', niter, 'nomWeight', nomWeight, 'verbose', verbose);
                 freq(k) = fk;
             end
         end
@@ -295,6 +303,7 @@ function [weight,offset,postcal,ideal,err,freqcal] = wcalsine(bits,varargin)
     addOptional(p, 'niter', 100, @(x) isnumeric(x) && isscalar(x) && (x > 0));           % max fine-search iterations
     addOptional(p, 'order', 1, @(x) isnumeric(x) && isscalar(x) && (x > 0));             % harmonics exclusion order (1 for no exclusion)
     addOptional(p, 'fsearch', 0, @(x) isnumeric(x) && isscalar(x));                      % force fine search (1) or not (0)
+    addOptional(p, 'verbose', 0, @(x) isnumeric(x) && isscalar(x) && ismember(x, [0, 1])); % enable verbose output (0: off, 1: on)
     addParameter(p, 'nomWeight', 2.^(M-1:-1:0));                                         % nominal bit weights (only effective when rank is deficient)
     parse(p, varargin{:});
     freq = p.Results.freq;
@@ -304,6 +313,7 @@ function [weight,offset,postcal,ideal,err,freqcal] = wcalsine(bits,varargin)
     reltol = p.Results.reltol;
     niter = p.Results.niter;
     fsearch = p.Results.fsearch;
+    verbose = p.Results.verbose;
 
     % Initialize link and scale tables used to map original columns to a potentially merged, rank-sufficient set of columns (bits_patch)
     L = [1:M];              % link from a column to its correlated column
@@ -364,10 +374,14 @@ function [weight,offset,postcal,ideal,err,freqcal] = wcalsine(bits,varargin)
         fsearch = 1;
         freq = [];
         for i1 = 1:min(M,5)     % first 5 columns are used to estimate the frequency - WARNING: this may not be a good practice for non-binary bit weighting
-            fprintf('Freq coarse searching (%d/5):',i1);
+            if verbose
+                fprintf('Freq coarse searching (%d/5):',i1);
+            end
             % Estimate Fin/Fs using a weighted sum of the top i1 columns
             freq = [freq, findFin(bits_patch(:,1:i1)*nomWeight(L(1:i1))')];
-            fprintf(' freq = %d\n',freq(end));
+            if verbose
+                fprintf(' freq = %d\n',freq(end));
+            end
         end
         freq = median(freq);    % use the median of the estimated frequencies
     end
@@ -443,7 +457,9 @@ function [weight,offset,postcal,ideal,err,freqcal] = wcalsine(bits,varargin)
             delta_f = x(end)*rate /N;                           % scaled frequency correction
             relerr = rms(x(end)/N*A(:,end)) / sqrt(1+x(M+1+order)^2);  % calculate the relative error
 
-            fprintf('Freq fine iterating (%d): freq = %d, delta_f = %d, rel_err = %d\n',ii,freq,delta_f, relerr);
+            if verbose
+                fprintf('Freq fine iterating (%d): freq = %d, delta_f = %d, rel_err = %d\n',ii,freq,delta_f, relerr);
+            end
 
             if(relerr < reltol)
                 break;                   % stop if the relative error is less than the tolerance
