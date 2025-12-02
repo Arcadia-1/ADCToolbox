@@ -1,55 +1,950 @@
 # ADCToolbox - MATLAB
 
-A comprehensive toolbox for ADC (Analog-to-Digital Converter) testing and debugging, providing functions for spectral analysis, calibration, linearity testing, and signal processing.
+A comprehensive MATLAB toolbox for ADC (Analog-to-Digital Converter) testing, characterization, and debugging. This toolbox provides advanced functions for spectral analysis, calibration, linearity testing, signal processing, and performance evaluation of ADCs.
 
-## Structure
+## Table of Contents
 
-- `src/` - Source code files (MATLAB functions)
-- `toolbox/` - Toolbox packaging files (.mltbx)
-- `setupLib.m` - Setup script for adding toolbox to MATLAB path
+- [Installation](#installation)
+- [Quick Start](#quick-start)
+- [Function Categories](#function-categories)
+  - [Spectral Analysis](#spectral-analysis)
+  - [Signal Fitting and Frequency Analysis](#signal-fitting-and-frequency-analysis)
+  - [Calibration Functions](#calibration-functions)
+  - [Linearity Analysis](#linearity-analysis)
+  - [Noise Transfer Function Analysis](#noise-transfer-function-analysis)
+  - [Utility Functions](#utility-functions)
+- [Detailed Function Reference](#detailed-function-reference)
+- [Usage Examples](#usage-examples)
+- [Legacy Functions](#legacy-functions)
+- [Requirements](#requirements)
+- [Contributing](#contributing)
 
 ## Installation
 
 ### Option 1: Install Toolbox Package (Recommended)
-1. Double-click `toolbox/ADCToolbox_0v12.mltbx` to install
-2. The toolbox will be automatically added to MATLAB path
-3. You can also download this toolbox from MATLAB Add-Ons
+
+1. Navigate to the `toolbox/` directory
+2. Double-click `ADCToolbox_0v12.mltbx` to install
+3. The toolbox will be automatically added to your MATLAB path
+4. You can also download this toolbox from MATLAB Add-Ons
 
 ### Option 2: Add to Path Manually
+
 ```matlab
+% Add the toolbox to your MATLAB path
 addpath(genpath('path/to/ADCToolbox/matlab/src'))
 savepath  % Optional: save path for future sessions
 ```
 
-## Usage
+### Option 3: Use Setup Script
 
-See individual function help for detailed usage:
 ```matlab
-help functionName
+% Run the setup script (from the matlab/ directory)
+run('setupLib.m')
 ```
 
-## Main Functions
+## Quick Start
+
+```matlab
+% Load ADC output data
+load('adc_data.mat');  % Assume this contains variable 'sig'
+
+% Perform comprehensive spectral analysis
+[enob, sndr, sfdr, snr, thd] = specplot(sig, 'fs', 100e6);
+
+% Find the dominant frequency
+freq = findfreq(sig, 100e6);
+
+% Fit a sine wave to the data
+[fitout, freq, mag, dc, phi] = sinfit(sig);
+
+% Calculate INL and DNL using histogram method
+[inl, dnl, code] = inlsin(sig);
+
+% Analyze phase spectrum
+phaseplot(sig, 5, 2^16);
+```
+
+## Function Categories
 
 ### Spectral Analysis
-- `specPlot` - Comprehensive spectrum analysis with ENOB, SNDR, SFDR, SNR, THD calculations
-- `specPlotPhase` - Spectrum analysis with phase information
-- `findFin` - Find input frequency from ADC data
-- `findBin` - Find FFT bin for coherent sampling
 
-### Calibration & Correction
-- `FGCalSine` - Foreground calibration using sinewave input
-- `cap2weight` - Convert capacitor values to bit weights for SAR ADCs
+Functions for analyzing the frequency-domain characteristics of ADC output data.
 
-### Linearity Analysis
-- `INLsine` - INL/DNL analysis using sine wave histogram method
-- `errHistSine` - Error histogram analysis for sine wave testing
+- **`specplot`** - Comprehensive spectrum analysis with ENOB, SNDR, SFDR, SNR, and THD calculations
+- **`phaseplot`** - Coherent phase spectrum analysis with polar display
 
-### Signal Processing
-- `sineFit` - Sine wave fitting with frequency estimation
-- `tomDecomp` - Thompson decomposition for signal analysis
-- `NTFAnalyzer` - Noise transfer function analysis for delta-sigma ADCs
+### Signal Fitting and Frequency Analysis
+
+Functions for extracting signal parameters and frequency information.
+
+- **`sinfit`** - Four-parameter iterative sine wave fitting (amplitude, phase, DC, frequency)
+- **`findfreq`** - Find dominant frequency using sine wave fitting
+- **`findbin`** - Find coherent FFT bin for a given signal frequency
+- **`tomdec`** - Thompson decomposition of signal into sinewave, harmonics, and errors
+
+### Calibration Functions
+
+Functions for calibrating ADC bit weights and correcting errors.
+
+- **`wcalsine`** - Weight calibration using sine wave input (single or multi-dataset)
+- **`cdacwgt`** - Calculate bit weights for multi-segment capacitive DAC
+
+### Linearity and Error Analysis
+
+Functions for analyzing ADC linearity performance.
+
+- **`inlsin`** - Calculate INL and DNL from sine wave data using histogram method
+- **`errsin`** - Analyze sine wave fit errors with histogram binning
+
+### Noise Transfer Function Analysis
+
+Functions for analyzing noise-shaping ADCs (Delta-Sigma modulators).
+
+- **`ntfperf`** - Analyze noise transfer function performance and SNR improvement
 
 ### Utility Functions
-- `alias` - Calculate frequency after aliasing
-- `bitInBand` - Bits-wise filter function to extract the ADC data within specified frequency bands (mainly for noise-shaping ADC calibration)
-- `overflowChk` - Check for ADC overflow on every segments  
+
+Supporting functions for signal processing and analysis.
+
+- **`alias`** - Calculate aliased frequency after sampling
+- **`ifilter`** - Ideal FFT-based filter to retain specified frequency bands
+- **`ovfchk`** - Check ADC overflow by analyzing bit segment residue distributions
+
+## Detailed Function Reference
+
+### specplot
+
+**Purpose:** Comprehensive power spectrum analysis and ADC performance metric calculation.
+
+**Syntax:**
+```matlab
+[enob, sndr, sfdr, snr, thd, sigpwr, noi, nsd, h] = specplot(sig)
+[enob, sndr, sfdr, snr, thd, sigpwr, noi, nsd, h] = specplot(sig, Fs, maxCode, harmonic)
+[enob, sndr, sfdr, snr, thd, sigpwr, noi, nsd, h] = specplot(sig, 'Name', Value)
+```
+
+**Key Features:**
+- Calculates ENOB (Effective Number of Bits)
+- Computes SNDR (Signal-to-Noise and Distortion Ratio)
+- Measures SFDR (Spurious-Free Dynamic Range)
+- Calculates SNR (Signal-to-Noise Ratio) and THD (Total Harmonic Distortion)
+- Supports oversampling ratio (OSR) for noise-shaping ADCs
+- Multiple averaging modes: normal (power averaging) and coherent (phase-aligned)
+- Flexible windowing: built-in Hanning/rectangle or custom window functions
+- Three noise floor estimation methods: median-based, trimmed mean, or exclude harmonics
+- Configurable signal bandwidth and flicker noise removal
+
+**Parameters:**
+- `'OSR'` - Oversampling ratio (default: 1)
+- `'window'` - Window function: 'hann', 'rect', or function handle (default: 'hann')
+- `'averageMode'` - 'normal' or 'coherent' averaging (default: 'normal')
+- `'NFMethod'` - Noise floor estimation: 'median', 'mean', or 'exclude' (default: 'median')
+- `'sideBin'` - Extra bins on each side of signal peak (default: 1)
+- `'cutoff'` - High-pass cutoff frequency for flicker noise removal (default: 0)
+- `'label'` - Enable plot annotations (default: true)
+- `'disp'` - Enable plotting (default: true)
+
+**Example:**
+```matlab
+% Basic usage with 32x oversampling and coherent averaging
+[enob, sndr, sfdr] = specplot(sig, 100e6, 2^16, 'OSR', 32, 'averageMode', 'coherent');
+
+% Multiple measurement runs with custom window
+sig_multi = randn(10, 1024);  % 10 runs of 1024 samples
+[enob, sndr] = specplot(sig_multi, 'window', @blackman, 'NFMethod', 'mean');
+```
+
+### phaseplot
+
+**Purpose:** Visualize coherent phase spectrum with polar display, showing harmonics on a polar coordinate system.
+
+**Syntax:**
+```matlab
+h = phaseplot(sig)
+h = phaseplot(sig, harmonic, maxSignal)
+h = phaseplot(sig, 'Name', Value)
+```
+
+**Key Features:**
+- Two analysis modes: FFT-based and LMS-based (default)
+- **LMS Mode**: Uses least squares harmonic fitting, displays noise circle as reference
+- **FFT Mode**: Traditional coherent averaging with phase alignment
+- Polar plot shows magnitude (radius) and phase (angle)
+- Fundamental signal in red, harmonics in blue
+- Supports oversampling and flicker noise removal
+
+**Parameters:**
+- `'mode'` - Analysis mode: 'LMS' (default) or 'FFT'
+- `'OSR'` - Oversampling ratio (default: 1)
+- `'Fs'` - Sampling frequency (default: 1)
+- `'cutoff'` - High-pass cutoff frequency (default: 0)
+
+**Example:**
+```matlab
+% LMS mode with noise circle display
+phaseplot(sig, 7, 2^16, 'mode', 'LMS');
+
+% FFT mode with oversampling
+phaseplot(sig, 10, 'mode', 'FFT', 'OSR', 64);
+```
+
+### sinfit
+
+**Purpose:** Four-parameter iterative sine wave fitting to extract amplitude, phase, DC offset, and frequency.
+
+**Syntax:**
+```matlab
+[fitout, freq, mag, dc, phi] = sinfit(sig)
+[fitout, freq, mag, dc, phi] = sinfit(sig, f0, tol, rate)
+```
+
+**Key Features:**
+- Iterative least-squares refinement with frequency gradient descent
+- Automatic frequency estimation using FFT with parabolic interpolation
+- Configurable convergence tolerance and learning rate
+- Handles both single-channel and multi-channel (averaged) input
+
+**Algorithm:**
+1. Initial 3-parameter fit (cosine, sine, DC) using linear least squares
+2. Iterative frequency refinement by computing frequency gradient
+3. Convergence when relative error < tolerance (default: 1e-12)
+4. Maximum 100 iterations with convergence warning if exceeded
+
+**Parameters:**
+- `f0` - Initial frequency estimate (normalized, default: auto-detect)
+- `tol` - Convergence tolerance (default: 1e-12)
+- `rate` - Learning rate for frequency update (default: 0.5)
+
+**Example:**
+```matlab
+% Automatic frequency estimation
+[fitout, freq, mag, dc, phi] = sinfit(sig);
+
+% Known frequency with custom tolerance
+[fitout, freq] = sinfit(sig, 0.123, 1e-10, 0.7);
+```
+
+### findfreq
+
+**Purpose:** Find the dominant frequency in a signal using sine wave fitting.
+
+**Syntax:**
+```matlab
+freq = findfreq(sig, fs)
+```
+
+**Key Features:**
+- Uses iterative sine fitting algorithm (sinfit) internally
+- Returns fitted frequency, not FFT peak frequency
+- Handles both absolute (with fs) and normalized frequency (fs=1)
+
+**Example:**
+```matlab
+% Find frequency of a 1 kHz signal sampled at 10 kHz
+freq = findfreq(sig, 10000);  % Returns ~1000 Hz
+
+% Get normalized frequency
+freq_norm = findfreq(sig);  % Returns ~0.1
+```
+
+### findbin
+
+**Purpose:** Find the nearest FFT bin that ensures coherent sampling (integer cycles in FFT window).
+
+**Syntax:**
+```matlab
+b = findbin(fs, fin, n)
+```
+
+**Key Features:**
+- Ensures gcd(bin, n) = 1 for coherent sampling
+- Prevents repeated phase sampling in FFT window
+- Searches both upward and downward from initial estimate
+- Returns upper bin when two bins are equidistant
+
+**Example:**
+```matlab
+% Find coherent bin for 1 kHz signal
+fs = 10000;  % 10 kHz sampling
+n = 1024;    % 1024-point FFT
+fin = 1000;  % 1 kHz signal
+b = findbin(fs, fin, n);  % Returns 103
+
+% Determine actual coherent frequency
+fin_actual = b * fs / n;  % = 1006.8 Hz
+```
+
+### wcalsine
+
+**Purpose:** Estimate per-bit weights and DC offset for ADC calibration using sine wave input.
+
+**Syntax:**
+```matlab
+[weight, offset, postcal, ideal, err, freqcal] = wcalsine(bits)
+[weight, offset, postcal, ideal, err, freqcal] = wcalsine(bits, 'Name', Value)
+[weight, offset, postcal, ideal, err, freqcal] = wcalsine({bits1, bits2, ...}, 'Name', Value)
+```
+
+**Key Features:**
+- Single-dataset or multi-dataset joint calibration
+- Automatic frequency search with coarse and fine iteration
+- Handles rank-deficient bit matrices by merging correlated columns
+- Harmonic exclusion up to specified order
+- Automatic polarity enforcement
+
+**Algorithm:**
+1. If frequency unknown: coarse search using multiple bit combinations, then fine iterative search
+2. Build sine/cosine basis for fundamental and harmonics
+3. Solve two least-squares formulations (cosine-based and sine-based)
+4. Choose solution with lower residual
+5. Iteratively refine frequency using gradient descent (if fsearch=1)
+6. Handle rank deficiency by identifying and merging correlated columns
+
+**Parameters:**
+- `'freq'` - Normalized input frequency (default: 0 for auto-search)
+- `'order'` - Number of harmonics to exclude from fitting (default: 1)
+- `'rate'` - Adaptive rate for frequency iteration (default: 0.5)
+- `'reltol'` - Relative error tolerance (default: 1e-12)
+- `'niter'` - Maximum iterations for fine search (default: 100)
+- `'fsearch'` - Force fine frequency search (default: 0)
+- `'nomWeight'` - Nominal weights for rank deficiency handling
+
+**Example:**
+```matlab
+% Basic calibration with automatic frequency search
+[wgt, off] = wcalsine(bits);
+
+% Known frequency with 3rd harmonic exclusion
+[wgt, off, cal, ideal, err, freq] = wcalsine(bits, 'freq', 0.123, 'order', 3);
+
+% Multi-dataset joint calibration
+[wgt, off] = wcalsine({bits1, bits2}, 'freq', [0.1, 0.2], 'order', 5);
+```
+
+### cdacwgt
+
+**Purpose:** Calculate bit weights for multi-segment capacitive DAC with bridge capacitors and parasitics.
+
+**Syntax:**
+```matlab
+[weight, ctot] = cdacwgt(cd, cb, cp)
+```
+
+**Key Features:**
+- Models multi-segment CDAC architecture
+- Accounts for capacitive divider effects
+- Handles bridge capacitors between segments
+- Includes parasitic capacitances
+- Processes LSB to MSB for accurate weight attenuation
+
+**Circuit Model:**
+```
+MSB side <---||------------||---< LSB side
+             cb   |    |   Cl (load from previous bits)
+                 ---  ---
+             cp  ---  ---  cd
+                  |    |
+                 gnd   Vbot
+```
+
+**Parameters:**
+- `cd` - DAC capacitors [MSB ... LSB]
+- `cb` - Bridge capacitors [MSB ... LSB] (0 for no bridge)
+- `cp` - Parasitic capacitors [MSB ... LSB]
+
+**Example:**
+```matlab
+% Simple binary-weighted 4-bit DAC
+cd = [8 4 2 1];
+cb = [0 0 0 0];
+cp = [0 0 0 0];
+[weight, ctot] = cdacwgt(cd, cb, cp);
+% Returns: weight = [0.5333 0.2667 0.1333 0.0667], ctot = 15
+
+% 6-bit CDAC with 3+3 segments
+cd = [4 2 1  4 2 1];
+cb = [0 4 0  8/7 0 0];  % Bridge between segments
+cp = [0 0 0  0 0 1];
+[weight, ctot] = cdacwgt(cd, cb, cp);
+% Returns: weight = [0.5000 0.2500 0.1250 0.0625 0.0312 0.0156]
+```
+
+### inlsin
+
+**Purpose:** Calculate ADC's INL (Integral Nonlinearity) and DNL (Differential Nonlinearity) using sine wave histogram method.
+
+**Syntax:**
+```matlab
+[inl, dnl, code] = inlsin(data)
+[inl, dnl, code] = inlsin(data, excl, disp)
+[inl, dnl, code] = inlsin(data, 'name', value)
+```
+
+**Key Features:**
+- Histogram-based method assuming ideal sine wave input
+- Automatic endpoint exclusion to avoid clipping noise
+- Detects and highlights missing codes (DNL ≤ -1)
+- Zero-mean normalized DNL output
+- INL computed as cumulative sum of DNL
+
+**Algorithm:**
+1. Histogram the ADC output codes
+2. Apply cosine transform to linearize sine distribution
+3. Calculate DNL from differences in linearized histogram
+4. Normalize to LSB = 1 and remove DC offset
+5. Compute INL as cumulative sum of DNL
+
+**Parameters:**
+- `excl` - Exclusion ratio for endpoints (default: 0.01 = 1%)
+- `disp` - Display plots (default: auto when no outputs)
+
+**Example:**
+```matlab
+% Generate 8-bit ADC output and analyze
+t = linspace(0, 2*pi, 10000);
+data = round(127.5 + 127.5*sin(t));
+[inl, dnl, code] = inlsin(data);
+
+% Custom exclusion ratio
+[inl, dnl, code] = inlsin(data, 0.05);  % Exclude 5% from each end
+```
+
+### errsin
+
+**Purpose:** Analyze sine wave fit errors with histogram binning to identify amplitude and phase noise.
+
+**Syntax:**
+```matlab
+[emean, erms, xx, anoi, pnoi, err, errxx] = errsin(sig)
+[emean, erms, xx, anoi, pnoi, err, errxx] = errsin(sig, 'Name', Value)
+```
+
+**Key Features:**
+- Two binning modes: phase (default) or value
+- **Phase mode**: Estimates amplitude and phase noise components
+- **Value mode**: Useful for INL analysis
+- Configurable number of bins and error range filtering
+- Least-squares decomposition of noise sources
+
+**Noise Estimation (Phase Mode):**
+- Amplitude noise affects all phases equally (cos² pattern)
+- Phase noise creates errors proportional to slope (sin² pattern)
+- Fits: `erms² = anoi²·cos²(θ) + (pnoi·mag)²·sin²(θ) + baseline`
+
+**Parameters:**
+- `'bin'` - Number of histogram bins (default: 100)
+- `'fin'` - Normalized input frequency (default: 0 for auto)
+- `'xaxis'` - Binning mode: 'phase' (default) or 'value'
+- `'erange'` - Error range filter [min, max] (default: [])
+- `'disp'` - Display plots (default: auto when no outputs)
+
+**Example:**
+```matlab
+% Phase mode analysis with noise estimation
+sig = sin(2*pi*0.12345*(0:999)') + 0.01*randn(1000,1);
+[emean, erms, xx, anoi, pnoi] = errsin(sig);
+
+% Value mode for INL visualization
+[emean, erms, xx] = errsin(sig, 'xaxis', 'value', 'bin', 50);
+
+% Filter to specific phase range
+[~, ~, ~, ~, ~, err, phase] = errsin(sig, 'erange', [90, 180]);
+```
+
+### tomdec
+
+**Purpose:** Thompson decomposition of single-tone signal into fundamental sine wave, harmonic distortions, and other errors.
+
+**Syntax:**
+```matlab
+[sine, err, har, oth] = tomdec(sig)
+[sine, err, har, oth] = tomdec(sig, freq, order, disp)
+[sine, err, har, oth] = tomdec(sig, 'name', value)
+```
+
+**Key Features:**
+- Least-squares fitting to separate signal components
+- Automatic frequency detection if not specified
+- Decomposes into: fundamental + harmonics + residual
+- Configurable harmonic order (default: 10)
+
+**Decomposition:**
+- `sig = sine + err`
+- `sine` = DC + fundamental only
+- `err = har + oth`
+- `har` = 2nd through nth harmonics
+- `oth` = all remaining errors (noise, non-harmonic distortion)
+
+**Parameters:**
+- `freq` - Normalized signal frequency (default: auto-detect)
+- `order` - Number of harmonics to fit (default: 10)
+- `disp` - Display results (default: auto when no outputs)
+
+**Example:**
+```matlab
+% Auto-detect frequency and decompose
+[sine, err, har, oth] = tomdec(sig);
+
+% Fit only 5 harmonics with known frequency
+[sine, err, har, oth] = tomdec(sig, 0.123, 5);
+```
+
+### ntfperf
+
+**Purpose:** Analyze noise transfer function performance for noise-shaping ADCs (Delta-Sigma modulators).
+
+**Syntax:**
+```matlab
+snr = ntfperf(ntf, fl, fh)
+snr = ntfperf(ntf, fl, fh, disp)
+```
+
+**Key Features:**
+- Evaluates SNR improvement from noise-shaping and oversampling
+- Supports lowpass and bandpass NTF analysis
+- High-resolution frequency evaluation (1M points)
+- Automatic plot generation with signal band markers
+
+**Parameters:**
+- `ntf` - Noise transfer function (tf, zpk, or ss object)
+- `fl` - Low frequency bound [0, 0.5]
+- `fh` - High frequency bound (fl, 0.5]
+- `disp` - Display plot (default: 0)
+
+**Example:**
+```matlab
+% 1st-order lowpass delta-sigma with 16x OSR
+ntf = tf([1 -1], [1 0], 1);  % NTF = 1 - z^-1
+snr = ntfperf(ntf, 0, 0.5/16);  % Returns ~31 dB improvement
+
+% Bandpass NTF with visualization
+ntf = tf([1 0 1], [1 0 0], 1);  % NTF = 1 + z^-2
+snr = ntfperf(ntf, 0.24, 0.26, 1);
+```
+
+### alias
+
+**Purpose:** Calculate the aliased frequency after sampling, accounting for Nyquist zone effects.
+
+**Syntax:**
+```matlab
+fal = alias(fin, fs)
+```
+
+**Key Features:**
+- Handles signals in any Nyquist zone
+- Even zones (0,2,4,...): normal aliasing
+- Odd zones (1,3,5,...): mirrored aliasing
+- Supports scalar or vector input
+
+**Example:**
+```matlab
+% Signal at 0.7*fs aliases to 0.3*fs (mirrored)
+fal = alias(70, 100);  % Returns 30
+
+% Signal at 1.3*fs aliases to 0.3*fs (normal)
+fal = alias(130, 100);  % Returns 30
+
+% Multiple frequencies
+fal = alias([30 70 130], 100);  % Returns [30 30 30]
+```
+
+### ifilter
+
+**Purpose:** Ideal FFT-based brickwall filter to extract specified frequency bands.
+
+**Syntax:**
+```matlab
+sigout = ifilter(sigin, passband)
+```
+
+**Key Features:**
+- FFT-based filtering with sharp transitions
+- Multiple passband support (union of bands)
+- Filters each column independently
+- Maintains Hermitian symmetry for real output
+
+**Parameters:**
+- `sigin` - Input signal matrix (each column filtered independently)
+- `passband` - Frequency bands [fLow, fHigh] as rows (normalized to [0, 0.5])
+
+**Example:**
+```matlab
+% Single passband from 0.1*Fs to 0.2*Fs
+sigout = ifilter(sigin, [0.1, 0.2]);
+
+% Multiple passbands
+sigout = ifilter(sigin, [0.05, 0.15; 0.25, 0.35]);
+```
+
+### ovfchk
+
+**Purpose:** Check ADC overflow by analyzing bit segment residue distributions.
+
+**Syntax:**
+```matlab
+ovfchk(bits)
+ovfchk(bits, wgt, chkpos)
+ovfchk(bits, 'name', value)
+```
+
+**Key Features:**
+- Visualizes normalized residue distribution for each bit
+- Detects overflow (≥1) and underflow (≤0) conditions
+- Color-coded visualization: blue (normal), red (overflow), yellow (underflow)
+- Shows percentage of samples at boundaries
+
+**Parameters:**
+- `bits` - Raw ADC bit matrix [MSB ... LSB] (N×M)
+- `wgt` - Bit weights (default: binary weights)
+- `chkpos` - Bit position to check (default: MSB)
+
+**Example:**
+```matlab
+% Check with default binary weights
+bits = randi([0 1], 10000, 10);
+ovfchk(bits);
+
+% Custom weights and check position
+wgt = 2.^(9:-1:0);
+ovfchk(bits, wgt, 8);  % Check segment from 8th-bit to LSB
+```
+
+## Usage Examples
+
+### Example 1: Complete ADC Characterization
+
+```matlab
+% Load ADC data (assume 12-bit ADC at 100 MHz sampling)
+load('adc_capture.mat');  % Contains 'data' variable
+
+% 1. Spectral analysis
+[enob, sndr, sfdr, snr, thd] = specplot(data, 100e6, 2^12, 5);
+fprintf('ADC Performance:\n');
+fprintf('  ENOB: %.2f bits\n', enob);
+fprintf('  SNDR: %.2f dB\n', sndr);
+fprintf('  SFDR: %.2f dB\n', sfdr);
+fprintf('  SNR: %.2f dB\n', snr);
+fprintf('  THD: %.2f dB\n', thd);
+
+% 2. Find input frequency
+freq = findfreq(data, 100e6);
+fprintf('  Input Frequency: %.2f MHz\n', freq/1e6);
+
+% 3. Linearity analysis
+[inl, dnl, code] = inlsin(data, 0.02);  % Exclude 2% endpoints
+fprintf('  Max INL: %.3f LSB\n', max(abs(inl)));
+fprintf('  Max DNL: %.3f LSB\n', max(abs(dnl)));
+fprintf('  Missing codes: %d\n', sum(dnl <= -1));
+
+% 4. Error analysis
+[emean, erms, phase, anoi, pnoi] = errsin(data, 'bin', 200);
+fprintf('  Amplitude noise: %.2e\n', anoi);
+fprintf('  Phase noise: %.2e rad\n', pnoi);
+```
+
+### Example 2: Oversampling ADC Analysis
+
+```matlab
+% Analyze 16-bit Delta-Sigma ADC with 64x oversampling
+OSR = 64;
+[enob, sndr, ~, snr] = specplot(data, 1e6, 2^16, 'OSR', OSR, ...
+                                  'window', @blackman, ...
+                                  'averageMode', 'coherent', ...
+                                  'NFMethod', 'median');
+
+% Analyze noise transfer function
+ntf = tf([1 -1], [1 -0.5], 1);  % 1st-order NTF
+snr_gain = ntfperf(ntf, 0, 0.5/OSR, 1);
+fprintf('NTF provides %.2f dB SNR improvement\n', snr_gain);
+```
+
+### Example 3: SAR ADC Calibration
+
+```matlab
+% Load raw bit data from SAR ADC
+load('sar_bits.mat');  % Contains 'bits' matrix
+
+% 1. Calibrate weights using sine wave
+[weight, offset, postcal] = wcalsine(bits, 'freq', 0.1234, 'order', 3);
+
+% 2. Check for overflow in calibrated data
+ovfchk(bits, weight);
+
+% 3. Calculate theoretical CDAC weights for comparison
+% Assume 12-bit with 6+6 split capacitor array
+cd = [32 16 8 4 2 1,  32 16 8 4 2 1];
+cb = [0 0 0 0 0 32,  0 0 0 0 0 0];
+cp = zeros(1, 12);
+[weight_ideal, ctot] = cdacwgt(cd, cb, cp);
+
+% 4. Compare calibrated vs. ideal weights
+figure;
+subplot(2,1,1);
+bar(weight);
+title('Calibrated Weights');
+subplot(2,1,2);
+bar(weight_ideal);
+title('Ideal Weights');
+
+% 5. Analyze calibrated performance
+[enob_cal, sndr_cal] = specplot(postcal, 'disp', true);
+fprintf('After calibration: ENOB = %.2f, SNDR = %.2f dB\n', enob_cal, sndr_cal);
+```
+
+### Example 4: Multi-Frequency Testing
+
+```matlab
+% Test ADC at multiple input frequencies
+frequencies = [1e6, 5e6, 10e6, 20e6, 40e6];  % 1 to 40 MHz
+fs = 100e6;  % 100 MHz sampling
+N = 8192;    % FFT length
+
+results = struct();
+for i = 1:length(frequencies)
+    fin = frequencies(i);
+
+    % Find coherent bin
+    bin = findbin(fs, fin, N);
+    fin_coherent = bin * fs / N;
+
+    % Generate test signal (simulated)
+    t = (0:N-1)'/fs;
+    sig = sin(2*pi*fin_coherent*t) + 0.001*randn(N,1);
+
+    % Measure performance
+    [enob, sndr, sfdr] = specplot(sig, fs, 2, 'disp', false);
+
+    % Store results
+    results(i).freq = fin;
+    results(i).freq_actual = fin_coherent;
+    results(i).enob = enob;
+    results(i).sndr = sndr;
+    results(i).sfdr = sfdr;
+
+    fprintf('Freq: %.1f MHz -> ENOB: %.2f, SNDR: %.2f dB\n', ...
+            fin/1e6, enob, sndr);
+end
+
+% Plot ENOB vs. frequency
+figure;
+plot([results.freq]/1e6, [results.enob], 'o-');
+xlabel('Input Frequency (MHz)');
+ylabel('ENOB (bits)');
+title('ADC Performance vs. Frequency');
+grid on;
+```
+
+### Example 5: Thompson Decomposition Analysis
+
+```matlab
+% Decompose ADC output into components
+[sine, err, har, oth] = tomdec(data, 'order', 10, 'disp', true);
+
+% Analyze power of each component
+sig_power = rms(sine)^2;
+har_power = rms(har)^2;
+oth_power = rms(oth)^2;
+
+fprintf('Power Decomposition:\n');
+fprintf('  Signal: %.2e (%.1f dB)\n', sig_power, 10*log10(sig_power));
+fprintf('  Harmonics: %.2e (%.1f dB)\n', har_power, 10*log10(har_power));
+fprintf('  Other: %.2e (%.1f dB)\n', oth_power, 10*log10(oth_power));
+fprintf('  THD: %.2f dB\n', 10*log10(har_power/sig_power));
+fprintf('  SNR: %.2f dB\n', 10*log10(sig_power/oth_power));
+```
+
+### Example 6: Bandpass Filtering
+
+```matlab
+% Extract specific frequency bands for noise analysis
+% Assume 100 MHz ADC with signal at 20 MHz
+
+% Define multiple passbands
+passbands = [
+    0.15, 0.25;   % Signal band (15-25 MHz)
+    0.40, 0.45;   % High-frequency noise band
+];
+
+% Filter signal to these bands
+sig_filtered = ifilter(data, passbands);
+
+% Analyze filtered content
+specplot(sig_filtered, 100e6, 2^12);
+```
+
+## Legacy Functions
+
+The `legacy/` directory contains older function names for backward compatibility. These functions call the new implementations with updated names:
+
+| Legacy Function | New Function | Notes |
+|----------------|--------------|-------|
+| `specPlot.m` | `specplot.m` | Spectral analysis |
+| `specPlotPhase.m` | `phaseplot.m` | Phase spectrum |
+| `findBin.m` | `findbin.m` | Coherent bin finder |
+| `findFin.m` | `findfreq.m` | Frequency finder |
+| `FGCalSine.m` | `wcalsine.m` | Weight calibration |
+| `cap2weight.m` | `cdacwgt.m` | CDAC weight calculator |
+| `INLsine.m` | `inlsin.m` | INL/DNL analysis |
+| `errHistSine.m` | `errsin.m` | Error histogram |
+| `sineFit.m` | `sinfit.m` | Sine fitting |
+| `tomDecomp.m` | `tomdec.m` | Thompson decomposition |
+| `NTFAnalyzer.m` | `ntfperf.m` | NTF performance |
+| `overflowChk.m` | `ovfchk.m` | Overflow checker |
+| `bitInBand.m` | N/A | Bits-wise filter (deprecated) |
+
+**Note:** It's recommended to use the new function names in new code. Legacy functions are provided for compatibility only.
+
+## Requirements
+
+### Minimum Requirements
+- MATLAB R2016b or later
+- No toolboxes required for core functionality
+
+### Optional (for extended features)
+- **Signal Processing Toolbox**: Required only for custom window functions (e.g., `@blackman`, `@kaiser`)
+  - Built-in Hanning and rectangle windows do not require this toolbox
+- **Control System Toolbox**: Required for `ntfperf` function (transfer function analysis)
+
+## File Structure
+
+```
+matlab/
+├── README.md                 # This file
+├── setupLib.m               # Setup script for adding to path
+├── src/                     # Source code directory
+│   ├── specplot.m          # Spectral analysis
+│   ├── phaseplot.m         # Phase spectrum analysis
+│   ├── sinfit.m            # Sine wave fitting
+│   ├── findfreq.m          # Frequency finder
+│   ├── findbin.m           # Coherent bin finder
+│   ├── wcalsine.m          # Weight calibration
+│   ├── cdacwgt.m           # CDAC weight calculator
+│   ├── inlsin.m            # INL/DNL analysis
+│   ├── errsin.m            # Error histogram analysis
+│   ├── tomdec.m            # Thompson decomposition
+│   ├── ntfperf.m           # NTF performance analyzer
+│   ├── alias.m             # Alias calculator
+│   ├── ifilter.m           # Ideal filter
+│   ├── ovfchk.m            # Overflow checker
+│   ├── legacy/             # Legacy function names (for compatibility)
+│   │   ├── specPlot.m
+│   │   ├── specPlotPhase.m
+│   │   ├── findBin.m
+│   │   ├── findFin.m
+│   │   ├── FGCalSine.m
+│   │   ├── cap2weight.m
+│   │   ├── INLsine.m
+│   │   ├── errHistSine.m
+│   │   ├── sineFit.m
+│   │   ├── tomDecomp.m
+│   │   ├── NTFAnalyzer.m
+│   │   ├── overflowChk.m
+│   │   └── bitInBand.m
+│   └── toolbox.ignore
+├── toolbox/                 # Packaged toolbox files
+│   ├── ADCToolbox_0v12.mltbx  # Latest toolbox package
+│   ├── ADCToolbox_0v11.mltbx  # Previous versions
+│   └── icon.png
+└── .gitignore
+```
+
+## Common Workflows
+
+### 1. Quick Performance Check
+```matlab
+% Perform spectrum analysis
+[enob, sndr, sfdr] = specplot(data);
+```
+
+### 2. Detailed Characterization
+```matlab
+% Comprehensive analysis workflow
+freq = findfreq(data, fs);
+[enob, sndr, sfdr, snr, thd] = specplot(data, fs, 2^bits, 5);
+[inl, dnl] = inlsin(data);
+[emean, erms, phase, anoi, pnoi] = errsin(data);
+```
+
+### 3. Calibration Workflow
+```matlab
+% Calibrate SAR ADC
+[weight, offset, postcal] = wcalsine(bits);
+ovfchk(bits, weight);
+[enob_after_cal, ~] = specplot(postcal, 'disp', false);
+```
+
+### 4. Frequency Sweep Test
+```matlab
+% Test at multiple frequencies
+for fin = test_frequencies
+    bin = findbin(fs, fin, N);
+    [enob(i), sndr(i)] = specplot(data{i}, fs, maxCode, 'disp', false);
+end
+plot(test_frequencies, enob);
+```
+
+## Tips and Best Practices
+
+1. **Coherent Sampling**: Use `findbin` to ensure coherent sampling for accurate FFT analysis
+2. **Oversampling**: Set `'OSR'` parameter in `specplot` when analyzing noise-shaping ADCs
+3. **Averaging**: Use `'averageMode', 'coherent'` for better noise floor in repeated measurements
+4. **Window Selection**: Hanning window (default) is good for general use; use rectangle for coherent signals
+5. **Endpoint Exclusion**: Increase `excl` parameter in `inlsin` if data has clipping or saturation
+6. **Frequency Accuracy**: For calibration, let `wcalsine` auto-search frequency or use fine search
+7. **Multi-dataset Calibration**: Use cell array input to `wcalsine` for better statistical convergence
+8. **Rank Deficiency**: If `wcalsine` warns about rank, adjust `'nomWeight'` based on expected bit weights
+
+## Troubleshooting
+
+### Issue: "Rank deficiency detected" in wcalsine
+**Solution:**
+- Check that bit data has sufficient variation
+- Adjust `'nomWeight'` parameter to match actual bit weights
+- Ensure input data covers full code range
+
+### Issue: Poor ENOB in specplot
+**Possible causes:**
+- Non-coherent sampling (use `window` and `sideBin` to apply proper windowing)
+- Clipping or saturation (use `errsin` or `ovfchk` to check)
+
+### Issue: NaN or Inf results
+**Solution:**
+- Check for zero-valued or constant input data
+- Ensure proper data scaling
+- Verify sampling frequency is positive
+
+### Issue: inlsin returns unexpected DNL
+**Solution:**
+- Ensure input is integer codes (will auto-round with warning)
+- Increase exclusion ratio if endpoints are noisy
+- Verify input is from sine wave (not other waveforms)
+- Uses enough data to analysis (typically 64x more than the quantization levels)
+
+## Contributing
+
+Contributions are welcome! Please follow these guidelines:
+1. Maintain backward compatibility with legacy function names
+2. Add comprehensive help documentation following MATLAB standards
+3. Include input validation and error checking
+4. Add examples in function help
+5. Update this README when adding new functions
+
+## Version History
+
+- **v1.0** (Current) - First formal release
+
+## Contact
+
+For questions, issues, or feature requests, please contact jielu@tsinghua.edu.cn or zhangzs21@mails.tsinghua.edu.cn.
+
+## See Also
+
+- Python implementation: `../python/` - Python port of ADC analysis tools
+- Documentation: `../doc/` - Additional documentation and theory
+- Test datasets: `../dataset/` - Example ADC captures for testing
+
+---
+
+**Note:** This toolbox is designed for ADC testing and characterization. For production use, ensure proper validation with your specific ADC architecture and test setup.
