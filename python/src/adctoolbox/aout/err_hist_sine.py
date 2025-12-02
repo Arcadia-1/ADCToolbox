@@ -8,7 +8,7 @@ import numpy as np
 import matplotlib.pyplot as plt
 
 
-def err_hist_sine(data, bin=100, fin=0, disp=1, mode=0, erange=None):
+def err_hist_sine(data, bin=100, fin=0, disp=1, mode=0, erange=None, polyorder=0):
     """
     Error histogram analysis - matches MATLAB errHistSine.m exactly.
 
@@ -19,6 +19,7 @@ def err_hist_sine(data, bin=100, fin=0, disp=1, mode=0, erange=None):
         disp: Display plots (1=yes, 0=no) (default: 1)
         mode: 0=phase domain, >=1=code domain (default: 0)
         erange: Error range filter [min, max] (default: None)
+        polyorder: Polynomial order for transfer function fit in code mode (default: 0)
 
     Returns:
         emean: Mean error per bin
@@ -28,6 +29,10 @@ def err_hist_sine(data, bin=100, fin=0, disp=1, mode=0, erange=None):
         pnoi: Phase noise (phase jitter in radians)
         err: Raw error signal
         xx: x-axis values corresponding to raw error
+        polycoeff: Polynomial coefficients (code mode only)
+        k1_static: Linear coefficient (code mode with polyorder>0)
+        k2_static: Quadratic coefficient (code mode with polyorder>=2)
+        k3_static: Cubic coefficient (code mode with polyorder>=3)
     """
     fig = None
     # Ensure data is row vector
@@ -45,7 +50,7 @@ def err_hist_sine(data, bin=100, fin=0, disp=1, mode=0, erange=None):
     err = data_fit - data
 
     if mode >= 1:
-        # Code mode (not used for jitter detection)
+        # Code mode - for INL/DNL and static nonlinearity analysis
         xx = data
         dat_min = np.min(data)
         dat_max = np.max(data)
@@ -56,22 +61,53 @@ def err_hist_sine(data, bin=100, fin=0, disp=1, mode=0, erange=None):
         esum = np.zeros(bin)
         erms = np.zeros(bin)
 
+        # MATLAB lines 55-59: binning for mean
         for ii in range(N):
             b = min(int(np.floor((data[ii] - dat_min) / bin_wid)), bin-1)
             esum[b] += err[ii]
             enum[b] += 1
 
-        enum = np.maximum(enum, 1)
+        # MATLAB line 60
         emean = esum / enum
 
+        # MATLAB lines 61-64: binning for RMS (total RMS from sine fit)
         for ii in range(N):
             b = min(int(np.floor((data[ii] - dat_min) / bin_wid)), bin-1)
-            erms[b] += (err[ii] - emean[b])**2
+            erms[b] += err[ii]**2  # Total RMS, not relative to mean
 
+        # MATLAB line 65
         erms = np.sqrt(erms / enum)
 
         anoi = np.nan
         pnoi = np.nan
+
+        # Static nonlinearity extraction using transfer function fit
+        # MATLAB lines 70-99
+        polycoeff = []
+        k1_static = np.nan
+        k2_static = np.nan
+        k3_static = np.nan
+
+        if polyorder > 0:
+            # Extract transfer function: y = k1*x + k2*x^2 + k3*x^3 + ...
+            # where x = ideal input, y = actual output
+            x_ideal = data_fit - np.mean(data_fit)  # Zero-mean ideal input
+            y_actual = data - np.mean(data)         # Zero-mean actual output
+
+            # Normalize for numerical stability
+            x_max = np.max(np.abs(x_ideal))
+            x_norm = x_ideal / x_max
+
+            # Fit polynomial to transfer function
+            if len(x_norm) > polyorder + 1:
+                polycoeff = np.polyfit(x_norm, y_actual, polyorder)
+
+                # Extract denormalized coefficients
+                k1_static = polycoeff[-2] / x_max
+                if polyorder >= 2:
+                    k2_static = polycoeff[-3] / (x_max**2)
+                if polyorder >= 3:
+                    k3_static = polycoeff[-4] / (x_max**3)
 
         if erange is not None:
             eid = (xx >= erange[0]) & (xx <= erange[1])
@@ -84,12 +120,23 @@ def err_hist_sine(data, bin=100, fin=0, disp=1, mode=0, erange=None):
             ax1 = plt.subplot(2, 1, 1)
             ax2 = plt.subplot(2, 1, 2)
 
-            ax1.plot(data, err, 'r.', markersize=2)
-            ax1.plot(phase_code, emean, 'b-', linewidth=2)
+            ax1.plot(data, err, 'r.', markersize=2, label='Raw error')
+            ax1.plot(phase_code, emean, 'b-', linewidth=2, label='Mean error')
+
+            # Add fitted transfer function error curve if polyorder > 0
+            if len(polycoeff) > 0 and polyorder > 0:
+                x_fit_plot = np.linspace(np.min(x_ideal), np.max(x_ideal), 200)
+                y_fit_plot = np.polyval(polycoeff, x_fit_plot / x_max)
+                # Convert back to code domain for plotting
+                code_fit_plot = x_fit_plot + np.mean(data)
+                err_fit_plot = x_fit_plot - y_fit_plot  # err = ideal - actual
+                ax1.plot(code_fit_plot, err_fit_plot, 'g-', linewidth=2, label='Fitted error curve')
+
             ax1.set_xlim([dat_min, dat_max])
             ax1.set_ylim([np.min(err), np.max(err)])
             ax1.set_ylabel('error')
             ax1.set_xlabel('code')
+            ax1.legend(loc='best')
             ax1.grid(True, alpha=0.3)
 
             if erange is not None:
@@ -102,79 +149,119 @@ def err_hist_sine(data, bin=100, fin=0, disp=1, mode=0, erange=None):
             ax2.set_ylabel('RMS error')
             ax2.grid(True, alpha=0.3)
 
+            # Add text annotation with extracted coefficients
+            if len(polycoeff) > 0 and polyorder > 0:
+                ax2.text(dat_min + (dat_max - dat_min) * 0.02, np.max(erms) * 1.05,
+                        f'k1={k1_static:.6f}, k2={k2_static:.6f}, k3={k3_static:.6f}',
+                        fontsize=14, verticalalignment='top')
+
             plt.tight_layout()
 
-            # Close figure to prevent memory leak
-            if fig is not None:
-                plt.close(fig)
-
     else:
-        # Phase mode (MATLAB lines 93-188) - THIS IS CRITICAL FOR JITTER DETECTION
+        # Phase mode (MATLAB lines 149-246) - THIS IS CRITICAL FOR JITTER DETECTION
 
-        # MATLAB line 94: xx = mod(phi/pi*180 + (0:length(data)-1)*fin*360,360);
+        # MATLAB line 150: xx = mod(phi/pi*180 + (0:length(data)-1)*fin*360,360);
         xx = np.mod(phi/np.pi*180 + np.arange(N)*fin*360, 360)
 
-        # MATLAB line 95: phase_code = (0:bin-1)/bin*360;
+        # MATLAB line 151: phase_code = (0:bin-1)/bin*360;
         phase_code = np.arange(bin) / bin * 360
 
         enum = np.zeros(bin)
         esum = np.zeros(bin)
         erms = np.zeros(bin)
 
-        # MATLAB lines 101-105: binning
+        # Not applicable in phase mode
+        polycoeff = []
+        k1_static = np.nan
+        k2_static = np.nan
+        k3_static = np.nan
+
+        # MATLAB lines 160-164: binning
         for ii in range(N):
-            # MATLAB line 102: b = mod(round(xx(ii)/360*bin),bin)+1;
+            # MATLAB line 161: b = mod(round(xx(ii)/360*bin),bin)+1;
             b = int(np.mod(np.round(xx[ii]/360*bin), bin))
             esum[b] += err[ii]
             enum[b] += 1
 
-        # MATLAB line 106: emean = esum./enum (allows NaN for empty bins)
+        # MATLAB line 165: emean = esum./enum (allows NaN for empty bins)
         with np.errstate(divide='ignore', invalid='ignore'):
             emean = esum / enum  # Will create NaN for empty bins (enum=0)
 
-        # MATLAB lines 107-111: RMS calculation
+        # MATLAB lines 166-169: RMS calculation (total RMS from sine fit)
         for ii in range(N):
             b = int(np.mod(np.round(xx[ii]/360*bin), bin))
-            erms[b] += (err[ii] - emean[b])**2
+            erms[b] += err[ii]**2  # Total RMS, not relative to mean
 
-        # MATLAB line 111: erms = sqrt(erms./enum)
+        # MATLAB line 170: erms = sqrt(erms./enum)
         with np.errstate(divide='ignore', invalid='ignore'):
             erms = np.sqrt(erms / enum)  # Will create NaN for empty bins
 
         # ========== CRITICAL: Amplitude/Phase Noise Decomposition ==========
-        # MATLAB lines 114-147
+        # MATLAB lines 173-206: Robust fallback logic
 
-        # MATLAB line 114: asen = abs(cos(phase_code/360*2*pi)).^2;
+        # MATLAB line 173: asen = abs(cos(phase_code/360*2*pi)).^2;
         asen = np.abs(np.cos(phase_code/360*2*np.pi))**2
 
-        # MATLAB line 115: psen = abs(sin(phase_code/360*2*pi)).^2;
+        # MATLAB line 174: psen = abs(sin(phase_code/360*2*pi)).^2;
         psen = np.abs(np.sin(phase_code/360*2*np.pi))**2
 
-        # MATLAB line 117: tmp = linsolve([asen',psen',ones(bin,1)], erms'.^2);
         # Filter out NaN values (empty bins) before least squares fit
         valid_mask = ~np.isnan(erms)
-        A = np.column_stack([asen[valid_mask], psen[valid_mask], np.ones(np.sum(valid_mask))])
-        b_vec = erms[valid_mask]**2
+        erms_squared = erms[valid_mask]**2
 
-        # Use non-negative least squares to ensure non-negative variance components
-        # This avoids numerical issues with rank-deficient systems (asen + psen = 1)
+        # MATLAB line 176: Try full fit first [asen', psen', ones]
+        # Use scipy's lstsq with 'gelsd' (SVD) driver to match MATLAB's behavior for rank-deficient systems
         try:
-            from scipy.optimize import nnls
-            tmp, _ = nnls(A, b_vec)
+            from scipy import linalg as sp_linalg
+            A_full = np.column_stack([asen[valid_mask], psen[valid_mask], np.ones(np.sum(valid_mask))])
+            tmp, residuals, rank, s = sp_linalg.lstsq(A_full, erms_squared, lapack_driver='gelsd')
         except ImportError:
-            # Fallback to pseudoinverse if scipy not available
-            tmp = np.linalg.pinv(A) @ b_vec
+            # Fallback to numpy if scipy not available
+            A_full = np.column_stack([asen[valid_mask], psen[valid_mask], np.ones(np.sum(valid_mask))])
+            tmp = np.linalg.lstsq(A_full, erms_squared, rcond=None)[0]
 
-        # MATLAB line 119-121
-        anoi = np.sqrt(tmp[0]) if tmp[0] >= 0 else 0
-        pnoi = np.sqrt(tmp[1]) / mag if tmp[1] >= 0 else 0
+        # MATLAB lines 178-179
+        anoi = np.sqrt(tmp[0]) if tmp[0] >= 0 and np.isreal(tmp[0]) else -1
+        pnoi = np.sqrt(tmp[1]) / mag if tmp[1] >= 0 and np.isreal(tmp[1]) else -1
         ermsbl = tmp[2]
 
-        # Handle edge cases where fit failed
-        if not np.isfinite(anoi):
+        # MATLAB lines 182-193: If anoi fails, try phase-only fit
+        if anoi < 0 or np.imag(anoi) != 0:
+            A_phase = np.column_stack([psen[valid_mask], np.ones(np.sum(valid_mask))])
+            try:
+                tmp = sp_linalg.lstsq(A_phase, erms_squared, lapack_driver='gelsd')[0]
+            except:
+                tmp = np.linalg.lstsq(A_phase, erms_squared, rcond=None)[0]
             anoi = 0
-        if not np.isfinite(pnoi):
+            pnoi = np.sqrt(tmp[0]) / mag if tmp[0] >= 0 and np.isreal(tmp[0]) else -1
+            ermsbl = tmp[1]
+
+            # If phase-only also fails, fallback to mean baseline
+            if pnoi < 0 or np.imag(pnoi) != 0:
+                anoi = 0
+                pnoi = 0
+                ermsbl = np.mean(erms_squared)
+
+        # MATLAB lines 195-206: If pnoi fails, try amplitude-only fit
+        if pnoi < 0 or np.imag(pnoi) != 0:
+            A_amp = np.column_stack([asen[valid_mask], np.ones(np.sum(valid_mask))])
+            try:
+                tmp = sp_linalg.lstsq(A_amp, erms_squared, lapack_driver='gelsd')[0]
+            except:
+                tmp = np.linalg.lstsq(A_amp, erms_squared, rcond=None)[0]
             pnoi = 0
+            anoi = np.sqrt(tmp[0]) if tmp[0] >= 0 and np.isreal(tmp[0]) else -1
+            ermsbl = tmp[1]
+
+            # If amplitude-only also fails, fallback to mean baseline
+            if anoi < 0 or np.imag(anoi) != 0:
+                anoi = 0
+                pnoi = 0
+                ermsbl = np.mean(erms_squared)
+
+        # Ensure real values
+        anoi = float(np.real(anoi))
+        pnoi = float(np.real(pnoi))
 
         # Filter error range if specified
         if erange is not None:
@@ -213,8 +300,14 @@ def err_hist_sine(data, bin=100, fin=0, disp=1, mode=0, erange=None):
 
             # Bottom subplot: RMS error with fitted curves
             ax2.bar(phase_code, erms, width=360/bin*0.8, color='skyblue', alpha=0.7)
-            ax2.plot(phase_code, np.sqrt(anoi**2 * asen + ermsbl), 'b-', linewidth=2)
-            ax2.plot(phase_code, np.sqrt(pnoi**2 * psen * mag**2 + ermsbl), 'r-', linewidth=2)
+
+            # Compute fitted curves with proper handling of negative values
+            amp_fit = anoi**2 * asen + ermsbl
+            phase_fit = pnoi**2 * psen * mag**2 + ermsbl
+
+            # Only plot where values are non-negative
+            ax2.plot(phase_code, np.sqrt(np.maximum(amp_fit, 0)), 'b-', linewidth=2)
+            ax2.plot(phase_code, np.sqrt(np.maximum(phase_fit, 0)), 'r-', linewidth=2)
             ax2.set_xlim([0, 360])
             ax2.set_ylim([0, np.max(erms)*1.2])
 
@@ -236,7 +329,7 @@ def err_hist_sine(data, bin=100, fin=0, disp=1, mode=0, erange=None):
             if fig is not None:
                 plt.close(fig)
 
-    return emean, erms, phase_code, anoi, pnoi, err, xx
+    return emean, erms, phase_code, anoi, pnoi, err, xx, polycoeff, k1_static, k2_static, k3_static
 
 
 if __name__ == "__main__":

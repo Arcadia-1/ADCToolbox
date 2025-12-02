@@ -2,15 +2,17 @@
 close all; clear; clc; warning("off");
 rng(42);
 
-data_dir = "dataset/aout";
+subFolder = "dataset/aout/sinewave";
+if ~isfolder(subFolder), mkdir(subFolder); end
+
 %% Sinewave with Static Nonlinearity (INL - Transfer Function)
 % Direct transfer function: y = k1*x + k2*x^2 + k3*x^3 + k4*x^4 + k5*x^5
 % This models point-by-point static nonlinearity (INL)
 
 % User-configurable parameters - specify coefficients directly
 k1_list = [1.0]; % Linear gain (ideal = 1.0)
-k2_list = [0.001]; % 2nd order nonlinearity coefficient
-k3_list = [0.01]; % 3rd order nonlinearity coefficient
+k2_list = [0.0025]; % 2nd order nonlinearity coefficient
+k3_list = [0.005]; % 3rd order nonlinearity coefficient
 % k4_list = [0.001];       % 4th order (uncomment to include)
 % k5_list = [0.001];       % 5th order (uncomment to include)
 
@@ -24,8 +26,8 @@ if ~use_k5, k5_list = 0; end
 
 % Signal parameters
 N = 2^13;
-Fs = 10e9;
-J = findBin(Fs, 1000e6, N);
+Fs = 1e9;
+J = findBin(Fs, 100e6, N);
 Fin = J / N * Fs;
 A = 0.499; % Amplitude (peak, zero-mean)
 
@@ -53,7 +55,7 @@ for idx1 = 1:length(k1_list)
                         k5 * (x_ideal.^5);
 
                     % Add DC offset and small noise for realism
-                    data = y_output + 0.5 + randn(1, N) * 1.5e-4;
+                    data = y_output + 0.5 + randn(1, N) * 1e-4;
 
                     % Build filename: sinewave_INL_k2_xxx_k3_xxx_...
                     % Format: Positive: 0.001 -> 0P0010, Negative: -0.01 -> nP0100
@@ -80,7 +82,7 @@ for idx1 = 1:length(k1_list)
                         filename_parts = filename_parts + "_k5_" + formatK(k5);
                     end
 
-                    filename = fullfile(data_dir, sprintf("sinewave_%s.csv",filename_parts));
+                    filename = fullfile(subFolder, sprintf("sinewave_%s.csv",filename_parts));
                     ENoB = specPlot(data, "isplot", 0);
                     writematrix(data, filename)
                     fprintf("  [ENoB = %0.2f] [Save] %s\n", ENoB, filename);

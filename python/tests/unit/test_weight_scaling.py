@@ -1,63 +1,47 @@
-"""Test weightScaling function."""
-
-import numpy as np
 import matplotlib.pyplot as plt
-from pathlib import Path
-import sys
 
-# Add project root to sys.path
-_project_root = Path(__file__).parent.parent.parent.parent
-if str(_project_root) not in sys.path:
-    sys.path.insert(0, str(_project_root))
-
+from adctoolbox.dout import fg_cal_sine
 from adctoolbox.dout.weight_scaling import weight_scaling
-from python.src.adctoolbox.dout.fg_cal_sine import fg_cal_sine
+from tests._utils import save_variable, save_fig
+from tests.unit._runner import run_unit_test_batch
 
-# Configuration
-verbose = False
-input_dir = Path('dataset')
-output_dir = Path('test_output')
-order = 5
+plt.rcParams['font.size'] = 14
+plt.rcParams['axes.grid'] = True
 
-# Get list of files
-files_list = sorted(input_dir.glob('dout_*.csv'))
-if not files_list:
-    print('No dout files found')
-    sys.exit(0)
-
-# Test Loop
-for k, filepath in enumerate(files_list, 1):
-    print(f'[test_weight_scaling] [{k}/{len(files_list)}] [{filepath.name}]')
-
-    bits = np.loadtxt(filepath, delimiter=',')
-
+def _process_weight_scaling(raw_data, sub_folder, dataset_name):
+    """
+    Callback function to process a single file:
+    1. Run foreground calibration to get weights
+    2. Run weight scaling analysis
+    3. Save radix and weight_cal variables
+    4. Save plot
+    """
+    # Run FGCalSine to get calibrated weights
     weight_cal, offset, k_static, residual, cost, freq_cal = fg_cal_sine(
-        bits, freq=0, order=order)
+        raw_data, freq=0, order=5)
 
     # Run weightScaling tool
-    fig = plt.figure(figsize=(10, 7.5))
+    fig = plt.figure(figsize=(8, 6))
     radix = weight_scaling(weight_cal)
     plt.gca().tick_params(labelsize=16)
 
-    dataset_name = filepath.stem
-    sub_folder = output_dir / dataset_name / 'test_weightScaling'
-    sub_folder.mkdir(parents=True, exist_ok=True)
-
     # Save figure
-    fig_path = sub_folder / 'weightScaling.png'
-    plt.savefig(fig_path, dpi=150, bbox_inches='tight')
-    if not verbose:
-        plt.close(fig)
-    print(f'  [save] -> [{fig_path}]')
+    save_fig(sub_folder, 'weightScaling.png', dpi=150)
 
-    # Save radix data
-    csv_path = sub_folder / 'radix_python.csv'
-    np.savetxt(csv_path, radix, delimiter=',', fmt='%.6f')
-    print(f'  [save] -> [{csv_path}]')
+    # Save variables
+    save_variable(sub_folder, radix, 'radix')
+    save_variable(sub_folder, weight_cal, 'weight_cal')
 
-    # Save weight_cal data
-    csv_path = sub_folder / 'weight_cal_python.csv'
-    np.savetxt(csv_path, weight_cal, delimiter=',', fmt='%.6f')
-    print(f'  [save] -> [{csv_path}]')
-
-print('\n=== Test complete ===')
+def test_weight_scaling(project_root):
+    """
+    Batch runner for weight scaling analysis.
+    """
+    run_unit_test_batch(
+        project_root=project_root,
+        input_subpath="dataset/dout",
+        test_module_name="test_weightScaling",
+        file_pattern="dout_*.csv",
+        output_subpath="test_output",
+        process_callback=_process_weight_scaling,
+        flatten=False  # Digital output data is 2D (N samples x M bits)
+    )

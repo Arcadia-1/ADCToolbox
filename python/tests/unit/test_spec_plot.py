@@ -8,12 +8,6 @@ plt.rcParams['font.size'] = 14
 plt.rcParams['axes.grid'] = True
 
 def _process_spec_plot(raw_data, sub_folder, dataset_name):
-    """
-    Callback function to process a single file:
-    1. Perform spectral analysis
-    2. Save variables
-    3. Generate and save plot
-    """
     # 1. Spectral Analysis
     fig = plt.figure(figsize=(12, 8))
     ENoB, SNDR, SFDR, SNR, THD, pwr, NF, _ = spec_plot(

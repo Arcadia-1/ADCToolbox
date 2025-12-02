@@ -1,13 +1,14 @@
 import numpy as np
 from tests._utils import auto_search_files
 
-def run_unit_test_batch(project_root, input_subpath, test_module_name, file_pattern, process_callback, output_subpath="test_output"):
+def run_unit_test_batch(project_root, input_subpath, test_module_name, file_pattern, process_callback, output_subpath="test_output", flatten=True):
     """
     Generic batch runner for unit tests.
     Executes process_callback(raw_data, output_folder, dataset_name) for each file.
     Raises AssertionError if any file fails processing.
-    
+
     :param output_subpath: Relative path for output (default: "test_output")
+    :param flatten: Whether to flatten data to 1D (default: True for aout, False for dout)
     """
     input_dir = project_root / input_subpath
     output_dir = project_root / output_subpath  # Now configurable
@@ -15,17 +16,17 @@ def run_unit_test_batch(project_root, input_subpath, test_module_name, file_patt
     files_list = []
     files_list = auto_search_files(files_list, input_dir, file_pattern)
 
-    print(f"[{test_module_name}] Found {len(files_list)} files in {input_dir}")
-
     success_count = 0
     failures = []
 
     for k, current_filename in enumerate(files_list, 1):
         try:
             data_file_path = input_dir / current_filename
-            print(f"[{k}/{len(files_list)}] Processing {current_filename}...")
-            
-            raw_data = np.loadtxt(data_file_path, delimiter=',').flatten()
+            print(f"[{k}/{len(files_list)}] Processing [{current_filename}]")
+
+            raw_data = np.loadtxt(data_file_path, delimiter=',')
+            if flatten:
+                raw_data = raw_data.flatten()
 
             dataset_name = data_file_path.stem
             sub_folder = output_dir / dataset_name / test_module_name
@@ -42,7 +43,7 @@ def run_unit_test_batch(project_root, input_subpath, test_module_name, file_patt
             failures.append(error_msg)
 
     print("-" * 60)
-    print(f"[{test_module_name}] Complete. Success: {success_count}/{len(files_list)}")
+    print(f"[{test_module_name}] Done [{success_count}/{len(files_list)}]")
 
     if failures:
         raise AssertionError(
