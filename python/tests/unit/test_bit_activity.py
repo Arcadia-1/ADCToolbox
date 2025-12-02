@@ -1,52 +1,40 @@
-"""Test bitActivity function."""
-
-import numpy as np
 import matplotlib.pyplot as plt
-from pathlib import Path
-import sys
 
-# Add project root to sys.path
-_project_root = Path(__file__).parent.parent.parent.parent
-if str(_project_root) not in sys.path:
-    sys.path.insert(0, str(_project_root))
+from adctoolbox.dout.bit_activity import bit_activity
+from tests._utils import save_variable, save_fig
+from tests.unit._runner import run_unit_test_batch
 
-from python.src.adctoolbox.bit_activity import bit_activity
+plt.rcParams['font.size'] = 16
+plt.rcParams['axes.grid'] = True
 
-# Configuration
-verbose = False
-input_dir = Path('dataset')
-output_dir = Path('test_output')
-
-# Get list of files
-files_list = sorted(input_dir.glob('dout_*.csv'))
-if not files_list:
-    print('No dout files found')
-    sys.exit(0)
-
-# Test Loop
-for k, filepath in enumerate(files_list, 1):
-    print(f'[test_bit_activity] [{k}/{len(files_list)}] [{filepath.name}]')
-
-    bits = np.loadtxt(filepath, delimiter=',')
-
+def _process_bit_activity(raw_data, sub_folder, dataset_name):
+    """
+    Callback function to process a single file:
+    1. Run bit activity analysis
+    2. Save bit usage variable
+    3. Save plot
+    """
+    # Create figure and run bit_activity
     fig = plt.figure(figsize=(10, 7.5))
-    bit_usage = bit_activity(bits, annotate_extremes=True)
-    plt.gca().tick_params(labelsize=16)
-
-    dataset_name = filepath.stem
-    sub_folder = output_dir / dataset_name / 'test_bitActivity'
-    sub_folder.mkdir(parents=True, exist_ok=True)
-
-    # Save figure
-    fig_path = sub_folder / 'bitActivity.png'
-    plt.savefig(fig_path, dpi=150, bbox_inches='tight')
-    if not verbose:
-        plt.close(fig)
-    print(f'  [save] -> [{fig_path}]')
+    bit_usage = bit_activity(raw_data, annotate_extremes=True)
+    plt.gca().tick_params(labelsize=16)    
+    plt.title(f'Bit activity: {dataset_name}')
+    
+    save_fig(sub_folder, 'bitActivity.png', dpi=150)
 
     # Save bit_usage data
-    csv_path = sub_folder / 'bit_usage_python.csv'
-    np.savetxt(csv_path, bit_usage, delimiter=',', fmt='%.6f')
-    print(f'  [save] -> [{csv_path}]')
+    save_variable(sub_folder, bit_usage, 'bit_usage')
 
-print('\n=== Test complete ===')
+def test_bit_activity(project_root):
+    """
+    Batch runner for bit activity analysis.
+    """
+    run_unit_test_batch(
+        project_root=project_root,
+        input_subpath="dataset/dout",
+        test_module_name="test_bit_activity",
+        file_pattern="dout_*.csv",
+        output_subpath="test_output",
+        process_callback=_process_bit_activity,
+        flatten=False  # Digital output data is 2D (N samples x M bits)
+    )

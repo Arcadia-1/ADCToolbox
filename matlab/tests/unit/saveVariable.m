@@ -8,18 +8,18 @@ if isempty(varName)
 end
 if ~isfolder(folder), mkdir(folder); end
 
-% cut to 1000 rows or columns to save space
+% cut to 100 rows or columns to save space
 sz = size(var);
 if isvector(var)
-    N = min(1000, numel(var));
+    N = min(100, numel(var));
     var = var(1:N);
 else
     [~, dim] = max(sz);
     if dim == 1
-        N = min(1000, sz(1));
+        N = min(100, sz(1));
         var = var(1:N, :);
     else
-        N = min(1000, sz(2));
+        N = min(100, sz(2));
         var = var(:, 1:N);
     end
 end

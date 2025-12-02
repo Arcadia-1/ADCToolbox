@@ -2,10 +2,11 @@
 close all; clear; clc; warning("off");
 rng(42);
 
-data_dir = "dataset/aout";
+subFolder = "dataset/aout/sinewave";
+if ~isfolder(subFolder), mkdir(subFolder); end
 
 %% Sinewave with 2-step quantization kickback
-kickback_strength_list = 0.015; % kickback coupling strength
+kickback_strength_list = 0.05; % kickback coupling strength
 
 N = 2^13;
 Fs = 10e9;
@@ -17,7 +18,7 @@ ideal_phase = 2 * pi * Fin * (0:N - 1) * 1 / Fs;
 for k = 1:length(kickback_strength_list)
     kb = kickback_strength_list(k);
 
-    sig = sin(ideal_phase) * 0.49 + 0.5 + randn(1, N) * 1e-6;
+    sig = sin(ideal_phase) * 0.49 + 0.5 + randn(1, N) * 1e-4;
 
     % two-step quantizer
     msb = floor(sig*2^4) / 2^4; % coarse quantizer (4-bit)
@@ -29,7 +30,7 @@ for k = 1:length(kickback_strength_list)
     
     ENoB = specPlot(data,"isplot",0);
     kstr = replace(sprintf("%.3f", kb), ".", "P");
-    filename = fullfile(data_dir, sprintf("sinewave_kickback_%s.csv", kstr));
+    filename = fullfile(subFolder, sprintf("sinewave_kickback_%s.csv", kstr));
     fprintf("  [ENoB = %0.2f] [Save] %s\n", ENoB, filename);
     writematrix(data, filename)
 end
