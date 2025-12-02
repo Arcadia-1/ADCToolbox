@@ -1,4 +1,4 @@
-function [ENoB_sweep, nBits_vec] = ENoB_bitSweep(bits, varargin)
+function [ENoB_sweep, nBits_vec] = bsweep(bits, varargin)
 
 [N, M] = size(bits);
 if N < M, bits = bits'; [N, M] = size(bits); end
@@ -20,7 +20,7 @@ winType = p.Results.winType;
 doPlot = p.Results.plot;
 
 if freq == 0
-    [~, ~, ~, ~, ~, freq] = FGCalSine(bits, 'freq', 0, 'order', order);
+    [~, ~, ~, ~, ~, freq] = wcalsine(bits, 'freq', 0, 'order', order);
 end
 
 ENoB_sweep = zeros(1, M);

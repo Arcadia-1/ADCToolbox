@@ -1,6 +1,9 @@
 close all; clear; clc;
 rng(42);
-subFolder = fullfile("dataset", "dout");
+
+% Load centralized configuration
+config_gen;
+subFolder = dataPath_dout;
 if ~exist(subFolder, 'dir'), mkdir(subFolder); end
 
 % --- WEIGHT LISTS TO SWEEP ---
@@ -10,11 +13,10 @@ CDAC_lists = {; ...
     % [1024, 512, 256, 256, 128, 64, 64, 32, 16, 8, 8, 4, 2, 1, 1]; ... % redundancy
     };
 
-N = 2^13;
 J = findBin(1, 0.0789, N);
 FS = 1;
 A = 0.99; % Reference voltage and signal amplitude
-sinewave = A * sin((0:N - 1)*J*2*pi/N); % Base sinewave (zero mean)
+sinewave = A * sin((0:N - 1)'*J*2*pi/N); % Base sinewave (zero mean)
 
 for k = 1:length(CDAC_lists)
     CDAC = CDAC_lists{k};
@@ -26,7 +28,7 @@ for k = 1:length(CDAC_lists)
 
     weight_voltage = CDAC / sum(CDAC) * FS; % Calculate weighted voltage levels
 
-    residue = sinewave';
+    residue = sinewave;
     dout = zeros(N, B); % Initialize quantized bits (N samples x B bits)
 
     % SAR Quantization Loop

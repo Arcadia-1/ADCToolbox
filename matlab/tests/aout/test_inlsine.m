@@ -19,7 +19,7 @@ for k = 1:length(filesList)
     read_data = readmatrix(dataFilePath);
 
     resolution = 10;
-    [INL, DNL, code] = INLsine(read_data*2^resolution, 0.01);
+    [INL, DNL, code] = inlsin(read_data*2^resolution, 0.01);
 
     figure('Position', [100, 100, 800, 600], "Visible", verbose);
     subplot(2, 1, 1);
