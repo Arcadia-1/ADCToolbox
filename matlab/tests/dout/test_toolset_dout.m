@@ -1,13 +1,5 @@
-%% test_toolset_dout.m - Run DOUT toolset on ADC digital output
-close all; clc; clear; warning("off")
-
-%% Configuration
-verbose = 0;
-inputDir = "dataset/dout";
-outputDir = "test_output";
-filesList = {};
-filesList = autoSearchFiles(filesList, inputDir, 'dout_*.csv');
-if ~isfolder(outputDir), mkdir(outputDir); end
+%% Centralized Configuration for Dout Test
+common_test_dout;
 
 %% Calibration Configuration
 Order = 5;  % Polynomial order for FGCalSine

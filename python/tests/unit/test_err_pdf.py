@@ -5,6 +5,7 @@ from adctoolbox.common import sine_fit
 from adctoolbox.aout import err_pdf
 from tests._utils import save_variable, save_fig
 from tests.unit._runner import run_unit_test_batch
+from tests import config
 
 plt.rcParams['font.size'] = 14
 plt.rcParams['axes.grid'] = True
@@ -21,13 +22,21 @@ def _process_err_pdf(raw_data, sub_folder, dataset_name, figures_folder, test_na
     err_data = raw_data - data_fit
 
     # Run errPDF
-    plt.figure(figsize=(12, 8))
     noise_lsb, mu, sigma, KL_divergence, x, fx, gauss_pdf = err_pdf(
         err_data,
         resolution=12,
         full_scale=np.max(raw_data) - np.min(raw_data)
     )
-    plt.title(f'errPDF: {dataset_name}')
+
+    # Create plot
+    plt.figure(figsize=(12, 8))
+    plt.plot(x, fx, 'b-', linewidth=2, label='KDE')
+    plt.plot(x, gauss_pdf, 'r--', linewidth=2, label='Gaussian Fit')
+    plt.xlabel('Error (LSB)', fontsize=14)
+    plt.ylabel('Probability Density', fontsize=14)
+    plt.title(f'errPDF: {dataset_name}', fontsize=14)
+    plt.legend(fontsize=12)
+    plt.grid(True)
 
     # Save plot
     figure_name = f"{dataset_name}_{test_name}_python.png"
@@ -47,8 +56,8 @@ def test_err_pdf(project_root):
     """
     run_unit_test_batch(
         project_root=project_root,
-        input_subpath="dataset",
+        input_subpath=config.AOUT['input_path'],
         test_module_name="test_err_pdf",
-        file_pattern="sinewave_*.csv",
+        file_pattern=config.AOUT['file_pattern'],
         process_callback=_process_err_pdf
     )

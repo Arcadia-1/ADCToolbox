@@ -34,7 +34,7 @@ parse(p, varargin{:});
 opts = p.Results;
 
 % Set figure visibility (accept 0/1 or true/false)
-figVis = ternary(opts.Visible, 'on', 'off');
+figVis = opts.Visible;
 
 % Initialize status
 status.success = false;
@@ -42,44 +42,24 @@ status.tools_completed = zeros(1, 9);
 status.errors = {};
 status.plot_files = cell(9, 1);
 
-% Create output directory
-if ~exist(outputDir, 'dir'), mkdir(outputDir); end
-
-% Validate input data
-fprintf('[Validation]');
-try
-    validateAoutData(aout_data);
-    fprintf(' ✓\n');
-catch ME
-    fprintf(' ✗ %s\n', ME.message);
-    error('Input validation failed: %s', ME.message);
-end
-
-% Handle multirun data (take first row if 2D)
-if size(aout_data, 1) > 1
-    aout_data = aout_data(1, :);
-end
-
 % Pre-compute common parameters
-freqCal = findFin(aout_data);
+freqCal = findfreq(aout_data);
 FullScale = max(aout_data) - min(aout_data);
 
 % Calculate error data for tools 6-9
-try
-    [data_fit, ~, ~, ~, ~] = sineFit(aout_data);
-    err_data = aout_data - data_fit;
-catch
-    err_data = aout_data - mean(aout_data);
-end
+err_data = geterrsin(aout_data);
 
-%% Tool 1: tomDecomp
-fprintf('[1/9][tomDecomp]');
+if ~isfolder(outputDir), mkdir(outputDir); end
+
+
+%% Tool 1: tomdec
+fprintf('[1/9][tomdec]');
 try
     figure('Position', [100, 100, 800, 600], 'Visible', figVis);
-    [~, ~, ~, ~, ~] = tomDecomp(aout_data, freqCal, 10, 1);
-    sgtitle('tomDecomp: Time-domain Error Decomposition', 'FontWeight', 'bold');
+    tomdec(aout_data, freqCal, 10, 1);
+    sgtitle('tomdec: Time-domain Error Decomposition', 'FontWeight', 'bold');
     set(gca, 'FontSize', 14);
-    pngPath = fullfile(outputDir, sprintf('%s_1_tomDecomp.png', opts.Prefix));
+    pngPath = fullfile(outputDir, sprintf('%s_1_tomdec.png', opts.Prefix));
     saveas(gcf, pngPath);
     close(gcf);
     status.tools_completed(1) = 1;
@@ -90,14 +70,14 @@ catch ME
     status.errors{end+1} = sprintf('Tool 1: %s', ME.message);
 end
 
-%% Tool 2: specPlot
-fprintf('[2/9][specPlot]');
+%% Tool 2: plotspec
+fprintf('[2/9][plotspec]');
 try
     figure('Position', [100, 100, 800, 600], 'Visible', figVis);
-    [~, ~, ~, ~, ~, ~, ~, ~] = specPlot(aout_data, 'label', 1, 'harmonic', 5, 'OSR', 1, 'winType', @hamming);
-    title('specPlot: Frequency Spectrum');
+    plotspec(aout_data, 'label', 1, 'harmonic', 5, 'OSR', 1, 'window', @hann);
+    title('plotspec: Frequency Spectrum');
     set(gca, 'FontSize', 14);
-    pngPath = fullfile(outputDir, sprintf('%s_2_specPlot.png', opts.Prefix));
+    pngPath = fullfile(outputDir, sprintf('%s_2_plotspec.png', opts.Prefix));
     saveas(gcf, pngPath);
     close(gcf);
     status.tools_completed(2) = 1;
@@ -108,14 +88,14 @@ catch ME
     status.errors{end+1} = sprintf('Tool 2: %s', ME.message);
 end
 
-%% Tool 3: specPlotPhase
-fprintf('[3/9][specPlotPhase]');
+%% Tool 3: plotphase
+fprintf('[3/9][plotphase]');
 try
     figure('Position', [100, 100, 800, 600], 'Visible', figVis);
-    [~, ~, ~, ~] = specPlotPhase(aout_data, 'harmonic', 10);
-    title('specPlotPhase: Phase-domain Error');
+    plotphase(aout_data, 'harmonic', 10, 'mode', 'FFT');
+    title('plotphase: Phase-domain Error');
     set(gca, 'FontSize', 14);
-    pngPath = fullfile(outputDir, sprintf('%s_3_specPlotPhase.png', opts.Prefix));
+    pngPath = fullfile(outputDir, sprintf('%s_3_plotphase.png', opts.Prefix));
     saveas(gcf, pngPath);
     close(gcf);
     status.tools_completed(3) = 1;
@@ -126,14 +106,14 @@ catch ME
     status.errors{end+1} = sprintf('Tool 3: %s', ME.message);
 end
 
-%% Tool 4: errHistSine (code)
-fprintf('[4/9][errHistSine_code]');
+%% Tool 4: errsin (code)
+fprintf('[4/9][errsin_code]');
 try
     figure('Position', [100, 100, 800, 600], 'Visible', figVis);
-    [~, ~, ~, ~, ~, ~, ~] = errHistSine(aout_data, 'bin', 20, 'fin', freqCal, 'disp', 1, 'mode', 1);
-    sgtitle('errHistSine (code): Error Histogram by Code', 'FontWeight', 'bold');
+    errsin(aout_data, 'bin', 20, 'fin', freqCal, 'disp', 1, 'xaxis', 'value');
+    sgtitle('errsin (code): Error Histogram by Code', 'FontWeight', 'bold');
     set(gca, 'FontSize', 14);
-    pngPath = fullfile(outputDir, sprintf('%s_4_errHistSine_code.png', opts.Prefix));
+    pngPath = fullfile(outputDir, sprintf('%s_4_errsin_code.png', opts.Prefix));
     saveas(gcf, pngPath);
     close(gcf);
     status.tools_completed(4) = 1;
@@ -144,14 +124,14 @@ catch ME
     status.errors{end+1} = sprintf('Tool 4: %s', ME.message);
 end
 
-%% Tool 5: errHistSine (phase)
-fprintf('[5/9][errHistSine_phase]');
+%% Tool 5: errsin (phase)
+fprintf('[5/9][errsin_phase]');
 try
     figure('Position', [100, 100, 800, 600], 'Visible', figVis);
-    [~, ~, ~, ~, ~, ~, ~] = errHistSine(aout_data, 'bin', 99, 'fin', freqCal, 'disp', 1, 'mode', 0);
-    sgtitle('errHistSine (phase): Error Histogram by Phase', 'FontWeight', 'bold');
+    errsin(aout_data, 'bin', 99, 'fin', freqCal, 'disp', 1, 'xaxis', 'phase');
+    sgtitle('errsin (phase): Error Histogram by Phase', 'FontWeight', 'bold');
     set(gca, 'FontSize', 14);
-    pngPath = fullfile(outputDir, sprintf('%s_5_errHistSine_phase.png', opts.Prefix));
+    pngPath = fullfile(outputDir, sprintf('%s_5_errsin_phase.png', opts.Prefix));
     saveas(gcf, pngPath);
     close(gcf);
     status.tools_completed(5) = 1;
@@ -166,7 +146,7 @@ end
 fprintf('[6/9][errPDF]');
 try
     figure('Position', [100, 100, 800, 600], 'Visible', figVis);
-    [~, ~, ~, ~, ~, ~, ~] = errPDF(err_data, 'Resolution', opts.Resolution, 'FullScale', FullScale);
+    errpdf(err_data, 'Resolution', opts.Resolution, 'FullScale', FullScale);
     title('errPDF: Error PDF');
     set(gca, 'FontSize', 14);
     pngPath = fullfile(outputDir, sprintf('%s_6_errPDF.png', opts.Prefix));
@@ -184,7 +164,7 @@ end
 fprintf('[7/9][errAutoCorrelation]');
 try
     figure('Position', [100, 100, 800, 600], 'Visible', figVis);
-    [~, ~] = errAutoCorrelation(err_data, 'MaxLag', 200, 'Normalize', true);
+    [~, ~] = errac(err_data, 'MaxLag', 200, 'Normalize', true);
     title('errAutoCorrelation: Error Autocorrelation');
     set(gca, 'FontSize', 14);
     pngPath = fullfile(outputDir, sprintf('%s_7_errAutoCorrelation.png', opts.Prefix));
@@ -202,7 +182,7 @@ end
 fprintf('[8/9][errSpectrum]');
 try
     figure('Position', [100, 100, 800, 600], 'Visible', figVis);
-    [~, ~, ~, ~, ~, ~, ~, ~] = specPlot(err_data, 'label', 0);
+    plotspec(err_data, 'label', 0);
     title('errSpectrum: Error Spectrum');
     set(gca, 'FontSize', 14);
     pngPath = fullfile(outputDir, sprintf('%s_8_errSpectrum.png', opts.Prefix));
@@ -220,7 +200,7 @@ end
 fprintf('[9/9][errEnvelopeSpectrum]');
 try
     figure('Position', [100, 100, 800, 600], 'Visible', figVis);
-    errEnvelopeSpectrum(err_data, 'Fs', 1);
+    errevspec(err_data, 'Fs', 1);
     title('errEnvelopeSpectrum: Error Envelope Spectrum');
     set(gca, 'FontSize', 14);
     pngPath = fullfile(outputDir, sprintf('%s_9_errEnvelopeSpectrum.png', opts.Prefix));
@@ -237,16 +217,4 @@ end
 n_success = sum(status.tools_completed);
 fprintf('=== Toolset complete: %d/9 tools succeeded ===\n\n', n_success);
 status.success = (n_success == 9);
-end
-
-%% Helper Functions
-
-function validateAoutData(data)
-    % Validate aout_data is a numeric vector or 2D array
-    if ~isnumeric(data) || isempty(data)
-        error('aout_data must be a non-empty numeric array');
-    end
-    if ~ismatrix(data) || ndims(data) > 2
-        error('aout_data must be a 1D vector or 2D array');
-    end
 end

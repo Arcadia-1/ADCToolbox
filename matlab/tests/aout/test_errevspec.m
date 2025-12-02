@@ -1,38 +1,24 @@
-close all; clc; clear;
+%% Centralized Configuration for Aout Test
+common_test_aout;
 
-%% Configuration
-verbose = 0;
-inputDir = fullfile("dataset", "sinewave");
-outputDir = "test_output";
-figureDir = "test_plots";
-
-filesList ={};
-filesList = autoSearchFiles(filesList, inputDir, 'sinewave_*.csv');
-if ~isfolder(outputDir), mkdir(outputDir); end
 %% Test Loop
 for k = 1:length(filesList)
     currentFilename = filesList{k};
     dataFilePath = fullfile(inputDir, currentFilename);
     fprintf('[%s] [%d/%d] [%s]\n', mfilename, k, length(filesList), currentFilename);
+    [~, datasetName, ~] = fileparts(currentFilename);
 
     read_data = readmatrix(dataFilePath);
-
-    [~, datasetName, ~] = fileparts(currentFilename);
-    titleString = replace(datasetName, '_', '\_');
-
-    [data_fit, ~, ~, ~, ~] = sinfit(read_data);
-    err_data = read_data - data_fit;
-
-    e = err_data(:);
-    env = abs(hilbert(e));
+    err_data = geterrsin(read_data);
 
     figure('Position', [100, 100, 800, 600], "Visible", verbose);
     [ENoB, SNDR, SFDR, SNR, THD, pwr, NF, ~] = errevspec(err_data, 'Fs', 1);
-    title(['errEnvelopeSpectrum']);
+    title('Spectrum of Error Envelope');
+    set(gca, "FontSize", 16);
 
     subFolder = fullfile(outputDir, datasetName, mfilename);
 
-    figureName = sprintf("%s_%s_matlab.png", datasetName, mfilename);
+    figureName = sprintf("%s_%s_matlab.png", mfilename, datasetName);
     saveFig(figureDir, figureName, verbose);
     saveVariable(subFolder, ENoB, verbose);
     saveVariable(subFolder, SNDR, verbose);

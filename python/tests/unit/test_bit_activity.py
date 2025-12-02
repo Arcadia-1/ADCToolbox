@@ -3,6 +3,7 @@ import matplotlib.pyplot as plt
 from adctoolbox.dout.bit_activity import bit_activity
 from tests._utils import save_variable, save_fig
 from tests.unit._runner import run_unit_test_batch
+from tests import config
 
 plt.rcParams['font.size'] = 16
 plt.rcParams['axes.grid'] = True
@@ -32,8 +33,6 @@ def test_bit_activity(project_root):
     """
     run_unit_test_batch(
         project_root=project_root,
-        input_subpath="dataset",
-        test_module_name="test_bit_activity",
-        file_pattern="dout_*.csv",        process_callback=_process_bit_activity,
+        input_subpath=config.DOUT['input_path'], test_module_name="test_bit_activity", file_pattern=config.DOUT['file_pattern'],        process_callback=_process_bit_activity,
         flatten=False  # Digital output data is 2D (N samples x M bits)
     )

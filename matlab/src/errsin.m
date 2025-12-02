@@ -161,11 +161,15 @@ function [emean, erms, xx, anoi, pnoi, err, errxx] = errsin(sig, varargin)
                 plot(errxx,err,'m.');
             end
 
+            legend('error','emean');
+            
             subplot(2,1,2);
             bar(xx,erms);
             axis([dat_min,dat_max,0,max(erms)*1.1]);
             xlabel('value');
             ylabel('RMS error');
+
+
         end
 
     % Phase mode: bin by phase angle

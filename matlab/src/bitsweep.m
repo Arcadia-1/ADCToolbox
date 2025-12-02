@@ -20,7 +20,7 @@ winType = p.Results.winType;
 doPlot = p.Results.plot;
 
 if freq == 0
-    [~, ~, ~, ~, ~, freq] = wcalsine(bits, 'freq', 0, 'order', order);
+    [~, ~, ~, ~, ~, freq] = wcalsine(bits, 'freq', 0, 'order', order, 'verbose', 0);
 end
 
 ENoB_sweep = zeros(1, M);
@@ -30,8 +30,8 @@ for nBits = 1:M
     bits_subset = bits(:, 1:nBits);
 
     try
-        [~, ~, postCal_temp, ~, ~, ~] = wcalsine(bits_subset, 'freq', freq, 'order', order);
-        [ENoB_temp, ~, ~, ~, ~, ~, ~, ~] = specPlot(postCal_temp, ...
+        [~, ~, postCal_temp, ~, ~, ~] = wcalsine(bits_subset, 'freq', freq, 'order', order, 'verbose', 0);
+        [ENoB_temp, ~, ~, ~, ~, ~, ~, ~, ~] = plotspec(postCal_temp, ...
             'label', 0, 'harmonic', harmonic, 'OSR', OSR, 'winType', winType);
         ENoB_sweep(nBits) = ENoB_temp;
     catch ME

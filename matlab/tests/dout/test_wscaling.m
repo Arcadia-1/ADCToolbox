@@ -1,14 +1,5 @@
-close all; clc; clear;
-
-%% Configuration
-verbose = 0;
-inputDir = "reference_dataset";
-outputDir = "reference_output";
-figureDir = "test_plots";
-
-filesList ={};
-filesList = autoSearchFiles(filesList, inputDir, 'dout_*.csv');
-if ~isfolder(outputDir), mkdir(outputDir); end
+%% Centralized Configuration for Dout Test
+common_test_dout;
 
 %% Test Loop
 for k = 1:length(filesList)

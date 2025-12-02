@@ -1,14 +1,6 @@
-%% test_weightScaling.m
-close all; clc; clear;
-%% Configuration
-verbose = 0;
-inputDir = fullfile("dataset", "dout");
-outputDir = "test_data";
-figureDir = "test_plots";
+%% Centralized Configuration for Dout Test
+common_test_dout; 
 
-filesList = {};
-filesList = autoSearchFiles(filesList, inputDir, 'dout_*.csv');
-if ~isfolder(outputDir), mkdir(outputDir); end
 %% Calibration Configuration
 Order = 5; % Polynomial order for FGCalSine
 %% Test Loop
@@ -19,7 +11,7 @@ for k = 1:length(filesList)
 
     bits = readmatrix(dataFilePath);
 
-    [weight_cal, ~, ~, ~, ~, ~] = wcalsine(bits, 'freq', 0, 'order', Order);
+    weight_cal = wcalsine(bits, 'freq', 0, 'order', Order);
 
     % Run weightScaling tool
     figure('Position', [100, 100, 800, 600], "Visible", verbose);

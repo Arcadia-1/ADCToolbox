@@ -16,8 +16,7 @@ for k = 1:length(filesList)
     % Run ovfchk (overflowChk doesn't return a value, only plots)
     figure('Position', [100, 100, 1000, 600], "Visible", verbose);
     ovfchk(read_data, weights_cal);
-
-    title(sprintf('overflow_chk: %s', datasetName));
+    title('Overflow Check');
 
     % Save figure
     subFolder = fullfile(outputDir, datasetName, mfilename);
