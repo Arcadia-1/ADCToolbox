@@ -3,8 +3,9 @@ close all; clc; clear;
 
 %% Configuration
 verbose = 0;
-inputDir = "dataset/dout";
-outputDir = "test_output";
+inputDir = fullfile("dataset");
+outputDir = "test_data";
+figureDir = "test_plots";
 
 filesList = {};
 filesList = autoSearchFiles(filesList, inputDir, 'dout_*.csv');
@@ -24,6 +25,8 @@ for k = 1:length(filesList)
 
     [~, datasetName, ~] = fileparts(currentFilename);
     subFolder = fullfile(outputDir, datasetName, mfilename);
-    saveFig(subFolder, "bitActivity_matlab.png", verbose);
+
+    figureName = sprintf("%s_%s_matlab.png", datasetName, mfilename);
+    saveFig(figureDir, figureName, verbose);
     saveVariable(subFolder, bit_usage, verbose);
 end

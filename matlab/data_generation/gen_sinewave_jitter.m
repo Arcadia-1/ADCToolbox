@@ -1,9 +1,8 @@
 %% Generate sinewave with jitter
 close all; clear; clc; warning("off");
-rng(42); % set random seed for reproducibility
-
-subFolder = "dataset/aout/sinewave";
-if ~isfolder(subFolder), mkdir(subFolder); end
+rng(42);
+subFolder = fullfile("dataset", "sinewave");
+if ~exist(subFolder, 'dir'), mkdir(subFolder); end
 
 %% Sinewave with jitter
 % Tj_list = logspace(-15, -12, 2); % jitter values (in s) to sweep

@@ -2,8 +2,9 @@
 close all; clc; clear;
 %% Configuration
 verbose = 0;
-inputDir = "dataset/dout";
-outputDir = "test_output";
+inputDir = fullfile("dataset");
+outputDir = "test_data";
+figureDir = "test_plots";
 
 filesList = {};
 filesList = autoSearchFiles(filesList, inputDir, 'dout_*.csv');
@@ -27,13 +28,14 @@ for k = 1:length(filesList)
 
     subFolder = fullfile(outputDir, datasetName, mfilename);
     if ~isfolder(subFolder), mkdir(subFolder); end
-    
+
     figure('Position', [100, 100, 800, 600], "Visible", verbose);
     [ENoB_pre, SNDR_pre, SFDR_pre, SNR_pre, THD_pre, pwr_pre, NF_pre, ~] = ...
         specPlot(preCal, 'label', 1, 'harmonic', 5, 'OSR', 1, 'NFMethod', 0);
     title(['Spectrum Before Calibration: ', datasetName], 'Interpreter', 'none');
 
-    saveFig(subFolder, "specPlot_preCal_matlab.png", verbose);
+    figureName = sprintf("%s_%s_preCal_matlab.png", datasetName, mfilename);
+    saveFig(figureDir, figureName, verbose);
 
 
     figure('Position', [100, 100, 800, 600], "Visible", verbose);
@@ -41,7 +43,8 @@ for k = 1:length(filesList)
         specPlot(postCal, 'label', 1, 'harmonic', 5, 'OSR', 1, 'NFMethod', 0);
     title(['Spectrum After Calibration: ', datasetName], 'Interpreter', 'none');
 
-    saveFig(subFolder, "specPlot_postCal_matlab.png", verbose);
+    figureName = sprintf("%s_%s_postCal_matlab.png", datasetName, mfilename);
+    saveFig(figureDir, figureName, verbose);
 
     saveVariable(subFolder, weight, verbose);
     saveVariable(subFolder, offset, verbose);

@@ -1,8 +1,8 @@
 %% Generate sinewave with multirun (batch data)
 close all; clear; clc; warning("off");
 rng(42);
-
-data_dir = "dataset/aout";
+subFolder = fullfile("dataset", "batch_sinewave");
+if ~exist(subFolder, 'dir'), mkdir(subFolder); end
 
 %% Sinewave with multirun
 N_run_list = [16];
@@ -31,7 +31,7 @@ for k = 1:length(N_run_list)
         data_batch(iter_run, :) = sinewave + 0.5 + randn(1, N) * 2.8e-4;
     end
 
-    filename = fullfile(data_dir, sprintf("batch_sinewave_Nrun_%d.csv", N_run));
+    filename = fullfile(subFolder, sprintf("batch_sinewave_Nrun_%d.csv", N_run));
     ENoB = specPlot(data_batch,"isplot",0);
     writematrix(data_batch, filename)
     fprintf("  [ENoB = %0.2f] [Save] %s\n", ENoB, filename);

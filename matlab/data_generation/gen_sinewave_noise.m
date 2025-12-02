@@ -1,9 +1,8 @@
 %% Generate sinewave with additive noise
 close all; clear; clc; warning("off");
 rng(42);
-
-subFolder = "dataset/aout/sinewave";
-if ~isfolder(subFolder), mkdir(subFolder); end
+subFolder = fullfile("dataset", "sinewave");
+if ~exist(subFolder, 'dir'), mkdir(subFolder); end
 
 %% Sinewave with additive noise
 noise_list = [2.7e-4]; % 100uV, 1mV, 10mV

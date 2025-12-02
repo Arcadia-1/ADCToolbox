@@ -1,8 +1,8 @@
 %% Generate sinewave with baseline drift
 close all; clear; clc; warning("off");
 rng(42);
-
-data_dir = "dataset/aout";
+subFolder = fullfile("dataset", "sinewave");
+if ~exist(subFolder, 'dir'), mkdir(subFolder); end
 
 %% Sinewave with baseline drift
 baseline_list = [0.004]; % different drift amplitudes to sweep
@@ -24,7 +24,7 @@ for k = 1:length(baseline_list)
     data = sig + drift;
 
     bstr = replace(sprintf("%.3f", drift_amp), ".", "P");
-    filename = fullfile(data_dir, sprintf("sinewave_drift_%s.csv", bstr));
+    filename = fullfile(subFolder, sprintf("sinewave_drift_%s.csv", bstr));
     ENoB = specPlot(data,"isplot",0);
     writematrix(data, filename)
     fprintf("  [ENoB = %0.2f] [Save] %s\n", ENoB, filename);

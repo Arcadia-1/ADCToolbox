@@ -9,7 +9,7 @@ from tests.unit._runner import run_unit_test_batch
 plt.rcParams['font.size'] = 14
 plt.rcParams['axes.grid'] = True
 
-def _process_fg_cal_sine(raw_data, sub_folder, dataset_name):
+def _process_fg_cal_sine(raw_data, sub_folder, dataset_name, figures_folder, test_name):
     """
     Callback function to process a single file:
     1. Calculate pre-calibration signal using nominal binary weights
@@ -43,7 +43,8 @@ def _process_fg_cal_sine(raw_data, sub_folder, dataset_name):
         NFMethod=0
     )
     plt.title(f'Spectrum Before Calibration: {dataset_name}')
-    save_fig(sub_folder, 'specPlot_preCal_python.png', dpi=100)
+    figure_name_preCal = f"{dataset_name}_{test_name}_preCal_python.png"
+    save_fig(figures_folder, figure_name_preCal, dpi=100)
     plt.close(fig)
 
     # Spectrum plot AFTER calibration
@@ -56,7 +57,8 @@ def _process_fg_cal_sine(raw_data, sub_folder, dataset_name):
         NFMethod=0
     )
     plt.title(f'Spectrum After Calibration: {dataset_name}')
-    save_fig(sub_folder, 'specPlot_postCal_python.png', dpi=100)
+    figure_name_postCal = f"{dataset_name}_{test_name}_postCal_python.png"
+    save_fig(figures_folder, figure_name_postCal, dpi=100)
     plt.close(fig)
 
     # Save variables

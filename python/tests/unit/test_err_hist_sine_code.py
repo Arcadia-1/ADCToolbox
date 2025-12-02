@@ -8,7 +8,7 @@ from tests.unit._runner import run_unit_test_batch
 plt.rcParams['font.size'] = 14
 plt.rcParams['axes.grid'] = True
 
-def _process_err_hist_sine_code(raw_data, sub_folder, dataset_name):
+def _process_err_hist_sine_code(raw_data, sub_folder, dataset_name, figures_folder, test_name):
     """
     Callback function to process a single file:
     1. Find fundamental frequency
@@ -39,7 +39,8 @@ def _process_err_hist_sine_code(raw_data, sub_folder, dataset_name):
     save_variable(sub_folder, k3, 'k3')
 
     # 4. Save Figure
-    save_fig(sub_folder, 'errHistSine_code_python.png')
+    figure_name = f"{dataset_name}_{test_name}_python.png"
+    save_fig(figures_folder, figure_name)
     plt.close()
 
 def test_err_hist_sine_code(project_root):

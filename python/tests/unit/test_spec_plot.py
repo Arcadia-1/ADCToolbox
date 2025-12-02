@@ -7,7 +7,7 @@ from tests.unit._runner import run_unit_test_batch
 plt.rcParams['font.size'] = 14
 plt.rcParams['axes.grid'] = True
 
-def _process_spec_plot(raw_data, sub_folder, dataset_name):
+def _process_spec_plot(raw_data, sub_folder, dataset_name, figures_folder, test_name):
     # 1. Spectral Analysis
     fig = plt.figure(figsize=(12, 8))
     ENoB, SNDR, SFDR, SNR, THD, pwr, NF, _ = spec_plot(
@@ -29,7 +29,8 @@ def _process_spec_plot(raw_data, sub_folder, dataset_name):
     save_variable(sub_folder, NF, 'NF')
 
     # 3. Save Figure
-    save_fig(sub_folder, 'spectrum_python.png', dpi=100)
+    figure_name = f"{dataset_name}_{test_name}_python.png"
+    save_fig(figures_folder, figure_name, dpi=100)
     plt.close(fig)
 
 def test_spec_plot(project_root):

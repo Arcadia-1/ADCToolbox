@@ -1,16 +1,15 @@
 %% Generate sinewave with 2-step quantization kickback
 close all; clear; clc; warning("off");
 rng(42);
-
-subFolder = "dataset/aout/sinewave";
-if ~isfolder(subFolder), mkdir(subFolder); end
+subFolder = fullfile("dataset", "sinewave");
+if ~exist(subFolder, 'dir'), mkdir(subFolder); end
 
 %% Sinewave with 2-step quantization kickback
-kickback_strength_list = 0.05; % kickback coupling strength
+kickback_strength_list = 0.01; % kickback coupling strength
 
 N = 2^13;
-Fs = 10e9;
-J = findBin(Fs, 1000e6, N);
+Fs = 1e9;
+J = findBin(Fs, 80e6, N);
 Fin = J / N * Fs;
 
 ideal_phase = 2 * pi * Fin * (0:N - 1) * 1 / Fs;

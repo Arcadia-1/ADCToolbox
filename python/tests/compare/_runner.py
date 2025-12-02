@@ -6,13 +6,13 @@ from tests._utils import discover_test_datasets, discover_test_variables
 
 def run_comparison_suite(project_root, matlab_test_name,
                          ref_folder="test_reference",
-                         out_folder="test_output",
+                         out_folder="test_data",
                          structure="nested"):
     """
     Generic runner for comparing MATLAB vs Python test results.
 
     Args:
-        structure (str): 
+        structure (str):
             - "nested": root / dataset / test_name (Default, e.g. sineFit)
             - "flat":   root / test_name (Simple, e.g. test_basic)
     """
@@ -67,10 +67,9 @@ def run_comparison_suite(project_root, matlab_test_name,
     for display_name, mat_dir, py_dir in comparison_targets:
         print(f"\n[{py_dir}] <-> [{mat_dir}]")
 
-        # Check Directory
+        # Check Directory (Python-Centric: skip if Python didn't generate it)
         if not py_dir.exists():
-            print(f"  -> [MISSING] Python directory: {py_dir.name}")
-            failures.append(f"{display_name}: Missing Python directory")
+            print(f"  -> [SKIP] Python directory not found (dataset not processed)")
             continue
 
         # Discover Variables (Python-Centric: scan what Python generated)

@@ -8,7 +8,7 @@ from tests.unit._runner import run_unit_test_batch
 plt.rcParams['font.size'] = 14
 plt.rcParams['axes.grid'] = True
 
-def _process_tom_decomp(raw_data, sub_folder, dataset_name):
+def _process_tom_decomp(raw_data, sub_folder, dataset_name, figures_folder, test_name):
     """
     Callback function to process a single file:
     1. Run Thompson decomposition
@@ -25,7 +25,8 @@ def _process_tom_decomp(raw_data, sub_folder, dataset_name):
     plt.gcf().suptitle(f'tomDecomp: {dataset_name}')
 
     # Save plot
-    save_fig(sub_folder, 'tomDecomp_python.png', dpi=150)
+    figure_name = f"{dataset_name}_{test_name}_python.png"
+    save_fig(figures_folder, figure_name, dpi=150)
 
     # Calculate metrics
     rms_error = (error**2).mean()**0.5

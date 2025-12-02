@@ -1,7 +1,9 @@
-clear;
-close all;
-clc;
+clear; close all; clc;
 
+subFolder = fullfile("dataset", "dout");
+if ~exist(subFolder, 'dir'), mkdir(subFolder); end
+
+%%
 N_STAGES = 8;
 N_BITS_PER_STAGE = 3; % N_i = 3 bits for stages 1 to 7
 GAIN_PER_STAGE = 4; % G_i = 4 for stages 1 to 7

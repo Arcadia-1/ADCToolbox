@@ -11,7 +11,7 @@ plt.rcParams['axes.grid'] = True
 # Resolution list to scan
 RESOLUTION_LIST = [12]
 
-def _process_inl_sine(raw_data, sub_folder, dataset_name):
+def _process_inl_sine(raw_data, sub_folder, dataset_name, figures_folder, test_name):
     """
     Callback function to process a single file:
     1. Scale data by resolution
@@ -62,7 +62,8 @@ def _process_inl_sine(raw_data, sub_folder, dataset_name):
         plt.tight_layout()
 
         # 4. Save Figure
-        save_fig(sub_folder, f'INL_{Resolution}b_{dataset_name}_python.png', dpi=150)
+        figure_name = f"{dataset_name}_{test_name}_python.png"
+        save_fig(figures_folder, figure_name, dpi=150)
         plt.close(fig)
 
 def test_inl_sine(project_root):

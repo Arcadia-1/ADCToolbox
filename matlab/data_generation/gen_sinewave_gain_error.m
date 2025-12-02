@@ -1,17 +1,16 @@
 %% Generate sinewave with 2-step quantization gain error
 close all; clear; clc; warning("off");
 rng(42);
-
-subFolder = "dataset/aout/sinewave";
-if ~isfolder(subFolder), mkdir(subFolder); end
+subFolder = fullfile("dataset", "sinewave");
+if ~exist(subFolder, 'dir'), mkdir(subFolder); end
 
 %% Sinewave with 2-step quantization gain error
-gain_error_list = [0.986]; % interstage gain error values
+gain_error_list = [0.99]; % interstage gain error values
 % gain_error_list = linspace(0.99,1.01, 10);
 
 N = 2^13;
-Fs = 10e9;
-J = findBin(Fs, 1000e6, N);
+Fs = 1e9;
+J = findBin(Fs, 80e6, N);
 Fin = J / N * Fs;
 
 ideal_phase = 2 * pi * Fin * (0:N - 1) * 1 / Fs;

@@ -1,8 +1,8 @@
 %% Generate sinewave with reference modulation error
 close all; clear; clc; warning("off");
 rng(42);
-
-data_dir = "dataset/aout";
+subFolder = fullfile("dataset", "sinewave");
+if ~exist(subFolder, 'dir'), mkdir(subFolder); end
 
 %% Sinewave with reference modulation error
 ref_error_list = [0.00075]; % different reference mismatch levels
@@ -24,7 +24,7 @@ for k = 1:length(ref_error_list)
     data = msb + lsb + (msb - 0.5) .* ((-1).^(0:N - 1)) * ref_amp;
 
     rstr = replace(sprintf("%.3f", ref_amp), ".", "P");
-    filename = fullfile(data_dir, sprintf("sinewave_ref_error_%s.csv", rstr));
+    filename = fullfile(subFolder, sprintf("sinewave_ref_error_%s.csv", rstr));
     ENoB = specPlot(data,"isplot",0);
     writematrix(data, filename)
     fprintf("  [ENoB = %0.2f] [Save] %s\n", ENoB, filename);

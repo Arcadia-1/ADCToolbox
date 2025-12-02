@@ -1,4 +1,4 @@
-function errEnvelopeSpectrum(err_data, varargin)
+function [ENoB, SNDR, SFDR, SNR, THD, pwr, NF, h] = errEnvelopeSpectrum(err_data, varargin)
 
 p = inputParser;
 addParameter(p, "Fs", 1);
@@ -8,7 +8,7 @@ Fs = p.Results.Fs;
 e = err_data(:);
 env = abs(hilbert(e)); % envelope = |hilbert|
 
-specPlot(env, "Fs", Fs, "label", 0); % use toolbox spectrum plot
+[ENoB, SNDR, SFDR, SNR, THD, pwr, NF, h] = specPlot(env, "Fs", Fs, "label", 0); % use toolbox spectrum plot
 
 grid on;
 xlabel("Frequency (Hz)");

@@ -8,7 +8,7 @@ from tests.unit._runner import run_unit_test_batch
 plt.rcParams['font.size'] = 14
 plt.rcParams['axes.grid'] = True
 
-def _process_weight_scaling(raw_data, sub_folder, dataset_name):
+def _process_weight_scaling(raw_data, sub_folder, dataset_name, figures_folder, test_name):
     """
     Callback function to process a single file:
     1. Run foreground calibration to get weights
@@ -26,7 +26,8 @@ def _process_weight_scaling(raw_data, sub_folder, dataset_name):
     plt.gca().tick_params(labelsize=16)
 
     # Save figure
-    save_fig(sub_folder, 'weightScaling.png', dpi=150)
+    figure_name = f"{dataset_name}_{test_name}_python.png"
+    save_fig(figures_folder, figure_name, dpi=150)
 
     # Save variables
     save_variable(sub_folder, radix, 'radix')

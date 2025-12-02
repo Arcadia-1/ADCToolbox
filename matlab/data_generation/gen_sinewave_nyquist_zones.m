@@ -1,8 +1,8 @@
 %% Generate sinewave in Nyquist Zones 2 to 4
 close all; clear; clc; warning("off");
 rng(42);
-
-data_dir = "dataset/aout";
+subFolder = fullfile("dataset", "sinewave");
+if ~exist(subFolder, 'dir'), mkdir(subFolder); end
 
 %% Sinewave in Nyquist Zones 2 to 4
 N = 2^13;
@@ -32,7 +32,7 @@ for k = 1:length(Nyquist_Zone_Fins)
 
     Zone = ceil(Fin/(Fs / 2));
 
-    filename = fullfile(data_dir, sprintf("sinewave_Zone%d_Tj_%dfs.csv", ...
+    filename = fullfile(subFolder, sprintf("sinewave_Zone%d_Tj_%dfs.csv", ...
         Zone, round(Tj*1e15)));
     ENoB = specPlot(data,"isplot",0);
     writematrix(data, filename)

@@ -4,8 +4,9 @@ warning("off");
 
 %% Configuration
 verbose = 0;
-inputDir = "dataset/dout";
-outputDir = "test_output";
+inputDir = fullfile("dataset");
+outputDir = "test_data";
+figureDir = "test_plots";
 filesList = {};
 filesList = autoSearchFiles(filesList, inputDir, 'dout_*.csv');
 if ~isfolder(outputDir), mkdir(outputDir); end
@@ -31,6 +32,7 @@ for k = 1:length(filesList)
 
     subFolder = fullfile(outputDir, datasetName, mfilename);
 
-    saveFig(subFolder, "overflowChk_matlab.png", verbose);
+    figureName = sprintf("%s_%s_matlab.png", datasetName, mfilename);
+    saveFig(figureDir, figureName, verbose);
     saveVariable(subFolder, data_decom, verbose);
 end

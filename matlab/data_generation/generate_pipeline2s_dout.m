@@ -1,7 +1,9 @@
-clear;
-close all;
-clc;
+clear; close all; clc;
 
+subFolder = fullfile("dataset", "dout");
+if ~exist(subFolder, 'dir'), mkdir(subFolder); end
+
+%%
 N = 2^13;
 J = findBin(1, 0.0789, N);
 A = 0.49;
@@ -43,8 +45,7 @@ overflowChk(dout, weights);
 title_str = sprintf('2-stage Pipeline (N1=%d, G1=%d, N2=%d, G2=%d, N3=%d)', N1, G1, N2);
 title(title_str);
 
-filename = fullfile("dataset/dout", ...
-    sprintf("dout_Pipeline_%dbx%d_%db.csv", N1, G1, N2));
+filename = fullfile(subFolder, sprintf("dout_Pipeline_%dbx%d_%db.csv", N1, G1, N2));
 fprintf("[Save data into file] -> [%s]\n", filename);
 writematrix(dout, filename);
 
