@@ -30,8 +30,3 @@ resources
 **/.svn/**/*
 **/.buildtool/**/*
 **/*.asv
-
-/tests/
-/data_generation/
-/resources/
-/toolbox/
