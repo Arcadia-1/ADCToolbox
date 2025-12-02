@@ -1,22 +1,15 @@
-close all; clear; clc;
-rng(42);
+%% Centralized Configuration for Dout Generation
+common_gen_dout;
 
-% Load centralized configuration
-config_gen;
-subFolder = dataPath_dout;
-if ~exist(subFolder, 'dir'), mkdir(subFolder); end
-
-% --- WEIGHT LISTS TO SWEEP ---
+%% --- WEIGHT LISTS TO SWEEP ---
 CDAC_lists = {; ...
     [1024, 512, 256, 128, 64, 32, 16, 8, 4, 2, 1, 1]; ...
-    [800, 440, 230, 122, 63, 32, 16, 8, 4, 2, 1, 1]; ... % sub-radix 2
+    % [800, 440, 230, 122, 63, 32, 16, 8, 4, 2, 1, 1]; ... % sub-radix 2
     % [1024, 512, 256, 256, 128, 64, 64, 32, 16, 8, 8, 4, 2, 1, 1]; ... % redundancy
     };
 
-J = findBin(1, 0.0789, N);
+sig = 2*A*sin(ideal_phase);
 FS = 1;
-A = 0.99; % Reference voltage and signal amplitude
-sinewave = A * sin((0:N - 1)'*J*2*pi/N); % Base sinewave (zero mean)
 
 for k = 1:length(CDAC_lists)
     CDAC = CDAC_lists{k};
@@ -28,12 +21,12 @@ for k = 1:length(CDAC_lists)
 
     weight_voltage = CDAC / sum(CDAC) * FS; % Calculate weighted voltage levels
 
-    residue = sinewave;
+    residue = sig;
     dout = zeros(N, B); % Initialize quantized bits (N samples x B bits)
 
     % SAR Quantization Loop
     for j = 1:B
-        dout(:, j) = (residue > randn(N, 1)*1e-6);
+        dout(:, j) = (residue > 0);
         delta_cdac = (2 * dout(:, j) - 1) * weight_voltage(j);
         if j < B
             residue = residue - delta_cdac;
@@ -45,9 +38,9 @@ for k = 1:length(CDAC_lists)
 
     aout = dout * nominal_weight';
 
-    figure(Visible="off")
-    [ENoB, SNDR, ~] = specPlot(aout, 'label', 1, 'harmonic', 5, 'winType', @hann, 'OSR', 1, 'coAvg', 0);
-    close all;
+    figure(Visible="on")
+    [ENoB, SNDR, ~] = specPlot(aout);
+    % close all;
 
     N_bit = round(resolution);
     filename = fullfile(subFolder, sprintf("dout_SAR_%db_weight_%d.csv", N_bit, k));

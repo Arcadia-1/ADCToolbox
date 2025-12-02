@@ -193,7 +193,7 @@ project_log.md
 # =============================================================================
 .claude
 
-dataset/
+test_dataset/
 test_data/
 test_output/
 agent_playground/

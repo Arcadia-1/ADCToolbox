@@ -1,7 +1,5 @@
-clear; close all; clc;
-
-subFolder = fullfile("dataset", "dout");
-if ~exist(subFolder, 'dir'), mkdir(subFolder); end
+%% Centralized Configuration for Dout Generation
+common_gen_dout;
 
 %%
 N_STAGES = 8;
@@ -9,10 +7,7 @@ N_BITS_PER_STAGE = 3; % N_i = 3 bits for stages 1 to 7
 GAIN_PER_STAGE = 4; % G_i = 4 for stages 1 to 7
 N_LAST_STAGE = 4; % N_8 = 4 bits for the final stage
 
-N = 2^13;
-J = findBin(1, 0.0789, N);
-A = 0.49; % Full scale amplitude
-sig = A * sin((0:N - 1)'*J*2*pi/N) + randn(N, 1)*1e-6 + 0.5; % Base sinewave (zero mean)
+sig = A * sin(ideal_phase) + DC;
 
 N_i = N_BITS_PER_STAGE;
 G_i = GAIN_PER_STAGE;
@@ -78,15 +73,14 @@ fprintf("[%s] [ENoB1 = %0.2f bits] [ENoB2 = %0.2f bits]\n", mfilename, ENoB1, EN
 total_redundancy = redundancy * (N_STAGES - 1); % Redundancy only applied in stages 1 to 7
 effective_res = total_bits - total_redundancy;
 
-
 figure
-overflowChk(dout, weights);
+ovfchk(dout, weights);
 
 title_str = sprintf('8-stage Pipeline ADC (N_i=%d, G_i=%d, N_8=%d, Resolution=%.1f bits)', ...
     N_BITS_PER_STAGE, GAIN_PER_STAGE, N_LAST_STAGE, effective_res);
 title(title_str);
 
-filename = fullfile("dataset/dout", sprintf("dout_Pipeline_3bx4x%d_4b.csv", N_STAGES));
+filename = fullfile(subFolder, sprintf("dout_Pipeline_3bx4x%d_4b.csv", N_STAGES));
 fprintf("[Save data into file] -> [%s]\n", filename);
 writematrix(dout, filename);
 

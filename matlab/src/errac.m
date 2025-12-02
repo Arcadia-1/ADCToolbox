@@ -1,4 +1,4 @@
-function [acf, lags] = errAutoCorrelation(err_data, varargin)
+function [acf, lags] = errac(err_data, varargin)
 % errACF - Compute and plot autocorrelation of error signal.
 % The function plots into current axes and returns the ACF and lags.
 %

@@ -9,15 +9,15 @@ plt.rcParams['axes.grid'] = True
 
 def _process_spec_plot(raw_data, sub_folder, dataset_name, figures_folder, test_name):
     # 1. Spectral Analysis
-    fig = plt.figure(figsize=(12, 8))
+    fig = plt.figure(figsize=(8, 6))
     ENoB, SNDR, SFDR, SNR, THD, pwr, NF, _ = spec_plot(
         raw_data,
         label=1,
         harmonic=5,
-        OSR=1,
-        NFMethod=0
+        osr=1,
+        nf_method=0
     )
-    plt.title(f'Spectrum: {dataset_name}')
+    plt.title("Spectrum")
 
     # 2. Save Variables
     save_variable(sub_folder, ENoB, 'ENoB')
@@ -39,9 +39,7 @@ def test_spec_plot(project_root):
     """
     run_unit_test_batch(
         project_root=project_root,
-        input_subpath="dataset/aout/sinewave",
+        input_subpath="dataset",
         test_module_name="test_spec_plot",
-        file_pattern="sinewave_*.csv",
-        output_subpath="test_output",
-        process_callback=_process_spec_plot
+        file_pattern="sinewave_*.csv",        process_callback=_process_spec_plot
     )

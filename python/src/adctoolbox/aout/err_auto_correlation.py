@@ -2,20 +2,19 @@ import numpy as np
 import matplotlib.pyplot as plt
 
 
-def err_auto_correlation(err_data, MaxLag=100, Normalize=True):
+def err_auto_correlation(err_data, max_lag=100, normalize=True):
     """
-    Compute and plot autocorrelation function (ACF) of error signal.
+    Compute autocorrelation function (ACF) of error signal.
 
     Parameters:
         err_data: Error signal (1D array)
-        MaxLag: Maximum lag in samples (default: 100)
-        Normalize: Normalize ACF so ACF[0] = 1 (default: True)
+        max_lag: Maximum lag in samples (default: 100)
+        normalize: Normalize ACF so ACF[0] = 1 (default: True)
 
     Returns:
         acf: Autocorrelation values
-        lags: Lag indices (-MaxLag to +MaxLag)
+        lags: Lag indices (-max_lag to +max_lag)
     """
-    fig = None
     # Ensure column data
     e = np.asarray(err_data).flatten()
     N = len(e)
@@ -24,7 +23,7 @@ def err_auto_correlation(err_data, MaxLag=100, Normalize=True):
     e = e - np.mean(e)
 
     # Preallocate
-    lags = np.arange(-MaxLag, MaxLag + 1)
+    lags = np.arange(-max_lag, max_lag + 1)
     acf = np.zeros_like(lags, dtype=float)
 
     # Compute autocorrelation manually (consistent with MATLAB implementation)
@@ -40,19 +39,7 @@ def err_auto_correlation(err_data, MaxLag=100, Normalize=True):
         acf[k] = np.mean(x1 * x2)
 
     # Normalize if required
-    if Normalize:
+    if normalize:
         acf = acf / acf[lags == 0]
-
-    # Plot with larger fonts to match MATLAB
-    fig = plt.figure()
-    plt.plot(lags, acf, linewidth=2)
-    plt.grid(True)
-    plt.xlabel("Lag (samples)", fontsize=14)
-    plt.ylabel("Autocorrelation", fontsize=14)
-    plt.gca().tick_params(labelsize=14)
-
-    # Close figure to prevent memory leak
-    if fig is not None:
-        plt.close(fig)
 
     return acf, lags

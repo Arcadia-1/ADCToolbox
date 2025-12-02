@@ -4,13 +4,13 @@ from scipy.signal import hilbert
 from .spec_plot import spec_plot
 
 
-def err_envelope_spectrum(err_data, Fs=1):
+def err_envelope_spectrum(err_data, fs=1):
     """
     Compute envelope spectrum using Hilbert transform.
 
     Parameters:
         err_data: Error signal (1D array)
-        Fs: Sampling frequency (default: 1)
+        fs: Sampling frequency (default: 1)
 
     Returns:
         None (generates plot via spec_plot)
@@ -22,7 +22,7 @@ def err_envelope_spectrum(err_data, Fs=1):
     env = np.abs(hilbert(e))
 
     # Use spec_plot for spectrum analysis (spec_plot will handle closing its own figure)
-    spec_plot(env, Fs=Fs, label=0)
+    spec_plot(env, fs=fs, label=0)
 
     # Update labels with larger fonts to match MATLAB
     plt.grid(True)

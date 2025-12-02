@@ -37,10 +37,8 @@ def test_fg_cal_sine_overflow_chk(project_root):
     """
     run_unit_test_batch(
         project_root=project_root,
-        input_subpath="dataset/dout",
+        input_subpath="dataset",
         test_module_name="test_fg_cal_sine_overflow_chk",
-        file_pattern="dout_*.csv",
-        output_subpath="test_output",
-        process_callback=_process_overflow_chk,
+        file_pattern="dout_*.csv",        process_callback=_process_overflow_chk,
         flatten=False  # Digital output data is 2D (N samples x M bits)
     )

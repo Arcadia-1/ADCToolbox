@@ -1,9 +1,8 @@
-%% test_errAutoCorrelation.m - Unit test for errAutoCorrelation function
 close all; clc; clear;
 
 %% Configuration
 verbose = 0;
-inputDir = fullfile("dataset");
+inputDir = fullfile("dataset", "sinewave");
 outputDir = "test_output";
 figureDir = "test_plots";
 

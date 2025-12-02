@@ -3,8 +3,8 @@ close all; clc; clear;
 
 %% Configuration
 verbose = 0;
-inputDir = fullfile("dataset", "sinewave");
-outputDir = "test_data";
+inputDir = fullfile("dataset");
+outputDir = "test_output";
 figureDir = "test_plots";
 
 filesList ={};

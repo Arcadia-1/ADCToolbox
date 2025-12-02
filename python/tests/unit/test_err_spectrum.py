@@ -34,9 +34,7 @@ def test_err_spectrum(project_root):
     """
     run_unit_test_batch(
         project_root=project_root,
-        input_subpath="dataset/aout/sinewave",
-        test_module_name="test_errSpectrum",
-        file_pattern="sinewave_*.csv",
-        output_subpath="test_output",
-        process_callback=_process_err_spectrum
+        input_subpath="dataset",
+        test_module_name="test_err_spectrum",
+        file_pattern="sinewave_*.csv",        process_callback=_process_err_spectrum
     )

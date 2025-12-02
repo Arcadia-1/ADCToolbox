@@ -1,8 +1,8 @@
-function bit_usage = bitActivity(bits, varargin)
+function bit_usage = bitact(bits, varargin)
 %BITACTIVITY Analyze and plot the percentage of 1's in each bit
 %
-%   bit_usage = bitActivity(bits)
-%   bit_usage = bitActivity(bits, 'AnnotateExtremes', true)
+%   bit_usage = bitact(bits)
+%   bit_usage = bitact(bits, 'AnnotateExtremes', true)
 %
 % Inputs:
 %   bits       - Binary matrix (N x B), N=samples, B=bits (MSB to LSB)
@@ -25,7 +25,7 @@ function bit_usage = bitActivity(bits, varargin)
 %
 % Example:
 %   bits = readmatrix('dout_SAR_12b.csv');
-%   bit_usage = bitActivity(bits);
+%   bit_usage = bitact(bits);
 
 % Parse optional inputs
 p = inputParser;

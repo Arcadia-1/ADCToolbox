@@ -1,13 +1,13 @@
 from .sine_fit import sine_fit
 
 
-def find_fin(data, Fs=1):
+def find_fin(data, fs=1):
     """
     Find the fundamental frequency of the given signal.
 
     Parameters:
     - data: The input signal data.
-    - Fs: Sampling frequency (default is 1).
+    - fs: Sampling frequency (default is 1).
 
     Returns:
     - fin: The fundamental frequency of the signal (in Hz).
@@ -16,6 +16,6 @@ def find_fin(data, Fs=1):
     data_fit, freq, mag, dc, phi = sine_fit(data)
 
     # Multiply the estimated frequency by the sampling frequency
-    fin = freq * Fs
-    
+    fin = freq * fs
+
     return fin

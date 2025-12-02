@@ -11,7 +11,7 @@ import numpy as np
 import matplotlib.pyplot as plt
 
 
-def overflow_chk(raw_code, weight, OFB=None):
+def overflow_chk(raw_code, weight, ofb=None):
     """
     Analyze residue distribution at each bit position (matching MATLAB exactly).
 
@@ -25,7 +25,7 @@ def overflow_chk(raw_code, weight, OFB=None):
         Each row is one sample, each column is one bit (MSB first).
     weight : ndarray
         Weight array for each bit, shape (M,).
-    OFB : int, optional
+    ofb : int, optional
         Overflow bit position for overflow detection.
         Default is M (LSB position, 0-indexed from MSB).
 
@@ -45,9 +45,9 @@ def overflow_chk(raw_code, weight, OFB=None):
     if len(weight) != M:
         raise ValueError(f"Weight length ({len(weight)}) must match number of bits ({M})")
 
-    # Default OFB is M (LSB)
-    if OFB is None:
-        OFB = M
+    # Default ofb is M (LSB)
+    if ofb is None:
+        ofb = M
 
     data_decom = np.zeros((N, M))
     range_min = np.zeros(M)
@@ -67,8 +67,8 @@ def overflow_chk(raw_code, weight, OFB=None):
     # Detect overflow at specified bit position
     # MATLAB: ovf_zero = (data_decom(:,M-OFB+1) <= 0);
     # Python 0-indexed: M-OFB+1-1 = M-OFB
-    ovf_zero = data_decom[:, M - OFB] <= 0
-    ovf_one = data_decom[:, M - OFB] >= 1
+    ovf_zero = data_decom[:, M - ofb] <= 0
+    ovf_one = data_decom[:, M - ofb] >= 1
     non_ovf = ~(ovf_zero | ovf_one)
 
     # Create plot matching MATLAB style

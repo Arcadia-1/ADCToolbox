@@ -4,7 +4,7 @@ import warnings
 
 # Verified
 
-def fg_cal_sine(bits, freq=0, rate=0.5, reltol=1e-12, niter=100, order=1, fsearch=0, verbose=0, nomWeight=None):
+def fg_cal_sine(bits, freq=0, rate=0.5, reltol=1e-12, niter=100, order=1, fsearch=0, verbose=0, nom_weight=None):
     """
     FGCalSine — Foreground calibration using a sinewave input
 
@@ -34,7 +34,7 @@ def fg_cal_sine(bits, freq=0, rate=0.5, reltol=1e-12, niter=100, order=1, fsearc
         Force fine search (1) or not (0), default is 0.
     verbose : int, optional
         Print frequency search progress (1) or not (0), default is 0.
-    nomWeight : array-like, optional
+    nom_weight : array-like, optional
         Nominal bit weights (only effective when rank is deficient).
         Default is 2^(M-1) down to 2^0.
 
@@ -99,15 +99,15 @@ def fg_cal_sine(bits, freq=0, rate=0.5, reltol=1e-12, niter=100, order=1, fsearc
             raise ValueError('FGCalSine:FreqLength - Length of freq vector must match number of datasets.')
         
         # Set default nominal weights if not provided
-        if nomWeight is None:
-            nomWeight = 2.0 ** np.arange(M_orig - 1, -1, -1)
+        if nom_weight is None:
+            nom_weight = 2.0 ** np.arange(M_orig - 1, -1, -1)
         
         # Per-dataset frequency search (only for unknown entries or if forced)
         for k in range(ND):
             if freq[k] == 0 or fsearch == 1:
                 _, _, _, _, _, fk = fg_cal_sine(
                     bits_cell[k], freq=freq[k], fsearch=1, order=order,
-                    rate=rate, reltol=reltol, niter=niter, verbose=verbose, nomWeight=nomWeight
+                    rate=rate, reltol=reltol, niter=niter, verbose=verbose, nom_weight=nom_weight
                 )
                 freq[k] = fk
         
@@ -149,7 +149,7 @@ def fg_cal_sine(bits, freq=0, rate=0.5, reltol=1e-12, niter=100, order=1, fsearc
                         # Perfectly correlated (|correlation| ≈ 1)
                         if abs(abs(cor) - 1) < 1e-3:
                             Lmap[i1] = i2
-                            Kmap[i1] = nomWeight[i1] / nomWeight[LR[i2]]
+                            Kmap[i1] = nom_weight[i1] / nom_weight[LR[i2]]
                             # Merge column i1 into column i2
                             bits_patch_all[:, i2] = bits_patch_all[:, i2] + bits_all[:, i1] * Kmap[i1]
                             flag = 1
@@ -274,8 +274,8 @@ def fg_cal_sine(bits, freq=0, rate=0.5, reltol=1e-12, niter=100, order=1, fsearc
         N, M = bits.shape
     
     # Set default nominal weights if not provided
-    if nomWeight is None:
-        nomWeight = 2.0 ** np.arange(M - 1, -1, -1)
+    if nom_weight is None:
+        nom_weight = 2.0 ** np.arange(M - 1, -1, -1)
     
     # Ensure order is at least 1
     order = max(int(round(order)), 1)
@@ -314,9 +314,9 @@ def fg_cal_sine(bits, freq=0, rate=0.5, reltol=1e-12, niter=100, order=1, fsearc
                     # Perfectly correlated (|correlation| ≈ 1)
                     if abs(abs(cor) - 1) < 1e-3:
                         L[i1] = i2
-                        K[i1] = nomWeight[i1] / nomWeight[LR[i2]]
+                        K[i1] = nom_weight[i1] / nom_weight[LR[i2]]
                         # Merge i1 into i2
-                        bits_patch[:, i2] = bits_patch[:, i2] + bits[:, i1] * nomWeight[i1] / nomWeight[LR[i2]]
+                        bits_patch[:, i2] = bits_patch[:, i2] + bits[:, i1] * nom_weight[i1] / nom_weight[LR[i2]]
                         flag = 1
                         break
                 
@@ -329,7 +329,7 @@ def fg_cal_sine(bits, freq=0, rate=0.5, reltol=1e-12, niter=100, order=1, fsearc
         
         # Check if patching succeeded
         if np.linalg.matrix_rank(np.column_stack([np.ones((N, 1)), bits_patch])) < M + 1:
-            raise ValueError('Patch failed: rank still deficient after patching. This may be fixed by changing nomWeight.')
+            raise ValueError('Patch failed: rank still deficient after patching. This may be fixed by changing nom_weight.')
     else:
         bits_patch = bits
     
@@ -349,7 +349,7 @@ def fg_cal_sine(bits, freq=0, rate=0.5, reltol=1e-12, niter=100, order=1, fsearc
             if verbose:
                 print(f'Freq coarse searching ({i1+1}/5):', end='')
             # Weighted sum of first i1+1 columns
-            weighted_sum = bits_patch[:, :i1+1] @ nomWeight[:i1+1]
+            weighted_sum = bits_patch[:, :i1+1] @ nom_weight[:i1+1]
             freq_est = find_fin(weighted_sum)
             freq_estimates.append(freq_est)
             if verbose:

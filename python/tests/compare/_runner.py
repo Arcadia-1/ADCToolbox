@@ -5,8 +5,8 @@ from tests._utils import discover_test_datasets, discover_test_variables
 
 
 def run_comparison_suite(project_root, matlab_test_name,
-                         ref_folder="test_reference",
-                         out_folder="test_data",
+                         ref_folder="reference_output",
+                         out_folder="test_output",
                          structure="nested"):
     """
     Generic runner for comparing MATLAB vs Python test results.

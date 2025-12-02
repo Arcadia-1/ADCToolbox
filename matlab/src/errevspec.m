@@ -1,4 +1,4 @@
-function [ENoB, SNDR, SFDR, SNR, THD, pwr, NF, h] = errEnvelopeSpectrum(err_data, varargin)
+function [ENoB, SNDR, SFDR, SNR, THD, pwr, NF, h] = errevspec(err_data, varargin)
 
 p = inputParser;
 addParameter(p, "Fs", 1);

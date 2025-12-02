@@ -1,0 +1,36 @@
+close all; clc; clear;
+
+%% Configuration
+verbose = 0;
+inputDir = "reference_dataset";
+outputDir = "reference_output";
+figureDir = "test_plots";
+
+filesList ={};
+filesList = autoSearchFiles(filesList, inputDir, 'dout_*.csv');
+if ~isfolder(outputDir), mkdir(outputDir); end
+
+%% Test Loop
+for k = 1:length(filesList)
+    currentFilename = filesList{k};
+    dataFilePath = fullfile(inputDir, currentFilename);
+    fprintf('[%s] [%d/%d] [%s]\n', mfilename, k, length(filesList), currentFilename);
+
+    read_data = readmatrix(dataFilePath);
+    [~, datasetName, ~] = fileparts(currentFilename);
+
+    % Run wcalsine to get calibrated weights
+    [weight_cal, ~, ~, ~, ~, ~] = wcalsine(read_data, 'freq', 0, 'order', 5);
+
+    % Run weightScaling analysis
+    figure('Position', [100, 100, 800, 600], "Visible", verbose);
+    radix = weightScaling(weight_cal);
+    gca().FontSize = 16;
+
+    % Save outputs
+    subFolder = fullfile(outputDir, datasetName, mfilename);
+    figureName = sprintf("%s_%s_matlab.png", datasetName, mfilename);
+    saveFig(figureDir, figureName, verbose);
+    saveVariable(subFolder, radix, verbose);
+    saveVariable(subFolder, weight_cal, verbose);
+end

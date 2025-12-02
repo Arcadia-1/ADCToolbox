@@ -4,16 +4,16 @@ import numpy as np
 import os
 
 
-def generate_jitter_signal(rms_jitter, seed=None, J=101, N=2**16, Fs=1e9):
+def generate_jitter_signal(rms_jitter, seed=None, j=101, n=2**16, fs=1e9):
     """
     Generate ADC output with clock jitter.
 
     Args:
         rms_jitter: RMS jitter in seconds
         seed: Random seed
-        J: Cycles in N samples
-        N: Number of samples
-        Fs: Sampling frequency (Hz)
+        j: Cycles in n samples
+        n: Number of samples
+        fs: Sampling frequency (Hz)
 
     Returns:
         Normalized output [-1, 1]
@@ -22,14 +22,14 @@ def generate_jitter_signal(rms_jitter, seed=None, J=101, N=2**16, Fs=1e9):
         np.random.seed(seed)
 
     # Convert time jitter to phase jitter: phase = 2*pi*Fin*t
-    Fin = Fs * J / N
-    phase_jitter_std = 2 * np.pi * Fin * rms_jitter
+    fin = fs * j / n
+    phase_jitter_std = 2 * np.pi * fin * rms_jitter
 
     # Generate signal with phase jitter (correct method)
     # data = sin([0:N-1]*J*2*pi/N + randn*phase_jitter) * 0.49 + 0.5 + randn*noise
-    t = np.arange(N)
-    phase = t * J * 2 * np.pi / N + np.random.randn(N) * phase_jitter_std
-    data = np.sin(phase) * 0.49 + 0.5 + np.random.randn(N) * 0.000001
+    t = np.arange(n)
+    phase = t * j * 2 * np.pi / n + np.random.randn(n) * phase_jitter_std
+    data = np.sin(phase) * 0.49 + 0.5 + np.random.randn(n) * 0.000001
 
     # Normalize to [-1, 1]
     data = (data - np.mean(data)) / ((np.max(data) - np.min(data)) / 2)
