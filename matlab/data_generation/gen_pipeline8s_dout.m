@@ -12,7 +12,7 @@ N_LAST_STAGE = 4; % N_8 = 4 bits for the final stage
 N = 2^13;
 J = findBin(1, 0.0789, N);
 A = 0.49; % Full scale amplitude
-sig = A * sin((0:N - 1)*J*2*pi/N) + randn(1,N)*1e-6 + 0.5; % Base sinewave (zero mean)
+sig = A * sin((0:N - 1)'*J*2*pi/N) + randn(N, 1)*1e-6 + 0.5; % Base sinewave (zero mean)
 
 N_i = N_BITS_PER_STAGE;
 G_i = GAIN_PER_STAGE;

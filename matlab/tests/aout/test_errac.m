@@ -1,14 +1,14 @@
-%% test_bitActivity.m
+%% test_errAutoCorrelation.m - Unit test for errAutoCorrelation function
 close all; clc; clear;
 
 %% Configuration
 verbose = 0;
 inputDir = fullfile("dataset");
-outputDir = "test_data";
+outputDir = "test_output";
 figureDir = "test_plots";
 
-filesList = {};
-filesList = autoSearchFiles(filesList, inputDir, 'dout_*.csv');
+filesList ={};
+filesList = autoSearchFiles(filesList, inputDir, 'sinewave_*.csv');
 if ~isfolder(outputDir), mkdir(outputDir); end
 
 %% Test Loop
@@ -17,16 +17,24 @@ for k = 1:length(filesList)
     dataFilePath = fullfile(inputDir, currentFilename);
     fprintf('[%s] [%d/%d] [%s]\n', mfilename, k, length(filesList), currentFilename);
 
-    bits = readmatrix(dataFilePath);
-
-    figure('Position', [100, 100, 800, 600], "Visible", verbose);
-    bit_usage = bitActivity(bits, 'AnnotateExtremes', true);
-    set(gca, "FontSize", 16);
+    read_data = readmatrix(dataFilePath);
 
     [~, datasetName, ~] = fileparts(currentFilename);
+
+
+    [data_fit, ~, ~, ~, ~] = sinfit(read_data);
+    err_data = read_data - data_fit;
+
+    figure('Position', [100, 100, 800, 600], "Visible", verbose);
+    [acf, lags] = errac(err_data, 'MaxLag', 200, 'Normalize', 0);
+    
+    titleString = replace(mfilename, '_', '\_');
+    title(mfilename);
+
     subFolder = fullfile(outputDir, datasetName, mfilename);
 
     figureName = sprintf("%s_%s_matlab.png", datasetName, mfilename);
     saveFig(figureDir, figureName, verbose);
-    saveVariable(subFolder, bit_usage, verbose);
+    saveVariable(subFolder, lags, verbose);
+    saveVariable(subFolder, acf, verbose);
 end
