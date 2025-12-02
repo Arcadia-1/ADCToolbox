@@ -1,10 +1,10 @@
 function [ENoB,SNDR,SFDR,SNR,THD,pwr,NF,h] = specPlot(data,varargin)
 %SPECPLOT Plot power spectrum and calculate ADC performance metrics (legacy)
 %   DEPRECATED: This function is maintained for backward compatibility.
-%   Please use specplot (lowercase) instead.
+%   Please use plotspec (lowercase) instead.
 %
-%   This function is a wrapper that calls specplot with the same
-%   functionality. All new code should use specplot directly.
+%   This function is a wrapper that calls plotspec with the same
+%   functionality. All new code should use plotspec directly.
 %
 %   Legacy interface:
 %     [ENoB,SNDR,SFDR,SNR,THD,pwr,NF,h] = SPECPLOT(data)
@@ -65,11 +65,11 @@ function [ENoB,SNDR,SFDR,SNR,THD,pwr,NF,h] = specPlot(data,varargin)
 %     h - Plot handle or empty array if isPlot=0
 %       Same meaning in the new function
 %
-%   See also: specplot
+%   See also: plotspec, specplot
 
-    % Call the new specplot function with all arguments
+    % Call the new plotspec function with all arguments
     % New function returns: [enob,sndr,sfdr,snr,thd,sigpwr,noi,nsd,h]
     % Legacy function returns: [ENoB,SNDR,SFDR,SNR,THD,pwr,NF,h]
-    [ENoB,SNDR,SFDR,SNR,THD,pwr,NF,~,h] = specplot(data,varargin{:});
+    [ENoB,SNDR,SFDR,SNR,THD,pwr,NF,~,h] = plotspec(data,varargin{:});
 
 end

@@ -1,16 +1,16 @@
-function [enob,sndr,sfdr,snr,thd,sigpwr,noi,nsd,h] = specplot(sig,varargin)
-%SPECPLOT Plot power spectrum and calculate ADC performance metrics
+function [enob,sndr,sfdr,snr,thd,sigpwr,noi,nsd,h] = plotspec(sig,varargin)
+%PLOTSPEC Plot power spectrum and calculate ADC performance metrics
 %   This function performs spectral analysis on ADC data and calculates key
 %   performance metrics including ENOB, SNDR, SFDR, SNR, and THD. It supports
 %   various windowing functions, oversampling ratio (OSR), coherent averaging,
 %   and customizable plotting options.
 %
 %   Syntax:
-%     [enob,sndr,sfdr,snr,thd,sigpwr,noi,nsd,h] = SPECPLOT(sig)
-%     [enob,sndr,sfdr,snr,thd,sigpwr,noi,nsd,h] = SPECPLOT(sig, Fs)
-%     [enob,sndr,sfdr,snr,thd,sigpwr,noi,nsd,h] = SPECPLOT(sig, Fs, maxCode)
-%     [enob,sndr,sfdr,snr,thd,sigpwr,noi,nsd,h] = SPECPLOT(sig, Fs, maxCode, harmonic)
-%     [enob,sndr,sfdr,snr,thd,sigpwr,noi,nsd,h] = SPECPLOT(sig, 'Name', Value)
+%     [enob,sndr,sfdr,snr,thd,sigpwr,noi,nsd,h] = PLOTSPEC(sig)
+%     [enob,sndr,sfdr,snr,thd,sigpwr,noi,nsd,h] = PLOTSPEC(sig, Fs)
+%     [enob,sndr,sfdr,snr,thd,sigpwr,noi,nsd,h] = PLOTSPEC(sig, Fs, maxCode)
+%     [enob,sndr,sfdr,snr,thd,sigpwr,noi,nsd,h] = PLOTSPEC(sig, Fs, maxCode, harmonic)
+%     [enob,sndr,sfdr,snr,thd,sigpwr,noi,nsd,h] = PLOTSPEC(sig, 'Name', Value)
 %
 %   Inputs:
 %     sig - Signal to be plot, typically the ADC's output data
@@ -84,26 +84,26 @@ function [enob,sndr,sfdr,snr,thd,sigpwr,noi,nsd,h] = specplot(sig,varargin)
 %
 %   Examples:
 %     % Basic usage with default parameters (uses built-in Hanning window)
-%     [enob,sndr,sfdr] = specplot(sig);
+%     [enob,sndr,sfdr] = plotspec(sig);
 %
 %     % Specify sampling frequency and full scale
-%     [enob,sndr,sfdr] = specplot(sig, 100e6, 2^16);
+%     [enob,sndr,sfdr] = plotspec(sig, 100e6, 2^16);
 %
 %     % Use oversampling with rectangle window (no toolbox required)
-%     [enob,sndr,sfdr] = specplot(sig, 'OSR', 32, 'window', 'rect');
+%     [enob,sndr,sfdr] = plotspec(sig, 'OSR', 32, 'window', 'rect');
 %
 %     % Use other window functions (requires Signal Processing Toolbox)
-%     [enob,sndr,sfdr] = specplot(sig, 'OSR', 32, 'window', @blackman);
+%     [enob,sndr,sfdr] = plotspec(sig, 'OSR', 32, 'window', @blackman);
 %
 %     % Use trimmed mean for noise floor estimation
-%     [enob,sndr,sfdr] = specplot(sig, 'NFMethod', 'mean');
+%     [enob,sndr,sfdr] = plotspec(sig, 'NFMethod', 'mean');
 %
 %     % Multiple runs with coherent averaging
 %     sig = ones(10,1)*sin(2*pi*0.1*(0:1023)) + randn(10, 1024)*0.01; % 10 runs of 1024 samples
-%     [enob,sndr,sfdr] = specplot(sig, 'averageMode', 'coherent');
+%     [enob,sndr,sfdr] = plotspec(sig, 'averageMode', 'coherent');
 %
 %     % Disable plotting and use assumed signal power
-%     [enob,sndr,sfdr] = specplot(sig, 'disp', false, 'assumedSignal', -3);
+%     [enob,sndr,sfdr] = plotspec(sig, 'disp', false, 'assumedSignal', -3);
 %
 %   Notes:
 %     - Signal can be provided as a row vector, column vector, or matrix
