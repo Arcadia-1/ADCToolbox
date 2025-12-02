@@ -1,4 +1,5 @@
-close all; clc; clear;
+%% Centralized Configuration for Aout Test
+common_test_aout;
 
 %% Configuration
 verbose = 0;

@@ -8,9 +8,9 @@ import numpy as np
 import matplotlib.pyplot as plt
 
 
-def err_hist_sine(data, bin=100, fin=0, disp=1, mode=0, erange=None, polyorder=0):
+def err_hist_sine(data, bin=100, fin=0, disp=1, mode=0, erange=None):
     """
-    Error histogram analysis - matches MATLAB errHistSine.m exactly.
+    Error histogram analysis - matches MATLAB errsin.m exactly.
 
     Args:
         data: ADC output data (1D array)
@@ -19,7 +19,6 @@ def err_hist_sine(data, bin=100, fin=0, disp=1, mode=0, erange=None, polyorder=0
         disp: Display plots (1=yes, 0=no) (default: 1)
         mode: 0=phase domain, >=1=code domain (default: 0)
         erange: Error range filter [min, max] (default: None)
-        polyorder: Polynomial order for transfer function fit in code mode (default: 0)
 
     Returns:
         emean: Mean error per bin
@@ -29,10 +28,10 @@ def err_hist_sine(data, bin=100, fin=0, disp=1, mode=0, erange=None, polyorder=0
         pnoi: Phase noise (phase jitter in radians)
         err: Raw error signal
         xx: x-axis values corresponding to raw error
-        polycoeff: Polynomial coefficients (code mode only)
-        k1_static: Linear coefficient (code mode with polyorder>0)
-        k2_static: Quadratic coefficient (code mode with polyorder>=2)
-        k3_static: Cubic coefficient (code mode with polyorder>=3)
+
+    Notes:
+        For static nonlinearity extraction (transfer function fitting),
+        use fit_static_nol() function separately.
     """
     fig = None
     # Ensure data is row vector
@@ -81,34 +80,6 @@ def err_hist_sine(data, bin=100, fin=0, disp=1, mode=0, erange=None, polyorder=0
         anoi = np.nan
         pnoi = np.nan
 
-        # Static nonlinearity extraction using transfer function fit
-        # MATLAB lines 70-99
-        polycoeff = []
-        k1_static = np.nan
-        k2_static = np.nan
-        k3_static = np.nan
-
-        if polyorder > 0:
-            # Extract transfer function: y = k1*x + k2*x^2 + k3*x^3 + ...
-            # where x = ideal input, y = actual output
-            x_ideal = data_fit - np.mean(data_fit)  # Zero-mean ideal input
-            y_actual = data - np.mean(data)         # Zero-mean actual output
-
-            # Normalize for numerical stability
-            x_max = np.max(np.abs(x_ideal))
-            x_norm = x_ideal / x_max
-
-            # Fit polynomial to transfer function
-            if len(x_norm) > polyorder + 1:
-                polycoeff = np.polyfit(x_norm, y_actual, polyorder)
-
-                # Extract denormalized coefficients
-                k1_static = polycoeff[-2] / x_max
-                if polyorder >= 2:
-                    k2_static = polycoeff[-3] / (x_max**2)
-                if polyorder >= 3:
-                    k3_static = polycoeff[-4] / (x_max**3)
-
         if erange is not None:
             eid = (xx >= erange[0]) & (xx <= erange[1])
             xx = xx[eid]
@@ -122,15 +93,6 @@ def err_hist_sine(data, bin=100, fin=0, disp=1, mode=0, erange=None, polyorder=0
 
             ax1.plot(data, err, 'r.', markersize=2, label='Raw error')
             ax1.plot(phase_code, emean, 'b-', linewidth=2, label='Mean error')
-
-            # Add fitted transfer function error curve if polyorder > 0
-            if len(polycoeff) > 0 and polyorder > 0:
-                x_fit_plot = np.linspace(np.min(x_ideal), np.max(x_ideal), 200)
-                y_fit_plot = np.polyval(polycoeff, x_fit_plot / x_max)
-                # Convert back to code domain for plotting
-                code_fit_plot = x_fit_plot + np.mean(data)
-                err_fit_plot = x_fit_plot - y_fit_plot  # err = ideal - actual
-                ax1.plot(code_fit_plot, err_fit_plot, 'g-', linewidth=2, label='Fitted error curve')
 
             ax1.set_xlim([dat_min, dat_max])
             ax1.set_ylim([np.min(err), np.max(err)])
@@ -149,12 +111,6 @@ def err_hist_sine(data, bin=100, fin=0, disp=1, mode=0, erange=None, polyorder=0
             ax2.set_ylabel('RMS error')
             ax2.grid(True, alpha=0.3)
 
-            # Add text annotation with extracted coefficients
-            if len(polycoeff) > 0 and polyorder > 0:
-                ax2.text(dat_min + (dat_max - dat_min) * 0.02, np.max(erms) * 1.05,
-                        f'k1={k1_static:.6f}, k2={k2_static:.6f}, k3={k3_static:.6f}',
-                        fontsize=14, verticalalignment='top')
-
             plt.tight_layout()
 
     else:
@@ -169,12 +125,6 @@ def err_hist_sine(data, bin=100, fin=0, disp=1, mode=0, erange=None, polyorder=0
         enum = np.zeros(bin)
         esum = np.zeros(bin)
         erms = np.zeros(bin)
-
-        # Not applicable in phase mode
-        polycoeff = []
-        k1_static = np.nan
-        k2_static = np.nan
-        k3_static = np.nan
 
         # MATLAB lines 160-164: binning
         for ii in range(N):
@@ -328,7 +278,7 @@ def err_hist_sine(data, bin=100, fin=0, disp=1, mode=0, erange=None, polyorder=0
             # Note: Figure is left open for caller to save/close
             # (tests need to save the figure before closing)
 
-    return emean, erms, phase_code, anoi, pnoi, err, xx, polycoeff, k1_static, k2_static, k3_static
+    return emean, erms, phase_code, anoi, pnoi, err, xx
 
 
 if __name__ == "__main__":
@@ -354,8 +304,8 @@ if __name__ == "__main__":
 
     print(f"[Test] [Set jitter] = {Tj*1e15:.2f} fs")
 
-    # Test errHistSine
-    emean, erms, phase_code, anoi, pnoi, err, xx = errHistSine(data, bin=99, fin=fin_norm, disp=0)
+    # Test err_hist_sine
+    emean, erms, phase_code, anoi, pnoi, err, xx = err_hist_sine(data, bin=99, fin=fin_norm, disp=0)
 
     # Convert pnoi to jitter (MATLAB line 47)
     jitter_calc = pnoi / (2 * np.pi * Fin_actual)
