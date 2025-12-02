@@ -1,33 +1,22 @@
-%% Generate sinewave with 2-step quantization kickback
-close all; clear; clc; warning("off");
-rng(42);
-subFolder = fullfile("dataset", "sinewave");
-if ~exist(subFolder, 'dir'), mkdir(subFolder); end
-
+%% Centralized Configuration for Sinewave Generation
+common_gen_sinewave;
 %% Sinewave with 2-step quantization kickback
-kickback_strength_list = 0.01; % kickback coupling strength
-
-N = 2^13;
-Fs = 1e9;
-J = findBin(Fs, 80e6, N);
-Fin = J / N * Fs;
-
-ideal_phase = 2 * pi * Fin * (0:N - 1) * 1 / Fs;
+kickback_strength_list = 0.01;
 
 for k = 1:length(kickback_strength_list)
     kb = kickback_strength_list(k);
 
-    sig = sin(ideal_phase) * 0.49 + 0.5 + randn(1, N) * 1e-4;
+    sig = A * sin(ideal_phase) + DC + randn(N, 1) * Noise_rms;
 
     % two-step quantizer
     msb = floor(sig*2^4) / 2^4; % coarse quantizer (4-bit)
     lsb = floor((sig - msb)*2^12) / 2^12; % fine quantizer  (12-bit)
 
     % apply kickback (previous MSB affects the next residue)
-    msb_shifted = [msb(1), msb(1:end-1)]; % delayed MSB (one-step memory)
+    msb_shifted = [msb(1); msb(1:end-1)]; % delayed MSB (one-step memory)
     data = msb + lsb + kb * msb_shifted; % kickback injection
-    
-    ENoB = specPlot(data,"isplot",0);
+
+    ENoB = plotspec(data, "isplot", 0);
     kstr = replace(sprintf("%.3f", kb), ".", "P");
     filename = fullfile(subFolder, sprintf("sinewave_kickback_%s.csv", kstr));
     fprintf("  [ENoB = %0.2f] [Save] %s\n", ENoB, filename);

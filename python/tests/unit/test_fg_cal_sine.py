@@ -39,8 +39,8 @@ def _process_fg_cal_sine(raw_data, sub_folder, dataset_name, figures_folder, tes
         preCal,
         label=1,
         harmonic=5,
-        OSR=1,
-        NFMethod=0
+        osr=1,
+        nf_method=0
     )
     plt.title(f'Spectrum Before Calibration: {dataset_name}')
     figure_name_preCal = f"{dataset_name}_{test_name}_preCal_python.png"
@@ -53,8 +53,8 @@ def _process_fg_cal_sine(raw_data, sub_folder, dataset_name, figures_folder, tes
         postCal,
         label=1,
         harmonic=5,
-        OSR=1,
-        NFMethod=0
+        osr=1,
+        nf_method=0
     )
     plt.title(f'Spectrum After Calibration: {dataset_name}')
     figure_name_postCal = f"{dataset_name}_{test_name}_postCal_python.png"
@@ -78,10 +78,8 @@ def test_fg_cal_sine(project_root):
     """
     run_unit_test_batch(
         project_root=project_root,
-        input_subpath="dataset/dout",
+        input_subpath="dataset",
         test_module_name="test_fg_cal_sine",
-        file_pattern="dout_*.csv",
-        output_subpath="test_output",
-        process_callback=_process_fg_cal_sine,
+        file_pattern="dout_*.csv",        process_callback=_process_fg_cal_sine,
         flatten=False  # Digital output data is 2D (N samples x M bits)
     )

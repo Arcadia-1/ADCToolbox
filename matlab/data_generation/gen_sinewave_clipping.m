@@ -1,30 +1,19 @@
-%% Generate sinewave with clipping
-close all; clear; clc; warning("off");
-rng(42);
-subFolder = fullfile("dataset", "sinewave");
-if ~exist(subFolder, 'dir'), mkdir(subFolder); end
-
+%% Centralized Configuration for Sinewave Generation
+common_gen_sinewave;
 %% Sinewave with clipping
-clipping_list = [0.012]; % clipping thresholds to sweep
-
-N = 2^13;
-Fs = 10e9;
-J = findBin(Fs, 1000e6, N);
-Fin = J / N * Fs;
-
-ideal_phase = 2 * pi * Fin * (0:N - 1) * 1 / Fs;
+clipping_list = 0.0112;
 
 for k = 1:length(clipping_list)
     clip_th = clipping_list(k);
 
-    sig = sin(ideal_phase) * 0.49 + 0.5 + randn(1, N) * 1e-6;
+    sig = A * sin(ideal_phase) + DC + randn(N, 1) * Noise_rms;
 
-    % apply clipping distortion
-    data = min(max(sig, clip_th), 1-clip_th);
+
+    data = min(max(sig, clip_th), 1-clip_th); % apply clipping distortion
 
     str = replace(sprintf("%.3f", clip_th), ".", "P");
     filename = fullfile(subFolder, sprintf("sinewave_clipping_%s.csv", str));
-    ENoB = specPlot(data,"isplot",0);
+    ENoB = plotspec(data, "isplot", 0);
     writematrix(data, filename)
     fprintf("  [ENoB = %0.2f] [Save] %s\n", ENoB, filename);
 end

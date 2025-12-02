@@ -13,7 +13,7 @@ gen_sinewave_glitch
 gen_sinewave_drift
 gen_sinewave_ref_error
 gen_sinewave_noise
-gen_sinewave_nonlin_HD
+gen_sinewave_nonlin_hd
 gen_sinewave_nonlin_static
 gen_sinewave_nonlin_dynamic
 gen_sinewave_am_tone

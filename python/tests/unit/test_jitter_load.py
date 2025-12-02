@@ -13,8 +13,7 @@ from pathlib import Path
 
 from adctoolbox.common import sine_fit
 from adctoolbox.aout import spec_plot, err_hist_sine
-from save_variable import save_variable
-from save_fig import save_fig
+from tests._utils import save_variable, save_fig
 
 # Get project root directory
 project_root = Path(__file__).resolve().parents[3]
@@ -101,8 +100,8 @@ def main():
                 read_data,
                 label=1,
                 harmonic=0,
-                OSR=1,
-                NFMethod=0
+                osr=1,
+                nf_method=0
             )
             meas_SNDR[i_tj] = SNDR
             plt.close()  # Close the spectrum plot

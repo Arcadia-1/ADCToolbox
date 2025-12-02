@@ -1,13 +1,8 @@
-clear; close all; clc;
-
-subFolder = fullfile("dataset", "dout");
-if ~exist(subFolder, 'dir'), mkdir(subFolder); end
+%% Centralized Configuration for Dout Generation
+common_gen_dout;
 
 %%
-N = 2^13;
-J = findBin(1, 0.0789, N);
-A = 0.49;
-sig = A * sin((0:N - 1)'*J*2*pi/N) + 0.5; % Base sinewave (zero mean)
+sig = A * sin(ideal_phase) + DC; % Base sinewave
 
 % stage parameters
 N1 = 3;
@@ -40,9 +35,9 @@ ENoB1 = specPlot(msb_bits*w1', "isplot", 0);
 ENoB = specPlot(dout*weights', "isplot", 0);
 fprintf("[%s] [ENoB1 = %0.2f bits] [ENoB2 = %0.2f bits]\n", mfilename, ENoB1, ENoB);
 
-figure;
-overflowChk(dout, weights);
-title_str = sprintf('2-stage Pipeline (N1=%d, G1=%d, N2=%d, G2=%d, N3=%d)', N1, G1, N2);
+figure('Position', [100, 100, 800, 600]);
+ovfchk(dout, weights);
+title_str = sprintf('2-stage Pipeline (N1=%d, G1=%d, N2=%d)', N1, G1, N2);
 title(title_str);
 
 filename = fullfile(subFolder, sprintf("dout_Pipeline_%dbx%d_%db.csv", N1, G1, N2));

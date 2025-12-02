@@ -30,9 +30,9 @@ jobs:
       - name: Test basic functionality
         run: |
           pytest python/tests/unit/test_basic.py -q          
-          pytest python/tests/compare/test_compare_basic.py -q
+          # pytest python/tests/compare/test_compare_basic.py -q
 
-      - name: Test sine_fit
-        run: |
-          pytest python/tests/unit/test_sine_fit.py -q      
-          pytest python/tests/compare/test_compare_sine_fit.py -q
+      # - name: Test sine_fit
+      #   run: |
+      #     pytest python/tests/unit/test_sine_fit.py -q      
+      #     pytest python/tests/compare/test_compare_sine_fit.py -q

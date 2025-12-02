@@ -39,10 +39,8 @@ def test_weight_scaling(project_root):
     """
     run_unit_test_batch(
         project_root=project_root,
-        input_subpath="dataset/dout",
-        test_module_name="test_weightScaling",
-        file_pattern="dout_*.csv",
-        output_subpath="test_output",
-        process_callback=_process_weight_scaling,
+        input_subpath="dataset",
+        test_module_name="test_weight_scaling",
+        file_pattern="dout_*.csv",        process_callback=_process_weight_scaling,
         flatten=False  # Digital output data is 2D (N samples x M bits)
     )

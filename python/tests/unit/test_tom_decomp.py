@@ -49,9 +49,7 @@ def test_tom_decomp(project_root):
     """
     run_unit_test_batch(
         project_root=project_root,
-        input_subpath="dataset/aout/sinewave",
-        test_module_name="test_tomDecomp",
-        file_pattern="sinewave_*.csv",
-        output_subpath="test_output",
-        process_callback=_process_tom_decomp
+        input_subpath="dataset",
+        test_module_name="test_tom_decomp",
+        file_pattern="sinewave_*.csv",        process_callback=_process_tom_decomp
     )

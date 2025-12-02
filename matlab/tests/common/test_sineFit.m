@@ -18,7 +18,7 @@ for k = 1:length(filesList)
     fprintf('[%s] [%d/%d] [%s]\n', mfilename, k, length(filesList), currentFilename);
 
     read_data = readmatrix(dataFilePath);
-    [data_fit, freq, mag, dc, phi] = sineFit(read_data);
+    [data_fit, freq, mag, dc, phi] = sinfit(read_data);
 
     figure('Position', [100, 100, 800, 600], "Visible", verbose);
     period = round(1/freq);

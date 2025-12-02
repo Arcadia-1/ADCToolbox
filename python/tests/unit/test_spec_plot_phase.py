@@ -12,7 +12,7 @@ def test_spec_plot_phase(project_root):
     """
     Batch runner for spec_plot_phase (Single Channel Version).
     """
-    input_dir = project_root / "dataset" / "aout" / "sinewave"
+    input_dir = project_root / "reference_dataset" / "sinewave"
     output_dir = project_root / "test_output"
 
     files_list = []

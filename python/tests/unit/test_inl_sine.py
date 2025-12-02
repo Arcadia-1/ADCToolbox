@@ -72,9 +72,7 @@ def test_inl_sine(project_root):
     """
     run_unit_test_batch(
         project_root=project_root,
-        input_subpath="dataset/aout/sinewave",
+        input_subpath="dataset",
         test_module_name="test_inl_sine",
-        file_pattern="sinewave_*.csv",
-        output_subpath="test_output",
-        process_callback=_process_inl_sine
+        file_pattern="sinewave_*.csv",        process_callback=_process_inl_sine
     )

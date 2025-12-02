@@ -2,7 +2,7 @@ close all; clc; clear;
 
 %% Configuration
 verbose = 0;
-inputDir = fullfile("dataset");
+inputDir = fullfile("dataset", "sinewave");
 outputDir = "test_output";
 figureDir = "test_plots";
 
@@ -27,7 +27,7 @@ for k = 1:length(filesList)
     env = abs(hilbert(e));
 
     figure('Position', [100, 100, 800, 600], "Visible", verbose);
-    [ENoB, SNDR, SFDR, SNR, THD, pwr, NF, ~] = errEnvelopeSpectrum(err_data, 'Fs', 1);
+    [ENoB, SNDR, SFDR, SNR, THD, pwr, NF, ~] = errevspec(err_data, 'Fs', 1);
     title(['errEnvelopeSpectrum']);
 
     subFolder = fullfile(outputDir, datasetName, mfilename);

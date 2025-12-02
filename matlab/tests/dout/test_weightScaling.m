@@ -2,7 +2,7 @@
 close all; clc; clear;
 %% Configuration
 verbose = 0;
-inputDir = fullfile("dataset");
+inputDir = fullfile("dataset", "dout");
 outputDir = "test_data";
 figureDir = "test_plots";
 
@@ -19,7 +19,7 @@ for k = 1:length(filesList)
 
     bits = readmatrix(dataFilePath);
 
-    [weight_cal, ~, ~, ~, ~, ~] = FGCalSine(bits, 'freq', 0, 'order', Order);
+    [weight_cal, ~, ~, ~, ~, ~] = wcalsine(bits, 'freq', 0, 'order', Order);
 
     % Run weightScaling tool
     figure('Position', [100, 100, 800, 600], "Visible", verbose);
