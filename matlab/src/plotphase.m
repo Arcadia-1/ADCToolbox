@@ -1,14 +1,14 @@
-function [h] = phaseplot(sig,varargin)
-%PHASEPLOT Plot coherent phase spectrum with polar display
+function [h] = plotphase(sig,varargin)
+%PLOTPHASE Plot coherent phase spectrum with polar display
 %   This function performs coherent spectral phase analysis on ADC data
 %   and displays the result in a polar plot. It aligns the phase of multiple
 %   measurement runs and shows harmonics on a polar coordinate system.
 %
 %   Syntax:
-%     h = PHASEPLOT(sig)
-%     h = PHASEPLOT(sig, harmonic)
-%     h = PHASEPLOT(sig, harmonic, maxSignal)
-%     h = PHASEPLOT(sig, 'Name', Value)
+%     h = PLOTPHASE(sig)
+%     h = PLOTPHASE(sig, harmonic)
+%     h = PLOTPHASE(sig, harmonic, maxSignal)
+%     h = PLOTPHASE(sig, 'Name', Value)
 %
 %   Inputs:
 %     sig - Signal to be analyzed, typically the ADC's output data
@@ -43,22 +43,22 @@ function [h] = phaseplot(sig,varargin)
 %
 %   Examples:
 %     % Basic usage with default parameters
-%     h = phaseplot(sig);
+%     h = plotphase(sig);
 %
 %     % Specify number of harmonics and full scale
-%     h = phaseplot(sig, 7, 2^16);
+%     h = plotphase(sig, 7, 2^16);
 %
 %     % Use with oversampling
-%     h = phaseplot(sig, 'OSR', 32);
+%     h = plotphase(sig, 'OSR', 32);
 %
 %     % Remove low-frequency noise below 1 kHz
-%     h = phaseplot(sig, 'Fs', 100e6, 'cutoff', 1e3);
+%     h = plotphase(sig, 'Fs', 100e6, 'cutoff', 1e3);
 %
 %     % Use least squares fitting mode with noise circle
-%     h = phaseplot(sig, 7, 'mode', 'LMS');
+%     h = plotphase(sig, 7, 'mode', 'LMS');
 %
 %     % Combine positional and name-value parameters
-%     h = phaseplot(sig, 10, 2^16, 'Fs', 50e6, 'OSR', 64, 'cutoff', 500);
+%     h = plotphase(sig, 10, 2^16, 'Fs', 50e6, 'OSR', 64, 'cutoff', 500);
 %
 %   Notes:
 %     - Signal can be provided as a row vector, column vector, or matrix
@@ -84,7 +84,7 @@ function [h] = phaseplot(sig,varargin)
 %     - The polar plot shows phase (angle) and magnitude (radius)
 %     - Radius is displayed in dB with 0 dB at the perimeter
 %
-%   See also: specplot, alias, fft, polarplot
+%   See also: plotspec, alias, fft, polarplot
 
 p = inputParser;
 validScalarPosNum = @(x) isnumeric(x) && isscalar(x) && (x > 0);

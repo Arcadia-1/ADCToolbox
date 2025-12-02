@@ -1,10 +1,10 @@
 function [h] = specPlotPhase(data,varargin)
 %SPECPLOTPHASE Plot coherent phase spectrum with polar display (legacy)
 %   DEPRECATED: This function is maintained for backward compatibility.
-%   Please use phaseplot (lowercase) instead.
+%   Please use plotphase instead.
 %
-%   This function is a wrapper that calls phaseplot with the same
-%   functionality. All new code should use phaseplot directly.
+%   This function is a wrapper that calls plotphase with the same
+%   functionality. All new code should use plotphase directly.
 %
 %   Legacy interface:
 %     h = SPECPLOTPHASE(data)
@@ -28,27 +28,27 @@ function [h] = specPlotPhase(data,varargin)
 %     'OSR' - Oversampling ratio
 %       Same meaning in the new function
 %     'cutoff' - High-pass cutoff frequency for low-frequency noise removal in Hz
-%       New parameter available in phaseplot
+%       New parameter available in plotphase
 %
 %   Outputs:
 %     h - Plot handle
 %       Same meaning in the new function
 %
 %   Migration Notes:
-%     - Parameter 'data' is now named 'sig' in phaseplot
-%     - The N_fft parameter has been removed in the new phaseplot function
-%     - New phaseplot adds Fs (sampling frequency) as second positional parameter
+%     - Parameter 'data' is now named 'sig' in plotphase
+%     - The N_fft parameter has been removed in the new plotphase function
+%     - New plotphase adds Fs (sampling frequency) as second positional parameter
 %     - FFT length is now always determined by the data length
 %     - New 'cutoff' parameter available to remove low-frequency noise
 %     - If you were using N_fft, ensure your data has the desired length
 %     - Old code: h = specPlotPhase(data, 1024, 5)
-%     - New code: h = phaseplot(sig, Fs, 5) where Fs is sampling frequency
+%     - New code: h = plotphase(sig, Fs, 5) where Fs is sampling frequency
 %
-%   See also: phaseplot
+%   See also: plotphase
 
-    % Call the new phaseplot function with all arguments
+    % Call the new plotphase function with all arguments
     % Note: The second positional parameter is now interpreted as harmonic instead of N_fft
-    % Force FFT mode for backward compatibility (new phaseplot defaults to LMS mode)
-    h = phaseplot(data, varargin{:}, 'mode', 'FFT');
+    % Force FFT mode for backward compatibility (new plotphase defaults to LMS mode)
+    h = plotphase(data, varargin{:}, 'mode', 'FFT');
 
 end
