@@ -1,3 +1,5 @@
+%% Run analog output (aout) unit tests
+
 test_tomDecomp
 test_specPlot
 test_specPlotPhase
