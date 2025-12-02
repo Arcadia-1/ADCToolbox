@@ -1,8 +1,8 @@
 %% Generate sinewave with True Amplitude Modulation (AM Tone)
 close all; clear; clc; warning("off");
 rng(42);
-
-data_dir = "dataset/aout";
+subFolder = fullfile("dataset", "sinewave");
+if ~exist(subFolder, 'dir'), mkdir(subFolder); end
 
 %% Sinewave with True Amplitude Modulation (AM Tone)
 am_strength_list = [0.0011]; % modulation depth (m)
@@ -26,7 +26,7 @@ for k = 1:length(am_strength_list)
     data = data + randn(1, N) * 1e-6; % tiny white noise
 
     astr = replace(sprintf('%.3f', am_strength), '.', 'P');
-    filename = fullfile(data_dir, sprintf("sinewave_amplitude_modulation_%s.csv", astr));
+    filename = fullfile(subFolder, sprintf("sinewave_amplitude_modulation_%s.csv", astr));
     ENoB = specPlot(data,"isplot",0);
     writematrix(data, filename)
     fprintf("  [ENoB = %0.2f] [Save] %s\n", ENoB, filename);

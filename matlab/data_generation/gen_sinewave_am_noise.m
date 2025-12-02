@@ -1,8 +1,8 @@
 %% Generate sinewave with Amplitude Noise (Random Amplitude Noise)
 close all; clear; clc; warning("off");
 rng(42);
-
-data_dir = "dataset/aout";
+subFolder = fullfile("dataset", "sinewave");
+if ~exist(subFolder, 'dir'), mkdir(subFolder); end
 
 %% Sinewave with Amplitude Noise (Random Amplitude Noise)
 am_noise_list = [0.00075]; % AM noise strength (e.g., 0.1% to 1%)
@@ -26,7 +26,7 @@ for k = 1:length(am_noise_list)
     data = sinewave_zero_mean .* am_factor + 0.5 + randn(1, N) * 1e-6;
 
     astr = replace(sprintf("%.3f", am_strength), ".", "P");
-    filename = fullfile(data_dir, sprintf("sinewave_amplitude_noise_%s.csv", astr));
+    filename = fullfile(subFolder, sprintf("sinewave_amplitude_noise_%s.csv", astr));
     ENoB = specPlot(data,"isplot",0);
     writematrix(data, filename)
     fprintf("  [ENoB = %0.2f] [Save] %s\n", ENoB, filename);

@@ -33,7 +33,7 @@ for k = 1:length(HD2_dB_list)
 
         hd2_str = sprintf("HD2_n%0.0fdB", abs(HD2_dB_list(k)));
         hd3_str = sprintf("HD3_n%0.0fdB", abs(HD3_dB_list(k2)));
-        filename = fullfile(subFolder, sprintf("sinewave_%s_%s.csv", hd2_str, hd3_str));
+        filename = fullfile(subFolder, sprintf("sinewave_nonlin_%s_%s.csv", hd2_str, hd3_str));
         writematrix(data, filename)
 
         ENoB = specPlot(data,"isplot",0);

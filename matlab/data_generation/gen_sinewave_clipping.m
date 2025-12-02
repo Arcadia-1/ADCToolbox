@@ -1,8 +1,8 @@
 %% Generate sinewave with clipping
 close all; clear; clc; warning("off");
 rng(42);
-
-data_dir = "dataset/aout";
+subFolder = fullfile("dataset", "sinewave");
+if ~exist(subFolder, 'dir'), mkdir(subFolder); end
 
 %% Sinewave with clipping
 clipping_list = [0.012]; % clipping thresholds to sweep
@@ -23,7 +23,7 @@ for k = 1:length(clipping_list)
     data = min(max(sig, clip_th), 1-clip_th);
 
     str = replace(sprintf("%.3f", clip_th), ".", "P");
-    filename = fullfile(data_dir, sprintf("sinewave_clipping_%s.csv", str));
+    filename = fullfile(subFolder, sprintf("sinewave_clipping_%s.csv", str));
     ENoB = specPlot(data,"isplot",0);
     writematrix(data, filename)
     fprintf("  [ENoB = %0.2f] [Save] %s\n", ENoB, filename);

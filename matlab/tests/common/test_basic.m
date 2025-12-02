@@ -2,7 +2,9 @@
 close all; clc; clear;
 %% Configuration
 verbose = 0;
-subFolder = fullfile("test_output", mfilename);
+outputDir = "test_data";
+figureDir = "test_plots";
+subFolder = fullfile(outputDir, mfilename);
 if ~isfolder(subFolder), mkdir(subFolder); end
 %% Generate sine wave
 N = 1024; % Number of samples
@@ -45,7 +47,8 @@ ylim([min(sinewave_zoom) - 0.1, max(sinewave_zoom) + 0.1]);
 
 
 %% Save results
-saveFig(subFolder, "sinewave_basic_matlab.png", verbose);
+figureName = sprintf("%s_%s_matlab.png", mfilename, mfilename);  % test_basic_test_basic_matlab.png
+saveFig(figureDir, figureName, verbose);
 saveVariable(subFolder, sinewave, verbose);
 
 test_matrix = reshape(sinewave, 4, N/4);

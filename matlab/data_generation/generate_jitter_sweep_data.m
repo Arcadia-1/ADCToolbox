@@ -1,4 +1,7 @@
 close all; clear; clc; warning("off")
+rng(42);
+subFolder = fullfile("dataset", "jitter_sweep");
+if ~exist(subFolder, 'dir'), mkdir(subFolder); end
 
 %% Generate deterministic jitter sweep test data
 % Output: CSV files in test_data/jitter_sweep/
@@ -14,17 +17,11 @@ amp_noise = 0.00001;
 Fin_list = [400e6, 900e6, 9000e6];
 Tj_list = logspace(-15, -12, 30);
 
-%% Output directory
-outputdir = fullfile('dataset', 'others', 'jitter_sweep');
-if ~exist(outputdir, 'dir')
-    mkdir(outputdir);
-end
-
 %% Generate data
 fprintf('[Generating jitter sweep test data]\n');
 fprintf('[Frequencies] = [%s] MHz\n', sprintf('%d ', Fin_list/1e6));
 fprintf('[Jitter range] = %.2f fs to %.2f ps\n', Tj_list(1)*1e15, Tj_list(end)*1e12);
-fprintf('[Output dir] = %s\n\n', outputdir);
+fprintf('[Output dir] = %s\n\n', subFolder);
 
 rng(42, 'twister');
 
@@ -49,7 +46,7 @@ for i_freq = 1:length(Fin_list)
 
         filename = sprintf('jitter_sweep_Fin_%dMHz_Tj_idx_%02d.csv', ...
             round(Fin/1e6), i_tj);
-        filepath = fullfile(outputdir, filename);
+        filepath = fullfile(subFolder, filename);
         dlmwrite(filepath, data, 'precision', '%.12e');
 
         if mod(i_tj, 5) == 0
@@ -64,7 +61,7 @@ for i_freq = 1:length(Fin_list)
 end
 
 %% Save metadata
-metadata_filepath = fullfile(outputdir, 'jitter_sweep_metadata.csv');
+metadata_filepath = fullfile(subFolder, 'jitter_sweep_metadata.csv');
 fid = fopen(metadata_filepath, 'w');
 fprintf(fid, 'Tj_idx,Tj_seconds,Tj_femtoseconds\n');
 for i = 1:length(Tj_list)
@@ -73,7 +70,7 @@ end
 fclose(fid);
 fprintf('[Saved metadata] -> [%s]\n', metadata_filepath);
 
-freq_metadata_filepath = fullfile(outputdir, 'frequency_list.csv');
+freq_metadata_filepath = fullfile(subFolder, 'frequency_list.csv');
 fid = fopen(freq_metadata_filepath, 'w');
 fprintf(fid, 'Fin_Hz,Fin_MHz\n');
 for i = 1:length(Fin_list)
@@ -82,7 +79,7 @@ end
 fclose(fid);
 fprintf('[Saved frequency list] -> [%s]\n', freq_metadata_filepath);
 
-config_metadata_filepath = fullfile(outputdir, 'config.csv');
+config_metadata_filepath = fullfile(subFolder, 'config.csv');
 fid = fopen(config_metadata_filepath, 'w');
 fprintf(fid, 'parameter,value\n');
 fprintf(fid, 'Fs,%.6e\n', Fs);

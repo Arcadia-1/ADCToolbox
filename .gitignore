@@ -118,6 +118,10 @@ dmypy.json
 # All test output files
 test_output/
 
+# Generated figures (can be regenerated, not tracked in git)
+figures/
+test_plots/
+
 # Symlinks to shared test directories (don't track the links themselves)
 python/test_data
 python/test_output
@@ -179,5 +183,7 @@ project_log.md
 .claude
 
 dataset/
+test_data/
+test_output/
 agent_playground/
 matlab/debug

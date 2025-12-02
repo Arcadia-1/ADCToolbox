@@ -65,7 +65,10 @@ def test_basic(project_root):
     plt.tight_layout()
 
     # Save figure and variable
-    save_fig(test_output_dir, "sinewave_basic_python.png")
+    dataset_name = "test_basic"
+    test_name = "test_basic"
+    figure_name = f"{dataset_name}_{test_name}_python.png"
+    save_fig(test_output_dir, figure_name)
     save_variable(test_output_dir, sinewave, 'sinewave')
     
     test_matrix = sinewave.reshape((4, int(N/4)), order='F')
