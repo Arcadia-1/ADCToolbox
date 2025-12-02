@@ -12,11 +12,8 @@ for k = 1:length(filesList)
 
     % Run wcalsine to get calibrated weights
     [weight_cal, ~, ~, ~, ~, ~] = wcalsine(read_data, 'freq', 0, 'order', 5);
-
-    % Run weightScaling analysis
     figure('Position', [100, 100, 800, 600], "Visible", verbose);
     radix = weightScaling(weight_cal);
-    gca().FontSize = 16;
 
     % Save outputs
     subFolder = fullfile(outputDir, datasetName, mfilename);

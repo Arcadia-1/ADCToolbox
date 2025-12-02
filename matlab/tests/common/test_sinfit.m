@@ -6,9 +6,10 @@ for k = 1:length(filesList)
     currentFilename = filesList{k};
     dataFilePath = fullfile(inputDir, currentFilename);
     fprintf('[%s] [%d/%d] [%s]\n', mfilename, k, length(filesList), currentFilename);
+    [~, datasetName, ~] = fileparts(currentFilename);
 
     read_data = readmatrix(dataFilePath);
-    [data_fit, freq, mag, dc, phi] = sinfit(read_ata);
+    [data_fit, freq, mag, dc, phi] = sinfit(read_data);
 
     figure('Position', [100, 100, 800, 600], "Visible", verbose);
     period = round(1/freq);
@@ -29,11 +30,11 @@ for k = 1:length(filesList)
     grid on;
     ylim([min(fitted_sine) - 0.1, max(fitted_sine) + 0.2])
 
-    [~, datasetName, ~] = fileparts(currentFilename);
-    subFolder = fullfile(outputDir, datasetName, mfilename);
 
-    figureName = sprintf("%s_%s_matlab.png", datasetName, mfilename);
+    figureName = sprintf("%s_%s_matlab.png", mfilename, datasetName);
     saveFig(figureDir, figureName, verbose);
+
+    subFolder = fullfile(outputDir, datasetName, mfilename);
     saveVariable(subFolder, freq, verbose);
     saveVariable(subFolder, mag, verbose);
     saveVariable(subFolder, dc, verbose);

@@ -28,13 +28,7 @@ def test_full_suite_common(project_root):
     1. Generate outputs (unit tests)
     2. Validate against MATLAB (comparison tests)
     """
-    print("\n" + "=" * 70)
-    print("COMMON TEST SUITE")
-    print("=" * 70)
-
     # Step 1: Generate Python outputs
-    print("\n[STEP 1/2] Running unit tests to generate outputs...")
-    print("-" * 70)
 
     unit_tests = [
         "tests/unit/test_basic.py",
@@ -49,9 +43,6 @@ def test_full_suite_common(project_root):
             raise AssertionError(f"Unit test failed: {test}")
 
     # Step 2: Run comparison tests
-    print("\n[STEP 2/2] Running comparison tests...")
-    print("-" * 70)
-
     comparison_tests = [
         "tests/compare/test_compare_basic.py",
         "tests/compare/test_compare_sine_fit.py",
@@ -63,24 +54,14 @@ def test_full_suite_common(project_root):
         if result != 0:
             raise AssertionError(f"Comparison test failed: {test}")
 
-    print("\n" + "=" * 70)
-    print("✓ COMMON TEST SUITE PASSED")
-    print("=" * 70)
-
-
 def test_full_suite_analog(project_root):
     """
     Run full test suite for analog output (aout) tests:
     1. Generate outputs (unit tests)
     2. Validate against MATLAB (comparison tests)
     """
-    print("\n" + "=" * 70)
-    print("ANALOG OUTPUT (AOUT) TEST SUITE")
-    print("=" * 70)
 
     # Step 1: Generate Python outputs
-    print("\n[STEP 1/2] Running unit tests to generate outputs...")
-    print("-" * 70)
 
     unit_tests = [
         "tests/unit/test_spec_plot.py",
@@ -106,8 +87,6 @@ def test_full_suite_analog(project_root):
             print(f"\n[SKIP] Test not found: {test}")
 
     # Step 2: Run comparison tests
-    print("\n[STEP 2/2] Running comparison tests...")
-    print("-" * 70)
 
     comparison_tests = [
         "tests/compare/test_compare_spec_plot.py",
@@ -126,25 +105,14 @@ def test_full_suite_analog(project_root):
         else:
             print(f"\n[SKIP] Test not found: {test}")
 
-    print("\n" + "=" * 70)
-    print("✓ ANALOG OUTPUT TEST SUITE PASSED")
-    print("=" * 70)
-
-
 def test_full_suite_digital(project_root):
     """
     Run full test suite for digital output (dout) tests:
     1. Generate outputs (unit tests)
     2. Validate against MATLAB (comparison tests)
     """
-    print("\n" + "=" * 70)
-    print("DIGITAL OUTPUT (DOUT) TEST SUITE")
-    print("=" * 70)
 
     # Step 1: Generate Python outputs
-    print("\n[STEP 1/2] Running unit tests to generate outputs...")
-    print("-" * 70)
-
     unit_tests = [
         "tests/unit/test_bit_activity.py",
         "tests/unit/test_enob_bit_sweep.py",
@@ -163,9 +131,6 @@ def test_full_suite_digital(project_root):
             print(f"\n[SKIP] Test not found: {test}")
 
     # Step 2: Run comparison tests
-    print("\n[STEP 2/2] Running comparison tests...")
-    print("-" * 70)
-
     comparison_tests = [
         "tests/compare/test_compare_bit_activity.py",
         "tests/compare/test_compare_enob_bit_sweep.py",
@@ -184,25 +149,13 @@ def test_full_suite_digital(project_root):
         else:
             print(f"\n[SKIP] Test not found: {test}")
 
-    print("\n" + "=" * 70)
-    print("✓ DIGITAL OUTPUT TEST SUITE PASSED")
-    print("=" * 70)
-
-
 def test_full_suite_all(project_root):
     """
     Run the complete test suite (common + analog + digital).
     This is the master test that runs everything.
     """
-    print("\n" + "=" * 70)
-    print("MASTER TEST SUITE - RUNNING ALL TESTS")
-    print("=" * 70)
 
     # Run all test suites
     test_full_suite_common(project_root)
     test_full_suite_analog(project_root)
     test_full_suite_digital(project_root)
-
-    print("\n" + "=" * 70)
-    print("✓✓✓ ALL TEST SUITES PASSED ✓✓✓")
-    print("=" * 70)

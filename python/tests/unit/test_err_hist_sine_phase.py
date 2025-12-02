@@ -23,7 +23,7 @@ def _process_err_hist_sine_phase(raw_data, sub_folder, dataset_name, figures_fol
     freq = find_fin(raw_data, fs=1)
 
     # 2. Error Histogram Analysis (Phase Mode)
-    emean, erms, phase_code, anoi, pnoi, _, _, _, _, _, _ = err_hist_sine(
+    emean, erms, phase_code, anoi, pnoi, _, _ = err_hist_sine(
         raw_data,
         bin=360,
         fin=freq,
