@@ -4,6 +4,7 @@ close all; clc; clear;
 verbose = 0;
 inputDir = "dataset/dout";
 outputDir = "test_output";
+
 filesList = {};
 filesList = autoSearchFiles(filesList, inputDir, 'dout_*.csv');
 if ~isfolder(outputDir), mkdir(outputDir); end

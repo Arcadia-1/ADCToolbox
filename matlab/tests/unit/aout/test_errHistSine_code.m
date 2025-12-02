@@ -2,14 +2,16 @@
 close all; clc; clear;
 
 %% Configuration
-verbose = 1;
-inputDir = "dataset/aout";
+verbose = 0;
+inputDir = "dataset/aout/sinewave";
 outputDir = "test_output";
-filesList = autoSearchFiles({}, inputDir, 'sinewave_*.csv');
+
+filesList ={};
+filesList = autoSearchFiles(filesList, inputDir, 'sinewave_*.csv');
 if ~isfolder(outputDir), mkdir(outputDir); end
 
 %% Test Loop
-for k = 1%:length(filesList)
+for k = 1:length(filesList)
     currentFilename = filesList{k};
     dataFilePath = fullfile(inputDir, currentFilename);
     fprintf('[%s] [%d/%d] [%s]\n', mfilename, k, length(filesList), currentFilename);
