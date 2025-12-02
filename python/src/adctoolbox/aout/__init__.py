@@ -9,6 +9,7 @@ from .err_hist_sine import err_hist_sine
 from .err_pdf import err_pdf
 from .tom_decomp import tom_decomp
 from .inl_sine import inl_sine
+from .fit_static_nol import fit_static_nol
 
 __all__ = [
     'spec_plot',
@@ -20,4 +21,5 @@ __all__ = [
     'err_pdf',
     'tom_decomp',
     'inl_sine',
+    'fit_static_nol',
 ]

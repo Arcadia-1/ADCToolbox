@@ -2,6 +2,7 @@ import matplotlib.pyplot as plt
 
 from adctoolbox.common import find_fin
 from adctoolbox.aout import err_hist_sine
+from adctoolbox.aout import fit_static_nol
 from tests._utils import save_variable, save_fig
 from tests.unit._runner import run_unit_test_batch
 from tests import config
@@ -14,31 +15,34 @@ def _process_err_hist_sine_code(raw_data, sub_folder, dataset_name, figures_fold
     Callback function to process a single file:
     1. Find fundamental frequency
     2. Run err_hist_sine in code mode
-    3. Save variables
-    4. Save plot
+    3. Extract static nonlinearity coefficients
+    4. Save variables
+    5. Save plot
     """
     # 1. Find fundamental frequency
     freq = find_fin(raw_data, fs=1)
 
     # 2. Error Histogram Analysis (Code Mode)
-    emean_code, erms_code, code_axis, _, _, _, _, polycoeff, k1, k2, k3 = err_hist_sine(
+    emean_code, erms_code, code_axis, _, _, _, _ = err_hist_sine(
         raw_data,
         bin=256,
         fin=freq,
         disp=1,
-        mode=1,
-        polyorder=3
+        mode=1
     )
+
+    # 3. Extract static nonlinearity coefficients using fit_static_nol
+    k1, k2, k3, polycoeff, fit_curve = fit_static_nol(raw_data, order=3, freq=freq)
 
     # Get the figure that err_hist_sine created and add title
     fig = plt.gcf()
     fig.suptitle(f'Error Histogram (Code): {dataset_name}', fontsize=14)
 
-    # 3. Save Figure (before saving variables to ensure figure is current)
+    # 4. Save Figure (before saving variables to ensure figure is current)
     figure_name = f"{dataset_name}_{test_name}_python.png"
     save_fig(figures_folder, figure_name, close_fig=False)
 
-    # 4. Save Variables
+    # 5. Save Variables
     save_variable(sub_folder, code_axis, 'code_axis')
     save_variable(sub_folder, emean_code, 'emean_code')
     save_variable(sub_folder, erms_code, 'erms_code')

@@ -2,7 +2,7 @@ close all; clc; clear; warning("off")
 
 %% Configuration
 verbose = 0;
-inputDir = "test_dataset";
+inputDir = "reference_dataset";
 outputDir = "test_output";
 figureDir = "test_plots";
 

@@ -63,7 +63,7 @@ def enob_bit_sweep(bits, freq=0, order=5, harmonic=5, osr=1, win_type=4, plot=Tr
             post_cal_temp = bits_subset @ weight_cal
 
             enob_temp, _, _, _, _, _, _, _ = spec_plot(
-                post_cal_temp, harmonic=harmonic, OSR=osr, winType=win_type, label=0)
+                post_cal_temp, harmonic=harmonic, osr=osr, win_type=win_type, label=0)
             enob_sweep[n_bits - 1] = enob_temp
         except Exception as e:
             enob_sweep[n_bits - 1] = np.nan

@@ -1,8 +1,8 @@
 %% Run digital output (dout) unit tests
 
-test_bitActivity
-test_weightScaling
+test_bitact
+test_wscaling
 
-test_FGCalSine
-test_ENoB_bitSweep
-test_overflowChk
+test_wcalsine
+test_bitsweep
+test_ovfchk
