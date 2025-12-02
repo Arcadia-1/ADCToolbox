@@ -1,16 +1,5 @@
-%% test_errPDF.m - Unit test for errPDF function
-close all; clc; clear;
-
-%% Configuration
-verbose = 0;
-inputDir = fullfile("dataset", "sinewave");
-outputDir = "test_data";
-figureDir = "test_plots";
-
-filesList ={};
-filesList = autoSearchFiles(filesList, inputDir, 'sinewave_*.csv', 'batch_sinewave_*.csv');
-if ~isfolder(outputDir), mkdir(outputDir); end
-
+%% Centralized Configuration for Aout Test
+common_test_aout;
 
 %% Test Loop
 for k = 1:length(filesList)
@@ -20,17 +9,17 @@ for k = 1:length(filesList)
     [~, datasetName, ~] = fileparts(currentFilename);
 
     read_data = readmatrix(dataFilePath);
-    [data_fit, ~, ~, ~, ~] = sinfit(read_data);
-    err_data = read_data - data_fit;
+    err_data = geterrsin(read_data);
 
     figure('Position', [100, 100, 800, 600], "Visible", verbose);
-    [~, mu, sigma, KL_divergence, x, fx, gauss_pdf] = errPDF(err_data, ...
+    [~, mu, sigma, KL_divergence, x, fx, gauss_pdf] = errpdf(err_data, ...
         'Resolution', 8, 'FullScale', max(read_data) - min(read_data));
-    title(['errPDF: ', datasetName], 'Interpreter','none');
+    title("PDF of Error");
     set(gca, "FontSize", 16);
 
     subFolder = fullfile(outputDir, datasetName, mfilename);
-    figureName = sprintf("%s_%s_matlab.png", datasetName, mfilename);
+
+    figureName = sprintf("%s_%s_matlab.png", mfilename, datasetName);
     saveFig(figureDir, figureName, verbose);
     saveVariable(subFolder, mu, verbose);
     saveVariable(subFolder, sigma, verbose);

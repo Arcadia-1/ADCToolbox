@@ -1,13 +1,14 @@
 %% Run analog output (aout) unit tests
 
-test_tomDecomp
-test_specPlot
-test_specPlotPhase
-test_errHistSine_code
-test_errHistSine_phase
-test_errPDF
-test_errAutoCorrelation
-test_errSpectrum
-test_errEnvelopeSpectrum
+test_tomdec
+test_plotspec
+test_plotphase
 
-test_INLsine
+test_errsin_code
+test_errsin_phase
+test_errpdf
+test_errac
+test_errspec
+test_errevspec
+
+test_inlsine

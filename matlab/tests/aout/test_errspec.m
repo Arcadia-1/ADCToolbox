@@ -1,35 +1,24 @@
-%% test_errSpectrum.m - Unit test for error spectrum analysis
-close all; clc; clear;
+%% Centralized Configuration for Aout Test
+common_test_aout;
 
-%% Configuration
-verbose = 0;
-inputDir = fullfile("dataset", "sinewave");
-outputDir = "test_data";
-figureDir = "test_plots";
-
-filesList ={};
-filesList = autoSearchFiles(filesList, inputDir, 'sinewave_*.csv');
-if ~isfolder(outputDir), mkdir(outputDir); end
 %% Test Loop
 for k = 1:length(filesList)
     currentFilename = filesList{k};
     dataFilePath = fullfile(inputDir, currentFilename);
     fprintf('[%s] [%d/%d] [%s]\n', mfilename, k, length(filesList), currentFilename);
+    [~, datasetName, ~] = fileparts(currentFilename);
 
     read_data = readmatrix(dataFilePath);
-
-    [~, datasetName, ~] = fileparts(currentFilename);
-    titleString = replace(datasetName, '_', '\_');
+    err_data = geterrsin(read_data);
 
     figure('Position', [100, 100, 800, 600], "Visible", verbose);
-    [data_fit, freq_est, mag, dc, phi] = sinfit(read_data);
-    err_data = read_data - data_fit;
     plotspec(err_data, "label", 0);
-    title(['errSpectrum: ', titleString]);
+    title("Spectrum of Error");
     set(gca, "FontSize", 16);
 
-    subFolder = fullfile(outputDir, datasetName, mfilename);
-
-    figureName = sprintf("%s_%s_matlab.png", datasetName, mfilename);
+    figureName = sprintf("%s_%s_matlab.png", mfilename, datasetName);
     saveFig(figureDir, figureName, verbose);
+
+    subFolder = fullfile(outputDir, datasetName, mfilename);
+    saveVariable(subFolder, err_data, verbose);
 end

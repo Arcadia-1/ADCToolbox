@@ -325,9 +325,8 @@ def err_hist_sine(data, bin=100, fin=0, disp=1, mode=0, erange=None, polyorder=0
 
             plt.tight_layout()
 
-            # Close figure to prevent memory leak
-            if fig is not None:
-                plt.close(fig)
+            # Note: Figure is left open for caller to save/close
+            # (tests need to save the figure before closing)
 
     return emean, erms, phase_code, anoi, pnoi, err, xx, polycoeff, k1_static, k2_static, k3_static
 

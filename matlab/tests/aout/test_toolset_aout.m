@@ -1,14 +1,5 @@
-%% test_toolset_aout.m - Run AOUT toolset on analog ADC data
-close all; clc; clear; warning("off")
-
-%% Configuration
-verbose = 0;
-inputDir = "dataset/aout/sinewave";
-outputDir = "test_output";
-
-filesList = {"sinewave_noise_270uV"};
-filesList = autoSearchFiles(filesList, inputDir, 'sinewave_*.csv');
-if ~isfolder(outputDir), mkdir(outputDir); end
+%% Centralized Configuration for Aout Test
+common_test_aout;
 
 %% ADC Configuration
 Resolution = 11;  % ADC resolution in bits
@@ -19,7 +10,7 @@ for k = 1:length(filesList)
     dataFilePath = fullfile(inputDir, currentFilename);
     fprintf('[%s] [%d/%d] [%s]\n', mfilename, k, length(filesList), currentFilename);
     [~, datasetName, ~] = fileparts(currentFilename);
-    subFolder = fullfile(outputDir, datasetName, mfilename);
+    subFolder = fullfile(figureDir, datasetName);
 
     % Run toolset_aout to generate 9 individual plots
     aout_data = readmatrix(dataFilePath);

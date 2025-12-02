@@ -4,6 +4,7 @@ from adctoolbox.common import sine_fit
 from adctoolbox.aout import err_auto_correlation
 from tests._utils import save_variable, save_fig
 from tests.unit._runner import run_unit_test_batch
+from tests import config
 
 plt.rcParams['font.size'] = 14
 plt.rcParams['axes.grid'] = True
@@ -43,8 +44,6 @@ def test_err_auto_correlation(project_root):
     """
     run_unit_test_batch(
         project_root=project_root,
-        input_subpath="dataset",
-        test_module_name="test_err_auto_correlation",
-        file_pattern="sinewave_*.csv",
+        input_subpath=config.AOUT['input_path'], test_module_name="test_err_auto_correlation", file_pattern=config.AOUT['file_pattern'],
         process_callback=_process_err_auto_correlation
     )

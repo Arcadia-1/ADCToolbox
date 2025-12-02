@@ -1,15 +1,5 @@
-%% test_specPlot.m
-close all; clc; clear;
-
-%% Configuration
-verbose = 0;
-inputDir = fullfile("dataset", "sinewave");
-outputDir = "test_output";
-figureDir = "test_plots";
-
-filesList ={};
-filesList = autoSearchFiles(filesList, inputDir, 'sinewave_*.csv', 'batch_sinewave_*.csv');
-if ~isfolder(outputDir), mkdir(outputDir); end
+%% Centralized Configuration for Aout Test
+common_test_aout;
 
 %% Test Loop
 for k = 1:length(filesList)
@@ -26,7 +16,8 @@ for k = 1:length(filesList)
     [~, datasetName, ~] = fileparts(currentFilename);
     subFolder = fullfile(outputDir, datasetName, mfilename);
 
-    figureName = sprintf("%s_%s_matlab.png", datasetName, mfilename);
+
+    figureName = sprintf("%s_%s_matlab.png", mfilename, datasetName);
     saveFig(figureDir, figureName, verbose);
     saveVariable(subFolder, enob, verbose);
     saveVariable(subFolder, sndr, verbose);

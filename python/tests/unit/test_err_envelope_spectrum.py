@@ -4,6 +4,7 @@ from adctoolbox.common import sine_fit
 from adctoolbox.aout import err_envelope_spectrum
 from tests._utils import save_fig
 from tests.unit._runner import run_unit_test_batch
+from tests import config
 
 plt.rcParams['font.size'] = 14
 plt.rcParams['axes.grid'] = True
@@ -34,7 +35,5 @@ def test_err_envelope_spectrum(project_root):
     """
     run_unit_test_batch(
         project_root=project_root,
-        input_subpath="dataset",
-        test_module_name="test_err_envelope_spectrum",
-        file_pattern="sinewave_*.csv",        process_callback=_process_err_envelope_spectrum
+        input_subpath=config.AOUT['input_path'], test_module_name="test_err_envelope_spectrum", file_pattern=config.AOUT['file_pattern'],        process_callback=_process_err_envelope_spectrum
     )
