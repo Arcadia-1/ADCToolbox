@@ -1,12 +1,13 @@
-%% test_specPlot.m
+%% test_specPlotPhase.m
 close all; clc; clear;
 
 %% Configuration
-verbose = 1;
+verbose = 0;
 inputDir = "dataset/aout/sinewave";
 outputDir = "test_output";
-filesList ={};
-filesList = autoSearchFiles(filesList, inputDir, 'sinewave_*.csv', 'batch_sinewave_*.csv');
+
+filesList ={"sinewave_kickback_0P050.csv"};
+filesList = autoSearchFiles(filesList, inputDir, 'sinewave_*.csv');
 if ~isfolder(outputDir), mkdir(outputDir); end
 
 %% Test Loop
@@ -18,17 +19,14 @@ for k = 1:length(filesList)
     read_data = readmatrix(dataFilePath);
 
     figure('Position', [100, 100, 800, 600], "Visible", verbose);
-    [ENoB, SNDR, SFDR, SNR, THD, pwr, NF, ~] = specPlot(read_data, 'label', 1, 'harmonic', 5, 'OSR', 1);
+    [h, spec, phi, bin] = specPlotPhase(read_data, 'harmonic', 10);
     set(gca, "FontSize",16)
 
     [~, datasetName, ~] = fileparts(currentFilename);
     subFolder = fullfile(outputDir, datasetName, mfilename);
-    saveFig(subFolder, "specPlot_matlab.png", verbose);
-    saveVariable(subFolder, ENoB, verbose);
-    saveVariable(subFolder, SNDR, verbose);
-    saveVariable(subFolder, SFDR, verbose);
-    saveVariable(subFolder, SNR, verbose);
-    saveVariable(subFolder, THD, verbose);
-    saveVariable(subFolder, pwr, verbose);
-    saveVariable(subFolder, NF, verbose);
+
+    saveFig(subFolder, "specPlotPhase_matlab.png", verbose);
+    saveVariable(subFolder, spec, verbose);
+    saveVariable(subFolder, phi, verbose);
+    saveVariable(subFolder, bin, verbose);
 end

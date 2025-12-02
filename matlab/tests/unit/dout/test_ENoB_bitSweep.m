@@ -1,11 +1,12 @@
-%% test_bitActivity.m
+%% test_ENoB_bitSweep.m - Unit test for ENoB_bitSweep function
 close all; clc; clear;
 
 %% Configuration
 verbose = 0;
 inputDir = "dataset/dout";
 outputDir = "test_output";
-filesList = {};
+
+filesList ={};
 filesList = autoSearchFiles(filesList, inputDir, 'dout_*.csv');
 if ~isfolder(outputDir), mkdir(outputDir); end
 
@@ -15,14 +16,16 @@ for k = 1:length(filesList)
     dataFilePath = fullfile(inputDir, currentFilename);
     fprintf('[%s] [%d/%d] [%s]\n', mfilename, k, length(filesList), currentFilename);
 
-    bits = readmatrix(dataFilePath);
+    read_data = readmatrix(dataFilePath);
 
     figure('Position', [100, 100, 800, 600], "Visible", verbose);
-    bit_usage = bitActivity(bits, 'AnnotateExtremes', true);
-    set(gca, "FontSize", 16);
+    [ENoB_sweep, nBits_vec] = ENoB_bitSweep(read_data, ...
+        'freq', 0, 'order', 5, 'harmonic', 5, 'OSR', 1, 'winType', @hamming);
 
     [~, datasetName, ~] = fileparts(currentFilename);
     subFolder = fullfile(outputDir, datasetName, mfilename);
-    saveFig(subFolder, "bitActivity_matlab.png", verbose);
-    saveVariable(subFolder, bit_usage, verbose);
+
+    saveFig(subFolder, "ENoB_bitSweep.png", verbose);
+    saveVariable(subFolder, ENoB_sweep, verbose);
+    saveVariable(subFolder, nBits_vec, verbose);
 end

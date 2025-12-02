@@ -1,11 +1,13 @@
-%% test_errAutoCorrelation.m - Unit test for errAutoCorrelation function
+%% test_tomDecomp.m
 close all; clc; clear;
 
 %% Configuration
 verbose = 0;
-inputDir = "dataset/aout";
+inputDir = "dataset/aout/sinewave";
 outputDir = "test_output";
-filesList = autoSearchFiles({}, inputDir, 'sinewave_*.csv');
+
+filesList ={};
+filesList = autoSearchFiles(filesList, inputDir, 'sinewave_*.csv');
 if ~isfolder(outputDir), mkdir(outputDir); end
 
 %% Test Loop
@@ -19,15 +21,18 @@ for k = 1:length(filesList)
     [~, datasetName, ~] = fileparts(currentFilename);
     titleString = replace(datasetName, '_', '\_');
 
-    [data_fit, ~, ~, ~, ~] = sineFit(read_data);
-    err_data = read_data - data_fit;
+    relative_fin = findFin(read_data);
 
     figure('Position', [100, 100, 800, 600], "Visible", verbose);
-    [acf, lags] = errAutoCorrelation(err_data, 'MaxLag', 200, 'Normalize', 0);
-    title(['errAutoCorrelation: ', titleString]);
+    [signal, error, indep, dep, phi] = tomDecomp(read_data, relative_fin, 10, 1);
+    title(['tomDecomp: ', titleString]);
+    set(gca, "FontSize",16)
 
     subFolder = fullfile(outputDir, datasetName, mfilename);
-    saveFig(subFolder, "errACF_matlab.png", verbose);
-    saveVariable(subFolder, lags, verbose);
-    saveVariable(subFolder, acf, verbose);
+    saveFig(subFolder, "tomDecomp_matlab.png", verbose);
+    saveVariable(subFolder, signal, verbose);
+    saveVariable(subFolder, error, verbose);
+    saveVariable(subFolder, indep, verbose);
+    saveVariable(subFolder, dep, verbose);
+    saveVariable(subFolder, phi, verbose);
 end
