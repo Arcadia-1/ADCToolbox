@@ -27,7 +27,7 @@ function [enob,sndr,sfdr,snr,thd,sigpwr,noi,nsd,h] = specplot(sig,varargin)
 %       Set negative to exclude harmonics from noise calculation
 %
 %   Name-Value Parameters:
-%     'OSR' - Oversampling ratio. Default: 1
+%     'OSR' - Oversampling ratio. Default: 1 (no oversampling)
 %       Scalar, positive real number
 %       Defines signal bandwidth as Fs/(2*OSR)
 %     'window' - Window function. Default: 'hann'
@@ -37,23 +37,26 @@ function [enob,sndr,sfdr,snr,thd,sigpwr,noi,nsd,h] = specplot(sig,varargin)
 %     'maxSignal' - Full scale range (max-min). Default: max(sig)-min(sig)
 %       Scalar, positive real number
 %       Alias: 'maxCode' (deprecated, use 'maxSignal')
-%     'sideBin' - Number of bins around signal peak to include. Default: 1
+%     'sideBin' - Number of extra bins to include on each side of signal peak. Default: 1
 %       Scalar, non-negative integer
-%     'label' - Enable plot annotations. Default: 1
-%       0 or 1
+%       Total signal bins = 1 + 2*sideBin (center peak + sideBin on each side)
+%       Convention: sideBin = 1 for Hanning window if signal is coherent
+%     'label' - Enable plot annotations. Default: true
+%       Logical (true/false) or numeric (0/1)
 %     'assumedSignal' - Override signal power in dB. Default: NaN
 %       Scalar, real number or NaN
-%     'disp' - Enable plotting. Default: 1
-%       0 or 1
+%     'disp' - Enable plotting. Default: true
+%       Logical (true/false) or numeric (0/1)
 %       Alias: 'isPlot' (deprecated, use 'disp')
-%     'cutoff' - Cutoff frequency for low-frequency noise removal in Hz. Default: 0
+%     'cutoff' - High-pass cutoff frequency for low-frequency noise removal in Hz. Default: 0
 %       Scalar, non-negative real number
 %       Alias: 'noFlicker' (deprecated, use 'cutoff')
 %     'nTHD' - Number of harmonics for THD calculation. Default: 5
 %       Scalar, positive integer
-%     'coAvg' - Enable coherent averaging. Default: 0
-%       0 or 1
-%       Uses phase alignment before averaging
+%     'averageMode' - Averaging mode. Default: 'normal'
+%       String: 'normal' (power averaging), 'coherent' (coherent averaging with phase alignment)
+%       Number: 0 (normal), 1 (coherent)
+%       Alias: 'coAvg' (deprecated, use 'averageMode')
 %     'NFMethod' - Noise floor estimation method. Default: 'median'
 %       String: 'median' (median-based), 'mean' (trimmed mean), 'exclude' (exclude harmonics)
 %       Number: 0 (median-based), 1 (trimmed mean), 2 (exclude harmonics)
@@ -76,12 +79,11 @@ function [enob,sndr,sfdr,snr,thd,sigpwr,noi,nsd,h] = specplot(sig,varargin)
 %       Scalar, real number
 %     nsd - Noise Spectral Density in dBFS/Hz
 %       Scalar, real number
-%     h - Plot handle or empty array if isPlot=0
+%     h - Plot handle or empty array if disp=false
 %       Graphics handle or []
 %
 %   Examples:
 %     % Basic usage with default parameters (uses built-in Hanning window)
-%     sig = sin(2*pi*0.1*(0:1023)) + randn(1,1024)*0.01;
 %     [enob,sndr,sfdr] = specplot(sig);
 %
 %     % Specify sampling frequency and full scale
@@ -97,11 +99,11 @@ function [enob,sndr,sfdr,snr,thd,sigpwr,noi,nsd,h] = specplot(sig,varargin)
 %     [enob,sndr,sfdr] = specplot(sig, 'NFMethod', 'mean');
 %
 %     % Multiple runs with coherent averaging
-%     sig = randn(10, 1024);  % 10 runs of 1024 samples
-%     [enob,sndr,sfdr] = specplot(sig, 'coAvg', 1);
+%     sig = ones(10,1)*sin(2*pi*0.1*(0:1023)) + randn(10, 1024)*0.01; % 10 runs of 1024 samples
+%     [enob,sndr,sfdr] = specplot(sig, 'averageMode', 'coherent');
 %
 %     % Disable plotting and use assumed signal power
-%     [enob,sndr,sfdr] = specplot(sig, 'disp', 0, 'assumedSignal', -3);
+%     [enob,sndr,sfdr] = specplot(sig, 'disp', false, 'assumedSignal', -3);
 %
 %   Notes:
 %     - Signal can be provided as a row vector, column vector, or matrix
@@ -113,34 +115,38 @@ function [enob,sndr,sfdr,snr,thd,sigpwr,noi,nsd,h] = specplot(sig,varargin)
 %     - dBFS = 0 referred to a full-scale sinewave signal
 %     - Built-in windows ('hann', 'rect') do not require Signal Processing Toolbox
 %     - Custom window function handles (e.g., @blackman) require Signal Processing Toolbox
-%     - NFMethod 'median' validates noise distribution and warns if significantly non-exponential
 %
 %   See also: alias, sinfit, fft, window
 
 % Input parsing and validation
 p = inputParser;
 validScalarPosNum = @(x) isnumeric(x) && isscalar(x) && (x > 0);
+validScalarPosInt = @(x) isnumeric(x) && isscalar(x) && (x > 0) && (mod(x,1) == 0);
+validInteger = @(x) isnumeric(x) && isscalar(x) && (mod(x,1) == 0);
 validWindow = @(x) (ischar(x) && ismember(x, {'hann', 'rect'})) || isa(x, 'function_handle');
 validNFMethod = @(x) (isnumeric(x) && ismember(x, [0, 1, 2])) || (ischar(x) && ismember(x, {'median', 'mean', 'exclude'}));
+validAvgMode = @(x) (isnumeric(x) && ismember(x, [0, 1])) || (ischar(x) && ismember(x, {'normal', 'coherent'}));
+validLogical = @(x) islogical(x) || (isnumeric(x) && ismember(x, [0, 1]));
 addOptional(p, 'Fs', 1, validScalarPosNum);
 addOptional(p, 'maxCode', max(max(sig))-min(min(sig)), validScalarPosNum);
-addOptional(p, 'harmonic', 5);
+addOptional(p, 'harmonic', 5, validInteger);
 addParameter(p, 'OSR', 1, validScalarPosNum);
 % Old parameter names (for backward compatibility)
 addParameter(p, 'winType', 'hann', validWindow);
-addParameter(p, 'isPlot', 1, @(x)ismember(x, [0, 1]));
+addParameter(p, 'isPlot', true, validLogical);
 addParameter(p, 'noFlicker', 0, validScalarPosNum);
+addParameter(p, 'coAvg', 0, @(x)ismember(x, [0, 1]));
 % New parameter names (aliases with higher priority)
 addParameter(p, 'window', 'hann', validWindow);
 addParameter(p, 'maxSignal', NaN, validScalarPosNum);
-addParameter(p, 'disp', NaN, @(x)ismember(x, [0, 1]));
+addParameter(p, 'disp', NaN, validLogical);
 addParameter(p, 'cutoff', 0, validScalarPosNum);
+addParameter(p, 'averageMode', 'normal', validAvgMode);
 % Other parameters
 addParameter(p, 'sideBin', 1, @(x) isnumeric(x) && isscalar(x) && (x >= 0));
-addParameter(p, 'label', 1, @(x)ismember(x, [0, 1]));
+addParameter(p, 'label', true, validLogical);
 addParameter(p, 'assumedSignal', NaN);
-addParameter(p, 'nTHD', 5, validScalarPosNum);
-addParameter(p, 'coAvg', 0, @(x)ismember(x, [0, 1]));
+addParameter(p, 'nTHD', 5, validScalarPosInt);
 addParameter(p, 'NFMethod', 'median', validNFMethod);
 parse(p, varargin{:});
 
@@ -149,10 +155,9 @@ Fs = p.Results.Fs;
 harmonic = p.Results.harmonic;
 OSR = p.Results.OSR;
 sideBin = p.Results.sideBin;
-label = p.Results.label;
+label = logical(p.Results.label);
 assumedSignal = p.Results.assumedSignal;
 nTHD = p.Results.nTHD;
-coAvg = p.Results.coAvg;
 
 % Convert NFMethod from string to numeric if needed
 if ischar(p.Results.NFMethod)
@@ -169,6 +174,24 @@ else
 end
 
 % Handle aliased parameters (new names override old names)
+% averageMode/coAvg
+if ~isequal(p.Results.averageMode, 'normal')
+    % New name has priority if not default
+    if ischar(p.Results.averageMode)
+        switch p.Results.averageMode
+            case 'normal'
+                coAvg = 0;
+            case 'coherent'
+                coAvg = 1;
+        end
+    else
+        coAvg = p.Results.averageMode;
+    end
+else
+    % Fall back to old name
+    coAvg = p.Results.coAvg;
+end
+
 % maxSignal/maxCode
 if ~isnan(p.Results.maxSignal)
     maxSignal = p.Results.maxSignal;  % New name has priority
@@ -183,11 +206,11 @@ else
     windowFunc = p.Results.winType;  % Fall back to old name
 end
 
-% disp/isPlot
-if ~isnan(p.Results.disp)
-    dispPlot = p.Results.disp;  % New name has priority (use dispPlot to avoid conflict)
+% disp/isPlot - convert to logical
+if ~(isnumeric(p.Results.disp) && isnan(p.Results.disp))
+    dispPlot = logical(p.Results.disp);  % New name has priority, convert to logical
 else
-    dispPlot = p.Results.isPlot;  % Fall back to old name
+    dispPlot = logical(p.Results.isPlot);  % Fall back to old name, convert to logical
 end
 
 % cutoff/noFlicker
@@ -259,6 +282,11 @@ for iter = 1:N_run
         tspec(1) = 0;  % Remove DC component
         % Find fundamental signal bin in signal band
         [~, bin] = max(abs(tspec(1:floor(N_fft/2/OSR))));
+        % Guard against bin = 1 (DC bin) which would cause division by zero
+        if bin == 1
+            warning('Signal detected at DC bin, skipping coherent averaging for this run');
+            continue;
+        end
         phi = tspec(bin)/abs(tspec(bin));  % Extract phase of fundamental
 
         % Phase alignment: rotate spectrum to align fundamental phase
@@ -478,7 +506,7 @@ if(dispPlot)
         elseif(Fin >= 1)
             txt_fin = num2str(Fin,'%.1f');
         else
-            txt_fin = num2str(bin/N_fft*Fs,'%.3f');
+            txt_fin = num2str(bin_r/N_fft*Fs,'%.3f');
         end
 
         % Display performance metrics
@@ -513,7 +541,7 @@ if(dispPlot)
     ylabel('dBFS');
     if(N_run > 1)
         if(coAvg)
-            title(sprintf('Power Spectrum (%dx Jointed)',N_run));
+            title(sprintf('Power Spectrum (%dx Coherently Averaged)',N_run));
         else
             title(sprintf('Power Spectrum (%dx Averaged)',N_run));
         end
