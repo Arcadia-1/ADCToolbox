@@ -170,13 +170,17 @@ def save_variable(folder, var, var_name, verbose=True):
 
     var = np.atleast_1d(var)
 
-    # Truncate to max 1000 elements
+    # Truncate to max 100 elements
     if var.ndim == 1:
-        var = var[:1000]
+        var = var[:100]
+        # MATLAB saves 1D arrays as row vectors (1 row, N columns)
+        # But scalars (length 1) remain as scalars
+        if len(var) > 1:
+            var = var.reshape(1, -1)
     elif var.shape[0] > var.shape[1]:
-        var = var[:1000, :]
+        var = var[:100, :]
     else:
-        var = var[:, :1000]
+        var = var[:, :100]
 
     file_path = folder / f'{var_name}_python.csv'
     fmt = '%d' if np.issubdtype(var.dtype, np.integer) else '%.16f'

@@ -2,8 +2,8 @@
 
 import numpy as np
 import matplotlib.pyplot as plt
-from .dout.fg_cal_sine import fg_cal_sine
-from .aout.spec_plot import spec_plot
+from .fg_cal_sine import fg_cal_sine
+from ..aout.spec_plot import spec_plot
 
 
 def enob_bit_sweep(bits, freq=0, order=5, harmonic=5, osr=1, win_type=4, plot=True):

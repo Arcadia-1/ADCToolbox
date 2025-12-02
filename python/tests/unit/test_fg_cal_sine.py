@@ -1,102 +1,85 @@
-"""test_fg_cal_sine.py - Unit test for FGCalSine function
-
-Tests the FGCalSine foreground calibration function with SAR/Pipeline digital code data.
-
-Output structure:
-    test_output/<data_set_name>/test_FGCalSine/
-        weight_python.csv       - calibrated bit weights
-        offset_python.csv       - DC offset
-        freqCal_python.csv      - calibrated frequency
-        postCal_python.csv      - first 1000 samples of calibrated output
-        ideal_python.csv        - first 1000 samples of ideal sinewave
-        err_python.csv          - first 1000 samples of residual error
-
-Configuration - assumes running from project root d:\ADCToolbox
-"""
-
 import numpy as np
-import sys
-from pathlib import Path
-from glob import glob
+import matplotlib.pyplot as plt
 
 from adctoolbox.dout import fg_cal_sine
-from save_variable import save_variable
+from adctoolbox.aout import spec_plot
+from tests._utils import save_variable, save_fig
+from tests.unit._runner import run_unit_test_batch
 
-# Get project root directory (two levels up from python/tests/unit)
-project_root = Path(__file__).resolve().parents[3]
+plt.rcParams['font.size'] = 14
+plt.rcParams['axes.grid'] = True
 
-def run_fgcal_tests():
-    """Test FGCalSine function on digital code datasets."""
+def _process_fg_cal_sine(raw_data, sub_folder, dataset_name):
+    """
+    Callback function to process a single file:
+    1. Calculate pre-calibration signal using nominal binary weights
+    2. Run foreground calibration
+    3. Plot and save spectrum before calibration
+    4. Plot and save spectrum after calibration
+    5. Save calibrated weights, offset, frequency, waveforms, and ENoB metrics
+    """
+    N, M = raw_data.shape
 
-    print('=== test_fg_cal_sine.py ===')
+    # Calculate nominal binary weights
+    nomWeight = 2.0 ** np.arange(M - 1, -1, -1)
 
-    # Configuration
-    input_dir = project_root / "dataset" / "dout"
-    output_dir = project_root / "test_output"
+    # Pre-calibration: Convert using nominal weights
+    preCal = raw_data @ nomWeight
 
-    # Auto-search for dout_*.csv files
-    file_pattern = str(input_dir / "dout_*.csv")
-    files_list = sorted(glob(file_pattern))
+    # Run FGCalSine
+    weight, offset, postCal, ideal, err, freqCal = fg_cal_sine(
+        raw_data,
+        freq=0,
+        order=5
+    )
 
-    if not files_list:
-        print(f"[ERROR] No files found matching pattern: {file_pattern}")
-        return False
+    # Spectrum plot BEFORE calibration (using nominal weights)
+    fig = plt.figure(figsize=(12, 8))
+    ENoB_pre, SNDR_pre, SFDR_pre, SNR_pre, THD_pre, pwr_pre, NF_pre, _ = spec_plot(
+        preCal,
+        label=1,
+        harmonic=5,
+        OSR=1,
+        NFMethod=0
+    )
+    plt.title(f'Spectrum Before Calibration: {dataset_name}')
+    save_fig(sub_folder, 'specPlot_preCal_python.png', dpi=100)
+    plt.close(fig)
 
-    print(f'[Testing] {len(files_list)} datasets...\n')
+    # Spectrum plot AFTER calibration
+    fig = plt.figure(figsize=(12, 8))
+    ENoB_post, SNDR_post, SFDR_post, SNR_post, THD_post, pwr_post, NF_post, _ = spec_plot(
+        postCal,
+        label=1,
+        harmonic=5,
+        OSR=1,
+        NFMethod=0
+    )
+    plt.title(f'Spectrum After Calibration: {dataset_name}')
+    save_fig(sub_folder, 'specPlot_postCal_python.png', dpi=100)
+    plt.close(fig)
 
-    success_count = 0
+    # Save variables
+    save_variable(sub_folder, weight, 'weight')
+    save_variable(sub_folder, offset, 'offset')
+    save_variable(sub_folder, postCal, 'postCal')
+    save_variable(sub_folder, ideal, 'ideal')
+    save_variable(sub_folder, err, 'err')
+    save_variable(sub_folder, freqCal, 'freqCal')
 
-    for k, data_file_path in enumerate(files_list, 1):
-        current_filename = Path(data_file_path).name
+    save_variable(sub_folder, ENoB_pre, 'ENoB_pre')
+    save_variable(sub_folder, ENoB_post, 'ENoB_post')
 
-        if not Path(data_file_path).exists():
-            print(f'[{k}/{len(files_list)}] {current_filename} - NOT FOUND, skipping\n')
-            continue
-
-        print(f'[{k}/{len(files_list)}] [Processing] {current_filename}')
-
-        try:
-            # Read data
-            read_data = np.loadtxt(data_file_path, delimiter=',')
-
-            # Extract dataset name
-            dataset_name = Path(current_filename).stem
-
-            # Create output subfolder
-            sub_folder = output_dir / dataset_name / 'test_FGCalSine'
-            sub_folder.mkdir(parents=True, exist_ok=True)
-
-            # Run FGCalSine
-            weight, offset, postCal, ideal, err, freqCal = fg_cal_sine(
-                read_data,
-                freq=0,
-                order=5
-            )
-
-            # Save each variable to separate CSV (matching MATLAB format)
-            save_variable(sub_folder, weight, 'weight')
-            save_variable(sub_folder, offset, 'offset')
-            save_variable(sub_folder, freqCal, 'freqCal')
-            save_variable(sub_folder, postCal, 'postCal')
-            save_variable(sub_folder, ideal, 'ideal')
-            save_variable(sub_folder, err, 'err')
-
-            # Print summary
-            err_rms = np.sqrt(np.mean(err**2))
-            print(f'  [Results] freqCal={freqCal:.8f}, offset={offset:.6f}, '
-                  f'weight_sum={np.sum(weight):.6f}, err_rms={err_rms:.6f}\n')
-
-            success_count += 1
-
-        except Exception as e:
-            print(f'  [ERROR] {e}\n')
-            import traceback
-            traceback.print_exc()
-            continue
-
-    print(f'[test_FGCalSine COMPLETE] {success_count}/{len(files_list)} passed')
-    return success_count == len(files_list)
-
-
-if __name__ == "__main__":
-    sys.exit(0 if run_fgcal_tests() else 1)
+def test_fg_cal_sine(project_root):
+    """
+    Batch runner for foreground calibration sine test.
+    """
+    run_unit_test_batch(
+        project_root=project_root,
+        input_subpath="dataset/dout",
+        test_module_name="test_fg_cal_sine",
+        file_pattern="dout_*.csv",
+        output_subpath="test_output",
+        process_callback=_process_fg_cal_sine,
+        flatten=False  # Digital output data is 2D (N samples x M bits)
+    )

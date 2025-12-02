@@ -1,29 +1,4 @@
 import numpy as np
-import pandas as pd
-
-def find_relative_freq(data):
-    """
-    Find the relative frequency index (k) of a given signal.
-
-    This function uses sine fitting to determine the dominant frequency component
-    and returns its relative frequency. The return value 'k' represents the number
-    of complete cycles within the data window.
-
-    Important:
-    This function assumes the sampling frequency is normalized to 1. Therefore,
-    the returned frequency is normalized relative to the sampling rate.
-
-    Parameters:
-    - data: Input signal data array
-
-    Returns:
-    - k: Relative frequency index of the signal
-    """
-    # Use sine_fit function to fit sine wave and get frequency
-    _, relative_freq, _, _, _ = sine_fit(data)
-
-    return relative_freq
-
 
 def sine_fit(data, f0=None, tol=1e-12, rate=0.5):
     """
@@ -139,25 +114,3 @@ def _sine_fit_single(data, f0=None, tol=1e-12, rate=0.5):
     phi = -np.arctan2(B, A)  # CRITICAL: Negative sign to match MATLAB (line 71)
 
     return data_fit, freq, mag, dc, phi
-
-
-# Main function: load data and find frequency
-def main():
-    # Load CSV file
-    df = pd.read_csv('sine_wave_with_harmonics.csv')  # Ensure file path is correct
-    data = df['Signal'].values
-
-    # Call find_relative_freq to find frequency index
-    relative_freq = find_relative_freq(data)
-
-    # Get signal length
-    N = len(data)
-    print(f"[Signal length N: {N}]")
-
-    # Calculate actual frequency index k
-    k = round(relative_freq * N)
-    print(f"[Signal frequency k: {k}]")
-
-# Call main function
-if __name__ == '__main__':
-    main()

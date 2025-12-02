@@ -1,4 +1,6 @@
-test_FGCalSine
-test_FGCalSine_overflowChk
+test_bitActivity
+test_weightScaling
 
+test_FGCalSine
 test_ENoB_bitSweep
+test_overflowChk

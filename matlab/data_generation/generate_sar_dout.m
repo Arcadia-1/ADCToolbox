@@ -1,10 +1,14 @@
 close all; clear; clc;
+rng(42);
+
+subFolder = "dataset/dout";
+if ~isfolder(subFolder), mkdir(subFolder); end
 
 % --- WEIGHT LISTS TO SWEEP ---
 CDAC_lists = {; ...
     [1024, 512, 256, 128, 64, 32, 16, 8, 4, 2, 1, 1]; ...
     [800, 440, 230, 122, 63, 32, 16, 8, 4, 2, 1, 1]; ... % sub-radix 2
-    [1024, 512, 256, 256, 128, 64, 64, 32, 16, 8, 8, 4, 2, 1, 1]; ... % redundancy
+    % [1024, 512, 256, 256, 128, 64, 64, 32, 16, 8, 8, 4, 2, 1, 1]; ... % redundancy
     };
 
 N = 2^13;

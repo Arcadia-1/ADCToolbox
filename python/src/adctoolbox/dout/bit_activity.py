@@ -45,13 +45,12 @@ def bit_activity(bits, annotate_extremes=True):
     # Create bar chart
     plt.bar(range(1, n_bits + 1), bit_usage, color=[0.2, 0.4, 0.8])
     plt.axhline(50, color='r', linestyle='--', linewidth=2, label='Ideal (50%)')
-    plt.xlabel('Bit Index (1=MSB, N=LSB)', fontsize=14)
-    plt.ylabel("Percentage of 1's (%)", fontsize=14)
-    plt.title('Bit Activity Analysis', fontsize=16)
+    plt.xlabel('Bit Index (1=MSB, N=LSB)')
+    plt.ylabel("Percentage of 1's (%)")
+    plt.title('Bit Activity Analysis')
     plt.ylim([0, 100])
     plt.xlim([0.5, n_bits + 0.5])
     plt.grid(True)
-    plt.gca().tick_params(labelsize=14)
     plt.legend()
 
     # Add text annotations for extreme values

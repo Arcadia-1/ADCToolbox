@@ -31,8 +31,8 @@ def overflow_chk(raw_code, weight, OFB=None):
 
     Returns
     -------
-    None
-        This function creates a plot using matplotlib.
+    data_decom : ndarray
+        Normalized residue distribution at each bit position, shape (N, M).
     """
     raw_code = np.asarray(raw_code)
     weight = np.asarray(weight)
@@ -78,28 +78,27 @@ def overflow_chk(raw_code, weight, OFB=None):
 
     ax = plt.gca()
 
-    # Hold on for multiple plots
-    ax.hold = True
+    # Reference lines at 0 and 1 (matching MATLAB)
+    ax.plot([0, M + 1], [1, 1], '-k', linewidth=0.5)
+    ax.plot([0, M + 1], [0, 0], '-k', linewidth=0.5)
 
-    # Reference lines at 0 and 1
-    ax.plot([0, M + 1], [1, 1], '-k', linewidth=1)
-    ax.plot([0, M + 1], [0, 0], '-k', linewidth=1)
-
-    # Plot min/max range envelope
+    # Plot min/max range envelope (matching MATLAB)
     bit_positions = np.arange(1, M + 1)
-    ax.plot(bit_positions, range_min, '-r', linewidth=1)
-    ax.plot(bit_positions, range_max, '-r', linewidth=1)
+    ax.plot(bit_positions, range_min, '-r', linewidth=1.5)
+    ax.plot(bit_positions, range_max, '-r', linewidth=1.5)
 
-    # Scatter plot for each bit position
+    # Scatter plot for each bit position (matching MATLAB style)
     for ii in range(M):
         # All samples (blue) with very low alpha
+        # MATLAB default marker size ~36, using facecolor and edgecolor with alpha
         h = ax.scatter(
             np.ones(N) * (ii + 1),
             data_decom[:, ii],
-            c='b',
-            s=8,
+            s=36,
+            facecolors='b',
+            edgecolors='b',
             alpha=0.01,
-            edgecolors='none'
+            linewidths=0.5
         )
 
         # Overflow high samples (red, shifted left)
@@ -108,10 +107,11 @@ def overflow_chk(raw_code, weight, OFB=None):
             h = ax.scatter(
                 np.ones(n_ovf_one) * (ii + 1) - 0.2,
                 data_decom[ovf_one, ii],
-                c='r',
-                s=8,
+                s=36,
+                facecolors='r',
+                edgecolors='r',
                 alpha=0.01,
-                edgecolors='none'
+                linewidths=0.5
             )
 
         # Overflow low samples (yellow, shifted right)
@@ -120,18 +120,19 @@ def overflow_chk(raw_code, weight, OFB=None):
             h = ax.scatter(
                 np.ones(n_ovf_zero) * (ii + 1) + 0.2,
                 data_decom[ovf_zero, ii],
-                c='y',
-                s=8,
+                s=36,
+                facecolors='y',
+                edgecolors='y',
                 alpha=0.01,
-                edgecolors='none'
+                linewidths=0.5
             )
 
         # Percentage labels (matching MATLAB format)
         ovf_zero_pct = np.sum(data_decom[:, ii] <= 0) / N * 100
         ovf_one_pct = np.sum(data_decom[:, ii] >= 1) / N * 100
 
-        ax.text(ii + 1, -0.05, f'{ovf_zero_pct:.1f}%', ha='center', va='top', fontsize=9)
-        ax.text(ii + 1, 1.05, f'{ovf_one_pct:.1f}%', ha='center', va='bottom', fontsize=9)
+        ax.text(ii + 1, -0.05, f'{ovf_zero_pct:.1f}%', ha='center', va='top', fontsize=10)
+        ax.text(ii + 1, 1.05, f'{ovf_one_pct:.1f}%', ha='center', va='bottom', fontsize=10)
 
     # Set axis limits and labels (matching MATLAB)
     ax.set_xlim([0, M + 1])
@@ -145,3 +146,5 @@ def overflow_chk(raw_code, weight, OFB=None):
     ax.set_ylabel('Residue Distribution')
 
     # Note: Title is set externally in the test script
+
+    return data_decom

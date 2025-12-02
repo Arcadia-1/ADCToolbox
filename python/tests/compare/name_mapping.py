@@ -18,6 +18,8 @@ MATLAB_TO_PYTHON = {
     'test_INLsine': 'test_inl_sine',
     'test_tomDecomp': 'test_tom_decomp',
     'test_errHistSine': 'test_err_hist_sine',
+    'test_errHistSine_phase': 'test_err_hist_sine_phase',
+    'test_errHistSine_code': 'test_err_hist_sine_code',
     'test_errPDF': 'test_err_pdf',
     'test_errAutoCorrelation': 'test_err_auto_correlation',
     'test_errSpectrum': 'test_err_spectrum',
