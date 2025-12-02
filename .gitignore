@@ -17,6 +17,7 @@
 
 # Packaged app and toolbox files
 *.mlappinstall
+*.mltbx
 
 # Deployable archives
 *.ctf
@@ -86,6 +87,16 @@ coverage.xml
 *.py,cover
 .hypothesis/
 .pytest_cache/
+
+__pycache__/
+*.pyc
+*.pyo
+*.pyd
+python/.pytest_cache/
+python/adctoolbox.egg-info/
+
+
+
 
 # Translations
 *.mo
@@ -187,3 +198,5 @@ test_data/
 test_output/
 agent_playground/
 matlab/debug
+
+resources/
