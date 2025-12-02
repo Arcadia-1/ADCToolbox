@@ -1,11 +1,13 @@
 %% test_errHistSine_phase.m - Unit test for errHistSine phase mode
-close all; clc; clear;
+close all; clc; clear; warning("off")
 
 %% Configuration
 verbose = 0;
-inputDir = "dataset/aout";
+inputDir = "dataset/aout/sinewave";
 outputDir = "test_output";
-filesList = autoSearchFiles({}, inputDir, 'sinewave_*.csv');
+
+filesList ={};
+filesList = autoSearchFiles(filesList, inputDir, 'sinewave_*.csv');
 if ~isfolder(outputDir), mkdir(outputDir); end
 
 %% Test Loop

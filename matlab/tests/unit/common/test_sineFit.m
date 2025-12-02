@@ -13,10 +13,10 @@ if ~isfolder(outputDir), mkdir(outputDir); end
 %% Test Loop
 for k = 1:length(filesList)
     currentFilename = filesList{k};
-    filepath = fullfile(inputDir, currentFilename);
+    dataFilePath = fullfile(inputDir, currentFilename);
     fprintf('[%s] [%d/%d] [%s]\n', mfilename, k, length(filesList), currentFilename);
 
-    read_data = readmatrix(filepath);
+    read_data = readmatrix(dataFilePath);
     [data_fit, freq, mag, dc, phi] = sineFit(read_data);
 
     figure('Position', [100, 100, 800, 600], "Visible", verbose);

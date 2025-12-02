@@ -1,11 +1,13 @@
-%% test_errSpectrum.m - Unit test for error spectrum analysis
+%% test_errAutoCorrelation.m - Unit test for errAutoCorrelation function
 close all; clc; clear;
 
 %% Configuration
 verbose = 0;
-inputDir = "dataset/aout";
+inputDir = "dataset/aout/sinewave";
 outputDir = "test_output";
-filesList = autoSearchFiles({}, inputDir, 'sinewave_*.csv');
+
+filesList ={};
+filesList = autoSearchFiles(filesList, inputDir, 'sinewave_*.csv');
 if ~isfolder(outputDir), mkdir(outputDir); end
 
 %% Test Loop
@@ -19,13 +21,15 @@ for k = 1:length(filesList)
     [~, datasetName, ~] = fileparts(currentFilename);
     titleString = replace(datasetName, '_', '\_');
 
-    figure('Position', [100, 100, 800, 600], "Visible", verbose);
-    [data_fit, freq_est, mag, dc, phi] = sineFit(read_data);
+    [data_fit, ~, ~, ~, ~] = sineFit(read_data);
     err_data = read_data - data_fit;
-    specPlot(err_data, "label", 0);
-    title(['errSpectrum: ', titleString]);
-    set(gca, "FontSize", 16);
+
+    figure('Position', [100, 100, 800, 600], "Visible", verbose);
+    [acf, lags] = errAutoCorrelation(err_data, 'MaxLag', 200, 'Normalize', 0);
+    title(['errAutoCorrelation: ', titleString]);
 
     subFolder = fullfile(outputDir, datasetName, mfilename);
-    saveFig(subFolder, "errSpectrum_matlab.png", verbose);
+    saveFig(subFolder, "errACF_matlab.png", verbose);
+    saveVariable(subFolder, lags, verbose);
+    saveVariable(subFolder, acf, verbose);
 end

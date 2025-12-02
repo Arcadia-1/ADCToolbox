@@ -3,11 +3,12 @@ close all; clc; clear;
 
 %% Configuration
 verbose = 0;
-inputDir = "dataset/aout";
+inputDir = "dataset/aout/sinewave";
 outputDir = "test_output";
-filesList = autoSearchFiles({}, inputDir, 'sinewave_*.csv');
-if ~isfolder(outputDir), mkdir(outputDir); end
 
+filesList ={};
+filesList = autoSearchFiles(filesList, inputDir, 'sinewave_*.csv');
+if ~isfolder(outputDir), mkdir(outputDir); end
 %% Test Loop
 for k = 1:length(filesList)
     currentFilename = filesList{k};
