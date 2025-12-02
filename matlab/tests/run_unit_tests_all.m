@@ -1,3 +1,5 @@
+%% Run all unit tests
+
 run_unit_tests_common
 
 run_unit_tests_aout

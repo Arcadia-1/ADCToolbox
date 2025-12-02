@@ -1,3 +1,5 @@
+%% Run digital output (dout) unit tests
+
 test_bitActivity
 test_weightScaling
 
