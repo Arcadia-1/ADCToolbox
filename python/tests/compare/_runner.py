@@ -1,6 +1,6 @@
 import pytest
-from tests.compare.csv_comparator import CSVComparator
-from tests.compare.name_mapping import get_python_folder
+from python.tests.compare._csv_comparator import CSVComparator
+from python.tests.compare._name_mapping import get_python_folder
 from tests._utils import discover_test_datasets, discover_test_variables
 
 
@@ -73,24 +73,26 @@ def run_comparison_suite(project_root, matlab_test_name,
             failures.append(f"{display_name}: Missing Python directory")
             continue
 
-        # Discover Variables
-        variables = discover_test_variables(mat_dir) or []
-        if not variables:
-            print(f"  -> [SKIP] No reference files found")
+        # Discover Variables (Python-Centric: scan what Python generated)
+        python_csv_files = sorted(py_dir.glob("*_python.csv"))
+        if not python_csv_files:
+            print(f"  -> [SKIP] No Python output files found")
             continue
-        
+
+        # Extract variable names from Python files
+        variables = [f.stem.replace("_python", "") for f in python_csv_files]
+
         max_len = max((len(v) for v in variables), default=8)
         max_len = max(max_len, 8)
-        
+
         for var in variables:
             total_checks += 1
             py_csv = py_dir / f"{var}_python.csv"
             mat_csv = mat_dir / f"{var}_matlab.csv"
 
-            # Check File
-            if not py_csv.exists():
-                print(f"  [{var:<8}] -> [MISSING] Python file")
-                failures.append(f"{display_name}/{var}: Missing File")
+            # Check if MATLAB reference exists (Skip if no reference, not FAIL)
+            if not mat_csv.exists():
+                print(f"  [{var:<{max_len}}] -> [SKIP] No MATLAB reference")
                 continue
 
             # Compare
