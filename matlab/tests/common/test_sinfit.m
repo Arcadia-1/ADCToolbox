@@ -1,15 +1,5 @@
-%% test_sineFit.m
-close all; clc; clear;
-
-%% Configuration
-verbose = 0;
-inputDir = fullfile("dataset", "sinewave");
-outputDir = "test_data";
-figureDir = "test_plots";
-
-filesList ={};
-filesList = autoSearchFiles(filesList, inputDir, 'sinewave_*.csv');
-if ~isfolder(outputDir), mkdir(outputDir); end
+%% Centralized Configuration for Aout Test
+common_test_aout;
 
 %% Test Loop
 for k = 1:length(filesList)
@@ -18,7 +8,7 @@ for k = 1:length(filesList)
     fprintf('[%s] [%d/%d] [%s]\n', mfilename, k, length(filesList), currentFilename);
 
     read_data = readmatrix(dataFilePath);
-    [data_fit, freq, mag, dc, phi] = sinfit(read_data);
+    [data_fit, freq, mag, dc, phi] = sinfit(read_ata);
 
     figure('Position', [100, 100, 800, 600], "Visible", verbose);
     period = round(1/freq);
