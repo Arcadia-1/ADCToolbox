@@ -50,7 +50,7 @@ run('setupLib.m')
 load('adc_data.mat');  % Assume this contains variable 'sig'
 
 % Perform comprehensive spectral analysis
-[enob, sndr, sfdr, snr, thd] = specplot(sig, 'fs', 100e6);
+[enob, sndr, sfdr, snr, thd] = plotspec(sig, 'Fs', 100e6);
 
 % Find the dominant frequency
 freq = findfreq(sig, 100e6);
@@ -62,7 +62,7 @@ freq = findfreq(sig, 100e6);
 [inl, dnl, code] = inlsin(sig);
 
 % Analyze phase spectrum
-phaseplot(sig, 5, 2^16);
+plotphase(sig, 5, 2^16);
 ```
 
 ## Function Categories
@@ -71,8 +71,8 @@ phaseplot(sig, 5, 2^16);
 
 Functions for analyzing the frequency-domain characteristics of ADC output data.
 
-- **`specplot`** - Comprehensive spectrum analysis with ENOB, SNDR, SFDR, SNR, and THD calculations
-- **`phaseplot`** - Coherent phase spectrum analysis with polar display
+- **`plotspec`** - Comprehensive spectrum analysis with ENOB, SNDR, SFDR, SNR, and THD calculations
+- **`plotphase`** - Coherent phase spectrum analysis with polar display
 
 ### Signal Fitting and Frequency Analysis
 
@@ -113,15 +113,15 @@ Supporting functions for signal processing and analysis.
 
 ## Detailed Function Reference
 
-### specplot
+### plotspec
 
 **Purpose:** Comprehensive power spectrum analysis and ADC performance metric calculation.
 
 **Syntax:**
 ```matlab
-[enob, sndr, sfdr, snr, thd, sigpwr, noi, nsd, h] = specplot(sig)
-[enob, sndr, sfdr, snr, thd, sigpwr, noi, nsd, h] = specplot(sig, Fs, maxCode, harmonic)
-[enob, sndr, sfdr, snr, thd, sigpwr, noi, nsd, h] = specplot(sig, 'Name', Value)
+[enob, sndr, sfdr, snr, thd, sigpwr, noi, nsd, h] = plotspec(sig)
+[enob, sndr, sfdr, snr, thd, sigpwr, noi, nsd, h] = plotspec(sig, Fs, maxCode, harmonic)
+[enob, sndr, sfdr, snr, thd, sigpwr, noi, nsd, h] = plotspec(sig, 'Name', Value)
 ```
 
 **Key Features:**
@@ -148,22 +148,22 @@ Supporting functions for signal processing and analysis.
 **Example:**
 ```matlab
 % Basic usage with 32x oversampling and coherent averaging
-[enob, sndr, sfdr] = specplot(sig, 100e6, 2^16, 'OSR', 32, 'averageMode', 'coherent');
+[enob, sndr, sfdr] = plotspec(sig, 100e6, 2^16, 'OSR', 32, 'averageMode', 'coherent');
 
 % Multiple measurement runs with custom window
 sig_multi = randn(10, 1024);  % 10 runs of 1024 samples
-[enob, sndr] = specplot(sig_multi, 'window', @blackman, 'NFMethod', 'mean');
+[enob, sndr] = plotspec(sig_multi, 'window', @blackman, 'NFMethod', 'mean');
 ```
 
-### phaseplot
+### plotphase
 
 **Purpose:** Visualize coherent phase spectrum with polar display, showing harmonics on a polar coordinate system.
 
 **Syntax:**
 ```matlab
-h = phaseplot(sig)
-h = phaseplot(sig, harmonic, maxSignal)
-h = phaseplot(sig, 'Name', Value)
+h = plotphase(sig)
+h = plotphase(sig, harmonic, maxSignal)
+h = plotphase(sig, 'Name', Value)
 ```
 
 **Key Features:**
@@ -183,10 +183,10 @@ h = phaseplot(sig, 'Name', Value)
 **Example:**
 ```matlab
 % LMS mode with noise circle display
-phaseplot(sig, 7, 2^16, 'mode', 'LMS');
+plotphase(sig, 7, 2^16, 'mode', 'LMS');
 
 % FFT mode with oversampling
-phaseplot(sig, 10, 'mode', 'FFT', 'OSR', 64);
+plotphase(sig, 10, 'mode', 'FFT', 'OSR', 64);
 ```
 
 ### sinfit
@@ -620,7 +620,7 @@ ovfchk(bits, wgt, 8);  % Check segment from 8th-bit to LSB
 load('adc_capture.mat');  % Contains 'data' variable
 
 % 1. Spectral analysis
-[enob, sndr, sfdr, snr, thd] = specplot(data, 100e6, 2^12, 5);
+[enob, sndr, sfdr, snr, thd] = plotspec(data, 100e6, 2^12, 5);
 fprintf('ADC Performance:\n');
 fprintf('  ENOB: %.2f bits\n', enob);
 fprintf('  SNDR: %.2f dB\n', sndr);
@@ -649,7 +649,7 @@ fprintf('  Phase noise: %.2e rad\n', pnoi);
 ```matlab
 % Analyze 16-bit Delta-Sigma ADC with 64x oversampling
 OSR = 64;
-[enob, sndr, ~, snr] = specplot(data, 1e6, 2^16, 'OSR', OSR, ...
+[enob, sndr, ~, snr] = plotspec(data, 1e6, 2^16, 'OSR', OSR, ...
                                   'window', @blackman, ...
                                   'averageMode', 'coherent', ...
                                   'NFMethod', 'median');
@@ -689,7 +689,7 @@ bar(weight_ideal);
 title('Ideal Weights');
 
 % 5. Analyze calibrated performance
-[enob_cal, sndr_cal] = specplot(postcal, 'disp', true);
+[enob_cal, sndr_cal] = plotspec(postcal, 'disp', true);
 fprintf('After calibration: ENOB = %.2f, SNDR = %.2f dB\n', enob_cal, sndr_cal);
 ```
 
@@ -714,7 +714,7 @@ for i = 1:length(frequencies)
     sig = sin(2*pi*fin_coherent*t) + 0.001*randn(N,1);
 
     % Measure performance
-    [enob, sndr, sfdr] = specplot(sig, fs, 2, 'disp', false);
+    [enob, sndr, sfdr] = plotspec(sig, fs, 2, 'disp', false);
 
     % Store results
     results(i).freq = fin;
@@ -771,7 +771,7 @@ passbands = [
 sig_filtered = ifilter(data, passbands);
 
 % Analyze filtered content
-specplot(sig_filtered, 100e6, 2^12);
+plotspec(sig_filtered, 100e6, 2^12);
 ```
 
 ## Legacy Functions
@@ -780,8 +780,8 @@ The `legacy/` directory contains older function names for backward compatibility
 
 | Legacy Function | New Function | Notes |
 |----------------|--------------|-------|
-| `specPlot.m` | `specplot.m` | Spectral analysis |
-| `specPlotPhase.m` | `phaseplot.m` | Phase spectrum |
+| `specPlot.m` | `plotspec.m` | Spectral analysis (old camelCase) |
+| `specPlotPhase.m` | `plotphase.m` | Phase spectrum |
 | `findBin.m` | `findbin.m` | Coherent bin finder |
 | `findFin.m` | `findfreq.m` | Frequency finder |
 | `FGCalSine.m` | `wcalsine.m` | Weight calibration |
@@ -814,8 +814,8 @@ matlab/
 ├── README.md                 # This file
 ├── setupLib.m               # Setup script for adding to path
 ├── src/                     # Source code directory
-│   ├── specplot.m          # Spectral analysis
-│   ├── phaseplot.m         # Phase spectrum analysis
+│   ├── plotspec.m          # Spectral analysis
+│   ├── plotphase.m         # Phase spectrum analysis
 │   ├── sinfit.m            # Sine wave fitting
 │   ├── findfreq.m          # Frequency finder
 │   ├── findbin.m           # Coherent bin finder
@@ -888,7 +888,7 @@ plot(test_frequencies, enob);
 ## Tips and Best Practices
 
 1. **Coherent Sampling**: Use `findbin` to ensure coherent sampling for accurate FFT analysis
-2. **Oversampling**: Set `'OSR'` parameter in `specplot` when analyzing noise-shaping ADCs
+2. **Oversampling**: Set `'OSR'` parameter in `plotspec` when analyzing noise-shaping ADCs
 3. **Averaging**: Use `'averageMode', 'coherent'` for better noise floor in repeated measurements
 4. **Window Selection**: Hanning window (default) is good for general use; use rectangle for coherent signals
 5. **Endpoint Exclusion**: Increase `excl` parameter in `inlsin` if data has clipping or saturation
@@ -904,7 +904,7 @@ plot(test_frequencies, enob);
 - Adjust `'nomWeight'` parameter to match actual bit weights
 - Ensure input data covers full code range
 
-### Issue: Poor ENOB in specplot
+### Issue: Poor ENOB in plotspec
 **Possible causes:**
 - Non-coherent sampling (use `window` and `sideBin` to apply proper windowing)
 - Clipping or saturation (use `errsin` or `ovfchk` to check)
