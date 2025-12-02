@@ -27,7 +27,7 @@ def test_alias(project_root):
     print(f"Testing alias function (Fs={Fs} Hz):")
     for Fin, expected in tests:
         result = alias(Fin, Fs)
-        status = "✓" if abs(result - expected) < 0.01 else "✗"
+        status = "[OK]" if abs(result - expected) < 0.01 else "[FAIL]"
         print(f"  {status} alias({Fin}, {Fs}) = {result:.0f} Hz (expected {expected})")
 
     # Generate comprehensive aliasing table

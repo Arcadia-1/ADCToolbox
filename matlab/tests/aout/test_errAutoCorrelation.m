@@ -3,8 +3,9 @@ close all; clc; clear;
 
 %% Configuration
 verbose = 0;
-inputDir = "dataset/aout/sinewave";
-outputDir = "test_output";
+inputDir = fullfile("dataset", "sinewave");
+outputDir = "test_data";
+figureDir = "test_plots";
 
 filesList ={};
 filesList = autoSearchFiles(filesList, inputDir, 'sinewave_*.csv');
@@ -19,17 +20,21 @@ for k = 1:length(filesList)
     read_data = readmatrix(dataFilePath);
 
     [~, datasetName, ~] = fileparts(currentFilename);
-    titleString = replace(datasetName, '_', '\_');
+    
 
     [data_fit, ~, ~, ~, ~] = sineFit(read_data);
     err_data = read_data - data_fit;
 
     figure('Position', [100, 100, 800, 600], "Visible", verbose);
     [acf, lags] = errAutoCorrelation(err_data, 'MaxLag', 200, 'Normalize', 0);
-    title(['errAutoCorrelation: ', titleString]);
+    
+    titleString = replace(mfilename, '_', '\_');
+    title(mfilename);
 
     subFolder = fullfile(outputDir, datasetName, mfilename);
-    saveFig(subFolder, "errACF_matlab.png", verbose);
+
+    figureName = sprintf("%s_%s_matlab.png", datasetName, mfilename);
+    saveFig(figureDir, figureName, verbose);
     saveVariable(subFolder, lags, verbose);
     saveVariable(subFolder, acf, verbose);
 end

@@ -4,7 +4,8 @@ close all; clear; clc; warning("off")
 %% Configuration
 verbose = 1;
 inputDir = fullfile('dataset', 'jitter_sweep');
-outputDir = fullfile('test_output', 'jitter_sweep');
+outputDir = fullfile('test_data', 'jitter_sweep');
+figureDir = "test_plots";
 if ~exist(outputDir, 'dir'), mkdir(outputDir); end
 
 config_filepath = fullfile(inputDir, 'config.csv');
@@ -90,8 +91,8 @@ for i_freq = 1:length(Fin_list_nominal)
     grid on;
     set(gca, "FontSize", 16);
 
-    output_filename = sprintf('jitter_analysis_Fin_%dMHz_matlab.png', round(Fin_nominal/1e6));
-    saveFig(outputDir, output_filename, verbose);
+    figureName = sprintf("jitter_sweep_%s_matlab.png", mfilename);
+    saveFig(figureDir, figureName, verbose);
 
     saveVariable(outputDir, set_jitter, verbose);
     saveVariable(outputDir, pnoi_array, verbose);

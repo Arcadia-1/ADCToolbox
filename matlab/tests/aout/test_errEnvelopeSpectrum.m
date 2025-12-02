@@ -3,8 +3,9 @@ close all; clc; clear;
 
 %% Configuration
 verbose = 0;
-inputDir = "dataset/aout/sinewave";
-outputDir = "test_output";
+inputDir = fullfile("dataset", "sinewave");
+outputDir = "test_data";
+figureDir = "test_plots";
 
 filesList ={};
 filesList = autoSearchFiles(filesList, inputDir, 'sinewave_*.csv');
@@ -27,22 +28,18 @@ for k = 1:length(filesList)
     env = abs(hilbert(e));
 
     figure('Position', [100, 100, 800, 600], "Visible", verbose);
-    errEnvelopeSpectrum(err_data, 'Fs', 1);
-    title(['errEnvelopeSpectrum: ', titleString]);
+    [ENoB, SNDR, SFDR, SNR, THD, pwr, NF, ~] = errEnvelopeSpectrum(err_data, 'Fs', 1);
+    title(['errEnvelopeSpectrum']);
 
     subFolder = fullfile(outputDir, datasetName, mfilename);
 
-    saveFig(subFolder, "errEnvelopeSpectrum_matlab.png", verbose);
-
-    N_env = length(env);
-    env_fft = fft(env);
-    env_fft = env_fft(1:floor(N_env/2)+1);
-    freq_bins = (0:length(env_fft)-1)';
-    env_mag = abs(env_fft);
-    env_mag_dB = 20*log10(env_mag + eps);
-
-    envelopeTable = table(freq_bins, env_mag, env_mag_dB, ...
-        'VariableNames', {'bin', 'magnitude', 'magnitude_dB'});
-    envelopePath = fullfile(subFolder, 'envelope_spectrum_data_matlab.csv');
-    writetable(envelopeTable, envelopePath);
+    figureName = sprintf("%s_%s_matlab.png", datasetName, mfilename);
+    saveFig(figureDir, figureName, verbose);
+    saveVariable(subFolder, ENoB, verbose);
+    saveVariable(subFolder, SNDR, verbose);
+    saveVariable(subFolder, SFDR, verbose);
+    saveVariable(subFolder, SNR, verbose);
+    saveVariable(subFolder, THD, verbose);
+    saveVariable(subFolder, pwr, verbose);
+    saveVariable(subFolder, NF, verbose);
 end

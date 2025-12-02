@@ -1,8 +1,7 @@
 close all; clear; clc;
 rng(42);
-
-subFolder = "dataset/dout";
-if ~isfolder(subFolder), mkdir(subFolder); end
+subFolder = fullfile("dataset", "dout");
+if ~exist(subFolder, 'dir'), mkdir(subFolder); end
 
 % --- WEIGHT LISTS TO SWEEP ---
 CDAC_lists = {; ...
@@ -44,11 +43,12 @@ for k = 1:length(CDAC_lists)
 
     aout = dout * nominal_weight';
 
-    figure
+    figure(Visible="off")
     [ENoB, SNDR, ~] = specPlot(aout, 'label', 1, 'harmonic', 5, 'winType', @hann, 'OSR', 1, 'coAvg', 0);
+    close all;
 
     N_bit = round(resolution);
-    filename = fullfile("dataset/dout", sprintf("dout_SAR_%db_weight_%d.csv", N_bit, k));
-    fprintf("[Save data into file] -> [%s]\n", filename);
+    filename = fullfile(subFolder, sprintf("dout_SAR_%db_weight_%d.csv", N_bit, k));
+    fprintf("[Save data into file] [ENoB = %0.2f] -> [%s]\n", ENoB, filename);
     writematrix(dout, filename);
 end

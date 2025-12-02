@@ -1,7 +1,9 @@
-clear;
-close all;
-clc;
+clear; close all; clc;
 
+subFolder = fullfile("dataset", "dout");
+if ~exist(subFolder, 'dir'), mkdir(subFolder); end
+
+%%
 N = 2^13;
 J = findBin(1, 0.0789, N);
 A = 0.49;
