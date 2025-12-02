@@ -1,6 +1,6 @@
 import pytest
-from python.tests.compare._csv_comparator import CSVComparator
-from python.tests.compare._name_mapping import get_python_folder
+from tests.compare._csv_comparator import CSVComparator
+from tests.compare._name_mapping import get_python_folder
 from tests._utils import discover_test_datasets, discover_test_variables
 
 
