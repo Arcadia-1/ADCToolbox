@@ -27,7 +27,7 @@ def err_pdf(err_data, resolution=12, full_scale=1):
     N = len(n)
 
     # Silverman's rule for bandwidth
-    h = 1.06 * np.std(n) * N**(-1/5)
+    h = 1.06 * np.std(n, ddof=1) * N**(-1/5)
 
     # Determine x-axis range
     max_abs_noise = np.max(np.abs(n))
@@ -42,7 +42,7 @@ def err_pdf(err_data, resolution=12, full_scale=1):
 
     # Gaussian fit
     mu = np.mean(n)
-    sigma = np.std(n)
+    sigma = np.std(n, ddof=1)
     gauss_pdf = (1/(sigma*np.sqrt(2*np.pi))) * np.exp(-(x - mu)**2 / (2*sigma**2))
 
     # KL divergence calculation
