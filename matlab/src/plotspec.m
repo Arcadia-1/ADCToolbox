@@ -434,7 +434,7 @@ end
 % Calculate noise floor using selected method
 if(nfmethod == 0)
     % Method 0: Median-based estimation (robust to spurs)
-    df = 2*N_run;
+    df = N_run;
     noi = median(spec(1:floor(N_fft/2/OSR)))/sqrt((1-2/(9*df))^3) *floor(N_fft/2/OSR);
 elseif(nfmethod == 1)
     % Method 1: Trimmed mean (removes top/bottom 5%)
@@ -585,7 +585,7 @@ end
             w = 1;
         else
             n = 0:(N-1);
-            w = 0.5 * (1 - cos(2*pi*n/(N-1)));
+            w = 0.5 * (1 - cos(2*pi*n/N));
         end
     end
 
