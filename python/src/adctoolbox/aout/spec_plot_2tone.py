@@ -36,18 +36,31 @@ def spec_plot_2tone(
         is_plot: Whether to plot (default True)
         save_path: Path to save figure (optional)
 
-    Returns:
+    Returns (Pythonic names):
         Tuple of:
-            - ENoB: Effective number of bits
-            - SNDR: Signal to noise and distortion ratio (dB)
-            - SFDR: Spurious free dynamic range (dB)
-            - SNR: Signal to noise ratio (dB)
-            - THD: Total harmonic distortion (dB)
-            - pwr1: Power of first tone (dBFS)
-            - pwr2: Power of second tone (dBFS)
-            - NF: Noise floor (dB)
-            - IMD2: 2nd order intermodulation distortion (dB)
-            - IMD3: 3rd order intermodulation distortion (dB)
+            - enob: Effective number of bits
+            - sndr: Signal to noise and distortion ratio (dB)
+            - sfdr: Spurious free dynamic range (dB)
+            - snr: Signal to noise ratio (dB)
+            - thd: Total harmonic distortion (dB)
+            - signal_power_1: Power of first tone (dBFS)
+            - signal_power_2: Power of second tone (dBFS)
+            - noise_floor: Noise floor (dB)
+            - imd2: 2nd order intermodulation distortion (dB)
+            - imd3: 3rd order intermodulation distortion (dB)
+
+    Changed in version 0.3.0:
+        Return names changed to Pythonic conventions:
+        - ENoB → enob
+        - SNDR → sndr
+        - SFDR → sfdr
+        - SNR → snr
+        - THD → thd
+        - pwr1 → signal_power_1
+        - pwr2 → signal_power_2
+        - NF → noise_floor
+        - IMD2 → imd2
+        - IMD3 → imd3
     """
     data = np.asarray(data)
 

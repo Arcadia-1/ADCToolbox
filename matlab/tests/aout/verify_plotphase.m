@@ -89,7 +89,6 @@ freq_error = abs(freq_lms - Fin/Fs);
 fprintf('Frequency Detection:\n');
 fprintf('  Expected: %.6f\n', Fin/Fs);
 fprintf('  Detected: %.6f\n', freq_lms);
-fprintf('  Error: %.2e %s\n\n', freq_error, freq_error < 1e-6 ? '✓ PASS' : '✗ FAIL');
 
 % Check magnitude detection
 expected_mags = [A_fundamental, A_HD2, A_HD3, A_HD4];

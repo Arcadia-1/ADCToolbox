@@ -116,8 +116,9 @@ def _sine_fit_single(data, f0=None, tol=1e-12, rate=0.5):
         if relerr < tol:
             break
 
-    # Fit data using final parameters
-    fitted_signal = A * np.cos(2 * np.pi * frequency * time) + B * np.sin(2 * np.pi * frequency * time) + dc_offset
+    # Fit data using final parameters (MATLAB line 156: uses theta from last iteration)
+    # CRITICAL: Reuse theta from loop to match MATLAB exactly
+    fitted_signal = A * np.cos(theta) + B * np.sin(theta) + dc_offset
     amplitude = np.sqrt(A**2 + B**2)
     phase = -np.arctan2(B, A)  # CRITICAL: Negative sign to match MATLAB (line 71)
 

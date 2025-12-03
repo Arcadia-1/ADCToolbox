@@ -1,15 +1,15 @@
 %% Run analog output (aout) unit tests
 
-test_tomdec
-test_plotspec
-test_plotphase_fft
-test_plotphase_lms
+run_tomdec
+run_plotspec
+run_plotphase_fft
+run_plotphase_lms
 
-test_errsin_code
-test_errsin_phase
-test_errpdf
-test_errac
-test_errspec
-test_errevspec
+run_errsin_code
+run_errsin_phase
+run_errpdf
+run_errac
+run_errspec
+run_errevspec
 
-test_inlsine
+run_inlsine
