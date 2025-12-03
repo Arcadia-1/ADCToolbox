@@ -1,108 +1,66 @@
-function toolset_dout(bits, outputDir, varargin)
-%TOOLSET_DOUT Run 6 analysis tools on ADC digital output.
+function plot_files = toolset_dout(bits, outputDir, varargin)
+%TOOLSET_DOUT Run 6 analysis tools on ADC digital output
 %
-%   This script operates in "Fail-Fast" mode. If any tool or calculation
-%   fails (e.g., convergence issues, dimension mismatch), the script
-%   terminates immediately with a standard MATLAB error.
+%   plot_files = toolset_dout(bits, outputDir)
+%   plot_files = toolset_dout(bits, outputDir, 'Visible', true)
 %
 % Inputs:
 %   bits       - Digital bits (N samples x B bits, MSB to LSB)
 %   outputDir  - Directory to save output figures
-%   varargin   - Optional: 'Visible' (T/F), 'Order' (int), 'Prefix' (char)
+%
+% Optional Parameters:
+%   'Visible' - Show figures (default: false)
+%   'Order'   - Polynomial order for FGCalSine (default: 5)
+%   'Prefix'  - Filename prefix (default: 'dout')
+%
+% Outputs:
+%   plot_files - Cell array of generated PNG file paths (6x1)
+%
+% Example:
+%   bits = readmatrix('SAR_12b_bits.csv');
+%   plot_files = toolset_dout(bits, 'output/test1');
 
-% --- 1. Input Parsing & Setup ---
 p = inputParser;
-addParameter(p, 'Visible', false);
-addParameter(p, 'Order', 5);
-addParameter(p, 'Prefix', 'dout');
+addParameter(p, 'Visible', false, @(x) islogical(x) || isnumeric(x));
+addParameter(p, 'Order', 5, @isnumeric);
+addParameter(p, 'Prefix', 'dout', @ischar);
 parse(p, varargin{:});
-opts = p.Results;
 
-if ~exist(outputDir, 'dir'), mkdir(outputDir); end
-figVis = opts.Visible;
+if ~isfolder(outputDir), mkdir(outputDir); end
 nBits = size(bits, 2);
+plot_files = cell(6, 1);
 
-% --- 2. Critical Pre-calculation ---
-% We calculate calibration weights once.
-% If wcalsine fails here, the script stops immediately.
-[w_cal, ~, ~, ~, ~, f_cal] = wcalsine(bits, 'freq', 0, 'order', opts.Order, 'verbose', 0);
+[w_cal, ~, ~, ~, ~, f_cal] = wcalsine(bits, 'freq', 0, 'order', p.Results.Order, 'verbose', 0);
 
-% --- 3. Run Tools Sequentially ---
-
-% Tool 1: Nominal Spectrum (Ideal weights 2^N...2^0)
-fprintf('[1/6] Spectrum (Nominal)...');
-f = figure('Visible', figVis, 'Position', [100, 100, 800, 600]);
 digitalCodes = bits * (2.^(nBits - 1:-1:0))';
-plotspec(digitalCodes, 'label', 1, 'harmonic', 5, 'OSR', 1, 'window', @hann);
-save_and_close(f, outputDir, opts.Prefix, '1_spectrum_nominal', 'Spectrum (Nominal)');
-
-% Tool 2: Calibrated Spectrum (Uses calculated weights)
-fprintf('[2/6] Spectrum (Calibrated)...');
-f = figure('Visible', figVis, 'Position', [100, 100, 800, 600]);
 digitalCodes_cal = bits * w_cal';
-plotspec(digitalCodes_cal, 'label', 1, 'harmonic', 5, 'OSR', 1, 'window', @hann);
-save_and_close(f, outputDir, opts.Prefix, '2_spectrum_calibrated', 'Spectrum (Calibrated)');
 
-% Tool 3: Bit Activity (Toggle rate analysis)
-fprintf('[3/6] Bit Activity...');
-f = figure('Visible', figVis, 'Position', [100, 100, 1000, 750]);
-bitact(bits, 'annotateExtremes', true);
-save_and_close(f, outputDir, opts.Prefix, '3_bitActivity', 'Bit Activity');
-
-% Tool 4: Overflow Check (Decomposition check)
-fprintf('[4/6] Overflow Check...');
-f = figure('Visible', figVis, 'Position', [100, 100, 1000, 600]);
-ovfchk(bits, w_cal);
-save_and_close(f, outputDir, opts.Prefix, '4_overflowChk', 'Overflow Check');
-
-% Tool 5: Weight Scaling (Radix analysis)
-fprintf('[5/6] Weight Scaling...');
-f = figure('Visible', figVis, 'Position', [100, 100, 800, 600]);
-weightScaling(w_cal);
-save_and_close(f, outputDir, opts.Prefix, '5_weightScaling', 'Weight Scaling');
-
-% Tool 6: ENoB Sweep (Performance vs Number of Bits)
-fprintf('[6/6] ENoB Sweep...');
-f = figure('Visible', figVis, 'Position', [100, 100, 800, 600]);
-bitsweep(bits, 'freq', f_cal, 'order', opts.Order, 'harmonic', 5, 'OSR', 1, 'winType', @hamming);
-save_and_close(f, outputDir, opts.Prefix, '6_ENoB_sweep', 'ENoB Bit Sweep');
-
-% --- 4. Generate Summary Panel ---
-fprintf('[Panel] Assembling summary... ');
-
-fileNames = {; ...
-    '1_spectrum_nominal'; '2_spectrum_calibrated'; '3_bitActivity'; ...
-    '4_overflowChk'; '5_weightScaling'; '6_ENoB_sweep'; ...
-    };
-
-fig = figure('Visible', figVis, 'Position', [50, 50, 1200, 1600]);
-t = tiledlayout(3, 2, 'TileSpacing', 'compact', 'Padding', 'compact');
+tools = {
+    struct('idx', 1, 'name', 'Spectrum (Nominal)', 'suffix', '1_spectrum_nominal', ...
+        'pos', [100, 100, 800, 600], 'fn', @() plotspec(digitalCodes, 'label', 1, 'harmonic', 5, 'OSR', 1, 'window', @hann));
+    struct('idx', 2, 'name', 'Spectrum (Calibrated)', 'suffix', '2_spectrum_calibrated', ...
+        'pos', [100, 100, 800, 600], 'fn', @() plotspec(digitalCodes_cal, 'label', 1, 'harmonic', 5, 'OSR', 1, 'window', @hann));
+    struct('idx', 3, 'name', 'Bit Activity', 'suffix', '3_bitActivity', ...
+        'pos', [100, 100, 1000, 750], 'fn', @() bitact(bits, 'annotateExtremes', true));
+    struct('idx', 4, 'name', 'Overflow Check', 'suffix', '4_overflowChk', ...
+        'pos', [100, 100, 1000, 600], 'fn', @() ovfchk(bits, w_cal));
+    struct('idx', 5, 'name', 'Weight Scaling', 'suffix', '5_weightScaling', ...
+        'pos', [100, 100, 800, 600], 'fn', @() weightScaling(w_cal));
+    struct('idx', 6, 'name', 'ENoB Sweep', 'suffix', '6_ENoB_sweep', ...
+        'pos', [100, 100, 800, 600], 'fn', @() bitsweep(bits, 'freq', f_cal, 'order', p.Results.Order, 'harmonic', 5, 'OSR', 1, 'winType', @hamming));
+};
 
 for i = 1:6
-    nexttile;
-    imgName = fullfile(outputDir, sprintf('%s_%s.png', opts.Prefix, fileNames{i}));
-    % Since we are in fail-fast mode, we assume files exist.
-    imshow(imread(imgName), 'Border', 'tight');
-    title(fileNames{i}, 'Interpreter', 'none');
+    fprintf('[%d/6] %s', i, tools{i}.name);
+    figure('Position', tools{i}.pos, 'Visible', p.Results.Visible);
+    tools{i}.fn();
+    title(tools{i}.name);
+    set(gca, 'FontSize', 14);
+    plot_files{i} = fullfile(outputDir, sprintf('%s_%s.png', p.Results.Prefix, tools{i}.suffix));
+    exportgraphics(gcf, plot_files{i}, 'Resolution', 150);
+    close(gcf);
+    fprintf(' -> %s\n', plot_files{i});
 end
 
-sgtitle(['DOUT Analysis: ', opts.Prefix], 'Interpreter', 'none', 'FontSize', 16);
-panelPath = fullfile(outputDir, sprintf('PANEL_%s.png', upper(opts.Prefix)));
-exportgraphics(fig, panelPath, 'Resolution', 300);
-close(fig);
-
-fprintf('Done.\nSaved to: %s\n', panelPath);
-
-end
-%% === Helper Function ===
-function save_and_close(fig, outDir, prefix, suffix, titleStr)
-% Standardizes title formatting, saving, and closing of figures
-title(titleStr);
-set(gca, 'FontSize', 14);
-
-fname = fullfile(outDir, sprintf('%s_%s.png', prefix, suffix));
-exportgraphics(fig, fname, 'Resolution', 150);
-close(fig);
-
-fprintf(' OK\n');
+fprintf('=== Toolset complete: 6/6 tools completed ===\n\n');
 end

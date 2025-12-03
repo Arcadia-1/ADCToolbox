@@ -67,7 +67,7 @@ def test_basic(project_root):
     # Save figure and variable
     dataset_name = "test_basic"
     test_name = "test_basic"
-    figure_name = f"{dataset_name}_{test_name}_python.png"
+    figure_name = f"{test_name}_{dataset_name}_python.png"
     save_fig(test_output_dir, figure_name)
     save_variable(test_output_dir, sinewave, 'sinewave')
     

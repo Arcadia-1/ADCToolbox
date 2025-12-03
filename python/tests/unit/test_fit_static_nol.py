@@ -52,7 +52,7 @@ def _process_fit_static_nol(raw_data, sub_folder, dataset_name, figures_folder, 
     plt.tight_layout()
 
     # 5. Save outputs
-    figure_name = f"{dataset_name}_{test_name}_python.png"
+    figure_name = f"{test_name}_{dataset_name}_python.png"
     save_fig(figures_folder, figure_name, dpi=150, close_fig=False)
 
     # Save variables

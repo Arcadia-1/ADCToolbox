@@ -1,23 +1,25 @@
 # toolset_dout
 
+**MATLAB:** `matlab/src/toolset_dout.m`
+**Python:** `python/src/adctoolbox/toolset_dout.py`
+
 ## Overview
 
-`toolset_dout` is a comprehensive batch runner that executes 6 digital analysis tools on ADC digital output (bit-level data). It performs calibration, weight analysis, and performance evaluation, producing a complete diagnostic report with before/after calibration comparison.
+`toolset_dout` executes 6 digital analysis tools on ADC bit-level data, performing calibration via `wcalsine`, weight analysis, and performance evaluation. Generates individual plots showing before/after calibration comparison. Use with `toolset_dout_panel` to combine results into summary figure.
 
-This toolset is specifically designed for SAR ADCs and other bit-weighted architectures where individual bit outputs are available.
+Specifically designed for SAR ADCs and bit-weighted architectures with accessible digital bit outputs.
 
 ## Syntax
 
 ```matlab
-status = toolset_dout(bits, outputDir)
-status = toolset_dout(bits, outputDir, 'Visible', true)
-status = toolset_dout(bits, outputDir, 'Order', 5, 'Prefix', 'sar12b')
+plot_files = toolset_dout(bits, outputDir)
+plot_files = toolset_dout(bits, outputDir, 'Visible', true)
+plot_files = toolset_dout(bits, outputDir, 'Order', 5, 'Prefix', 'sar12b')
 ```
 
 ```python
-# Python equivalent: python/src/adctoolbox/toolset_dout.py
 from adctoolbox import toolset_dout
-status = toolset_dout(bits, output_dir, visible=False, order=5, prefix='dout')
+plot_files = toolset_dout(bits, output_dir, visible=False, order=5, prefix='dout')
 ```
 
 ## Input Arguments
@@ -44,11 +46,12 @@ status = toolset_dout(bits, output_dir, visible=False, order=5, prefix='dout')
 
 ## Output Arguments
 
-**`status`** — Struct with execution results:
-- **`.success`** — `true` if all 6 tools completed successfully
-- **`.tools_completed`** — `1×6` array of success flags (1 = success, 0 = failed)
-- **`.errors`** — Cell array of error messages (empty if all succeeded)
-- **`.panel_path`** — Path to summary panel figure (`PANEL_<PREFIX>.png`)
+**`plot_files`** — Cell array (6×1) of PNG file paths:
+- `plot_files{1}` = `<prefix>_1_spectrum_nominal.png`
+- `plot_files{2}` = `<prefix>_2_spectrum_calibrated.png`
+- ... (through 6)
+
+Pass to `toolset_dout_panel` to generate summary panel
 
 ## Analysis Tools Executed
 
@@ -72,88 +75,82 @@ A final 3×2 panel figure (`PANEL_<PREFIX>.png`) combines all 6 plots into a sin
 ### Workflow
 
 ```
-1. Validate input data using validateDoutData()
+1. Parse inputs and create output directory
 2. Extract resolution: nBits = size(bits, 2)
-3. Define nominal weights: [2^(B-1), 2^(B-2), ..., 2, 1]
-
-Tool 1: Spectrum (Nominal Weights)
-4. digitalCodes_nominal = bits * nominalWeights'
-5. Run specPlot(digitalCodes_nominal)
-
-Tool 2: Spectrum (Calibrated Weights)
-6. [weight_cal, freqCal] = FGCalSine(bits, 'order', Order)
-7. digitalCodes_calibrated = bits * weight_cal'
-8. Run specPlot(digitalCodes_calibrated)
-9. Report ENoB improvement: ΔENoB = ENoB_cal - ENoB_nom
-
-Tool 3: Bit Activity
-10. Run bitActivity(bits)
-
-Tool 4: Overflow Check
-11. Run overflowChk(bits, weight_cal)
-
-Tool 5: Weight Scaling
-12. Run weightScaling(weight_cal)
-
-Tool 6: ENoB Bit Sweep
-13. Run ENoB_bitSweep(bits, 'freq', freqCal, 'order', Order)
-
-Panel Generation
-14. Combine 6 individual PNGs into 3×2 panel
-15. Return status struct
+3. Calibrate weights: [w_cal, ~, ~, ~, ~, f_cal] = wcalsine(bits, 'freq', 0, 'order', Order, 'verbose', 0)
+4. Pre-compute digital codes:
+   - digitalCodes = bits * (2.^(nBits-1:-1:0))'  % Nominal
+   - digitalCodes_cal = bits * w_cal'             % Calibrated
+5. Define tool execution table (6 entries with idx, name, suffix, pos, fn)
+6. For each tool i = 1:6:
+   - Create figure with specified position and visibility
+   - Execute tool function handle
+   - Set title and font size
+   - Save PNG to outputDir/<prefix>_<suffix>.png
+   - Close figure and print status
+7. Return cell array of 6 file paths
 ```
 
-### Data Validation
+### Data-Driven Tool Execution
 
-Before processing, `validateDoutData()` checks:
-- Input is numeric with values in {0, 1}
-- At least 3 bits (B ≥ 3)
-- Sufficient samples (N > 100 recommended)
-- No all-zero or all-one columns (stuck bits)
+Tools are defined in a struct array for streamlined execution:
 
-### Calibration
+```matlab
+tools = {
+    struct('idx', 1, 'name', 'Spectrum (Nominal)', 'suffix', '1_spectrum_nominal', ...
+        'pos', [100,100,800,600], 'fn', @() plotspec(digitalCodes, ...));
+    struct('idx', 2, 'name', 'Spectrum (Calibrated)', 'suffix', '2_spectrum_calibrated', ...
+        'pos', [100,100,800,600], 'fn', @() plotspec(digitalCodes_cal, ...));
+    ...
+};
 
-`FGCalSine` performs foreground calibration:
-- Fits sine wave to digital codes
-- Extracts actual bit weights via polynomial fitting
-- Returns calibrated weights and detected frequency
+for i = 1:6
+    fprintf('[%d/6] %s', i, tools{i}.name);
+    figure('Position', tools{i}.pos, 'Visible', p.Results.Visible);
+    tools{i}.fn();
+    title(tools{i}.name);
+    set(gca, 'FontSize', 14);
+    plot_files{i} = fullfile(outputDir, sprintf('%s_%s.png', p.Results.Prefix, tools{i}.suffix));
+    exportgraphics(gcf, plot_files{i}, 'Resolution', 150);
+    close(gcf);
+    fprintf(' -> %s\n', plot_files{i});
+end
+```
+
+**Benefits:**
+- Eliminates repetitive code (109 lines → 66 lines)
+- Consistent formatting across all tools
+- Easy to add/modify tools
+- Single point of control for figure properties
 
 ## Examples
 
-### Example 1: Basic Usage
+### Example 1: Basic Usage with Panel
 
 ```matlab
-% Load SAR ADC bit outputs (N×12 matrix)
 bits = readmatrix('sar_adc_12bit_dout.csv');
 
-% Run all 6 analysis tools
-status = toolset_dout(bits, 'output/sar_analysis');
+% Generate individual plots
+plot_files = toolset_dout(bits, 'output/sar_analysis');
 
-% Check results
-if status.success
-    fprintf('✓ All 6 tools completed successfully\n');
-    fprintf('Panel saved to: %s\n', status.panel_path);
-else
-    fprintf('✗ %d/%d tools failed\n', 6 - sum(status.tools_completed), 6);
+% Combine into panel
+panel_status = toolset_dout_panel('output/sar_analysis', 'Prefix', 'dout');
+
+if panel_status.success
+    fprintf('Panel: %s\n', panel_status.panel_path);
 end
 ```
 
 **Output:**
 ```
-=== Running DOUT Toolset (6 Tools) ===
-[Validation] ✓
-Resolution: 12 bits
-[1/6][Spectrum (Nominal)] ✓ → [output/sar_analysis/dout_1_spectrum_nominal.png]
-[2/6][Spectrum (Calibrated)] ✓ (+3.45 ENoB) → [output/sar_analysis/dout_2_spectrum_calibrated.png]
-[3/6][Bit Activity] ✓ → [output/sar_analysis/dout_3_bitActivity.png]
-[4/6][Overflow Check] ✓ → [output/sar_analysis/dout_4_overflowChk.png]
-[5/6][Weight Scaling] ✓ → [output/sar_analysis/dout_5_weightScaling.png]
-[6/6][ENoB Bit Sweep] ✓ (Max: 10.85 ENoB) → [output/sar_analysis/dout_6_ENoB_sweep.png]
-[Panel] ✓ → [output/sar_analysis/PANEL_DOUT.png]
-=== Toolset complete: 6/6 tools succeeded ===
+[1/6] Spectrum (Nominal) -> output/sar_analysis/dout_1_spectrum_nominal.png
+[2/6] Spectrum (Calibrated) -> output/sar_analysis/dout_2_spectrum_calibrated.png
+...
+[6/6] ENoB Sweep -> output/sar_analysis/dout_6_ENoB_sweep.png
+=== Toolset complete: 6/6 tools completed ===
 
-✓ All 6 tools completed successfully
-Panel saved to: output/sar_analysis/PANEL_DOUT.png
+[Panel] ✓ → [output/sar_analysis/PANEL_DOUT.png]
+Panel: output/sar_analysis/PANEL_DOUT.png
 ```
 
 ### Example 2: High-Order Calibration for Complex Nonlinearity
@@ -346,15 +343,57 @@ status = toolset_dout(bits, 'fault_analysis', 'Visible', true);
 % Inspect Tool 6 (ENoB_bitSweep) for which bits contribute most error
 ```
 
+---
+
+# toolset_dout_panel
+
+**MATLAB:** `matlab/src/toolset_dout_panel.m`
+**Python:** Not yet implemented
+
+## Overview
+
+`toolset_dout_panel` gathers 6 individual DOUT plot files into a single 3×2 panel figure for overview visualization. Auto-detects plot files based on standard naming convention.
+
+## Syntax
+
+```matlab
+status = toolset_dout_panel(outputDir)
+status = toolset_dout_panel(outputDir, 'Prefix', 'dout')
+status = toolset_dout_panel(outputDir, 'PlotFiles', plot_files)
+```
+
+## Input Arguments
+
+- **`outputDir`** — Directory containing the 6 plot PNG files
+- **`'Prefix'`** — Filename prefix (default: `'dout'`) - used to auto-detect files
+- **`'Visible'`** — Show panel figure (default: `false`)
+- **`'PlotFiles'`** — Cell array (6×1) of explicit file paths (overrides auto-detection)
+
+## Output Arguments
+
+**`status`** — Struct with fields:
+- `.success` — `true` if panel created successfully
+- `.panel_path` — Path to panel PNG file
+- `.errors` — Cell array of error messages
+
+## Example
+
+```matlab
+% Auto-detect plot files based on prefix
+toolset_dout_panel('output/sar_test', 'Prefix', 'dout');
+% Creates: output/sar_test/PANEL_DOUT.png
+
+% Explicit file paths
+toolset_dout_panel('output/sar_test', 'PlotFiles', plot_files);
+```
+
 ## See Also
 
 - [`toolset_aout`](toolset_aout.md) — Analog output analysis suite (9 tools)
-- [`FGCalSine`](FGCalSine.md) — Foreground calibration algorithm
 - [`bitActivity`](bitActivity.md) — Bit activity analysis
 - [`weightScaling`](weightScaling.md) — Weight visualization
 - [`ENoB_bitSweep`](ENoB_bitSweep.md) — ENoB vs bits analysis
 - [`overflowChk`](overflowChk.md) — Overflow detection
-- [`validateDoutData`] — Input data validation
 
 ## References
 

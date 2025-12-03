@@ -54,10 +54,35 @@ pytest python/tests/unit/test_sine_fit.py -v
 
 **Purpose:** Validate Python outputs match MATLAB golden references.
 
-- **11 comparison test files**
+- **12 comparison test files**
 - Compares Python outputs vs MATLAB golden references
-- MATLAB references stored in `test_reference/`
-- Uses CSV numerical comparison with tolerance checks
+- MATLAB references stored in `reference_output/`
+- Uses CSV numerical comparison with tolerance (1e-6)
+
+**Running comparisons:**
+
+```bash
+# Run individual comparison tests (no log file)
+pytest python/tests/compare/test_compare_fit_static_nol.py -v
+
+# Run all comparisons with pytest (no consolidated log)
+pytest python/tests/compare/ -v
+
+# Run all comparisons with single consolidated log file
+cd python
+python -m tests.compare.run_all_comparisons
+```
+
+**Consolidated log output:**
+- Location: `test_comparison_logs/all_comparisons_<timestamp>.txt`
+- Contains results from all 13 comparison tests
+- Shows pass/fail status and numerical differences for each variable
+- Includes final summary with total passed/failed counts
+
+**Tolerance:**
+- Threshold: `1e-6` (absolute difference)
+- Status: `PERFECT` if diff ≤ 1e-6, `FAIL` otherwise
+- Accommodates numerical differences between MATLAB and NumPy implementations
 
 **Key tests:**
 - `test_compare_sine_fit.py` - Validates sine fitting accuracy

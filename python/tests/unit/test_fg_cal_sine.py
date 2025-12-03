@@ -44,7 +44,7 @@ def _process_fg_cal_sine(raw_data, sub_folder, dataset_name, figures_folder, tes
         nf_method=0
     )
     plt.title(f'Spectrum Before Calibration: {dataset_name}')
-    figure_name_preCal = f"{dataset_name}_{test_name}_preCal_python.png"
+    figure_name_preCal = f"{test_name}_{dataset_name}_preCal_python.png"
     save_fig(figures_folder, figure_name_preCal, dpi=100)
     plt.close(fig)
 
@@ -58,7 +58,7 @@ def _process_fg_cal_sine(raw_data, sub_folder, dataset_name, figures_folder, tes
         nf_method=0
     )
     plt.title(f'Spectrum After Calibration: {dataset_name}')
-    figure_name_postCal = f"{dataset_name}_{test_name}_postCal_python.png"
+    figure_name_postCal = f"{test_name}_{dataset_name}_postCal_python.png"
     save_fig(figures_folder, figure_name_postCal, dpi=100)
     plt.close(fig)
 

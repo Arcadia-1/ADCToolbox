@@ -14,7 +14,7 @@ MATLAB_TO_PYTHON = {
     'test_wscaling': 'test_weight_scaling',
     'test_bitsweep': 'test_enob_bit_sweep',
     'test_wcalsine': 'test_fg_cal_sine',
-    'test_ovfchk': 'test_fg_cal_sine_overflow_chk',
+    'test_ovfchk': 'test_overflow_chk',
 
     # AOUT tests (analog output)
     'test_inlsine': 'test_inl_sine',
@@ -27,9 +27,10 @@ MATLAB_TO_PYTHON = {
     'test_errevspec': 'test_err_envelope_spectrum',
     'test_plotspec': 'test_spec_plot',
     'test_plotphase': 'test_spec_plot_phase',
+    'test_fitstaticnl': 'test_fit_static_nol',
 
-    # COMMON tests (identical names)
-    'test_sine_fit': 'test_sine_fit',
+    # COMMON tests
+    'test_sinfit': 'test_sine_fit',
     'test_alias': 'test_alias',
     'test_jitter_load': 'test_jitter_load',
     'test_basic': 'test_basic',

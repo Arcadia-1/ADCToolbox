@@ -17,8 +17,8 @@ def _process_err_auto_correlation(raw_data, sub_folder, dataset_name, figures_fo
     3. Save variables and plot
     """
     # Compute error data using sineFit
-    data_fit, freq_est, mag, dc, phi = sine_fit(raw_data)
-    err_data = raw_data - data_fit
+    fitted_signal, frequency, amplitude, dc_offset, phase = sine_fit(raw_data)
+    err_data = raw_data - fitted_signal
 
     # Run errAutoCorrelation
     acf, lags = err_auto_correlation(err_data, max_lag=200, normalize=False)
@@ -33,7 +33,7 @@ def _process_err_auto_correlation(raw_data, sub_folder, dataset_name, figures_fo
     plt.gca().tick_params(labelsize=14)
 
     # Save plot and variables
-    figure_name = f"{dataset_name}_{test_name}_python.png"
+    figure_name = f"{test_name}_{dataset_name}_python.png"
     save_fig(figures_folder, figure_name, dpi=150)
     save_variable(sub_folder, lags, 'lags')
     save_variable(sub_folder, acf, 'acf')
