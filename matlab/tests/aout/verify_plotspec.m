@@ -7,12 +7,12 @@ N = 2^13;
 J = 323;
 sig = 0.499 * sin((0:N - 1)'*J*2*pi/N) + 0.5;
 
-nbits = 1;
+nbits = 20;
 sig_quantized = floor(sig*2^nbits) / 2^nbits;
-figure('Visible', 'off');
-enob_new = plotspec(sig_quantized, 'label', 0, 'harmonic', 5);
-enob_old = specPlot(sig_quantized, 'label', 0, 'harmonic', 5);
-close(gcf);
+figure('Position', [100, 100, 800, 600]);
+enob_new = plotspec(sig_quantized);
+figure('Position', [100, 100, 800, 600]);
+enob_old = specPlot(sig_quantized);
 
 fprintf('[%2d bit] ENOB (new) = %.4f, ENOB (old) = %.4f\n',nbits, enob_new, enob_old);
 
