@@ -24,7 +24,7 @@ def _process_err_pdf(raw_data, sub_folder, dataset_name, figures_folder, test_na
     # Run errPDF
     noise_lsb, mu, sigma, KL_divergence, x, fx, gauss_pdf = err_pdf(
         err_data,
-        resolution=12,
+        resolution=8,
         full_scale=np.max(raw_data) - np.min(raw_data)
     )
 

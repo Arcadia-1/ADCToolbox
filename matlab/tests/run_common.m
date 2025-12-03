@@ -1,5 +1,6 @@
 %% Run common unit tests
 
-test_basic
 test_alias
-test_sinfit
+
+run_basic
+run_sinfit
