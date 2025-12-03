@@ -19,7 +19,7 @@ from tests.compare.test_compare_bit_activity import test_compare_bit_activity
 from tests.compare.test_compare_enob_bit_sweep import test_compare_enob_bit_sweep
 from tests.compare.test_compare_fg_cal_sine import test_compare_fg_cal_sine
 from tests.compare.test_compare_weight_scaling import test_compare_weight_scaling
-from tests.compare.test_compare_fg_cal_sine_overflow_chk import test_compare_fg_cal_sine_overflow_chk
+from tests.compare.test_compare_overflow_chk import test_compare_overflow_chk
 
 
 @pytest.fixture
@@ -50,4 +50,4 @@ def test_digital_weight_scaling(project_root):
 
 def test_digital_fg_cal_sine_overflow_chk(project_root):
     """Test fg_cal_sine_overflow_chk comparison."""
-    test_compare_fg_cal_sine_overflow_chk(project_root)
+    test_compare_overflow_chk(project_root)

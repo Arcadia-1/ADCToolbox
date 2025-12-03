@@ -9,7 +9,7 @@ for k = 1:length(filesList)
     [~, datasetName, ~] = fileparts(currentFilename);
 
     read_data = readmatrix(dataFilePath);
-    err_data = geterrsin(read_data);
+    err_data = read_data - sinfit(read_data);
 
     figure('Position', [100, 100, 800, 600], "Visible", verbose);
     [ENoB, SNDR, SFDR, SNR, THD, pwr, NF, ~] = errevspec(err_data, 'Fs', 1);

@@ -13,5 +13,6 @@ for k = 1:length(filesList)
     subFolder = fullfile(outputDir, datasetName, mfilename);
     
     bits = readmatrix(dataFilePath);
-    toolset_dout(bits, subFolder, 'Visible', verbose, 'Order', Order);
+    plot_files = toolset_dout(bits, subFolder, 'Visible', verbose, 'Order', Order);
+    panel_status = toolset_dout_panel(subFolder, 'Visible', verbose, 'Prefix', 'dout');
 end

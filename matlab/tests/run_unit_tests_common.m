@@ -1,4 +1,5 @@
 %% Run common unit tests
 
+test_basic
 test_alias
-test_sineFit
+test_sinfit

@@ -1,12 +1,12 @@
 """
 Python port of tomDecomp.m
-Thompson Decomposition - Thompson error decomposition algorithm
+Thompson Decomposition - Thompson total_error decomposition algorithm
 
 Decomposes ADC output into:
-- signal: Ideal signal (DC + fundamental + specified order harmonics)
-- error: Total error
-- indep: Independent error (random noise)
-- dep: Dependent error (phase-correlated error)
+- fundamental_signal: Ideal fundamental_signal (DC + fundamental + specified order harmonics)
+- total_error: Total total_error
+- residual_error: Independent total_error (random noise)
+- harmonic_error: Dependent total_error (phase-correlated total_error)
 - phi: Fundamental phase
 
 Original MATLAB code: matlab_reference/tomDecomp.m
@@ -25,27 +25,34 @@ if current_dir not in sys.path:
 
 def tom_decomp(data, re_fin=None, order=10, disp=1):
     """
-    Thompson Decomposition - Thompson error decomposition
+    Thompson Decomposition - Thompson total_error decomposition
 
     Parameters:
         data: ADC output data, 1D numpy array
         re_fin: Relative input frequency (normalized frequency f_in/f_sample), auto-detect if None
-        order: Harmonic order for dependent error calculation (default 10, means fundamental + first 10 harmonics are viewed as dependent error)
+        order: Harmonic order for dependent total_error calculation (default 10, means fundamental + first 10 harmonics are viewed as dependent total_error)
         disp: Whether to display result plot (0/1), default 1
 
-    Returns:
-        signal: Ideal signal (DC + fundamental)
-        error: Total error (data - signal)
-        indep: Independent error (random noise portion)
-        dep: Dependent error (harmonic distortion portion)
-        phi: Fundamental phase (radians)
+    Returns (Pythonic names):
+        fundamental_signal: Ideal fundamental_signal (DC + fundamental)
+        total_error: Total total_error (data - fundamental_signal)
+        harmonic_error: Harmonic distortion portion (dependent total_error)
+        residual_error: All other errors (independent total_error)
+
+    Changed in version 0.3.0:
+        Return names changed to Pythonic conventions to match MATLAB tomdec:
+        - fundamental_signal → fundamental_signal
+        - total_error → total_error
+        - residual_error → residual_error (matches MATLAB 'oth' - other errors)
+        - harmonic_error → harmonic_error (matches MATLAB 'har' - harmonic distortions)
+        - phi removed (not returned by MATLAB tomdec)
 
     Principle:
-        signal = DC + WI*cos(ωt) + WQ*sin(ωt)  # Fundamental only
+        fundamental_signal = DC + WI*cos(ωt) + WQ*sin(ωt)  # Fundamental only
         signal_all = DC + Σ[WI_k*cos(kωt) + WQ_k*sin(kωt)]  # Fundamental + harmonics
-        error = data - signal
-        indep = data - signal_all  # Residual after removing fundamental and harmonics
-        dep = signal_all - signal  # Harmonic components
+        total_error = data - fundamental_signal
+        residual_error = data - signal_all  # Residual after removing fundamental and harmonics
+        harmonic_error = signal_all - fundamental_signal  # Harmonic components
     """
 
     # Ensure data is a column vector
@@ -78,8 +85,8 @@ def tom_decomp(data, re_fin=None, order=10, disp=1):
     WQ = np.mean(SQ * data) * 2
     DC = np.mean(data)
 
-    # Reconstruct signal (fundamental only)
-    signal = DC + SI * WI + SQ * WQ
+    # Reconstruct fundamental_signal (fundamental only)
+    fundamental_signal = DC + SI * WI + SQ * WQ
 
     # Fundamental phase
     phi = -np.arctan2(WQ, WI)
@@ -98,13 +105,13 @@ def tom_decomp(data, re_fin=None, order=10, disp=1):
     # Least squares solution for harmonic weights
     W, residuals, rank, s = np.linalg.lstsq(A, data, rcond=None)
 
-    # Reconstruct signal (DC + fundamental + harmonics)
+    # Reconstruct fundamental_signal (DC + fundamental + harmonics)
     signal_all = DC + A @ W
 
     # Error decomposition
-    error = data - signal
-    indep = data - signal_all
-    dep = signal - signal_all  # Fixed: was signal_all - signal
+    total_error = data - fundamental_signal
+    residual_error = data - signal_all
+    harmonic_error = fundamental_signal - signal_all  # Fixed: was signal_all - fundamental_signal
 
     # Visualization
     if disp:
@@ -115,7 +122,7 @@ def tom_decomp(data, re_fin=None, order=10, disp=1):
         # Left Y-axis: Signal
         ax1 = plt.gca()
         ax1.plot(data, 'kx', label='data', markersize=3, alpha=0.5)
-        ax1.plot(signal, '-', color=[0.5, 0.5, 0.5], label='signal', linewidth=1.5)
+        ax1.plot(fundamental_signal, '-', color=[0.5, 0.5, 0.5], label='fundamental_signal', linewidth=1.5)
 
         # Limit display range (show at most 1.5 periods or 100 points)
         xlim_max = min(max(int(1.5 / re_fin), 100), N)
@@ -128,10 +135,10 @@ def tom_decomp(data, re_fin=None, order=10, disp=1):
 
         # Right Y-axis: Error
         ax2 = ax1.twinx()
-        ax2.plot(dep, 'r-', label='dependent err', linewidth=1.5)
-        ax2.plot(indep, 'b-', label='independent err', linewidth=1)
+        ax2.plot(harmonic_error, 'r-', label='dependent err', linewidth=1.5)
+        ax2.plot(residual_error, 'b-', label='independent err', linewidth=1)
 
-        error_min, error_max = np.min(error), np.max(error)
+        error_min, error_max = np.min(total_error), np.max(total_error)
         ax2.set_ylim([error_min * 1.1, error_max * 1.1])
         ax2.set_ylabel('Error', color='r')
         ax2.tick_params(axis='y', labelcolor='r')
@@ -150,7 +157,7 @@ def tom_decomp(data, re_fin=None, order=10, disp=1):
     # Note: Figure is left open for caller to save/close
     # (tests need to save the figure before closing)
 
-    return signal, error, indep, dep, phi
+    return fundamental_signal, total_error, harmonic_error, residual_error
 
 
 if __name__ == "__main__":
@@ -158,7 +165,7 @@ if __name__ == "__main__":
     print("tomDecomp.py - Thompson Decomposition Test")
     print("=" * 70)
 
-    # Test case: Generate signal with harmonic distortion and noise
+    # Test case: Generate fundamental_signal with harmonic distortion and noise
     N = 4096
     fs = 1e6
     fin = 28320.3125  # Coherent sampling frequency
@@ -190,14 +197,14 @@ if __name__ == "__main__":
 
     # Execute Thompson decomposition
     print(f"\nExecuting Thompson decomposition...")
-    signal, error, indep, dep, phi = tomDecomp(adc_output, re_fin=re_fin, order=10, disp=1)
+    fundamental_signal, total_error, residual_error, harmonic_error, phi = tomDecomp(adc_output, re_fin=re_fin, order=10, disp=1)
 
     # Analyze results
     print(f"\nDecomposition results:")
-    print(f"  Signal RMS: {np.sqrt(np.mean(signal**2)):.2f}")
-    print(f"  Total error RMS: {np.sqrt(np.mean(error**2)):.2f}")
-    print(f"  Dependent error RMS: {np.sqrt(np.mean(dep**2)):.2f}")
-    print(f"  Independent error RMS: {np.sqrt(np.mean(indep**2)):.2f}")
+    print(f"  Signal RMS: {np.sqrt(np.mean(fundamental_signal**2)):.2f}")
+    print(f"  Total total_error RMS: {np.sqrt(np.mean(total_error**2)):.2f}")
+    print(f"  Dependent total_error RMS: {np.sqrt(np.mean(harmonic_error**2)):.2f}")
+    print(f"  Independent total_error RMS: {np.sqrt(np.mean(residual_error**2)):.2f}")
     print(f"  Fundamental phase: {np.rad2deg(phi):.2f} degrees")
 
     # Theoretical verification
@@ -205,13 +212,13 @@ if __name__ == "__main__":
     theoretical_indep_rms = np.sqrt(np.mean(noise**2))
 
     print(f"\nTheoretical comparison:")
-    print(f"  Theoretical dependent error RMS: {theoretical_dep_rms:.2f}")
-    print(f"  Actual dependent error RMS: {np.sqrt(np.mean(dep**2)):.2f}")
-    print(f"  Error: {abs(theoretical_dep_rms - np.sqrt(np.mean(dep**2))):.2f}")
+    print(f"  Theoretical dependent total_error RMS: {theoretical_dep_rms:.2f}")
+    print(f"  Actual dependent total_error RMS: {np.sqrt(np.mean(harmonic_error**2)):.2f}")
+    print(f"  Error: {abs(theoretical_dep_rms - np.sqrt(np.mean(harmonic_error**2))):.2f}")
     print(f"")
-    print(f"  Theoretical independent error RMS: {theoretical_indep_rms:.2f}")
-    print(f"  Actual independent error RMS: {np.sqrt(np.mean(indep**2)):.2f}")
-    print(f"  Error: {abs(theoretical_indep_rms - np.sqrt(np.mean(indep**2))):.2f}")
+    print(f"  Theoretical independent total_error RMS: {theoretical_indep_rms:.2f}")
+    print(f"  Actual independent total_error RMS: {np.sqrt(np.mean(residual_error**2)):.2f}")
+    print(f"  Error: {abs(theoretical_indep_rms - np.sqrt(np.mean(residual_error**2))):.2f}")
 
     print(f"\nThompson decomposition test complete!")
     print("=" * 70)

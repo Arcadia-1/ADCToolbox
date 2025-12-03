@@ -14,12 +14,20 @@ def sine_fit(data, f0=None, tol=1e-12, rate=0.5):
     - tol: Tolerance for stopping criterion (default: 1e-12, matches MATLAB).
     - rate: Frequency adjustment step size (default: 0.5).
 
-    Returns:
-    - data_fit: Fitted sine wave (N,) or (N, M)
-    - freq: Estimated frequency (scalar or array of length M)
-    - mag: Amplitude of sine wave (scalar or array of length M)
-    - dc: DC component (scalar or array of length M)
-    - phi: Phase of sine wave (scalar or array of length M)
+    Returns (Pythonic names):
+    - fitted_signal: Fitted sine wave (N,) or (N, M)
+    - frequency: Estimated normalized frequency (scalar or array of length M)
+    - amplitude: Amplitude of sine wave (scalar or array of length M)
+    - dc_offset: DC component (scalar or array of length M)
+    - phase: Phase of sine wave in radians (scalar or array of length M)
+
+    Changed in version 0.3.0:
+        Return names changed to Pythonic conventions:
+        - data_fit → fitted_signal
+        - freq → frequency
+        - mag → amplitude
+        - dc → dc_offset
+        - phi → phase
     """
 
     # Handle MxN input: fit each column separately
@@ -30,21 +38,21 @@ def sine_fit(data, f0=None, tol=1e-12, rate=0.5):
     elif data.ndim == 2:
         # Multiple columns, fit each separately
         N, M = data.shape
-        data_fit_all = np.zeros((N, M))
-        freq_all = np.zeros(M)
-        mag_all = np.zeros(M)
-        dc_all = np.zeros(M)
-        phi_all = np.zeros(M)
+        fitted_signal_all = np.zeros((N, M))
+        frequency_all = np.zeros(M)
+        amplitude_all = np.zeros(M)
+        dc_offset_all = np.zeros(M)
+        phase_all = np.zeros(M)
 
         for i in range(M):
-            data_fit_all[:, i], freq_all[i], mag_all[i], dc_all[i], phi_all[i] = \
+            fitted_signal_all[:, i], frequency_all[i], amplitude_all[i], dc_offset_all[i], phase_all[i] = \
                 _sine_fit_single(data[:, i], f0, tol, rate)
 
         # If only one column, return scalars (not arrays)
         if M == 1:
-            return data_fit_all[:, 0], freq_all[0], mag_all[0], dc_all[0], phi_all[0]
+            return fitted_signal_all[:, 0], frequency_all[0], amplitude_all[0], dc_offset_all[0], phase_all[0]
 
-        return data_fit_all, freq_all, mag_all, dc_all, phi_all
+        return fitted_signal_all, frequency_all, amplitude_all, dc_offset_all, phase_all
     else:
         raise ValueError(f"Input data must be 1D or 2D, got {data.ndim}D")
 
@@ -76,31 +84,31 @@ def _sine_fit_single(data, f0=None, tol=1e-12, rate=0.5):
     M = np.column_stack([np.cos(theta), np.sin(theta), np.ones(N)])
     x = np.linalg.lstsq(M, data, rcond=None)[0]
 
-    A, B, dc = x[0], x[1], x[2]
-    freq = f0
+    A, B, dc_offset = x[0], x[1], x[2]
+    frequency = f0
     delta_f = 0
 
     # Iterative frequency optimization (MATLAB lines 49-67)
     # FIX: Stop at first iteration to match MATLAB behavior (MATLAB has bug that prevents convergence)
     for iter_count in range(1):  # Changed from range(100) to range(1)
-        freq = freq + delta_f  # Changed += to = for clarity
-        theta = 2 * np.pi * freq * time
+        frequency = frequency + delta_f  # Changed += to = for clarity
+        theta = 2 * np.pi * frequency * time
         # MATLAB line 53: 4th column is divided by N
         M = np.column_stack([np.cos(theta), np.sin(theta), np.ones(N),
                              (-A * 2 * np.pi * time * np.sin(theta) + B * 2 * np.pi * time * np.cos(theta)) / N])
         x = np.linalg.lstsq(M, data, rcond=None)[0]
 
-        A, B, dc = x[0], x[1], x[2]
+        A, B, dc_offset = x[0], x[1], x[2]
         # MATLAB line 58: delta_f = x(4)*rate/N
         delta_f = x[3] * rate / N
 
         # MATLAB line 59: relerr = rms(x(end)/N*M(:,end)) / sqrt(x(1)^2+x(2)^2)
         # M(:,end) is the 4th column of M
-        mag_current = np.sqrt(A**2 + B**2)
-        if mag_current > 0:
+        amplitude_current = np.sqrt(A**2 + B**2)
+        if amplitude_current > 0:
             # Calculate RMS of (x(4)/N * M(:,4))
             residual = x[3] / N * M[:, 3]
-            relerr = np.sqrt(np.mean(residual**2)) / mag_current
+            relerr = np.sqrt(np.mean(residual**2)) / amplitude_current
         else:
             relerr = 0
 
@@ -109,8 +117,8 @@ def _sine_fit_single(data, f0=None, tol=1e-12, rate=0.5):
             break
 
     # Fit data using final parameters
-    data_fit = A * np.cos(2 * np.pi * freq * time) + B * np.sin(2 * np.pi * freq * time) + dc
-    mag = np.sqrt(A**2 + B**2)
-    phi = -np.arctan2(B, A)  # CRITICAL: Negative sign to match MATLAB (line 71)
+    fitted_signal = A * np.cos(2 * np.pi * frequency * time) + B * np.sin(2 * np.pi * frequency * time) + dc_offset
+    amplitude = np.sqrt(A**2 + B**2)
+    phase = -np.arctan2(B, A)  # CRITICAL: Negative sign to match MATLAB (line 71)
 
-    return data_fit, freq, mag, dc, phi
+    return fitted_signal, frequency, amplitude, dc_offset, phase

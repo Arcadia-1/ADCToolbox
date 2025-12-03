@@ -17,7 +17,7 @@ for k = 1:length(filesList)
 
     % Save outputs
     subFolder = fullfile(outputDir, datasetName, mfilename);
-    figureName = sprintf("%s_%s_matlab.png", datasetName, mfilename);
+    figureName = sprintf("%s_%s_matlab.png", mfilename, datasetName);
     saveFig(figureDir, figureName, verbose);
     saveVariable(subFolder, bit_usage, verbose);
 end

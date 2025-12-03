@@ -164,7 +164,21 @@ def save_fig(folder, png_filename, verbose=True, dpi=150, close_fig=True):
 
 
 def save_variable(folder, var, var_name, verbose=True):
-    """Save variable to CSV with auto truncation (matches MATLAB saveVariable.m)."""
+    """
+    Save variable to CSV with MATLAB-compatible naming.
+
+    Automatically converts Pythonic names to MATLAB names for test compatibility.
+    For example: 'signal_power' → 'sigpwr_python.csv'
+
+    Args:
+        folder: Output directory path
+        var: Variable data to save
+        var_name: Pythonic variable name
+        verbose: Print save confirmation (default: True)
+
+    Returns:
+        Path: Path to saved CSV file
+    """
     folder = Path(folder)
     folder.mkdir(parents=True, exist_ok=True)
 
@@ -182,11 +196,18 @@ def save_variable(folder, var, var_name, verbose=True):
     else:
         var = var[:, :100]
 
-    file_path = folder / f'{var_name}_python.csv'
+    # Convert Pythonic name → MATLAB name for test compatibility
+    from tests.compare._variable_name_mapping import pythonic_to_matlab
+    matlab_name = pythonic_to_matlab(var_name)
+
+    file_path = folder / f'{matlab_name}_python.csv'
     fmt = '%d' if np.issubdtype(var.dtype, np.integer) else '%.16f'
     np.savetxt(file_path, var, delimiter=',', fmt=fmt)
 
     if verbose:
-        print(f"  [save_variable] -> [{file_path}]")
+        if matlab_name != var_name:
+            print(f"  [save_variable] {var_name} → {matlab_name}_python.csv")
+        else:
+            print(f"  [save_variable] → {matlab_name}_python.csv")
 
     return file_path

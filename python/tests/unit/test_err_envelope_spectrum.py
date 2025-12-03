@@ -17,8 +17,8 @@ def _process_err_envelope_spectrum(raw_data, sub_folder, dataset_name, figures_f
     3. Save plot
     """
     # Compute error data using sineFit
-    data_fit, freq_est, mag, dc, phi = sine_fit(raw_data)
-    err_data = raw_data - data_fit
+    fitted_signal, frequency, amplitude, dc_offset, phase = sine_fit(raw_data)
+    err_data = raw_data - fitted_signal
 
     # Run errEnvelopeSpectrum
     plt.figure(figsize=(12, 8))
@@ -26,7 +26,7 @@ def _process_err_envelope_spectrum(raw_data, sub_folder, dataset_name, figures_f
     plt.title(f'errEnvelopeSpectrum: {dataset_name}')
 
     # Save plot
-    figure_name = f"{dataset_name}_{test_name}_python.png"
+    figure_name = f"{test_name}_{dataset_name}_python.png"
     save_fig(figures_folder, figure_name, dpi=150)
 
 def test_err_envelope_spectrum(project_root):

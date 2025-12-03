@@ -12,14 +12,8 @@ for k = 1:length(filesList)
     [~, datasetName, ~] = fileparts(currentFilename);
     subFolder = fullfile(figureDir, datasetName);
 
-    % Run toolset_aout to generate 9 individual plots
     aout_data = readmatrix(dataFilePath);
-    status = toolset_aout(aout_data, subFolder, 'Visible', verbose, 'Resolution', Resolution);
+    plot_files = toolset_aout(aout_data, subFolder, 'Visible', verbose, 'Resolution', Resolution);
+    panel_status = toolset_aout_panel(subFolder, 'Visible', verbose, 'Prefix', 'aout');
 
-    % Generate panel (3x3 overview of all 9 plots)
-    if status.success
-        panel_status = toolset_aout_panel(status.plot_files, subFolder, 'Visible', verbose, 'Prefix', 'aout');
-    else
-        fprintf('[WARNING] toolset_aout failed, skipping panel generation\n');
-    end
 end

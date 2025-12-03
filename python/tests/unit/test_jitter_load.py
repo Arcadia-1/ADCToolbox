@@ -80,7 +80,7 @@ def main():
                 print(f'[WARNING] N mismatch: Data has N={N}, config expects N={N_expected}')
 
             # Sine fit
-            data_fit, f_norm, mag, dc, phi = sine_fit(read_data)
+            fitted_signal, f_norm, mag, dc, phi = sine_fit(read_data)
             Fin_fit = f_norm * Fs_expected
             actual_Fin[i_tj] = Fin_fit
 
