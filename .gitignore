@@ -126,8 +126,10 @@ dmypy.json
 # Test outputs (can be regenerated, not tracked in git)
 # =============================================================================
 
-# All test output files
+# Test output directories (old and new naming)
 test_output/
+test_data/
+reference_output/
 
 # Generated figures (can be regenerated, not tracked in git)
 figures/
@@ -194,8 +196,6 @@ project_log.md
 .claude
 
 test_dataset/
-test_data/
-test_output/
 agent_playground/
 matlab/debug
 
