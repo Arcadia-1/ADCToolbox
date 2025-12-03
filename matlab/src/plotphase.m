@@ -248,22 +248,7 @@ else
     sig_avg = sig_avg / maxSignal;
 
     % Find fundamental frequency using FFT
-    sig_fft = fft(sig_avg);
-    sig_fft(1) = 0;  % Remove DC
-    [~, bin] = max(abs(sig_fft(1:floor(N_fft/2/OSR))));
-
-    % Refine frequency using parabolic interpolation
-    sig_fft_mag = abs(sig_fft);
-    sig_e = log10(sig_fft_mag(bin));
-    sig_l = log10(sig_fft_mag(min(max(bin-1,1),floor(N_fft/2/OSR))));
-    sig_r = log10(sig_fft_mag(min(max(bin+1,1),floor(N_fft/2/OSR))));
-    bin_r = bin + (sig_r-sig_l)/(2*sig_e-sig_l-sig_r)/2;
-    if(isnan(bin_r))
-        bin_r = bin;
-    end
-
-    % Normalized frequency
-    freq = (bin_r-1) / N_fft;
+    [~,freq] = sinfit(sig_avg);
 
     % Build sine/cosine basis for harmonics (similar to tomdec)
     t = 0:(N_fft-1);
@@ -282,7 +267,7 @@ else
 
     % Calculate residual (noise)
     residual = sig_avg' - signal_all;
-    noise_power = rms(residual);
+    noise_power = rms(residual)*2*sqrt(2);
     noise_dB = 20*log10(noise_power);
 
     % Extract magnitude and phase for each harmonic
@@ -312,7 +297,6 @@ else
     maxR = ceil(max(harm_dB)/10)*10;
     % Set minimum to accommodate noise floor with margin
     minR = min(min(harm_dB), noise_dB) - 10;
-    minR = max(minR, -200);  % Don't go below -200 dB
     % Round minR to nearest 10 dB
     minR = floor(minR/10)*10;
 
@@ -329,7 +313,7 @@ else
     theta_circle = linspace(0, 2*pi, 100);
     noise_radius = noise_dB - minR;  % Convert to plot scale
     polarplot(theta_circle, noise_radius*ones(size(theta_circle)), 'k--', 'LineWidth', 1.5);
-    text(pi/4, noise_radius, sprintf('Residue Errors\n%.1f dB', noise_dB), ...
+    text(pi*3/4, noise_radius, sprintf('Residue Errors\n%.1f dB', noise_dB), ...
         'FontSize', 9, 'Color', 'k', 'HorizontalAlignment', 'left');
 
     % Plot harmonics
