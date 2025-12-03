@@ -10,7 +10,7 @@ for k = 1:length(filesList)
     read_data = readmatrix(dataFilePath);
 
     figure('Position', [100, 100, 800, 600], "Visible", verbose);
-    plotphase(read_data, 'harmonic', 20, 'mode', 'LMS');
+    plotphase(read_data, 'harmonic', 5, 'mode', 'LMS');
     set(gca, "FontSize",16)
 
     [~, datasetName, ~] = fileparts(currentFilename);
