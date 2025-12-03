@@ -36,7 +36,7 @@ def _process_err_hist_sine_phase(raw_data, sub_folder, dataset_name, figures_fol
     fig.suptitle(f'Error Histogram (Phase): {dataset_name}', fontsize=14)
 
     # 3. Save Figure (before saving variables to ensure figure is current)
-    figure_name = f"{dataset_name}_{test_name}_python.png"
+    figure_name = f"{test_name}_{dataset_name}_python.png"
     save_fig(figures_folder, figure_name, close_fig=False)
 
     # 4. Save Variables

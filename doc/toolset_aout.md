@@ -1,23 +1,25 @@
 # toolset_aout
 
+**MATLAB:** `matlab/src/toolset_aout.m`
+**Python:** `python/src/adctoolbox/toolset_aout.py`
+
 ## Overview
 
-`toolset_aout` is a comprehensive batch runner that executes 9 analog analysis tools on calibrated ADC output data. It automatically generates a complete diagnostic report with visualizations for time-domain, frequency-domain, and statistical error analysis.
+`toolset_aout` executes 9 analog analysis tools on calibrated ADC output data, generating individual diagnostic plots for time-domain, frequency-domain, and statistical error analysis. Use with `toolset_aout_panel` to combine results into a summary figure.
 
-This toolset is designed for rapid ADC characterization, producing a 3×3 panel of diagnostic plots in a single function call.
+Designed for rapid ADC characterization with data-driven execution and consistent output formatting.
 
 ## Syntax
 
 ```matlab
-status = toolset_aout(aout_data, outputDir)
-status = toolset_aout(aout_data, outputDir, 'Visible', true)
-status = toolset_aout(aout_data, outputDir, 'Resolution', 12, 'Prefix', 'test1')
+plot_files = toolset_aout(aout_data, outputDir)
+plot_files = toolset_aout(aout_data, outputDir, 'Visible', true)
+plot_files = toolset_aout(aout_data, outputDir, 'Resolution', 12, 'Prefix', 'test1')
 ```
 
 ```python
-# Python equivalent: python/src/adctoolbox/toolset_aout.py
 from adctoolbox import toolset_aout
-status = toolset_aout(aout_data, output_dir, visible=False, resolution=11, prefix='aout')
+plot_files = toolset_aout(aout_data, output_dir, visible=False, resolution=11, prefix='aout')
 ```
 
 ## Input Arguments
@@ -38,11 +40,12 @@ status = toolset_aout(aout_data, output_dir, visible=False, resolution=11, prefi
 
 ## Output Arguments
 
-**`status`** — Struct with execution results:
-- **`.success`** — `true` if all 9 tools completed successfully
-- **`.tools_completed`** — `1×9` array of success flags (1 = success, 0 = failed)
-- **`.errors`** — Cell array of error messages (empty if all succeeded)
-- **`.panel_path`** — Path to summary panel figure (`PANEL_<PREFIX>.png`)
+**`plot_files`** — Cell array (9×1) of PNG file paths:
+- `plot_files{1}` = `<prefix>_1_tomdec.png`
+- `plot_files{2}` = `<prefix>_2_plotspec.png`
+- ... (through 9)
+
+Pass to `toolset_aout_panel` to generate summary panel
 
 ## Analysis Tools Executed
 
@@ -60,148 +63,89 @@ The toolset runs 9 analysis tools in sequence:
 | **8** | `errSpectrum` | Error signal spectrum (after removing fitted sine) | `<prefix>_8_errSpectrum.png` |
 | **9** | `errEnvelopeSpectrum` | Envelope spectrum using Hilbert transform | `<prefix>_9_errEnvelopeSpectrum.png` |
 
-### Summary Panel
-
-A final 3×3 panel figure (`PANEL_<PREFIX>.png`) combines all 9 plots into a single overview image.
-
 ## Algorithm
 
 ### Workflow
 
 ```
-1. Validate input data using validateAoutData()
-2. Handle multirun data (extract first row if 2D)
-3. Auto-detect frequency using findFin()
-4. Calculate full-scale range: FullScale = max - min
-5. For each tool [1-9]:
-     a. Create figure (visible or hidden)
-     b. Run analysis tool
-     c. Save PNG to outputDir
-     d. Log success/failure
-6. Generate error signal for tools 4-9:
-     err_data = aout_data - sineFit(aout_data)
-7. Create summary panel from 9 individual PNGs
-8. Return status struct
+1. Parse inputs and create output directory
+2. Pre-compute common parameters:
+   - freqCal = findfreq(aout_data)
+   - FullScale = max(aout_data) - min(aout_data)
+   - err_data = aout_data - sinfit(aout_data)
+3. For each tool i = 1:9:
+   - Create figure with specified visibility
+   - Execute tool function
+   - Set title and font size
+   - Export PNG to outputDir/<prefix>_<i>_<name>.png
+   - Close figure
+   - Print status message
+4. Return cell array of 9 file paths
 ```
 
-### Data Validation
+### Tool Execution Structure
 
-Before processing, `validateAoutData()` checks:
-- Input is numeric
-- No NaN or Inf values
-- Sufficient data length (> 100 samples recommended)
+Tools are executed sequentially using a standardized pattern:
+- Create figure with `Position` and `Visible` parameters
+- Call tool function with pre-computed parameters
+- Standardize formatting (`title`, `set(gca, 'FontSize', 14)`)
+- Save with `saveas(gcf, plot_files{i})`
+- Close figure to free memory
 
 ### Error Handling
 
-If a tool fails:
-- Error is logged to `status.errors{}`
-- Execution continues with remaining tools
-- Panel shows "Missing" placeholder for failed tools
+Current implementation uses MATLAB's default error handling - execution stops on first error. To implement fail-safe execution, wrap each tool in `try-catch`
 
 ## Examples
 
-### Example 1: Basic Usage
+### Example 1: Basic Usage with Panel
 
 ```matlab
-% Load calibrated ADC output
 aout_data = readmatrix('sinewave_calibrated.csv');
 
-% Run all 9 analysis tools
-status = toolset_aout(aout_data, 'output/analysis1');
+% Generate individual plots
+plot_files = toolset_aout(aout_data, 'output/analysis1');
 
-% Check results
-if status.success
-    fprintf('✓ All 9 tools completed successfully\n');
-    fprintf('Panel saved to: %s\n', status.panel_path);
-else
-    fprintf('✗ %d/%d tools failed\n', 9 - sum(status.tools_completed), 9);
-    disp(status.errors);
+% Combine into panel
+panel_status = toolset_aout_panel('output/analysis1', 'Prefix', 'aout');
+
+if panel_status.success
+    fprintf('Panel: %s\n', panel_status.panel_path);
 end
 ```
 
 **Output:**
 ```
-[Validation] ✓
-[1/9][tomDecomp] ✓ → [output/analysis1/aout_1_tomDecomp.png]
-[2/9][specPlot] ✓ → [output/analysis1/aout_2_specPlot.png]
+[1/9] tomdec -> output/analysis1/aout_1_tomdec.png
+[2/9] plotspec -> output/analysis1/aout_2_plotspec.png
 ...
-[9/9][errEnvelopeSpectrum] ✓ → [output/analysis1/aout_9_errEnvelopeSpectrum.png]
+[9/9] errEnvelopeSpectrum -> output/analysis1/aout_9_errEnvelopeSpectrum.png
+=== Toolset complete: 9/9 tools completed ===
+
 [Panel] ✓ → [output/analysis1/PANEL_AOUT.png]
-=== Toolset complete: 9/9 tools succeeded ===
-
-✓ All 9 tools completed successfully
-Panel saved to: output/analysis1/PANEL_AOUT.png
+Panel: output/analysis1/PANEL_AOUT.png
 ```
 
-### Example 2: Interactive Mode with Custom Parameters
+### Example 2: Batch Processing
 
 ```matlab
-% Load data
-aout_data = readmatrix('adc_12bit_output.csv');
-
-% Run with visible figures and custom resolution
-status = toolset_aout(aout_data, 'output/test2', ...
-    'Visible', true, ...
-    'Resolution', 12, ...
-    'Prefix', 'adc12b');
-
-% Figures will display during execution
-% Output files: adc12b_1_tomDecomp.png, ..., PANEL_ADC12B.png
-```
-
-### Example 3: Batch Processing Multiple Datasets
-
-```matlab
-% Process multiple datasets in batch mode
 datasets = {'run1.csv', 'run2.csv', 'run3.csv'};
-results = cell(1, length(datasets));
 
 for i = 1:length(datasets)
-    fprintf('Processing %s...\n', datasets{i});
-
     aout_data = readmatrix(datasets{i});
     outputDir = sprintf('output/run%d', i);
 
-    results{i} = toolset_aout(aout_data, outputDir, ...
-        'Visible', false, ...
-        'Prefix', sprintf('run%d', i));
-
-    if results{i}.success
-        fprintf('  ✓ Complete\n');
-    else
-        fprintf('  ✗ Failed: %s\n', strjoin(results{i}.errors, ', '));
-    end
+    plot_files = toolset_aout(aout_data, outputDir, 'Visible', false, 'Prefix', sprintf('run%d', i));
+    toolset_aout_panel(outputDir, 'Prefix', sprintf('run%d', i));
 end
-
-% Summary
-success_count = sum(cellfun(@(x) x.success, results));
-fprintf('\n%d/%d datasets processed successfully\n', success_count, length(datasets));
 ```
 
-### Example 4: Error Recovery
+### Example 3: Re-generate Panels Only
 
 ```matlab
-aout_data = readmatrix('noisy_data.csv');
-status = toolset_aout(aout_data, 'output/noisy', 'Visible', false);
-
-% Check which tools failed
-if ~status.success
-    fprintf('Failed tools:\n');
-    tool_names = {'tomDecomp', 'specPlot', 'specPlotPhase', ...
-                  'errHistSine(code)', 'errHistSine(phase)', ...
-                  'errPDF', 'errAutoCorrelation', 'errSpectrum', ...
-                  'errEnvelopeSpectrum'};
-
-    for i = 1:9
-        if status.tools_completed(i) == 0
-            fprintf('  [%d] %s: %s\n', i, tool_names{i}, ...
-                    status.errors{find(contains(status.errors, sprintf('Tool %d', i)), 1)});
-        end
-    end
-
-    % Partial results are still saved
-    fprintf('\nPartial panel saved to: %s\n', status.panel_path);
-end
+% If plots already exist, just re-create panels
+toolset_aout_panel('output/analysis1', 'Prefix', 'aout');
+toolset_aout_panel('output/analysis2', 'Prefix', 'aout');
 ```
 
 ## Interpretation
@@ -310,6 +254,50 @@ status = toolset_aout(data, 'debug', 'Visible', true);
 % Check errHistSine (tools 4-5) for code-dependent patterns
 ```
 
+---
+
+# toolset_aout_panel
+
+**MATLAB:** `matlab/src/toolset_aout_panel.m`
+**Python:** Not yet implemented
+
+## Overview
+
+`toolset_aout_panel` gathers 9 individual AOUT plot files into a single 3×3 panel figure for overview visualization. Auto-detects plot files based on standard naming convention.
+
+## Syntax
+
+```matlab
+status = toolset_aout_panel(outputDir)
+status = toolset_aout_panel(outputDir, 'Prefix', 'aout')
+status = toolset_aout_panel(outputDir, 'PlotFiles', plot_files)
+```
+
+## Input Arguments
+
+- **`outputDir`** — Directory containing the 9 plot PNG files
+- **`'Prefix'`** — Filename prefix (default: `'aout'`) - used to auto-detect files
+- **`'Visible'`** — Show panel figure (default: `false`)
+- **`'PlotFiles'`** — Cell array (9×1) of explicit file paths (overrides auto-detection)
+
+## Output Arguments
+
+**`status`** — Struct with fields:
+- `.success` — `true` if panel created successfully
+- `.panel_path` — Path to panel PNG file
+- `.errors` — Cell array of error messages
+
+## Example
+
+```matlab
+% Auto-detect plot files based on prefix
+toolset_aout_panel('output/test1', 'Prefix', 'aout');
+% Creates: output/test1/PANEL_AOUT.png
+
+% Explicit file paths
+toolset_aout_panel('output/test1', 'PlotFiles', plot_files);
+```
+
 ## See Also
 
 - [`toolset_dout`](toolset_dout.md) — Digital output analysis suite (6 tools)
@@ -317,7 +305,6 @@ status = toolset_aout(data, 'debug', 'Visible', true);
 - [`specPlot`](specPlot.md) — Frequency spectrum analysis
 - [`errHistSine`](errHistSine.md) — Error histogram analysis
 - [`errPDF`](errPDF.md) — Error PDF analysis
-- [`validateAoutData`] — Input data validation
 
 ## References
 

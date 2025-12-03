@@ -17,9 +17,9 @@ def _process_err_pdf(raw_data, sub_folder, dataset_name, figures_folder, test_na
     2. Run err_pdf analysis
     3. Save variables and plot
     """
-    # Compute error data using sineFit
-    data_fit, freq_est, mag, dc, phi = sine_fit(raw_data)
-    err_data = raw_data - data_fit
+    # Compute error data using sine_fit (with Pythonic names)
+    fitted_signal, frequency, amplitude, dc_offset, phase = sine_fit(raw_data)
+    err_data = raw_data - fitted_signal
 
     # Run errPDF
     noise_lsb, mu, sigma, KL_divergence, x, fx, gauss_pdf = err_pdf(
@@ -39,7 +39,7 @@ def _process_err_pdf(raw_data, sub_folder, dataset_name, figures_folder, test_na
     plt.grid(True)
 
     # Save plot
-    figure_name = f"{dataset_name}_{test_name}_python.png"
+    figure_name = f"{test_name}_{dataset_name}_python.png"
     save_fig(figures_folder, figure_name, dpi=150)
 
     # Save variables

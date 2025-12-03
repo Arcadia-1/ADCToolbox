@@ -16,18 +16,18 @@ def _process_sine_fit(raw_data, sub_folder, dataset_name, figures_folder, test_n
     2. Save variables
     3. Generate and save plot
     """
-    # 1. Sine Fitting
-    data_fit, freq, mag, dc, phi = sine_fit(raw_data)
+    # 1. Sine Fitting - using new Pythonic names
+    fitted_signal, frequency, amplitude, dc_offset, phase = sine_fit(raw_data)
 
-    # 2. Save Variables
-    save_variable(sub_folder, freq, 'freq')
-    save_variable(sub_folder, mag, 'mag')
-    save_variable(sub_folder, dc, 'dc')
-    save_variable(sub_folder, phi, 'phi')
-    save_variable(sub_folder, data_fit, 'data_fit')
+    # 2. Save Variables - Pythonic names auto-mapped to MATLAB names
+    save_variable(sub_folder, frequency, 'frequency')        # → freq_python.csv
+    save_variable(sub_folder, amplitude, 'amplitude')        # → mag_python.csv
+    save_variable(sub_folder, dc_offset, 'dc_offset')        # → dc_python.csv
+    save_variable(sub_folder, phase, 'phase')                # → phi_python.csv
+    save_variable(sub_folder, fitted_signal, 'fitted_signal')  # → fitout_python.csv
 
     # 3. Plotting Logic
-    period_samples = int(round(1.0 / freq)) if freq > 0 else len(raw_data)
+    period_samples = int(round(1.0 / frequency)) if frequency > 0 else len(raw_data)
     n_plot = min(max(period_samples, 20), len(raw_data))
 
     fig = plt.figure(figsize=(8, 6))
@@ -36,7 +36,7 @@ def _process_sine_fit(raw_data, sub_folder, dataset_name, figures_folder, test_n
     plt.plot(t_data, raw_data[:n_plot], 'bo-', linewidth=2, markersize=6, label='Original')
 
     t_dense = np.linspace(0, n_plot - 1, n_plot * 50)
-    fitted_sine = mag * np.cos(2 * np.pi * freq * t_dense + phi) + dc
+    fitted_sine = amplitude * np.cos(2 * np.pi * frequency * t_dense + phase) + dc_offset
     plt.plot(t_dense, fitted_sine, 'r--', linewidth=2, label='Fitted Sine')
 
     plt.title(f'Sine Fit: {dataset_name}')
@@ -46,7 +46,7 @@ def _process_sine_fit(raw_data, sub_folder, dataset_name, figures_folder, test_n
     plt.legend(loc='upper left')
     plt.tight_layout()
 
-    figure_name = f"{dataset_name}_{test_name}_python.png"
+    figure_name = f"{test_name}_{dataset_name}_python.png"
     save_fig(figures_folder, figure_name)
     plt.close(fig)
 

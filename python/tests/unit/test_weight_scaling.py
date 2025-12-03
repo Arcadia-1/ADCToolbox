@@ -27,7 +27,7 @@ def _process_weight_scaling(raw_data, sub_folder, dataset_name, figures_folder, 
     plt.gca().tick_params(labelsize=16)
 
     # Save figure
-    figure_name = f"{dataset_name}_{test_name}_python.png"
+    figure_name = f"{test_name}_{dataset_name}_python.png"
     save_fig(figures_folder, figure_name, dpi=150)
 
     # Save variables

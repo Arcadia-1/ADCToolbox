@@ -9,9 +9,9 @@ plt.rcParams['font.size'] = 14
 plt.rcParams['axes.grid'] = True
 
 def _process_spec_plot(raw_data, sub_folder, dataset_name, figures_folder, test_name):
-    # 1. Spectral Analysis
+    # 1. Spectral Analysis - using Pythonic names
     fig = plt.figure(figsize=(8, 6))
-    ENoB, SNDR, SFDR, SNR, THD, pwr, NF, _ = spec_plot(
+    enob, sndr, sfdr, snr, thd, signal_power, noise_floor, noise_spectral_density, _ = spec_plot(
         raw_data,
         label=1,
         harmonic=5,
@@ -20,17 +20,18 @@ def _process_spec_plot(raw_data, sub_folder, dataset_name, figures_folder, test_
     )
     plt.title("Spectrum")
 
-    # 2. Save Variables
-    save_variable(sub_folder, ENoB, 'ENoB')
-    save_variable(sub_folder, SNDR, 'SNDR')
-    save_variable(sub_folder, SFDR, 'SFDR')
-    save_variable(sub_folder, SNR, 'SNR')
-    save_variable(sub_folder, THD, 'THD')
-    save_variable(sub_folder, pwr, 'pwr')
-    save_variable(sub_folder, NF, 'NF')
+    # 2. Save Variables - auto-mapped to MATLAB names
+    save_variable(sub_folder, enob, 'enob')                                        # → enob_python.csv
+    save_variable(sub_folder, sndr, 'sndr')                                        # → sndr_python.csv
+    save_variable(sub_folder, sfdr, 'sfdr')                                        # → sfdr_python.csv
+    save_variable(sub_folder, snr, 'snr')                                          # → snr_python.csv
+    save_variable(sub_folder, thd, 'thd')                                          # → thd_python.csv
+    save_variable(sub_folder, signal_power, 'signal_power')                        # → sigpwr_python.csv
+    save_variable(sub_folder, noise_floor, 'noise_floor')                          # → noi_python.csv
+    save_variable(sub_folder, noise_spectral_density, 'noise_spectral_density')    # → nsd_python.csv
 
     # 3. Save Figure
-    figure_name = f"{dataset_name}_{test_name}_python.png"
+    figure_name = f"{test_name}_{dataset_name}_python.png"
     save_fig(figures_folder, figure_name, dpi=100)
     plt.close(fig)
 

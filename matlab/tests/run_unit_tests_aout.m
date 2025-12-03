@@ -2,7 +2,8 @@
 
 test_tomdec
 test_plotspec
-test_plotphase
+test_plotphase_fft
+test_plotphase_lms
 
 test_errsin_code
 test_errsin_phase

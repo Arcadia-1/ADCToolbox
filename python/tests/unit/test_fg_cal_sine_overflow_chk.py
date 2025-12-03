@@ -26,7 +26,7 @@ def _process_overflow_chk(raw_data, sub_folder, dataset_name, figures_folder, te
 
     plt.title(f'overflow_chk: {dataset_name}')
     # Save plot
-    figure_name = f"{dataset_name}_{test_name}_python.png"
+    figure_name = f"{test_name}_{dataset_name}_python.png"
     save_fig(figures_folder, figure_name, dpi=150)
 
     # Save data_decom variable

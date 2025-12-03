@@ -21,7 +21,7 @@ def _process_bit_activity(raw_data, sub_folder, dataset_name, figures_folder, te
     plt.gca().tick_params(labelsize=16)
     plt.title(f'Bit activity: {dataset_name}')
 
-    figure_name = f"{dataset_name}_{test_name}_python.png"
+    figure_name = f"{test_name}_{dataset_name}_python.png"
     save_fig(figures_folder, figure_name, dpi=150)
 
     # Save bit_usage data

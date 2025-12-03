@@ -18,28 +18,35 @@ def spec_plot_phase(
     n_fft: Optional[int] = None,
     harmonic: int = 5,
     osr: int = 1,
+    mode: str = 'FFT',
     save_path: Optional[str] = None,
     show_plot: bool = False
 ) -> dict:
     """
     Spectrum phase analysis with polar plot.
 
-    Aligns phase across multiple measurements for coherent averaging,
-    then displays magnitude and phase in polar coordinates.
+    Supports two modes:
+    - FFT: Full spectrum visualization with coherent phase alignment
+    - LMS: Least-squares harmonic fitting with numerical outputs
 
     Args:
         data: ADC output data, shape (M, N) for M runs or (N,) for single run
         n_fft: FFT size (default: length of data)
         harmonic: Number of harmonics to mark (default 5)
         osr: Oversampling ratio (default 1)
+        mode: 'FFT' for full spectrum or 'LMS' for harmonic fitting (default 'FFT')
         save_path: Path to save figure (optional)
         show_plot: Whether to display plot (default False)
 
     Returns:
         dict with keys:
             - spec: Complex spectrum (phase-aligned)
-            - freq_bin: Fundamental frequency bin
-            - harmonics: List of (bin, magnitude, phase) for each harmonic
+            - bin: Fundamental frequency bin
+            - harmonics: List of harmonic info (FFT mode)
+            - harm_phase: Harmonic phases array (LMS mode, empty for FFT)
+            - harm_mag: Harmonic magnitudes array (LMS mode, empty for FFT)
+            - freq: Normalized fundamental frequency (LMS mode, empty for FFT)
+            - noise_dB: Noise floor in dB (LMS mode, empty for FFT)
     """
     data = np.asarray(data)
 
@@ -54,7 +61,167 @@ def spec_plot_phase(
 
     nd2 = n_fft // 2 // osr
 
-    # Coherent averaging with phase alignment
+    # Initialize LMS mode outputs (populated only in LMS mode)
+    harm_phase = np.array([])
+    harm_mag = np.array([])
+    freq = np.nan
+    noise_dB = np.nan
+
+    # Validate mode parameter
+    mode = mode.upper()
+    if mode not in ['FFT', 'LMS']:
+        raise ValueError(f"Mode must be 'FFT' or 'LMS', got '{mode}'")
+
+    # ========== LMS Mode: Least Squares Harmonic Fitting ==========
+    if mode == 'LMS':
+        # Average all runs
+        sig_avg = np.mean(data, axis=0)
+
+        # Normalize signal (match MATLAB: subtract mean, divide by peak-to-peak)
+        maxSignal = np.max(sig_avg) - np.min(sig_avg)
+        sig_avg = sig_avg - np.mean(sig_avg)
+        sig_avg = sig_avg / maxSignal
+
+        # FFT to find fundamental bin
+        spec_temp = np.fft.fft(sig_avg, n_fft)
+        spec_temp[0] = 0  # Remove DC
+        spec_mag = np.abs(spec_temp[:n_fft // 2 // osr])
+        bin_idx = np.argmax(spec_mag)
+
+        # Parabolic interpolation for frequency refinement (using log scale like MATLAB)
+        if bin_idx > 0 and bin_idx < len(spec_mag) - 1:
+            sig_e = np.log10(spec_mag[bin_idx] + 1e-20)
+            sig_l = np.log10(spec_mag[bin_idx - 1] + 1e-20)
+            sig_r = np.log10(spec_mag[bin_idx + 1] + 1e-20)
+            bin_r = bin_idx + (sig_r - sig_l) / (2 * sig_e - sig_l - sig_r) / 2
+            if np.isnan(bin_r):
+                bin_r = bin_idx
+        else:
+            bin_r = bin_idx
+
+        # Add 1 to convert from 0-indexed to match MATLAB's 1-indexed bins for frequency calculation
+        freq = bin_r / n_fft
+
+        # Build sine/cosine basis for harmonics
+        t = np.arange(n_fft)
+        SI = np.zeros((n_fft, harmonic))
+        SQ = np.zeros((n_fft, harmonic))
+        for ii in range(harmonic):
+            SI[:, ii] = np.cos(t * freq * (ii + 1) * 2 * np.pi)
+            SQ[:, ii] = np.sin(t * freq * (ii + 1) * 2 * np.pi)
+
+        # Least squares fit
+        A = np.hstack([SI, SQ])
+        W = np.linalg.lstsq(A, sig_avg, rcond=None)[0]
+
+        # Reconstruct signal with all harmonics
+        signal_all = A @ W
+
+        # Calculate residual (noise)
+        residual = sig_avg - signal_all
+        noise_power = np.sqrt(np.mean(residual**2))  # RMS
+        noise_dB = 20 * np.log10(noise_power)
+
+        # Extract magnitude and phase for each harmonic
+        harm_mag = np.zeros(harmonic)
+        harm_phase = np.zeros(harmonic)
+        for ii in range(harmonic):
+            I_weight = W[ii]
+            Q_weight = W[ii + harmonic]
+            # Note: Magnitude is scaled back to original signal range
+            harm_mag[ii] = np.sqrt(I_weight**2 + Q_weight**2) * maxSignal
+            harm_phase[ii] = np.arctan2(Q_weight, I_weight)
+
+        # Phase rotation: make phases relative to fundamental
+        fundamental_phase = harm_phase[0]
+        for ii in range(harmonic):
+            harm_phase[ii] = harm_phase[ii] - fundamental_phase * (ii + 1)
+
+        # Wrap phases to [-pi, pi]
+        harm_phase = np.mod(harm_phase + np.pi, 2 * np.pi) - np.pi
+
+        # Convert to dB for plotting
+        harm_dB = 20 * np.log10(harm_mag)
+
+        # Set maxR and minR for plot scaling
+        maxR = np.ceil(np.max(harm_dB) / 10) * 10
+        minR = min(np.min(harm_dB), noise_dB) - 10
+        minR = max(minR, -200)  # Don't go below -200 dB
+        minR = np.floor(minR / 10) * 10
+
+        # Create polar plot for LMS mode
+        fig = plt.figure(figsize=(8, 8))
+        ax = fig.add_subplot(111, projection='polar')
+
+        # Plot harmonics as radial lines
+        angles = harm_phase
+        radii = harm_dB - minR  # Offset by minR for display
+
+        for ii in range(harmonic):
+            color = 'r' if ii == 0 else 'b'
+            linewidth = 2 if ii == 0 else 2.5
+            ax.plot([0, angles[ii]], [0, radii[ii]], color=color, linewidth=linewidth)
+            if ii > 0:
+                ax.annotate(str(ii + 1), (angles[ii], radii[ii] + 2),
+                           fontsize=10, ha='center')
+
+        # Mark fundamental with circle
+        ax.plot(angles[0], radii[0], 'ro', markersize=10)
+
+        # Plot noise floor as dashed circle
+        noise_radius = noise_dB - minR
+        if noise_radius > 0:
+            theta_circle = np.linspace(0, 2 * np.pi, 100)
+            ax.plot(theta_circle, np.ones_like(theta_circle) * noise_radius,
+                   'g--', linewidth=1.5, label=f'Noise: {noise_dB:.1f} dB')
+            ax.legend(loc='upper right')
+
+        # Configure polar plot
+        ax.set_theta_direction(-1)  # Clockwise
+        ax.set_theta_zero_location('N')  # 0 degrees at top
+
+        # Custom tick labels showing dB values
+        tick_spacing = 10
+        tick = np.arange(0, -minR + 1, tick_spacing)
+        tickl = np.arange(minR, 1, tick_spacing)
+
+        # Ensure same length
+        min_len = min(len(tick), len(tickl))
+        tick = tick[:min_len]
+        tickl = tickl[:min_len]
+
+        ax.set_rticks(tick)
+        ax.set_yticklabels([f'{int(t):.0f}' for t in tickl])
+        ax.set_rlim(0, -minR)
+
+        ax.set_title('Spectrum Phase (LMS Mode)', pad=20, fontsize=12)
+        ax.grid(True, alpha=0.3)
+
+        plt.tight_layout()
+
+        if save_path:
+            plt.savefig(save_path, dpi=150, bbox_inches='tight')
+            print(f"[specPlotPhase LMS] Figure saved to: {save_path}")
+
+        if show_plot:
+            plt.show()
+
+        if fig is not None:
+            plt.close(fig)
+
+        # Return LMS mode outputs
+        return {
+            'harm_phase': harm_phase,
+            'harm_mag': harm_mag,
+            'freq': freq,
+            'noise_dB': noise_dB,
+            'bin': bin_r,
+            'spec': None,  # Not used in LMS mode
+            'harmonics': []  # Not used in LMS mode
+        }
+
+    # ========== FFT Mode: Full Spectrum Visualization ==========
+
     spec = np.zeros(n_fft, dtype=complex)
     me = 0
 
@@ -220,7 +387,12 @@ def spec_plot_phase(
         'freq_bins': freq_bins,  # Normalized frequency bins
         'harmonics': harmonics_info,
         'mag_db': mag_db,
-        'phase': np.angle(np.conj(spec))
+        'phase': np.angle(np.conj(spec)),
+        # LMS mode outputs (empty for FFT mode)
+        'harm_phase': np.array([]),
+        'harm_mag': np.array([]),
+        'freq': np.nan,
+        'noise_dB': np.nan
     }
 
 
