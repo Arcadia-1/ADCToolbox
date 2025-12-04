@@ -37,11 +37,8 @@ def run_comparison_suite(project_root, matlab_test_name,
         print(msg)
         log_lines.append(msg)
 
-    log(f"[Comparison Test: {python_test_name}]")
-    log(f"[MATLAB Test Name: {matlab_test_name}]")
-    log(f"[Timestamp: {datetime.now().strftime('%Y-%m-%d %H:%M:%S')}]")
-    log(f"[Mode: {structure.upper()}]")
-    log(f"[Threshold: {CSVComparator.THRESHOLD:.2e}]")
+    log(f"[Comparison Test: {python_test_name}] <-> [MATLAB Test: {matlab_test_name}]")
+    log(f"[Timestamp: {datetime.now().strftime('%Y-%m-%d %H:%M:%S')}] [Mode: {structure.upper()}] [Threshold: {CSVComparator.THRESHOLD:.2e}]")
 
     # -------------------------------------------------------
     # 2. Logic Branching: Determine Datasets & Paths
@@ -115,16 +112,22 @@ def run_comparison_suite(project_root, matlab_test_name,
 
             # Compare
             result = comparator.compare_pair(py_csv, mat_csv)
-            status, diff = result['status'], result['max_diff_abs']
+            status = result['status']
+            diff_abs = result['max_diff_abs']
+            diff_rel = result.get('max_diff_rel', 0)
 
-            msg = f"  [{var:<{max_len}}]: [Diff: {diff:.2e}] -> [{status:<8}]"
+            # Format output with both absolute and relative errors
+            if diff_rel < 0.01:  # Less than 0.01% - show absolute only
+                msg = f"  [{var:<{max_len}}]: [Abs: {diff_abs:.2e}] -> [{status:<8}]"
+            else:
+                msg = f"  [{var:<{max_len}}]: [Abs: {diff_abs:.2e}, Rel: {diff_rel:.4f}%] -> [{status:<8}]"
 
             if status == "PERFECT":
                 log(msg)
             else:
                 log(f"{msg} <--- FAIL")
                 failures.append(
-                    f"{display_name}/{var}: {status} (Diff: {diff:.2e})")
+                    f"{display_name}/{var}: {status} (Abs: {diff_abs:.2e}, Rel: {diff_rel:.4f}%)")
 
     # 4. Summary
     log("-" * 60)

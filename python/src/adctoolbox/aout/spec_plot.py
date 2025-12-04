@@ -4,7 +4,7 @@ from scipy.signal import windows
 from ..common.alias import alias
 
 # Verified
-def spec_plot(data, fs=1.0, max_code=None, harmonic=7, win_type=1,
+def spec_plot(data, fs=1.0, max_code=None, harmonic=7, win_type='hann',
                  side_bin=1, log_sca=0, label=1, assumed_signal=np.nan, is_plot=1,
                  n_thd=5, osr=1, co_avg=0, nf_method=0):
     """
@@ -15,7 +15,10 @@ def spec_plot(data, fs=1.0, max_code=None, harmonic=7, win_type=1,
         fs: Sampling frequency (default 1.0)
         max_code: Maximum code range (default: max-min)
         harmonic: Number of harmonics to mark (default 7)
-        win_type: Window type, 0=boxcar, 1=hann (default 1 to match MATLAB)
+        win_type: Window type (default 'hann')
+            'boxcar' or 'rectangular' - Rectangular window
+            'hann' or 'hanning' - Hann window
+            'hamming' - Hamming window
         side_bin: Side bins for signal power (default 1)
         log_sca: Use log scale for x-axis (default 0)
         label: Show labels (default 1)
@@ -51,6 +54,10 @@ def spec_plot(data, fs=1.0, max_code=None, harmonic=7, win_type=1,
         - noise_floor → noise_floor
         - noise_spectral_density → noise_spectral_density (added)
         - h → plot_line
+
+    Changed in version 0.3.1:
+        win_type now accepts strings ('hann', 'hamming', 'boxcar')
+        Integer codes removed - use strings for clarity
     """
     # --- Parameter processing ---
     data = np.asarray(data)
@@ -72,13 +79,19 @@ def spec_plot(data, fs=1.0, max_code=None, harmonic=7, win_type=1,
     Nd2 = N // 2
     freq = np.arange(Nd2) / N * fs
 
-    # --- Window function selection (default: Hann to match MATLAB) ---
-    if win_type == 0:
+    # --- Window function selection ---
+    win_type_str = win_type.lower()
+    if win_type_str in ('boxcar', 'rectangular'):
         win = windows.boxcar(N)
-    elif win_type == 1:
+    elif win_type_str in ('hann', 'hanning'):
         win = windows.hann(N, sym=False)  # periodic window for spectral analysis
+    elif win_type_str == 'hamming':
+        win = windows.hamming(N, sym=False)  # periodic hamming window
     else:
-        win = windows.boxcar(N)
+        raise ValueError(
+            f"Unsupported window type: '{win_type}'. "
+            f"Use 'boxcar', 'hann', or 'hamming'"
+        )
 
     # In-band limit for osr
     Nd2_inband = N // 2 // osr

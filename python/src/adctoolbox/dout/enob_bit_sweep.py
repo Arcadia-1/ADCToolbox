@@ -6,7 +6,7 @@ from .fg_cal_sine import fg_cal_sine
 from ..aout.spec_plot import spec_plot
 
 
-def enob_bit_sweep(bits, freq=0, order=5, harmonic=5, osr=1, win_type=4, plot=True):
+def enob_bit_sweep(bits, freq=0, order=5, harmonic=5, osr=1, win_type='hamming', plot=True):
     """
     ENoB vs Number of Bits Used for Calibration.
 
@@ -22,8 +22,9 @@ def enob_bit_sweep(bits, freq=0, order=5, harmonic=5, osr=1, win_type=4, plot=Tr
         Number of harmonics for specPlot (default: 5)
     osr : int, optional
         Oversampling ratio for specPlot (default: 1)
-    win_type : int, optional
-        Window type for specPlot (default: 4 for Hamming)
+    win_type : str, optional
+        Window type (default: 'hamming')
+        Options: 'boxcar', 'hann', 'hamming'
     plot : bool, optional
         Create plot (default: True)
 
