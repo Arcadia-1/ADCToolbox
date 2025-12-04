@@ -1,4 +1,4 @@
-function [ENoB_sweep, nBits_vec] = bitsweep(bits, varargin)
+function enob_sweep = bitsweep(bits, varargin)
 
 [N, M] = size(bits);
 if N < M, bits = bits'; [N, M] = size(bits); end
@@ -23,7 +23,7 @@ if freq == 0
     [~, ~, ~, ~, ~, freq] = wcalsine(bits, 'freq', 0, 'order', order, 'verbose', 0);
 end
 
-ENoB_sweep = zeros(1, M);
+enob_sweep = zeros(1, M);
 nBits_vec = 1:M;
 
 for nBits = 1:M
@@ -33,15 +33,15 @@ for nBits = 1:M
         [~, ~, postCal_temp, ~, ~, ~] = wcalsine(bits_subset, 'freq', freq, 'order', order, 'verbose', 0);
         [ENoB_temp, ~, ~, ~, ~, ~, ~, ~, ~] = plotspec(postCal_temp, ...
             'label', 0, 'harmonic', harmonic, 'OSR', OSR, 'winType', winType);
-        ENoB_sweep(nBits) = ENoB_temp;
+        enob_sweep(nBits) = ENoB_temp;
     catch ME
-        ENoB_sweep(nBits) = NaN;
+        enob_sweep(nBits) = NaN;
         fprintf('FAILED: %s\n', ME.message);
     end
 end
 
 if doPlot
-    plot(nBits_vec, ENoB_sweep, 'o-k', 'LineWidth', 2, 'MarkerSize', 8, 'MarkerFaceColor', 'k');
+    plot(nBits_vec, enob_sweep, 'o-k', 'LineWidth', 2, 'MarkerSize', 8, 'MarkerFaceColor', 'k');
     hold on; grid on;
     xlabel('Number of Bits Used for Calibration', 'FontSize', 16);
     ylabel('ENoB (bits)', 'FontSize', 16);
@@ -50,12 +50,12 @@ if doPlot
     xticks(1:M);
     set(gca, 'FontSize', 14);
 
-    validENoB = ENoB_sweep(~isnan(ENoB_sweep));
+    validENoB = enob_sweep(~isnan(enob_sweep));
     if ~isempty(validENoB)
         ylim([min(validENoB) - 0.5, max(validENoB) + 2]);
     end
 
-    deltaENoB = [ENoB_sweep(1), diff(ENoB_sweep)];
+    deltaENoB = [enob_sweep(1), diff(enob_sweep)];
 
     if ~isempty(validENoB)
         yOffset = (max(validENoB) - min(validENoB)) * 0.06;
@@ -64,7 +64,7 @@ if doPlot
     end
 
     for i = 1:M
-        if ~isnan(ENoB_sweep(i)) && ~isnan(deltaENoB(i))
+        if ~isnan(enob_sweep(i)) && ~isnan(deltaENoB(i))
             if i == 1
                 annotationText = sprintf('%.2f', deltaENoB(i));
                 textColor = [0, 0, 0];
@@ -74,13 +74,13 @@ if doPlot
                 textColor = [1 - normalizedDelta, 0, 0];
             end
 
-            text(nBits_vec(i), ENoB_sweep(i) + yOffset, annotationText, ...
+            text(nBits_vec(i), enob_sweep(i) + yOffset, annotationText, ...
                 'HorizontalAlignment', 'center', 'VerticalAlignment', 'bottom', ...
                 'FontSize', 12, 'FontWeight', 'bold', 'Color', textColor);
         end
     end
 
-    maxENoB = max(ENoB_sweep(~isnan(ENoB_sweep)));
+    maxENoB = max(enob_sweep(~isnan(enob_sweep)));
     if ~isempty(maxENoB)
         yline(maxENoB, '--r', sprintf('Max ENoB = %.2f', maxENoB), ...
             'LabelHorizontalAlignment', 'left');

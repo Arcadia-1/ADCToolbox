@@ -4,13 +4,14 @@ Spectrum Phase Analyzer
 Polar plot of spectrum with phase information.
 Uses coherent phase alignment across multiple measurements.
 
-Ported from MATLAB: specPlotPhase.m
+Ported from MATLAB: plotphase.m
 """
 
 import numpy as np
 import matplotlib.pyplot as plt
 from typing import Optional
 from ..common.alias import alias
+from ..common.sine_fit import sine_fit
 
 
 def spec_plot_phase(
@@ -82,25 +83,8 @@ def spec_plot_phase(
         sig_avg = sig_avg - np.mean(sig_avg)
         sig_avg = sig_avg / maxSignal
 
-        # FFT to find fundamental bin
-        spec_temp = np.fft.fft(sig_avg, n_fft)
-        spec_temp[0] = 0  # Remove DC
-        spec_mag = np.abs(spec_temp[:n_fft // 2 // osr])
-        bin_idx = np.argmax(spec_mag)
-
-        # Parabolic interpolation for frequency refinement (using log scale like MATLAB)
-        if bin_idx > 0 and bin_idx < len(spec_mag) - 1:
-            sig_e = np.log10(spec_mag[bin_idx] + 1e-20)
-            sig_l = np.log10(spec_mag[bin_idx - 1] + 1e-20)
-            sig_r = np.log10(spec_mag[bin_idx + 1] + 1e-20)
-            bin_r = bin_idx + (sig_r - sig_l) / (2 * sig_e - sig_l - sig_r) / 2
-            if np.isnan(bin_r):
-                bin_r = bin_idx
-        else:
-            bin_r = bin_idx
-
-        # Add 1 to convert from 0-indexed to match MATLAB's 1-indexed bins for frequency calculation
-        freq = bin_r / n_fft
+        # Find fundamental frequency using sinfit (match MATLAB line 251)
+        _, freq, _, _, _ = sine_fit(sig_avg)
 
         # Build sine/cosine basis for harmonics
         t = np.arange(n_fft)
@@ -117,9 +101,9 @@ def spec_plot_phase(
         # Reconstruct signal with all harmonics
         signal_all = A @ W
 
-        # Calculate residual (noise)
+        # Calculate residual (noise) - match MATLAB line 270
         residual = sig_avg - signal_all
-        noise_power = np.sqrt(np.mean(residual**2))  # RMS
+        noise_power = np.sqrt(np.mean(residual**2)) * 2 * np.sqrt(2)  # rms(residual)*2*sqrt(2)
         noise_dB = 20 * np.log10(noise_power)
 
         # Extract magnitude and phase for each harmonic
@@ -128,8 +112,8 @@ def spec_plot_phase(
         for ii in range(harmonic):
             I_weight = W[ii]
             Q_weight = W[ii + harmonic]
-            # Note: Magnitude is scaled back to original signal range
-            harm_mag[ii] = np.sqrt(I_weight**2 + Q_weight**2) * maxSignal
+            # Match MATLAB line 279: multiply by *2
+            harm_mag[ii] = np.sqrt(I_weight**2 + Q_weight**2) * 2
             harm_phase[ii] = np.arctan2(Q_weight, I_weight)
 
         # Phase rotation: make phases relative to fundamental
@@ -215,7 +199,7 @@ def spec_plot_phase(
             'harm_mag': harm_mag,
             'freq': freq,
             'noise_dB': noise_dB,
-            'bin': bin_r,
+            'bin': None,  # Not used in LMS mode
             'spec': None,  # Not used in LMS mode
             'harmonics': []  # Not used in LMS mode
         }
