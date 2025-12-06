@@ -2,7 +2,7 @@
 import numpy as np
 import matplotlib.pyplot as plt
 from pathlib import Path
-from adctoolbox import find_bin, spec_plot
+from adctoolbox import find_bin, analyze_spectrum
 
 output_dir = Path(__file__).parent / "output"
 output_dir.mkdir(exist_ok=True)
@@ -24,11 +24,11 @@ signal_coherent = A * np.sin(2*np.pi*Fin_coherent*t) + DC + np.random.randn(N) *
 fig, (ax1, ax2) = plt.subplots(1, 2, figsize=(14, 6))
 
 plt.sca(ax1)
-enob1, sndr1, sfdr1, snr1, thd1, pwr1, nf1, nsd1 = spec_plot(signal_arbitrary, fs=Fs, harmonic=7, label=1)
+enob1, sndr1, sfdr1, snr1, thd1, pwr1, nf1, nsd1 = analyze_spectrum(signal_arbitrary, fs=Fs, harmonic=7, label=1)
 ax1.set_title(f'Non-Coherent: Fin={Fin_arbitrary/1e3:.1f}kHz (spectral leakage!)')
 
 plt.sca(ax2)
-enob2, sndr2, sfdr2, snr2, thd2, pwr2, nf2, nsd2 = spec_plot(signal_coherent, fs=Fs, harmonic=7, label=1)
+enob2, sndr2, sfdr2, snr2, thd2, pwr2, nf2, nsd2 = analyze_spectrum(signal_coherent, fs=Fs, harmonic=7, label=1)
 ax2.set_title(f'Coherent: Fin={Fin_coherent/1e3:.3f}kHz (Bin {J})')
 
 print(f"[Spectrum Comparison]")

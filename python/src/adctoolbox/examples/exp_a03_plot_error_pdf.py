@@ -2,7 +2,7 @@
 import numpy as np
 import matplotlib.pyplot as plt
 from pathlib import Path
-from adctoolbox import find_bin, err_pdf
+from adctoolbox import find_bin, plot_error_pdf
 
 output_dir = Path(__file__).parent / "output"
 output_dir.mkdir(exist_ok=True)
@@ -16,22 +16,21 @@ Fin = J * Fs / N
 t = np.arange(N) / Fs
 A, DC = 0.49, 0.5
 base_noise = 50e-6
+B = 12  # ADC resolution in bits
 
 print(f"[Error PDF Comparison] [Fs = {Fs/1e6:.0f} MHz, Fin = {Fin/1e6:.1f} MHz, N = {N}]")
 
 # Signal 1: Thermal noise
 noise_rms = 180e-6
 signal_noise = A * np.sin(2*np.pi*Fin*t) + DC + np.random.randn(N) * noise_rms
-print(f"  [Noise] RMS = {noise_rms*1e6:.1f} uV")
 
 # Signal 2: Jitter
-jitter_rms = 2e-12
+jitter_rms = 1e-12
 phase_jitter = np.random.randn(N) * 2 * np.pi * Fin * jitter_rms
 signal_jitter = A * np.sin(2*np.pi*Fin*t + phase_jitter) + DC + np.random.randn(N) * base_noise
-print(f"  [Jitter] RMS = {jitter_rms*1e12:.1f} ps")
 
 # Signal 3: Harmonic distortion (via static nonlinearity)
-hd2_dB, hd3_dB = -80, -73
+hd2_dB, hd3_dB = -80, -66
 hd2_amp = 10**(hd2_dB/20)  # Harmonic amplitude / Fundamental amplitude
 hd3_amp = 10**(hd3_dB/20)
 
@@ -44,7 +43,6 @@ coef3 = hd3_amp / (A**2 / 4)
 # Generate distorted signal: y = x + coef2*x^2 + coef3*x^3
 sinewave = A * np.sin(2*np.pi*Fin*t)
 signal_harmonic = sinewave + coef2 * sinewave**2 + coef3 * sinewave**3 + DC + np.random.randn(N) * base_noise
-print(f"  [Harmonic] HD2 = {hd2_dB} dB, HD3 = {hd3_dB} dB")
 
 # Signal 4: Kickback
 kickback_strength = 0.009
@@ -56,34 +54,31 @@ msb_shifted = msb_ext[:-1]
 msb = msb_ext[1:]
 lsb = lsb_ext[1:]
 signal_kickback = msb + lsb + kickback_strength * msb_shifted
-print(f"  [Kickback] Strength = {kickback_strength}")
 
 # Create 2x2 subplot
 fig, axes = plt.subplots(2, 2, figsize=(12, 8))
 
-print()
-
 # Plot 1: Thermal Noise
 plt.sca(axes[0, 0])
-err_lsb1, mu1, sigma1, KL1, x1, fx1, gauss1 = err_pdf(signal_noise, resolution=12, full_scale=1, plot=True)
+err_lsb1, mu1, sigma1, KL1, x1, fx1, gauss1 = plot_error_pdf(signal_noise, resolution=B, full_scale=1, plot=True)
 axes[0, 0].set_title(f'Thermal Noise: RMS = {noise_rms*1e6:.0f} uV', fontsize=11, fontweight='bold')
 print(f"  [Thermal Noise      ] μ = {mu1:6.3f} LSB, σ = {sigma1:6.3f} LSB, KL = {KL1:.4f}")
 
 # Plot 2: Jitter
 plt.sca(axes[0, 1])
-err_lsb2, mu2, sigma2, KL2, x2, fx2, gauss2 = err_pdf(signal_jitter, resolution=12, full_scale=1, plot=True)
+err_lsb2, mu2, sigma2, KL2, x2, fx2, gauss2 = plot_error_pdf(signal_jitter, resolution=B, full_scale=1, plot=True)
 axes[0, 1].set_title(f'Jitter: {jitter_rms*1e15:.1f} fs', fontsize=11, fontweight='bold')
 print(f"  [Jitter             ] μ = {mu2:6.3f} LSB, σ = {sigma2:6.3f} LSB, KL = {KL2:.4f}")
 
 # Plot 3: Harmonic Distortion
 plt.sca(axes[1, 0])
-err_lsb3, mu3, sigma3, KL3, x3, fx3, gauss3 = err_pdf(signal_harmonic, resolution=12, full_scale=1, plot=True)
+err_lsb3, mu3, sigma3, KL3, x3, fx3, gauss3 = plot_error_pdf(signal_harmonic, resolution=B, full_scale=1, plot=True)
 axes[1, 0].set_title(f'Harmonic Distortion: HD2 = {hd2_dB} dB, HD3 = {hd3_dB} dB', fontsize=11, fontweight='bold')
 print(f"  [Harmonic Distortion] μ = {mu3:6.3f} LSB, σ = {sigma3:6.3f} LSB, KL = {KL3:.4f}")
 
 # Plot 4: Kickback
 plt.sca(axes[1, 1])
-err_lsb4, mu4, sigma4, KL4, x4, fx4, gauss4 = err_pdf(signal_kickback, resolution=12, full_scale=1, plot=True)
+err_lsb4, mu4, sigma4, KL4, x4, fx4, gauss4 = plot_error_pdf(signal_kickback, resolution=B, full_scale=1, plot=True)
 axes[1, 1].set_title(f'Kickback: Strength = {kickback_strength}', fontsize=11, fontweight='bold')
 print(f"  [Kickback           ] μ = {mu4:6.3f} LSB, σ = {sigma4:6.3f} LSB, KL = {KL4:.4f}")
 

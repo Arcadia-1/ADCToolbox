@@ -13,7 +13,7 @@ from typing import Optional, Tuple
 from ..common.alias import alias
 
 
-def spec_plot_2tone(
+def analyze_two_tone_spectrum(
     data: np.ndarray,
     fs: float = 1.0,
     max_code: Optional[float] = None,

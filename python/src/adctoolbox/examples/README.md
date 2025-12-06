@@ -44,9 +44,13 @@ python exp_d02_fg_cal_sine.py
 python exp_d03_redundancy_comparison.py
 python exp_d04_weight_scaling.py
 python exp_d05_enob_bit_sweep.py
+
+# Toolset examples (complete workflows)
+python exp_toolset_aout.py
+python exp_toolset_dout.py
 ```
 
-All outputs save to `./output/` directory.
+**Note**: All examples save figures to `./output/` directory **without displaying them** (non-blocking mode). This allows you to run multiple examples in sequence without manual intervention. If you want to see figures pop up, add `plt.show()` at the end of any example script.
 
 ---
 
@@ -92,6 +96,14 @@ Analysis on digital output codes from ADC architectures (pipeline, SAR, etc.).
 | `d03_redundancy_comparison` | Pipeline architecture comparison |
 | `d04_weight_scaling` | Digital weight scaling |
 | `d05_enob_bit_sweep` | ENOB vs bit sweep |
+
+### **Toolset** - Complete Analysis Workflows
+Comprehensive analysis suites that run multiple tools automatically.
+
+| Example | Description |
+|---------|-------------|
+| `toolset_aout` | Run all 9 analog output analysis tools (spec_plot, err_pdf, INL/DNL, etc.) |
+| `toolset_dout` | Run all 6 digital output analysis tools (bit_activity, weight_scaling, enob_sweep, etc.) |
 
 ---
 

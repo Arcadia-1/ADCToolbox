@@ -36,7 +36,7 @@ def _process_fg_cal_sine(raw_data, sub_folder, dataset_name, figures_folder, tes
 
     # Spectrum plot BEFORE calibration (using nominal weights)
     fig = plt.figure(figsize=(12, 8))
-    ENoB_pre, SNDR_pre, SFDR_pre, SNR_pre, THD_pre, pwr_pre, NF_pre, NSD_pre, _ = spec_plot(
+    ENoB_pre, SNDR_pre, SFDR_pre, SNR_pre, THD_pre, pwr_pre, NF_pre, NSD_pre = spec_plot(
         preCal,
         label=1,
         harmonic=5,
@@ -50,7 +50,7 @@ def _process_fg_cal_sine(raw_data, sub_folder, dataset_name, figures_folder, tes
 
     # Spectrum plot AFTER calibration
     fig = plt.figure(figsize=(12, 8))
-    ENoB_post, SNDR_post, SFDR_post, SNR_post, THD_post, pwr_post, NF_post, NSD_post, _ = spec_plot(
+    ENoB_post, SNDR_post, SFDR_post, SNR_post, THD_post, pwr_post, NF_post, NSD_post = spec_plot(
         postCal,
         label=1,
         harmonic=5,

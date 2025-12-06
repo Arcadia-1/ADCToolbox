@@ -12,7 +12,7 @@ from typing import Optional, Tuple, Union, List
 from ..common.alias import alias
 
 
-def fg_cal_sine_2freq(
+def cal_weight_sine_2freq(
     bits1: np.ndarray,
     bits2: np.ndarray,
     rel_freq1: float,

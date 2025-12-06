@@ -2,7 +2,7 @@
 import numpy as np
 import matplotlib.pyplot as plt
 from pathlib import Path
-from adctoolbox import find_bin, spec_plot, alias
+from adctoolbox import find_bin, analyze_spectrum, alias
 
 output_dir = Path(__file__).parent / "output"
 output_dir.mkdir(exist_ok=True)
@@ -32,7 +32,7 @@ for i, (fin_rel, zone) in enumerate(zip(Fin_relative, zone_labels)):
 
     row, col = i // 2, i % 2
     plt.sca(axes[row, col])
-    enob, sndr_db, sfdr_db, snr_db, thd_db, sig_pwr_dbfs, noise_floor_db, nsd_db = spec_plot(signal, fs=Fs)
+    enob, sndr_db, sfdr_db, snr_db, thd_db, sig_pwr_dbfs, noise_floor_db, nsd_db = analyze_spectrum(signal, fs=Fs)
     axes[row, col].set_ylim([-120, 0])
 
     fin_GHz = fin_rel * Fs / 1e9

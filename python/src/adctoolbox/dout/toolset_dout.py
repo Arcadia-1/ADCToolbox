@@ -4,14 +4,17 @@ import numpy as np
 import matplotlib.pyplot as plt
 from pathlib import Path
 from .validate_dout_data import validate_dout_data
-from .aout.spec_plot import spec_plot
-from .dout.fg_cal_sine import fg_cal_sine
-from .dout.overflow_chk import overflow_chk
+from .analyze_spectrum import analyze_spectrum
+from .cal_weight_sine import cal_weight_sine
+from .overflow_chk import overflow_chk
+from .bit_activity import bit_activity
+from .weight_scaling import weight_scaling
+from .sweep_bit_enob import sweep_bit_enob
 
 
 def toolset_dout(bits, output_dir, visible=False, order=5, prefix='dout'):
     """
-    Run digital analysis tools on ADC digital output.
+    Run 6 digital analysis tools on ADC digital output.
 
     Parameters
     ----------
@@ -40,12 +43,12 @@ def toolset_dout(bits, output_dir, visible=False, order=5, prefix='dout'):
 
     status = {
         'success': False,
-        'tools_completed': [0] * 3,
+        'tools_completed': [0] * 6,
         'errors': [],
         'panel_path': ''
     }
 
-    print('\n=== Running DOUT Toolset (3 Tools) ===')
+    print('\n=== Running DOUT Toolset (6 Tools) ===')
 
     # Validate input data
     print('[Validation]', end='')
@@ -67,14 +70,13 @@ def toolset_dout(bits, output_dir, visible=False, order=5, prefix='dout'):
     try:
         digital_codes_nominal = bits @ nominal_weights
         fig = plt.figure(figsize=(10, 7.5))
-        enob_nom, sndr_nom, sfdr_nom, snr_nom, thd_nom, _, _, _ = spec_plot(
-            digital_codes_nominal, label=1, harmonic=5, OSR=1, winType=4)
+        enob_nom, sndr_nom, sfdr_nom, snr_nom, thd_nom, _, _, _ = analyze_spectrum(
+            digital_codes_nominal, label=1, harmonic=5, osr=1, win_type='boxcar')
         plt.title('Digital Spectrum: Nominal Weights')
         plt.gca().tick_params(labelsize=16)
         png_path = output_dir / f'{prefix}_1_spectrum_nominal.png'
         plt.savefig(png_path, dpi=150, bbox_inches='tight')
-        if not visible:
-            plt.close(fig)
+        plt.close(fig)
         status['tools_completed'][0] = 1
         print(f' OK -> [{png_path}]')
     except Exception as e:
@@ -84,18 +86,17 @@ def toolset_dout(bits, output_dir, visible=False, order=5, prefix='dout'):
     # Tool 2: Digital Spectrum with Calibrated Weights
     print('[2/3][Spectrum (Calibrated)]', end='')
     try:
-        weight_cal, offset, k_static, residual, cost, freq_cal = fg_cal_sine(
+        weight_cal, offset, k_static, residual, cost, freq_cal = cal_weight_sine(
             bits, freq=0, order=order)
         digital_codes_calibrated = bits @ weight_cal
         fig = plt.figure(figsize=(10, 7.5))
-        enob_cal, sndr_cal, sfdr_cal, snr_cal, thd_cal, _, _, _ = spec_plot(
-            digital_codes_calibrated, label=1, harmonic=5, OSR=1, winType=4)
+        enob_cal, sndr_cal, sfdr_cal, snr_cal, thd_cal, _, _, _ = analyze_spectrum(
+            digital_codes_calibrated, label=1, harmonic=5, osr=1, win_type='boxcar')
         plt.title('Digital Spectrum: Calibrated Weights')
         plt.gca().tick_params(labelsize=16)
         png_path = output_dir / f'{prefix}_2_spectrum_calibrated.png'
         plt.savefig(png_path, dpi=150, bbox_inches='tight')
-        if not visible:
-            plt.close(fig)
+        plt.close(fig)
         status['tools_completed'][1] = 1
         improvement = enob_cal - enob_nom
         print(f' OK (+{improvement:.2f} ENoB) -> [{png_path}]')
@@ -107,37 +108,87 @@ def toolset_dout(bits, output_dir, visible=False, order=5, prefix='dout'):
     print('[3/3][Overflow Check]', end='')
     try:
         if 'weight_cal' not in locals():
-            weight_cal, _, _, _, _, _ = fg_cal_sine(bits, freq=0, order=order)
-        fig = plt.figure(figsize=(10, 7.5))
-        data_decom = overflow_chk(bits, weight_cal)
-        plt.title('Overflow Check')
-        plt.gca().tick_params(labelsize=16)
+            weight_cal, _, _, _, _, _ = cal_weight_sine(bits, freq=0, order=order)
+        data_decom = overflow_chk(bits, weight_cal, disp=True)
         png_path = output_dir / f'{prefix}_3_overflowChk.png'
         plt.savefig(png_path, dpi=150, bbox_inches='tight')
-        if not visible:
-            plt.close(fig)
+        plt.close()
         status['tools_completed'][2] = 1
         print(f' OK → [{png_path}]')
     except Exception as e:
         print(f' FAIL {str(e)}')
         status['errors'].append(f'Tool 3: {str(e)}')
 
-    # Create Panel Overview (1x3 grid)
+    # Tool 4: Bit Activity
+    print('[4/6][Bit Activity]', end='')
+    try:
+        fig = plt.figure(figsize=(10, 7.5))
+        bit_usage = bit_activity(bits)
+        plt.title('Bit Activity')
+        plt.gca().tick_params(labelsize=16)
+        png_path = output_dir / f'{prefix}_4_bitActivity.png'
+        plt.savefig(png_path, dpi=150, bbox_inches='tight')
+        plt.close(fig)
+        status['tools_completed'][3] = 1
+        print(f' OK → [{png_path}]')
+    except Exception as e:
+        print(f' FAIL {str(e)}')
+        status['errors'].append(f'Tool 4: {str(e)}')
+
+    # Tool 5: Weight Scaling
+    print('[5/6][Weight Scaling]', end='')
+    try:
+        fig = plt.figure(figsize=(8, 6))
+        radix = weight_scaling(weight_cal)
+        plt.gca().tick_params(labelsize=16)
+        png_path = output_dir / f'{prefix}_5_weightScaling.png'
+        plt.savefig(png_path, dpi=150, bbox_inches='tight')
+        plt.close(fig)
+        status['tools_completed'][4] = 1
+        print(f' OK → [{png_path}]')
+    except Exception as e:
+        print(f' FAIL {str(e)}')
+        status['errors'].append(f'Tool 5: {str(e)}')
+
+    # Tool 6: ENOB Bit Sweep
+    print('[6/6][ENOB Bit Sweep]', end='')
+    try:
+        fig = plt.figure(figsize=(10, 7.5))
+        enob_sweep, n_bits_vec = enob_bit_sweep(
+            bits, freq=0, order=order, harmonic=5, osr=1, win_type='hamming', plot=True)
+        plt.gca().tick_params(labelsize=16)
+        png_path = output_dir / f'{prefix}_6_enobBitSweep.png'
+        plt.savefig(png_path, dpi=150, bbox_inches='tight')
+        plt.close(fig)
+        status['tools_completed'][5] = 1
+        print(f' OK → [{png_path}]')
+    except Exception as e:
+        print(f' FAIL {str(e)}')
+        status['errors'].append(f'Tool 6: {str(e)}')
+
+    # Create Panel Overview (2x3 grid)
     print('[Panel]', end='')
     try:
         plot_files = [
             output_dir / f'{prefix}_1_spectrum_nominal.png',
             output_dir / f'{prefix}_2_spectrum_calibrated.png',
             output_dir / f'{prefix}_3_overflowChk.png',
+            output_dir / f'{prefix}_4_bitActivity.png',
+            output_dir / f'{prefix}_5_weightScaling.png',
+            output_dir / f'{prefix}_6_enobBitSweep.png',
         ]
 
         plot_labels = [
             '(1) Nominal Weights',
             '(2) Calibrated Weights',
             '(3) Overflow Check',
+            '(4) Bit Activity',
+            '(5) Weight Scaling',
+            '(6) ENOB Bit Sweep',
         ]
 
-        fig, axes = plt.subplots(1, 3, figsize=(18, 6))
+        fig, axes = plt.subplots(2, 3, figsize=(18, 12))
+        axes = axes.flatten()
 
         for p, (img_path, label) in enumerate(zip(plot_files, plot_labels)):
             ax = axes[p]
@@ -159,8 +210,7 @@ def toolset_dout(bits, output_dir, visible=False, order=5, prefix='dout'):
 
         panel_path = output_dir / f'PANEL_{prefix.upper()}.png'
         plt.savefig(panel_path, dpi=150, bbox_inches='tight')
-        if not visible:
-            plt.close(fig)
+        plt.close(fig)
         status['panel_path'] = str(panel_path)
         print(f' OK → [{panel_path}]')
     except Exception as e:
@@ -169,7 +219,7 @@ def toolset_dout(bits, output_dir, visible=False, order=5, prefix='dout'):
 
     # Final status
     n_success = sum(status['tools_completed'])
-    print(f'=== Toolset complete: {n_success}/3 tools succeeded ===\n')
-    status['success'] = (n_success == 3)
+    print(f'=== Toolset complete: {n_success}/6 tools succeeded ===\n')
+    status['success'] = (n_success == 6)
 
     return status

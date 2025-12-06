@@ -1,7 +1,7 @@
 import numpy as np
 import matplotlib.pyplot as plt
 from pathlib import Path
-from adctoolbox import find_bin, enob_bit_sweep
+from adctoolbox import find_bin, sweep_bit_enob
 
 output_dir = Path(__file__).parent / "output"
 output_dir.mkdir(exist_ok=True)
@@ -54,7 +54,7 @@ for idx, (lsb_random, title) in enumerate(test_cases):
 
     # Run ENOB bit sweep
     plt.sca(axes[idx])
-    enob_sweep, n_bits_vec = enob_bit_sweep(
+    enob_sweep, n_bits_vec = sweep_bit_enob(
         digital_output, freq=fin/fs, order=5, harmonic=5, osr=1, win_type='hamming', plot=True
     )
     axes[idx].set_title(title, fontweight='bold')
@@ -66,7 +66,7 @@ for idx, (lsb_random, title) in enumerate(test_cases):
     print(f"[{title:45s}] [Nominal = {nominal_resolution:5.2f} bit] [Max ENoB = {max_enob:5.2f} bit @ {optimal_bits} bits] [Final ENoB = {final_enob:5.2f} bit]")
 
 plt.tight_layout()
-fig_path = output_dir / 'exp_d05_enob_bit_sweep.png'
+fig_path = output_dir / 'exp_d05_sweep_bit_enob.png'
 plt.savefig(fig_path, dpi=150)
 print(f"\n[Save fig] -> [{fig_path}]")
 plt.close('all')

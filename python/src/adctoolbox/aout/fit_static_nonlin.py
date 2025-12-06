@@ -9,7 +9,7 @@ import numpy as np
 from ..common.sine_fit import sine_fit
 
 
-def extract_static_nonlin(sig_distorted, order):
+def fit_static_nonlin(sig_distorted, order):
     """
     Extract static nonlinearity coefficients from distorted sinewave.
 

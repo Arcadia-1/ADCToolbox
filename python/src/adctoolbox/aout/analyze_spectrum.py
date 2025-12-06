@@ -3,7 +3,7 @@ import matplotlib.pyplot as plt
 from scipy.signal import windows
 from ..common.alias import alias
 
-def spec_plot(data, fs=1.0, max_code=None, harmonic=3, win_type='hann',
+def analyze_spectrum(data, fs=1.0, max_code=None, harmonic=3, win_type='hann',
               side_bin=1, log_sca=0, label=1, assumed_signal=np.nan, is_plot=1,
               n_thd=5, osr=1, co_avg=0, nf_method=0, ax=None):
     """
@@ -71,6 +71,16 @@ def spec_plot(data, fs=1.0, max_code=None, harmonic=3, win_type='hann',
     spec_inband_search = spec[:Nd2_inband]
     bin_ = np.argmax(spec_inband_search)
 
+    # Parabolic interpolation for refined bin location (matches MATLAB)
+    sig_e = np.log10(spec[bin_]) if spec[bin_] > 0 else -20
+    sig_l = np.log10(spec[max(bin_ - 1, 0)]) if spec[max(bin_ - 1, 0)] > 0 else -20
+    sig_r = np.log10(spec[min(bin_ + 1, Nd2 - 1)]) if spec[min(bin_ + 1, Nd2 - 1)] > 0 else -20
+    denominator = 2 * sig_e - sig_l - sig_r
+    if denominator != 0:
+        bin_r = bin_ + (sig_r - sig_l) / denominator / 2
+    else:
+        bin_r = bin_
+
     start = max(bin_ - side_bin, 0)
     end = min(bin_ + side_bin + 1, Nd2_inband)
     sig = np.sum(spec[start:end])
@@ -104,7 +114,7 @@ def spec_plot(data, fs=1.0, max_code=None, harmonic=3, win_type='hann',
 
         if label and harmonic > 0:
             for i in range(2, harmonic + 1):
-                b = alias(bin_ * i, N)
+                b = alias(int(round(bin_r * i)), N)
                 if b < len(spec):
                     ax.plot(b / N * fs, spec_db[b], 'rs')
                     ax.text(b / N * fs, spec_db[b] + 5, str(i),
@@ -151,7 +161,7 @@ def spec_plot(data, fs=1.0, max_code=None, harmonic=3, win_type='hann',
     else: # Sum after removing harmonics
         spec_noise = np.copy(spec_no_sig)
         for i in range(2, n_thd + 1):
-            b = alias(bin_ * i, N)
+            b = alias(int(round(bin_r * i)), N)
             if b < Nd2_inband:
                 spec_noise[b] = 0
         noi_for_snr = np.sum(spec_noise[:Nd2_inband])
@@ -159,7 +169,7 @@ def spec_plot(data, fs=1.0, max_code=None, harmonic=3, win_type='hann',
     # THD
     thd_pwr = 0
     for i in range(2, n_thd + 1):
-        b = alias(bin_ * i, N)
+        b = alias(int(round(bin_r * i)), N)
         if b < Nd2_inband:
             thd_pwr += spec_no_sig[b]
 

@@ -1,10 +1,10 @@
 import numpy as np
 import matplotlib.pyplot as plt
 from scipy.signal import hilbert
-from .spec_plot import spec_plot
+from .analyze_spectrum import analyze_spectrum
 
 
-def err_envelope_spectrum(err_data, fs=1):
+def plot_envelope_spectrum(err_data, fs=1):
     """
     Compute envelope spectrum using Hilbert transform.
 
@@ -28,7 +28,8 @@ def err_envelope_spectrum(err_data, fs=1):
     env = np.abs(hilbert(e))
 
     # Use spec_plot for spectrum analysis (spec_plot will handle closing its own figure)
-    enob, sndr, sfdr, snr, thd, signal_power, noise_floor, noise_spectral_density, _ = spec_plot(env, fs=fs, label=0)
+    # Use harmonic=5 to match MATLAB's default
+    enob, sndr, sfdr, snr, thd, signal_power, noise_floor, noise_spectral_density = analyze_spectrum(env, fs=fs, label=0, harmonic=5)
 
     # Update labels with larger fonts to match MATLAB
     plt.grid(True)

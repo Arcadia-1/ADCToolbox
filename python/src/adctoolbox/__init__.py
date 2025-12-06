@@ -7,7 +7,7 @@ calibration algorithms, and more.
 
 Usage:
 ------
->>> from adctoolbox import spec_plot, sine_fit, fg_cal_sine
+>>> from adctoolbox import analyze_spectrum, sine_fit, fg_cal_sine
 >>> from adctoolbox import alias, find_bin, err_hist_sine
 """
 
@@ -26,26 +26,25 @@ from .common import (
 )
 
 from .aout import (
-    spec_plot,
-    spec_plot_phase,
-    spec_plot_2tone,
-    err_envelope_spectrum,
-    err_auto_correlation,
+    analyze_spectrum,
+    analyze_phase_spectrum,
+    analyze_two_tone_spectrum,
+    plot_envelope_spectrum,
+    plot_error_autocorr,
     err_hist_sine,
-    err_pdf,
-    tom_decomp,
-    inl_dnl_from_sine,
-    fit_static_nol,
-    extract_static_nonlin,
+    plot_error_pdf,
+    decompose_harmonics,
+    calc_inl_sine,
+    fit_static_nonlin,
 )
 
 from .dout import (
-    fg_cal_sine,
-    fg_cal_sine_os,
-    fg_cal_sine_2freq,
+    cal_weight_sine,
+    cal_weight_sine_os,
+    cal_weight_sine_2freq,
     overflow_chk,
     bit_activity,
-    enob_bit_sweep,
+    sweep_bit_enob,
     weight_scaling,
 )
 
@@ -85,25 +84,24 @@ __all__ = [
     'find_vinpp',
 
     # Analog output (aout) functions
-    'spec_plot',
-    'spec_plot_phase',
-    'spec_plot_2tone',
-    'err_envelope_spectrum',
-    'err_auto_correlation',
+    'analyze_spectrum',
+    'analyze_phase_spectrum',
+    'analyze_two_tone_spectrum',
+    'plot_envelope_spectrum',
+    'plot_error_autocorr',
     'err_hist_sine',
-    'err_pdf',
-    'tom_decomp',
-    'inl_dnl_from_sine',
-    'fit_static_nol',
-    'extract_static_nonlin',
+    'plot_error_pdf',
+    'decompose_harmonics',
+    'calc_inl_sine',
+    'fit_static_nonlin',
 
     # Digital output (dout) functions
-    'fg_cal_sine',
-    'fg_cal_sine_os',
-    'fg_cal_sine_2freq',
+    'cal_weight_sine',
+    'cal_weight_sine_os',
+    'cal_weight_sine_2freq',
     'overflow_chk',
     'bit_activity',
-    'enob_bit_sweep',
+    'sweep_bit_enob',
     'weight_scaling',
 
     # Oversampling functions

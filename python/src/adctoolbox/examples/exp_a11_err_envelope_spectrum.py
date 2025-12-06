@@ -4,7 +4,7 @@ import matplotlib.pyplot as plt
 from pathlib import Path
 from adctoolbox import find_bin
 from adctoolbox.common.sine_fit import sine_fit
-from adctoolbox.aout.err_envelope_spectrum import err_envelope_spectrum
+from adctoolbox.aout.plot_envelope_spectrum import plot_envelope_spectrum
 
 output_dir = Path(__file__).parent / "output"
 output_dir.mkdir(exist_ok=True)
@@ -83,7 +83,7 @@ for i, (signal, title, param) in enumerate(zip(signals, titles, params)):
     print(f"  {title:20s} - Envelope peak: {np.max(envelope)*1e6:.2f} uV")
 
 plt.tight_layout()
-fig_path = output_dir / f'exp_a11_err_envelope_spectrum_fin_{int(Fin/1e6)}M.png'
+fig_path = output_dir / f'exp_a11_plot_envelope_spectrum_fin_{int(Fin/1e6)}M.png'
 plt.savefig(fig_path, dpi=150)
 plt.close()
 

@@ -2,7 +2,7 @@
 import numpy as np
 import matplotlib.pyplot as plt
 from pathlib import Path
-from adctoolbox import find_bin, spec_plot_phase
+from adctoolbox import find_bin, analyze_spectrum_phase
 
 output_dir = Path(__file__).parent / "output"
 output_dir.mkdir(exist_ok=True)
@@ -59,7 +59,7 @@ for i, (signal, title, param) in enumerate(zip(signals, titles, params)):
 
     # Generate phase spectrum plot
     save_path_individual = output_dir / f'exp_a09_phase_{title.lower().replace(" ", "_")}.png'
-    result = spec_plot_phase(signal, harmonic=5, mode='FFT', save_path=str(save_path_individual), show_plot=False)
+    result = analyze_phase_spectrum(signal, harmonic=5, mode='FFT', save_path=str(save_path_individual), show_plot=False)
 
     # Get spectrum and bin
     spec = result['spec']

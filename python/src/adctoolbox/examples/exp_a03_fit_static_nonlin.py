@@ -2,7 +2,7 @@
 import numpy as np
 import matplotlib.pyplot as plt
 from pathlib import Path
-from adctoolbox import find_bin, extract_static_nonlin
+from adctoolbox import find_bin, fit_static_nonlin
 
 output_dir = Path(__file__).parent / "output"
 output_dir.mkdir(exist_ok=True)
@@ -35,7 +35,7 @@ for idx, (k2_inject, k3_inject, title) in enumerate(scenarios):
     sig_distorted = x_ideal + k2_inject * x_ideal**2 + k3_inject * x_ideal**3 + np.random.randn(N) * base_noise
 
     # Extract nonlinearity coefficients
-    k2_extracted, k3_extracted, fitted_sine, fitted_transfer = extract_static_nonlin(sig_distorted, order=3)
+    k2_extracted, k3_extracted, fitted_sine, fitted_transfer = fit_static_nonlin(sig_distorted, order=3)
 
     # Prepare plotting data
     # 1. Measured residual: deviation from the fundamental sine wave
@@ -62,7 +62,7 @@ for idx, (k2_inject, k3_inject, title) in enumerate(scenarios):
     print(f"[{title:24s}] Injected: k2={k2_inject:7.4f}, k3={k3_inject:7.4f}  |  Extracted: k2={k2_extracted:7.4f}, k3={k3_extracted:7.4f}")
 
 plt.tight_layout()
-fig_path = output_dir / 'exp_a07_extract_static_nonlin.png'
+fig_path = output_dir / 'exp_a03_fit_static_nonlin.png'
 plt.savefig(fig_path, dpi=150)
 print(f"\n[Saved] -> {fig_path}")
 plt.close()

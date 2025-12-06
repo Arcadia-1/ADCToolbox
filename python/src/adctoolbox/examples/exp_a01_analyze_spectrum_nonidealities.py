@@ -2,7 +2,7 @@
 import numpy as np
 import matplotlib.pyplot as plt
 from pathlib import Path
-from adctoolbox import find_bin, spec_plot
+from adctoolbox import find_bin, analyze_spectrum
 
 output_dir = Path(__file__).parent / "output"
 output_dir.mkdir(exist_ok=True)
@@ -54,22 +54,22 @@ signal_kickback = msb + lsb + kickback_strength * msb_shifted
 fig, axes = plt.subplots(2, 2, figsize=(14, 10))
 
 plt.sca(axes[0, 0])
-enob1, sndr1, sfdr1, snr1, thd1, pwr1, nf1, nsd1 = spec_plot(signal_noise, fs=Fs)
+enob1, sndr1, sfdr1, snr1, thd1, pwr1, nf1, nsd1 = analyze_spectrum(signal_noise, fs=Fs)
 axes[0, 0].set_ylim([-120, 0])
 axes[0, 0].set_title(f'Noise: RMS={noise_rms*1e6:.0f} uV')
 
 plt.sca(axes[0, 1])
-enob2, sndr2, sfdr2, snr2, thd2, pwr2, nf2, nsd2 = spec_plot(signal_jitter, fs=Fs)
+enob2, sndr2, sfdr2, snr2, thd2, pwr2, nf2, nsd2 = analyze_spectrum(signal_jitter, fs=Fs)
 axes[0, 1].set_ylim([-120, 0])
 axes[0, 1].set_title(f'Jitter: {jitter_rms*1e15:.0f} fs')
 
 plt.sca(axes[1, 0])
-enob3, sndr3, sfdr3, snr3, thd3, pwr3, nf3, nsd3 = spec_plot(signal_harmonic, fs=Fs)
+enob3, sndr3, sfdr3, snr3, thd3, pwr3, nf3, nsd3 = analyze_spectrum(signal_harmonic, fs=Fs)
 axes[1, 0].set_ylim([-120, 0])
 axes[1, 0].set_title(f'Harmonic Distortion: HD2 = {hd2_dB} dB, HD3 = {hd3_dB} dB')
 
 plt.sca(axes[1, 1])
-enob4, sndr4, sfdr4, snr4, thd4, pwr4, nf4, nsd4 = spec_plot(signal_kickback, fs=Fs)
+enob4, sndr4, sfdr4, snr4, thd4, pwr4, nf4, nsd4 = analyze_spectrum(signal_kickback, fs=Fs)
 axes[1, 1].set_ylim([-120, 0])
 axes[1, 1].set_title(f'Kickback: strength = {kickback_strength}')
 

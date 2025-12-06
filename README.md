@@ -27,11 +27,16 @@ python -c "import adctoolbox; print(adctoolbox.__version__)"
 
 ### Step 1: Copy Examples to Your Workspace
 
+Open your terminal (or command prompt on Windows) and navigate to where you want the examples:
+
 ```bash
+cd /path/to/your/workspace
+
+# Run the command-line tool (installed with pip)
 adctoolbox-get-examples
 ```
 
-This creates an `adctoolbox_examples/` directory with all 21 examples.
+This command creates an `adctoolbox_examples/` directory with all 21 examples in your current location.
 
 ### Step 2: Run Examples
 
@@ -60,6 +65,26 @@ python exp_d03_redundancy_comparison.py  # Architecture comparison
 All outputs save to `./output/` directory.
 
 ### Step 3: Use in Your Code
+
+**Option A: Run complete toolsets (like MATLAB)**
+
+```python
+import numpy as np
+from adctoolbox.aout.toolset_aout import toolset_aout
+from adctoolbox.dout.toolset_dout import toolset_dout
+
+# Analog output analysis (9 tools)
+aout_data = np.loadtxt('sinewave.csv')
+status = toolset_aout(aout_data, 'output/test1', visible=False)
+# Creates 9 diagnostic plots + 1 panel overview
+
+# Digital output analysis (3 tools)
+bits = np.loadtxt('sar_bits.csv', delimiter=',')
+status = toolset_dout(bits, 'output/test1', visible=False)
+# Creates 3 diagnostic plots + 1 panel overview
+```
+
+**Option B: Use individual functions**
 
 ```python
 import numpy as np

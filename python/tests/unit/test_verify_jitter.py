@@ -94,7 +94,7 @@ def measure_jitter(signal, Fs):
     jitter_measured = pnoi / (2 * np.pi * Fin_fit)
 
     # Spectrum analysis for SNDR
-    ENoB, SNDR, SFDR, SNR, THD, pwr, NF, NSD, _ = spec_plot(
+    ENoB, SNDR, SFDR, SNR, THD, pwr, NF, NSD = spec_plot(
         signal,
         label=0,
         harmonic=0,

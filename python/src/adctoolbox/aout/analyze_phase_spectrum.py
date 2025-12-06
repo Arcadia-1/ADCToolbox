@@ -14,7 +14,7 @@ from ..common.alias import alias
 from ..common.sine_fit import sine_fit
 
 
-def spec_plot_phase(
+def analyze_phase_spectrum(
     data: np.ndarray,
     n_fft: Optional[int] = None,
     harmonic: int = 5,

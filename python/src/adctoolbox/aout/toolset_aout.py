@@ -4,15 +4,15 @@ import numpy as np
 import matplotlib.pyplot as plt
 from pathlib import Path
 from .validate_aout_data import validate_aout_data
-from .aout.tom_decomp import tom_decomp
-from .aout.spec_plot import spec_plot
-from .aout.spec_plot_phase import spec_plot_phase
-from .aout.err_hist_sine import err_hist_sine
-from .aout.err_pdf import err_pdf
-from .aout.err_auto_correlation import err_auto_correlation
-from .aout.err_envelope_spectrum import err_envelope_spectrum
-from .common.sine_fit import sine_fit
-from .common.find_fin import find_fin
+from .decompose_harmonics import decompose_harmonics
+from .analyze_spectrum import analyze_spectrum
+from .analyze_phase_spectrum import analyze_phase_spectrum
+from .err_hist_sine import err_hist_sine
+from .plot_error_pdf import plot_error_pdf
+from .plot_error_autocorr import plot_error_autocorr
+from .plot_envelope_spectrum import plot_envelope_spectrum
+from ..common.sine_fit import sine_fit
+from ..common.find_fin import find_fin
 
 
 def toolset_aout(aout_data, output_dir, visible=False, resolution=11, prefix='aout'):
@@ -68,17 +68,14 @@ def toolset_aout(aout_data, output_dir, visible=False, resolution=11, prefix='ao
     freq_cal = find_fin(aout_data)
     full_scale = np.max(aout_data) - np.min(aout_data)
 
-    # Tool 1: tomDecomp
-    print('[1/9][tomDecomp]', end='')
+    # Tool 1: Harmonic Decomposition
+    print('[1/9][Harmonic Decomposition]', end='')
     try:
-        fig = plt.figure(figsize=(10, 7.5))
-        signal, error, indep, dep, phi = tom_decomp(aout_data, freq_cal, order=10, disp=1)
-        fig.suptitle('tomDecomp: Time-domain Error Decomposition')
+        fundamental, total_error, harmonic_error, other_error = decompose_harmonics(aout_data, freq_cal, order=10, disp=1)
         plt.gca().tick_params(labelsize=14)
-        png_path = output_dir / f'{prefix}_1_tomDecomp.png'
+        png_path = output_dir / f'{prefix}_1_harmonicDecomp.png'
         plt.savefig(png_path, dpi=150, bbox_inches='tight')
-        if not visible:
-            plt.close(fig)
+        plt.close()
         status['tools_completed'][0] = 1
         print(f' OK -> [{png_path}]')
     except Exception as e:
@@ -89,14 +86,13 @@ def toolset_aout(aout_data, output_dir, visible=False, resolution=11, prefix='ao
     print('[2/9][specPlot]', end='')
     try:
         fig = plt.figure(figsize=(10, 7.5))
-        enob, sndr, sfdr, snr, thd, pwr, nf, h = spec_plot(
-            aout_data, label=1, harmonic=5, OSR=1, winType=4)
+        enob, sndr, sfdr, snr, thd, pwr, nf, h = analyze_spectrum(
+            aout_data, label=1, harmonic=5, osr=1, win_type='boxcar')
         plt.title('specPlot: Frequency Spectrum')
         plt.gca().tick_params(labelsize=14)
         png_path = output_dir / f'{prefix}_2_specPlot.png'
         plt.savefig(png_path, dpi=150, bbox_inches='tight')
-        if not visible:
-            plt.close(fig)
+        plt.close(fig)
         status['tools_completed'][1] = 1
         print(f' OK -> [{png_path}]')
     except Exception as e:
@@ -106,14 +102,8 @@ def toolset_aout(aout_data, output_dir, visible=False, resolution=11, prefix='ao
     # Tool 3: specPlotPhase
     print('[3/9][specPlotPhase]', end='')
     try:
-        fig = plt.figure(figsize=(10, 7.5))
-        result = spec_plot_phase(aout_data, harmonic=10, show_plot=True)
-        plt.title('specPlotPhase: Phase-domain Error')
-        plt.gca().tick_params(labelsize=14)
         png_path = output_dir / f'{prefix}_3_specPlotPhase.png'
-        plt.savefig(png_path, dpi=150, bbox_inches='tight')
-        if not visible:
-            plt.close(fig)
+        result = analyze_phase_spectrum(aout_data, harmonic=10, show_plot=False, save_path=str(png_path))
         status['tools_completed'][2] = 1
         print(f' OK -> [{png_path}]')
     except Exception as e:
@@ -130,15 +120,11 @@ def toolset_aout(aout_data, output_dir, visible=False, resolution=11, prefix='ao
     # Tool 4: errHistSine (code mode)
     print('[4/9][errHistSine (code)]', end='')
     try:
-        fig = plt.figure(figsize=(10, 7.5))
         emean_code, erms_code, code_axis, _, _, _, _ = err_hist_sine(
             aout_data, bin=20, fin=freq_cal, disp=1, mode=1)
-        fig.suptitle('errHistSine (code): Error Histogram by Code')
-        plt.gca().tick_params(labelsize=14)
         png_path = output_dir / f'{prefix}_4_errHistSine_code.png'
         plt.savefig(png_path, dpi=150, bbox_inches='tight')
-        if not visible:
-            plt.close(fig)
+        plt.close()
         status['tools_completed'][3] = 1
         print(f' OK -> [{png_path}]')
     except Exception as e:
@@ -148,15 +134,11 @@ def toolset_aout(aout_data, output_dir, visible=False, resolution=11, prefix='ao
     # Tool 5: errHistSine (phase mode)
     print('[5/9][errHistSine (phase)]', end='')
     try:
-        fig = plt.figure(figsize=(10, 7.5))
         emean, erms, phase_code, anoi, pnoi, _, _ = err_hist_sine(
             aout_data, bin=99, fin=freq_cal, disp=1, mode=0)
-        fig.suptitle('errHistSine (phase): Error Histogram by Phase')
-        plt.gca().tick_params(labelsize=14)
         png_path = output_dir / f'{prefix}_5_errHistSine_phase.png'
         plt.savefig(png_path, dpi=150, bbox_inches='tight')
-        if not visible:
-            plt.close(fig)
+        plt.close()
         status['tools_completed'][4] = 1
         print(f' OK -> [{png_path}]')
     except Exception as e:
@@ -167,14 +149,13 @@ def toolset_aout(aout_data, output_dir, visible=False, resolution=11, prefix='ao
     print('[6/9][errPDF]', end='')
     try:
         fig = plt.figure(figsize=(10, 7.5))
-        _, mu, sigma, kl_div, x, fx, gauss_pdf = err_pdf(
-            err_data, Resolution=resolution, FullScale=full_scale)
+        _, mu, sigma, kl_div, x, fx, gauss_pdf = plot_error_pdf(
+            err_data, resolution=resolution, full_scale=full_scale)
         plt.title('errPDF: Error PDF')
         plt.gca().tick_params(labelsize=14)
         png_path = output_dir / f'{prefix}_6_errPDF.png'
         plt.savefig(png_path, dpi=150, bbox_inches='tight')
-        if not visible:
-            plt.close(fig)
+        plt.close(fig)
         status['tools_completed'][5] = 1
         print(f' OK -> [{png_path}]')
     except Exception as e:
@@ -185,13 +166,12 @@ def toolset_aout(aout_data, output_dir, visible=False, resolution=11, prefix='ao
     print('[7/9][errAutoCorrelation]', end='')
     try:
         fig = plt.figure(figsize=(10, 7.5))
-        acf, lags = err_auto_correlation(err_data, MaxLag=200, Normalize=True)
+        acf, lags = plot_error_autocorr(err_data, max_lag=200, normalize=True)
         plt.title('errAutoCorrelation: Error Autocorrelation')
         plt.gca().tick_params(labelsize=14)
         png_path = output_dir / f'{prefix}_7_errAutoCorrelation.png'
         plt.savefig(png_path, dpi=150, bbox_inches='tight')
-        if not visible:
-            plt.close(fig)
+        plt.close(fig)
         status['tools_completed'][6] = 1
         print(f' OK -> [{png_path}]')
     except Exception as e:
@@ -202,13 +182,12 @@ def toolset_aout(aout_data, output_dir, visible=False, resolution=11, prefix='ao
     print('[8/9][errSpectrum]', end='')
     try:
         fig = plt.figure(figsize=(10, 7.5))
-        _, _, _, _, _, _, _, h = spec_plot(err_data, label=0)
+        _, _, _, _, _, _, _, h = analyze_spectrum(err_data, label=0)
         plt.title('errSpectrum: Error Spectrum')
         plt.gca().tick_params(labelsize=14)
         png_path = output_dir / f'{prefix}_8_errSpectrum.png'
         plt.savefig(png_path, dpi=150, bbox_inches='tight')
-        if not visible:
-            plt.close(fig)
+        plt.close(fig)
         status['tools_completed'][7] = 1
         print(f' OK -> [{png_path}]')
     except Exception as e:
@@ -219,13 +198,12 @@ def toolset_aout(aout_data, output_dir, visible=False, resolution=11, prefix='ao
     print('[9/9][errEnvelopeSpectrum]', end='')
     try:
         fig = plt.figure(figsize=(10, 7.5))
-        err_envelope_spectrum(err_data, Fs=1)
+        plot_envelope_spectrum(err_data, fs=1)
         plt.title('errEnvelopeSpectrum: Error Envelope Spectrum')
         plt.gca().tick_params(labelsize=14)
         png_path = output_dir / f'{prefix}_9_errEnvelopeSpectrum.png'
         plt.savefig(png_path, dpi=150, bbox_inches='tight')
-        if not visible:
-            plt.close(fig)
+        plt.close(fig)
         status['tools_completed'][8] = 1
         print(f' OK -> [{png_path}]')
     except Exception as e:

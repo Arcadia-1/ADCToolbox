@@ -11,7 +11,7 @@ import numpy as np
 from typing import Optional, Tuple
 
 
-def fg_cal_sine_os(
+def cal_weight_sine_os(
     bits: np.ndarray,
     rel_freq: float,
     osr: int,

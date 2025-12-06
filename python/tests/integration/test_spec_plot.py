@@ -11,7 +11,7 @@ plt.rcParams['axes.grid'] = True
 def _process_spec_plot(raw_data, sub_folder, dataset_name, figures_folder, test_name):
     # 1. Spectral Analysis - using Pythonic names
     fig = plt.figure(figsize=(8, 6))
-    enob, sndr, sfdr, snr, thd, signal_power, noise_floor, noise_spectral_density, _ = spec_plot(
+    enob, sndr, sfdr, snr, thd, signal_power, noise_floor, noise_spectral_density = spec_plot(
         raw_data,
         label=1,
         harmonic=5,

@@ -2,7 +2,7 @@
 import numpy as np
 import matplotlib.pyplot as plt
 from pathlib import Path
-from adctoolbox import spec_plot_2tone
+from adctoolbox import analyze_spectrum_2tone
 
 output_dir = Path(__file__).parent / "output"
 output_dir.mkdir(exist_ok=True)
@@ -38,7 +38,7 @@ signal_with_imd += k3 * signal_base**3
 signal = signal_with_imd + DC + np.random.randn(N) * noise_rms
 
 # Analyze two-tone spectrum
-enob, sndr, sfdr, snr, thd, pwr1, pwr2, nf, imd2, imd3 = spec_plot_2tone(
+enob, sndr, sfdr, snr, thd, pwr1, pwr2, nf, imd2, imd3 = analyze_two_tone_spectrum(
     signal, fs=Fs, harmonic=7, is_plot=False
 )
 

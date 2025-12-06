@@ -1,7 +1,7 @@
 import numpy as np
 import matplotlib.pyplot as plt
 
-from adctoolbox.aout import inl_sine
+from adctoolbox.aout import inl_dnl_from_sine
 from tests._utils import save_fig, save_variable
 from tests.unit._runner import run_unit_test_batch
 from tests import config
@@ -26,7 +26,7 @@ def _process_inl_sine(raw_data, sub_folder, dataset_name, figures_folder, test_n
         expected_max = 2 ** Resolution
 
         # 2. Calculate INL/DNL
-        INL, DNL, code = inl_sine(scaled_data)
+        INL, DNL, code = inl_dnl_from_sine(scaled_data, num_bits=Resolution)
 
         # 3. Save Variables
         save_variable(sub_folder, INL, 'INL')
