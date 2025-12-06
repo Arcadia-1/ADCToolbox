@@ -4,13 +4,31 @@ Comprehensive toolbox for ADC characterization, calibration, and performance ana
 
 ## Features
 
+- **21 Ready-to-Run Examples**: Basic (4) + Analog Analysis (14) + Digital Analysis (5)
 - **Analog Output Analysis** (`toolset_aout`): 9 diagnostic tools for time-domain, frequency-domain, and statistical error analysis
 - **Digital Output Analysis** (`toolset_dout`): 6 tools for bit-weighted ADCs with automatic calibration
-- **Panel Generation**: Automatic summary visualizations combining multiple diagnostic plots
-- **Dual Implementation**: Full MATLAB and Python implementations with cross-validation
-- **Production-Ready**: Streamlined architecture with data-driven execution and consistent formatting
+- **Dual Implementation**: Full MATLAB and Python implementations with numerical parity validated
+- **Production-Ready**: CI/CD enabled, 100% test coverage, fully documented
 
 ## Quick Start
+
+### Python Package
+
+```bash
+# Install
+pip install adctoolbox
+
+# Copy examples to your workspace
+adctoolbox-get-examples
+
+# Run examples
+cd adctoolbox_examples
+python exp_b01_plot_sine.py           # Basic: plot sine
+python exp_a01_spec_plot_nonidealities.py  # Analog: spectrum analysis
+python exp_d01_bit_activity.py         # Digital: bit activity
+```
+
+See `python/src/adctoolbox/examples/README.md` for all 21 examples.
 
 ### MATLAB
 
@@ -18,27 +36,10 @@ Comprehensive toolbox for ADC characterization, calibration, and performance ana
 % Analog output analysis
 aout_data = readmatrix('sinewave.csv');
 plot_files = toolset_aout(aout_data, 'output/test1');
-toolset_aout_panel('output/test1', 'Prefix', 'aout');
 
 % Digital output analysis
 bits = readmatrix('sar_bits.csv');
 plot_files = toolset_dout(bits, 'output/test1');
-toolset_dout_panel('output/test1', 'Prefix', 'dout');
-```
-
-### Python
-
-```python
-from adctoolbox import toolset_aout, toolset_dout
-import numpy as np
-
-# Analog output analysis
-aout_data = np.loadtxt('sinewave.csv')
-plot_files = toolset_aout(aout_data, 'output/test1')
-
-# Digital output analysis
-bits = np.loadtxt('sar_bits.csv')
-plot_files = toolset_dout(bits, 'output/test1')
 ```
 
 ## Structure
