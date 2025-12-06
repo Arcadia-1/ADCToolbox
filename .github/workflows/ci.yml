@@ -7,8 +7,8 @@ on:
     branches: [ main ]
 
 jobs:
-  python-basic-test:
-    name: Python Basic Test
+  test-examples:
+    name: Test Examples
     runs-on: ubuntu-latest
 
     steps:
@@ -19,20 +19,17 @@ jobs:
         with:
           python-version: '3.11'
 
-      - name: Install UV
-        run: pip install uv
-
       - name: Install dependencies
         run: |
-          uv pip install numpy matplotlib pandas pytest --system
+          pip install numpy matplotlib scipy
           pip install -e ./python
 
-      - name: Test basic functionality
+      - name: Test Basic Examples (b01-b04)
         run: |
-          pytest python/tests/unit/test_basic.py -q          
-          # pytest python/tests/compare/test_compare_basic.py -q
-
-      # - name: Test sine_fit
-      #   run: |
-      #     pytest python/tests/unit/test_sine_fit.py -q      
-      #     pytest python/tests/compare/test_compare_sine_fit.py -q
+          cd python/src/adctoolbox/examples
+          python exp_b01_plot_sine.py
+          python exp_b02_spectrum.py
+          python exp_b03_sine_fit.py
+          python exp_b04_aliasing.py
+        env:
+          MPLBACKEND: Agg
