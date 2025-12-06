@@ -5,6 +5,9 @@ on:
     tags:
       - 'v*.*.*'  # Triggers on version tags like v0.2.1, v1.0.0, etc.
 
+permissions:
+  contents: write  # Required for creating releases
+
 jobs:
   build-and-publish:
     name: Build and Publish to PyPI
@@ -42,11 +45,13 @@ jobs:
           twine upload dist/*
 
       - name: Create GitHub Release
-        uses: softprops/action-gh-release@v1
+        uses: softprops/action-gh-release@v2
         with:
           files: |
             python/dist/*.whl
             python/dist/*.tar.gz
           generate_release_notes: true
+          draft: false
+          prerelease: false
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
