@@ -34,8 +34,9 @@ from .aout import (
     err_hist_sine,
     err_pdf,
     tom_decomp,
-    inl_sine,
+    inl_dnl_from_sine,
     fit_static_nol,
+    extract_static_nonlin,
 )
 
 from .dout import (
@@ -43,6 +44,9 @@ from .dout import (
     fg_cal_sine_os,
     fg_cal_sine_2freq,
     overflow_chk,
+    bit_activity,
+    enob_bit_sweep,
+    weight_scaling,
 )
 
 from .oversampling import (
@@ -89,14 +93,18 @@ __all__ = [
     'err_hist_sine',
     'err_pdf',
     'tom_decomp',
-    'inl_sine',
+    'inl_dnl_from_sine',
     'fit_static_nol',
+    'extract_static_nonlin',
 
     # Digital output (dout) functions
     'fg_cal_sine',
     'fg_cal_sine_os',
     'fg_cal_sine_2freq',
     'overflow_chk',
+    'bit_activity',
+    'enob_bit_sweep',
+    'weight_scaling',
 
     # Oversampling functions
     'ntf_analyzer',
