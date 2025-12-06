@@ -2,7 +2,7 @@
 import numpy as np
 import matplotlib.pyplot as plt
 from pathlib import Path
-from adctoolbox import find_bin, err_auto_correlation
+from adctoolbox import find_bin, plot_error_autocorr
 from adctoolbox.common.sine_fit import sine_fit
 
 output_dir = Path(__file__).parent / "output"
@@ -143,7 +143,7 @@ for i, (signal, title) in enumerate(zip(signals, titles)):
     err = signal - sig_fit
 
     # Compute autocorrelation
-    acf, lags = err_auto_correlation(err, max_lag=100, normalize=True)
+    acf, lags = plot_error_autocorr(err, max_lag=100, normalize=True)
 
     # Plot autocorrelation
     axes[i].stem(lags, acf, linefmt='b-', markerfmt='b.', basefmt='k-')
@@ -161,7 +161,7 @@ for i, (signal, title) in enumerate(zip(signals, titles)):
     print(f"  {i+1:2d}. {title.split(chr(10))[0]:25s} - ACF[0]={acf_0:6.3f}, ACF[1]={acf_1:7.4f}")
 
 plt.tight_layout()
-fig_path = output_dir / 'exp_a10_err_auto_correlation_12cases.png'
+fig_path = output_dir / 'exp_a10_plot_error_autocorr_12cases.png'
 plt.savefig(fig_path, dpi=150)
 plt.close()
 

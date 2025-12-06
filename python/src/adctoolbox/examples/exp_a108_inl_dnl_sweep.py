@@ -2,7 +2,7 @@
 import numpy as np
 import matplotlib.pyplot as plt
 from pathlib import Path
-from adctoolbox import find_bin, inl_dnl_from_sine, spec_plot
+from adctoolbox import find_bin, calc_inl_sine, analyze_spectrum
 
 output_dir = Path(__file__).parent / "output"
 output_dir.mkdir(exist_ok=True)
@@ -42,14 +42,14 @@ for idx, N in enumerate(N_list):
     sinewave = A * np.sin(2 * np.pi * fin * t)
     signal_distorted = sinewave + k2 * sinewave**2 + k3 * sinewave**3 + DC + np.random.randn(N) * base_noise
 
-    enob, sndr, sfdr, snr, thd, pwr, nf, nsd = spec_plot(signal_distorted, fs=fs, is_plot=False)
+    enob, sndr, sfdr, snr, thd, pwr, nf, nsd = analyze_spectrum(signal_distorted, fs=fs, is_plot=False)
 
     # Quantize to ADC codes
     digital_output = np.round(signal_distorted * (2**n_bits) / full_scale).astype(int)
     digital_output = np.clip(digital_output, 0, 2**n_bits - 1)
 
     # Calculate INL and DNL
-    inl, dnl, code = inl_dnl_from_sine(digital_output, num_bits=n_bits, clip_percent=0.01)
+    inl, dnl, code = calc_inl_sine(digital_output, num_bits=n_bits, clip_percent=0.01)
 
     # Plot DNL (top row)
     axes[0, idx].plot(code, dnl, 'r-', linewidth=0.5)

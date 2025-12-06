@@ -1,7 +1,7 @@
 import numpy as np
 import matplotlib.pyplot as plt
 from pathlib import Path
-from adctoolbox import find_bin, fg_cal_sine, spec_plot
+from adctoolbox import find_bin, cal_weight_sine, analyze_spectrum
 
 output_dir = Path(__file__).parent / "output"
 output_dir.mkdir(exist_ok=True)
@@ -39,17 +39,17 @@ for j in range(n_bits):
 analog_before = np.dot(digital_output, weights_nominal)
 
 # Calibration
-weights_calibrated, offset, analog_after, _, _, _ = fg_cal_sine(digital_output, freq=0, order=5)
+weights_calibrated, offset, analog_after, _, _, _ = cal_weight_sine(digital_output, freq=0, order=5)
 
 # Spectrum comparison
 fig, axes = plt.subplots(1, 2, figsize=(14, 5))
 
 plt.sca(axes[0])
-enob_before, sndr_before, *_ = spec_plot(analog_before, harmonic=5, label=1)
+enob_before, sndr_before, *_ = analyze_spectrum(analog_before, harmonic=5, label=1)
 axes[0].set_title('Before Calibration', fontsize=12, fontweight='bold')
 
 plt.sca(axes[1])
-enob_after, sndr_after, *_ = spec_plot(analog_after, harmonic=5, label=1)
+enob_after, sndr_after, *_ = analyze_spectrum(analog_after, harmonic=5, label=1)
 axes[1].set_title('After Calibration', fontsize=12, fontweight='bold')
 
 # Normalize weights for comparison
@@ -71,7 +71,7 @@ print(f"  [Cal     weights]: [{calibrated_str}] <-- Result")
 
 
 plt.tight_layout()
-fig_path = output_dir / 'exp_d02_fg_cal_sine.png'
+fig_path = output_dir / 'exp_d02_cal_weight_sine.png'
 plt.savefig(fig_path, dpi=150)
 print(f"\n[Save fig] -> [{fig_path}]")
 

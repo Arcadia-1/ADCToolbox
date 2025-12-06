@@ -1,7 +1,7 @@
 import numpy as np
 import matplotlib.pyplot as plt
 from pathlib import Path
-from adctoolbox import find_bin, fg_cal_sine, spec_plot
+from adctoolbox import find_bin, cal_weight_sine, analyze_spectrum
 
 output_dir = Path(__file__).parent / "output"
 output_dir.mkdir(exist_ok=True)
@@ -48,15 +48,15 @@ for idx, (caps_nominal, mismatch_factor, title) in enumerate(test_cases):
     analog_before = np.dot(digital_output, weights_nominal)
 
     # Calibration
-    weights_calibrated, offset, analog_after, _, _, _ = fg_cal_sine(digital_output, freq=0, order=5)
+    weights_calibrated, offset, analog_after, _, _, _ = cal_weight_sine(digital_output, freq=0, order=5)
 
     # Spectrum comparison
     plt.sca(axes[0, idx])
-    enob_before, sndr_before, *_ = spec_plot(analog_before, harmonic=5, label=1)
+    enob_before, sndr_before, *_ = analyze_spectrum(analog_before, harmonic=5, label=1)
     axes[0, idx].set_title(f'{title}\nBefore Calibration', fontsize=11, fontweight='bold')
 
     plt.sca(axes[1, idx])
-    enob_after, sndr_after, *_ = spec_plot(analog_after, harmonic=5, label=1)
+    enob_after, sndr_after, *_ = analyze_spectrum(analog_after, harmonic=5, label=1)
     axes[1, idx].set_title(f'After Calibration', fontsize=11, fontweight='bold')
 
     # Normalize weights for error analysis

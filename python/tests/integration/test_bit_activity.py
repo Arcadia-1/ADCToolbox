@@ -17,7 +17,7 @@ def _process_bit_activity(raw_data, sub_folder, dataset_name, figures_folder, te
     """
     # Create figure and run bit_activity
     fig = plt.figure(figsize=(10, 7.5))
-    bit_usage = bit_activity(raw_data, annotate_extremes=True)
+    bit_usage = bit_activity(raw_data)
     plt.gca().tick_params(labelsize=16)
     plt.title(f'Bit activity: {dataset_name}')
 

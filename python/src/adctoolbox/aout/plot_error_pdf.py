@@ -7,7 +7,7 @@ import matplotlib.pyplot as plt
 from ..common.sine_fit import sine_fit
 
 
-def err_pdf(sig_distorted, resolution=12, full_scale=1, freq=0, plot=False):
+def plot_error_pdf(sig_distorted, resolution=12, full_scale=1, freq=0, plot=False):
     """
     Compute and optionally plot error probability density function using KDE.
 

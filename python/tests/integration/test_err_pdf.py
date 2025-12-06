@@ -16,15 +16,15 @@ def _process_err_pdf(raw_data, sub_folder, dataset_name, figures_folder, test_na
     1. Calculate error data using sine_fit
     2. Run err_pdf analysis
     3. Save variables and plot
-    """
-    # Compute error data using sine_fit (with Pythonic names)
-    fitted_signal, frequency, amplitude, dc_offset, phase = sine_fit(raw_data)
-    err_data = raw_data - fitted_signal
 
-    # Run errPDF
+    NOTE: Both Python err_pdf and MATLAB errpdf now take raw signal
+    and compute error internally (MATLAB was updated to match Python).
+    """
+    # Run errPDF with raw data (Python's design)
+    # Now matches MATLAB interface (both take raw signal)
     noise_lsb, mu, sigma, KL_divergence, x, fx, gauss_pdf = err_pdf(
-        err_data,
-        resolution=8,
+        raw_data,
+        resolution=12,  # Match MATLAB resolution
         full_scale=np.max(raw_data) - np.min(raw_data)
     )
 
