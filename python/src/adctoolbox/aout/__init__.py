@@ -8,8 +8,9 @@ from .err_auto_correlation import err_auto_correlation
 from .err_hist_sine import err_hist_sine
 from .err_pdf import err_pdf
 from .tom_decomp import tom_decomp
-from .inl_sine import inl_sine
+from .inl_dnl_from_sine import inl_dnl_from_sine
 from .fit_static_nol import fit_static_nol
+from .extract_static_nonlin import extract_static_nonlin
 
 __all__ = [
     'spec_plot',
@@ -20,6 +21,7 @@ __all__ = [
     'err_hist_sine',
     'err_pdf',
     'tom_decomp',
-    'inl_sine',
+    'inl_dnl_from_sine',
     'fit_static_nol',
+    'extract_static_nonlin',
 ]
