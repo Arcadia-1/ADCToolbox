@@ -9,7 +9,7 @@ for k = 1:length(filesList)
 
     read_data = readmatrix(dataFilePath);
 
-    resolution = 10;
+    resolution = 12;
     [INL, DNL, code] = inlsin(read_data*2^resolution, 0.01);
 
     figure('Position', [100, 100, 800, 600], "Visible", verbose);

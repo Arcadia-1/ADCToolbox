@@ -71,12 +71,11 @@ def enob_bit_sweep(bits, freq=0, order=5, harmonic=5, osr=1, win_type='hamming',
     if plot:
         plt.plot(n_bits_vec, enob_sweep, 'o-k', linewidth=2, markersize=8, markerfacecolor='k')
         plt.grid(True)
-        plt.xlabel('Number of Bits Used for Calibration', fontsize=16)
-        plt.ylabel('ENoB (bits)', fontsize=16)
-        plt.title('ENoB vs Number of Bits Used for Calibration', fontsize=16)
+        plt.xlabel('Number of Bits Used for Calibration')
+        plt.ylabel('ENoB (bits)')
+        plt.title('ENoB vs Number of Bits Used for Calibration')
         plt.xlim([0.5, m_bits + 0.5])
         plt.xticks(n_bits_vec)
-        plt.gca().tick_params(labelsize=14)
 
         valid_enob = enob_sweep[~np.isnan(enob_sweep)]
         if len(valid_enob) > 0:
@@ -101,7 +100,7 @@ def enob_bit_sweep(bits, freq=0, order=5, harmonic=5, osr=1, win_type='hamming',
                     text_color = [1 - normalized_delta, 0, 0]
 
                 plt.text(n_bits_vec[i], enob_sweep[i] + y_offset, annotation_text,
-                        ha='center', va='bottom', fontsize=12, fontweight='bold',
+                        ha='center', va='bottom', fontsize=10, fontweight='bold',
                         color=text_color)
 
     return enob_sweep, n_bits_vec

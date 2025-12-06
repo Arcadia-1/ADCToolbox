@@ -5,9 +5,10 @@ Matches MATLAB fitstaticnl.m exactly.
 """
 
 import numpy as np
+from ..common.sine_fit import sine_fit
 
 
-def fit_static_nol(sig, order, freq=0):
+def fit_static_nol(sig, order):
     """
     Extract static nonlinearity coefficients from ADC transfer function.
 
@@ -21,58 +22,71 @@ def fit_static_nol(sig, order, freq=0):
                order=1: Linear gain only (k1)
                order=2: Linear + quadratic (k1, k2)
                order=3: Linear + quadratic + cubic (k1, k2, k3)
-        freq: Normalized input frequency (0-0.5), optional
-              If 0, frequency is automatically estimated (default: 0)
 
     Returns:
         k1: Linear gain coefficient (scalar)
             For ideal ADC: k1 = 1.0
-        k2: Quadratic nonlinearity coefficient (scalar)
+            Represents gain error in the transfer function
+        k2: Quadratic nonlinearity coefficient, normalized by k1 (scalar)
             For ideal ADC: k2 = 0
+            Represents pure 2nd-order distortion independent of gain
             Returns NaN if order < 2
-        k3: Cubic nonlinearity coefficient (scalar)
+        k3: Cubic nonlinearity coefficient, normalized by k1 (scalar)
             For ideal ADC: k3 = 0
+            Represents pure 3rd-order distortion independent of gain
             Returns NaN if order < 3
         polycoeff: Full polynomial coefficients (highest to lowest order)
                    Vector [c_n, c_(n-1), ..., c_1, c_0]
                    Transfer function: y = c_n*x^n + ... + c_1*x + c_0
-        fit_curve: Fitted transfer function evaluated at signal points
-                   Vector (N×1), same length as sig
-                   Useful for plotting fitted curve
+        fitted_sine: Fitted ideal sinewave input (reference signal)
+                     Vector (N×1), same length as sig, in time order
+                     This is the ideal sine wave extracted from the distorted signal
+                     Used as reference for calculating measured nonlinearity
+        fitted_output: Fitted output at sample points (polynomial evaluated at fitted_sine)
+                       Vector (N×1), same length as sig, in time order
+                       This is the fitted signal output from the polynomial model
+        fitted_transfer: Fitted transfer curve for plotting, tuple (x, y)
+                         x: 1000 smooth input points from min to max (sorted)
+                         y: polynomial-evaluated output at those points
+                         For ideal ADC, y=x (straight line with unity gain)
 
     Transfer Function Model:
-        y = k1*x + k2*x^2 + k3*x^3 + ...
+        y = k1 * (x + k2*x^2 + k3*x^3 + ...)
         where:
           x = ideal input (zero-mean)
           y = actual output (zero-mean)
+          k1 = gain (typically ≈ 1.0)
+          k2, k3 = normalized distortion coefficients (independent of gain)
 
-    Examples:
-        # Extract linear and quadratic coefficients (order=2)
+    Usage Examples:
+        # Extract coefficients only
         sig = 0.5*np.sin(2*np.pi*0.123*np.arange(1000)) + 0.01*np.random.randn(1000)
-        k1, k2 = fit_static_nol(sig, 2)[:2]
-
-        # Extract up to cubic nonlinearity with auto frequency detection
         k1, k2, k3 = fit_static_nol(sig, 3)[:3]
 
-        # Specify frequency explicitly for faster computation
-        k1, k2, k3 = fit_static_nol(sig, 3, freq=0.123)[:3]
-
-        # Get full polynomial and plot transfer function
-        k1, k2, k3, polycoeff, fit_curve = fit_static_nol(sig, 3)
-        from ..common.sine_fit import sine_fit
-        sig_fit, _, _, _, _ = sine_fit(sig)
+        # Plot transfer function
+        k1, k2, k3, polycoeff, fitted_sine, fitted_output, fitted_transfer = fit_static_nol(sig, 3)
         import matplotlib.pyplot as plt
-        plt.figure()
-        plt.plot(sig_fit, sig, 'b.', label='Measured')
-        plt.plot(sig_fit, fit_curve, 'r-', linewidth=2, label='Fitted')
-        plt.xlabel('Ideal Input')
-        plt.ylabel('Actual Output')
+        transfer_x, transfer_y = fitted_transfer
+        plt.plot(transfer_x, transfer_y, 'b-', linewidth=2, label='Transfer Curve')
+        plt.plot(transfer_x, transfer_x, 'k--', label='Ideal y=x')
+        plt.xlabel('Input')
+        plt.ylabel('Output')
         plt.legend()
         plt.title(f'Transfer Function: k1={k1:.4f}, k2={k2:.4f}, k3={k3:.4f}')
-        plt.show()
+
+        # Plot nonlinearity (deviation from y=x)
+        nonlinearity = fitted_output - fitted_sine
+        plt.figure()
+        sort_idx = np.argsort(fitted_sine)
+        plt.plot(fitted_sine[sort_idx], nonlinearity[sort_idx], 'r-', linewidth=2)
+        plt.xlabel('Input')
+        plt.ylabel('Nonlinearity Error')
+        plt.title('Static Nonlinearity')
+        plt.grid(True)
 
     Notes:
         - Input signal must contain predominantly a single-tone sinewave
+        - Frequency is automatically estimated from the signal
         - Coefficients are normalized (k1 ≈ 1.0 for ideal ADC)
         - Higher-order terms (k2, k3, ...) represent static distortion
         - For accurate results, signal should have good SNR (>40 dB)
@@ -105,9 +119,6 @@ def fit_static_nol(sig, order, freq=0):
         warnings.warn('Polynomial order > 10 may cause numerical instability',
                      UserWarning)
 
-    if not isinstance(freq, (int, float, np.number)) or freq < 0 or freq >= 0.5:
-        raise ValueError('Frequency must be a scalar in range [0, 0.5)')
-
     # Ensure column vector orientation
     sig = sig.flatten()
     N = len(sig)
@@ -116,17 +127,13 @@ def fit_static_nol(sig, order, freq=0):
         raise ValueError(
             f'Signal length ({N}) must be > polynomial order ({order}) + 1')
 
-    # Fit ideal sinewave to signal
-    from ..common.sine_fit import sine_fit
-    if freq == 0:
-        sig_fit, _, _, _, _ = sine_fit(sig)
-    else:
-        sig_fit, _, _, _, _ = sine_fit(sig, freq)
+    # Fit ideal sinewave to signal (frequency auto-detected)
+    fitted_sine, _, _, _, _ = sine_fit(sig)
 
     # Extract transfer function components
     # x = ideal input (zero-mean)
     # y = actual output (zero-mean)
-    x_ideal = sig_fit - np.mean(sig_fit)
+    x_ideal = fitted_sine - np.mean(fitted_sine)
     y_actual = sig - np.mean(sig)
 
     # Normalize for numerical stability
@@ -147,52 +154,43 @@ def fit_static_nol(sig, order, freq=0):
     # After normalization: y = c1*(x/x_max) + c2*(x/x_max)^2 + ...
     # Therefore: k_i = c_i / (x_max^i)
 
-    # Linear coefficient (k1)
+    # Linear coefficient (k1) - represents gain
     k1 = polycoeff[-2] / x_max
 
-    # Quadratic coefficient (k2)
+    # Quadratic coefficient (k2) - normalized by k1 to represent pure 2nd-order distortion
+    # This makes k2 independent of gain error
+    # Transfer function becomes: y = k1 * (x + k2*x^2 + k3*x^3)
     if order >= 2:
-        k2 = polycoeff[-3] / (x_max**2)
+        k2_abs = polycoeff[-3] / (x_max**2)
+        k2 = k2_abs / k1  # Normalize to unity gain
     else:
         k2 = np.nan
 
-    # Cubic coefficient (k3)
+    # Cubic coefficient (k3) - normalized by k1 to represent pure 3rd-order distortion
     if order >= 3:
-        k3 = polycoeff[-4] / (x_max**3)
+        k3_abs = polycoeff[-4] / (x_max**3)
+        k3 = k3_abs / k1  # Normalize to unity gain
     else:
         k3 = np.nan
 
-    # Calculate fitted curve
-    # Evaluate polynomial at normalized input points
+    # Calculate fitted output at sample points (N points in time order)
     y_fit_norm = np.polyval(polycoeff, x_norm)
+    fitted_output = y_fit_norm + np.mean(sig)
 
-    # Convert back to original scale (add mean back)
-    fit_curve = y_fit_norm + np.mean(sig)
+    # Calculate fitted curve on a smooth grid for plotting (1000 sorted points)
+    # Create smooth x-axis from min to max of fitted sine
+    x_smooth = np.linspace(np.min(fitted_sine), np.max(fitted_sine), 1000)
 
-    return k1, k2, k3, polycoeff, fit_curve
+    # Normalize smooth x values (same normalization as used in fitting)
+    x_smooth_norm = (x_smooth - np.mean(fitted_sine)) / x_max
 
+    # Evaluate polynomial at smooth points
+    y_smooth_norm = np.polyval(polycoeff, x_smooth_norm)
 
-if __name__ == "__main__":
-    # Test with ideal sinewave
-    print("[Test 1] Ideal sinewave (k1≈1, k2≈0, k3≈0)")
-    N = 1000
-    sig_ideal = 0.5 * np.sin(2*np.pi*0.123*np.arange(N))
-    k1, k2, k3 = fit_static_nol(sig_ideal, 3)[:3]
-    print(f"  k1 = {k1:.6f} (expected ≈1.0)")
-    print(f"  k2 = {k2:.6e} (expected ≈0.0)")
-    print(f"  k3 = {k3:.6e} (expected ≈0.0)")
+    # Convert back to original scale
+    y_smooth = y_smooth_norm + np.mean(sig)
 
-    # Test with 2nd-order distortion
-    print("\n[Test 2] Signal with quadratic distortion")
-    sig_distorted = sig_ideal + 0.1 * sig_ideal**2
-    k1, k2, k3 = fit_static_nol(sig_distorted, 3)[:3]
-    print(f"  k1 = {k1:.6f}")
-    print(f"  k2 = {k2:.6f} (should be non-zero)")
-    print(f"  k3 = {k3:.6e}")
+    # Return as tuple (x, y) for easy plotting
+    fitted_transfer = (x_smooth, y_smooth)
 
-    # Test with lower order
-    print("\n[Test 3] Order=2 (k3 should be NaN)")
-    k1, k2, k3 = fit_static_nol(sig_ideal, 2)[:3]
-    print(f"  k1 = {k1:.6f}")
-    print(f"  k2 = {k2:.6e}")
-    print(f"  k3 = {k3} (expected NaN)")
+    return k1, k2, k3, polycoeff, fitted_sine, fitted_output, fitted_transfer
