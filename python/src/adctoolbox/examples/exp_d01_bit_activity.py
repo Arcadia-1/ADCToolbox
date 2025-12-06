@@ -1,7 +1,7 @@
 import numpy as np
 import matplotlib.pyplot as plt
 from pathlib import Path
-from adctoolbox import find_bin, spec_plot, bit_activity
+from adctoolbox import find_bin, analyze_spectrum, bit_activity
 
 output_dir = Path(__file__).parent / "output"
 output_dir.mkdir(exist_ok=True)
@@ -50,7 +50,7 @@ for idx, (sig, title, has_glitch) in enumerate(test_cases):
 
 
     plt.sca(axes[1, idx])
-    enob, sndr, *_ = spec_plot(dout @ ideal_weights, harmonic=5, osr=1, label=1, nf_method=0)    # Spectrum
+    enob, sndr, *_ = analyze_spectrum(dout @ ideal_weights, harmonic=5, osr=1, label=1, nf_method=0)    # Spectrum
     print(f"[{title:<24s}] [Bits = {B:2d}] [ENoB = {enob:5.2f}] [Activity = {np.min(bit_usage):.1f}% - {np.max(bit_usage):.1f}%]")
 
 plt.tight_layout()

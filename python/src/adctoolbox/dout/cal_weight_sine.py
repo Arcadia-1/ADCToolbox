@@ -4,7 +4,7 @@ import warnings
 
 # Verified
 
-def fg_cal_sine(bits, freq=0, rate=0.5, reltol=1e-12, niter=100, order=1, fsearch=0, verbose=0, nom_weight=None):
+def cal_weight_sine(bits, freq=0, rate=0.5, reltol=1e-12, niter=100, order=1, fsearch=0, verbose=0, nom_weight=None):
     """
     FGCalSine — Foreground calibration using a sinewave input
 

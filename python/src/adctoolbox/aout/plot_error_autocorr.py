@@ -2,14 +2,15 @@ import numpy as np
 import matplotlib.pyplot as plt
 
 
-def err_auto_correlation(err_data, max_lag=100, normalize=True):
+def plot_error_autocorr(err_data, max_lag=100, normalize=True, plot=False):
     """
-    Compute autocorrelation function (ACF) of error signal.
+    Compute and optionally plot autocorrelation function (ACF) of error signal.
 
     Parameters:
         err_data: Error signal (1D array)
         max_lag: Maximum lag in samples (default: 100)
         normalize: Normalize ACF so ACF[0] = 1 (default: True)
+        plot: If True, plot the autocorrelation on current axes (default: False)
 
     Returns:
         acf: Autocorrelation values
@@ -41,5 +42,14 @@ def err_auto_correlation(err_data, max_lag=100, normalize=True):
     # Normalize if required
     if normalize:
         acf = acf / acf[lags == 0]
+
+    # Plot if requested
+    if plot:
+        plt.stem(lags, acf, linefmt='b-', markerfmt='bo', basefmt='k-', use_line_collection=True)
+        plt.axhline(0, color='k', linestyle='--', linewidth=0.8, alpha=0.5)
+        plt.xlabel('Lag (samples)', fontsize=11)
+        plt.ylabel('Autocorrelation', fontsize=11)
+        plt.title('Error Autocorrelation Function', fontsize=12, fontweight='bold')
+        plt.grid(True, alpha=0.3)
 
     return acf, lags

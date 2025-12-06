@@ -1,22 +1,35 @@
 """
 Mapping between MATLAB and Python test folder names.
 
-MATLAB uses abbreviated lowercase names (e.g., test_bitact, test_plotspec)
-Python uses descriptive snake_case (e.g., test_bit_activity, test_spec_plot)
+MATLAB integration tests use 'run_*' prefix (e.g., run_plotspec, run_errpdf)
+Python integration tests use 'test_*' prefix (e.g., test_spec_plot, test_err_pdf)
 
 This mapping allows comparison scripts to find corresponding folders.
 """
 
 # MATLAB folder name -> Python folder name
 MATLAB_TO_PYTHON = {
-    # DOUT tests (digital output)
+    # DOUT tests (digital output) - MATLAB uses test_* for digital
     'test_bitact': 'test_bit_activity',
     'test_wscaling': 'test_weight_scaling',
     'test_bitsweep': 'test_enob_bit_sweep',
     'test_wcalsine': 'test_fg_cal_sine',
     'test_ovfchk': 'test_overflow_chk',
 
-    # AOUT tests (analog output)
+    # AOUT tests (analog output) - MATLAB uses run_* for analog integration tests
+    'run_inlsine': 'test_inl_sine',
+    'run_tomdec': 'test_tom_decomp',
+    'run_errsin_phase': 'test_err_hist_sine_phase',
+    'run_errsin_code': 'test_err_hist_sine_code',
+    'run_errpdf': 'test_err_pdf',
+    'run_errac': 'test_err_auto_correlation',
+    'run_errspec': 'test_err_spectrum',
+    'run_errevspec': 'test_err_envelope_spectrum',
+    'run_plotspec': 'test_spec_plot',
+    'run_plotphase': 'test_spec_plot_phase',
+    'run_fitstaticnl': 'test_fit_static_nol',
+
+    # Legacy test_* names (for backward compatibility)
     'test_inlsine': 'test_inl_sine',
     'test_tomdec': 'test_tom_decomp',
     'test_errsin_phase': 'test_err_hist_sine_phase',
@@ -31,7 +44,9 @@ MATLAB_TO_PYTHON = {
 
     # COMMON tests
     'test_sinfit': 'test_sine_fit',
+    'run_sinfit': 'test_sine_fit',
     'test_alias': 'test_alias',
+    'run_alias': 'test_alias',
     'test_jitter_load': 'test_jitter_load',
     'test_basic': 'test_basic',
 }

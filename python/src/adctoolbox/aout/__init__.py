@@ -1,27 +1,25 @@
 """Analog output (time-domain) analysis tools."""
 
-from .spec_plot import spec_plot
-from .spec_plot_phase import spec_plot_phase
-from .spec_plot_2tone import spec_plot_2tone
-from .err_envelope_spectrum import err_envelope_spectrum
-from .err_auto_correlation import err_auto_correlation
+from .analyze_spectrum import analyze_spectrum
+from .analyze_phase_spectrum import analyze_phase_spectrum
+from .analyze_two_tone_spectrum import analyze_two_tone_spectrum
+from .plot_envelope_spectrum import plot_envelope_spectrum
+from .plot_error_autocorr import plot_error_autocorr
 from .err_hist_sine import err_hist_sine
-from .err_pdf import err_pdf
-from .tom_decomp import tom_decomp
-from .inl_dnl_from_sine import inl_dnl_from_sine
-from .fit_static_nol import fit_static_nol
-from .extract_static_nonlin import extract_static_nonlin
+from .plot_error_pdf import plot_error_pdf
+from .decompose_harmonics import decompose_harmonics
+from .calc_inl_sine import calc_inl_sine
+from .fit_static_nonlin import fit_static_nonlin
 
 __all__ = [
-    'spec_plot',
-    'spec_plot_phase',
-    'spec_plot_2tone',
-    'err_envelope_spectrum',
-    'err_auto_correlation',
+    'analyze_spectrum',
+    'analyze_phase_spectrum',
+    'analyze_two_tone_spectrum',
+    'plot_envelope_spectrum',
+    'plot_error_autocorr',
     'err_hist_sine',
-    'err_pdf',
-    'tom_decomp',
-    'inl_dnl_from_sine',
-    'fit_static_nol',
-    'extract_static_nonlin',
+    'plot_error_pdf',
+    'decompose_harmonics',
+    'calc_inl_sine',
+    'fit_static_nonlin',
 ]

@@ -36,7 +36,7 @@ def weight_scaling(weights):
     Example
     -------
     >>> bits = np.loadtxt('dout_SAR_12b.csv', delimiter=',')
-    >>> weight_cal, _, _, _, _, _ = fg_cal_sine(bits, freq=0, order=5)
+    >>> weight_cal, _, _, _, _, _ = cal_weight_sine(bits, freq=0, order=5)
     >>> radix = weight_scaling(weight_cal)
     """
     weights = np.asarray(weights)
