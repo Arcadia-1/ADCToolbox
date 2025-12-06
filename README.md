@@ -13,7 +13,14 @@ Comprehensive toolbox for ADC characterization, calibration, and performance ana
 ## Installation
 
 ```bash
+# Install
 pip install adctoolbox
+
+# Upgrade if already installed
+pip install --upgrade adctoolbox
+
+# Check version
+python -c "import adctoolbox; print(adctoolbox.__version__)"
 ```
 
 ## Quick Start
