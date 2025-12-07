@@ -1,7 +1,7 @@
 import matplotlib.pyplot as plt
 
-from adctoolbox.common import sine_fit
-from adctoolbox.aout import err_auto_correlation
+from adctoolbox.common import fit_sine
+from adctoolbox.aout import plot_error_autocorr
 from tests._utils import save_variable, save_fig
 from tests.unit._runner import run_unit_test_batch
 from tests import config
@@ -9,19 +9,19 @@ from tests import config
 plt.rcParams['font.size'] = 14
 plt.rcParams['axes.grid'] = True
 
-def _process_err_auto_correlation(raw_data, sub_folder, dataset_name, figures_folder, test_name):
+def _process_plot_error_autocorr(raw_data, sub_folder, dataset_name, figures_folder, test_name):
     """
     Callback function to process a single file:
-    1. Calculate error data using sine_fit
+    1. Calculate error data using fit_sine
     2. Run error autocorrelation analysis
     3. Save variables and plot
     """
     # Compute error data using sineFit
-    fitted_signal, frequency, amplitude, dc_offset, phase = sine_fit(raw_data)
+    fitted_signal, frequency, amplitude, dc_offset, phase = fit_sine(raw_data)
     err_data = raw_data - fitted_signal
 
     # Run errAutoCorrelation
-    acf, lags = err_auto_correlation(err_data, max_lag=200, normalize=False)
+    acf, lags = plot_error_autocorr(err_data, max_lag=200, normalize=False)
 
     # Create plot
     fig = plt.figure(figsize=(8, 6))
@@ -38,12 +38,12 @@ def _process_err_auto_correlation(raw_data, sub_folder, dataset_name, figures_fo
     save_variable(sub_folder, lags, 'lags')
     save_variable(sub_folder, acf, 'acf')
 
-def test_err_auto_correlation(project_root):
+def test_plot_error_autocorr(project_root):
     """
     Batch runner for error autocorrelation analysis.
     """
     run_unit_test_batch(
         project_root=project_root,
-        input_subpath=config.AOUT['input_path'], test_module_name="test_err_auto_correlation", file_pattern=config.AOUT['file_pattern'],
-        process_callback=_process_err_auto_correlation
+        input_subpath=config.AOUT['input_path'], test_module_name="test_plot_error_autocorr", file_pattern=config.AOUT['file_pattern'],
+        process_callback=_process_plot_error_autocorr
     )
