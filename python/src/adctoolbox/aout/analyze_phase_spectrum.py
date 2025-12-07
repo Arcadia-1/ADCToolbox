@@ -1,17 +1,17 @@
 """
 Spectrum Phase Analyzer
 
-Polar plot of spectrum with phase information.
-Uses coherent phase alignment across multiple measurements.
+This module provides tools for analyzing the phase spectrum of ADC data,
+including coherent phase alignment and polar plotting.
 
-Ported from MATLAB: plotphase.m
+MATLAB counterpart: plotphase.m
 """
 
 import numpy as np
 import matplotlib.pyplot as plt
 from typing import Optional
-from ..common.alias import alias
-from ..common.sine_fit import sine_fit
+from adctoolbox.common.calc_aliased_freq import calc_aliased_freq
+from adctoolbox.common.fit_sine import fit_sine
 
 
 def analyze_phase_spectrum(

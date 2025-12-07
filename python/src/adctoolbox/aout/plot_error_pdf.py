@@ -1,10 +1,14 @@
 """
-Error probability density function analysis with automatic sine fitting and plotting.
+Error probability density function (PDF) analysis with KDE and Gaussian comparison.
+
+Computes error PDF, fits Gaussian, and calculates KL divergence for goodness-of-fit.
+
+MATLAB counterpart: errpdf.m
 """
 
 import numpy as np
 import matplotlib.pyplot as plt
-from ..common.sine_fit import sine_fit
+from adctoolbox.common.fit_sine import fit_sine
 
 
 def plot_error_pdf(sig_distorted, resolution=12, full_scale=1, freq=0, plot=False):

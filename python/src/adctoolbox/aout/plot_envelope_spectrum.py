@@ -1,7 +1,15 @@
+"""
+Error envelope spectrum analysis using Hilbert transform.
+
+Extracts envelope spectrum to reveal amplitude modulation patterns.
+
+MATLAB counterpart: errevspec.m
+"""
+
 import numpy as np
 import matplotlib.pyplot as plt
 from scipy.signal import hilbert
-from .analyze_spectrum import analyze_spectrum
+from adctoolbox.aout.analyze_spectrum import analyze_spectrum
 
 
 def plot_envelope_spectrum(err_data, fs=1):

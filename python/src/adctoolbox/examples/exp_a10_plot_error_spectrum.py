@@ -3,7 +3,7 @@ import numpy as np
 import matplotlib.pyplot as plt
 from pathlib import Path
 from adctoolbox import find_bin
-from adctoolbox.common.sine_fit import sine_fit
+from adctoolbox.common.fit_sine import fit_sine
 
 output_dir = Path(__file__).parent / "output"
 output_dir.mkdir(exist_ok=True)
