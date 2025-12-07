@@ -1,16 +1,15 @@
 """
-Two-Tone Spectrum Analyzer
+Two-tone spectrum analysis for intermodulation distortion (IMD).
 
-Analyze intermodulation distortion with two-tone input.
-Measures IMD2, IMD3 and other spectral metrics.
+Measures IMD2, IMD3 and other spectral metrics with two-tone input.
 
-Ported from MATLAB: specPlot2Tone.m
+MATLAB counterpart: specPlot2Tone.m
 """
 
 import numpy as np
 import matplotlib.pyplot as plt
 from typing import Optional, Tuple
-from ..common.alias import alias
+from adctoolbox.common.calc_aliased_freq import calc_aliased_freq
 
 
 def analyze_two_tone_spectrum(

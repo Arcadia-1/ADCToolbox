@@ -1,14 +1,9 @@
 """
-Python port of tomdec.m
-Decompose Harmonics - Decompose signal into fundamental and harmonic errors
+Decompose signal into fundamental and harmonic errors (Thompson decomposition).
 
-Decomposes ADC output into:
-- fundamental_signal: Ideal fundamental (DC + fundamental)
-- total_error: Total error (sig - fundamental)
-- harmonic_error: Harmonic distortions (2nd through nth harmonics)
-- other_error: All other errors (not captured by harmonics)
+Separates ADC output into fundamental signal, harmonic distortion, and other noise.
 
-Original MATLAB code: matlab/src/tomdec.m (Thompson decomposition algorithm)
+MATLAB counterpart: tomdec.m
 """
 
 import numpy as np

@@ -15,14 +15,13 @@ __version__ = '0.2.4'
 
 # Import all public functions from submodules
 from .common import (
-    alias,
-    find_bin,
-    find_fin_coherent,
-    find_fin,
-    sine_fit,
-    bit_in_band,
-    cap2weight,
-    find_vinpp,
+    calc_aliased_freq,
+    calc_coherent_freq,
+    estimate_frequency,
+    fit_sine,
+    extract_freq_components,
+    convert_cap_to_weight,
+    calc_target_vpp,
 )
 
 from .aout import (
@@ -76,14 +75,13 @@ __all__ = [
     '__version__',
 
     # Common functions
-    'alias',
-    'find_bin',
-    'find_fin_coherent',
-    'find_fin',
-    'sine_fit',
-    'bit_in_band',
-    'cap2weight',
-    'find_vinpp',
+    'calc_aliased_freq',
+    'calc_coherent_freq',
+    'estimate_frequency',
+    'fit_sine',
+    'extract_freq_components',
+    'convert_cap_to_weight',
+    'calc_target_vpp',
 
     # Analog output (aout) functions
     'analyze_spectrum',
