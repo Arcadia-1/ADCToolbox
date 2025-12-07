@@ -8,30 +8,13 @@ Ensures the number of cycles is an integer and coprime with the FFT size.
 import math
 
 
-def calc_coherent_freq(fs, fin_target, n_fft, force_odd=True, search_radius=20):
+def calc_coherent_freq(fs, fin_target, n_fft, force_odd=True, search_radius=200):
     """
     Calculate the precise coherent input frequency and bin index.
-
-    This function searches for the optimal integer number of cycles (M)
-    closest to the target frequency that satisfies coherent sampling conditions
-    (M is coprime with N, and optionally odd).
-
-    Args:
-        fs (float): Sampling frequency (Hz).
-        fin_target (float): Desired target input frequency (Hz).
-        n_fft (int): FFT size / Number of samples.
-        force_odd (bool): If True, restricts bin M to odd numbers (recommended).
-        search_radius (int): Range of bins to search around the target (default 20).
-
-    Returns:
-        tuple: (fin_actual, bin_idx)
-            - fin_actual (float): The exact frequency to set on the signal generator.
-            - bin_idx (int): The integer bin index (M).
-
-    Raises:
-        ValueError: If no valid coprime bin is found within the search radius.
+    
+    Supports Undersampling (Fin > Fs/2).
     """
-    # 1. Calculate the ideal (fractional) bin location
+    # 1. Calculate the ideal (fractional) total cycles
     target_bin_float = fin_target / fs * n_fft
     
     # 2. Define search center (nearest integer)
@@ -43,15 +26,17 @@ def calc_coherent_freq(fs, fin_target, n_fft, force_odd=True, search_radius=20):
     for i in range(-search_radius, search_radius + 1):
         bin_candidate = center_int + i
         
-        # Validity checks: Must be positive and within Nyquist zone
-        if bin_candidate <= 0 or bin_candidate >= n_fft // 2:
+        # Validity checks: Only check if positive. 
+        # REMOVED: "or bin_candidate >= n_fft // 2" to allow undersampling/high freq.
+        if bin_candidate <= 0:
             continue
             
-        # Condition A: Force Odd (Standard practice to hit both positive/negative peaks)
+        # Condition A: Force Odd (Standard practice)
         if force_odd and (bin_candidate % 2 == 0):
             continue
             
-        # Condition B: Coprime Check (GCD == 1) to prevent repeating codes
+        # Condition B: Coprime Check (GCD == 1)
+        # Even if M > N, if they are coprime, the aliased bin will be unique.
         if math.gcd(bin_candidate, n_fft) == 1:
             # Score by distance to target
             dist = abs(bin_candidate - target_bin_float)

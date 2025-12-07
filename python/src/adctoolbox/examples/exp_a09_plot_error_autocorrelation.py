@@ -2,7 +2,7 @@
 import numpy as np
 import matplotlib.pyplot as plt
 from pathlib import Path
-from adctoolbox import find_bin, plot_error_autocorr
+from adctoolbox import calc_coherent_freq, plot_error_autocorr
 from adctoolbox.common.fit_sine import fit_sine
 
 output_dir = Path(__file__).parent / "output"
@@ -12,8 +12,7 @@ output_dir.mkdir(exist_ok=True)
 N = 2**13
 Fs = 800e6
 Fin_target = 80e6
-J = find_bin(Fs, Fin_target, N)
-Fin = J * Fs / N
+Fin, J = calc_coherent_freq(Fs, Fin_target, N)
 t = np.arange(N) / Fs
 A, DC = 0.49, 0.5
 base_noise = 50e-6
@@ -139,7 +138,8 @@ axes = axes.flatten()
 
 for i, (signal, title) in enumerate(zip(signals, titles)):
     # Fit sine and get error
-    sig_fit, _, _, _, _ = sine_fit(signal, Fin/Fs)
+    fit_result = fit_sine(signal, Fin/Fs)
+    sig_fit = fit_result['fitted_signal']
     err = signal - sig_fit
 
     # Compute autocorrelation

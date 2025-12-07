@@ -43,7 +43,7 @@ def plot_a_spectrum(data, fs=1e6, num_bits=12, fin=None, output_path='fig_a_spec
 
     # Call spec_plot (parameters consistent with run_all_tests.py)
     # isPlot=1 generates the plot, then we save it
-    ENoB, SNDR, SFDR, SNR, THD, pwr, NF, h = analyze_spectrum(
+    result = analyze_spectrum(
         data, Fs=1.0, harmonic=0, label=1, OSR=1, isPlot=1
     )
 

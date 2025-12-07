@@ -61,9 +61,9 @@ def analyze_enob_sweep(bits, freq=0, order=5, harmonic=5, osr=1, win_type='hammi
         try:
             weight_cal, _, post_cal_temp, _, _, _ = calibrate_weight_sine(bits_subset, freq=freq, order=order)
 
-            enob_temp, _, _, _, _, _, _, _ = analyze_spectrum(
+            result = analyze_spectrum(
                 post_cal_temp, harmonic=harmonic, osr=osr, win_type=win_type, label=0)
-            enob_sweep[n_bits - 1] = enob_temp
+            enob_sweep[n_bits - 1] = result['enob']
         except Exception as e:
             enob_sweep[n_bits - 1] = np.nan
             print(f'FAILED for {n_bits} bits: {str(e)}')

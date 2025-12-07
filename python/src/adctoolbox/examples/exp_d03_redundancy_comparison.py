@@ -52,11 +52,11 @@ for idx, (caps_nominal, mismatch_factor, title) in enumerate(test_cases):
 
     # Spectrum comparison
     plt.sca(axes[0, idx])
-    enob_before, sndr_before, *_ = analyze_spectrum(analog_before, harmonic=5, label=1)
+    result_before = analyze_spectrum(analog_before, harmonic=5, label=1)
     axes[0, idx].set_title(f'{title}\nBefore Calibration', fontsize=11, fontweight='bold')
 
     plt.sca(axes[1, idx])
-    enob_after, sndr_after, *_ = analyze_spectrum(analog_after, harmonic=5, label=1)
+    result_after = analyze_spectrum(analog_after, harmonic=5, label=1)
     axes[1, idx].set_title(f'After Calibration', fontsize=11, fontweight='bold')
 
     # Normalize weights for error analysis
@@ -72,15 +72,15 @@ for idx, (caps_nominal, mismatch_factor, title) in enumerate(test_cases):
         'title': title,
         'n_bits': n_bits,
         'nominal_resolution': nominal_resolution,
-        'enob_before': enob_before,
-        'enob_after': enob_after,
+        'enob_before': result_before['enob'],
+        'enob_after': result_after['enob'],
         'error_before': error_before,
         'error_after': error_after,
         'max_error_before': np.max(error_before),
         'max_error_after': np.max(error_after),
     })
 
-    print(f"[{title:35s}] [Nominal = {nominal_resolution:5.2f} bit] [ENoB = {enob_before:5.2f} bit] -> [ENoB = {enob_after:5.2f} bit]")
+    print(f"[{title:35s}] [Nominal = {nominal_resolution:5.2f} bit] [ENoB = {result_before['enob']:5.2f} bit] -> [ENoB = {result_after['enob']:5.2f} bit]")
 
 plt.tight_layout()
 fig_path = output_dir / 'exp_d03_redundancy_comparison.png'

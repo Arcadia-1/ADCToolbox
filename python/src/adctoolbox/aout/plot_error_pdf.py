@@ -48,10 +48,13 @@ def plot_error_pdf(sig_distorted, resolution=12, full_scale=1, freq=0, plot=Fals
     """
 
     # Fit ideal sine to extract reference
+    from adctoolbox.common.fit_sine import fit_sine
     if freq == 0:
-        sig_ideal, _, _, _, _ = sine_fit(sig_distorted)
+        fit_result = fit_sine(sig_distorted)
+        sig_ideal = fit_result['fitted_signal']
     else:
-        sig_ideal, _, _, _, _ = sine_fit(sig_distorted, freq)
+        fit_result = fit_sine(sig_distorted, freq)
+        sig_ideal = fit_result['fitted_signal']
 
     # Compute error
     err_data = sig_distorted - sig_ideal

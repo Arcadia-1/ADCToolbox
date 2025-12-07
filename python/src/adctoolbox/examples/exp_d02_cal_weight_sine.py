@@ -45,11 +45,11 @@ weights_calibrated, offset, analog_after, _, _, _ = calibrate_weight_sine(digita
 fig, axes = plt.subplots(1, 2, figsize=(14, 5))
 
 plt.sca(axes[0])
-enob_before, sndr_before, *_ = analyze_spectrum(analog_before, harmonic=5, label=1)
+result_before = analyze_spectrum(analog_before, harmonic=5, label=1)
 axes[0].set_title('Before Calibration', fontsize=12, fontweight='bold')
 
 plt.sca(axes[1])
-enob_after, sndr_after, *_ = analyze_spectrum(analog_after, harmonic=5, label=1)
+result_after = analyze_spectrum(analog_after, harmonic=5, label=1)
 axes[1].set_title('After Calibration', fontsize=12, fontweight='bold')
 
 # Normalize weights for comparison
@@ -60,7 +60,7 @@ weights_calibrated_norm = weights_calibrated / (np.sum(weights_calibrated)+weigh
 
 # Print results
 print(f"[Nominal Resolution] {n_bits} bits")
-print(f"[Weight Calibration] [ENoB = {enob_before:5.2f} bit] -> [ENoB = {enob_after:5.2f} bit]")
+print(f"[Weight Calibration] [ENoB = {result_before['enob']:5.2f} bit] -> [ENoB = {result_after['enob']:5.2f} bit]")
 
 nominal_str = ', '.join([f'{w:.6f}' for w in weights_nominal_norm])
 weights_str = ', '.join([f'{w:.6f}' for w in weights_real_norm])

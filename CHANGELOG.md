@@ -7,17 +7,31 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
-### Added
-- (List new features here)
-
 ### Changed
-- (List changes to existing functionality)
+- **BREAKING**: All dout functions renamed to match filenames for consistency
+  - `cal_weight_sine()` → `calibrate_weight_sine()`
+  - `cal_weight_sine_os()` → `calibrate_weight_sine_osr()`
+  - `cal_weight_sine_2freq()` → `calibrate_weight_two_tone()`
+  - `bit_activity()` → `check_bit_activity()`
+  - `overflow_chk()` → `check_overflow()`
+  - `weight_scaling()` → `plot_weight_radix()`
+  - `sweep_bit_enob()` → `analyze_enob_sweep()`
+  - Updated all imports across 16 files (examples, tests, toolsets)
+- **BREAKING**: `analyze_spectrum()` now returns a dictionary instead of tuple
+  - Before: `enob, sndr, sfdr, snr, thd, pwr, nf, nsd = analyze_spectrum(...)`
+  - After: `result = analyze_spectrum(...)`  → Access via `result['enob']`, `result['sndr_db']`, etc.
+  - Dictionary keys: `enob`, `sndr_db`, `sfdr_db`, `snr_db`, `thd_db`, `sig_pwr_dbfs`, `noise_floor_db`, `nsd_dbfs_hz`
+- **BREAKING**: `plot_envelope_spectrum()` now returns a dictionary (same structure as `analyze_spectrum`)
+- All aout functions now use absolute imports (`from adctoolbox.common.*` instead of `from ..common.*`)
+- All aout functions now include MATLAB counterpart documentation in module docstrings
 
 ### Fixed
-- (List bug fixes)
-
-### Removed
-- (List removed features)
+- Fixed `ModuleNotFoundError` in `calibrate_weight_two_tone.py`
+  - Changed `from ..common.alias import alias` to `from adctoolbox.common.calc_aliased_freq import calc_aliased_freq`
+  - Updated all `alias()` calls to `calc_aliased_freq()`
+- Fixed `IndexError` in `analyze_spectrum` when indexing harmonics
+  - Added `int()` wrapper around `calc_aliased_freq()` calls to ensure integer indices
+- Fixed `exp_a01` example to use `calc_coherent_freq` instead of deprecated `find_bin`
 
 ## [0.2.1] - 2025-12-06
 
