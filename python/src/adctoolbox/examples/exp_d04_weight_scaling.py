@@ -1,7 +1,7 @@
 import numpy as np
 import matplotlib.pyplot as plt
 from pathlib import Path
-from adctoolbox import weight_scaling
+from adctoolbox import plot_weight_radix
 
 output_dir = Path(__file__).parent / "output"
 output_dir.mkdir(exist_ok=True)
@@ -21,7 +21,7 @@ for idx, (caps_nominal, title) in enumerate(test_cases):
 
     # Plot weight scaling
     plt.sca(axes[idx])
-    radix = weight_scaling(weights_nominal)
+    radix = plot_weight_radix(weights_nominal)
     axes[idx].set_title(title, fontsize=12, fontweight='bold')
 
     # Statistics

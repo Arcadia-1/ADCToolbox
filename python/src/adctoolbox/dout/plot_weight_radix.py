@@ -4,7 +4,7 @@ import numpy as np
 import matplotlib.pyplot as plt
 
 
-def weight_scaling(weights):
+def plot_weight_radix(weights):
     """
     Visualize absolute bit weights with radix annotations.
 
@@ -37,7 +37,7 @@ def weight_scaling(weights):
     -------
     >>> bits = np.loadtxt('dout_SAR_12b.csv', delimiter=',')
     >>> weight_cal, _, _, _, _, _ = cal_weight_sine(bits, freq=0, order=5)
-    >>> radix = weight_scaling(weight_cal)
+    >>> radix = plot_weight_radix(weight_cal)
     """
     weights = np.asarray(weights)
     n_bits = len(weights)

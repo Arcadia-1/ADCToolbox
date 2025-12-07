@@ -1,6 +1,6 @@
 import matplotlib.pyplot as plt
 
-from adctoolbox.dout.bit_activity import bit_activity
+from adctoolbox.dout.check_bit_activity import bit_activity
 from tests._utils import save_variable, save_fig
 from tests.unit._runner import run_unit_test_batch
 from tests import config
