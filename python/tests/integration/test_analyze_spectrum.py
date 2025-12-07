@@ -1,6 +1,6 @@
 import matplotlib.pyplot as plt
 
-from adctoolbox.aout import spec_plot
+from adctoolbox.aout import analyze_spectrum
 from tests._utils import save_variable, save_fig
 from tests.unit._runner import run_unit_test_batch
 from tests import config
@@ -8,10 +8,10 @@ from tests import config
 plt.rcParams['font.size'] = 14
 plt.rcParams['axes.grid'] = True
 
-def _process_spec_plot(raw_data, sub_folder, dataset_name, figures_folder, test_name):
+def _process_analyze_spectrum(raw_data, sub_folder, dataset_name, figures_folder, test_name):
     # 1. Spectral Analysis - using Pythonic names
     fig = plt.figure(figsize=(8, 6))
-    enob, sndr, sfdr, snr, thd, signal_power, noise_floor, noise_spectral_density = spec_plot(
+    enob, sndr, sfdr, snr, thd, signal_power, noise_floor, noise_spectral_density = analyze_spectrum(
         raw_data,
         label=1,
         harmonic=5,
@@ -35,11 +35,11 @@ def _process_spec_plot(raw_data, sub_folder, dataset_name, figures_folder, test_
     save_fig(figures_folder, figure_name, dpi=100)
     plt.close(fig)
 
-def test_spec_plot(project_root):
+def test_analyze_spectrum(project_root):
     """
-    Batch runner for spec_plot (Single Channel Version).
+    Batch runner for analyze_spectrum (Single Channel Version).
     """
     run_unit_test_batch(
         project_root=project_root,
-        input_subpath=config.AOUT['input_path'], test_module_name="test_spec_plot", file_pattern=config.AOUT['file_pattern'],        process_callback=_process_spec_plot
+        input_subpath=config.AOUT['input_path'], test_module_name="test_analyze_spectrum", file_pattern=config.AOUT['file_pattern'],        process_callback=_process_analyze_spectrum
     )

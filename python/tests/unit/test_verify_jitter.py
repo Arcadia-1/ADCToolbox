@@ -15,8 +15,8 @@ import pytest
 import matplotlib
 matplotlib.use('Agg')  # Use non-GUI backend for testing
 import matplotlib.pyplot as plt
-from adctoolbox.common import sine_fit
-from adctoolbox.aout import spec_plot, err_hist_sine
+from adctoolbox.common import fit_sine
+from adctoolbox.aout import analyze_spectrum, plot_error_hist_code
 
 
 def generate_jitter_signal(N, Fs, Fin, Tj_rms, A=0.49, offset=0.5, amp_noise=1e-5, seed=42):
@@ -81,11 +81,11 @@ def measure_jitter(signal, Fs):
         pnoi: Phase noise (radians RMS)
     """
     # Sine fit to extract frequency
-    fitted_signal, f_norm, mag, dc, phi = sine_fit(signal)
+    fitted_signal, f_norm, mag, dc, phi = fit_sine(signal)
     Fin_fit = f_norm * Fs
 
     # Error histogram analysis to extract phase noise
-    emean, erms, phase_code, anoi, pnoi, err, xx = err_hist_sine(
+    emean, erms, phase_code, anoi, pnoi, err, xx = plot_error_hist_code(
         signal, bin=99, fin=f_norm, disp=0
     )
 
@@ -94,7 +94,7 @@ def measure_jitter(signal, Fs):
     jitter_measured = pnoi / (2 * np.pi * Fin_fit)
 
     # Spectrum analysis for SNDR
-    ENoB, SNDR, SFDR, SNR, THD, pwr, NF, NSD = spec_plot(
+    ENoB, SNDR, SFDR, SNR, THD, pwr, NF, NSD = analyze_spectrum(
         signal,
         label=0,
         harmonic=0,

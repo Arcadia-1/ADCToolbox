@@ -1,7 +1,7 @@
 import matplotlib.pyplot as plt
 
-from adctoolbox.common import find_fin
-from adctoolbox.aout import tom_decomp
+from adctoolbox.common import estimate_frequency
+from adctoolbox.aout import decompose_harmonics
 from tests._utils import save_variable, save_fig
 from tests.unit._runner import run_unit_test_batch
 from tests import config
@@ -9,7 +9,7 @@ from tests import config
 plt.rcParams['font.size'] = 14
 plt.rcParams['axes.grid'] = True
 
-def _process_tom_decomp(raw_data, sub_folder, dataset_name, figures_folder, test_name):
+def _process_decompose_harmonics(raw_data, sub_folder, dataset_name, figures_folder, test_name):
     """
     Callback function to process a single file:
     1. Run Thompson decomposition
@@ -17,10 +17,10 @@ def _process_tom_decomp(raw_data, sub_folder, dataset_name, figures_folder, test
     3. Save plot
     """
     # Find input frequency
-    re_fin = find_fin(raw_data)
+    re_fin = estimate_frequency(raw_data)
 
-    # Run tom_decomp (creates a figure when disp=1)
-    fundamental_signal, total_error, harmonic_error, residual_error = tom_decomp(raw_data, re_fin, 10, 1)
+    # Run decompose_harmonics (creates a figure when disp=1)
+    fundamental_signal, total_error, harmonic_error, residual_error = decompose_harmonics(raw_data, re_fin, 10, 1)
 
     # Get the figure and add title
     fig = plt.gcf()
@@ -39,11 +39,11 @@ def _process_tom_decomp(raw_data, sub_folder, dataset_name, figures_folder, test
     # Close figure at the end
     plt.close(fig)
 
-def test_tom_decomp(project_root):
+def test_decompose_harmonics(project_root):
     """
     Batch runner for Thompson decomposition.
     """
     run_unit_test_batch(
         project_root=project_root,
-        input_subpath=config.AOUT['input_path'], test_module_name="test_tom_decomp", file_pattern=config.AOUT['file_pattern'],        process_callback=_process_tom_decomp
+        input_subpath=config.AOUT['input_path'], test_module_name="test_decompose_harmonics", file_pattern=config.AOUT['file_pattern'],        process_callback=_process_decompose_harmonics
     )

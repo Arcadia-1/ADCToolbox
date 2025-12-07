@@ -1,7 +1,7 @@
 import numpy as np
 import matplotlib.pyplot as plt
 
-from adctoolbox.aout import inl_dnl_from_sine
+from adctoolbox.aout import calc_inl_sine
 from tests._utils import save_fig, save_variable
 from tests.unit._runner import run_unit_test_batch
 from tests import config
@@ -12,7 +12,7 @@ plt.rcParams['axes.grid'] = True
 # Resolution list to scan
 RESOLUTION_LIST = [12]
 
-def _process_inl_sine(raw_data, sub_folder, dataset_name, figures_folder, test_name):
+def _process_calc_inl_sine(raw_data, sub_folder, dataset_name, figures_folder, test_name):
     """
     Callback function to process a single file:
     1. Scale data by resolution
@@ -26,7 +26,7 @@ def _process_inl_sine(raw_data, sub_folder, dataset_name, figures_folder, test_n
         expected_max = 2 ** Resolution
 
         # 2. Calculate INL/DNL
-        INL, DNL, code = inl_dnl_from_sine(scaled_data, num_bits=Resolution)
+        INL, DNL, code = calc_inl_sine(scaled_data, num_bits=Resolution)
 
         # 3. Save Variables
         save_variable(sub_folder, INL, 'INL')
@@ -73,11 +73,11 @@ def _process_inl_sine(raw_data, sub_folder, dataset_name, figures_folder, test_n
         save_fig(figures_folder, figure_name, dpi=150)
         plt.close(fig)
 
-def test_inl_sine(project_root):
+def test_calc_inl_sine(project_root):
     """
-    Batch runner for inl_sine (Single Channel Version).
+    Batch runner for calc_inl_sine (Single Channel Version).
     """
     run_unit_test_batch(
         project_root=project_root,
-        input_subpath=config.AOUT['input_path'], test_module_name="test_inl_sine", file_pattern=config.AOUT['file_pattern'],        process_callback=_process_inl_sine
+        input_subpath=config.AOUT['input_path'], test_module_name="test_calc_inl_sine", file_pattern=config.AOUT['file_pattern'],        process_callback=_process_calc_inl_sine
     )

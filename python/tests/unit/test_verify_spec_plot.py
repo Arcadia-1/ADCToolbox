@@ -7,7 +7,7 @@ Purpose: Self-verify that spec_plot correctly measures ENOB for signals
 import numpy as np
 import matplotlib.pyplot as plt
 import pytest
-from adctoolbox.aout import spec_plot
+from adctoolbox.aout import analyze_spectrum
 
 
 def test_verify_spec_plot_quantization():
@@ -35,7 +35,7 @@ def test_verify_spec_plot_quantization():
         sig_quantized = np.floor(sig * 2**nbits) / 2**nbits
 
         # Measure ENOB
-        enob, sndr, *_ = spec_plot(sig_quantized, label=0, harmonic=5, is_plot=0)
+        enob, sndr, *_ = analyze_spectrum(sig_quantized, label=0, harmonic=5, is_plot=0)
 
         # Expected: ENOB should be close to nbits
         error = abs(enob - nbits)
@@ -70,7 +70,7 @@ def test_verify_spec_plot_sweep():
 
     for idx, nbits in enumerate(bit_sweep):
         sig_quantized = np.floor(sig * 2**nbits) / 2**nbits
-        enob, *_ = spec_plot(sig_quantized, label=0, harmonic=5, is_plot=0)
+        enob, *_ = analyze_spectrum(sig_quantized, label=0, harmonic=5, is_plot=0)
         enob_results[idx] = enob
 
     # Verify ENOB increases with bit depth
