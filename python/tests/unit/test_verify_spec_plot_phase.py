@@ -9,7 +9,7 @@ import numpy as np
 import pytest
 import matplotlib
 matplotlib.use('Agg')  # Use non-GUI backend for testing
-from adctoolbox.aout import spec_plot_phase
+from adctoolbox.aout import analyze_phase_spectrum
 
 
 def generate_test_signal():
@@ -82,7 +82,7 @@ def test_verify_spec_plot_phase_fft_mode():
     signal, params = generate_test_signal()
 
     print('\n[Verify spec_plot_phase] [FFT Mode]')
-    result = spec_plot_phase(signal, harmonic=5, mode='FFT', show_plot=False)
+    result = analyze_phase_spectrum(signal, harmonic=5, mode='FFT', show_plot=False)
 
     # Check that FFT mode returns expected empty/NaN values
     hp_empty = len(result['harm_phase']) == 0
@@ -111,7 +111,7 @@ def test_verify_spec_plot_phase_lms_mode():
     signal, params = generate_test_signal()
 
     print('\n[Verify spec_plot_phase] [LMS Mode]')
-    result = spec_plot_phase(signal, harmonic=5, mode='LMS', show_plot=False)
+    result = analyze_phase_spectrum(signal, harmonic=5, mode='LMS', show_plot=False)
 
     harm_phase = result['harm_phase']
     harm_mag = result['harm_mag']

@@ -1,8 +1,8 @@
 import numpy as np
 import matplotlib.pyplot as plt
 
-from adctoolbox.dout import fg_cal_sine
-from adctoolbox.aout import spec_plot
+from adctoolbox.dout import calibrate_weight_sine
+from adctoolbox.aout import analyze_spectrum
 from tests._utils import save_variable, save_fig
 from tests.unit._runner import run_unit_test_batch
 from tests import config
@@ -10,7 +10,7 @@ from tests import config
 plt.rcParams['font.size'] = 14
 plt.rcParams['axes.grid'] = True
 
-def _process_fg_cal_sine(raw_data, sub_folder, dataset_name, figures_folder, test_name):
+def _process_calibrate_weight_sine(raw_data, sub_folder, dataset_name, figures_folder, test_name):
     """
     Callback function to process a single file:
     1. Calculate pre-calibration signal using nominal binary weights
@@ -27,8 +27,8 @@ def _process_fg_cal_sine(raw_data, sub_folder, dataset_name, figures_folder, tes
     # Pre-calibration: Convert using nominal weights
     preCal = raw_data @ nomWeight
 
-    # Run FGCalSine
-    weight, offset, postCal, ideal, err, freqCal = fg_cal_sine(
+    # Run calibrate_weight_sine
+    weight, offset, postCal, ideal, err, freqCal = calibrate_weight_sine(
         raw_data,
         freq=0,
         order=5
@@ -36,7 +36,7 @@ def _process_fg_cal_sine(raw_data, sub_folder, dataset_name, figures_folder, tes
 
     # Spectrum plot BEFORE calibration (using nominal weights)
     fig = plt.figure(figsize=(12, 8))
-    ENoB_pre, SNDR_pre, SFDR_pre, SNR_pre, THD_pre, pwr_pre, NF_pre, NSD_pre = spec_plot(
+    ENoB_pre, SNDR_pre, SFDR_pre, SNR_pre, THD_pre, pwr_pre, NF_pre, NSD_pre = analyze_spectrum(
         preCal,
         label=1,
         harmonic=5,
@@ -50,7 +50,7 @@ def _process_fg_cal_sine(raw_data, sub_folder, dataset_name, figures_folder, tes
 
     # Spectrum plot AFTER calibration
     fig = plt.figure(figsize=(12, 8))
-    ENoB_post, SNDR_post, SFDR_post, SNR_post, THD_post, pwr_post, NF_post, NSD_post = spec_plot(
+    ENoB_post, SNDR_post, SFDR_post, SNR_post, THD_post, pwr_post, NF_post, NSD_post = analyze_spectrum(
         postCal,
         label=1,
         harmonic=5,
@@ -73,12 +73,12 @@ def _process_fg_cal_sine(raw_data, sub_folder, dataset_name, figures_folder, tes
     save_variable(sub_folder, ENoB_pre, 'ENoB_pre')
     save_variable(sub_folder, ENoB_post, 'ENoB_post')
 
-def test_fg_cal_sine(project_root):
+def test_calibrate_weight_sine(project_root):
     """
     Batch runner for foreground calibration sine test.
     """
     run_unit_test_batch(
         project_root=project_root,
-        input_subpath=config.DOUT['input_path'], test_module_name="test_fg_cal_sine", file_pattern=config.DOUT['file_pattern'],        process_callback=_process_fg_cal_sine,
+        input_subpath=config.DOUT['input_path'], test_module_name="test_calibrate_weight_sine", file_pattern=config.DOUT['file_pattern'],        process_callback=_process_calibrate_weight_sine,
         flatten=False  # Digital output data is 2D (N samples x M bits)
     )

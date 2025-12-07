@@ -1,7 +1,7 @@
 import matplotlib.pyplot as plt
 import numpy as np
 
-from adctoolbox.aout import extract_static_nonlin
+from adctoolbox.aout import fit_static_nonlin
 from tests._utils import save_variable, save_fig
 from tests.unit._runner import run_unit_test_batch
 from tests import config
@@ -9,7 +9,7 @@ from tests import config
 plt.rcParams['font.size'] = 14
 plt.rcParams['axes.grid'] = True
 
-def _process_fit_static_nol(raw_data, sub_folder, dataset_name, figures_folder, test_name):
+def _process_fit_static_nonlin(raw_data, sub_folder, dataset_name, figures_folder, test_name):
     """
     Callback function to process a single file:
     1. Extract static nonlinearity coefficients
@@ -19,7 +19,7 @@ def _process_fit_static_nol(raw_data, sub_folder, dataset_name, figures_folder, 
     """
     # 1. Extract static nonlinearity coefficients
     order = 3
-    k2, k3, fitted_sine, fitted_transfer = extract_static_nonlin(raw_data, order)
+    k2, k3, fitted_sine, fitted_transfer = fit_static_nonlin(raw_data, order)
 
     print(f'  [Static non-linearity: k2={k2:.6f}, k3={k3:.6f}]')
 
@@ -61,15 +61,15 @@ def _process_fit_static_nol(raw_data, sub_folder, dataset_name, figures_folder, 
     # Close figure at the end
     plt.close(fig)
 
-def test_fit_static_nol(project_root):
+def test_fit_static_nonlin(project_root):
     """
-    Batch runner for extract_static_nonlin function.
+    Batch runner for fit_static_nonlin function.
     Tests static nonlinearity extraction from ADC transfer function.
     """
     run_unit_test_batch(
         project_root=project_root,
         input_subpath=config.AOUT['input_path'],
-        test_module_name="test_fit_static_nol",
+        test_module_name="test_fit_static_nonlin",
         file_pattern=config.AOUT['file_pattern'],
-        process_callback=_process_fit_static_nol
+        process_callback=_process_fit_static_nonlin
     )

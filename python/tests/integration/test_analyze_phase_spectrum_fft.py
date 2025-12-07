@@ -2,16 +2,16 @@ import numpy as np
 from pathlib import Path
 import matplotlib.pyplot as plt
 
-from adctoolbox.aout import spec_plot_phase
+from adctoolbox.aout import analyze_phase_spectrum
 from tests._utils import auto_search_files
 from tests import config
 
 plt.rcParams['font.size'] = 14
 plt.rcParams['axes.grid'] = True
 
-def test_spec_plot_phase_fft(project_root):
+def test_analyze_phase_spectrum_fft(project_root):
     """
-    Batch runner for spec_plot_phase - FFT Mode.
+    Batch runner for analyze_phase_spectrum - FFT Mode.
     """
     input_dir = project_root / config.AOUT['input_path']
     figures_dir = project_root / "test_plots"
@@ -32,7 +32,7 @@ def test_spec_plot_phase_fft(project_root):
 
             figure_name = f"test_plotphase_fft_{dataset_name}_python.png"
             phase_plot_path = figures_dir / figure_name
-            result = spec_plot_phase(raw_data, harmonic=10, mode='FFT', save_path=str(phase_plot_path))
+            result = analyze_phase_spectrum(raw_data, harmonic=10, mode='FFT', save_path=str(phase_plot_path))
 
             success_count += 1
 

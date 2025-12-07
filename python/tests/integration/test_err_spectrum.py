@@ -1,7 +1,7 @@
 import matplotlib.pyplot as plt
 
-from adctoolbox.common import sine_fit
-from adctoolbox.aout import spec_plot
+from adctoolbox.common import fit_sine
+from adctoolbox.aout import analyze_spectrum
 from tests._utils import save_fig, save_variable
 from tests.unit._runner import run_unit_test_batch
 from tests import config
@@ -12,18 +12,18 @@ plt.rcParams['axes.grid'] = True
 def _process_err_spectrum(raw_data, sub_folder, dataset_name, figures_folder, test_name):
     """
     Callback function to process a single file:
-    1. Calculate error data using sine_fit
+    1. Calculate error data using fit_sine
     2. Plot error spectrum
     3. Save variables
     4. Save plot
     """
     # Compute error data using sineFit
-    fitted_signal, frequency, amplitude, dc_offset, phase = sine_fit(raw_data)
+    fitted_signal, frequency, amplitude, dc_offset, phase = fit_sine(raw_data)
     err_data = raw_data - fitted_signal
 
-    # Run spec_plot on error data (label=0 means no labeling)
+    # Run analyze_spectrum on error data (label=0 means no labeling)
     plt.figure(figsize=(12, 8))
-    spec_plot(err_data, label=0)
+    analyze_spectrum(err_data, label=0)
     plt.title(f'errSpectrum: {dataset_name}')
 
     # Save variables
