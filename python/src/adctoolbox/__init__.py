@@ -34,8 +34,11 @@ from .common import (
     enob_to_snr,
     snr_to_nsd,
     nsd_to_snr,
-    dbm_to_mv,
-    mv_to_dbm,
+    dbm_to_vrms,
+    vrms_to_dbm,
+    dbm_to_mw,
+    mw_to_dbm,
+    sine_amplitude_to_power,
 )
 
 from .aout import (
@@ -108,8 +111,11 @@ __all__ = [
     'enob_to_snr',
     'snr_to_nsd',
     'nsd_to_snr',
-    'dbm_to_mv',
-    'mv_to_dbm',
+    'dbm_to_vrms',
+    'vrms_to_dbm',
+    'dbm_to_mw',
+    'mw_to_dbm',
+    'sine_amplitude_to_power',
 
     # Analog output (aout) functions
     'analyze_spectrum',
