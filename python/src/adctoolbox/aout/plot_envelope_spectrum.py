@@ -21,13 +21,14 @@ def plot_envelope_spectrum(err_data, fs=1):
         fs: Sampling frequency (default: 1)
 
     Returns:
-        enob: Effective Number of Bits
-        sndr: Signal-to-Noise and Distortion Ratio (dB)
-        sfdr: Spurious-Free Dynamic Range (dB)
-        snr: Signal-to-Noise Ratio (dB)
-        thd: Total Harmonic Distortion (dB)
-        signal_power: Signal power (dB)
-        noise_floor: Noise floor (dB)
+        dict: Dictionary with keys:
+            - enob: Effective Number of Bits
+            - sndr_db: Signal-to-Noise and Distortion Ratio (dB)
+            - sfdr_db: Spurious-Free Dynamic Range (dB)
+            - snr_db: Signal-to-Noise Ratio (dB)
+            - thd_db: Total Harmonic Distortion (dB)
+            - sig_pwr_dbfs: Signal power (dBFS)
+            - noise_floor_db: Noise floor (dB)
     """
     # Ensure column data
     e = np.asarray(err_data).flatten()
@@ -37,7 +38,7 @@ def plot_envelope_spectrum(err_data, fs=1):
 
     # Use spec_plot for spectrum analysis (spec_plot will handle closing its own figure)
     # Use harmonic=5 to match MATLAB's default
-    enob, sndr, sfdr, snr, thd, signal_power, noise_floor, noise_spectral_density = analyze_spectrum(env, fs=fs, label=0, harmonic=5)
+    result = analyze_spectrum(env, fs=fs, label=0, harmonic=5)
 
     # Update labels with larger fonts to match MATLAB
     plt.grid(True)
@@ -47,4 +48,4 @@ def plot_envelope_spectrum(err_data, fs=1):
 
     # Note: spec_plot already closes its figure, so no need to close here
 
-    return enob, sndr, sfdr, snr, thd, signal_power, noise_floor
+    return result

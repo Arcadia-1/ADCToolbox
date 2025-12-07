@@ -2,7 +2,7 @@
 import numpy as np
 import matplotlib.pyplot as plt
 from pathlib import Path
-from adctoolbox import find_bin, plot_error_hist_code
+from adctoolbox import calc_coherent_freq, plot_error_hist_code
 
 output_dir = Path(__file__).parent / "output"
 output_dir.mkdir(exist_ok=True)
@@ -10,13 +10,12 @@ output_dir.mkdir(exist_ok=True)
 N = 2**13
 Fs = 800e6
 Fin_target = 80e6
-J = find_bin(Fs, Fin_target, N)
-Fin = J * Fs / N
+Fin, Fin_bin = calc_coherent_freq(Fs, Fin_target, N)
 t = np.arange(N) / Fs
 A, DC = 0.49, 0.5
 base_noise = 50e-6
 
-print(f"[Error Histogram vs Code] [Fs = {Fs/1e6:.0f} MHz, Fin = {Fin/1e6:.1f} MHz, N = {N}]\n")
+print(f"[Error Histogram vs Code] Fs={Fs/1e6:.1f} MHz, Fin={Fin/1e6:.6f} MHz, Bin={Fin_bin}, N_fft={N}")
 
 # Signal 1: Noise
 noise_rms = 180e-6

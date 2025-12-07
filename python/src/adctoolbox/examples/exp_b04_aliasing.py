@@ -2,76 +2,74 @@
 import numpy as np
 import matplotlib.pyplot as plt
 from pathlib import Path
-from adctoolbox import alias
+from adctoolbox import calc_aliased_freq
 
 output_dir = Path(__file__).parent / "output"
 output_dir.mkdir(exist_ok=True)
 
-Fs = 800e6
-test_fin_relative = [0.1, 0.9, 1.1, 1.9, 2.1, 2.9]
-zone_colors = ['lightblue', 'lightgreen', 'lightyellow', 'lightcoral', 'lavender', 'lightgray']
+Fs = 1100e6
+Fin_target = 123e6
+N_ZONES = 6
 
-Fin_sweep = np.linspace(0, 3.0, 300)
-Fin_aliased = np.array([alias(f * Fs, Fs) / Fs for f in Fin_sweep])
+# 1. Calculate the true baseband alias of the target frequency (101 MHz)
+F_aliased = calc_aliased_freq(fin=Fin_target, fs=Fs)
+print(f"[Aliasing] Fs = {Fs/1e6:.1f} MHz, Fin_target = {Fin_target/1e6:.1f} MHz -> F_aliased = {F_aliased/1e6:.1f} MHz")
 
-fig, (ax_abs, ax_norm) = plt.subplots(2, 1, figsize=(10, 8))
+# 2. Generate input test points that all alias to F_aliased
+test_points_hz = []
+for i in range(N_ZONES): 
+    # K represents the Fs multiple for the start of the zone
+    K = i // 2 
+    
+    if (i + 1) % 2 == 0:
+        # Odd zones (2, 4, 6...): Mirrored folding: (K+1)*Fs - F_aliased
+        Fs_multiple = (K + 1) * Fs
+        F_in = Fs_multiple - F_aliased
+    else:
+        # Even zones (1, 3, 5...): Direct folding: K*Fs + F_aliased
+        Fs_multiple = K * Fs
+        F_in = Fs_multiple + F_aliased
+    
+    test_points_hz.append(F_in)
 
-# Top subplot: Absolute frequency (MHz)
-ax_abs.plot(Fin_sweep * Fs / 1e9, Fin_aliased * Fs / 1e6, 'b-', linewidth=2)
-ax_abs.axhline(y=80, color='red', linestyle='--', linewidth=1, alpha=0.6)
+ratio_sweep = np.linspace(0, N_ZONES/2, 500)
+freq_sweep = ratio_sweep * Fs
+aliased_sweep = calc_aliased_freq(freq_sweep, Fs)
 
-for i, color in enumerate(zone_colors):
-    ax_abs.axvspan(i * 0.5 * Fs/1e9, (i + 1) * 0.5 * Fs/1e9, alpha=0.2, color=color)
-    ax_abs.text((i + 0.5) * 0.5 * Fs/1e9, 0.92*Fs/2/1e6, f"Zone {i+1}", ha='center', fontsize=10, fontweight='bold')
+print(f"[Aliasing {len(freq_sweep)} frequencies] [Input = {freq_sweep[0]/1e6:.1f} - {freq_sweep[-1]/1e6:.1f} MHz] [Output = {aliased_sweep.min()/1e6:.2f} - {aliased_sweep.max()/1e6:.2f} MHz]\n")
 
-for f in test_fin_relative:
-    x_pos, y_pos = f * Fs / 1e9, alias(f * Fs, Fs) / 1e6
-    ax_abs.plot(x_pos, y_pos, 'o', color='red', markersize=6)
+fig, ax = plt.subplots(figsize=(12, 6))
+ax.plot(freq_sweep / 1e6, aliased_sweep / 1e6, 'b-', linewidth=2)
+ax.axhline(y=F_aliased / 1e6, color='red', linestyle='--', linewidth=1, alpha=0.6)
 
-    zone_idx = int(f / 0.5)
+for i in range(N_ZONES):
+    color = 'lightblue' if i % 2 == 0 else 'white'
+    ax.axvspan(i * 0.5 * Fs/1e6, (i + 1) * 0.5 * Fs/1e6, alpha=0.2, color=color)
+    ax.text((i + 0.5) * 0.5 * Fs/1e6, 0.92*Fs/2/1e6, f"Zone {i+1}", ha='center', fontsize=10, fontweight='bold')
+
+for f in test_points_hz:
+    x_pos = f / 1e6
+    y_pos = calc_aliased_freq(f, Fs) / 1e6
+    
+    ax.plot(x_pos, y_pos, 'o', color='red', markersize=6, zorder=10)
+    zone_idx = int(f / (Fs/2))
+
     ha = 'left' if zone_idx % 2 == 0 else 'right'
-    x_offset = 0.03 if zone_idx % 2 == 0 else -0.03
-    ax_abs.text(x_pos + x_offset, y_pos - 15, f'{f * Fs / 1e6:.0f}M',
-                fontsize=10, ha=ha, va='top', color='red', fontweight='bold')
+    x_offset = Fs/1e6/50 if zone_idx % 2 == 0 else -1* Fs/1e6/50
+    
+    ax.text(x_pos + x_offset, y_pos*0.85, f'{f / 1e6:.0f}',
+            fontsize=10, ha=ha, va='center', color='red', fontweight='bold')
 
-    if f > 0.5:  # Draw arrows for frequencies beyond 1st Nyquist zone
-        ax_abs.annotate('', xy=(y_pos, y_pos), xytext=(x_pos, y_pos),
-                       arrowprops=dict(arrowstyle='->', color='red', lw=1.5, alpha=0.6))
+ax.set_xlabel('Input Frequency (MHz)', fontsize=11)
+ax.set_ylabel('Aliased Frequency (MHz)', fontsize=11)
+ax.set_xlim([0, N_ZONES/2*Fs/1e6])
+ax.set_ylim([0, 0.5*Fs/1e6])
+xticks_MHz = np.arange(0, N_ZONES*Fs/2+0.1, Fs/2) / 1e6
+ax.set_xticks(xticks_MHz)
+ax.set_xticklabels([f'{int(x)}' if x > 0 else '0' for x in xticks_MHz])
+ax.grid(True, alpha=0.3)
 
-ax_abs.set_xlabel('Absolute Input Frequency (MHz)', fontsize=11)
-ax_abs.set_ylabel('Aliased Input Frequency (MHz)', fontsize=11)
-ax_abs.set_xlim([0, 3.0*Fs/1e9])
-ax_abs.set_ylim([0, 0.5*Fs/1e6])
-xticks_MHz = np.arange(0, 3.01*Fs, Fs/2) / 1e6
-ax_abs.set_xticks(xticks_MHz / 1000)
-ax_abs.set_xticklabels([f'{int(x)}M' if x > 0 else '0' for x in xticks_MHz])
-ax_abs.grid(True, alpha=0.3)
-
-# Bottom subplot: Normalized frequency (relative to Fs)
-ax_norm.plot(Fin_sweep, Fin_aliased, 'b-', linewidth=2)
-ax_norm.axhline(y=0.1, color='red', linestyle='--', linewidth=1, alpha=0.6)
-
-for i, color in enumerate(zone_colors):
-    ax_norm.axvspan(i * 0.5, (i + 1) * 0.5, alpha=0.2, color=color)
-    ax_norm.text((i + 0.5) * 0.5, 0.45, f"Zone {i+1}", ha='center', fontsize=10, fontweight='bold')
-
-for f in test_fin_relative:  # No arrows in this subplot
-    f_alias = alias(f * Fs, Fs) / Fs
-    ax_norm.plot(f, f_alias, 'o', color='red', markersize=6)
-
-    zone_idx = int(f / 0.5)
-    ha = 'left' if zone_idx % 2 == 0 else 'right'
-    x_offset = 0.05 if zone_idx % 2 == 0 else -0.05
-    ax_norm.text(f + x_offset, f_alias - 0.03, f'{f:.1f}',
-                 fontsize=10, ha=ha, va='top', color='red', fontweight='bold')
-
-ax_norm.set_xlabel('Relative Input Frequency (Normalized to Fs)', fontsize=11)
-ax_norm.set_ylabel('Aliased Input Frequency (Normalized to Fs)', fontsize=11)
-ax_norm.set_xlim([0, 3.0])
-ax_norm.set_ylim([0, 0.5])
-ax_norm.grid(True, alpha=0.3)
-
-fig.suptitle(f'Frequency Aliasing: Folding Diagram with 6 Nyquist Zones (Fs={Fs/1e6:.0f}MHz)',
+fig.suptitle(f'Frequency Aliasing within {N_ZONES} Nyquist Zones (Fs={Fs/1e6:.0f}MHz)',
              fontsize=12, fontweight='bold')
 plt.tight_layout()
 fig_path = (output_dir / 'exp_b04_aliasing.png').resolve()

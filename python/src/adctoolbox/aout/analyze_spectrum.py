@@ -21,7 +21,15 @@ def analyze_spectrum(data, fs=1.0, max_code=None, harmonic=3, win_type='hann',
         ax: Optional matplotlib axes object. If None and is_plot=1, a new figure is created.
 
     Returns:
-        enob, sndr_db, sfdr_db, snr_db, thd_db, sig_pwr_dbfs, noise_floor_db, nsd_db
+        dict: Dictionary with keys:
+            - enob: Effective Number of Bits
+            - sndr_db: Signal-to-Noise and Distortion Ratio (dB)
+            - sfdr_db: Spurious-Free Dynamic Range (dB)
+            - snr_db: Signal-to-Noise Ratio (dB)
+            - thd_db: Total Harmonic Distortion (dB)
+            - sig_pwr_dbfs: Signal power (dBFS)
+            - noise_floor_db: Noise floor (dB)
+            - nsd_dbfs_hz: Noise Spectral Density (dBFS/Hz)
     """
     # --- Parameter processing ---
     data = np.asarray(data)
@@ -120,7 +128,7 @@ def analyze_spectrum(data, fs=1.0, max_code=None, harmonic=3, win_type='hann',
 
         if label and harmonic > 0:
             for i in range(2, harmonic + 1):
-                b = alias(int(round(bin_r * i)), N)
+                b = int(calc_aliased_freq(int(round(bin_r * i)), N))
                 if b < len(spec):
                     ax.plot(b / N * fs, spec_db[b], 'rs')
                     ax.text(b / N * fs, spec_db[b] + 5, str(i),
@@ -167,7 +175,7 @@ def analyze_spectrum(data, fs=1.0, max_code=None, harmonic=3, win_type='hann',
     else: # Sum after removing harmonics
         spec_noise = np.copy(spec_no_sig)
         for i in range(2, n_thd + 1):
-            b = alias(int(round(bin_r * i)), N)
+            b = int(calc_aliased_freq(int(round(bin_r * i)), N))
             if b < Nd2_inband:
                 spec_noise[b] = 0
         noi_for_snr = np.sum(spec_noise[:Nd2_inband])
@@ -175,7 +183,7 @@ def analyze_spectrum(data, fs=1.0, max_code=None, harmonic=3, win_type='hann',
     # THD
     thd_pwr = 0
     for i in range(2, n_thd + 1):
-        b = alias(int(round(bin_r * i)), N)
+        b = int(calc_aliased_freq(int(round(bin_r * i)), N))
         if b < Nd2_inband:
             thd_pwr += spec_no_sig[b]
 
@@ -184,7 +192,7 @@ def analyze_spectrum(data, fs=1.0, max_code=None, harmonic=3, win_type='hann',
     noise_floor_db = snr_db - sig_pwr_dbfs
     
     # NSD (Noise Spectral Density)
-    nsd_db = noise_floor_db + 10*np.log10(fs/2/osr)
+    nsd_dbfs_hz = noise_floor_db + 10*np.log10(fs/2/osr)
 
     # --- Plot Annotations ---
     if is_plot:
@@ -231,7 +239,7 @@ def analyze_spectrum(data, fs=1.0, max_code=None, harmonic=3, win_type='hann',
             ax.text(TX, TYD*5, f'THD = {thd_db:.2f} dB', fontsize=10)
             ax.text(TX, TYD*6, f'SNR = {snr_db:.2f} dB', fontsize=10)
             ax.text(TX, TYD*7, f'Noise Floor = {noise_floor_db:.2f} dB', fontsize=10)
-            ax.text(TX, TYD*8, f'NSD = {nsd_db:.2f} dBFS/Hz', fontsize=10)
+            ax.text(TX, TYD*8, f'NSD = {nsd_dbfs_hz:.2f} dBFS/Hz', fontsize=10)
 
             # Noise floor baseline
             nf_level = -(noise_floor_db + 10*np.log10(N/2/osr))
@@ -258,4 +266,15 @@ def analyze_spectrum(data, fs=1.0, max_code=None, harmonic=3, win_type='hann',
         title_suffix = f'({M}x {"Jointed" if co_avg else "Averaged"})' if M > 1 else ''
         ax.set_title(f'Power Spectrum {title_suffix}', fontsize=12)
 
-    return enob, sndr_db, sfdr_db, snr_db, thd_db, sig_pwr_dbfs, noise_floor_db, nsd_db
+    metrics = {
+        'enob': enob,
+        'sndr_db': sndr_db,
+        'sfdr_db': sfdr_db,
+        'snr_db': snr_db,
+        'thd_db': thd_db,
+        'sig_pwr_dbfs': sig_pwr_dbfs,
+        'noise_floor_db': noise_floor_db,
+        'nsd_dbfs_hz': nsd_dbfs_hz
+    }
+
+    return metrics

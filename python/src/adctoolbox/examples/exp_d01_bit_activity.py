@@ -1,16 +1,14 @@
 import numpy as np
 import matplotlib.pyplot as plt
 from pathlib import Path
-from adctoolbox import find_bin, analyze_spectrum, check_bit_activity
+from adctoolbox import calc_coherent_freq, analyze_spectrum, check_bit_activity
 
 output_dir = Path(__file__).parent / "output"
 output_dir.mkdir(exist_ok=True)
 
 N = 2**13
 Fs = 1e9
-Fin_target = 300e6
-J = find_bin(Fs, Fin_target, N)
-Fin = J * Fs / N
+Fin, bin = calc_coherent_freq(fs=Fs, fin_target=300e6, n_fft=N)
 t = np.arange(N) / Fs
 A = 0.499
 
@@ -22,7 +20,7 @@ test_cases = [
     (sine, 'Poor contact in Bit-11', True),
 ]
 
-fig, axes = plt.subplots(2, 4, figsize=(16, 9))
+fig, axes = plt.subplots(2, 4, figsize=(20, 9))
 
 # 12-bit SAR weights
 cdac = [1024, 512, 256, 128, 64, 32, 16, 8, 4, 2, 1, 1]
@@ -50,8 +48,8 @@ for idx, (sig, title, has_glitch) in enumerate(test_cases):
 
 
     plt.sca(axes[1, idx])
-    enob, sndr, *_ = analyze_spectrum(dout @ ideal_weights, harmonic=5, osr=1, label=1, nf_method=0)    # Spectrum
-    print(f"[{title:<24s}] [Bits = {B:2d}] [ENoB = {enob:5.2f}] [Activity = {np.min(bit_usage):.1f}% - {np.max(bit_usage):.1f}%]")
+    result = analyze_spectrum(dout @ ideal_weights, harmonic=5, osr=1, label=1, nf_method=0)    # Spectrum
+    print(f"[{title:<24s}] [Bits = {B:2d}] [ENoB = {result['enob']:5.2f}] [Activity = {np.min(bit_usage):.1f}% - {np.max(bit_usage):.1f}%]")
 
 plt.tight_layout()
 fig_path = output_dir / f'exp_d01_bit_activity.png'

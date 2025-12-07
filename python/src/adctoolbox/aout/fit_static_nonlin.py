@@ -89,7 +89,8 @@ def fit_static_nonlin(sig_distorted, order):
             f'Signal length ({N}) must be > polynomial order ({order}) + 1')
 
     # Fit ideal sinewave to signal (frequency auto-detected)
-    fitted_sine, _, _, _, _ = sine_fit(sig_distorted)
+    fit_result = fit_sine(sig_distorted)
+    fitted_sine = fit_result['fitted_signal']
 
     # Extract transfer function components
     # x = ideal input (zero-mean)

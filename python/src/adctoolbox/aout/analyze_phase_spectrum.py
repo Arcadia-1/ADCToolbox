@@ -14,6 +14,29 @@ from adctoolbox.common.calc_aliased_freq import calc_aliased_freq
 from adctoolbox.common.fit_sine import fit_sine
 
 
+def alias(bin_idx: int, n: int) -> int:
+    """
+    Handle bin aliasing for FFT analysis.
+
+    Maps any bin index to the valid range [0, n/2] for real signals.
+
+    Args:
+        bin_idx: Bin index (can be negative or > n)
+        n: Total number of FFT bins
+
+    Returns:
+        Aliased bin index in range [0, n/2]
+    """
+    # First wrap to [0, n) range
+    bin_idx = bin_idx % n
+
+    # For real signals, bins > n/2 are mirrored
+    if bin_idx > n // 2:
+        bin_idx = n - bin_idx
+
+    return bin_idx
+
+
 def analyze_phase_spectrum(
     data: np.ndarray,
     n_fft: Optional[int] = None,

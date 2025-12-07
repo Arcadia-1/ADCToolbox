@@ -70,7 +70,7 @@ def generate_dout_dashboard(bits, output_dir, visible=False, order=5, prefix='do
     try:
         digital_codes_nominal = bits @ nominal_weights
         fig = plt.figure(figsize=(10, 7.5))
-        enob_nom, sndr_nom, sfdr_nom, snr_nom, thd_nom, _, _, _ = analyze_spectrum(
+        result_nom = analyze_spectrum(
             digital_codes_nominal, label=1, harmonic=5, osr=1, win_type='boxcar')
         plt.title('Digital Spectrum: Nominal Weights')
         plt.gca().tick_params(labelsize=16)
@@ -90,7 +90,7 @@ def generate_dout_dashboard(bits, output_dir, visible=False, order=5, prefix='do
             bits, freq=0, order=order)
         digital_codes_calibrated = bits @ weight_cal
         fig = plt.figure(figsize=(10, 7.5))
-        enob_cal, sndr_cal, sfdr_cal, snr_cal, thd_cal, _, _, _ = analyze_spectrum(
+        result_cal = analyze_spectrum(
             digital_codes_calibrated, label=1, harmonic=5, osr=1, win_type='boxcar')
         plt.title('Digital Spectrum: Calibrated Weights')
         plt.gca().tick_params(labelsize=16)
@@ -98,7 +98,7 @@ def generate_dout_dashboard(bits, output_dir, visible=False, order=5, prefix='do
         plt.savefig(png_path, dpi=150, bbox_inches='tight')
         plt.close(fig)
         status['tools_completed'][1] = 1
-        improvement = enob_cal - enob_nom
+        improvement = result_cal['enob'] - result_nom['enob']
         print(f' OK (+{improvement:.2f} ENoB) -> [{png_path}]')
     except Exception as e:
         print(f' FAIL {str(e)}')

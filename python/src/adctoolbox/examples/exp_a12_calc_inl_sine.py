@@ -2,7 +2,7 @@
 import numpy as np
 import matplotlib.pyplot as plt
 from pathlib import Path
-from adctoolbox import find_bin, calc_inl_sine, analyze_spectrum
+from adctoolbox import calc_coherent_freq, calc_inl_sine, analyze_spectrum
 
 output_dir = Path(__file__).parent / "output"
 output_dir.mkdir(exist_ok=True)
@@ -36,13 +36,13 @@ print(f"  [HD2 = {hd2_dB} dB, HD3 = {hd3_dB} dB, Noise = {base_noise*1e6:.1f} uV
 for idx, N in enumerate(N_list):
 
     # Generate signal with distortion
-    J = find_bin(fs, fin_target, N)
-    fin = J * fs / N
+    fin, J = calc_coherent_freq(fs, fin_target, N)
     t = np.arange(N) / fs
     sinewave = A * np.sin(2 * np.pi * fin * t)
     signal_distorted = sinewave + k2 * sinewave**2 + k3 * sinewave**3 + DC + np.random.randn(N) * base_noise
 
-    enob, sndr, sfdr, snr, thd, pwr, nf, nsd = analyze_spectrum(signal_distorted, fs=fs, is_plot=False)
+    result = analyze_spectrum(signal_distorted, fs=fs, is_plot=False)
+    enob = result['enob']
 
     # Quantize to ADC codes
     digital_output = np.round(signal_distorted * (2**n_bits) / full_scale).astype(int)

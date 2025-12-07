@@ -2,7 +2,7 @@
 import numpy as np
 import matplotlib.pyplot as plt
 from pathlib import Path
-from adctoolbox import find_bin, plot_error_hist_phase
+from adctoolbox import calc_coherent_freq, plot_error_hist_phase
 
 output_dir = Path(__file__).parent / "output"
 output_dir.mkdir(exist_ok=True)
@@ -11,8 +11,7 @@ output_dir.mkdir(exist_ok=True)
 N = 2**13
 Fs = 10e9
 Fin = 1000e6  # 1 GHz input frequency
-bin_idx = find_bin(Fs, Fin, N)
-Fin_actual = bin_idx * Fs / N
+Fin_actual, bin_idx = calc_coherent_freq(Fs, Fin, N)
 A, DC = 0.49, 0.5
 base_noise = 10e-6
 

@@ -2,7 +2,7 @@
 import numpy as np
 import matplotlib.pyplot as plt
 from pathlib import Path
-from adctoolbox import find_bin, analyze_spectrum
+from adctoolbox import calc_coherent_freq, analyze_spectrum
 
 output_dir = Path(__file__).parent / "output"
 output_dir.mkdir(exist_ok=True)
@@ -10,8 +10,7 @@ output_dir.mkdir(exist_ok=True)
 N = 2**13
 Fs = 800e6
 Fin_target = 80e6
-J = find_bin(Fs, Fin_target, N)
-Fin = J * Fs / N
+Fin, J = calc_coherent_freq(Fs, Fin_target, N)
 t = np.arange(N) / Fs
 A, DC = 0.49, 0.5
 base_noise = 50e-6
@@ -54,29 +53,32 @@ signal_kickback = msb + lsb + kickback_strength * msb_shifted
 fig, axes = plt.subplots(2, 2, figsize=(14, 10))
 
 plt.sca(axes[0, 0])
-enob1, sndr1, sfdr1, snr1, thd1, pwr1, nf1, nsd1 = analyze_spectrum(signal_noise, fs=Fs)
+result1 = analyze_spectrum(signal_noise, fs=Fs)
 axes[0, 0].set_ylim([-120, 0])
 axes[0, 0].set_title(f'Noise: RMS={noise_rms*1e6:.0f} uV')
+print(f"[Noise   ] [ENOB] = {result1['enob']:.3f} b, [SNDR] = {result1['sndr_db']:.2f} dB, [SFDR] = {result1['sfdr_db']:.2f} dB, [SNR] = {result1['snr_db']:.2f} dB")
 
 plt.sca(axes[0, 1])
-enob2, sndr2, sfdr2, snr2, thd2, pwr2, nf2, nsd2 = analyze_spectrum(signal_jitter, fs=Fs)
+result2 = analyze_spectrum(signal_jitter, fs=Fs)
 axes[0, 1].set_ylim([-120, 0])
 axes[0, 1].set_title(f'Jitter: {jitter_rms*1e15:.0f} fs')
+print(f"[Jitter  ] [ENOB] = {result2['enob']:.3f} b, [SNDR] = {result2['sndr_db']:.2f} dB, [SFDR] = {result2['sfdr_db']:.2f} dB, [SNR] = {result2['snr_db']:.2f} dB")
 
 plt.sca(axes[1, 0])
-enob3, sndr3, sfdr3, snr3, thd3, pwr3, nf3, nsd3 = analyze_spectrum(signal_harmonic, fs=Fs)
+result3 = analyze_spectrum(signal_harmonic, fs=Fs)
 axes[1, 0].set_ylim([-120, 0])
 axes[1, 0].set_title(f'Harmonic Distortion: HD2 = {hd2_dB} dB, HD3 = {hd3_dB} dB')
+print(f"[Harmonic] [ENOB] = {result3['enob']:.3f} b, [SNDR] = {result3['sndr_db']:.2f} dB, [SFDR] = {result3['sfdr_db']:.2f} dB, [SNR] = {result3['snr_db']:.2f} dB")
 
 plt.sca(axes[1, 1])
-enob4, sndr4, sfdr4, snr4, thd4, pwr4, nf4, nsd4 = analyze_spectrum(signal_kickback, fs=Fs)
+result4 = analyze_spectrum(signal_kickback, fs=Fs)
 axes[1, 1].set_ylim([-120, 0])
 axes[1, 1].set_title(f'Kickback: strength = {kickback_strength}')
+print(f"[Kickback] [ENOB] = {result4['enob']:.3f} b, [SNDR] = {result4['sndr_db']:.2f} dB, [SFDR] = {result4['sfdr_db']:.2f} dB, [SNR] = {result4['snr_db']:.2f} dB")
 
 fig.suptitle(f'Spectrum Comparison: 4 Non-idealities (Fs = {Fs/1e6:.0f} MHz, Fin = {Fin/1e6:.1f} MHz)', fontsize=12, fontweight='bold')
 plt.tight_layout()
 fig_path = output_dir / 'exp_a01_analyze_spectrum_nonidealities.png'
 plt.savefig(fig_path, dpi=150)
+print(f"\n[Save fig] -> [{fig_path}]\n")
 plt.close()
-
-print(f"[Save fig] -> [{fig_path}]")
