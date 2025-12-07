@@ -13,7 +13,8 @@ from .conversions import (
     lsb_to_volts, volts_to_lsb,
     bin_to_freq, freq_to_bin,
     snr_to_enob, enob_to_snr,
-    snr_to_nsd, nsd_to_snr
+    snr_to_nsd, nsd_to_snr,
+    dbm_to_mv, mv_to_dbm
 )
 from .calc_fom import (
     calc_fom_walden, calc_fom_schreier,
@@ -43,6 +44,8 @@ __all__ = [
     'enob_to_snr',
     'snr_to_nsd',
     'nsd_to_snr',
+    'dbm_to_mv',
+    'mv_to_dbm',
     # FoM calculations
     'calc_fom_walden',
     'calc_fom_schreier',

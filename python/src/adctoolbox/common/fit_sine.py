@@ -13,10 +13,10 @@ def fit_sine(data, frequency_estimate=None, max_iterations=1, tolerance=1e-9):
     Fit a sine wave to input data using Least Squares.
 
     Args:
-        data (np.ndarray): Input signal. 
+        data (np.ndarray): Input signal.
                            - 1D array (N samples)
                            - 2D array (N samples, M channels)
-        frequency_estimate (float, optional): Initial normalized frequency (0.0-0.5).
+        frequency_estimate (float, optional): Initial normalized frequency estimate.
         max_iterations (int): Max iterations for frequency refinement.
         tolerance (float): Convergence tolerance.
 
@@ -133,17 +133,24 @@ def _fit_core(y, freq_init, max_iter, tol):
 
 
 def _estimate_frequency_fft(y):
-    """Rough frequency estimation using FFT."""
+    """Rough frequency estimation using FFT with parabolic interpolation."""
     n = len(y)
-    w = np.hanning(n)
-    spec = np.abs(np.fft.rfft(y * w))
-    spec[0] = 0
+    spec = np.abs(np.fft.fft(y))
+    spec[0] = 0  # Remove DC component
+    spec = spec[:n//2]  # Keep positive frequencies only
+
     k = np.argmax(spec)
-    
-    # Parabolic/Weighted interpolation
+
+    # Parabolic interpolation (matches MATLAB sinfit.m)
     if 0 < k < len(spec) - 1:
-        denom = spec[k-1] + spec[k] + spec[k+1]
-        delta = (spec[k+1] - spec[k-1]) / denom if denom else 0
+        # Determine which neighbor is higher
+        if spec[k+1] > spec[k-1]:
+            r = 1  # Right neighbor is higher
+        else:
+            r = -1  # Left neighbor is higher
+
+        # Refine frequency estimate using parabolic fit
+        delta = r * spec[k+r] / (spec[k] + spec[k+r])
         k += delta
-        
+
     return k / n

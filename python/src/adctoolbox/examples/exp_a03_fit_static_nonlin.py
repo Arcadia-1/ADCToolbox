@@ -2,21 +2,20 @@
 import numpy as np
 import matplotlib.pyplot as plt
 from pathlib import Path
-from adctoolbox import find_bin, fit_static_nonlin
+from adctoolbox import calc_coherent_freq, fit_static_nonlin
 
 output_dir = Path(__file__).parent / "output"
 output_dir.mkdir(exist_ok=True)
 
-# Parameters
 N = 2**13
 Fs = 800e6
-Fin = (find_bin(Fs, 80e6, N)) * Fs / N
+Fin, Fin_bin = calc_coherent_freq(fs=Fs, fin_target=70e6, n_fft=N)
 A = 0.5
 base_noise = 500e-6
 
-x_ideal = A * np.sin(2 * np.pi * Fin * np.arange(N) / Fs)
+sig_ideal = A * np.sin(2 * np.pi * Fin * np.arange(N) / Fs)
+print(f"[Nonlinearity Extraction] Fs={Fs/1e6:.1f} MHz, Fin={Fin/1e6:.6f} MHz, Bin={Fin_bin}, N_fft={N}")
 
-print(f"[Nonlinearity Extraction] N={N}, Fs={Fs/1e6:.0f}M, Fin={Fin/1e6:.1f}M\n")
 
 # Scenarios: (k2, k3, title)
 scenarios = [
@@ -32,7 +31,7 @@ axes = axes.flatten()
 for idx, (k2_inject, k3_inject, title) in enumerate(scenarios):
 
     # Generate distorted signal: y = x + k2*x^2 + k3*x^3 + noise
-    sig_distorted = x_ideal + k2_inject * x_ideal**2 + k3_inject * x_ideal**3 + np.random.randn(N) * base_noise
+    sig_distorted = sig_ideal + k2_inject * sig_ideal**2 + k3_inject * sig_ideal**3 + np.random.randn(N) * base_noise
 
     # Extract nonlinearity coefficients
     k2_extracted, k3_extracted, fitted_sine, fitted_transfer = fit_static_nonlin(sig_distorted, order=3)

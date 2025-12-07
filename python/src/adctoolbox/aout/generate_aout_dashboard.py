@@ -66,7 +66,7 @@ def generate_aout_dashboard(aout_data, output_dir, visible=False, resolution=11,
     if aout_data.ndim > 1:
         aout_data = aout_data[0, :]
 
-    freq_cal = find_fin(aout_data)
+    freq_cal = estimate_frequency(aout_data)
     full_scale = np.max(aout_data) - np.min(aout_data)
 
     # Tool 1: Harmonic Decomposition
@@ -87,7 +87,7 @@ def generate_aout_dashboard(aout_data, output_dir, visible=False, resolution=11,
     print('[2/9][specPlot]', end='')
     try:
         fig = plt.figure(figsize=(10, 7.5))
-        enob, sndr, sfdr, snr, thd, pwr, nf, h = analyze_spectrum(
+        result = analyze_spectrum(
             aout_data, label=1, harmonic=5, osr=1, win_type='boxcar')
         plt.title('specPlot: Frequency Spectrum')
         plt.gca().tick_params(labelsize=14)
@@ -111,9 +111,9 @@ def generate_aout_dashboard(aout_data, output_dir, visible=False, resolution=11,
         print(f' FAIL {str(e)}')
         status['errors'].append(f'Tool 3: {str(e)}')
 
-    # Compute error data using sine_fit
+    # Compute error data using fit_sine
     try:
-        data_fit, freq_est, mag, dc, phi = sine_fit(aout_data)
+        data_fit, freq_est, mag, dc, phi = fit_sine(aout_data)
         err_data = aout_data - data_fit
     except:
         err_data = aout_data - np.mean(aout_data)
@@ -183,7 +183,7 @@ def generate_aout_dashboard(aout_data, output_dir, visible=False, resolution=11,
     print('[8/9][errSpectrum]', end='')
     try:
         fig = plt.figure(figsize=(10, 7.5))
-        _, _, _, _, _, _, _, h = analyze_spectrum(err_data, label=0)
+        result = analyze_spectrum(err_data, label=0)
         plt.title('errSpectrum: Error Spectrum')
         plt.gca().tick_params(labelsize=14)
         png_path = output_dir / f'{prefix}_8_errSpectrum.png'
@@ -199,7 +199,7 @@ def generate_aout_dashboard(aout_data, output_dir, visible=False, resolution=11,
     print('[9/9][errEnvelopeSpectrum]', end='')
     try:
         fig = plt.figure(figsize=(10, 7.5))
-        plot_envelope_spectrum(err_data, fs=1)
+        result = plot_envelope_spectrum(err_data, fs=1)
         plt.title('errEnvelopeSpectrum: Error Envelope Spectrum')
         plt.gca().tick_params(labelsize=14)
         png_path = output_dir / f'{prefix}_9_errEnvelopeSpectrum.png'
