@@ -68,35 +68,34 @@ def nsd_to_snr(nsd_dbfs_hz, fs, signal_pwr_dbfs=0):
     return signal_pwr_dbfs - noise_total_db
 
 
-def dbm_to_mv(dbm, impedance=50):
+def dbm_to_vrms(dbm, z_load=50):
+    """Convert dBm to Vrms (assuming load impedance z_load)"""
+    power_watts = db_to_power(dbm) / 1000  # dBm to Watts
+    return np.sqrt(power_watts * z_load)
+
+
+def vrms_to_dbm(vrms, z_load=50):
+    """Convert Vrms to dBm"""
+    power_watts = vrms**2 / z_load
+    return power_to_db(power_watts * 1000)  # Watts to dBm
+
+
+def dbm_to_mw(dbm):
+    """Convert dBm to mW: mW = 10^(dBm/10)"""
+    return db_to_power(dbm)
+
+
+def mw_to_dbm(mw):
+    """Convert mW to dBm: dBm = 10*log10(mW)"""
+    return power_to_db(mw)
+
+
+def sine_amplitude_to_power(amplitude, z_load=50):
     """
-    Convert dBm to mV (RMS voltage).
+    Convert sine wave peak amplitude to power.
 
-    Formula: V_mV = 10^((dBm + 10*log10(Z/1000) + 30)/20)
-    For 50 ohm: V_mV = 10^((dBm + 46.99)/20)
-
-    Args:
-        dbm: Power in dBm
-        impedance: Load impedance in ohms (default: 50)
-
-    Returns:
-        Voltage in mV (RMS)
+    For sine wave: Vrms = A / sqrt(2)
+    Power = Vrms^2 / Z = A^2 / (2*Z)
     """
-    return 10**((dbm + 10*np.log10(impedance/1000) + 30) / 20)
-
-
-def mv_to_dbm(mv, impedance=50):
-    """
-    Convert mV (RMS voltage) to dBm.
-
-    Formula: dBm = 20*log10(V_mV) - 10*log10(Z/1000) - 30
-    For 50 ohm: dBm = 20*log10(V_mV) - 46.99
-
-    Args:
-        mv: Voltage in mV (RMS)
-        impedance: Load impedance in ohms (default: 50)
-
-    Returns:
-        Power in dBm
-    """
-    return 20*np.log10(mv) - 10*np.log10(impedance/1000) - 30
+    vrms = amplitude / np.sqrt(2)
+    return vrms**2 / z_load

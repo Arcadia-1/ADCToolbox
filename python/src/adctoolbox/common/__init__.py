@@ -14,7 +14,9 @@ from .conversions import (
     bin_to_freq, freq_to_bin,
     snr_to_enob, enob_to_snr,
     snr_to_nsd, nsd_to_snr,
-    dbm_to_mv, mv_to_dbm
+    dbm_to_vrms, vrms_to_dbm,
+    dbm_to_mw, mw_to_dbm,
+    sine_amplitude_to_power
 )
 from .calc_fom import (
     calc_fom_walden, calc_fom_schreier,
@@ -44,8 +46,11 @@ __all__ = [
     'enob_to_snr',
     'snr_to_nsd',
     'nsd_to_snr',
-    'dbm_to_mv',
-    'mv_to_dbm',
+    'dbm_to_vrms',
+    'vrms_to_dbm',
+    'dbm_to_mw',
+    'mw_to_dbm',
+    'sine_amplitude_to_power',
     # FoM calculations
     'calc_fom_walden',
     'calc_fom_schreier',

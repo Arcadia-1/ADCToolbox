@@ -24,12 +24,13 @@ jobs:
           pip install numpy matplotlib scipy
           pip install -e ./python
 
-      - name: Test Basic Examples (b01-b04)
+      - name: Test Basic Examples (b01-b05)
         run: |
           cd python/src/adctoolbox/examples
           python exp_b01_plot_sine.py
-          python exp_b02_spectrum.py
-          python exp_b03_sine_fit.py
+          python exp_b02_analyze_spectrum.py
+          python exp_b03_analyze_spectrum_batch.py
           python exp_b04_aliasing.py
+          python exp_b05_fit_sine.py
         env:
           MPLBACKEND: Agg
