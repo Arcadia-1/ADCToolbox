@@ -3,11 +3,12 @@
 import numpy as np
 import matplotlib.pyplot as plt
 from pathlib import Path
-from .validate_aout_data import validate_aout_data
+from ..common.validate import validate_aout_data
 from .decompose_harmonics import decompose_harmonics
 from .analyze_spectrum import analyze_spectrum
 from .analyze_phase_spectrum import analyze_phase_spectrum
-from .err_hist_sine import err_hist_sine
+from .plot_error_hist_code import plot_error_hist_code
+from .plot_error_hist_phase import plot_error_hist_phase
 from .plot_error_pdf import plot_error_pdf
 from .plot_error_autocorr import plot_error_autocorr
 from .plot_envelope_spectrum import plot_envelope_spectrum
@@ -15,7 +16,7 @@ from ..common.sine_fit import sine_fit
 from ..common.find_fin import find_fin
 
 
-def toolset_aout(aout_data, output_dir, visible=False, resolution=11, prefix='aout'):
+def generate_aout_dashboard(aout_data, output_dir, visible=False, resolution=11, prefix='aout'):
     """
     Run 9 analog analysis tools on calibrated ADC data.
 
@@ -117,11 +118,11 @@ def toolset_aout(aout_data, output_dir, visible=False, resolution=11, prefix='ao
     except:
         err_data = aout_data - np.mean(aout_data)
 
-    # Tool 4: errHistSine (code mode)
-    print('[4/9][errHistSine (code)]', end='')
+    # Tool 4: Error Histogram (code mode)
+    print('[4/9][Error Histogram (code)]', end='')
     try:
-        emean_code, erms_code, code_axis, _, _, _, _ = err_hist_sine(
-            aout_data, bin=20, fin=freq_cal, disp=1, mode=1)
+        error_mean_code, error_rms_code, code_bins, error_code, codes = plot_error_hist_code(
+            aout_data, bins=20, freq=freq_cal, disp=1)
         png_path = output_dir / f'{prefix}_4_errHistSine_code.png'
         plt.savefig(png_path, dpi=150, bbox_inches='tight')
         plt.close()
@@ -131,11 +132,11 @@ def toolset_aout(aout_data, output_dir, visible=False, resolution=11, prefix='ao
         print(f' FAIL {str(e)}')
         status['errors'].append(f'Tool 4: {str(e)}')
 
-    # Tool 5: errHistSine (phase mode)
-    print('[5/9][errHistSine (phase)]', end='')
+    # Tool 5: Error Histogram (phase mode)
+    print('[5/9][Error Histogram (phase)]', end='')
     try:
-        emean, erms, phase_code, anoi, pnoi, _, _ = err_hist_sine(
-            aout_data, bin=99, fin=freq_cal, disp=1, mode=0)
+        error_mean, error_rms, phase_bins, amplitude_noise, phase_noise, error, phase = plot_error_hist_phase(
+            aout_data, bins=99, freq=freq_cal, disp=1)
         png_path = output_dir / f'{prefix}_5_errHistSine_phase.png'
         plt.savefig(png_path, dpi=150, bbox_inches='tight')
         plt.close()

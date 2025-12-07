@@ -150,11 +150,15 @@ def decompose_harmonics(data, re_fin=None, order=10, disp=1):
             unit = 'V'
             scale = 1
 
+        # Calculate power percentages (RMS^2 / Total^2)
+        harmonic_pct = (rms_harmonic / rms_total)**2 * 100
+        other_pct = (rms_other / rms_total)**2 * 100
+
         ax2.plot(harmonic_error, 'r-',
-                label=f'harmonics ({rms_harmonic*scale:.1f}{unit}, {rms_harmonic/rms_total*100:.1f}%)',
+                label=f'harmonics ({rms_harmonic*scale:.1f}{unit}, {harmonic_pct:.1f}%)',
                 linewidth=1.5)
         ax2.plot(other_error, 'b-',
-                label=f'other errors ({rms_other*scale:.1f}{unit}, {rms_other/rms_total*100:.1f}%)',
+                label=f'other errors ({rms_other*scale:.1f}{unit}, {other_pct:.1f}%)',
                 linewidth=1)
 
         error_min, error_max = np.min(total_error), np.max(total_error)

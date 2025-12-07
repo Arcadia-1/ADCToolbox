@@ -7,6 +7,7 @@ from .sine_fit import sine_fit
 from .bit_in_band import bit_in_band
 from .cap2weight import cap2weight
 from .find_vinpp import find_vinpp
+from .validate import validate_aout_data, validate_dout_data
 
 __all__ = [
     'alias',
@@ -17,4 +18,6 @@ __all__ = [
     'bit_in_band',
     'cap2weight',
     'find_vinpp',
+    'validate_aout_data',
+    'validate_dout_data',
 ]

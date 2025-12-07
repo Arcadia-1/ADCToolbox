@@ -18,29 +18,29 @@ MATLAB_TO_PYTHON = {
 
     # AOUT tests (analog output) - MATLAB uses run_* for analog integration tests
     'run_inlsine': 'test_inl_sine',
-    'run_tomdec': 'test_tom_decomp',
+    'run_tomdec': 'test_decompose_harmonics',
     'run_errsin_phase': 'test_err_hist_sine_phase',
     'run_errsin_code': 'test_err_hist_sine_code',
     'run_errpdf': 'test_err_pdf',
     'run_errac': 'test_err_auto_correlation',
     'run_errspec': 'test_err_spectrum',
     'run_errevspec': 'test_err_envelope_spectrum',
-    'run_plotspec': 'test_spec_plot',
-    'run_plotphase': 'test_spec_plot_phase',
-    'run_fitstaticnl': 'test_fit_static_nol',
+    'run_plotspec': 'test_analyze_spectrum',
+    'run_plotphase': 'test_analyze_phase_spectrum',
+    'run_fitstaticnl': 'test_fit_static_nonlin',
 
     # Legacy test_* names (for backward compatibility)
     'test_inlsine': 'test_inl_sine',
-    'test_tomdec': 'test_tom_decomp',
+    'test_tomdec': 'test_decompose_harmonics',
     'test_errsin_phase': 'test_err_hist_sine_phase',
     'test_errsin_code': 'test_err_hist_sine_code',
     'test_errpdf': 'test_err_pdf',
     'test_errac': 'test_err_auto_correlation',
     'test_errspec': 'test_err_spectrum',
     'test_errevspec': 'test_err_envelope_spectrum',
-    'test_plotspec': 'test_spec_plot',
-    'test_plotphase': 'test_spec_plot_phase',
-    'test_fitstaticnl': 'test_fit_static_nol',
+    'test_plotspec': 'test_analyze_spectrum',
+    'test_plotphase': 'test_analyze_phase_spectrum',
+    'test_fitstaticnl': 'test_fit_static_nonlin',
 
     # COMMON tests
     'test_sinfit': 'test_sine_fit',

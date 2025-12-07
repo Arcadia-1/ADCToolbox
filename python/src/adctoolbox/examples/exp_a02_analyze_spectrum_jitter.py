@@ -44,7 +44,7 @@ for i, (fin_rel, zone) in enumerate(zip(Fin_relative, zone_labels)):
 
 fig.suptitle(f'Jitter Across Nyquist Zones (Jitter = {jitter_rms*1e15:.0f}fs, Fs = {Fs/1e9:.1f} GHz)', fontsize=12, fontweight='bold')
 plt.tight_layout()
-fig_path = output_dir / 'exp_a02_spec_plot_jitter.png'
+fig_path = output_dir / 'exp_a02_analyze_spectrum_jitter.png'
 plt.savefig(fig_path, dpi=150)
 plt.close()
 
