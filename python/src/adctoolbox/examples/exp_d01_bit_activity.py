@@ -1,7 +1,7 @@
 import numpy as np
 import matplotlib.pyplot as plt
 from pathlib import Path
-from adctoolbox import find_bin, analyze_spectrum, bit_activity
+from adctoolbox import find_bin, analyze_spectrum, check_bit_activity
 
 output_dir = Path(__file__).parent / "output"
 output_dir.mkdir(exist_ok=True)
@@ -45,7 +45,7 @@ for idx, (sig, title, has_glitch) in enumerate(test_cases):
         dout[glitch_mask, B-2] = 0 # Force the unfortunate bits to '0'
 
     plt.sca(axes[0, idx])
-    bit_usage = bit_activity(dout)    # Bit activity (use toolbox function)
+    bit_usage = check_bit_activity(dout)    # Bit activity (use toolbox function)
     plt.title(f'{title}\nBit Activity', fontsize=11, fontweight='bold')
 
 

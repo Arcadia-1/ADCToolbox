@@ -1,7 +1,7 @@
 import numpy as np
 import matplotlib.pyplot as plt
 from pathlib import Path
-from adctoolbox import find_bin, cal_weight_sine, analyze_spectrum
+from adctoolbox import find_bin, calibrate_weight_sine, analyze_spectrum, analyze_spectrum
 
 output_dir = Path(__file__).parent / "output"
 output_dir.mkdir(exist_ok=True)
@@ -39,7 +39,7 @@ for j in range(n_bits):
 analog_before = np.dot(digital_output, weights_nominal)
 
 # Calibration
-weights_calibrated, offset, analog_after, _, _, _ = cal_weight_sine(digital_output, freq=0, order=5)
+weights_calibrated, offset, analog_after, _, _, _ = calibrate_weight_sine(digital_output, freq=0, order=5)
 
 # Spectrum comparison
 fig, axes = plt.subplots(1, 2, figsize=(14, 5))

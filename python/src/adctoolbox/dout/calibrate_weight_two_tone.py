@@ -12,7 +12,7 @@ from typing import Optional, Tuple, Union, List
 from ..common.alias import alias
 
 
-def cal_weight_sine_2freq(
+def calibrate_weight_two_tone(
     bits1: np.ndarray,
     bits2: np.ndarray,
     rel_freq1: float,

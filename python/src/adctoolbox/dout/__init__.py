@@ -1,19 +1,21 @@
 """Digital output (code-level) analysis and calibration tools."""
 
-from .cal_weight_sine import cal_weight_sine
-from .cal_weight_sine_os import cal_weight_sine_os
-from .cal_weight_sine_2freq import cal_weight_sine_2freq
-from .overflow_chk import overflow_chk
-from .bit_activity import bit_activity
-from .sweep_bit_enob import sweep_bit_enob
-from .weight_scaling import weight_scaling
+from .calibrate_weight_sine import calibrate_weight_sine
+from .calibrate_weight_sine_osr import calibrate_weight_sine_osr
+from .calibrate_weight_two_tone import calibrate_weight_two_tone
+from .check_overflow import check_overflow
+from .check_bit_activity import check_bit_activity
+from .analyze_enob_sweep import analyze_enob_sweep
+from .plot_weight_radix import plot_weight_radix
+from .generate_dout_dashboard import generate_dout_dashboard
 
 __all__ = [
-    'cal_weight_sine',
-    'cal_weight_sine_os',
-    'cal_weight_sine_2freq',
-    'overflow_chk',
-    'bit_activity',
-    'sweep_bit_enob',
-    'weight_scaling',
+    'calibrate_weight_sine',
+    'calibrate_weight_sine_osr',
+    'calibrate_weight_two_tone',
+    'check_overflow',
+    'check_bit_activity',
+    'analyze_enob_sweep',
+    'plot_weight_radix',
+    'generate_dout_dashboard',
 ]
