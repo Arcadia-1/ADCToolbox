@@ -2,11 +2,11 @@
 
 import numpy as np
 import matplotlib.pyplot as plt
-from .cal_weight_sine import cal_weight_sine
+from .calibrate_weight_sine import calibrate_weight_sine
 from ..aout.analyze_spectrum import analyze_spectrum
 
 
-def sweep_bit_enob(bits, freq=0, order=5, harmonic=5, osr=1, win_type='hamming', plot=True):
+def analyze_enob_sweep(bits, freq=0, order=5, harmonic=5, osr=1, win_type='hamming', plot=True):
     """
     ENoB vs Number of Bits Used for Calibration.
 
@@ -50,7 +50,7 @@ def sweep_bit_enob(bits, freq=0, order=5, harmonic=5, osr=1, win_type='hamming',
 
     # Auto-detect frequency if needed
     if freq == 0:
-        _, _, _, _, _, freq = cal_weight_sine(bits, freq=0, order=order)
+        _, _, _, _, _, freq = calibrate_weight_sine(bits, freq=0, order=order)
 
     enob_sweep = np.zeros(m_bits)
     n_bits_vec = np.arange(1, m_bits + 1)
@@ -59,7 +59,7 @@ def sweep_bit_enob(bits, freq=0, order=5, harmonic=5, osr=1, win_type='hamming',
         bits_subset = bits[:, :n_bits]
 
         try:
-            weight_cal, _, post_cal_temp, _, _, _ = cal_weight_sine(bits_subset, freq=freq, order=order)
+            weight_cal, _, post_cal_temp, _, _, _ = calibrate_weight_sine(bits_subset, freq=freq, order=order)
 
             enob_temp, _, _, _, _, _, _, _ = analyze_spectrum(
                 post_cal_temp, harmonic=harmonic, osr=osr, win_type=win_type, label=0)

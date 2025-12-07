@@ -7,8 +7,8 @@ calibration algorithms, and more.
 
 Usage:
 ------
->>> from adctoolbox import analyze_spectrum, sine_fit, fg_cal_sine
->>> from adctoolbox import alias, find_bin, err_hist_sine
+>>> from adctoolbox import analyze_spectrum, sine_fit, cal_weight_sine
+>>> from adctoolbox import alias, find_bin, plot_error_hist_phase
 """
 
 __version__ = '0.2.0'
@@ -31,7 +31,8 @@ from .aout import (
     analyze_two_tone_spectrum,
     plot_envelope_spectrum,
     plot_error_autocorr,
-    err_hist_sine,
+    plot_error_hist_code,
+    plot_error_hist_phase,
     plot_error_pdf,
     decompose_harmonics,
     calc_inl_sine,
@@ -39,13 +40,14 @@ from .aout import (
 )
 
 from .dout import (
-    cal_weight_sine,
-    cal_weight_sine_os,
-    cal_weight_sine_2freq,
-    overflow_chk,
-    bit_activity,
-    sweep_bit_enob,
-    weight_scaling,
+    calibrate_weight_sine,
+    calibrate_weight_sine_osr,
+    calibrate_weight_two_tone,
+    check_overflow,
+    check_bit_activity,
+    analyze_enob_sweep,
+    plot_weight_radix,
+    generate_dout_dashboard,
 )
 
 from .oversampling import (
@@ -89,7 +91,8 @@ __all__ = [
     'analyze_two_tone_spectrum',
     'plot_envelope_spectrum',
     'plot_error_autocorr',
-    'err_hist_sine',
+    'plot_error_hist_code',
+    'plot_error_hist_phase',
     'plot_error_pdf',
     'decompose_harmonics',
     'calc_inl_sine',
@@ -103,6 +106,7 @@ __all__ = [
     'bit_activity',
     'sweep_bit_enob',
     'weight_scaling',
+    'generate_dout_dashboard',
 
     # Oversampling functions
     'ntf_analyzer',

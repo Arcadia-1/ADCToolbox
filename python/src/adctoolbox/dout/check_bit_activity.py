@@ -4,7 +4,7 @@ import numpy as np
 import matplotlib.pyplot as plt
 
 
-def bit_activity(bits):
+def check_bit_activity(bits):
     """
     Analyze and plot the percentage of 1's in each bit.
 
