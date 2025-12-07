@@ -1,19 +1,25 @@
+"""
+ADC spectrum analysis with ENOB, SNDR, SFDR, SNR, THD, Noise Floor, NSD calculations.
+
+MATLAB counterpart: specPlot.m, plotspec.m
+"""
+
 import numpy as np
 import matplotlib.pyplot as plt
 from scipy.signal import windows
-from ..common.alias import alias
+from adctoolbox.common.calc_aliased_freq import calc_aliased_freq
 
 def analyze_spectrum(data, fs=1.0, max_code=None, harmonic=3, win_type='hann',
               side_bin=1, log_sca=0, label=1, assumed_signal=np.nan, is_plot=1,
               n_thd=5, osr=1, co_avg=0, nf_method=0, ax=None):
     """
     Spectral analysis and plotting.
-    
+
     Parameters:
         data: Input data (N,) or (M, N)
         fs: Sampling frequency
         ax: Optional matplotlib axes object. If None and is_plot=1, a new figure is created.
-        
+
     Returns:
         enob, sndr_db, sfdr_db, snr_db, thd_db, sig_pwr_dbfs, noise_floor_db, nsd_db
     """

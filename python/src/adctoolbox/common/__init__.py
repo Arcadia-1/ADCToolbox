@@ -1,23 +1,51 @@
 """Common utility functions for ADC analysis."""
 
-from .alias import alias
-from .find_bin import find_bin, find_fin_coherent
-from .find_fin import find_fin
-from .sine_fit import sine_fit
-from .bit_in_band import bit_in_band
-from .cap2weight import cap2weight
-from .find_vinpp import find_vinpp
+from .calc_aliased_freq import calc_aliased_freq
+from .calc_coherent_freq import calc_coherent_freq
+from .estimate_frequency import estimate_frequency
+from .fit_sine import fit_sine
+from .extract_freq_components import extract_freq_components
+from .convert_cap_to_weight import convert_cap_to_weight
+from .calc_target_vpp import calc_target_vpp
 from .validate import validate_aout_data, validate_dout_data
+from .conversions import (
+    db_to_mag, mag_to_db, db_to_power, power_to_db,
+    lsb_to_volts, volts_to_lsb,
+    bin_to_freq, freq_to_bin,
+    snr_to_enob, enob_to_snr,
+    snr_to_nsd, nsd_to_snr
+)
+from .calc_fom import (
+    calc_fom_walden, calc_fom_schreier,
+    calc_thermal_noise_limit, calc_jitter_limit
+)
 
 __all__ = [
-    'alias',
-    'find_bin',
-    'find_fin_coherent',
-    'find_fin',
-    'sine_fit',
-    'bit_in_band',
-    'cap2weight',
-    'find_vinpp',
+    'calc_aliased_freq',
+    'calc_coherent_freq',
+    'estimate_frequency',
+    'fit_sine',
+    'extract_freq_components',
+    'convert_cap_to_weight',
+    'calc_target_vpp',
     'validate_aout_data',
     'validate_dout_data',
+    # Conversions
+    'db_to_mag',
+    'mag_to_db',
+    'db_to_power',
+    'power_to_db',
+    'lsb_to_volts',
+    'volts_to_lsb',
+    'bin_to_freq',
+    'freq_to_bin',
+    'snr_to_enob',
+    'enob_to_snr',
+    'snr_to_nsd',
+    'nsd_to_snr',
+    # FoM calculations
+    'calc_fom_walden',
+    'calc_fom_schreier',
+    'calc_thermal_noise_limit',
+    'calc_jitter_limit',
 ]

@@ -1,3 +1,11 @@
+"""
+Error autocorrelation function (ACF) computation and analysis.
+
+Computes ACF of error signal to detect correlation patterns.
+
+MATLAB counterpart: errac.m
+"""
+
 import numpy as np
 import matplotlib.pyplot as plt
 

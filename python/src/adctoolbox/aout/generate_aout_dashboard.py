@@ -3,17 +3,17 @@
 import numpy as np
 import matplotlib.pyplot as plt
 from pathlib import Path
-from ..common.validate import validate_aout_data
-from .decompose_harmonics import decompose_harmonics
-from .analyze_spectrum import analyze_spectrum
-from .analyze_phase_spectrum import analyze_phase_spectrum
-from .plot_error_hist_code import plot_error_hist_code
-from .plot_error_hist_phase import plot_error_hist_phase
-from .plot_error_pdf import plot_error_pdf
-from .plot_error_autocorr import plot_error_autocorr
-from .plot_envelope_spectrum import plot_envelope_spectrum
-from ..common.sine_fit import sine_fit
-from ..common.find_fin import find_fin
+from adctoolbox.common.validate import validate_aout_data
+from adctoolbox.aout.decompose_harmonics import decompose_harmonics
+from adctoolbox.aout.analyze_spectrum import analyze_spectrum
+from adctoolbox.aout.analyze_phase_spectrum import analyze_phase_spectrum
+from adctoolbox.aout.plot_error_hist_code import plot_error_hist_code
+from adctoolbox.aout.plot_error_hist_phase import plot_error_hist_phase
+from adctoolbox.aout.plot_error_pdf import plot_error_pdf
+from adctoolbox.aout.plot_error_autocorr import plot_error_autocorr
+from adctoolbox.aout.plot_envelope_spectrum import plot_envelope_spectrum
+from adctoolbox.common.fit_sine import fit_sine
+from adctoolbox.common.estimate_frequency import estimate_frequency
 
 
 def generate_aout_dashboard(aout_data, output_dir, visible=False, resolution=11, prefix='aout'):

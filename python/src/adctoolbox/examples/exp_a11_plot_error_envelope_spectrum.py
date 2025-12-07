@@ -3,7 +3,7 @@ import numpy as np
 import matplotlib.pyplot as plt
 from pathlib import Path
 from adctoolbox import find_bin
-from adctoolbox.common.sine_fit import sine_fit
+from adctoolbox.common.fit_sine import fit_sine
 from adctoolbox.aout.plot_envelope_spectrum import plot_envelope_spectrum
 
 output_dir = Path(__file__).parent / "output"

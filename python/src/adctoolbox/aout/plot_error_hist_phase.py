@@ -1,7 +1,9 @@
 """
-Error histogram in phase domain for ADC output.
+Error histogram in phase domain for jitter detection and phase noise analysis.
 
-Critical for jitter detection and phase noise analysis.
+Separates amplitude noise from phase jitter by binning errors versus phase.
+
+MATLAB counterpart: errHistSine.m (phase mode), errsin.m
 """
 
 import numpy as np
@@ -38,7 +40,7 @@ def plot_error_hist_phase(data, bins=100, freq=0, disp=1, error_range=None):
     N = len(data)
 
     # Sine fit to get ideal signal and error
-    from ..common.sine_fit import sine_fit
+    from adctoolbox.common.fit_sine import fit_sine
     if freq == 0:
         data_fit, freq, mag, dc, phi = sine_fit(data)
     else:

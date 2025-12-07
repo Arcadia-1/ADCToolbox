@@ -1,7 +1,9 @@
 """
-Error histogram in code domain for ADC output.
+Error histogram in code domain for INL/DNL and static nonlinearity analysis.
 
-Useful for INL/DNL and static nonlinearity analysis.
+Bins errors by ADC code value to reveal static transfer function characteristics.
+
+MATLAB counterpart: errHistSine.m (code mode)
 """
 
 import numpy as np
@@ -35,7 +37,7 @@ def plot_error_hist_code(data, bins=100, freq=0, disp=1, error_range=None):
     N = len(data)
 
     # Sine fit to get ideal signal and error
-    from ..common.sine_fit import sine_fit
+    from adctoolbox.common.fit_sine import fit_sine
     if freq == 0:
         data_fit, freq, mag, dc, phi = sine_fit(data)
     else:

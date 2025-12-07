@@ -1,3 +1,11 @@
+"""
+Calculate ADC INL/DNL using histogram method.
+
+Extracts INL and DNL from sinewave test data using histogram-based method.
+
+MATLAB counterpart: inlsin.m
+"""
+
 import numpy as np
 
 def calc_inl_sine(data, num_bits=None, clip_percent=0.01):

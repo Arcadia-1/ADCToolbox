@@ -1,12 +1,13 @@
 """
-Extract static nonlinearity coefficients from distorted sinewave.
+Extract static nonlinearity coefficients (k2, k3) from distorted sinewave.
 
-This extracts k2 (2nd-order) and k3 (3rd-order) nonlinearity coefficients.
-Gain error CANNOT be extracted from single-tone measurements.
+Uses least-squares fitting to extract 2nd and 3rd order nonlinearity.
+
+MATLAB counterpart: fitstaticnl.m
 """
 
 import numpy as np
-from ..common.sine_fit import sine_fit
+from adctoolbox.common.fit_sine import fit_sine
 
 
 def fit_static_nonlin(sig_distorted, order):
