@@ -1,7 +1,7 @@
 """Digital output toolset: run all 3 analysis tools on ADC digital codes"""
 import numpy as np
 from pathlib import Path
-from adctoolbox.dout.toolset_dout import toolset_dout
+from adctoolbox.dout.generate_dout_dashboard import generate_dout_dashboard
 
 # Load digital output data (e.g., from CSV file)
 data_file = Path(__file__).parent.parent.parent.parent.parent / 'reference_dataset' / 'dout_SAR_12b_weight_2.csv'
@@ -40,7 +40,7 @@ print(f"\n=== Running DOUT Toolset (3 Tools) ===")
 print(f"Output directory: {output_dir}\n")
 
 # Run toolset
-status = toolset_dout(
+status = generate_dout_dashboard(
     bits,
     output_dir,
     visible=False,      # Set to True to display figures

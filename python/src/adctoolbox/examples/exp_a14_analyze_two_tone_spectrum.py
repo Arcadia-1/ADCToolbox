@@ -2,7 +2,7 @@
 import numpy as np
 import matplotlib.pyplot as plt
 from pathlib import Path
-from adctoolbox import analyze_spectrum_2tone
+from adctoolbox import analyze_two_tone_spectrum
 
 output_dir = Path(__file__).parent / "output"
 output_dir.mkdir(exist_ok=True)
@@ -94,7 +94,7 @@ ax.axvline(imd3_high, color='green', linestyle='-.', linewidth=2, alpha=0.7)
 ax.legend(fontsize=10, loc='upper right')
 
 plt.tight_layout()
-fig_path = output_dir / f'exp_a14_spec_plot_2tone_f1_{int(F1/1e3)}k_f2_{int(F2/1e3)}k.png'
+fig_path = output_dir / 'exp_a14_analyze_two_tone_spectrum.png'
 plt.savefig(fig_path, dpi=150)
 plt.close()
 

@@ -2,7 +2,7 @@
 import numpy as np
 import matplotlib.pyplot as plt
 from pathlib import Path
-from adctoolbox import find_bin, err_hist_sine
+from adctoolbox import find_bin, plot_error_hist_phase
 
 output_dir = Path(__file__).parent / "output"
 output_dir.mkdir(exist_ok=True)
@@ -38,15 +38,16 @@ for i, jitter_rms in enumerate(jitter_levels):
 
     signal = A * np.sin(2*np.pi*Fin_actual*t + phase_jitter) + DC + np.random.randn(N) * base_noise
 
-    # Measure jitter using err_hist_sine
-    emean, erms, phase_deg, anoi, pnoi, err, xx = err_hist_sine(signal, bin=100, fin=Fin_actual/Fs, mode=0, disp=0)
+    # Measure jitter using plot_error_hist_phase
+    error_mean, error_rms, phase_bins, amplitude_noise, phase_noise, error, phase = plot_error_hist_phase(
+        signal, bins=100, freq=Fin_actual/Fs, disp=0)
 
-    # Convert phase noise back to jitter: Tj = pnoi / (2*pi*Fin)
-    jitter_calc = pnoi / (2 * np.pi * Fin_actual)
+    # Convert phase noise back to jitter: Tj = phase_noise / (2*pi*Fin)
+    jitter_calc = phase_noise / (2 * np.pi * Fin_actual)
 
     # Calculate SNDR approximation from phase noise
-    # SNDR ≈ -20*log10(pnoi) for phase-noise limited signals
-    sndr_approx = -20 * np.log10(pnoi) if pnoi > 0 else 100
+    # SNDR ≈ -20*log10(phase_noise) for phase-noise limited signals
+    sndr_approx = -20 * np.log10(phase_noise) if phase_noise > 0 else 100
 
     jitter_set.append(jitter_rms)
     jitter_measured.append(jitter_calc)
@@ -91,10 +92,14 @@ axes[1].set_ylabel('Measurement Error (%)', fontsize=12)
 axes[1].set_title('Relative Error vs Jitter Level', fontsize=13)
 axes[1].legend(fontsize=11)
 axes[1].grid(True, alpha=0.3)
-axes[1].set_ylim([-50, 50])
+
+# Scale y-axis: max error * 1.2, but at least ±10%
+max_error = np.max(np.abs(errors_pct))
+y_limit = max(max_error * 1.2, 10)
+axes[1].set_ylim([-y_limit, y_limit])
 
 plt.tight_layout()
-fig_path = output_dir / f'exp_a05_jitter_calculation_fin_{int(Fin/1e6)}M.png'
+fig_path = output_dir / 'exp_a07_jitter_calculation.png'
 plt.savefig(fig_path, dpi=150)
 plt.close()
 
