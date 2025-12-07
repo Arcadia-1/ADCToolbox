@@ -74,7 +74,7 @@ ax_norm.grid(True, alpha=0.3)
 fig.suptitle(f'Frequency Aliasing: Folding Diagram with 6 Nyquist Zones (Fs={Fs/1e6:.0f}MHz)',
              fontsize=12, fontweight='bold')
 plt.tight_layout()
-fig_path = (output_dir / 'exp_b04_aliasing_sweep.png').resolve()
+fig_path = (output_dir / 'exp_b04_aliasing.png').resolve()
 print(f"[Save fig] -> [{fig_path}]\n")
 plt.savefig(fig_path, dpi=150)
 plt.close()

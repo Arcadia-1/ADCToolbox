@@ -2,7 +2,7 @@
 import numpy as np
 import matplotlib.pyplot as plt
 from pathlib import Path
-from adctoolbox import find_bin, analyze_spectrum_phase
+from adctoolbox import find_bin, analyze_phase_spectrum
 
 output_dir = Path(__file__).parent / "output"
 output_dir.mkdir(exist_ok=True)
@@ -89,7 +89,7 @@ for i, (signal, title, param) in enumerate(zip(signals, titles, params)):
     print(f"  {title:20s} - Bin: {bin_idx}, Harmonics marked: 5")
 
 plt.tight_layout()
-fig_path = output_dir / f'exp_a09_spec_plot_phase_fin_{int(Fin/1e6)}M.png'
+fig_path = output_dir / 'exp_a13_analyze_phase_spectrum.png'
 plt.savefig(fig_path, dpi=150)
 plt.close()
 

@@ -1,7 +1,7 @@
 """Analog output toolset: run all 9 analysis tools on calibrated ADC data"""
 import numpy as np
 from pathlib import Path
-from adctoolbox.aout.toolset_aout import toolset_aout
+from adctoolbox.aout.generate_aout_dashboard import generate_aout_dashboard
 
 # Load analog output data (e.g., from CSV file)
 data_file = Path(__file__).parent.parent.parent.parent.parent / 'reference_dataset' / 'sinewave_noise_200uV.csv'
@@ -28,7 +28,7 @@ print(f"\n=== Running AOUT Toolset (9 Tools) ===")
 print(f"Output directory: {output_dir}\n")
 
 # Run toolset
-status = toolset_aout(
+status = generate_aout_dashboard(
     aout_data, 
     output_dir, 
     visible=False,      # Set to True to display figures

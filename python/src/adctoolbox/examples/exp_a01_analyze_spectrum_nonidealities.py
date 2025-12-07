@@ -75,7 +75,7 @@ axes[1, 1].set_title(f'Kickback: strength = {kickback_strength}')
 
 fig.suptitle(f'Spectrum Comparison: 4 Non-idealities (Fs = {Fs/1e6:.0f} MHz, Fin = {Fin/1e6:.1f} MHz)', fontsize=12, fontweight='bold')
 plt.tight_layout()
-fig_path = output_dir / 'exp_a01_spec_plot_nonidealities.png'
+fig_path = output_dir / 'exp_a01_analyze_spectrum_nonidealities.png'
 plt.savefig(fig_path, dpi=150)
 plt.close()
 

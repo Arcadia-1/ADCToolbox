@@ -72,7 +72,7 @@ for idx, N in enumerate(N_list):
     print(f"  [N = 2^{int(np.log2(N)):2d} = {N:5d}] [ENOB = {enob:5.2f}] [INL: {np.min(inl):5.2f} to {np.max(inl):5.2f}] [DNL: {np.min(dnl):5.2f} to {np.max(dnl):5.2f}] LSB")
 
 plt.tight_layout()
-fig_path = output_dir / 'exp_a08_inl_dnl_sweep.png'
+fig_path = output_dir / 'exp_a12_calc_inl_sine.png'
 plt.savefig(fig_path, dpi=150)
 print(f"\n[Save fig] -> [{fig_path}]")
 plt.close()
