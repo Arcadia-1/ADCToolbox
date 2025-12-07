@@ -11,7 +11,7 @@ Usage:
 >>> from adctoolbox import alias, find_bin, plot_error_hist_phase
 """
 
-__version__ = '0.2.0'
+__version__ = '0.2.4'
 
 # Import all public functions from submodules
 from .common import (
