@@ -1,0 +1,159 @@
+"""Analyze spectrum with polar phase visualization (FFT coherent mode).
+
+This module provides a high-level wrapper that combines FFT coherent spectrum
+calculation with polar phase visualization.
+
+Part of the modular ADC analysis architecture.
+Matches MATLAB plotphase.m FFT mode functionality.
+"""
+
+import numpy as np
+import matplotlib.pyplot as plt
+from pathlib import Path
+from typing import Optional, Union, Tuple, Dict, Any
+
+from .calculate_coherent_spectrum import calculate_coherent_spectrum
+from .plot_polar_phase import plot_polar_phase
+
+
+def analyze_spectrum_polar(
+    data: np.ndarray,
+    max_code: Optional[float] = None,
+    harmonic: int = 5,
+    osr: int = 1,
+    cutoff_freq: float = 0,
+    fs: float = 1.0,
+    win_type: str = 'boxcar',
+    n_fft: Optional[int] = None,
+    title: Optional[str] = None,
+    save_path: Optional[Union[str, Path]] = None,
+    show_plot: bool = True,
+    ax: Optional[plt.Axes] = None
+) -> Tuple[Dict[str, Any], Dict[str, Any]]:
+    """Analyze spectrum with polar phase visualization (FFT coherent mode).
+
+    This wrapper function combines FFT coherent spectrum calculation
+    with polar phase plot visualization, following the modular architecture pattern.
+    Matches MATLAB plotphase.m FFT mode behavior.
+
+    Parameters
+    ----------
+    data : np.ndarray
+        Input ADC data, shape (N,) for single run or (M, N) for M runs
+    max_code : float, optional
+        Maximum code level for normalization. If None, uses (max - min)
+    harmonic : int, optional
+        Number of harmonics to mark on polar plot (default: 5)
+    osr : int, optional
+        Oversampling ratio (default: 1)
+    cutoff_freq : float, optional
+        High-pass cutoff frequency in Hz for removing low-frequency noise (default: 0)
+    fs : float, optional
+        Sampling frequency in Hz (default: 1.0)
+    win_type : str, optional
+        Window function type: 'boxcar', 'hann', 'hamming', etc. (default: 'boxcar')
+    n_fft : int, optional
+        FFT length. If None, uses data length
+    title : str, optional
+        Custom title for the plot
+    save_path : str or Path, optional
+        Path to save the figure. If None, figure is not saved
+    show_plot : bool, optional
+        Whether to create and display the plot (default: True)
+    ax : matplotlib.axes.Axes, optional
+        Pre-existing polar axes to plot on. If None, creates new figure
+
+    Returns
+    -------
+    coherent_result : dict
+        Dictionary containing coherent spectrum results from calculate_coherent_spectrum():
+        - 'complex_spec_coherent': Phase-aligned complex spectrum
+        - 'minR_dB': Noise floor for plot scaling
+        - 'bin_idx': Fundamental bin index
+        - 'bin_r': Refined bin position
+        - 'n_fft': FFT length
+
+    plot_data : dict
+        Dictionary containing data used for plotting
+
+    Examples
+    --------
+    >>> import numpy as np
+    >>> from adctoolbox.aout import analyze_spectrum_polar
+    >>>
+    >>> # Generate test signal with multiple runs
+    >>> N = 2**13
+    >>> n_runs = 10
+    >>> t = np.arange(N)
+    >>> signal = np.array([0.5*np.sin(2*np.pi*0.1*t) + 0.01*np.random.randn(N)
+    ...                    for _ in range(n_runs)])
+    >>>
+    >>> # Analyze with polar plot (FFT coherent mode)
+    >>> coherent_result, plot_data = analyze_spectrum_polar(
+    ...     signal, harmonic=5, fs=800e6, save_path='polar_fft.png'
+    ... )
+    >>>
+    >>> print(f"Fundamental bin: {coherent_result['bin_idx']}")
+    >>> print(f"Noise floor: {coherent_result['minR_dB']:.1f} dB")
+
+    Notes
+    -----
+    Modular architecture:
+    1. calculate_coherent_spectrum() - Pure calculation (FFT with phase alignment)
+    2. plot_polar_phase() - Pure visualization (polar plot with spectrum dots)
+    3. analyze_spectrum_polar() - Wrapper combining both
+
+    FFT Coherent Mode Features:
+    - Phase alignment across multiple runs for improved SNR
+    - All frequency bins shown as black dots
+    - Fundamental normalized to 0° (pointing up)
+    - Harmonics marked with blue squares
+    - Parabolic interpolation for sub-bin frequency accuracy
+    """
+
+    # Step 1: Calculate coherent spectrum (pure computation)
+    coherent_result = calculate_coherent_spectrum(
+        data=data,
+        max_code=max_code,
+        osr=osr,
+        cutoff_freq=cutoff_freq,
+        fs=fs,
+        win_type=win_type,
+        n_fft=n_fft
+    )
+
+    # Step 2: Prepare plot data
+    plot_data = {
+        'complex_spec_coherent': coherent_result['complex_spec_coherent'],
+        'minR_dB': coherent_result['minR_dB'],
+        'bin_idx': coherent_result['bin_idx'],
+        'N_fft': coherent_result['n_fft'],
+    }
+
+    # Step 3: Plot if requested (pure visualization)
+    if show_plot or save_path:
+        if ax is None:
+            fig, ax = plt.subplots(figsize=(10, 8), subplot_kw=dict(projection='polar'))
+        else:
+            fig = ax.get_figure()
+            # Verify axes has polar projection
+            if not hasattr(ax, 'set_theta_zero_location'):
+                raise ValueError("Axes must have polar projection")
+
+        plot_polar_phase(plot_data, harmonic=harmonic, ax=ax)
+
+        # Override title if custom title provided
+        if title:
+            ax.set_title(title, pad=20, fontsize=12, fontweight='bold')
+
+        # Save figure if path provided
+        if save_path:
+            save_path = Path(save_path)
+            save_path.parent.mkdir(parents=True, exist_ok=True)
+            plt.savefig(save_path, dpi=150, bbox_inches='tight')
+
+        # Show plot if requested
+        if show_plot and ax is None:
+            plt.show()
+
+    return coherent_result, plot_data

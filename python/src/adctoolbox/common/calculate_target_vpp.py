@@ -5,10 +5,10 @@ Calculates the required input amplitude (Vpp) to achieve a specific target
 signal level (dBFS). Useful for automated instrument control loops.
 """
 
-from adctoolbox.common.conversions import db_to_mag
+from adctoolbox.common.unit_conversions import db_to_mag
 
 
-def calc_target_vpp(vpp_current: float, signal_db_measured: float, signal_db_target: float = -0.5) -> float:
+def calculate_target_vpp(vpp_current: float, signal_db_measured: float, signal_db_target: float = -0.5) -> float:
     """
     Calculate the required Vpp to achieve a target dBFS level.
 
