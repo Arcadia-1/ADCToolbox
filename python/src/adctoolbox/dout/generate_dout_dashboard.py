@@ -4,7 +4,7 @@ import numpy as np
 import matplotlib.pyplot as plt
 from pathlib import Path
 from ..common.validate import validate_dout_data
-from ..aout.analyze_spectrum import analyze_spectrum
+from ..spectrum import analyze_spectrum
 from .calibrate_weight_sine import calibrate_weight_sine
 from .check_overflow import check_overflow
 from .check_bit_activity import check_bit_activity

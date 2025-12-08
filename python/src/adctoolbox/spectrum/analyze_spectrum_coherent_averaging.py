@@ -8,11 +8,11 @@ MATLAB counterpart: Coherent FFT averaging analysis
 """
 
 import numpy as np
-from adctoolbox.aout.calculate_spectrum_data import calculate_spectrum_data
-from adctoolbox.aout.plot_spectrum import plot_spectrum
+from .calculate_spectrum_data import calculate_spectrum_data
+from .plot_spectrum import plot_spectrum
 
 
-def analyze_spectrum_coherent_averaging(data, fs=1.0, max_code=None, harmonic=5,
+def analyze_spectrum_coherent_averaging(data, fs=1.0, max_scale_range=None, harmonic=5,
                                        win_type='boxcar', side_bin=1, freq_scale='linear',
                                        show_label=True, is_plot=1, n_thd=5, osr=1,
                                        cutoff_freq=0, ax=None, log_sca=None, label=None):
@@ -27,7 +27,7 @@ def analyze_spectrum_coherent_averaging(data, fs=1.0, max_code=None, harmonic=5,
     Parameters:
         data: Input data (N,) for single run or (M, N) for M runs
         fs: Sampling frequency (Hz)
-        max_code: Maximum code level for normalization
+        max_scale_range: Maximum scale range for normalization
         harmonic: Number of harmonics to analyze (default: 5)
         win_type: Window function type ('boxcar', 'hann', 'hamming')
                   Default 'boxcar' for coherent mode (no spectral leakage)
@@ -75,39 +75,19 @@ def analyze_spectrum_coherent_averaging(data, fs=1.0, max_code=None, harmonic=5,
     result = calculate_spectrum_data(
         data=data,
         fs=fs,
-        max_code=max_code,
+        max_scale_range=max_scale_range,
         complex_spectrum=True,  # Enable coherent averaging mode
         win_type=win_type,
-        cutoff_freq=cutoff_freq,
-        calc_metrics=True  # Calculate performance metrics
+        cutoff_freq=cutoff_freq
     )
 
     # 2. --- Optional Plotting ---
     if is_plot:
-        # Build metrics dict for plot_spectrum (use calculated metrics if available)
-        if 'metrics' in result:
-            metrics = result['metrics']
-        else:
-            # Placeholder metrics if calculation unavailable
-            metrics = {
-                'enob': 0.0,
-                'sndr_db': 0.0,
-                'sfdr_db': 0.0,
-                'snr_db': 0.0,
-                'thd_db': 0.0,
-                'sig_pwr_dbfs': 0.0,
-                'noise_floor_db': -100.0,
-                'nsd_dbfs_hz': np.nan
-            }
-
-        # Use calculate_spectrum_data result directly (it now has all required keys)
-        # No need to build plot_data manually - use result which already has the format plot_spectrum expects
+        # plot_spectrum expects a single analysis_results dict with all data and metrics
         plot_spectrum(
-            metrics=metrics,
-            plot_data=result,
-            harmonic=harmonic,
-            freq_scale=freq_scale,
+            analysis_results=result,
             show_label=show_label,
+            plot_harmonics_up_to=harmonic,
             ax=ax
         )
 

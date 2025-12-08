@@ -2,14 +2,14 @@
 import numpy as np
 import matplotlib.pyplot as plt
 from pathlib import Path
-from adctoolbox import calc_coherent_freq, analyze_spectrum
+from adctoolbox import calculate_coherent_freq, analyze_spectrum
 
 output_dir = Path(__file__).parent / "output"
 output_dir.mkdir(exist_ok=True)
 
 N_fft = 2**10
 Fs = 100e6
-Fin, Fin_bin = calc_coherent_freq(fs=Fs, fin_target=5e6, n_fft=N_fft)
+Fin, Fin_bin = calculate_coherent_freq(fs=Fs, fin_target=5e6, n_fft=N_fft)
 print(f"[Batch spectrum analysis] Fs={Fs/1e6:.1f} MHz, Fin={Fin/1e6:.6f} MHz, Bin={Fin_bin}, N_fft={N_fft}")
 
 # Signal parameters
@@ -69,7 +69,7 @@ for idx, N_run in enumerate(N_runs):
 
 fig.suptitle(f'Spectral Averaging (N_fft = {N_fft})', fontsize=14, fontweight='bold')
 plt.tight_layout()
-fig_path = (output_dir / 'exp_b03_analyze_spectrum_batch.png').resolve()
+fig_path = (output_dir / 'exp_s09_power_spectrum_averaging.png').resolve()
 print(f"\n[Save fig] -> [{fig_path}]\n")
 plt.savefig(fig_path, dpi=150)
 plt.close()

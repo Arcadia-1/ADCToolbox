@@ -9,7 +9,7 @@ Uses the analyze_spectrum_coherent_averaging wrapper for clean, consistent inter
 import numpy as np
 import matplotlib.pyplot as plt
 from pathlib import Path
-from adctoolbox import calc_coherent_freq, analyze_spectrum
+from adctoolbox import calculate_coherent_freq, analyze_spectrum
 from adctoolbox.aout import analyze_spectrum_coherent_averaging
 
 output_dir = Path(__file__).parent / "output"
@@ -17,10 +17,10 @@ output_dir.mkdir(exist_ok=True)
 
 N_fft = 2**10
 Fs = 100e6
-Fin, Fin_bin = calc_coherent_freq(fs=Fs, fin_target=5e6, n_fft=N_fft)
+Fin, Fin_bin = calculate_coherent_freq(fs=Fs, fin_target=5e6, n_fft=N_fft)
 print(f"[Coherent Spectrum Averaging Comparison] Fs={Fs/1e6:.1f} MHz, Fin={Fin/1e6:.4f} MHz, Bin={Fin_bin}, N_fft={N_fft}")
 
-# Signal parameters - same as exp_b04
+# Signal parameters - same as exp_s07
 A = 0.499
 noise_rms = 100e-6
 hd2_dB = -100
@@ -33,7 +33,7 @@ k3 = hd3_amp / (A**2 / 4)
 # Number of runs to test
 N_runs = [1, 10, 100]
 
-# Generate signals for all runs - same method as exp_b04
+# Generate signals for all runs - same method as exp_s07
 t = np.arange(N_fft) / Fs
 N_max = max(N_runs)
 signal_matrix = np.zeros((N_fft, N_max))
@@ -76,7 +76,6 @@ for idx, N_run in enumerate(N_runs):
 
 # Column titles
 for i, N_run in enumerate(N_runs):
-    # axes[0, i].set_title(f'Spectrum (N_run = {N_run})', fontsize=14, fontweight='bold')
     axes[1, i].set_title(f'Coherent averaging (N_run = {N_run})', fontsize=14, fontweight='bold')
 
 # Row labels
@@ -84,11 +83,11 @@ axes[0, 0].set_ylabel('Power Spectrum (dB)', fontsize=11, fontweight='bold')
 axes[1, 0].set_ylabel('Coherent Spectrum (dBFS)', fontsize=11, fontweight='bold')
 
 # Add overall title
-fig.suptitle(f'Power Spectrum Averaging vs Complex Spectrim Coherent Averaging (N_fft = {N_fft}, Random Phase Offsets)',
+fig.suptitle(f'Power Spectrum Averaging vs Complex Spectrum Coherent Averaging (N_fft = {N_fft}, Random Phase Offsets)',
              fontsize=16, fontweight='bold')
 
 plt.tight_layout()
-fig_path = output_dir / 'exp_b06_coherent_averaging_comparison.png'
+fig_path = output_dir / 'exp_s10_complex_spectrum_coherent_averaging.png'
 print(f"\n[Save comparison] -> [{fig_path}]")
 plt.savefig(fig_path, dpi=150)
 plt.close(fig)

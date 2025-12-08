@@ -70,18 +70,24 @@ def calculate_coherent_spectrum(
     - Calculates noise floor reference for polar plot scaling
     - Handles aliasing for harmonic positions
     """
+    # Determine max_code before preprocessing
+    data_2d = np.atleast_2d(data)
+    if max_code is None:
+        max_code = np.max(data_2d) - np.min(data_2d)
+
     # Prepare input data
-    data_processed, max_code_used, n_samples = _prepare_fft_input(
-        data, max_code=max_code, win_type=win_type, n_fft=n_fft
+    data_processed = _prepare_fft_input(
+        data, max_code=max_code, win_type=win_type
     )
+
+    # Get dimensions
+    n_runs, n_samples = data_processed.shape
 
     # Set n_fft if not provided
     if n_fft is None:
         n_fft = n_samples
 
-    # Get dimensions
-    n_runs, n = data_processed.shape
-    n = min(n, n_fft)  # Truncate if needed
+    n = min(n_samples, n_fft)  # Truncate if needed
 
     # Initialize accumulated spectrum
     spec_coherent = np.zeros(n_fft, dtype=complex)
@@ -184,7 +190,7 @@ def calculate_coherent_spectrum(
     mag_db = mag_db + 20 * np.log10(valid_runs)
 
     # Normalize to full scale
-    mag_db = mag_db + 20 * np.log10(max_code_used / 2)
+    mag_db = mag_db + 20 * np.log10(max_code / 2)
 
     # Calculate noise floor (minR_dB) for plot scaling
     # Use 1st percentile of magnitude (robust to outliers)
@@ -220,7 +226,7 @@ def calculate_coherent_spectrum(
         'phase': phase_aligned,
         'harmonic_bins': harmonic_bins,
         'n_runs': valid_runs,
-        'max_code': max_code_used
+        'max_code': max_code
     }
 
 
