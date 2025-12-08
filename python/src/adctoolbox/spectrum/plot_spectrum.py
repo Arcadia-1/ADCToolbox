@@ -9,18 +9,20 @@ import numpy as np
 import matplotlib.pyplot as plt
 
 
-def plot_spectrum(metrics, plot_data, harmonic=3, freq_scale='linear', show_label=True, ax=None):
+def plot_spectrum(analysis_results, show_label=True, plot_harmonics_up_to=3, ax=None):
     """
-    Pure spectrum plotting using pre-computed metrics and plot data.
+    Pure spectrum plotting using pre-computed analysis results.
 
     Parameters:
-        metrics: Dictionary with performance metrics from calculate_fft_metrics
-        plot_data: Dictionary with plot data from calculate_fft_metrics
-        harmonic: Number of harmonics to highlight
-        freq_scale: Frequency scale - 'linear' or 'log'
+        analysis_results: Dictionary containing 'metrics' and 'plot_data' from calculate_spectrum_data
         show_label: Add labels and annotations (True) or not (False)
+        plot_harmonics_up_to: Number of harmonics to highlight
         ax: Optional matplotlib axes object
     """
+    # Extract metrics and plot_data from analysis_results
+    metrics = analysis_results['metrics']
+    plot_data = analysis_results['plot_data']
+
     # Extract plot data
     spec_db = plot_data['spec_db']
     freq = plot_data['freq']
@@ -52,25 +54,19 @@ def plot_spectrum(metrics, plot_data, harmonic=3, freq_scale='linear', show_labe
         ax = plt.gca()
 
     # --- Plot spectrum ---
-    if freq_scale == 'linear':
-        ax.plot(freq, spec_db)
-    else:
-        ax.semilogx(freq, spec_db)
-
+    # Always use ax.plot() - when osr>1, the semilogx call later will convert axes to log
+    ax.plot(freq, spec_db)
     ax.grid(True, which='both', linestyle='--')
 
     if show_label:
-        # Highlight fundamental
-        if freq_scale == 'linear':
-            ax.plot(freq[sig_bin_start:sig_bin_end], spec_db[sig_bin_start:sig_bin_end], 'r-', linewidth=0.5)
-            ax.plot(freq[bin_idx], spec_db[bin_idx], 'ro', linewidth=0.5)
-        else:
-            ax.semilogx(freq[sig_bin_start:sig_bin_end], spec_db[sig_bin_start:sig_bin_end], 'r-', linewidth=0.5)
+        # Highlight fundamental - always use ax.plot(), axes scale handled by osr
+        ax.plot(freq[sig_bin_start:sig_bin_end], spec_db[sig_bin_start:sig_bin_end], 'r-', linewidth=0.5)
+        ax.plot(freq[bin_idx], spec_db[bin_idx], 'ro', linewidth=0.5)
 
         # Plot harmonics
-        if harmonic > 0:
+        if plot_harmonics_up_to > 0:
             for harm in harmonics:
-                if harm['harmonic_num'] <= harmonic:
+                if harm['harmonic_num'] <= plot_harmonics_up_to:
                     ax.plot(harm['freq'], harm['power_db'], 'rs')
                     ax.text(harm['freq'], harm['power_db'] + 5, str(harm['harmonic_num']),
                             fontname='Arial', fontsize=12, ha='center')

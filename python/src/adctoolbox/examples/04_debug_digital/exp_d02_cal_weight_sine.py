@@ -1,7 +1,7 @@
 import numpy as np
 import matplotlib.pyplot as plt
 from pathlib import Path
-from adctoolbox import find_bin, calibrate_weight_sine, analyze_spectrum, analyze_spectrum
+from adctoolbox import freq_to_bin, calibrate_weight_sine, analyze_spectrum
 
 output_dir = Path(__file__).parent / "output"
 output_dir.mkdir(exist_ok=True)
@@ -9,7 +9,7 @@ output_dir.mkdir(exist_ok=True)
 # Signal generation
 n_samples = 2**13
 fs = 1e9
-bin = find_bin(fs, 300e6, n_samples)
+bin = freq_to_bin(300e6, fs, n_samples)
 fin = (bin / n_samples) * fs
 amplitude = 0.499
 signal = 2 * amplitude * np.sin(2 * np.pi * fin * np.arange(n_samples) / fs)
@@ -45,11 +45,11 @@ weights_calibrated, offset, analog_after, _, _, _ = calibrate_weight_sine(digita
 fig, axes = plt.subplots(1, 2, figsize=(14, 5))
 
 plt.sca(axes[0])
-result_before = analyze_spectrum(analog_before, harmonic=5, label=1)
+result_before = analyze_spectrum(analog_before, n_thd=5, show_label=True, ax=axes[0])
 axes[0].set_title('Before Calibration', fontsize=12, fontweight='bold')
 
 plt.sca(axes[1])
-result_after = analyze_spectrum(analog_after, harmonic=5, label=1)
+result_after = analyze_spectrum(analog_after, n_thd=5, show_label=True, ax=axes[1])
 axes[1].set_title('After Calibration', fontsize=12, fontweight='bold')
 
 # Normalize weights for comparison

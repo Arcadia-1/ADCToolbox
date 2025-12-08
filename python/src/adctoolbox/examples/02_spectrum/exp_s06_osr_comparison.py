@@ -7,7 +7,7 @@ by sweeping through different OSR values and plotting the results.
 import numpy as np
 import matplotlib.pyplot as plt
 from pathlib import Path
-from adctoolbox import analyze_spectrum, calc_coherent_freq
+from adctoolbox import analyze_spectrum, calculate_coherent_freq, calculate_snr_from_amplitude, snr_to_nsd
 
 output_dir = Path(__file__).parent / "output"
 output_dir.mkdir(exist_ok=True)
@@ -15,11 +15,13 @@ output_dir.mkdir(exist_ok=True)
 N_fft = 2**16
 Fs = 100e6
 Fin_target = 0.1e6
-Fin, Fin_bin = calc_coherent_freq(fs=Fs, fin_target=Fin_target, n_fft=N_fft)
+Fin, Fin_bin = calculate_coherent_freq(fs=Fs, fin_target=Fin_target, n_fft=N_fft)
 A = 0.5
 noise_rms = 100e-6
 
-print(f"[OSR Sweep Analysis] N = {N_fft}, Fs = {Fs/1e6:.2f} MHz, Fin = {Fin/1e6:.4f} MHz (Bin = {Fin_bin})\n")
+snr_ref = calculate_snr_from_amplitude(sig_amplitude=A, noise_amplitude=noise_rms)
+nsd_ref = snr_to_nsd(snr_ref, fs=Fs, osr=1)
+print(f"[Parameters] N = [{N_fft}], Fs = [{Fs/1e6:.1f} MHz], Fin = [{Fin/1e6:.1f} MHz] (Bin = [{Fin_bin}]) | [Theoretical] SNR = [{snr_ref:.2f} dB], NSD = [{nsd_ref:.2f} dBFS/Hz]")
 
 t = np.arange(N_fft) / Fs
 signal = A * np.sin(2*np.pi*Fin*t) + np.random.randn(N_fft) * noise_rms
@@ -46,7 +48,7 @@ snr_baseline = None
 for idx, osr in enumerate(osr_values):
 
     plt.sca(axes[idx])
-    result = analyze_spectrum(signal, fs=Fs, osr=osr, is_plot=1)
+    result = analyze_spectrum(signal, fs=Fs, osr=osr, show_plot=True)
     results.append(result)
 
 
@@ -65,7 +67,7 @@ for idx in range(n_plots, len(axes)):
     axes[idx].remove()
 
 plt.tight_layout()
-fig_path = (output_dir / 'exp_s03_analyze_spectrum_osr.png').resolve()
+fig_path = (output_dir / 'exp_s06_osr_comparison.png').resolve()
 print(f"\n[Save fig] -> [{fig_path}]\n")
 plt.savefig(fig_path, dpi=150)
 plt.close()

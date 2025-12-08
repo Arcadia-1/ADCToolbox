@@ -2,7 +2,7 @@
 
 import pytest
 import numpy as np
-from adctoolbox.aout._prepare_fft_input import _prepare_fft_input, _get_window_correction
+from adctoolbox.spectrum._prepare_fft_input import _prepare_fft_input
 
 
 class TestPrepareFftInput:
@@ -11,11 +11,9 @@ class TestPrepareFftInput:
     def test_single_run_1d_input(self):
         """Test with single run 1D input."""
         data = np.array([1, 2, 3, 4, 5])
-        processed, max_code, n_samples = _prepare_fft_input(data)
+        processed = _prepare_fft_input(data)
 
         assert processed.shape == (1, 5)
-        assert n_samples == 5
-        assert max_code == 4.0  # max(5) - min(1) = 4
 
         # Check DC removal
         assert np.abs(np.mean(processed[0, :])) < 1e-10
@@ -27,10 +25,9 @@ class TestPrepareFftInput:
             [2, 3, 4, 5, 6],
             [3, 4, 5, 6, 7]
         ])
-        processed, max_code, n_samples = _prepare_fft_input(data)
+        processed = _prepare_fft_input(data)
 
         assert processed.shape == (3, 5)
-        assert n_samples == 5
 
         # Check DC removal for each run
         for i in range(3):
@@ -39,17 +36,15 @@ class TestPrepareFftInput:
     def test_transpose_handling(self):
         """Test that (N, 1) is transposed to (1, N)."""
         data = np.array([[1], [2], [3], [4], [5]])  # Shape (5, 1)
-        processed, max_code, n_samples = _prepare_fft_input(data)
+        processed = _prepare_fft_input(data)
 
         assert processed.shape == (1, 5)
-        assert n_samples == 5
 
     def test_custom_max_code(self):
         """Test with custom max_code value."""
         data = np.array([1, 2, 3, 4, 5])
-        processed, max_code_used, n_samples = _prepare_fft_input(data, max_code=10.0)
+        processed = _prepare_fft_input(data, max_code=10.0)
 
-        assert max_code_used == 10.0
         # Values should be normalized by 10
         # After DC removal: [-2, -1, 0, 1, 2], divided by 10: [-0.2, -0.1, 0, 0.1, 0.2]
         expected_max = 0.2
@@ -58,8 +53,8 @@ class TestPrepareFftInput:
     def test_boxcar_window(self):
         """Test with boxcar (rectangular) window."""
         data = np.array([1, 2, 3, 4, 5])
-        processed_boxcar, _, _ = _prepare_fft_input(data, win_type='boxcar')
-        processed_rect, _, _ = _prepare_fft_input(data, win_type='rectangular')
+        processed_boxcar = _prepare_fft_input(data, win_type='boxcar')
+        processed_rect = _prepare_fft_input(data, win_type='rectangular')
 
         # Boxcar and rectangular should give same result
         np.testing.assert_array_almost_equal(processed_boxcar, processed_rect)
@@ -69,7 +64,7 @@ class TestPrepareFftInput:
         # Create sine wave for better windowing effect
         t = np.arange(128) / 128
         data = np.sin(2 * np.pi * 5 * t)
-        processed, _, _ = _prepare_fft_input(data, win_type='hann')
+        processed = _prepare_fft_input(data, win_type='hann')
 
         assert processed.shape == (1, 128)
         # Hann window should attenuate (DC is removed, so edges near 0)
@@ -81,7 +76,7 @@ class TestPrepareFftInput:
         # Create sine wave for better windowing effect
         t = np.arange(128) / 128
         data = np.sin(2 * np.pi * 5 * t) + np.random.randn(128) * 0.01
-        processed, _, _ = _prepare_fft_input(data, win_type='hamming')
+        processed = _prepare_fft_input(data, win_type='hamming')
 
         assert processed.shape == (1, 128)
         # Hamming window should reduce power due to tapering
@@ -92,34 +87,30 @@ class TestPrepareFftInput:
     def test_zero_max_code_handling(self):
         """Test that zero max_code doesn't cause division by zero."""
         data = np.zeros(10)
-        processed, max_code, n_samples = _prepare_fft_input(data, max_code=0)
+        processed = _prepare_fft_input(data, max_code=0)
 
         assert processed.shape == (1, 10)
-        assert max_code == 0
         # Should not normalize when max_code is 0
         np.testing.assert_array_equal(processed, np.zeros((1, 10)))
 
-    def test_n_fft_equals_data_length(self):
-        """Test with n_fft equal to data length."""
+    def test_data_length_preserved(self):
+        """Test that data length is preserved in output shape."""
         # Use sine wave data which gives non-zero values after normalization
         t = np.arange(8) / 8
         data = np.sin(2 * np.pi * t)
-        processed, _, n_samples = _prepare_fft_input(data, n_fft=8)
+        processed = _prepare_fft_input(data)
 
-        # n_samples should be original length
-        assert n_samples == 8
         # Processed should maintain original shape
-        assert processed.shape[1] == 8
+        assert processed.shape == (1, 8)
         # Should have some non-zero values after processing
         assert np.any(np.abs(processed[0, :]) > 1e-10)
 
     def test_scalar_input(self):
         """Test with scalar input."""
         data = np.array(5)
-        processed, max_code, n_samples = _prepare_fft_input(data)
+        processed = _prepare_fft_input(data)
 
         assert processed.shape == (1, 1)
-        assert n_samples == 1
 
     def test_empty_input_raises_error(self):
         """Test that invalid input raises appropriate error."""
@@ -135,7 +126,7 @@ class TestPrepareFftInput:
         t = np.arange(100) / fs
         signal = 5.0 + 2.0 * np.sin(2 * np.pi * 10 * t)  # 5V DC offset
 
-        processed, _, _ = _prepare_fft_input(signal)
+        processed = _prepare_fft_input(signal)
 
         # DC should be removed
         assert np.abs(np.mean(processed)) < 1e-10
@@ -145,52 +136,34 @@ class TestPrepareFftInput:
         data = np.ones(100)
 
         # Boxcar window should preserve power
-        processed_boxcar, _, _ = _prepare_fft_input(data, win_type='boxcar')
+        processed_boxcar = _prepare_fft_input(data, win_type='boxcar')
         power_boxcar = np.mean(processed_boxcar**2)
 
         # Hann window with power normalization should also preserve power
-        processed_hann, _, _ = _prepare_fft_input(data, win_type='hann')
+        processed_hann = _prepare_fft_input(data, win_type='hann')
         power_hann = np.mean(processed_hann**2)
 
         # Powers should be similar (within 10%)
         np.testing.assert_allclose(power_boxcar, power_hann, rtol=0.1)
 
+    def test_auto_transpose_when_rows_much_larger(self):
+        """Test automatic transpose when rows >> cols (N samples >> M runs)."""
+        # Simulate user passing (N, M) = (1024, 8) instead of (M, N) = (8, 1024)
+        data = np.random.randn(1024, 8)  # N=1024 samples, M=8 runs (wrong format)
 
-class TestGetWindowCorrection:
-    """Test suite for _get_window_correction function."""
+        with pytest.warns(UserWarning, match="Auto-transposing"):
+            processed = _prepare_fft_input(data)
 
-    def test_boxcar_correction(self):
-        """Test correction factor for boxcar window."""
-        assert _get_window_correction('boxcar') == 1.0
-        assert _get_window_correction('rectangular') == 1.0
+        # Should be transposed to (M, N) = (8, 1024)
+        assert processed.shape == (8, 1024)
 
-    def test_hann_correction(self):
-        """Test correction factor for Hann window."""
-        assert _get_window_correction('hann') == 2.0
-        assert _get_window_correction('hanning') == 2.0
+    def test_no_transpose_when_rows_not_much_larger(self):
+        """Test no transpose when rows are not significantly larger than cols."""
+        # When rows are only slightly larger, don't transpose
+        data = np.random.randn(20, 15)  # 20/15 = 1.33 < 2, so no transpose
 
-    def test_hamming_correction(self):
-        """Test correction factor for Hamming window."""
-        assert _get_window_correction('hamming') == 1.85
+        # Should NOT trigger warning or transpose
+        processed = _prepare_fft_input(data)
 
-    def test_blackman_correction(self):
-        """Test correction factor for Blackman window."""
-        assert _get_window_correction('blackman') == 2.38
-
-    def test_flattop_correction(self):
-        """Test correction factor for flat-top window."""
-        assert _get_window_correction('flattop') == 4.64
-
-    def test_unknown_window_default(self):
-        """Test that unknown window returns default correction."""
-        assert _get_window_correction('unknown_window') == 1.0
-
-    def test_case_insensitive(self):
-        """Test that window type is case-insensitive."""
-        assert _get_window_correction('HANN') == 2.0
-        assert _get_window_correction('Hann') == 2.0
-        assert _get_window_correction('hAnN') == 2.0
-
-
-if __name__ == '__main__':
-    pytest.main([__file__, '-v'])
+        # Should keep original shape (20, 15)
+        assert processed.shape == (20, 15)

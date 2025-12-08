@@ -2,6 +2,7 @@
 
 from .calculate_aliased_freq import calculate_aliased_freq
 from .calculate_coherent_freq import calculate_coherent_freq
+from .calculate_snr_from_amplitude import calculate_snr_from_amplitude
 from .estimate_frequency import estimate_frequency
 from .fit_sine import fit_sine
 from .extract_freq_components import extract_freq_components
@@ -27,6 +28,7 @@ __all__ = [
     # Function names
     'calculate_aliased_freq',
     'calculate_coherent_freq',
+    'calculate_snr_from_amplitude',
     'calculate_target_vpp',
     'calculate_fom_walden',
     'calculate_fom_schreier',

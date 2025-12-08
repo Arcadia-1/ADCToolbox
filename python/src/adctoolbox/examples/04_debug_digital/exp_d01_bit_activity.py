@@ -1,14 +1,14 @@
 import numpy as np
 import matplotlib.pyplot as plt
 from pathlib import Path
-from adctoolbox import calc_coherent_freq, analyze_spectrum, check_bit_activity
+from adctoolbox import calculate_coherent_freq, analyze_spectrum, check_bit_activity
 
 output_dir = Path(__file__).parent / "output"
 output_dir.mkdir(exist_ok=True)
 
 N = 2**13
 Fs = 1e9
-Fin, bin = calc_coherent_freq(fs=Fs, fin_target=300e6, n_fft=N)
+Fin, bin = calculate_coherent_freq(fs=Fs, fin_target=300e6, n_fft=N)
 t = np.arange(N) / Fs
 A = 0.499
 
@@ -48,7 +48,7 @@ for idx, (sig, title, has_glitch) in enumerate(test_cases):
 
 
     plt.sca(axes[1, idx])
-    result = analyze_spectrum(dout @ ideal_weights, harmonic=5, osr=1, label=1, nf_method=0)    # Spectrum
+    result = analyze_spectrum(dout @ ideal_weights, n_thd=5, osr=1, show_label=True, nf_method=0)    # Spectrum
     print(f"[{title:<24s}] [Bits = {B:2d}] [ENoB = {result['enob']:5.2f}] [Activity = {np.min(bit_usage):.1f}% - {np.max(bit_usage):.1f}%]")
 
 plt.tight_layout()
