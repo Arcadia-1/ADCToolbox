@@ -17,6 +17,7 @@ __version__ = '0.2.4'
 from .common import (
     calculate_aliased_freq,
     calculate_coherent_freq,
+    calculate_snr_from_amplitude,
     estimate_frequency,
     fit_sine,
     extract_freq_components,
@@ -96,6 +97,7 @@ __all__ = [
     # Common functions
     'calculate_aliased_freq',
     'calculate_coherent_freq',
+    'calculate_snr_from_amplitude',
     'estimate_frequency',
     'fit_sine',
     'extract_freq_components',

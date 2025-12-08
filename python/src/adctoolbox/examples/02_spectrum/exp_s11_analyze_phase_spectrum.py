@@ -95,7 +95,7 @@ if handles:
     fig.legend(handles[:3], labels[:3], loc='upper right', fontsize=9, bbox_to_anchor=(0.98, 0.98))
 
 plt.tight_layout()
-fig_path = output_dir / 'exp_a13_analyze_phase_spectrum.png'
+fig_path = output_dir / 'exp_s11_analyze_phase_spectrum.png'
 plt.savefig(fig_path, dpi=150, bbox_inches='tight')
 plt.close()
 
@@ -118,6 +118,6 @@ for i, (signal, title) in enumerate(zip(signals, titles)):
     ax.set_title(f'Phase Spectrum - {title}', fontsize=12, fontweight='bold', pad=20)
 
     # Save individual plot
-    individual_path = output_dir / f'exp_a13_phase_{title.lower().replace(" ", "_")}.png'
+    individual_path = output_dir / f'exp_s11_phase_{title.lower().replace(" ", "_")}.png'
     plt.savefig(individual_path, dpi=150, bbox_inches='tight')
     plt.close()

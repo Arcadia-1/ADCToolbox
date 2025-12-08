@@ -94,7 +94,7 @@ ax.axvline(imd3_high, color='green', linestyle='-.', linewidth=2, alpha=0.7)
 ax.legend(fontsize=10, loc='upper right')
 
 plt.tight_layout()
-fig_path = output_dir / 'exp_a14_analyze_two_tone_spectrum.png'
+fig_path = output_dir / 'exp_s12_analyze_two_tone_spectrum.png'
 plt.savefig(fig_path, dpi=150)
 plt.close()
 

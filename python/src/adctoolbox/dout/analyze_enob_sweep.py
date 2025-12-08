@@ -3,10 +3,10 @@
 import numpy as np
 import matplotlib.pyplot as plt
 from .calibrate_weight_sine import calibrate_weight_sine
-from ..aout.analyze_spectrum import analyze_spectrum
+from ..spectrum import analyze_spectrum
 
 
-def analyze_enob_sweep(bits, freq=0, order=5, harmonic=5, osr=1, win_type='hamming', plot=True):
+def analyze_enob_sweep(bits, freq=0, order=5, osr=1, win_type='hamming', plot=True):
     """
     ENoB vs Number of Bits Used for Calibration.
 
@@ -18,8 +18,6 @@ def analyze_enob_sweep(bits, freq=0, order=5, harmonic=5, osr=1, win_type='hammi
         Normalized frequency (0-0.5). If 0, auto-detect (default: 0)
     order : int, optional
         Polynomial order for FGCalSine (default: 5)
-    harmonic : int, optional
-        Number of harmonics for specPlot (default: 5)
     osr : int, optional
         Oversampling ratio for specPlot (default: 1)
     win_type : str, optional
@@ -61,8 +59,7 @@ def analyze_enob_sweep(bits, freq=0, order=5, harmonic=5, osr=1, win_type='hammi
         try:
             weight_cal, _, post_cal_temp, _, _, _ = calibrate_weight_sine(bits_subset, freq=freq, order=order)
 
-            result = analyze_spectrum(
-                post_cal_temp, harmonic=harmonic, osr=osr, win_type=win_type, label=0)
+            result = analyze_spectrum(post_cal_temp, osr=osr, win_type=win_type, show_plot=False)
             enob_sweep[n_bits - 1] = result['enob']
         except Exception as e:
             enob_sweep[n_bits - 1] = np.nan

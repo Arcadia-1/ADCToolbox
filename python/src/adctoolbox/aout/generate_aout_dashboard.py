@@ -5,8 +5,7 @@ import matplotlib.pyplot as plt
 from pathlib import Path
 from adctoolbox.common.validate import validate_aout_data
 from adctoolbox.aout.decompose_harmonics import decompose_harmonics
-from adctoolbox.aout.analyze_spectrum import analyze_spectrum
-from adctoolbox.aout.analyze_phase_spectrum import analyze_phase_spectrum
+from adctoolbox.spectrum import analyze_spectrum, analyze_phase_spectrum
 from adctoolbox.aout.plot_error_hist_code import plot_error_hist_code
 from adctoolbox.aout.plot_error_hist_phase import plot_error_hist_phase
 from adctoolbox.aout.plot_error_pdf import plot_error_pdf

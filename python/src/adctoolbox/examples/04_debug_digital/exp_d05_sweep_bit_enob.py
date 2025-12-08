@@ -1,7 +1,7 @@
 import numpy as np
 import matplotlib.pyplot as plt
 from pathlib import Path
-from adctoolbox import find_bin, analyze_enob_sweep
+from adctoolbox import freq_to_bin, analyze_enob_sweep
 
 output_dir = Path(__file__).parent / "output"
 output_dir.mkdir(exist_ok=True)
@@ -9,7 +9,7 @@ output_dir.mkdir(exist_ok=True)
 # Signal generation
 n_samples = 2**13
 fs = 1e9
-bin = find_bin(fs, 300e6, n_samples)
+bin = freq_to_bin(300e6, fs, n_samples)
 fin = (bin / n_samples) * fs
 amplitude = 0.499
 

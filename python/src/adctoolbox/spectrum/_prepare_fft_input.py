@@ -1,0 +1,72 @@
+"""Prepare FFT input data - shared helper for spectrum analysis."""
+
+import numpy as np
+import warnings
+from scipy.signal import windows
+from typing import Optional
+
+
+def _prepare_fft_input(
+    data: np.ndarray,
+    max_scale_range: Optional[float] = None,
+    win_type: str = 'boxcar'
+) -> np.ndarray:
+    """Prepare input data for FFT analysis.
+
+    Parameters
+    ----------
+    data : np.ndarray
+        Input ADC data, shape (N,) or (M, N). Standard format: (M runs, N samples).
+        Auto-transposes if N >> M (with warning).
+    max_scale_range : float, optional
+        Full scale range for normalization. If None, uses (max - min).
+    win_type : str, optional
+        Window type: 'boxcar', 'hann', 'hamming', etc. Default: 'boxcar'.
+
+    Returns
+    -------
+    np.ndarray
+        Processed data ready for FFT, shape (M, N).
+    """
+    # Ensure 2D array
+    data = np.atleast_2d(data)
+    if data.ndim > 2:
+        raise ValueError(f"Input must be 1D or 2D, got {data.ndim}D")
+
+    n_rows, n_cols = data.shape
+
+    # Auto-transpose to standard (M runs, N samples) format
+    if n_cols == 1 and n_rows > 1:
+        data = data.T  # (N, 1) -> (1, N)
+    elif n_rows > 1 and n_cols > 1 and n_rows > n_cols * 2:
+        warnings.warn(f"[Auto-transpose] Input shape [{n_rows}, {n_cols}] -> [{n_cols}, {n_rows}]. Standard format is (M runs, N samples).", UserWarning, stacklevel=3)
+        data = data.T
+
+    # M = number of runs, N = number of fft points = number of samples
+    M, N = data.shape
+
+    # Normalization scale
+    max_scale_range = max_scale_range or (np.max(data) - np.min(data))
+
+    # Create window function
+    if win_type.lower() in ('boxcar', 'rectangular'):
+        win = np.ones(N)
+    elif win_type.lower() == 'kaiser':
+        # Kaiser window requires beta parameter (38 for very high side lobe suppression)
+        win = windows.kaiser(N, beta=38, sym=False)
+    elif win_type.lower() == 'chebwin':
+        # Chebyshev window requires attenuation parameter (100 dB typical)
+        win = windows.chebwin(N, at=100, sym=False)
+    else:
+        win_func = getattr(windows, win_type.lower(), windows.hann)
+        win = win_func(N, sym=False)  # Periodic window for FFT
+
+    # Power-normalize window
+    win_normalized = win / np.sqrt(np.mean(win**2))
+
+    # Vectorized processing: DC removal -> normalization -> windowing
+    data_dc_removed = data - np.mean(data, axis=1, keepdims=True)
+    data_normalized = data_dc_removed / max_scale_range if max_scale_range != 0 else data_dc_removed
+    processed_data = data_normalized * win_normalized
+
+    return processed_data
