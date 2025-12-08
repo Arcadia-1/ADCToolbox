@@ -1,14 +1,14 @@
 """Common utility functions for ADC analysis."""
 
-from .calc_aliased_freq import calc_aliased_freq
-from .calc_coherent_freq import calc_coherent_freq
+from .calculate_aliased_freq import calculate_aliased_freq
+from .calculate_coherent_freq import calculate_coherent_freq
 from .estimate_frequency import estimate_frequency
 from .fit_sine import fit_sine
 from .extract_freq_components import extract_freq_components
 from .convert_cap_to_weight import convert_cap_to_weight
-from .calc_target_vpp import calc_target_vpp
+from .calculate_target_vpp import calculate_target_vpp
 from .validate import validate_aout_data, validate_dout_data
-from .conversions import (
+from .unit_conversions import (
     db_to_mag, mag_to_db, db_to_power, power_to_db,
     lsb_to_volts, volts_to_lsb,
     bin_to_freq, freq_to_bin,
@@ -18,19 +18,25 @@ from .conversions import (
     dbm_to_mw, mw_to_dbm,
     sine_amplitude_to_power
 )
-from .calc_fom import (
-    calc_fom_walden, calc_fom_schreier,
-    calc_thermal_noise_limit, calc_jitter_limit
+from .calculate_fom import (
+    calculate_fom_walden, calculate_fom_schreier,
+    calculate_thermal_noise_limit, calculate_jitter_limit
 )
 
 __all__ = [
-    'calc_aliased_freq',
-    'calc_coherent_freq',
+    # Function names
+    'calculate_aliased_freq',
+    'calculate_coherent_freq',
+    'calculate_target_vpp',
+    'calculate_fom_walden',
+    'calculate_fom_schreier',
+    'calculate_thermal_noise_limit',
+    'calculate_jitter_limit',
+    # Other functions
     'estimate_frequency',
     'fit_sine',
     'extract_freq_components',
     'convert_cap_to_weight',
-    'calc_target_vpp',
     'validate_aout_data',
     'validate_dout_data',
     # Conversions
@@ -51,9 +57,4 @@ __all__ = [
     'dbm_to_mw',
     'mw_to_dbm',
     'sine_amplitude_to_power',
-    # FoM calculations
-    'calc_fom_walden',
-    'calc_fom_schreier',
-    'calc_thermal_noise_limit',
-    'calc_jitter_limit',
 ]

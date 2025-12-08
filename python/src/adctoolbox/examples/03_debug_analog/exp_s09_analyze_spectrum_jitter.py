@@ -34,7 +34,7 @@ for i, (fin, zone) in enumerate(zip(Fin_list, zone_labels)):
     axes[row, col].set_ylim([-120, 0])
 
     fin_GHz = fin_coherent / 1e9
-    fin_alias_GHz = calc_aliased_freq(fin=fin_coherent, fs=Fs) / 1e9
+    fin_alias_GHz = calculate_aliased_freq(fin=fin_coherent, fs=Fs) / 1e9
     axes[row, col].set_title(f'{zone} Nyquist Zone: Fin = {fin_GHz:.2f} GHz → {fin_alias_GHz:.3f} GHz')
 
     # Print info for this zone

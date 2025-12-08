@@ -47,7 +47,7 @@ ax2.set_title(f'Residual (RMS={result["rmse"]*1e3:.2f}mV)', fontsize=14)
 ax2.grid(True, alpha=0.3)
 
 plt.tight_layout()
-fig_path = (output_dir / 'exp_b05_fit_sine.png').resolve()
+fig_path = (output_dir / 'exp_b06_fit_sine.png').resolve()
 print(f"\n[Save fig] -> [{fig_path}]\n")
 plt.savefig(fig_path, dpi=150)
 plt.close(fig)

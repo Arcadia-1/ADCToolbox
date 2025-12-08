@@ -1,6 +1,6 @@
 # Not yet verified with both MATLAB and Python testbenches
 import numpy as np
-from .calc_aliased_freq import calc_aliased_freq
+from .calculate_aliased_freq import calculate_aliased_freq
 
 
 def extract_freq_components(din, bands):
@@ -32,7 +32,7 @@ def extract_freq_components(din, bands):
 
         # Generate frequency indices with aliasing
         freq_indices = np.arange(n1, n2 + 1)
-        ids = np.array([calc_aliased_freq(j, N) for j in freq_indices])
+        ids = np.array([calculate_aliased_freq(j, N) for j in freq_indices])
 
         # Set mask for positive frequencies
         mask[ids + 1, 0] = 1

@@ -9,7 +9,7 @@ MATLAB counterpart: specPlot2Tone.m
 import numpy as np
 import matplotlib.pyplot as plt
 from typing import Optional, Tuple
-from adctoolbox.common.calc_aliased_freq import calc_aliased_freq
+from adctoolbox.common.calculate_aliased_freq import calculate_aliased_freq
 
 
 def alias(bin_idx: int, n: int) -> int:

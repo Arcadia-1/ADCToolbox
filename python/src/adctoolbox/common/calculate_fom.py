@@ -13,7 +13,7 @@ import numpy as np
 
 # --- Comprehensive Performance Metrics (Figure of Merit) ---
 
-def calc_fom_walden(power, fs, enob):
+def calculate_fom_walden(power, fs, enob):
     """
     Calculate Walden Figure of Merit (FoM_w).
 
@@ -33,7 +33,7 @@ def calc_fom_walden(power, fs, enob):
     return power / (2**enob * fs)
 
 
-def calc_fom_schreier(power, sndr_db, bw):
+def calculate_fom_schreier(power, sndr_db, bw):
     """
     Calculate Schreier Figure of Merit (FoM_s).
 
@@ -55,7 +55,7 @@ def calc_fom_schreier(power, sndr_db, bw):
 
 # --- Theoretical Performance Limits ---
 
-def calc_thermal_noise_limit(cap_pf, v_fs=1.0):
+def calculate_thermal_noise_limit(cap_pf, v_fs=1.0):
     """
     Calculate maximum achievable SNR limited by kT/C noise.
 
@@ -87,7 +87,7 @@ def calc_thermal_noise_limit(cap_pf, v_fs=1.0):
     return 10 * np.log10(p_sig / p_noise)
 
 
-def calc_jitter_limit(freq, jitter_rms_sec):
+def calculate_jitter_limit(freq, jitter_rms_sec):
     """
     Calculate maximum achievable SNR limited by aperture jitter.
 

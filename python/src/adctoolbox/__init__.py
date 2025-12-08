@@ -15,13 +15,13 @@ __version__ = '0.2.4'
 
 # Import all public functions from submodules
 from .common import (
-    calc_aliased_freq,
-    calc_coherent_freq,
+    calculate_aliased_freq,
+    calculate_coherent_freq,
     estimate_frequency,
     fit_sine,
     extract_freq_components,
     convert_cap_to_weight,
-    calc_target_vpp,
+    calculate_target_vpp,
     db_to_mag,
     mag_to_db,
     db_to_power,
@@ -43,7 +43,9 @@ from .common import (
 
 from .aout import (
     analyze_spectrum,
+    plot_spectrum,
     analyze_phase_spectrum,
+    plot_polar_phase,
     analyze_two_tone_spectrum,
     plot_envelope_spectrum,
     plot_error_autocorr,
@@ -92,13 +94,13 @@ __all__ = [
     '__version__',
 
     # Common functions
-    'calc_aliased_freq',
-    'calc_coherent_freq',
+    'calculate_aliased_freq',
+    'calculate_coherent_freq',
     'estimate_frequency',
     'fit_sine',
     'extract_freq_components',
     'convert_cap_to_weight',
-    'calc_target_vpp',
+    'calculate_target_vpp',
     'db_to_mag',
     'mag_to_db',
     'db_to_power',
@@ -119,7 +121,9 @@ __all__ = [
 
     # Analog output (aout) functions
     'analyze_spectrum',
+    'plot_spectrum',
     'analyze_phase_spectrum',
+    'plot_polar_phase',
     'analyze_two_tone_spectrum',
     'plot_envelope_spectrum',
     'plot_error_autocorr',
