@@ -6,8 +6,7 @@ improves with more runs while harmonic phases remain stable. Superior to power a
 import numpy as np
 import matplotlib.pyplot as plt
 from pathlib import Path
-from adctoolbox import calculate_coherent_freq
-from adctoolbox.spectrum import analyze_spectrum_polar
+from adctoolbox import calculate_coherent_freq, calculate_snr_from_amplitude, snr_to_nsd, analyze_spectrum_polar
 
 output_dir = Path(__file__).parent / "output"
 output_dir.mkdir(exist_ok=True)
@@ -25,8 +24,11 @@ k2 = hd2_amp / (A / 2)
 k3 = hd3_amp / (A**2 / 4)
 
 Fin, Fin_bin = calculate_coherent_freq(fs=Fs, fin_target=5e6, n_fft=N_fft)
+
+snr_ref = calculate_snr_from_amplitude(sig_amplitude=A, noise_amplitude=noise_rms)
+nsd_ref = snr_to_nsd(snr_ref, fs=Fs, osr=1)
 print(f"[Sinewave] Fs=[{Fs/1e6:.2f} MHz], Fin=[{Fin/1e6:.6f} MHz] (coherent, Bin {Fin_bin}), N=[{N_fft}], A=[{A:.3f} Vpeak]")
-print(f"[Nonideal] HD2=[{hd2_dB} dB], HD3=[{hd3_dB} dB], Noise RMS=[{noise_rms*1e6:.2f} uVrms]\n")
+print(f"[Nonideal] HD2=[{hd2_dB} dB], HD3=[{hd3_dB} dB], Noise RMS=[{noise_rms*1e6:.2f} uVrms], Theoretical SNR=[{snr_ref:.2f} dB], Theoretical NSD=[{nsd_ref:.2f} dBFS/Hz]\n")
 
 # Number of runs to test
 N_runs = [1, 10, 100]
@@ -58,15 +60,15 @@ for idx, N_run in enumerate(N_runs):
         signal_data = signal_matrix[:, :N_run].T
 
     # Save individual polar plot
-    fig_path = output_dir / f'exp_s23_polar_coherent_avg_n{N_run}.png'
-    coherent_result, plot_data = analyze_spectrum_polar(
+    fig_path = output_dir / f'exp_s22_polar_coherent_avg_n{N_run}.png'
+    coherent_result = analyze_spectrum_polar(
         signal_data,
         fs=Fs,
         harmonic=5,
         win_type='boxcar',
-        title=f'Coherent Avg (N_run={N_run})',
         save_path=fig_path,
-        show_plot=False
+        show_plot=False,
+        fixed_radial_range=120
     )
 
     # Extract metrics

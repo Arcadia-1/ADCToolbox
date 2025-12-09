@@ -6,7 +6,7 @@ that degrade SNDR. Demonstrates analyze_two_tone_spectrum for automatic IMD meas
 import numpy as np
 import matplotlib.pyplot as plt
 from pathlib import Path
-from adctoolbox import analyze_two_tone_spectrum, calculate_coherent_freq
+from adctoolbox import analyze_two_tone_spectrum, calculate_coherent_freq, calculate_snr_from_amplitude, snr_to_nsd
 
 output_dir = Path(__file__).parent / "output"
 output_dir.mkdir(exist_ok=True)
@@ -20,8 +20,12 @@ noise_rms = 100e-6
 F1, bin_F1 = calculate_coherent_freq(fs=Fs, fin_target=110e6, n_fft=N_fft)
 F2, bin_F2 = calculate_coherent_freq(fs=Fs, fin_target=100e6, n_fft=N_fft)
 
+# For two-tone, combined RMS amplitude is sqrt((A1^2 + A2^2)/2)
+A_combined_rms = np.sqrt((A1**2 + A2**2) / 2)
+snr_ref = calculate_snr_from_amplitude(sig_amplitude=A_combined_rms, noise_amplitude=noise_rms)
+nsd_ref = snr_to_nsd(snr_ref, fs=Fs, osr=1)
 print(f"[Two-Tone] Fs=[{Fs/1e6:.1f} MHz], F1=[{F1/1e6:.2f} MHz] (Bin {bin_F1}), F2=[{F2/1e6:.2f} MHz] (Bin {bin_F2}), N=[{N_fft}]")
-print(f"[Amplitude] A1=[{A1:.3f} Vpeak], A2=[{A2:.3f} Vpeak], Noise RMS=[{noise_rms*1e6:.2f} uVrms]\n")
+print(f"[Amplitude] A1=[{A1:.3f} Vpeak], A2=[{A2:.3f} Vpeak], Noise RMS=[{noise_rms*1e6:.2f} uVrms], Theoretical SNR=[{snr_ref:.2f} dB], Theoretical NSD=[{nsd_ref:.2f} dBFS/Hz]\n")
 
 # Generate signal with nonlinearity and noise
 t = np.arange(N_fft) / Fs

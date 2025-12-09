@@ -75,6 +75,10 @@ from .data_generation import (
     generate_jitter_signal,
 )
 
+from .spectrum import (
+    analyze_spectrum_polar,
+)
+
 # Keep submodules accessible for those who prefer explicit imports
 from . import common
 from . import aout
@@ -82,6 +86,7 @@ from . import dout
 from . import oversampling
 from . import utils
 from . import data_generation
+from . import spectrum
 
 __all__ = [
     # Version
@@ -122,6 +127,9 @@ __all__ = [
     'calc_inl_sine',
     'fit_static_nonlin',
 
+    # Spectrum functions
+    'analyze_spectrum_polar',
+
     # Digital output (dout) functions
     'cal_weight_sine',
     'cal_weight_sine_os',
@@ -149,4 +157,5 @@ __all__ = [
     'oversampling',
     'utils',
     'data_generation',
+    'spectrum',
 ]
