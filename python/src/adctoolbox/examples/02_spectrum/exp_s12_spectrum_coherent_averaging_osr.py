@@ -1,13 +1,13 @@
 """
-Coherent spectrum averaging: aligns phases across runs before averaging complex FFT values.
-Preserves phase relationships between fundamental and harmonics. More effective than power averaging
-for reducing noise while maintaining harmonic structure. Compare power vs coherent averaging results.
+Coherent spectrum averaging with OSR: aligns phases across runs before averaging complex FFT values.
+Demonstrates coherent integration gain with oversampling ratio (OSR=4) and varying number of runs.
+Compare power vs coherent averaging results with OSR.
 """
 
 import numpy as np
 import matplotlib.pyplot as plt
 from pathlib import Path
-from adctoolbox import calculate_coherent_freq, analyze_spectrum, calculate_snr_from_amplitude, snr_to_nsd
+from adctoolbox import calculate_coherent_freq, analyze_spectrum
 from adctoolbox.aout import analyze_spectrum_coherent_averaging
 
 output_dir = Path(__file__).parent / "output"
@@ -23,16 +23,14 @@ hd2_amp = 10**(hd2_dB/20)
 hd3_amp = 10**(hd3_dB/20)
 k2 = hd2_amp / (A / 2)
 k3 = hd3_amp / (A**2 / 4)
+osr = 4
 
 Fin, Fin_bin = calculate_coherent_freq(fs=Fs, fin_target=5e6, n_fft=N_fft)
-
-snr_ref = calculate_snr_from_amplitude(sig_amplitude=A, noise_amplitude=noise_rms)
-nsd_ref = snr_to_nsd(snr_ref, fs=Fs, osr=1)
-print(f"[Sinewave] Fs=[{Fs/1e6:.2f} MHz], Fin=[{Fin/1e6:.6f} MHz] (coherent, Bin {Fin_bin}), N=[{N_fft}], A=[{A:.3f} Vpeak]")
-print(f"[Nonideal] HD2=[{hd2_dB} dB], HD3=[{hd3_dB} dB], Noise RMS=[{noise_rms*1e6:.2f} uVrms], Theoretical SNR=[{snr_ref:.2f} dB], Theoretical NSD=[{nsd_ref:.2f} dBFS/Hz]\n")
+print(f"[Sinewave] Fs=[{Fs/1e6:.2f} MHz], Fin=[{Fin/1e6:.6f} MHz] (coherent, Bin {Fin_bin}), N=[{N_fft}], A=[{A:.3f} Vpeak], OSR=[{osr}]")
+print(f"[Nonideal] HD2=[{hd2_dB} dB], HD3=[{hd3_dB} dB], Noise RMS=[{noise_rms*1e6:.2f} uVrms]\n")
 
 # Number of runs to test
-N_runs = [1, 10, 100]
+N_runs = [1, 4, 16]
 
 # Generate signals for all runs - same method as exp_s07
 t = np.arange(N_fft) / Fs
@@ -70,12 +68,12 @@ for idx, N_run in enumerate(N_runs):
 
     # Traditional power averaging (analyze_spectrum)
     plt.sca(axes[0, idx])
-    result_trad = analyze_spectrum(signal_data, fs=Fs, win_type='boxcar')
+    result_trad = analyze_spectrum(signal_data, fs=Fs, win_type='boxcar', osr=osr)
     axes[0, idx].set_ylim([-120, 0])
 
     # Coherent averaging (analyze_spectrum_coherent_averaging)
     plt.sca(axes[1, idx])
-    result_coh = analyze_spectrum_coherent_averaging(signal_data, fs=Fs, win_type='boxcar')
+    result_coh = analyze_spectrum_coherent_averaging(signal_data, fs=Fs, win_type='boxcar', osr=osr)
     axes[1, idx].set_ylim([-120, 0])
 
     print(f"[{N_run:3d} Run(s)] Power Avg: ENoB=[{result_trad['enob']:5.2f} b], SNR=[{result_trad['snr_db']:6.2f} dB] | Coherent Avg: ENoB=[{result_coh['enob']:5.2f} b], SNR=[{result_coh['snr_db']:6.2f} dB]")
@@ -85,11 +83,11 @@ axes[0, 0].set_ylabel('Power Spectrum (dB)', fontsize=11, fontweight='bold')
 axes[1, 0].set_ylabel('Coherent Spectrum (dBFS)', fontsize=11, fontweight='bold')
 
 # Add overall title
-fig.suptitle(f'Power Spectrum Averaging vs Complex Spectrum Coherent Averaging (N_fft = {N_fft}, Random Phase Offsets)',
+fig.suptitle(f'Power Spectrum Averaging vs Complex Spectrum Coherent Averaging (N_fft = {N_fft}, OSR = {osr}, Random Phase Offsets)',
              fontsize=16, fontweight='bold')
 
 plt.tight_layout()
-fig_path = output_dir / 'exp_s11_spectrum_coherent_averaging.png'
+fig_path = output_dir / 'exp_s12_spectrum_coherent_averaging.png'
 print(f"\n[Save fig] -> [{fig_path}]")
 plt.savefig(fig_path, dpi=150)
 plt.close(fig)

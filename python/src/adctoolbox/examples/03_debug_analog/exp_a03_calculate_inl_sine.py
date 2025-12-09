@@ -2,7 +2,7 @@
 import numpy as np
 import matplotlib.pyplot as plt
 from pathlib import Path
-from adctoolbox import calc_coherent_freq, calc_inl_sine, analyze_spectrum
+from adctoolbox import calculate_coherent_freq, calc_inl_sine, analyze_spectrum
 
 output_dir = Path(__file__).parent / "output"
 output_dir.mkdir(exist_ok=True)
@@ -36,7 +36,7 @@ print(f"  [HD2 = {hd2_dB} dB, HD3 = {hd3_dB} dB, Noise = {base_noise*1e6:.1f} uV
 for idx, N in enumerate(N_list):
 
     # Generate signal with distortion
-    fin, J = calc_coherent_freq(fs, fin_target, N)
+    fin, J = calculate_coherent_freq(fs, fin_target, N)
     t = np.arange(N) / fs
     sinewave = A * np.sin(2 * np.pi * fin * t)
     signal_distorted = sinewave + k2 * sinewave**2 + k3 * sinewave**3 + DC + np.random.randn(N) * base_noise

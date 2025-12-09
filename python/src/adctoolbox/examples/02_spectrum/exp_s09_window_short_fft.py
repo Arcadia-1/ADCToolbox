@@ -7,7 +7,7 @@ Rule: For short FFT, avoid very wide windows (Kaiser). Use Rectangular/Hann/Hamm
 import numpy as np
 import matplotlib.pyplot as plt
 from pathlib import Path
-from adctoolbox import calculate_coherent_freq, analyze_spectrum
+from adctoolbox import calculate_coherent_freq, analyze_spectrum, calculate_snr_from_amplitude, snr_to_nsd
 
 output_dir = Path(__file__).parent / "output"
 output_dir.mkdir(exist_ok=True)
@@ -19,8 +19,11 @@ noise_rms = 50e-6
 
 Fin_target = 10e6
 Fin, Fin_bin = calculate_coherent_freq(Fs, Fin_target, N_fft)
+
+snr_ref = calculate_snr_from_amplitude(sig_amplitude=A, noise_amplitude=noise_rms)
+nsd_ref = snr_to_nsd(snr_ref, fs=Fs, osr=1)
 print(f"[Sinewave] Fs=[{Fs/1e6:.2f} MHz], Fin=[{Fin/1e6:.6f} MHz] (coherent, Bin {Fin_bin}), N=[{N_fft}], A=[{A:.3f} Vpeak]")
-print(f"[Nonideal] Noise RMS=[{noise_rms*1e6:.2f} uVrms]")
+print(f"[Nonideal] Noise RMS=[{noise_rms*1e6:.2f} uVrms], Theoretical SNR=[{snr_ref:.2f} dB], Theoretical NSD=[{nsd_ref:.2f} dBFS/Hz]")
 print(f"[Bin width] = {Fs/N_fft/1e3:.1f} kHz (coarse resolution)\n")
 
 WINDOW_CONFIGS = {

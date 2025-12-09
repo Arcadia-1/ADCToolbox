@@ -130,6 +130,14 @@ def plot_spectrum(analysis_results, show_label=True, plot_harmonics_up_to=3, ax=
         else:
             ax.plot([0, fs/2], [nf_line_level, nf_line_level], 'r--', linewidth=1)
 
+        # Add coherent integration gain note
+        if is_coherent and M > 1:
+            coh_gain_db = 10 * np.log10(M)
+            if osr > 1:
+                ax.text(TX, TYD*10, f'*Coherent Integration Gain = {coh_gain_db:.2f} dB', fontsize=10, style='italic')
+            else:
+                ax.text(TX, TYD*9, f'*Coherent Integration Gain = {coh_gain_db:.2f} dB', fontsize=10, style='italic')
+
         # Signal annotation
         sig_y_pos = min(sig_pwr_dbfs, TYD/2)
         if osr > 1:
