@@ -156,7 +156,8 @@ def compute_two_tone_spectrum(
     enob = (sndr_db - 1.76) / 6.02
     imd2_db = 10 * np.log10(total_signal_power / (imd2_total_power + 1e-20))
     imd3_db = 10 * np.log10(total_signal_power / (imd3_total_power + 1e-20))
-    noise_floor_db = snr_db - 10 * np.log10(total_signal_power)
+    sig_pwr_dbfs = 10 * np.log10(total_signal_power)
+    noise_floor_db = sig_pwr_dbfs - snr_db
 
     # ========== Prepare return data ==========
     metrics = {

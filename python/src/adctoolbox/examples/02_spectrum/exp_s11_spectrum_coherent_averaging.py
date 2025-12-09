@@ -7,8 +7,7 @@ for reducing noise while maintaining harmonic structure. Compare power vs cohere
 import numpy as np
 import matplotlib.pyplot as plt
 from pathlib import Path
-from adctoolbox import find_coherent_frequency, analyze_spectrum, calculate_snr_from_amplitude, snr_to_nsd
-from adctoolbox.aout import analyze_spectrum_coherent_averaging
+from adctoolbox import find_coherent_frequency, analyze_spectrum, amplitudes_to_snr, snr_to_nsd
 
 output_dir = Path(__file__).parent / "output"
 output_dir.mkdir(exist_ok=True)
@@ -26,7 +25,7 @@ k3 = hd3_amp / (A**2 / 4)
 
 Fin, Fin_bin = find_coherent_frequency(fs=Fs, fin_target=5e6, n_fft=N_fft)
 
-snr_ref = calculate_snr_from_amplitude(sig_amplitude=A, noise_amplitude=noise_rms)
+snr_ref = amplitudes_to_snr(sig_amplitude=A, noise_amplitude=noise_rms)
 nsd_ref = snr_to_nsd(snr_ref, fs=Fs, osr=1)
 print(f"[Sinewave] Fs=[{Fs/1e6:.2f} MHz], Fin=[{Fin/1e6:.6f} MHz] (coherent, Bin {Fin_bin}), N=[{N_fft}], A=[{A:.3f} Vpeak]")
 print(f"[Nonideal] HD2=[{hd2_dB} dB], HD3=[{hd3_dB} dB], Noise RMS=[{noise_rms*1e6:.2f} uVrms], Theoretical SNR=[{snr_ref:.2f} dB], Theoretical NSD=[{nsd_ref:.2f} dBFS/Hz]\n")
@@ -37,7 +36,7 @@ N_runs = [1, 10, 100]
 # Generate signals for all runs - same method as exp_s07
 t = np.arange(N_fft) / Fs
 N_max = max(N_runs)
-signal_matrix = np.zeros((N_fft, N_max))
+signal_matrix = np.zeros((N_max, N_fft))  # M x N: (runs, samples)
 
 
 for run_idx in range(N_max):
@@ -47,7 +46,7 @@ for run_idx in range(N_max):
     # Apply static nonlinearity: y = x + k2*x^2 + k3*x^3
     sig_distorted = sig_ideal + k2 * sig_ideal**2 + k3 * sig_ideal**3 + np.random.randn(N_fft) * noise_rms
 
-    signal_matrix[:, run_idx] = sig_distorted
+    signal_matrix[run_idx, :] = sig_distorted
 
 print(f"[Generated] {N_max} runs with random phase\n")
 
@@ -61,31 +60,22 @@ fig, axes = plt.subplots(2, len(N_runs), figsize=(fig_width, fig_height))
 
 
 for idx, N_run in enumerate(N_runs):
-    # Prepare signal data
-    if N_run == 1:
-        signal_single = signal_matrix[:, 0]
-        signal_data = signal_single
-    else:
-        signal_data = signal_matrix[:, :N_run].T
+    signal_data = signal_matrix[:N_run, :]
 
-    # Traditional power averaging (analyze_spectrum)
+    # Traditional power averaging (analyze_spectrum, coherent_averaging=False by default)
     plt.sca(axes[0, idx])
-    result_trad = analyze_spectrum(signal_data, fs=Fs, win_type='boxcar')
+    result_trad = analyze_spectrum(signal_data, fs=Fs)
     axes[0, idx].set_ylim([-120, 0])
 
-    # Coherent averaging (analyze_spectrum_coherent_averaging)
+    # Coherent averaging (coherent_averaging=True)
     plt.sca(axes[1, idx])
-    result_coh = analyze_spectrum_coherent_averaging(signal_data, fs=Fs, win_type='boxcar')
+    result_coh = analyze_spectrum(signal_data, fs=Fs, coherent_averaging=True)
     axes[1, idx].set_ylim([-120, 0])
 
     print(f"[{N_run:3d} Run(s)] Power Avg: ENoB=[{result_trad['enob']:5.2f} b], SNR=[{result_trad['snr_db']:6.2f} dB] | Coherent Avg: ENoB=[{result_coh['enob']:5.2f} b], SNR=[{result_coh['snr_db']:6.2f} dB]")
 
-# Row labels
-axes[0, 0].set_ylabel('Power Spectrum (dB)', fontsize=11, fontweight='bold')
-axes[1, 0].set_ylabel('Coherent Spectrum (dBFS)', fontsize=11, fontweight='bold')
-
 # Add overall title
-fig.suptitle(f'Power Spectrum Averaging vs Complex Spectrum Coherent Averaging (N_fft = {N_fft}, Random Phase Offsets)',
+fig.suptitle(f'Power Spectrum Averaging vs Complex Spectrum Coherent Averaging (N_fft = {N_fft})',
              fontsize=16, fontweight='bold')
 
 plt.tight_layout()

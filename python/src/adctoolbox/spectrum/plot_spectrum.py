@@ -9,7 +9,7 @@ import numpy as np
 import matplotlib.pyplot as plt
 
 
-def plot_spectrum(analysis_results, show_label=True, plot_harmonics_up_to=3, ax=None):
+def plot_spectrum(analysis_results, show_title=True, show_label=True, plot_harmonics_up_to=3, ax=None):
     """
     Pure spectrum plotting using pre-computed analysis results.
 
@@ -17,6 +17,7 @@ def plot_spectrum(analysis_results, show_label=True, plot_harmonics_up_to=3, ax=
         analysis_results: Dictionary containing 'metrics' and 'plot_data' from compute_spectrum
         show_label: Add labels and annotations (True) or not (False)
         plot_harmonics_up_to: Number of harmonics to highlight
+        show_title: Display auto-generated title (True) or not (False)
         ax: Optional matplotlib axes object
     """
     # Extract metrics and plot_data from analysis_results
@@ -62,18 +63,18 @@ def plot_spectrum(analysis_results, show_label=True, plot_harmonics_up_to=3, ax=
     if show_label:
         # Highlight fundamental - always use ax.plot(), axes scale handled by osr
         ax.plot(freq[sig_bin_start:sig_bin_end], spec_db[sig_bin_start:sig_bin_end], 'r-', linewidth=0.5)
-        ax.plot(freq[bin_idx], spec_db[bin_idx], 'ro', linewidth=0.5)
+        ax.plot(freq[bin_idx], spec_db[bin_idx], 'ro', linewidth=0.5, markersize=5)
 
         # Plot harmonics
         if plot_harmonics_up_to > 0:
             for harm in harmonics:
                 if harm['harmonic_num'] <= plot_harmonics_up_to:
-                    ax.plot(harm['freq'], harm['power_db'], 'rs')
+                    ax.plot(harm['freq'], harm['power_db'], 'rs', markersize=5)
                     ax.text(harm['freq'], harm['power_db'] + 5, str(harm['harmonic_num']),
                             fontname='Arial', fontsize=12, ha='center')
 
         # Plot max spurious
-        ax.plot(spur_bin_idx / N * fs, spur_db, 'rd')
+        ax.plot(spur_bin_idx / N * fs, spur_db, 'rd', markersize=5)
         ax.text(spur_bin_idx / N * fs, spur_db + 5, 'MaxSpur',
                 fontname='Arial', fontsize=10, ha='center')
 
@@ -152,13 +153,14 @@ def plot_spectrum(analysis_results, show_label=True, plot_harmonics_up_to=3, ax=
         ax.set_ylabel('dBFS', fontsize=10)
 
     # Title - auto-generate based on mode and number of runs
-    if is_coherent:
-        if M > 1:
-            ax.set_title(f'Coherent averaging (N_run = {M})', fontsize=14, fontweight='bold')
+    if show_title:
+        if is_coherent:
+            if M > 1:
+                ax.set_title(f'Coherent averaging (N_run = {M})', fontsize=12, fontweight='bold')
+            else:
+                ax.set_title('Coherent Spectrum', fontsize=12, fontweight='bold')
         else:
-            ax.set_title('Coherent Spectrum', fontsize=14, fontweight='bold')
-    else:
-        if M > 1:
-            ax.set_title(f'Power averaging (N_run = {M})', fontsize=14, fontweight='bold')
-        else:
-            ax.set_title('Power Spectrum', fontsize=14, fontweight='bold')
+            if M > 1:
+                ax.set_title(f'Power averaging (N_run = {M})', fontsize=12, fontweight='bold')
+            else:
+                ax.set_title('Power Spectrum', fontsize=12, fontweight='bold')

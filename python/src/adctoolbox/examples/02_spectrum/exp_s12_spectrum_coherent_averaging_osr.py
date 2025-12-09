@@ -8,12 +8,11 @@ import numpy as np
 import matplotlib.pyplot as plt
 from pathlib import Path
 from adctoolbox import find_coherent_frequency, analyze_spectrum
-from adctoolbox.aout import analyze_spectrum_coherent_averaging
 
 output_dir = Path(__file__).parent / "output"
 output_dir.mkdir(exist_ok=True)
 
-N_fft = 2**10
+N_fft = 2**13
 Fs = 100e6
 A = 0.499
 noise_rms = 100e-6
@@ -25,7 +24,7 @@ k2 = hd2_amp / (A / 2)
 k3 = hd3_amp / (A**2 / 4)
 osr = 4
 
-Fin, Fin_bin = find_coherent_frequency(fs=Fs, fin_target=5e6, n_fft=N_fft)
+Fin, Fin_bin = find_coherent_frequency(fs=Fs, fin_target=1e6, n_fft=N_fft)
 print(f"[Sinewave] Fs=[{Fs/1e6:.2f} MHz], Fin=[{Fin/1e6:.6f} MHz] (coherent, Bin {Fin_bin}), N=[{N_fft}], A=[{A:.3f} Vpeak], OSR=[{osr}]")
 print(f"[Nonideal] HD2=[{hd2_dB} dB], HD3=[{hd3_dB} dB], Noise RMS=[{noise_rms*1e6:.2f} uVrms]\n")
 
@@ -66,24 +65,20 @@ for idx, N_run in enumerate(N_runs):
     else:
         signal_data = signal_matrix[:, :N_run].T
 
-    # Traditional power averaging (analyze_spectrum)
+    # Traditional power averaging (analyze_spectrum, coherent_averaging=False by default)
     plt.sca(axes[0, idx])
-    result_trad = analyze_spectrum(signal_data, fs=Fs, win_type='boxcar', osr=osr)
-    axes[0, idx].set_ylim([-120, 0])
+    result_trad = analyze_spectrum(signal_data, fs=Fs, osr=osr)
+    axes[0, idx].set_ylim([-140, 0])
 
-    # Coherent averaging (analyze_spectrum_coherent_averaging)
+    # Coherent averaging (coherent_averaging=True)
     plt.sca(axes[1, idx])
-    result_coh = analyze_spectrum_coherent_averaging(signal_data, fs=Fs, win_type='boxcar', osr=osr)
-    axes[1, idx].set_ylim([-120, 0])
+    result_coh = analyze_spectrum(signal_data, fs=Fs, osr=osr, coherent_averaging=True)
+    axes[1, idx].set_ylim([-140, 0])
 
     print(f"[{N_run:3d} Run(s)] Power Avg: ENoB=[{result_trad['enob']:5.2f} b], SNR=[{result_trad['snr_db']:6.2f} dB] | Coherent Avg: ENoB=[{result_coh['enob']:5.2f} b], SNR=[{result_coh['snr_db']:6.2f} dB]")
 
-# Row labels
-axes[0, 0].set_ylabel('Power Spectrum (dB)', fontsize=11, fontweight='bold')
-axes[1, 0].set_ylabel('Coherent Spectrum (dBFS)', fontsize=11, fontweight='bold')
-
 # Add overall title
-fig.suptitle(f'Power Spectrum Averaging vs Complex Spectrum Coherent Averaging (N_fft = {N_fft}, OSR = {osr}, Random Phase Offsets)',
+fig.suptitle(f'Power Spectrum Averaging vs Complex Spectrum Coherent Averaging (N_fft = {N_fft}, OSR = {osr})',
              fontsize=16, fontweight='bold')
 
 plt.tight_layout()

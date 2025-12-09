@@ -4,9 +4,10 @@ import numpy as np
 from typing import Union, Tuple
 
 
-def calculate_snr_from_amplitude(
+def amplitudes_to_snr(
     sig_amplitude: Union[float, np.ndarray],
     noise_amplitude: Union[float, np.ndarray],
+    osr: float = 1,
     return_power: bool = False
 ) -> Union[float, np.ndarray, Tuple[Union[float, np.ndarray], ...]]:
     """Calculate Signal-to-Noise Ratio (SNR) in dB from sine wave peak amplitude and noise RMS.
@@ -15,6 +16,7 @@ def calculate_snr_from_amplitude(
     is Gaussian (White Noise).
 
     SNR is calculated based on the power ratio: SNR (dB) = 10 * log10(P_sig / P_noise).
+    When oversampling is used, SNR improves by 10*log10(OSR).
 
     Parameters
     ----------
@@ -22,6 +24,8 @@ def calculate_snr_from_amplitude(
         Sine wave peak amplitude (A), in Volts (V).
     noise_amplitude : float or array_like
         Noise RMS amplitude (σ), in Volts (V).
+    osr : float, optional
+        Oversampling ratio. SNR improves by 10*log10(OSR) dB. Default is 1 (no oversampling).
     return_power : bool, optional
         If True, returns a tuple containing (snr_db, sig_power, noise_power).
         Default is False, returning only snr_db.
@@ -60,6 +64,11 @@ def calculate_snr_from_amplitude(
 
     # Convert amplitude ratio to SNR in dB: 20 * log10(Ratio)
     snr_db = 20 * np.log10(ratio)
+
+    # Apply oversampling gain
+    if osr > 1:
+        osr_gain_db = 10 * np.log10(osr)
+        snr_db = snr_db + osr_gain_db
 
     # Convert results back to standard Python float if inputs were scalar
     if is_scalar_input:
