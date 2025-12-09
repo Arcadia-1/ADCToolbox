@@ -3,7 +3,7 @@
 from .fold_bin_to_nyquist import fold_bin_to_nyquist
 from .fold_frequency_to_nyquist import fold_frequency_to_nyquist
 from .find_coherent_frequency import find_coherent_frequency
-from .calculate_snr_from_amplitude import calculate_snr_from_amplitude
+from .amplitudes_to_snr import amplitudes_to_snr
 from .estimate_frequency import estimate_frequency
 from .fit_sine import fit_sine
 from .extract_freq_components import extract_freq_components
@@ -30,7 +30,7 @@ __all__ = [
     'fold_bin_to_nyquist',
     'fold_frequency_to_nyquist',
     'find_coherent_frequency',
-    'calculate_snr_from_amplitude',
+    'amplitudes_to_snr',
     'calculate_target_vpp',
     'calculate_walden_fom',
     'calculate_schreier_fom',

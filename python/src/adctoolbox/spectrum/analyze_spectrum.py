@@ -12,8 +12,8 @@ from .compute_spectrum import compute_spectrum
 from .plot_spectrum import plot_spectrum
 
 
-def analyze_spectrum(data, fs=1.0, osr=1, max_scale_range=None, win_type='hann',
-                     side_bin=1, n_thd=5, nf_method=2, assumed_sig_pwr_dbfs=np.nan,
+def analyze_spectrum(data, fs=1.0, osr=1, max_scale_range=None, win_type='hann', side_bin=1, 
+                     n_thd=5, nf_method=2, assumed_sig_pwr_dbfs=np.nan, coherent_averaging=False,
                      show_plot=True, show_label=True, plot_harmonics_up_to=3, ax=None):
     """
     Spectral analysis and plotting. (Wrapper function for modular core and plotting)
@@ -58,6 +58,7 @@ def analyze_spectrum(data, fs=1.0, osr=1, max_scale_range=None, win_type='hann',
         osr=osr,
         n_thd=n_thd,
         nf_method=nf_method,
+        coherent_averaging=coherent_averaging,
         assumed_sig_pwr_dbfs=assumed_sig_pwr_dbfs
     )
 

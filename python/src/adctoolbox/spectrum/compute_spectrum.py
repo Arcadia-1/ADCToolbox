@@ -19,7 +19,7 @@ def compute_spectrum(
     n_thd: int = 5,
     nf_method: int = 2,
     assumed_sig_pwr_dbfs: Optional[float] = None,
-    complex_spectrum: bool = False,
+    coherent_averaging: bool = False,
     cutoff_freq: float = 0
 ) -> Dict[str, Union[np.ndarray, float, Dict]]:
     """Calculate spectrum data for ADC analysis.
@@ -44,8 +44,8 @@ def compute_spectrum(
         Noise floor method: 0=median, 1=trimmed mean, 2=exclude harmonics
     assumed_sig_pwr_dbfs : float, optional
         Override signal power (dBFS)
-    complex_spectrum : bool
-        If True, returns phase-aligned complex spectrum
+    coherent_averaging : bool
+        If True, performs coherent averaging with phase alignment
     cutoff_freq : float
         High-pass cutoff frequency (Hz)
 
@@ -67,7 +67,7 @@ def compute_spectrum(
     power_correction = 16.0
 
     # Mode-specific FFT processing
-    if complex_spectrum:
+    if coherent_averaging:
         # Complex spectrum: coherent averaging with phase alignment
         spec_coherent = np.zeros(N, dtype=complex)
         n_valid_runs = 0
@@ -317,6 +317,22 @@ def compute_spectrum(
     spur_bin_idx = np.argmax(spectrum_search_copy)
     spur_db = 10 * np.log10(spectrum_power[spur_bin_idx] + 1e-20) if spur_bin_idx < len(spectrum_power) else -200
 
+    # Build harmonics list for plotting
+    harmonics_list = []
+    for h_idx in range(1, n_thd):
+        h_bin = int(round(harmonic_bins[h_idx]))
+        if h_bin < len(spectrum_power):
+            h_start = max(h_bin - side_bin, 0)
+            h_end = min(h_bin + side_bin + 1, len(spectrum_power))
+            h_power = np.sum(spectrum_power[h_start:h_end])
+            h_power_db = 10 * np.log10(h_power + 1e-20)
+            h_freq = h_bin * fs / N
+            harmonics_list.append({
+                'harmonic_num': h_idx + 1,  # HD2 is harmonic 2, HD3 is harmonic 3, etc.
+                'freq': h_freq,
+                'power_db': h_power_db
+            })
+
     results['plot_data'] = {
         'spec_db': spec_mag_db,
         'freq': freq,
@@ -331,8 +347,8 @@ def compute_spectrum(
         'fs': fs,
         'osr': osr,
         'nf_line_level': noise_floor_db - 10*np.log10(n_search_inband),
-        'harmonics': [],
-        'is_coherent': complex_spectrum  # Flag to indicate coherent vs power averaging
+        'harmonics': harmonics_list,
+        'is_coherent': coherent_averaging  # Flag to indicate coherent vs power averaging
     }
 
     return results

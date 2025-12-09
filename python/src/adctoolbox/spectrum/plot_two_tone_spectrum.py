@@ -16,8 +16,7 @@ def plot_two_tone_spectrum(
     analysis_results: Dict,
     harmonic: int = 7,
     ax: Optional[plt.Axes] = None,
-    title: Optional[str] = None,
-    show_metrics: bool = True,
+    show_title: bool = True,
     show_labels: bool = True
 ) -> plt.Axes:
     """
@@ -38,12 +37,10 @@ def plot_two_tone_spectrum(
         Number of harmonic orders to mark (default: 7)
     ax : matplotlib.axes.Axes, optional
         Pre-existing axes to plot on. If None, creates new figure
-    title : str, optional
-        Custom title for the plot. If None, uses default title
-    show_metrics : bool, optional
-        Whether to display metrics text on plot (default: True)
+    show_title : bool, optional
+        Display title (default: True)
     show_labels : bool, optional
-        Whether to show frequency/power labels for tones (default: True)
+        Add labels and annotations (default: True)
 
     Returns
     -------
@@ -61,9 +58,9 @@ def plot_two_tone_spectrum(
     N = plot_data['N']
     fs = plot_data['fs']
 
-    # Create axes if not provided
+    # Setup axes
     if ax is None:
-        fig, ax = plt.subplots(figsize=(10, 6))
+        ax = plt.gca()
 
     # Plot spectrum
     ax.plot(freq, spec_db, 'b-', linewidth=0.5, alpha=0.7)
@@ -141,23 +138,24 @@ def plot_two_tone_spectrum(
 
         # Position labels: left signal gets right-aligned label (on its left)
         #                  right signal gets left-aligned label (on its right)
-        y_offset = -8
+        freq_span = fs / 2 - freq[1]
+        x_offset = freq_span * 0.01  # 3% of frequency range
 
         # F1 is always < F2 (ensured in calculate function)
         # F1 label on left side of peak (right-aligned)
-        ax.text(freq1, pwr1 + y_offset, freq1_str,
+        ax.text(freq1 - x_offset, pwr1 - 8, freq1_str,
                ha='right', va='top', fontsize=10, color='red')
-        ax.text(freq1, pwr1 + y_offset - 5, f'{pwr1:.1f} dB',
+        ax.text(freq1 - x_offset, pwr1 - 13, f'{pwr1:.1f} dB',
                ha='right', va='top', fontsize=10, color='red')
 
         # F2 label on right side of peak (left-aligned)
-        ax.text(freq2, pwr2 + y_offset, freq2_str,
+        ax.text(freq2 + x_offset, pwr2 - 8, freq2_str,
                ha='left', va='top', fontsize=10, color='red')
-        ax.text(freq2, pwr2 + y_offset - 5, f'{pwr2:.1f} dB',
+        ax.text(freq2 + x_offset, pwr2 - 13, f'{pwr2:.1f} dB',
                ha='left', va='top', fontsize=10, color='red')
 
     # Add metrics text (MATLAB: lines 124-130)
-    if show_metrics:
+    if show_labels:
         # Format frequency display for Fs (K/M/G suffix like plot_spectrum.py)
         def format_freq(f):
             if f >= 1e9: return f'{f/1e9:.1f}G'
@@ -167,8 +165,13 @@ def plot_two_tone_spectrum(
 
         fs_str = f'Fs = {format_freq(fs)} Hz'
 
-        # Position text on RIGHT side to avoid signal peaks on left
-        x_pos = freq[-10]  # Near right edge
+        # Adaptive positioning: avoid signal peaks (like plot_spectrum.py)
+        # Check if both tones are on the left side of spectrum
+        if bin2 / N < 0.3:  # Both tones on left side
+            x_pos = fs * 0.3  # Put metrics on right
+        else:  # Tones on right or spread across
+            x_pos = fs * 0.01  # Put metrics on left
+
         metrics_text = [
             fs_str,
             f"ENOB = {metrics['enob']:.2f}",
@@ -180,20 +183,19 @@ def plot_two_tone_spectrum(
             f"IMD3 = {metrics['imd3_db']:.2f} dB"
         ]
 
-        # MATLAB spacing: mins*0.05, mins*0.10, ..., mins*0.40
-        y_positions = [mins * (0.05 + 0.05 * i) for i in range(len(metrics_text))]
+        # Calculate y position based on plot range (like plot_spectrum.py)
+        y_start = mins * 0.05
+        y_step = mins * 0.05
 
-        for text, y_pos in zip(metrics_text, y_positions):
-            ax.text(x_pos, y_pos, text, fontsize=10, ha='right')
+        for i, text in enumerate(metrics_text):
+            ax.text(x_pos, y_start + i * y_step, text, fontsize=10)
 
     # Configure axes (MATLAB: axis([Fs/N, Fs/2, mins, 0]))
     ax.set_xlabel('Freq (Hz)', fontsize=10)
     ax.set_ylabel('dBFS', fontsize=10)
 
-    if title:
-        ax.set_title(title, fontsize=14, fontweight='bold')
-    else:
-        ax.set_title('Output Spectrum', fontsize=14, fontweight='bold')
+    if show_title:
+        ax.set_title('Power Spectrum', fontsize=12, fontweight='bold')
 
     ax.grid(True, alpha=0.3)
     ax.set_xlim([freq[1], fs / 2])

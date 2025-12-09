@@ -6,7 +6,7 @@ creating a characteristic distortion pattern visible in the polar phase plot.
 import numpy as np
 import matplotlib.pyplot as plt
 from pathlib import Path
-from adctoolbox import find_coherent_frequency, calculate_snr_from_amplitude, snr_to_nsd, analyze_spectrum_polar
+from adctoolbox import find_coherent_frequency, amplitudes_to_snr, snr_to_nsd, analyze_spectrum_polar
 
 output_dir = Path(__file__).parent / "output"
 output_dir.mkdir(exist_ok=True)
@@ -18,7 +18,7 @@ Fin, J = find_coherent_frequency(Fs, Fin_target, N)
 A, DC = 0.49, 0.5
 base_noise = 50e-6
 
-snr_ref = calculate_snr_from_amplitude(sig_amplitude=A, noise_amplitude=base_noise)
+snr_ref = amplitudes_to_snr(sig_amplitude=A, noise_amplitude=base_noise)
 nsd_ref = snr_to_nsd(snr_ref, fs=Fs, osr=1)
 print(f"[Sinewave] Fs=[{Fs/1e6:.0f} MHz], Fin=[{Fin/1e6:.1f} MHz] (coherent, Bin {J}), N=[{N}], A=[{A:.3f} Vpeak]")
 print(f"[Base Noise] RMS=[{base_noise*1e6:.2f} uVrms], Theoretical SNR=[{snr_ref:.2f} dB], Theoretical NSD=[{nsd_ref:.2f} dBFS/Hz]\n")
@@ -54,12 +54,11 @@ for i, (signal, title, param) in enumerate(zip(signals, titles, params)):
     ax = fig.add_subplot(1, 2, i+1, projection='polar')
 
     # Analyze spectrum with polar phase visualization
-    coherent_result = analyze_spectrum_polar(
+    result = analyze_spectrum_polar(
         signal,
         fs=Fs,
         harmonic=5,
         win_type='boxcar',
-        show_plot=False,
         ax=ax,
         fixed_radial_range=120
     )
@@ -70,9 +69,7 @@ for i, (signal, title, param) in enumerate(zip(signals, titles, params)):
     # Store axis and its ylim for later restoration
     axes_info.append((ax, ax.get_ylim()))
 
-    metrics = coherent_result.get('metrics', {})
-    snr_measured = metrics.get('snr_db', 0)
-    print(f"[{title:30s}] SNR=[{snr_measured:6.2f} dB], Bin=[{coherent_result['bin_idx']}], Noise floor=[{coherent_result['minR_dB']:7.2f} dB]")
+    print(f"[{title:30s}] sndr=[{result['sndr_db']:.2f} dB], snr=[{result['snr_db']:.2f} dB], thd=[{result['thd_db']:.2f} dB]")
 
 plt.tight_layout()
 

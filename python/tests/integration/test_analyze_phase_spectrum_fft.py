@@ -32,7 +32,9 @@ def test_analyze_phase_spectrum_fft(project_root):
 
             figure_name = f"test_plotphase_fft_{dataset_name}_python.png"
             phase_plot_path = figures_dir / figure_name
-            coherent_result, plot_data = analyze_spectrum_polar(raw_data, harmonic=10, save_path=str(phase_plot_path))
+            coherent_result = analyze_spectrum_polar(raw_data, harmonic=10)
+            plt.savefig(phase_plot_path, dpi=150, bbox_inches='tight')
+            plt.close()
 
             success_count += 1
 
