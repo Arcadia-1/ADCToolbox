@@ -6,7 +6,7 @@ Power averaging is magnitude-only (|FFT|²) - phase information is discarded.
 import numpy as np
 import matplotlib.pyplot as plt
 from pathlib import Path
-from adctoolbox import find_coherent_frequency, analyze_spectrum, calculate_snr_from_amplitude, snr_to_nsd
+from adctoolbox import find_coherent_frequency, analyze_spectrum, amplitudes_to_snr, snr_to_nsd
 
 output_dir = Path(__file__).parent / "output"
 output_dir.mkdir(exist_ok=True)
@@ -20,7 +20,7 @@ hd3_dB = -90
 
 Fin, Fin_bin = find_coherent_frequency(fs=Fs, fin_target=5e6, n_fft=N_fft)
 
-snr_ref = calculate_snr_from_amplitude(sig_amplitude=A, noise_amplitude=noise_rms)
+snr_ref = amplitudes_to_snr(sig_amplitude=A, noise_amplitude=noise_rms)
 nsd_ref = snr_to_nsd(snr_ref, fs=Fs, osr=1)
 print(f"[Sinewave] Fs=[{Fs/1e6:.2f} MHz], Fin=[{Fin/1e6:.2f} MHz], Bin/N=[{Fin_bin}/{N_fft}], A=[{A:.3f} Vpeak]")
 print(f"[Nonideal] HD2=[{hd2_dB} dB], HD3=[{hd3_dB} dB], Noise RMS=[{noise_rms*1e6:.2f} uVrms], Theoretical SNR=[{snr_ref:.2f} dB], Theoretical NSD=[{nsd_ref:.2f} dBFS/Hz]\n")
@@ -39,7 +39,7 @@ t = np.arange(N_fft) / Fs
 
 # Generate the maximum number of runs needed (64)
 N_max = max(N_runs)
-signal_matrix = np.zeros((N_fft, N_max))
+signal_matrix = np.zeros((N_max, N_fft))  # M x N: (runs, samples)
 
 for run_idx in range(N_max):
     phase_random = np.random.uniform(0, 2 * np.pi)
@@ -51,29 +51,24 @@ for run_idx in range(N_max):
     sig_distorted = sig_ideal + k2 * sig_ideal**2 + k3 * sig_ideal**3 + np.random.randn(N_fft) * noise_rms
 
     # Store in matrix
-    signal_matrix[:, run_idx] = sig_distorted
+    signal_matrix[run_idx, :] = sig_distorted
 
-print(f"[Generated] {N_max} runs with random phase")
+print(f"[Generated] {N_max} runs with random phase\n")
 
-fig, axes = plt.subplots(1, len(N_runs), figsize=(len(N_runs)*6, 6))
+fig, axes = plt.subplots(1, len(N_runs), figsize=(len(N_runs)*6, 5))
 
 for idx, N_run in enumerate(N_runs):
-    if N_run == 1:
-        # Single run - no averaging
-        signal_data = signal_matrix[:, 0]
-    else:
-        # Multiple runs - average
-        signal_data = signal_matrix[:, :N_run].T
+    signal_data = signal_matrix[:N_run, :]
 
     plt.sca(axes[idx])
     result = analyze_spectrum(signal_data, fs=Fs)
-
     axes[idx].set_ylim([-120, 0])
-    axes[idx].set_title(f'N_run = {N_run}', fontsize=12, fontweight='bold')
 
     print(f"[{N_run:2d} Run(s)] ENoB=[{result['enob']:5.2f} b], SNDR=[{result['sndr_db']:6.2f} dB], SFDR=[{result['sfdr_db']:6.2f} dB], SNR=[{result['snr_db']:6.2f} dB], NSD=[{result['nsd_dbfs_hz']:7.2f} dBFS/Hz]")
 
-fig.suptitle(f'Spectral Averaging (N_fft = {N_fft})', fontsize=14, fontweight='bold')
+plt.suptitle(f"Power Spectrum Averaging: Randomneess Reduction over Multiple Runs (N_fft = {N_fft})",
+             fontsize=16, fontweight='bold')
+
 plt.tight_layout()
 fig_path = (output_dir / 'exp_s10_spectrum_power_averaging.png').resolve()
 print(f"\n[Save fig] -> [{fig_path}]")
