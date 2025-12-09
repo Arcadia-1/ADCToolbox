@@ -61,11 +61,17 @@ def calculate_spectrum_data(
     n_search_inband = n_half // osr
     results = {}
 
+    # Power correction factor for proper dBFS scaling
+    # After power-normalizing the window, all windows need the same correction
+    # Factor of 16 = 4 (single-sided) * 4 (peak-to-RMS conversion for sine)
+    power_correction = 16.0
+
     # Mode-specific FFT processing
     if complex_spectrum:
         # Complex spectrum: coherent averaging with phase alignment
         spec_coherent = np.zeros(N, dtype=complex)
         n_valid_runs = 0
+        original_fundamental_phase = None  # Store original phase before alignment
 
         for run_idx in range(M):
             run_data = data_processed[run_idx, :N]
@@ -83,6 +89,10 @@ def calculate_spectrum_data(
             # Guard against DC bin (MATLAB plotspec.m:286-289)
             if bin_idx <= 0:
                 continue
+
+            # Store original fundamental phase from first valid run
+            if original_fundamental_phase is None:
+                original_fundamental_phase = np.angle(fft_data[bin_idx])
 
             # Parabolic interpolation PER-RUN (MATLAB plotphase.m:144-152)
             # This is done BEFORE phase alignment
@@ -113,17 +123,19 @@ def calculate_spectrum_data(
             spec_coherent_full[:int(cutoff_freq / fs * N)] = 0
 
         # Convert to power spectrum with proper scaling
-        # MATLAB: spec = abs(spec).^2/(N_fft^2)*16/ME^2
-        # Factor of 16 comes from window power normalization
+        # Since window is power-normalized, all windows use same correction factor
         if n_valid_runs > 0:
-            spectrum_power_coherent = (np.abs(spec_coherent_full) ** 2) / (N ** 2) * 16 / (n_valid_runs ** 2)
+            spectrum_power_coherent = (np.abs(spec_coherent_full) ** 2) / (N ** 2) * power_correction / (n_valid_runs ** 2)
+            # Normalize complex spectrum for polar plot (amplitude domain)
+            spec_coherent_normalized = spec_coherent_full / N / n_valid_runs * np.sqrt(power_correction)
         else:
-            spectrum_power_coherent = (np.abs(spec_coherent_full) ** 2) / (N ** 2) * 16
+            spectrum_power_coherent = (np.abs(spec_coherent_full) ** 2) / (N ** 2) * power_correction
+            spec_coherent_normalized = spec_coherent_full / N * np.sqrt(power_correction)
 
         # Calculate noise floor for complex mode (used for polar plot)
         # MATLAB plotphase.m:195-200
         # Use amplitude (20*log10) to match plot_spectrum_polar.py line 87
-        mag_db = 20 * np.log10(np.abs(spec_coherent_full) + 1e-20)
+        mag_db = 20 * np.log10(np.abs(spec_coherent_normalized) + 1e-20)
 
         # Use 1st percentile of entire spectrum (MATLAB: spec_sort(ceil(length(spec_sort)*0.01)))
         mag_db_sorted = np.sort(mag_db)
@@ -134,12 +146,42 @@ def calculate_spectrum_data(
         # Default to -100 if infinite (MATLAB: if(isinf(minR)) minR = -100; end)
         noise_floor_db = -100 if np.isinf(noise_floor_db) else noise_floor_db
 
-        # Store complex spectrum for polar plot (normalized to noise floor)
+        # Calculate harmonic bins for phase extraction (need bin_r for this)
+        temp_bin_idx = np.argmax(spectrum_power_coherent[:n_search_inband])
+        temp_bin_r = _find_fundamental(spectrum_power_coherent, N, osr, method='power')[1]
+        temp_harmonic_bins = _find_harmonic_bins(temp_bin_r, n_thd, N)
+
+        # Store complex spectrum for polar plot (properly normalized)
+        # Calculate HD2 and HD3 phases RELATIVE to fundamental
+        # After _align_spectrum_phase(), the fundamental is at 0° and harmonics are rotated by h*φ₁
+        # For memoryless nonlinearity: HD2 should be at 0°, HD3 should be at 0° or 180°
+        # The aligned phase directly represents the relative phase (memory effect)
+        hd2_phase_deg = 0
+        hd3_phase_deg = 0
+
+        if len(temp_harmonic_bins) > 1:
+            hd2_bin = int(round(temp_harmonic_bins[1]))
+            if hd2_bin < len(spec_coherent_normalized):
+                # After alignment: HD2 phase = original_HD2_phase - 2*fundamental_phase
+                # This is already the relative phase we want
+                hd2_phase_rad = np.angle(spec_coherent_normalized[hd2_bin])
+                hd2_phase_deg = np.degrees(hd2_phase_rad)
+
+        if len(temp_harmonic_bins) > 2:
+            hd3_bin = int(round(temp_harmonic_bins[2]))
+            if hd3_bin < len(spec_coherent_normalized):
+                # After alignment: HD3 phase = original_HD3_phase - 3*fundamental_phase
+                # This is already the relative phase we want
+                hd3_phase_rad = np.angle(spec_coherent_normalized[hd3_bin])
+                hd3_phase_deg = np.degrees(hd3_phase_rad)
+
         results.update({
-            'complex_spec_coherent': spec_coherent_full,
+            'complex_spec_coherent': spec_coherent_normalized,
             'minR_dB': noise_floor_db,
-            'bin_idx': np.argmax(spectrum_power_coherent[:n_search_inband]),
-            'N': N
+            'bin_idx': temp_bin_idx,
+            'N': N,
+            'hd2_phase_deg': hd2_phase_deg,
+            'hd3_phase_deg': hd3_phase_deg
         })
 
         # Use power spectrum for metrics calculation
@@ -154,7 +196,7 @@ def calculate_spectrum_data(
             spectrum_sum += np.abs(fft_data) ** 2
 
         spectrum_sum[0] = 0  # Remove DC
-        spectrum_power = spectrum_sum[:n_half] / (N ** 2) * 16 / M
+        spectrum_power = spectrum_sum[:n_half] / (N ** 2) * power_correction / M
 
         if cutoff_freq > 0:
             spectrum_power[:int(cutoff_freq / fs * N)] = 0
@@ -197,13 +239,23 @@ def calculate_spectrum_data(
     # THD power (include side bins)
     harmonic_bins = _find_harmonic_bins(bin_r, n_thd, N)
     thd_power = 0
+    hd2_power = 0
+    hd3_power = 0
     for h_idx in range(1, n_thd):
         h_bin = int(round(harmonic_bins[h_idx]))
         if h_bin < len(spectrum_power):
             h_start = max(h_bin - side_bin, 0)
             h_end = min(h_bin + side_bin + 1, len(spectrum_power))
-            thd_power += np.sum(spectrum_power[h_start:h_end])
+            h_power = np.sum(spectrum_power[h_start:h_end])
+            thd_power += h_power
+            # Store HD2 and HD3 individually
+            if h_idx == 1:
+                hd2_power = h_power
+            elif h_idx == 2:
+                hd3_power = h_power
     thd_power = max(thd_power, 1e-15)
+    hd2_power = max(hd2_power, 1e-15)
+    hd3_power = max(hd3_power, 1e-15)
 
     # Noise power (method-dependent)
     if nf_method == 0:
@@ -225,6 +277,8 @@ def calculate_spectrum_data(
     sndr_db = 10 * np.log10(signal_power / (noise_power + thd_power))
     snr_db = 10 * np.log10(signal_power / noise_power)
     thd_db = 10 * np.log10(thd_power)
+    hd2_db = 10 * np.log10(hd2_power)
+    hd3_db = 10 * np.log10(hd3_power)
     enob = (sndr_db - 1.76) / 6.02
 
     # SFDR
@@ -235,10 +289,10 @@ def calculate_spectrum_data(
     sfdr_db = sig_pwr_dbfs - 10 * np.log10(spur_power + 1e-20)
 
     # Noise floor (MATLAB: NF = SNR - pwr)
-    noise_floor_db = snr_db - sig_pwr_dbfs
+    noise_floor_db = sig_pwr_dbfs - snr_db
 
-    # NSD (Noise Spectral Density) - negative sign because NF represents depth below FS
-    nsd_dbfs_hz = -(noise_floor_db + 10 * np.log10(fs / (2 * osr)))
+    # NSD (Noise Spectral Density)
+    nsd_dbfs_hz = noise_floor_db - 10 * np.log10(fs / (2 * osr))
 
     results['metrics'] = {
         'enob': enob,
@@ -246,6 +300,8 @@ def calculate_spectrum_data(
         'sfdr_db': sfdr_db,
         'snr_db': snr_db,
         'thd_db': thd_db,
+        'hd2_db': hd2_db,
+        'hd3_db': hd3_db,
         'sig_pwr_dbfs': sig_pwr_dbfs,
         'noise_floor_db': noise_floor_db,
         'nsd_dbfs_hz': nsd_dbfs_hz,
@@ -274,7 +330,7 @@ def calculate_spectrum_data(
         'M': M,
         'fs': fs,
         'osr': osr,
-        'nf_line_level': -(noise_floor_db + 10*np.log10(n_search_inband)),
+        'nf_line_level': noise_floor_db - 10*np.log10(n_search_inband),
         'harmonics': [],
         'is_coherent': complex_spectrum  # Flag to indicate coherent vs power averaging
     }

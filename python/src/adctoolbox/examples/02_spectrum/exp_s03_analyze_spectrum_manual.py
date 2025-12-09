@@ -17,7 +17,9 @@ noise_rms = 200e-6
 
 snr_ref = calculate_snr_from_amplitude(sig_amplitude=A, noise_amplitude=noise_rms)
 nsd_ref = snr_to_nsd(snr_ref, fs=Fs, osr=1)
-print(f"[Setting] N=[{N_fft}], Fs=[{Fs/1e6:.1f} MHz], Fin=[{Fin/1e6:.1f} MHz] (Bin=[{Fin_bin}]) | [Theory] SNR=[{snr_ref:.2f} dB], NSD=[{nsd_ref:.2f} dBFS/Hz]")
+print(f"[Sinewave] Fs=[{Fs/1e6:.2f} MHz], Fin=[{Fin/1e6:.2f} MHz], Bin/N=[{Fin_bin}/{N_fft}], A=[{A:.3f} Vpeak]")
+print(f"[Nonideal] Noise RMS=[{noise_rms*1e6:.2f} uVrms], Theoretical SNR=[{snr_ref:.2f} dB], Theoretical NSD=[{nsd_ref:.2f} dBFS/Hz]\n")
+
 
 t = np.arange(N_fft) / Fs
 signal = A * np.sin(2*np.pi*Fin*t) + np.random.randn(N_fft) * noise_rms
@@ -27,7 +29,7 @@ results = calculate_spectrum_data(signal, fs=Fs)
 metrics = results['metrics']
 
 # Step 2: Display results
-print(f"[ENOB]={metrics['enob']:.2f} b, [SNDR]={metrics['sndr_db']:.2f} dB, [SFDR]={metrics['sfdr_db']:.2f} dB, [SNR]={metrics['snr_db']:.2f} dB")
+print(f"[calculate_spectrum_data] ENoB=[{metrics['enob']:5.2f} b], SNDR=[{metrics['sndr_db']:6.2f} dB], SFDR=[{metrics['sfdr_db']:6.2f} dB], SNR=[{metrics['snr_db']:6.2f} dB], NSD=[{metrics['nsd_dbfs_hz']:7.2f} dBFS/Hz]")
 
 # Step 3: Plot the spectrum (pure visualization)
 fig, ax = plt.subplots(figsize=(8, 6))

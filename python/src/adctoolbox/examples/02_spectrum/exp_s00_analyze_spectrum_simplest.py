@@ -14,4 +14,4 @@ signal = 0.5 * np.sin(2*np.pi*Fin*t) + np.random.randn(N_fft) * 50e-6
 
 result = analyze_spectrum(signal, fs=Fs)
 
-print(f"[analyze_spectrum] ENOB = [{result['enob']:.2f} b], SNDR = [{result['sndr_db']:.2f} dB], SFDR = [{result['sfdr_db']:.2f} dB], SNR = [{result['snr_db']:.2f} dB]")
+print(f"[analyze_spectrum] ENoB=[{result['enob']:.2f} b], SNDR=[{result['sndr_db']:.2f} dB], SFDR=[{result['sfdr_db']:.2f} dB], SNR=[{result['snr_db']:.2f} dB], NSD=[{result['nsd_dbfs_hz']:.2f} dBFS/Hz]")
