@@ -124,13 +124,10 @@ def plot_spectrum_polar(
         # Plot a FILLED circle at fundamental (more visible than hollow harmonics)
         ax.plot(phase[fundamental_bin], mag[fundamental_bin], 'o',
                markersize=12, markeredgecolor='blue', markerfacecolor='blue',
-               markeredgewidth=2, label='1 (Fundamental)', zorder=10)
+               markeredgewidth=2, label='Fundamental', zorder=10)
         # Draw THICK line from center to fundamental
         ax.plot([0, phase[fundamental_bin]], [0, mag[fundamental_bin]],
                'b-', linewidth=3, zorder=10)
-        # Add "1" label for fundamental
-        ax.text(phase[fundamental_bin] + 0.1, mag[fundamental_bin], '1',
-               fontname='Arial', fontsize=10, ha='center', fontweight='bold')
 
     # Mark harmonics (matches MATLAB harmonic plotting)
     for h in range(2, harmonic + 1):
@@ -150,9 +147,10 @@ def plot_spectrum_polar(
             ax.plot([0, phase[harmonic_bin]], [0, mag[harmonic_bin]],
                    'b-', linewidth=2)
 
-            # Add harmonic number label (matches MATLAB text annotation)
-            ax.text(phase[harmonic_bin] + 0.1, mag[harmonic_bin], str(h),
-                   fontname='Arial', fontsize=8, ha='center')
+            # Add harmonic number label - position it slightly outward, clamped to max_radius
+            label_radius = min(mag[harmonic_bin] * 1.08, max_radius * 0.98)
+            ax.text(phase[harmonic_bin], label_radius, str(h),
+                   fontname='Arial', fontsize=8, ha='center', va='center')
 
     # Set title
     plot_title = title if title else 'Spectrum Phase (FFT)'

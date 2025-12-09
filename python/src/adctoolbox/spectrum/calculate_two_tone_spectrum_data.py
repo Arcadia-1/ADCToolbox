@@ -1,0 +1,200 @@
+"""Calculate two-tone spectrum data - pure calculation module.
+
+This module provides the core calculation engine for two-tone IMD analysis,
+following the modular architecture pattern used throughout the spectrum package.
+"""
+
+import numpy as np
+from typing import Dict, Optional, Tuple
+from ..common import calculate_aliased_bin
+from ._prepare_fft_input import _prepare_fft_input
+
+
+def calculate_two_tone_spectrum_data(
+    data: np.ndarray,
+    fs: float = 1.0,
+    max_scale_range: Optional[float] = None,
+    win_type: str = 'hann',
+    side_bin: int = 1
+) -> Dict[str, any]:
+    """
+    Calculate two-tone spectrum data with IMD analysis.
+
+    Pure calculation function - no plotting or side effects.
+    Follows the modular architecture pattern.
+
+    Parameters
+    ----------
+    data : np.ndarray
+        ADC output data, shape (M, N) for M runs or (N,) for single run
+    fs : float, optional
+        Sampling frequency (Hz), default: 1.0
+    max_scale_range : float, optional
+        Maximum code range, default: max-min of data
+    win_type : str, optional
+        Window type: 'hann', 'blackman', 'hamming', 'boxcar', default: 'hann'
+    side_bin : int, optional
+        Side bins to include in signal power, default: 1
+
+    Returns
+    -------
+    dict
+        Dictionary containing:
+        - 'metrics': Performance metrics (enob, sndr, sfdr, snr, thd, etc.)
+        - 'plot_data': Data for plotting (freq, spec_db, bin1, bin2, etc.)
+        - 'imd_bins': IMD product bin locations
+    """
+    # Preprocessing using shared helper
+    data_processed = _prepare_fft_input(data, max_scale_range, win_type)
+    M, N = data_processed.shape
+    n_half = N // 2
+
+    freq = np.arange(n_half) / N * fs
+
+    # Average spectrum over multiple runs (power averaging)
+    spectrum_sum = np.zeros(N)
+    n_valid_runs = 0
+
+    for i in range(M):
+        run_data = data_processed[i, :]
+        if np.max(np.abs(run_data)) < 1e-10:
+            continue
+
+        # Accumulate power spectrum
+        spectrum_sum += np.abs(np.fft.fft(run_data))**2
+        n_valid_runs += 1
+
+    if n_valid_runs == 0:
+        raise ValueError("No valid data runs")
+
+    # Normalize spectrum (MATLAB: spec = spec/(N_fft^2)*16/ME)
+    spectrum_sum = spectrum_sum[:n_half]
+    spectrum_sum[:side_bin] = 0  # Remove DC and low-frequency bins
+    spectrum_power = spectrum_sum / (N**2) * 16 / n_valid_runs
+
+    # ========== Find two tones ==========
+    bin1 = np.argmax(spectrum_power)
+    spectrum_temp = spectrum_power.copy()
+    spectrum_temp[bin1] = 0
+    bin2 = np.argmax(spectrum_temp)
+
+    # Ensure bin1 < bin2
+    if bin1 > bin2:
+        bin1, bin2 = bin2, bin1
+
+    # ========== Calculate signal powers ==========
+    sig1_start = max(bin1 - side_bin, 0)
+    sig1_end = min(bin1 + side_bin + 1, n_half)
+    sig2_start = max(bin2 - side_bin, 0)
+    sig2_end = min(bin2 + side_bin + 1, n_half)
+
+    sig1_power = np.sum(spectrum_power[sig1_start:sig1_end])
+    sig2_power = np.sum(spectrum_power[sig2_start:sig2_end])
+
+    pwr1_dbfs = 10 * np.log10(sig1_power + 1e-20)
+    pwr2_dbfs = 10 * np.log10(sig2_power + 1e-20)
+    total_signal_power = sig1_power + sig2_power
+
+    # ========== Remove signal bins for noise calculation ==========
+    spectrum_noise = spectrum_power.copy()
+    spectrum_noise[sig1_start:sig1_end] = 0
+    spectrum_noise[sig2_start:sig2_end] = 0
+
+    noise_power = np.sum(spectrum_noise)
+
+    # ========== Find max spur ==========
+    spur_bin = np.argmax(spectrum_noise)
+    spur_start = max(spur_bin - side_bin, 0)
+    spur_end = min(spur_bin + side_bin + 1, n_half)
+    spur_power = np.sum(spectrum_noise[spur_start:spur_end])
+
+    # ========== Calculate IMD2 products ==========
+    # IMD2: f1+f2 and f2-f1
+    bin_imd2_sum = calculate_aliased_bin(bin1 + bin2, N)
+    bin_imd2_diff = calculate_aliased_bin(bin2 - bin1, N)
+
+    imd2_sum_power = np.sum(spectrum_power[max(bin_imd2_sum, 0):min(bin_imd2_sum + 3, n_half)])
+    imd2_diff_power = np.sum(spectrum_power[max(bin_imd2_diff, 0):min(bin_imd2_diff + 3, n_half)])
+    imd2_total_power = imd2_sum_power + imd2_diff_power
+
+    # ========== Calculate IMD3 products ==========
+    # IMD3: 2f1+f2, f1+2f2, 2f1-f2, 2f2-f1
+    bin_imd3_2f1_plus_f2 = calculate_aliased_bin(2 * bin1 + bin2, N)
+    bin_imd3_f1_plus_2f2 = calculate_aliased_bin(bin1 + 2 * bin2, N)
+    bin_imd3_2f1_minus_f2 = calculate_aliased_bin(2 * bin1 - bin2, N)
+    bin_imd3_2f2_minus_f1 = calculate_aliased_bin(2 * bin2 - bin1, N)
+
+    imd3_power_1 = np.sum(spectrum_power[max(bin_imd3_2f1_plus_f2, 0):min(bin_imd3_2f1_plus_f2 + 3, n_half)])
+    imd3_power_2 = np.sum(spectrum_power[max(bin_imd3_f1_plus_2f2, 0):min(bin_imd3_f1_plus_2f2 + 3, n_half)])
+    imd3_power_3 = np.sum(spectrum_power[max(bin_imd3_2f1_minus_f2, 0):min(bin_imd3_2f1_minus_f2 + 3, n_half)])
+    imd3_power_4 = np.sum(spectrum_power[max(bin_imd3_2f2_minus_f1, 0):min(bin_imd3_2f2_minus_f1 + 3, n_half)])
+    imd3_total_power = imd3_power_1 + imd3_power_2 + imd3_power_3 + imd3_power_4
+
+    # ========== Calculate THD (interleaved harmonics) ==========
+    thd_power = 0
+    spectrum_thd = spectrum_noise.copy()
+
+    for i in range(2, N // 100 + 1):
+        # Upper harmonics
+        b = calculate_aliased_bin(bin2 + (bin2 - bin1) * (i - 1), N)
+        thd_power += np.sum(spectrum_thd[max(b, 0):min(b + 3, n_half)])
+        spectrum_thd[max(b, 0):min(b + 3, n_half)] = 0
+
+        # Lower harmonics
+        b = calculate_aliased_bin(bin1 - (bin2 - bin1) * (i - 1), N)
+        if b >= 0:
+            thd_power += np.sum(spectrum_thd[max(b, 0):min(b + 3, n_half)])
+            spectrum_thd[max(b, 0):min(b + 3, n_half)] = 0
+
+    noise_power_final = np.sum(spectrum_thd)
+
+    # ========== Calculate metrics ==========
+    sndr_db = 10 * np.log10(total_signal_power / (noise_power + 1e-20))
+    sfdr_db = 10 * np.log10(total_signal_power / (spur_power + 1e-20))
+    snr_db = 10 * np.log10(total_signal_power / (noise_power_final + 1e-20))
+    thd_db = 10 * np.log10(thd_power / (total_signal_power + 1e-20))
+    enob = (sndr_db - 1.76) / 6.02
+    imd2_db = 10 * np.log10(total_signal_power / (imd2_total_power + 1e-20))
+    imd3_db = 10 * np.log10(total_signal_power / (imd3_total_power + 1e-20))
+    noise_floor_db = snr_db - 10 * np.log10(total_signal_power)
+
+    # ========== Prepare return data ==========
+    metrics = {
+        'enob': enob,
+        'sndr_db': sndr_db,
+        'sfdr_db': sfdr_db,
+        'snr_db': snr_db,
+        'thd_db': thd_db,
+        'signal_power_1_dbfs': pwr1_dbfs,
+        'signal_power_2_dbfs': pwr2_dbfs,
+        'noise_floor_db': noise_floor_db,
+        'imd2_db': imd2_db,
+        'imd3_db': imd3_db
+    }
+
+    plot_data = {
+        'freq': freq,
+        'spec_db': 10 * np.log10(spectrum_power + 1e-20),
+        'bin1': bin1,
+        'bin2': bin2,
+        'freq1': freq[bin1],
+        'freq2': freq[bin2],
+        'N': N,
+        'M': n_valid_runs,
+        'fs': fs
+    }
+
+    imd_bins = {
+        'imd2_sum': bin_imd2_sum,
+        'imd2_diff': bin_imd2_diff,
+        'imd3_2f1_plus_f2': bin_imd3_2f1_plus_f2,
+        'imd3_f1_plus_2f2': bin_imd3_f1_plus_2f2,
+        'imd3_2f1_minus_f2': bin_imd3_2f1_minus_f2,
+        'imd3_2f2_minus_f1': bin_imd3_2f2_minus_f1
+    }
+
+    return {
+        'metrics': metrics,
+        'plot_data': plot_data,
+        'imd_bins': imd_bins
+    }

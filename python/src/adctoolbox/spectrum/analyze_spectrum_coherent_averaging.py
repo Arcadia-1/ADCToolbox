@@ -12,10 +12,10 @@ from .calculate_spectrum_data import calculate_spectrum_data
 from .plot_spectrum import plot_spectrum
 
 
-def analyze_spectrum_coherent_averaging(data, fs=1.0, max_scale_range=None, harmonic=5,
-                                       win_type='boxcar', side_bin=1, freq_scale='linear',
-                                       show_label=True, is_plot=1, n_thd=5, osr=1,
-                                       cutoff_freq=0, ax=None, log_sca=None, label=None):
+def analyze_spectrum_coherent_averaging(data, fs=1.0, osr=1, max_scale_range=None,
+                                       win_type='boxcar', side_bin=1, n_thd=5,
+                                       cutoff_freq=0, show_plot=True, show_label=True,
+                                       plot_harmonics_up_to=5, ax=None):
     """
     Coherent spectrum analysis with averaging and optional plotting.
 
@@ -25,70 +25,54 @@ def analyze_spectrum_coherent_averaging(data, fs=1.0, max_scale_range=None, harm
     - Preserves harmonic relationships (SFDR/THD constant)
 
     Parameters:
-        data: Input data (N,) for single run or (M, N) for M runs
-        fs: Sampling frequency (Hz)
-        max_scale_range: Maximum scale range for normalization
-        harmonic: Number of harmonics to analyze (default: 5)
+        data: Input data (N,) or (M, N)
+        fs: Sampling frequency
+        osr: Oversampling ratio
+        max_scale_range: Full scale range (max-min) for normalization
         win_type: Window function type ('boxcar', 'hann', 'hamming')
                   Default 'boxcar' for coherent mode (no spectral leakage)
-        side_bin: Number of side bins around fundamental for signal exclusion
-        freq_scale: Frequency scale - 'linear' or 'log'
-        show_label: Add labels and annotations (True) or not (False)
-        is_plot: Plot the spectrum (1) or not (0)
+        side_bin: Number of side bins around fundamental
         n_thd: Number of harmonics for THD calculation
-        osr: Oversampling ratio
         cutoff_freq: High-pass cutoff frequency (Hz) to remove low-frequency noise
-        ax: Optional matplotlib axes object. If None and is_plot=1, creates new figure.
-        log_sca: Deprecated. Use freq_scale instead.
-        label: Deprecated. Use show_label instead.
+        show_plot: Plot the spectrum (True) or not (False)
+        show_label: Add labels and annotations (True) or not (False)
+        plot_harmonics_up_to: Number of harmonics to mark on the plot
+        ax: Optional matplotlib axes object. If None and show_plot=True, a new figure is created.
 
     Returns:
-        dict: Dictionary containing:
-            - Complex spectrum data:
-              - complex_spec_coherent: Phase-aligned complex FFT
-              - spec_mag_db: Magnitude spectrum in dBFS
-              - freq: Frequency axis (Hz)
-              - bin_r: Refined fundamental frequency bin
-            - Metrics (if available):
-              - metrics: Dictionary with enob, sndr_db, sfdr_db, snr_db, thd_db, etc.
-              - minR_dB: Noise floor level
-            - Plot data:
-              - All data needed by plot_spectrum()
-
-    Example:
-        >>> # Single run coherent analysis
-        >>> result = analyze_spectrum_coherent_averaging(signal_data, fs=100e6)
-        >>>
-        >>> # Multiple runs for noise reduction
-        >>> result = analyze_spectrum_coherent_averaging(signal_matrix, fs=100e6)
-        >>> print(f"Noise floor: {result['minR_dB']:.1f} dB")
+        dict: Dictionary with performance metrics:
+            - enob: Effective Number of Bits
+            - sndr_db: Signal-to-Noise and Distortion Ratio (dB)
+            - sfdr_db: Spurious-Free Dynamic Range (dB)
+            - snr_db: Signal-to-Noise Ratio (dB)
+            - thd_db: Total Harmonic Distortion (dB)
+            - sig_pwr_dbfs: Signal power (dBFS)
+            - noise_floor_db: Noise floor (dB)
+            - nsd_dbfs_hz: Noise Spectral Density (dBFS/Hz)
     """
-
-    # Handle deprecated parameters for backward compatibility
-    if log_sca is not None:
-        freq_scale = 'log' if log_sca else 'linear'
-    if label is not None:
-        show_label = bool(label)
 
     # 1. --- Core Calculation (Coherent/Complex Mode) ---
     # Use calculate_spectrum_data with complex_spectrum=True for coherent averaging
-    result = calculate_spectrum_data(
+    results = calculate_spectrum_data(
         data=data,
         fs=fs,
         max_scale_range=max_scale_range,
-        complex_spectrum=True,  # Enable coherent averaging mode
         win_type=win_type,
+        side_bin=side_bin,
+        osr=osr,
+        n_thd=n_thd,
+        complex_spectrum=True,  # Enable coherent averaging mode
         cutoff_freq=cutoff_freq
     )
 
     # 2. --- Optional Plotting ---
-    if is_plot:
-        # plot_spectrum expects a single analysis_results dict with all data and metrics
+    if show_plot:
+        # Pass the analysis results to the pure plotting function.
         plot_spectrum(
-            analysis_results=result,
+            analysis_results=results,
             show_label=show_label,
-            plot_harmonics_up_to=harmonic,
+            plot_harmonics_up_to=plot_harmonics_up_to,
             ax=ax
         )
 
-    return result
+    return results['metrics']

@@ -2,8 +2,8 @@
 
 import pytest
 import numpy as np
-from adctoolbox.aout._find_fundamental import _find_fundamental
-from adctoolbox.aout._find_harmonic_bins import _find_harmonic_bins
+from adctoolbox.spectrum._find_fundamental import _find_fundamental
+from adctoolbox.spectrum._find_harmonic_bins import _find_harmonic_bins
 
 
 class TestFindFundamental:

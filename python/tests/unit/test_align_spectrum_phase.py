@@ -2,7 +2,7 @@
 
 import pytest
 import numpy as np
-from adctoolbox.aout._align_spectrum_phase import _align_spectrum_phase
+from adctoolbox.spectrum._align_spectrum_phase import _align_spectrum_phase
 
 
 class TestAlignSpectrumPhase:

@@ -21,7 +21,7 @@ noise_rms = 100e-6
 
 snr_ref = calculate_snr_from_amplitude(sig_amplitude=A, noise_amplitude=noise_rms)
 nsd_ref = snr_to_nsd(snr_ref, fs=Fs, osr=1)
-print(f"[Parameters] N = [{N_fft}], Fs = [{Fs/1e6:.1f} MHz], Fin = [{Fin/1e6:.1f} MHz] (Bin = [{Fin_bin}]) | [Theoretical] SNR = [{snr_ref:.2f} dB], NSD = [{nsd_ref:.2f} dBFS/Hz]")
+print(f"[Setting] N=[{N_fft}], Fs=[{Fs/1e6:.1f} MHz], Fin=[{Fin/1e6:.1f} MHz] (Bin=[{Fin_bin}]) | [Theory] SNR=[{snr_ref:.2f} dB], NSD=[{nsd_ref:.2f} dBFS/Hz]")
 
 t = np.arange(N_fft) / Fs
 signal = A * np.sin(2*np.pi*Fin*t) + np.random.randn(N_fft) * noise_rms
@@ -67,7 +67,7 @@ for idx in range(n_plots, len(axes)):
     axes[idx].remove()
 
 plt.tight_layout()
-fig_path = (output_dir / 'exp_s06_osr_comparison.png').resolve()
+fig_path = (output_dir / 'exp_s05_osr_comparison.png').resolve()
 print(f"\n[Save fig] -> [{fig_path}]\n")
 plt.savefig(fig_path, dpi=150)
 plt.close()

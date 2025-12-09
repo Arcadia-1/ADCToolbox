@@ -18,12 +18,20 @@ def _process_plot_envelope_spectrum(raw_data, sub_folder, dataset_name, figures_
     4. Save plot
     """
     # Compute error data using sineFit
-    fitted_signal, frequency, amplitude, dc_offset, phase = fit_sine(raw_data)
+    fit_result = fit_sine(raw_data)
+    fitted_signal = fit_result['fitted_signal']
     err_data = raw_data - fitted_signal
 
     # Run plot_envelope_spectrum
     plt.figure(figsize=(12, 8))
-    enob, sndr, sfdr, snr, thd, signal_power, noise_floor = plot_envelope_spectrum(err_data, fs=1)
+    result = plot_envelope_spectrum(err_data, fs=1)
+    enob = result['enob']
+    sndr = result['sndr_db']
+    sfdr = result['sfdr_db']
+    snr = result['snr_db']
+    thd = result['thd_db']
+    signal_power = result['sig_pwr_dbfs']
+    noise_floor = result['noise_floor_db']
     plt.title(f'errEnvelopeSpectrum: {dataset_name}')
 
     # Save variables with MATLAB-compatible names

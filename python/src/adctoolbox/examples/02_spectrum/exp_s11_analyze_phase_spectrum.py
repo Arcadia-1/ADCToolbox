@@ -5,9 +5,8 @@ Demonstrates different ADC impairments using modular phase spectrum analysis.
 import numpy as np
 import matplotlib.pyplot as plt
 from pathlib import Path
-from adctoolbox import calc_coherent_freq
-from adctoolbox.aout.calculate_coherent_spectrum import calculate_coherent_spectrum
-from adctoolbox.aout.plot_polar_phase import plot_polar_phase
+from adctoolbox import calculate_coherent_freq
+from adctoolbox.spectrum import analyze_spectrum_polar
 
 output_dir = Path(__file__).parent / "output"
 output_dir.mkdir(exist_ok=True)
@@ -15,7 +14,7 @@ output_dir.mkdir(exist_ok=True)
 N = 2**13
 Fs = 800e6
 Fin_target = 80e6
-Fin, J = calc_coherent_freq(Fs, Fin_target, N)
+Fin, J = calculate_coherent_freq(Fs, Fin_target, N)
 t = np.arange(N) / Fs
 A, DC = 0.49, 0.5
 base_noise = 50e-6
@@ -53,9 +52,6 @@ params = [f'RMS = {noise_rms*1e3:.2f} mV',
           f'strength = {kickback_strength}']
 
 print(f"[Phase Spectrum Analysis] [Fs = {Fs/1e6:.0f} MHz, Fin = {Fin/1e6:.1f} MHz, N = {N}]")
-print("\n[Modular Structure Used]")
-print("  1. calculate_coherent_spectrum() - Compute phase-aligned spectrum")
-print("  2. plot_polar_phase() - Visualize the results")
 
 # Create 2x2 figure for comparison
 fig = plt.figure(figsize=(14, 10))
@@ -64,24 +60,15 @@ for i, (signal, title, param) in enumerate(zip(signals, titles, params)):
     # Create individual subplot with polar projection
     ax = fig.add_subplot(2, 2, i+1, projection='polar')
 
-    # Step 1: Calculate coherent spectrum (pure computation)
-    coherent_result = calculate_coherent_spectrum(
+    # Analyze spectrum with polar phase visualization
+    coherent_result, plot_data = analyze_spectrum_polar(
         signal,
         fs=Fs,
-        osr=1,
-        win_type='boxcar'
+        harmonic=5,
+        win_type='boxcar',
+        show_plot=False,
+        ax=ax
     )
-
-    # Step 2: Prepare plot data
-    plot_data = {
-        'complex_spec_coherent': coherent_result['complex_spec_coherent'],
-        'minR_dB': coherent_result['minR_dB'],
-        'bin_idx': coherent_result['bin_idx'],
-        'N_fft': coherent_result['n_fft']
-    }
-
-    # Step 3: Plot using pure visualization function
-    plot_polar_phase(plot_data, harmonic=5, ax=ax)
 
     # Customize title and parameters
     ax.set_title(f'{title}\n{param}', fontsize=11, fontweight='bold', pad=20)
@@ -103,21 +90,14 @@ print(f"\n[Save fig] -> [{fig_path}]")
 
 # Also save individual plots for better visibility
 for i, (signal, title) in enumerate(zip(signals, titles)):
-    fig, ax = plt.subplots(figsize=(8, 8), subplot_kw=dict(projection='polar'))
-
-    # Calculate and plot
-    coherent_result = calculate_coherent_spectrum(signal, fs=Fs, win_type='boxcar')
-    plot_data = {
-        'complex_spec_coherent': coherent_result['complex_spec_coherent'],
-        'minR_dB': coherent_result['minR_dB'],
-        'bin_idx': coherent_result['bin_idx'],
-        'N_fft': coherent_result['n_fft']
-    }
-    plot_polar_phase(plot_data, harmonic=5, ax=ax)
-
-    ax.set_title(f'Phase Spectrum - {title}', fontsize=12, fontweight='bold', pad=20)
-
     # Save individual plot
     individual_path = output_dir / f'exp_s11_phase_{title.lower().replace(" ", "_")}.png'
-    plt.savefig(individual_path, dpi=150, bbox_inches='tight')
-    plt.close()
+    analyze_spectrum_polar(
+        signal,
+        fs=Fs,
+        harmonic=5,
+        win_type='boxcar',
+        title=f'Phase Spectrum - {title}',
+        save_path=individual_path,
+        show_plot=False
+    )

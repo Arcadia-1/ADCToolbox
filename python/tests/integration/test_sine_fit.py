@@ -17,7 +17,12 @@ def _process_fit_sine(raw_data, sub_folder, dataset_name, figures_folder, test_n
     3. Generate and save plot
     """
     # 1. Sine Fitting - using new Pythonic names
-    fitted_signal, frequency, amplitude, dc_offset, phase = fit_sine(raw_data)
+    fit_result = fit_sine(raw_data)
+    fitted_signal = fit_result['fitted_signal']
+    frequency = fit_result['frequency']
+    amplitude = fit_result['amplitude']
+    dc_offset = fit_result['dc_offset']
+    phase = fit_result['phase']
 
     # 2. Save Variables - Pythonic names auto-mapped to MATLAB names
     save_variable(sub_folder, frequency, 'frequency')        # → freq_python.csv

@@ -41,9 +41,9 @@ class TestPrepareFftInput:
         assert processed.shape == (1, 5)
 
     def test_custom_max_code(self):
-        """Test with custom max_code value."""
+        """Test with custom max_scale_range value."""
         data = np.array([1, 2, 3, 4, 5])
-        processed = _prepare_fft_input(data, max_code=10.0)
+        processed = _prepare_fft_input(data, max_scale_range=10.0)
 
         # Values should be normalized by 10
         # After DC removal: [-2, -1, 0, 1, 2], divided by 10: [-0.2, -0.1, 0, 0.1, 0.2]
@@ -85,9 +85,9 @@ class TestPrepareFftInput:
         assert processed_power < original_power  # Windowing reduces power
 
     def test_zero_max_code_handling(self):
-        """Test that zero max_code doesn't cause division by zero."""
+        """Test that zero max_scale_range doesn't cause division by zero."""
         data = np.zeros(10)
-        processed = _prepare_fft_input(data, max_code=0)
+        processed = _prepare_fft_input(data, max_scale_range=0)
 
         assert processed.shape == (1, 10)
         # Should not normalize when max_code is 0
@@ -116,7 +116,7 @@ class TestPrepareFftInput:
         """Test that invalid input raises appropriate error."""
         # 3D input should raise error
         data = np.zeros((2, 3, 4))
-        with pytest.raises(ValueError, match="Input data must be 1D or 2D"):
+        with pytest.raises(ValueError, match="Input must be 1D or 2D"):
             _prepare_fft_input(data)
 
     def test_dc_removal_accuracy(self):
@@ -151,7 +151,7 @@ class TestPrepareFftInput:
         # Simulate user passing (N, M) = (1024, 8) instead of (M, N) = (8, 1024)
         data = np.random.randn(1024, 8)  # N=1024 samples, M=8 runs (wrong format)
 
-        with pytest.warns(UserWarning, match="Auto-transposing"):
+        with pytest.warns(UserWarning, match="Auto-transpose"):
             processed = _prepare_fft_input(data)
 
         # Should be transposed to (M, N) = (8, 1024)
