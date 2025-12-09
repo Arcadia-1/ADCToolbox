@@ -1,4 +1,8 @@
-"""Batch spectrum analysis with static nonlinearity (HD2/HD3)."""
+"""
+Power spectrum averaging: reduces noise floor by averaging FFT magnitudes across runs.
+1 run: noisy spectrum. 8 runs: ~9dB noise floor improvement. 64 runs: ~18dB improvement.
+Power averaging is magnitude-only (|FFT|²) - phase information is discarded.
+"""
 import numpy as np
 import matplotlib.pyplot as plt
 from pathlib import Path
@@ -9,14 +13,14 @@ output_dir.mkdir(exist_ok=True)
 
 N_fft = 2**10
 Fs = 100e6
-Fin, Fin_bin = calculate_coherent_freq(fs=Fs, fin_target=5e6, n_fft=N_fft)
-print(f"[Batch spectrum analysis] Fs={Fs/1e6:.1f} MHz, Fin={Fin/1e6:.6f} MHz, Bin={Fin_bin}, N_fft={N_fft}")
-
-# Signal parameters
 A = 0.499
 noise_rms = 100e-6
 hd2_dB = -100
 hd3_dB = -90
+
+Fin, Fin_bin = calculate_coherent_freq(fs=Fs, fin_target=5e6, n_fft=N_fft)
+print(f"[Sinewave] Fs=[{Fs/1e6:.2f} MHz], Fin=[{Fin/1e6:.6f} MHz] (coherent, Bin {Fin_bin}), N=[{N_fft}], A=[{A:.3f} Vpeak]")
+print(f"[Nonideal] HD2=[{hd2_dB} dB], HD3=[{hd3_dB} dB], Noise RMS=[{noise_rms*1e6:.2f} uVrms]\n")
 hd2_amp = 10**(hd2_dB/20)  # Harmonic amplitude / Fundamental amplitude
 hd3_amp = 10**(hd3_dB/20)
 
@@ -46,8 +50,7 @@ for run_idx in range(N_max):
     # Store in matrix
     signal_matrix[:, run_idx] = sig_distorted
 
-print(
-    f"[Generated] {N_max} runs with random phase, noise, and nonlinearity (HD2={hd2_dB}dB, HD3={hd3_dB}dB)")
+print(f"[Generated] {N_max} runs with random phase")
 
 fig, axes = plt.subplots(1, len(N_runs), figsize=(len(N_runs)*6, 6))
 
@@ -65,11 +68,11 @@ for idx, N_run in enumerate(N_runs):
     axes[idx].set_ylim([-120, 0])
     axes[idx].set_title(f'N_run = {N_run}', fontsize=12, fontweight='bold')
 
-    print(f"[{N_run:2d} Run(s)] [ENOB] = {result['enob']:.3f} b, [SNDR] = {result['sndr_db']:.2f} dB, [SFDR] = {result['sfdr_db']:.2f} dB, [SNR] = {result['snr_db']:.2f} dB")
+    print(f"[{N_run:2d} Run(s)] ENoB=[{result['enob']:5.2f} b], SNDR=[{result['sndr_db']:6.2f} dB], SFDR=[{result['sfdr_db']:6.2f} dB], SNR=[{result['snr_db']:6.2f} dB], NSD=[{result['nsd_dbfs_hz']:7.2f} dBFS/Hz]")
 
 fig.suptitle(f'Spectral Averaging (N_fft = {N_fft})', fontsize=14, fontweight='bold')
 plt.tight_layout()
-fig_path = (output_dir / 'exp_s09_power_spectrum_averaging.png').resolve()
-print(f"\n[Save fig] -> [{fig_path}]\n")
+fig_path = (output_dir / 'exp_s10_spectrum_power_averaging.png').resolve()
+print(f"\n[Save fig] -> [{fig_path}]")
 plt.savefig(fig_path, dpi=150)
 plt.close()
