@@ -36,13 +36,21 @@ def _process_calibrate_weight_sine(raw_data, sub_folder, dataset_name, figures_f
 
     # Spectrum plot BEFORE calibration (using nominal weights)
     fig = plt.figure(figsize=(12, 8))
-    ENoB_pre, SNDR_pre, SFDR_pre, SNR_pre, THD_pre, pwr_pre, NF_pre, NSD_pre = analyze_spectrum(
+    result_pre = analyze_spectrum(
         preCal,
-        label=1,
-        harmonic=5,
+        show_label=True,
+        n_thd=5,
         osr=1,
         nf_method=0
     )
+    ENoB_pre = result_pre['enob']
+    SNDR_pre = result_pre['sndr_db']
+    SFDR_pre = result_pre['sfdr_db']
+    SNR_pre = result_pre['snr_db']
+    THD_pre = result_pre['thd_db']
+    pwr_pre = result_pre['sig_pwr_dbfs']
+    NF_pre = result_pre['noise_floor_db']
+    NSD_pre = result_pre['nsd_dbfs_hz']
     plt.title(f'Spectrum Before Calibration: {dataset_name}')
     figure_name_preCal = f"{test_name}_{dataset_name}_preCal_python.png"
     save_fig(figures_folder, figure_name_preCal, dpi=100)
@@ -50,13 +58,21 @@ def _process_calibrate_weight_sine(raw_data, sub_folder, dataset_name, figures_f
 
     # Spectrum plot AFTER calibration
     fig = plt.figure(figsize=(12, 8))
-    ENoB_post, SNDR_post, SFDR_post, SNR_post, THD_post, pwr_post, NF_post, NSD_post = analyze_spectrum(
+    result_post = analyze_spectrum(
         postCal,
-        label=1,
-        harmonic=5,
+        show_label=True,
+        n_thd=5,
         osr=1,
         nf_method=0
     )
+    ENoB_post = result_post['enob']
+    SNDR_post = result_post['sndr_db']
+    SFDR_post = result_post['sfdr_db']
+    SNR_post = result_post['snr_db']
+    THD_post = result_post['thd_db']
+    pwr_post = result_post['sig_pwr_dbfs']
+    NF_post = result_post['noise_floor_db']
+    NSD_post = result_post['nsd_dbfs_hz']
     plt.title(f'Spectrum After Calibration: {dataset_name}')
     figure_name_postCal = f"{test_name}_{dataset_name}_postCal_python.png"
     save_fig(figures_folder, figure_name_postCal, dpi=100)

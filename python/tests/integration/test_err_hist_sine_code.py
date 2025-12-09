@@ -21,12 +21,11 @@ def _process_plot_error_hist_code(raw_data, sub_folder, dataset_name, figures_fo
     freq = estimate_frequency(raw_data, fs=1)
 
     # 2. Error Histogram Analysis (Code Mode)
-    emean_code, erms_code, code_axis, _, _, _, _ = plot_error_hist_code(
+    emean_code, erms_code, code_axis, error, codes = plot_error_hist_code(
         raw_data,
-        bin=256,
-        fin=freq,
-        disp=1,
-        mode=1
+        bins=256,
+        freq=freq,
+        disp=1
     )
 
     # Get the figure that err_hist_sine created and add title

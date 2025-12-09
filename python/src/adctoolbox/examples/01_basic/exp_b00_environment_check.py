@@ -1,9 +1,6 @@
 """
-Environment Verification Check (Smoke Test).
-
-This script verifies that the core dependencies (NumPy, Matplotlib, Pathlib) 
-are correctly installed and that the environment can generate and save plots 
-before running the complex ADC analysis tools.
+Quick environment check: Verifies that NumPy, Matplotlib, and ADCToolbox are installed correctly.
+Generates a simple spectrum plot to confirm everything works before running more complex examples.
 """
 import numpy as np
 import matplotlib.pyplot as plt

@@ -51,7 +51,12 @@ for run_idx in range(N_max):
 print(f"\n[Generated {N_max} runs with random phase, noise, and nonlinearity]")
 
 # Create comparison plots
-fig, axes = plt.subplots(2, len(N_runs), figsize=(16, 9))
+# Each subplot is 6x5 inches
+subplot_width = 6
+subplot_height = 5
+fig_width = subplot_width * len(N_runs)
+fig_height = subplot_height * 2  # 2 rows
+fig, axes = plt.subplots(2, len(N_runs), figsize=(fig_width, fig_height))
 
 
 for idx, N_run in enumerate(N_runs):
@@ -66,17 +71,13 @@ for idx, N_run in enumerate(N_runs):
 
     # Traditional power averaging (analyze_spectrum)
     plt.sca(axes[0, idx])
-    result_trad = analyze_spectrum(signal_data, fs=Fs)
+    result_trad = analyze_spectrum(signal_data, fs=Fs, win_type='boxcar')
     axes[0, idx].set_ylim([-120, 0])
 
     # Coherent averaging (analyze_spectrum_coherent_averaging)
     plt.sca(axes[1, idx])
-    result_coh = analyze_spectrum_coherent_averaging(signal_data, fs=Fs)
+    result_coh = analyze_spectrum_coherent_averaging(signal_data, fs=Fs, win_type='boxcar')
     axes[1, idx].set_ylim([-120, 0])
-
-# Column titles
-for i, N_run in enumerate(N_runs):
-    axes[1, i].set_title(f'Coherent averaging (N_run = {N_run})', fontsize=14, fontweight='bold')
 
 # Row labels
 axes[0, 0].set_ylabel('Power Spectrum (dB)', fontsize=11, fontweight='bold')

@@ -2,7 +2,7 @@ import numpy as np
 from pathlib import Path
 import matplotlib.pyplot as plt
 
-from adctoolbox.aout import analyze_phase_spectrum
+from adctoolbox.spectrum import analyze_spectrum_polar
 from tests._utils import auto_search_files
 from tests import config
 
@@ -32,7 +32,7 @@ def test_analyze_phase_spectrum_fft(project_root):
 
             figure_name = f"test_plotphase_fft_{dataset_name}_python.png"
             phase_plot_path = figures_dir / figure_name
-            result = analyze_phase_spectrum(raw_data, harmonic=10, mode='FFT', save_path=str(phase_plot_path))
+            coherent_result, plot_data = analyze_spectrum_polar(raw_data, harmonic=10, save_path=str(phase_plot_path))
 
             success_count += 1
 

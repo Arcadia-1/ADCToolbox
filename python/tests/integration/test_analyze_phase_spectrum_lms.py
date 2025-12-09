@@ -2,7 +2,7 @@ import numpy as np
 from pathlib import Path
 import matplotlib.pyplot as plt
 
-from adctoolbox.aout import analyze_phase_spectrum
+from adctoolbox.aout import analyze_decomposition_polar
 from tests._utils import auto_search_files, save_variable
 from tests import config
 
@@ -37,13 +37,13 @@ def test_analyze_phase_spectrum_lms(project_root):
 
             figure_name = f"test_plotphase_lms_{dataset_name}_python.png"
             phase_plot_path = figures_dir / figure_name
-            result = analyze_phase_spectrum(raw_data, harmonic=10, mode='LMS', save_path=str(phase_plot_path))
+            decomp_result, plot_data = analyze_decomposition_polar(raw_data, harmonic=10, save_path=str(phase_plot_path))
 
             # Extract LMS mode outputs
-            harm_phase = result['harm_phase']
-            harm_mag = result['harm_mag']
-            freq = result['freq']
-            noise_dB = result['noise_dB']
+            harm_phase = decomp_result['harm_phase']
+            harm_mag = decomp_result['harm_mag']
+            freq = decomp_result['fundamental_freq']
+            noise_dB = decomp_result['noise_dB']
 
             save_variable(sub_folder, harm_phase, 'harm_phase')
             save_variable(sub_folder, harm_mag, 'harm_mag')

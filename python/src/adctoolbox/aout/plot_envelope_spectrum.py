@@ -37,8 +37,8 @@ def plot_envelope_spectrum(err_data, fs=1):
     env = np.abs(hilbert(e))
 
     # Use spec_plot for spectrum analysis (spec_plot will handle closing its own figure)
-    # Use harmonic=5 to match MATLAB's default
-    result = analyze_spectrum(env, fs=fs, label=0, harmonic=5)
+    # Use n_thd=5 to match MATLAB's default
+    result = analyze_spectrum(env, fs=fs, show_label=False, n_thd=5)
 
     # Update labels with larger fonts to match MATLAB
     plt.grid(True)

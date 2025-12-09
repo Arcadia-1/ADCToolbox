@@ -12,8 +12,8 @@ import matplotlib.pyplot as plt
 from pathlib import Path
 from typing import Optional, Union, Tuple, Dict, Any
 
-from .calculate_coherent_spectrum import calculate_coherent_spectrum
-from .plot_polar_phase import plot_polar_phase
+from .calculate_spectrum_data import calculate_spectrum_data
+from .plot_spectrum_polar import plot_spectrum_polar
 
 
 def analyze_spectrum_polar(
@@ -112,22 +112,31 @@ def analyze_spectrum_polar(
     """
 
     # Step 1: Calculate coherent spectrum (pure computation)
-    coherent_result = calculate_coherent_spectrum(
+    result = calculate_spectrum_data(
         data=data,
-        max_code=max_code,
+        max_scale_range=max_code,
         osr=osr,
         cutoff_freq=cutoff_freq,
         fs=fs,
         win_type=win_type,
-        n_fft=n_fft
+        complex_spectrum=True
     )
 
-    # Step 2: Prepare plot data
+    # Step 2: Prepare plot data (keys must match plot_spectrum_polar requirements)
     plot_data = {
-        'complex_spec_coherent': coherent_result['complex_spec_coherent'],
-        'minR_dB': coherent_result['minR_dB'],
-        'bin_idx': coherent_result['bin_idx'],
-        'N_fft': coherent_result['n_fft'],
+        'complex_spec_coherent': result['complex_spec_coherent'],
+        'minR_dB': result['minR_dB'],
+        'bin_idx': result['bin_idx'],
+        'n_fft': result['N'],  # Use lowercase n_fft for plot_spectrum_polar
+    }
+
+    # Also store the result dict for coherent_result return value
+    coherent_result = {
+        'complex_spec_coherent': result['complex_spec_coherent'],
+        'minR_dB': result['minR_dB'],
+        'bin_idx': result['bin_idx'],
+        'bin_r': result.get('bin_r', result['bin_idx']),
+        'n_fft': result['N']
     }
 
     # Step 3: Plot if requested (pure visualization)
@@ -140,11 +149,7 @@ def analyze_spectrum_polar(
             if not hasattr(ax, 'set_theta_zero_location'):
                 raise ValueError("Axes must have polar projection")
 
-        plot_polar_phase(plot_data, harmonic=harmonic, ax=ax)
-
-        # Override title if custom title provided
-        if title:
-            ax.set_title(title, pad=20, fontsize=12, fontweight='bold')
+        plot_spectrum_polar(plot_data, harmonic=harmonic, ax=ax, title=title)
 
         # Save figure if path provided
         if save_path:
