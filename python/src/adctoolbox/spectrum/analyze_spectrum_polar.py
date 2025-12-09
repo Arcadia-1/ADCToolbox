@@ -28,8 +28,9 @@ def analyze_spectrum_polar(
     title: Optional[str] = None,
     save_path: Optional[Union[str, Path]] = None,
     show_plot: bool = True,
-    ax: Optional[plt.Axes] = None
-) -> Tuple[Dict[str, Any], Dict[str, Any]]:
+    ax: Optional[plt.Axes] = None,
+    fixed_radial_range: Optional[float] = None
+) -> Dict[str, Any]:
     """Analyze spectrum with polar phase visualization (FFT coherent mode).
 
     This wrapper function combines FFT coherent spectrum calculation
@@ -62,6 +63,9 @@ def analyze_spectrum_polar(
         Whether to create and display the plot (default: True)
     ax : matplotlib.axes.Axes, optional
         Pre-existing polar axes to plot on. If None, creates new figure
+    fixed_radial_range : float, optional
+        Fixed radial range in dB (e.g., 120 for 0 to -120 dB range).
+        If None, auto-scales based on noise floor.
 
     Returns
     -------
@@ -72,9 +76,9 @@ def analyze_spectrum_polar(
         - 'bin_idx': Fundamental bin index
         - 'bin_r': Refined bin position
         - 'n_fft': FFT length
-
-    plot_data : dict
-        Dictionary containing data used for plotting
+        - 'metrics': Performance metrics (ENOB, SNR, SNDR, etc.)
+        - 'hd2_phase_deg': HD2 phase in degrees
+        - 'hd3_phase_deg': HD3 phase in degrees
 
     Examples
     --------
@@ -156,7 +160,7 @@ def analyze_spectrum_polar(
             if not hasattr(ax, 'set_theta_zero_location'):
                 raise ValueError("Axes must have polar projection")
 
-        plot_spectrum_polar(plot_data, harmonic=harmonic, ax=ax, title=title)
+        plot_spectrum_polar(plot_data, harmonic=harmonic, ax=ax, title=title, fixed_radial_range=fixed_radial_range)
 
         # Save figure if path provided
         if save_path:
@@ -168,4 +172,4 @@ def analyze_spectrum_polar(
         if show_plot and ax is None:
             plt.show()
 
-    return coherent_result, plot_data
+    return coherent_result

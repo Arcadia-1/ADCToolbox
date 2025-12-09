@@ -6,7 +6,7 @@ Power averaging is magnitude-only (|FFT|²) - phase information is discarded.
 import numpy as np
 import matplotlib.pyplot as plt
 from pathlib import Path
-from adctoolbox import calculate_coherent_freq, analyze_spectrum
+from adctoolbox import calculate_coherent_freq, analyze_spectrum, calculate_snr_from_amplitude, snr_to_nsd
 
 output_dir = Path(__file__).parent / "output"
 output_dir.mkdir(exist_ok=True)
@@ -19,8 +19,11 @@ hd2_dB = -100
 hd3_dB = -90
 
 Fin, Fin_bin = calculate_coherent_freq(fs=Fs, fin_target=5e6, n_fft=N_fft)
-print(f"[Sinewave] Fs=[{Fs/1e6:.2f} MHz], Fin=[{Fin/1e6:.6f} MHz] (coherent, Bin {Fin_bin}), N=[{N_fft}], A=[{A:.3f} Vpeak]")
-print(f"[Nonideal] HD2=[{hd2_dB} dB], HD3=[{hd3_dB} dB], Noise RMS=[{noise_rms*1e6:.2f} uVrms]\n")
+
+snr_ref = calculate_snr_from_amplitude(sig_amplitude=A, noise_amplitude=noise_rms)
+nsd_ref = snr_to_nsd(snr_ref, fs=Fs, osr=1)
+print(f"[Sinewave] Fs=[{Fs/1e6:.2f} MHz], Fin=[{Fin/1e6:.2f} MHz], Bin/N=[{Fin_bin}/{N_fft}], A=[{A:.3f} Vpeak]")
+print(f"[Nonideal] HD2=[{hd2_dB} dB], HD3=[{hd3_dB} dB], Noise RMS=[{noise_rms*1e6:.2f} uVrms], Theoretical SNR=[{snr_ref:.2f} dB], Theoretical NSD=[{nsd_ref:.2f} dBFS/Hz]\n")
 hd2_amp = 10**(hd2_dB/20)  # Harmonic amplitude / Fundamental amplitude
 hd3_amp = 10**(hd3_dB/20)
 
