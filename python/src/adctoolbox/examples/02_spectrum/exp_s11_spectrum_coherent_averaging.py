@@ -1,9 +1,7 @@
-"""Coherent spectrum averaging with multiple runs.
-
-Demonstrates how coherent averaging (phase alignment) improves the spectrum
-compared to traditional power averaging when signals have random phase offsets.
-
-Uses the analyze_spectrum_coherent_averaging wrapper for clean, consistent interface.
+"""
+Coherent spectrum averaging: aligns phases across runs before averaging complex FFT values.
+Preserves phase relationships between fundamental and harmonics. More effective than power averaging
+for reducing noise while maintaining harmonic structure. Compare power vs coherent averaging results.
 """
 
 import numpy as np
@@ -17,10 +15,6 @@ output_dir.mkdir(exist_ok=True)
 
 N_fft = 2**10
 Fs = 100e6
-Fin, Fin_bin = calculate_coherent_freq(fs=Fs, fin_target=5e6, n_fft=N_fft)
-print(f"[Coherent Spectrum Averaging Comparison] Fs={Fs/1e6:.1f} MHz, Fin={Fin/1e6:.4f} MHz, Bin={Fin_bin}, N_fft={N_fft}")
-
-# Signal parameters - same as exp_s07
 A = 0.499
 noise_rms = 100e-6
 hd2_dB = -100
@@ -29,6 +23,10 @@ hd2_amp = 10**(hd2_dB/20)
 hd3_amp = 10**(hd3_dB/20)
 k2 = hd2_amp / (A / 2)
 k3 = hd3_amp / (A**2 / 4)
+
+Fin, Fin_bin = calculate_coherent_freq(fs=Fs, fin_target=5e6, n_fft=N_fft)
+print(f"[Sinewave] Fs=[{Fs/1e6:.2f} MHz], Fin=[{Fin/1e6:.6f} MHz] (coherent, Bin {Fin_bin}), N=[{N_fft}], A=[{A:.3f} Vpeak]")
+print(f"[Nonideal] HD2=[{hd2_dB} dB], HD3=[{hd3_dB} dB], Noise RMS=[{noise_rms*1e6:.2f} uVrms]\n")
 
 # Number of runs to test
 N_runs = [1, 10, 100]
@@ -48,7 +46,7 @@ for run_idx in range(N_max):
 
     signal_matrix[:, run_idx] = sig_distorted
 
-print(f"\n[Generated {N_max} runs with random phase, noise, and nonlinearity]")
+print(f"[Generated] {N_max} runs with random phase\n")
 
 # Create comparison plots
 # Each subplot is 6x5 inches
@@ -60,8 +58,6 @@ fig, axes = plt.subplots(2, len(N_runs), figsize=(fig_width, fig_height))
 
 
 for idx, N_run in enumerate(N_runs):
-    print(f"\n[Processing {N_run:3d} run(s)]")
-
     # Prepare signal data
     if N_run == 1:
         signal_single = signal_matrix[:, 0]
@@ -79,6 +75,8 @@ for idx, N_run in enumerate(N_runs):
     result_coh = analyze_spectrum_coherent_averaging(signal_data, fs=Fs, win_type='boxcar')
     axes[1, idx].set_ylim([-120, 0])
 
+    print(f"[{N_run:3d} Run(s)] Power Avg: ENoB=[{result_trad['enob']:5.2f} b], SNR=[{result_trad['snr_db']:6.2f} dB] | Coherent Avg: ENoB=[{result_coh['enob']:5.2f} b], SNR=[{result_coh['snr_db']:6.2f} dB]")
+
 # Row labels
 axes[0, 0].set_ylabel('Power Spectrum (dB)', fontsize=11, fontweight='bold')
 axes[1, 0].set_ylabel('Coherent Spectrum (dBFS)', fontsize=11, fontweight='bold')
@@ -88,7 +86,7 @@ fig.suptitle(f'Power Spectrum Averaging vs Complex Spectrum Coherent Averaging (
              fontsize=16, fontweight='bold')
 
 plt.tight_layout()
-fig_path = output_dir / 'exp_s10_complex_spectrum_coherent_averaging.png'
-print(f"\n[Save comparison] -> [{fig_path}]")
+fig_path = output_dir / 'exp_s11_spectrum_coherent_averaging.png'
+print(f"\n[Save fig] -> [{fig_path}]")
 plt.savefig(fig_path, dpi=150)
 plt.close(fig)

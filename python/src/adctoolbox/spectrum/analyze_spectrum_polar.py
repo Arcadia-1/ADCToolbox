@@ -128,6 +128,9 @@ def analyze_spectrum_polar(
         'minR_dB': result['minR_dB'],
         'bin_idx': result['bin_idx'],
         'n_fft': result['N'],  # Use lowercase n_fft for plot_spectrum_polar
+        'metrics': result.get('metrics', {}),  # Pass metrics for annotation
+        'hd2_phase_deg': result.get('hd2_phase_deg', 0),  # Pass HD2 phase
+        'hd3_phase_deg': result.get('hd3_phase_deg', 0),  # Pass HD3 phase
     }
 
     # Also store the result dict for coherent_result return value
@@ -136,11 +139,15 @@ def analyze_spectrum_polar(
         'minR_dB': result['minR_dB'],
         'bin_idx': result['bin_idx'],
         'bin_r': result.get('bin_r', result['bin_idx']),
-        'n_fft': result['N']
+        'n_fft': result['N'],
+        'metrics': result.get('metrics', {}),
+        'hd2_phase_deg': result.get('hd2_phase_deg', 0),
+        'hd3_phase_deg': result.get('hd3_phase_deg', 0)
     }
 
     # Step 3: Plot if requested (pure visualization)
-    if show_plot or save_path:
+    # If ax is provided, always plot (for subplots). Otherwise check show_plot/save_path
+    if ax is not None or show_plot or save_path:
         if ax is None:
             fig, ax = plt.subplots(figsize=(10, 8), subplot_kw=dict(projection='polar'))
         else:

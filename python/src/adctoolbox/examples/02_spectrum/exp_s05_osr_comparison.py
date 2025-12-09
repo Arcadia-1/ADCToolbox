@@ -21,7 +21,8 @@ noise_rms = 100e-6
 
 snr_ref = calculate_snr_from_amplitude(sig_amplitude=A, noise_amplitude=noise_rms)
 nsd_ref = snr_to_nsd(snr_ref, fs=Fs, osr=1)
-print(f"[Setting] N=[{N_fft}], Fs=[{Fs/1e6:.1f} MHz], Fin=[{Fin/1e6:.1f} MHz] (Bin=[{Fin_bin}]) | [Theory] SNR=[{snr_ref:.2f} dB], NSD=[{nsd_ref:.2f} dBFS/Hz]")
+print(f"[Sinewave] Fs=[{Fs/1e6:.2f} MHz], Fin=[{Fin/1e6:.2f} MHz], Bin/N=[{Fin_bin}/{N_fft}], A=[{A:.3f} Vpeak]")
+print(f"[Nonideal] Noise RMS=[{noise_rms*1e6:.2f} uVrms], Theoretical SNR=[{snr_ref:.2f} dB], Theoretical NSD=[{nsd_ref:.2f} dBFS/Hz]\n")
 
 t = np.arange(N_fft) / Fs
 signal = A * np.sin(2*np.pi*Fin*t) + np.random.randn(N_fft) * noise_rms
@@ -51,16 +52,13 @@ for idx, osr in enumerate(osr_values):
     result = analyze_spectrum(signal, fs=Fs, osr=osr, show_plot=True)
     results.append(result)
 
-
     # Store baseline SNR (OSR=1)
     if idx == 0:
         snr_baseline = result['snr_db']
-        axes[idx].set_title(f'OSR = {osr}', fontsize=12, fontweight='bold')
-        print(f"[OSR = {osr:3d}] ENOB = {result['enob']:5.2f} b, SNR = {result['snr_db']:6.2f} dB")
-    else:
-        snr_improvement = result['snr_db'] - snr_baseline
-        axes[idx].set_title(f'OSR = {osr} (SNR +{snr_improvement:.1f} dB)', fontsize=12, fontweight='bold')
-        print(f"[OSR = {osr:3d}] ENOB = {result['enob']:5.2f} b, SNR = {result['snr_db']:6.2f} dB, Delta SNR = {snr_improvement:5.2f} dB")
+
+    snr_improvement = result['snr_db'] - snr_baseline
+    axes[idx].set_title(f'OSR = {osr} (SNR +{snr_improvement:.1f} dB)', fontsize=12, fontweight='bold')
+    print(f"[OSR={osr:3d}] ENoB=[{result['enob']:5.2f} b], SNDR=[{result['sndr_db']:6.2f} dB], SFDR=[{result['sfdr_db']:6.2f} dB], SNR=[{result['snr_db']:6.2f} dB], NSD=[{result['nsd_dbfs_hz']:7.2f} dBFS/Hz], Delta SNR=[+{snr_improvement:.1f} dB]")
 
 # Remove empty subplots
 for idx in range(n_plots, len(axes)):

@@ -139,38 +139,22 @@ def plot_two_tone_spectrum(
         freq1_str = format_freq(freq1)
         freq2_str = format_freq(freq2)
 
-        # Calculate y positions below each peak
-        y_freq1 = pwr1 - 8  # Frequency label 8 dB below peak
-        y_pwr1 = pwr1 - 13  # Power label 13 dB below peak
-        y_freq2 = pwr2 - 8
-        y_pwr2 = pwr2 - 13
+        # Position labels: left signal gets right-aligned label (on its left)
+        #                  right signal gets left-aligned label (on its right)
+        y_offset = -8
 
-        # Smart positioning based on absolute position in plot
-        # If both signals are on left third of plot, both labels go right
-        # If both on right third, both labels go left
-        # Otherwise, use relative positioning
-        plot_center = fs / 4
+        # F1 is always < F2 (ensured in calculate function)
+        # F1 label on left side of peak (right-aligned)
+        ax.text(freq1, pwr1 + y_offset, freq1_str,
+               ha='right', va='top', fontsize=10, color='red')
+        ax.text(freq1, pwr1 + y_offset - 5, f'{pwr1:.1f} dB',
+               ha='right', va='top', fontsize=10, color='red')
 
-        # Determine alignment for each signal based on absolute position
-        if freq1 < plot_center:  # F1 on left side of plot
-            ha1 = 'left'  # Text extends to the right
-        else:  # F1 on right side
-            ha1 = 'right'  # Text extends to the left
-
-        if freq2 < plot_center:  # F2 on left side of plot
-            ha2 = 'left'  # Text extends to the right
-        else:  # F2 on right side
-            ha2 = 'right'  # Text extends to the left
-
-        # Apply labels with calculated alignments
-        ax.text(freq1, y_freq1, freq1_str,
-               ha=ha1, va='top', fontsize=10, color='red')
-        ax.text(freq1, y_pwr1, f'{pwr1:.1f} dB',
-               ha=ha1, va='top', fontsize=10, color='red')
-        ax.text(freq2, y_freq2, freq2_str,
-               ha=ha2, va='top', fontsize=10, color='red')
-        ax.text(freq2, y_pwr2, f'{pwr2:.1f} dB',
-               ha=ha2, va='top', fontsize=10, color='red')
+        # F2 label on right side of peak (left-aligned)
+        ax.text(freq2, pwr2 + y_offset, freq2_str,
+               ha='left', va='top', fontsize=10, color='red')
+        ax.text(freq2, pwr2 + y_offset - 5, f'{pwr2:.1f} dB',
+               ha='left', va='top', fontsize=10, color='red')
 
     # Add metrics text (MATLAB: lines 124-130)
     if show_metrics:
@@ -183,8 +167,8 @@ def plot_two_tone_spectrum(
 
         fs_str = f'Fs = {format_freq(fs)} Hz'
 
-        # Position text on left side (MATLAB: Fs/N*2, mins*0.XX)
-        x_pos = freq[2]
+        # Position text on RIGHT side to avoid signal peaks on left
+        x_pos = freq[-10]  # Near right edge
         metrics_text = [
             fs_str,
             f"ENOB = {metrics['enob']:.2f}",
@@ -200,16 +184,16 @@ def plot_two_tone_spectrum(
         y_positions = [mins * (0.05 + 0.05 * i) for i in range(len(metrics_text))]
 
         for text, y_pos in zip(metrics_text, y_positions):
-            ax.text(x_pos, y_pos, text, fontsize=9, fontfamily='monospace')
+            ax.text(x_pos, y_pos, text, fontsize=10, ha='right')
 
     # Configure axes (MATLAB: axis([Fs/N, Fs/2, mins, 0]))
-    ax.set_xlabel('Freq (Hz)', fontsize=11)
-    ax.set_ylabel('dBFS', fontsize=11)
+    ax.set_xlabel('Freq (Hz)', fontsize=10)
+    ax.set_ylabel('dBFS', fontsize=10)
 
     if title:
-        ax.set_title(title, fontsize=12, fontweight='bold')
+        ax.set_title(title, fontsize=14, fontweight='bold')
     else:
-        ax.set_title('Output Spectrum', fontsize=12, fontweight='bold')
+        ax.set_title('Output Spectrum', fontsize=14, fontweight='bold')
 
     ax.grid(True, alpha=0.3)
     ax.set_xlim([freq[1], fs / 2])
