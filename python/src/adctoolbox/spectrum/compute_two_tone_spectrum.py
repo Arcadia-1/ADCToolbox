@@ -6,11 +6,11 @@ following the modular architecture pattern used throughout the spectrum package.
 
 import numpy as np
 from typing import Dict, Optional, Tuple
-from ..common import calculate_aliased_bin
+from ..common import fold_bin_to_nyquist
 from ._prepare_fft_input import _prepare_fft_input
 
 
-def calculate_two_tone_spectrum_data(
+def compute_two_tone_spectrum(
     data: np.ndarray,
     fs: float = 1.0,
     max_scale_range: Optional[float] = None,
@@ -110,8 +110,8 @@ def calculate_two_tone_spectrum_data(
 
     # ========== Calculate IMD2 products ==========
     # IMD2: f1+f2 and f2-f1
-    bin_imd2_sum = calculate_aliased_bin(bin1 + bin2, N)
-    bin_imd2_diff = calculate_aliased_bin(bin2 - bin1, N)
+    bin_imd2_sum = fold_bin_to_nyquist(bin1 + bin2, N)
+    bin_imd2_diff = fold_bin_to_nyquist(bin2 - bin1, N)
 
     imd2_sum_power = np.sum(spectrum_power[max(bin_imd2_sum, 0):min(bin_imd2_sum + 3, n_half)])
     imd2_diff_power = np.sum(spectrum_power[max(bin_imd2_diff, 0):min(bin_imd2_diff + 3, n_half)])
@@ -119,10 +119,10 @@ def calculate_two_tone_spectrum_data(
 
     # ========== Calculate IMD3 products ==========
     # IMD3: 2f1+f2, f1+2f2, 2f1-f2, 2f2-f1
-    bin_imd3_2f1_plus_f2 = calculate_aliased_bin(2 * bin1 + bin2, N)
-    bin_imd3_f1_plus_2f2 = calculate_aliased_bin(bin1 + 2 * bin2, N)
-    bin_imd3_2f1_minus_f2 = calculate_aliased_bin(2 * bin1 - bin2, N)
-    bin_imd3_2f2_minus_f1 = calculate_aliased_bin(2 * bin2 - bin1, N)
+    bin_imd3_2f1_plus_f2 = fold_bin_to_nyquist(2 * bin1 + bin2, N)
+    bin_imd3_f1_plus_2f2 = fold_bin_to_nyquist(bin1 + 2 * bin2, N)
+    bin_imd3_2f1_minus_f2 = fold_bin_to_nyquist(2 * bin1 - bin2, N)
+    bin_imd3_2f2_minus_f1 = fold_bin_to_nyquist(2 * bin2 - bin1, N)
 
     imd3_power_1 = np.sum(spectrum_power[max(bin_imd3_2f1_plus_f2, 0):min(bin_imd3_2f1_plus_f2 + 3, n_half)])
     imd3_power_2 = np.sum(spectrum_power[max(bin_imd3_f1_plus_2f2, 0):min(bin_imd3_f1_plus_2f2 + 3, n_half)])
@@ -136,12 +136,12 @@ def calculate_two_tone_spectrum_data(
 
     for i in range(2, N // 100 + 1):
         # Upper harmonics
-        b = calculate_aliased_bin(bin2 + (bin2 - bin1) * (i - 1), N)
+        b = fold_bin_to_nyquist(bin2 + (bin2 - bin1) * (i - 1), N)
         thd_power += np.sum(spectrum_thd[max(b, 0):min(b + 3, n_half)])
         spectrum_thd[max(b, 0):min(b + 3, n_half)] = 0
 
         # Lower harmonics
-        b = calculate_aliased_bin(bin1 - (bin2 - bin1) * (i - 1), N)
+        b = fold_bin_to_nyquist(bin1 - (bin2 - bin1) * (i - 1), N)
         if b >= 0:
             thd_power += np.sum(spectrum_thd[max(b, 0):min(b + 3, n_half)])
             spectrum_thd[max(b, 0):min(b + 3, n_half)] = 0

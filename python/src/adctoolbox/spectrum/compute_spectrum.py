@@ -9,7 +9,7 @@ from ._align_spectrum_phase import _align_spectrum_phase
 from ._exclude_bins import _exclude_bins_from_spectrum
 
 
-def calculate_spectrum_data(
+def compute_spectrum(
     data: np.ndarray,
     fs: float = 1.0,
     max_scale_range: Optional[float] = None,

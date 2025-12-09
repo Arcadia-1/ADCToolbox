@@ -5,7 +5,7 @@ fold back into the baseband (0-Fs/2) due to undersampling, visualizing the "sawt
 import numpy as np
 import matplotlib.pyplot as plt
 from pathlib import Path
-from adctoolbox import calculate_aliased_freq
+from adctoolbox import fold_frequency_to_nyquist
 
 output_dir = Path(__file__).parent / "output"
 output_dir.mkdir(exist_ok=True)
@@ -15,7 +15,7 @@ Fin_target = 123e6
 N_ZONES = 6
 
 # 1. Calculate the true baseband alias of the target frequency (101 MHz)
-F_aliased = calculate_aliased_freq(fin=Fin_target, fs=Fs)
+F_aliased = fold_frequency_to_nyquist(fin=Fin_target, fs=Fs)
 print(f"[Aliasing] Fs = {Fs/1e6:.1f} MHz, Fin_target = {Fin_target/1e6:.1f} MHz -> F_aliased = {F_aliased/1e6:.1f} MHz")
 
 # 2. Generate input test points that all alias to F_aliased
@@ -37,7 +37,7 @@ for i in range(N_ZONES):
 
 ratio_sweep = np.linspace(0, N_ZONES/2, 500)
 freq_sweep = ratio_sweep * Fs
-aliased_sweep = calculate_aliased_freq(freq_sweep, Fs)
+aliased_sweep = fold_frequency_to_nyquist(freq_sweep, Fs)
 
 print(f"[Aliasing {len(freq_sweep)} frequencies] [Input = {freq_sweep[0]/1e6:.1f} - {freq_sweep[-1]/1e6:.1f} MHz] [Output = {aliased_sweep.min()/1e6:.2f} - {aliased_sweep.max()/1e6:.2f} MHz]\n")
 
@@ -52,7 +52,7 @@ for i in range(N_ZONES):
 
 for f in test_points_hz:
     x_pos = f / 1e6
-    y_pos = calculate_aliased_freq(f, Fs) / 1e6
+    y_pos = fold_frequency_to_nyquist(f, Fs) / 1e6
     
     ax.plot(x_pos, y_pos, 'o', color='red', markersize=6, zorder=10)
     zone_idx = int(f / (Fs/2))

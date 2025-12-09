@@ -8,7 +8,7 @@ Ensures the number of cycles is an integer and coprime with the FFT size.
 import math
 
 
-def calculate_coherent_freq(fs, fin_target, n_fft, force_odd=True, search_radius=200):
+def find_coherent_frequency(fs, fin_target, n_fft, force_odd=True, search_radius=200):
     """
     Calculate the precise coherent input frequency and bin index.
 

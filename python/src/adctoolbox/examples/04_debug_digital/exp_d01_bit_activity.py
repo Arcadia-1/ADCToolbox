@@ -1,14 +1,14 @@
 import numpy as np
 import matplotlib.pyplot as plt
 from pathlib import Path
-from adctoolbox import calculate_coherent_freq, analyze_spectrum, check_bit_activity
+from adctoolbox import find_coherent_frequency, analyze_spectrum, check_bit_activity
 
 output_dir = Path(__file__).parent / "output"
 output_dir.mkdir(exist_ok=True)
 
 N = 2**13
 Fs = 1e9
-Fin, bin = calculate_coherent_freq(fs=Fs, fin_target=300e6, n_fft=N)
+Fin, bin = find_coherent_frequency(fs=Fs, fin_target=300e6, n_fft=N)
 t = np.arange(N) / Fs
 A = 0.499
 

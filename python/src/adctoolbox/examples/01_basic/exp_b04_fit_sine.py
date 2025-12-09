@@ -5,7 +5,7 @@ and phase from a noisy sine signal, comparing fitted parameters against true val
 import numpy as np
 import matplotlib.pyplot as plt
 from pathlib import Path
-from adctoolbox import calculate_coherent_freq, fit_sine, estimate_frequency
+from adctoolbox import find_coherent_frequency, fit_sine, estimate_frequency
 
 output_dir = Path(__file__).parent / "output"
 output_dir.mkdir(exist_ok=True)
@@ -13,7 +13,7 @@ output_dir.mkdir(exist_ok=True)
 N = 2**13
 Fs = 1e6
 Fin_target = 10e3
-Fin, J = calculate_coherent_freq(Fs, Fin_target, N)
+Fin, J = find_coherent_frequency(Fs, Fin_target, N)
 t = np.arange(N) / Fs
 A = 0.49
 DC = 0.5

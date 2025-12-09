@@ -1,6 +1,6 @@
 # Not yet verified with both MATLAB and Python testbenches
 import numpy as np
-from .calculate_aliased_freq import calculate_aliased_freq
+from .fold_frequency_to_nyquist import fold_frequency_to_nyquist
 
 
 def extract_freq_components(din, bands):
@@ -32,7 +32,7 @@ def extract_freq_components(din, bands):
 
         # Generate frequency indices with aliasing
         freq_indices = np.arange(n1, n2 + 1)
-        ids = np.array([calculate_aliased_freq(j, N) for j in freq_indices])
+        ids = np.array([fold_frequency_to_nyquist(j, N) for j in freq_indices])
 
         # Set mask for positive frequencies
         mask[ids + 1, 0] = 1

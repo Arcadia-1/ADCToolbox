@@ -2,7 +2,7 @@
 import numpy as np
 import matplotlib.pyplot as plt
 from pathlib import Path
-from adctoolbox import calc_coherent_freq, calc_aliased_freq, analyze_spectrum
+from adctoolbox import find_coherent_frequency, calc_aliased_freq, analyze_spectrum
 
 output_dir = Path(__file__).parent / "output"
 output_dir.mkdir(exist_ok=True)
@@ -22,7 +22,7 @@ print(f"[Jitter Across Nyquist Zones] [Fs = {Fs/1e9:.1f} GHz, Jitter = {jitter_r
 fig, axes = plt.subplots(2, 2, figsize=(14, 10))
 
 for i, (fin, zone) in enumerate(zip(Fin_list, zone_labels)):
-    fin_coherent, bin = calc_coherent_freq(fs=Fs, fin_target=fin, n_fft=N)
+    fin_coherent, bin = find_coherent_frequency(fs=Fs, fin_target=fin, n_fft=N)
     t = np.arange(N) / Fs
 
     phase_jitter = np.random.randn(N) * 2 * np.pi * fin_coherent * jitter_rms
@@ -34,7 +34,7 @@ for i, (fin, zone) in enumerate(zip(Fin_list, zone_labels)):
     axes[row, col].set_ylim([-120, 0])
 
     fin_GHz = fin_coherent / 1e9
-    fin_alias_GHz = calculate_aliased_freq(fin=fin_coherent, fs=Fs) / 1e9
+    fin_alias_GHz = fold_frequency_to_nyquist(fin=fin_coherent, fs=Fs) / 1e9
     axes[row, col].set_title(f'{zone} Nyquist Zone: Fin = {fin_GHz:.2f} GHz → {fin_alias_GHz:.3f} GHz')
 
     # Print info for this zone

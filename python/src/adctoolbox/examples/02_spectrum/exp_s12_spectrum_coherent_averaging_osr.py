@@ -7,7 +7,7 @@ Compare power vs coherent averaging results with OSR.
 import numpy as np
 import matplotlib.pyplot as plt
 from pathlib import Path
-from adctoolbox import calculate_coherent_freq, analyze_spectrum
+from adctoolbox import find_coherent_frequency, analyze_spectrum
 from adctoolbox.aout import analyze_spectrum_coherent_averaging
 
 output_dir = Path(__file__).parent / "output"
@@ -25,7 +25,7 @@ k2 = hd2_amp / (A / 2)
 k3 = hd3_amp / (A**2 / 4)
 osr = 4
 
-Fin, Fin_bin = calculate_coherent_freq(fs=Fs, fin_target=5e6, n_fft=N_fft)
+Fin, Fin_bin = find_coherent_frequency(fs=Fs, fin_target=5e6, n_fft=N_fft)
 print(f"[Sinewave] Fs=[{Fs/1e6:.2f} MHz], Fin=[{Fin/1e6:.6f} MHz] (coherent, Bin {Fin_bin}), N=[{N_fft}], A=[{A:.3f} Vpeak], OSR=[{osr}]")
 print(f"[Nonideal] HD2=[{hd2_dB} dB], HD3=[{hd3_dB} dB], Noise RMS=[{noise_rms*1e6:.2f} uVrms]\n")
 

@@ -2,7 +2,7 @@
 import numpy as np
 import matplotlib.pyplot as plt
 from pathlib import Path
-from adctoolbox import calc_coherent_freq, plot_error_hist_phase
+from adctoolbox import find_coherent_frequency, plot_error_hist_phase
 
 output_dir = Path(__file__).parent / "output"
 output_dir.mkdir(exist_ok=True)
@@ -25,7 +25,7 @@ print(f"  Testing {len(Fin_list)} frequencies: {[f/1e6 for f in Fin_list]} MHz\n
 fig, axes = plt.subplots(1, 3, figsize=(18, 6))
 
 for idx, Fin in enumerate(Fin_list):
-    Fin_actual, bin_idx = calc_coherent_freq(Fs, Fin, N)
+    Fin_actual, bin_idx = find_coherent_frequency(Fs, Fin, N)
 
     print(f"[{idx+1}/{len(Fin_list)}] Fin = {Fin/1e6:.0f} MHz (actual = {Fin_actual/1e6:.3f} MHz)")
 

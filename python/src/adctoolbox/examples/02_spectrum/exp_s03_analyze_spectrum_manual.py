@@ -2,8 +2,8 @@
 import numpy as np
 import matplotlib.pyplot as plt
 from pathlib import Path
-from adctoolbox import calculate_coherent_freq, calculate_snr_from_amplitude, snr_to_nsd
-from adctoolbox.spectrum import calculate_spectrum_data, plot_spectrum
+from adctoolbox import find_coherent_frequency, calculate_snr_from_amplitude, snr_to_nsd
+from adctoolbox.spectrum import compute_spectrum, plot_spectrum
 
 output_dir = Path(__file__).parent / "output"
 output_dir.mkdir(exist_ok=True)
@@ -11,7 +11,7 @@ output_dir.mkdir(exist_ok=True)
 N_fft = 2**13
 Fs = 100e6
 Fin_target = 12e6
-Fin, Fin_bin = calculate_coherent_freq(fs=Fs, fin_target=Fin_target, n_fft=N_fft)
+Fin, Fin_bin = find_coherent_frequency(fs=Fs, fin_target=Fin_target, n_fft=N_fft)
 A = 0.5
 noise_rms = 200e-6
 
@@ -25,11 +25,11 @@ t = np.arange(N_fft) / Fs
 signal = A * np.sin(2*np.pi*Fin*t) + np.random.randn(N_fft) * noise_rms
 
 # Step 1: Calculate spectrum metrics (pure computation)
-results = calculate_spectrum_data(signal, fs=Fs)
+results = compute_spectrum(signal, fs=Fs)
 metrics = results['metrics']
 
 # Step 2: Display results
-print(f"[calculate_spectrum_data] ENoB=[{metrics['enob']:5.2f} b], SNDR=[{metrics['sndr_db']:6.2f} dB], SFDR=[{metrics['sfdr_db']:6.2f} dB], SNR=[{metrics['snr_db']:6.2f} dB], NSD=[{metrics['nsd_dbfs_hz']:7.2f} dBFS/Hz]")
+print(f"[compute_spectrum] ENoB=[{metrics['enob']:5.2f} b], SNDR=[{metrics['sndr_db']:6.2f} dB], SFDR=[{metrics['sfdr_db']:6.2f} dB], SNR=[{metrics['snr_db']:6.2f} dB], NSD=[{metrics['nsd_dbfs_hz']:7.2f} dBFS/Hz]")
 
 # Step 3: Plot the spectrum (pure visualization)
 fig, ax = plt.subplots(figsize=(8, 6))

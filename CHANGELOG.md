@@ -31,7 +31,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   - Updated all `alias()` calls to `calc_aliased_freq()`
 - Fixed `IndexError` in `analyze_spectrum` when indexing harmonics
   - Added `int()` wrapper around `calc_aliased_freq()` calls to ensure integer indices
-- Fixed `exp_a01` example to use `calc_coherent_freq` instead of deprecated `find_bin`
+- Fixed `exp_a01` example to use `find_coherent_frequency` instead of deprecated `find_bin`
 
 ## [0.2.1] - 2025-12-06
 

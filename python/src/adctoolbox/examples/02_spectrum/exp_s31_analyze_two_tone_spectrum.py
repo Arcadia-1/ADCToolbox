@@ -6,7 +6,7 @@ that degrade SNDR. Demonstrates analyze_two_tone_spectrum for automatic IMD meas
 import numpy as np
 import matplotlib.pyplot as plt
 from pathlib import Path
-from adctoolbox import analyze_two_tone_spectrum, calculate_coherent_freq, calculate_snr_from_amplitude, snr_to_nsd
+from adctoolbox import analyze_two_tone_spectrum, find_coherent_frequency, calculate_snr_from_amplitude, snr_to_nsd
 
 output_dir = Path(__file__).parent / "output"
 output_dir.mkdir(exist_ok=True)
@@ -17,8 +17,8 @@ A1 = 0.5
 A2 = 0.5
 noise_rms = 100e-6
 
-F1, bin_F1 = calculate_coherent_freq(fs=Fs, fin_target=110e6, n_fft=N_fft)
-F2, bin_F2 = calculate_coherent_freq(fs=Fs, fin_target=100e6, n_fft=N_fft)
+F1, bin_F1 = find_coherent_frequency(fs=Fs, fin_target=110e6, n_fft=N_fft)
+F2, bin_F2 = find_coherent_frequency(fs=Fs, fin_target=100e6, n_fft=N_fft)
 
 # For two-tone, combined RMS amplitude is sqrt((A1^2 + A2^2)/2)
 A_combined_rms = np.sqrt((A1**2 + A2**2) / 2)

@@ -1,14 +1,14 @@
 """
 ADC spectrum analysis with coherent averaging (complex spectrum mode).
 
-This wrapper combines calculate_spectrum_data with complex_spectrum=True
+This wrapper combines compute_spectrum with complex_spectrum=True
 and optional plotting for coherent spectrum averaging analysis.
 
 MATLAB counterpart: Coherent FFT averaging analysis
 """
 
 import numpy as np
-from .calculate_spectrum_data import calculate_spectrum_data
+from .compute_spectrum import compute_spectrum
 from .plot_spectrum import plot_spectrum
 
 
@@ -52,8 +52,8 @@ def analyze_spectrum_coherent_averaging(data, fs=1.0, osr=1, max_scale_range=Non
     """
 
     # 1. --- Core Calculation (Coherent/Complex Mode) ---
-    # Use calculate_spectrum_data with complex_spectrum=True for coherent averaging
-    results = calculate_spectrum_data(
+    # Use compute_spectrum with complex_spectrum=True for coherent averaging
+    results = compute_spectrum(
         data=data,
         fs=fs,
         max_scale_range=max_scale_range,

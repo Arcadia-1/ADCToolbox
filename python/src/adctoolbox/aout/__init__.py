@@ -6,15 +6,14 @@ from adctoolbox.spectrum import (
     analyze_spectrum_coherent_averaging,
     analyze_spectrum_polar,
     analyze_two_tone_spectrum,
-    calculate_spectrum_data,
-    calculate_coherent_spectrum,
+    compute_spectrum,
     plot_spectrum,
     plot_spectrum_polar,
 )
 
 # Legacy functions (backward compatibility)
 from .decompose_harmonics import decompose_harmonics
-from .calc_inl_sine import calc_inl_sine
+from .compute_inl_from_sine import compute_inl_from_sine
 from .fit_static_nonlin import fit_static_nonlin
 
 # Placeholder functions for functions not yet moved
@@ -44,14 +43,13 @@ __all__ = [
     'analyze_spectrum_polar',
     'analyze_two_tone_spectrum',
     # Calculation engines
-    'calculate_spectrum_data',
-    'calculate_coherent_spectrum',
+    'compute_spectrum',
     # Plotting functions
     'plot_spectrum',
     'plot_spectrum_polar',
     # Legacy functions
     'decompose_harmonics',
-    'calc_inl_sine',
+    'compute_inl_from_sine',
     'fit_static_nonlin',
 ]
 

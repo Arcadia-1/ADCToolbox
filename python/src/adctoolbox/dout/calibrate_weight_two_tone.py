@@ -9,7 +9,7 @@ Ported from MATLAB: FGCalSine_2freq.m
 
 import numpy as np
 from typing import Optional, Tuple, Union, List
-from adctoolbox.common.calculate_aliased_freq import calculate_aliased_freq
+from adctoolbox.common.fold_frequency_to_nyquist import fold_frequency_to_nyquist
 
 
 def calibrate_weight_two_tone(
@@ -90,12 +90,12 @@ def calibrate_weight_two_tone(
 
     for k in range(order):
         freq_k = rel_freq1 * (k + 1)
-        aliased_freq = calculate_aliased_freq(freq_k, 1)
+        aliased_freq = fold_frequency_to_nyquist(freq_k, 1)
         xc1[:, k] = np.cos(2 * np.pi * aliased_freq * np.arange(n1))
         xs1[:, k] = np.sin(2 * np.pi * aliased_freq * np.arange(n1))
 
         freq_k = rel_freq2 * (k + 1)
-        aliased_freq = calculate_aliased_freq(freq_k, 1)
+        aliased_freq = fold_frequency_to_nyquist(freq_k, 1)
         xc2[:, k] = np.cos(2 * np.pi * aliased_freq * np.arange(n2))
         xs2[:, k] = np.sin(2 * np.pi * aliased_freq * np.arange(n2))
 

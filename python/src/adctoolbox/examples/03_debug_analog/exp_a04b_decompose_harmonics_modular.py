@@ -13,7 +13,7 @@ Compares two cases:
 import numpy as np
 import matplotlib.pyplot as plt
 from pathlib import Path
-from adctoolbox import calc_coherent_freq
+from adctoolbox import find_coherent_frequency
 from adctoolbox.aout import (
     calculate_lms_decomposition,
     plot_decomposition_time,
@@ -29,7 +29,7 @@ output_dir.mkdir(exist_ok=True)
 N = 2**13
 Fs = 800e6
 Fin_target = 10e6
-Fin, Fin_bin = calc_coherent_freq(Fs, Fin_target, N)
+Fin, Fin_bin = find_coherent_frequency(Fs, Fin_target, N)
 t = np.arange(N) / Fs
 A = 0.49
 

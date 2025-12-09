@@ -9,7 +9,7 @@ Matches MATLAB specPlot2Tone.m annotation style.
 import numpy as np
 import matplotlib.pyplot as plt
 from typing import Optional, Dict
-from ..common import calculate_aliased_bin
+from ..common import fold_bin_to_nyquist
 
 
 def plot_two_tone_spectrum(
@@ -29,7 +29,7 @@ def plot_two_tone_spectrum(
     Parameters
     ----------
     analysis_results : dict
-        Results from calculate_two_tone_spectrum_data()
+        Results from compute_two_tone_spectrum()
         Required keys:
         - 'plot_data': dict with 'freq', 'spec_db', 'bin1', 'bin2', 'N', 'fs'
         - 'metrics': dict with performance metrics
@@ -88,7 +88,7 @@ def plot_two_tone_spectrum(
         for i in range(2, harmonic + 1):
             for jj in range(i + 1):
                 # Positive combination: jj*f1 + (i-jj)*f2
-                b = calculate_aliased_bin((bin1) * jj + (bin2) * (i - jj), N)
+                b = fold_bin_to_nyquist((bin1) * jj + (bin2) * (i - jj), N)
                 if 0 < b < len(freq):
                     # Text label with order number (MATLAB: fontsize=12)
                     ax.text(freq[b], spec_db[b] + 5, str(i),
@@ -100,7 +100,7 @@ def plot_two_tone_spectrum(
 
                 # Negative combination 1: -jj*f1 + (i-jj)*f2
                 if -(bin1) * jj + (bin2) * (i - jj) > 0:
-                    b = calculate_aliased_bin(-(bin1) * jj + (bin2) * (i - jj), N)
+                    b = fold_bin_to_nyquist(-(bin1) * jj + (bin2) * (i - jj), N)
                     if 0 < b < len(freq):
                         ax.text(freq[b], spec_db[b] + 5, str(i),
                                fontname='Arial', fontsize=12, ha='center', color='red')
@@ -110,7 +110,7 @@ def plot_two_tone_spectrum(
 
                 # Negative combination 2: jj*f1 - (i-jj)*f2
                 if (bin1) * jj - (bin2) * (i - jj) > 0:
-                    b = calculate_aliased_bin((bin1) * jj - (bin2) * (i - jj), N)
+                    b = fold_bin_to_nyquist((bin1) * jj - (bin2) * (i - jj), N)
                     if 0 < b < len(freq):
                         ax.text(freq[b], spec_db[b] + 5, str(i),
                                fontname='Arial', fontsize=12, ha='center', color='red')

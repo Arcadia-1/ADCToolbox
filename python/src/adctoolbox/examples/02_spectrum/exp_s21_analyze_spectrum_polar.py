@@ -6,7 +6,7 @@ HD2 and HD3 phases vary with nonlinearity polarity.
 import numpy as np
 import matplotlib.pyplot as plt
 from pathlib import Path
-from adctoolbox import calculate_coherent_freq, calculate_snr_from_amplitude, snr_to_nsd, analyze_spectrum_polar
+from adctoolbox import find_coherent_frequency, calculate_snr_from_amplitude, snr_to_nsd, analyze_spectrum_polar
 
 output_dir = Path(__file__).parent / "output"
 output_dir.mkdir(exist_ok=True)
@@ -14,7 +14,7 @@ output_dir.mkdir(exist_ok=True)
 N = 2**13
 Fs = 800e6
 Fin_target = 80e6
-Fin, J = calculate_coherent_freq(Fs, Fin_target, N)
+Fin, J = find_coherent_frequency(Fs, Fin_target, N)
 t = np.arange(N) / Fs
 A, DC = 0.49, 0.5
 base_noise = 50e-6

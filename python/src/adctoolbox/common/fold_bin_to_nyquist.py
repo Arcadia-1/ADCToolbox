@@ -5,7 +5,7 @@ Matches the naming convention of calculate_aliased_freq.
 """
 
 
-def calculate_aliased_bin(bin_idx: int, n_fft: int) -> int:
+def fold_bin_to_nyquist(bin_idx: int, n_fft: int) -> int:
     """
     Calculate the aliased bin index in the first Nyquist zone [0, n_fft/2].
 
@@ -26,11 +26,11 @@ def calculate_aliased_bin(bin_idx: int, n_fft: int) -> int:
 
     Examples
     --------
-    >>> calculate_aliased_bin(100, 8192)
+    >>> fold_bin_to_nyquist(100, 8192)
     100
-    >>> calculate_aliased_bin(5000, 8192)  # Above Nyquist, mirrors back
+    >>> fold_bin_to_nyquist(5000, 8192)  # Above Nyquist, mirrors back
     3192
-    >>> calculate_aliased_bin(-100, 8192)  # Negative wraps around
+    >>> fold_bin_to_nyquist(-100, 8192)  # Negative wraps around
     92
     """
     # First wrap to [0, n_fft) range

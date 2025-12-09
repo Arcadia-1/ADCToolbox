@@ -18,7 +18,7 @@ MATLAB_TO_PYTHON = {
     'test_ovfchk_wcalsine': 'test_calibrate_weight_sine_check_overflow',
 
     # AOUT tests (analog output) - MATLAB uses run_* for analog integration tests
-    'run_inlsine': 'test_calc_inl_sine',
+    'run_inlsine': 'test_compute_inl_from_sine',
     'run_tomdec': 'test_decompose_harmonics',
     'run_errsin_phase': 'test_plot_error_hist_phase',
     'run_errsin_code': 'test_plot_error_hist_code',
@@ -33,7 +33,7 @@ MATLAB_TO_PYTHON = {
     'run_fitstaticnl': 'test_fit_static_nonlin',
 
     # Legacy test_* names (for backward compatibility)
-    'test_inlsine': 'test_calc_inl_sine',
+    'test_inlsine': 'test_compute_inl_from_sine',
     'test_tomdec': 'test_decompose_harmonics',
     'test_errsin_phase': 'test_plot_error_hist_phase',
     'test_errsin_code': 'test_plot_error_hist_code',
