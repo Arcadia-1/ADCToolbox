@@ -1,8 +1,8 @@
 """Common utility functions for ADC analysis."""
 
-from .calculate_aliased_bin import calculate_aliased_bin
-from .calculate_aliased_freq import calculate_aliased_freq
-from .calculate_coherent_freq import calculate_coherent_freq
+from .fold_bin_to_nyquist import fold_bin_to_nyquist
+from .fold_frequency_to_nyquist import fold_frequency_to_nyquist
+from .find_coherent_frequency import find_coherent_frequency
 from .calculate_snr_from_amplitude import calculate_snr_from_amplitude
 from .estimate_frequency import estimate_frequency
 from .fit_sine import fit_sine
@@ -21,19 +21,19 @@ from .unit_conversions import (
     sine_amplitude_to_power
 )
 from .calculate_fom import (
-    calculate_fom_walden, calculate_fom_schreier,
+    calculate_walden_fom, calculate_schreier_fom,
     calculate_thermal_noise_limit, calculate_jitter_limit
 )
 
 __all__ = [
     # Function names
-    'calculate_aliased_bin',
-    'calculate_aliased_freq',
-    'calculate_coherent_freq',
+    'fold_bin_to_nyquist',
+    'fold_frequency_to_nyquist',
+    'find_coherent_frequency',
     'calculate_snr_from_amplitude',
     'calculate_target_vpp',
-    'calculate_fom_walden',
-    'calculate_fom_schreier',
+    'calculate_walden_fom',
+    'calculate_schreier_fom',
     'calculate_thermal_noise_limit',
     'calculate_jitter_limit',
     # Other functions

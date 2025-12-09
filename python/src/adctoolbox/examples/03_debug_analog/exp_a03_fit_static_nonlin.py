@@ -2,14 +2,14 @@
 import numpy as np
 import matplotlib.pyplot as plt
 from pathlib import Path
-from adctoolbox import calc_coherent_freq, fit_static_nonlin
+from adctoolbox import find_coherent_frequency, fit_static_nonlin
 
 output_dir = Path(__file__).parent / "output"
 output_dir.mkdir(exist_ok=True)
 
 N = 2**13
 Fs = 800e6
-Fin, Fin_bin = calc_coherent_freq(fs=Fs, fin_target=70e6, n_fft=N)
+Fin, Fin_bin = find_coherent_frequency(fs=Fs, fin_target=70e6, n_fft=N)
 A = 0.5
 base_noise = 500e-6
 

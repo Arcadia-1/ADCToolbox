@@ -7,7 +7,7 @@ for reducing noise while maintaining harmonic structure. Compare power vs cohere
 import numpy as np
 import matplotlib.pyplot as plt
 from pathlib import Path
-from adctoolbox import calculate_coherent_freq, analyze_spectrum, calculate_snr_from_amplitude, snr_to_nsd
+from adctoolbox import find_coherent_frequency, analyze_spectrum, calculate_snr_from_amplitude, snr_to_nsd
 from adctoolbox.aout import analyze_spectrum_coherent_averaging
 
 output_dir = Path(__file__).parent / "output"
@@ -24,7 +24,7 @@ hd3_amp = 10**(hd3_dB/20)
 k2 = hd2_amp / (A / 2)
 k3 = hd3_amp / (A**2 / 4)
 
-Fin, Fin_bin = calculate_coherent_freq(fs=Fs, fin_target=5e6, n_fft=N_fft)
+Fin, Fin_bin = find_coherent_frequency(fs=Fs, fin_target=5e6, n_fft=N_fft)
 
 snr_ref = calculate_snr_from_amplitude(sig_amplitude=A, noise_amplitude=noise_rms)
 nsd_ref = snr_to_nsd(snr_ref, fs=Fs, osr=1)

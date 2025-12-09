@@ -2,7 +2,7 @@
 import numpy as np
 import matplotlib.pyplot as plt
 from pathlib import Path
-from adctoolbox import calc_coherent_freq
+from adctoolbox import find_coherent_frequency
 from adctoolbox.common.fit_sine import fit_sine
 from adctoolbox.aout.plot_envelope_spectrum import plot_envelope_spectrum
 
@@ -12,7 +12,7 @@ output_dir.mkdir(exist_ok=True)
 N = 2**13
 Fs = 800e6
 Fin_target = 80e6
-Fin, J = calc_coherent_freq(Fs, Fin_target, N)
+Fin, J = find_coherent_frequency(Fs, Fin_target, N)
 t = np.arange(N) / Fs
 A, DC = 0.49, 0.5
 base_noise = 50e-6

@@ -15,8 +15,9 @@ __version__ = '0.2.4'
 
 # Import all public functions from submodules
 from .common import (
-    calculate_aliased_freq,
-    calculate_coherent_freq,
+    fold_bin_to_nyquist,
+    fold_frequency_to_nyquist,
+    find_coherent_frequency,
     calculate_snr_from_amplitude,
     estimate_frequency,
     fit_sine,
@@ -47,7 +48,7 @@ from .aout import (
     plot_spectrum,
     analyze_two_tone_spectrum,
     decompose_harmonics,
-    calc_inl_sine,
+    compute_inl_from_sine,
     fit_static_nonlin,
 )
 
@@ -93,8 +94,9 @@ __all__ = [
     '__version__',
 
     # Common functions
-    'calculate_aliased_freq',
-    'calculate_coherent_freq',
+    'fold_bin_to_nyquist',
+    'fold_frequency_to_nyquist',
+    'find_coherent_frequency',
     'calculate_snr_from_amplitude',
     'estimate_frequency',
     'fit_sine',
@@ -124,7 +126,7 @@ __all__ = [
     'plot_spectrum',
     'analyze_two_tone_spectrum',
     'decompose_harmonics',
-    'calc_inl_sine',
+    'compute_inl_from_sine',
     'fit_static_nonlin',
 
     # Spectrum functions

@@ -8,7 +8,7 @@ This example shows how increasing N (FFT length) affects:
 import numpy as np
 import matplotlib.pyplot as plt
 from pathlib import Path
-from adctoolbox import analyze_spectrum, calculate_coherent_freq, calculate_snr_from_amplitude, snr_to_nsd
+from adctoolbox import analyze_spectrum, find_coherent_frequency, calculate_snr_from_amplitude, snr_to_nsd
 
 # Output directory
 output_dir = Path(__file__).parent / "output"
@@ -40,7 +40,7 @@ axes = axes.flatten()
 
 for idx, N_fft in enumerate(N_values):
     # Calculate coherent frequency for this N
-    Fin, Fin_bin = calculate_coherent_freq(fs=Fs, fin_target=Fin_target, n_fft=N_fft)
+    Fin, Fin_bin = find_coherent_frequency(fs=Fs, fin_target=Fin_target, n_fft=N_fft)
 
     # Generate signal
     t = np.arange(N_fft) / Fs

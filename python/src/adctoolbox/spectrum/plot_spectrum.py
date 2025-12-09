@@ -14,7 +14,7 @@ def plot_spectrum(analysis_results, show_label=True, plot_harmonics_up_to=3, ax=
     Pure spectrum plotting using pre-computed analysis results.
 
     Parameters:
-        analysis_results: Dictionary containing 'metrics' and 'plot_data' from calculate_spectrum_data
+        analysis_results: Dictionary containing 'metrics' and 'plot_data' from compute_spectrum
         show_label: Add labels and annotations (True) or not (False)
         plot_harmonics_up_to: Number of harmonics to highlight
         ax: Optional matplotlib axes object

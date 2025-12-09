@@ -12,7 +12,7 @@ import matplotlib.pyplot as plt
 from pathlib import Path
 from typing import Optional, Union
 
-from .calculate_two_tone_spectrum_data import calculate_two_tone_spectrum_data
+from .compute_two_tone_spectrum import compute_two_tone_spectrum
 from .plot_two_tone_spectrum import plot_two_tone_spectrum
 
 
@@ -78,7 +78,7 @@ def analyze_two_tone_spectrum(
     Notes
     -----
     Modular architecture:
-    1. calculate_two_tone_spectrum_data() - Pure calculation
+    1. compute_two_tone_spectrum() - Pure calculation
     2. plot_two_tone_spectrum() - Pure visualization
     3. analyze_two_tone_spectrum() - Wrapper combining both
 
@@ -102,7 +102,7 @@ def analyze_two_tone_spectrum(
     """
 
     # Step 1: Calculate spectrum data (pure computation)
-    results = calculate_two_tone_spectrum_data(
+    results = compute_two_tone_spectrum(
         data=data,
         fs=fs,
         max_scale_range=max_scale_range,

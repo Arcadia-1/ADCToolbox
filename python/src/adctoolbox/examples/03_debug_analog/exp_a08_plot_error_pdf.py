@@ -2,7 +2,7 @@
 import numpy as np
 import matplotlib.pyplot as plt
 from pathlib import Path
-from adctoolbox import calc_coherent_freq, plot_error_pdf
+from adctoolbox import find_coherent_frequency, plot_error_pdf
 
 output_dir = Path(__file__).parent / "output"
 output_dir.mkdir(exist_ok=True)
@@ -11,7 +11,7 @@ output_dir.mkdir(exist_ok=True)
 N = 2**13
 Fs = 800e6
 Fin_target = 60e6
-Fin, J = calc_coherent_freq(Fs, Fin_target, N)
+Fin, J = find_coherent_frequency(Fs, Fin_target, N)
 t = np.arange(N) / Fs
 A, DC = 0.49, 0.5
 base_noise = 50e-6

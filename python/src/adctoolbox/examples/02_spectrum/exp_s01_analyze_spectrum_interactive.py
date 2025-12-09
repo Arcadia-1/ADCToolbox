@@ -5,12 +5,12 @@ This script demonstrates using the analyze_spectrum function for performing stan
 """
 import numpy as np
 import matplotlib.pyplot as plt
-from adctoolbox import analyze_spectrum, calculate_coherent_freq, calculate_snr_from_amplitude, snr_to_nsd
+from adctoolbox import analyze_spectrum, find_coherent_frequency, calculate_snr_from_amplitude, snr_to_nsd
 
 N_fft = 2**13
 Fs = 100e6
 Fin_target = 12e6
-Fin, Fin_bin = calculate_coherent_freq(fs=Fs, fin_target=Fin_target, n_fft=N_fft)
+Fin, Fin_bin = find_coherent_frequency(fs=Fs, fin_target=Fin_target, n_fft=N_fft)
 A = 0.5
 noise_rms = 50e-6
 
