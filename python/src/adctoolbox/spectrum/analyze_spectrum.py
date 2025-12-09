@@ -8,7 +8,7 @@ for backward compatibility with existing code.
 """
 
 import numpy as np
-from .calculate_spectrum_data import calculate_spectrum_data
+from .compute_spectrum import compute_spectrum
 from .plot_spectrum import plot_spectrum
 
 
@@ -49,7 +49,7 @@ def analyze_spectrum(data, fs=1.0, osr=1, max_scale_range=None, win_type='hann',
 
     # 1. --- Core Calculation ---
     # Pass all relevant parameters to the pure calculation kernel.
-    results = calculate_spectrum_data(
+    results = compute_spectrum(
         data=data,
         fs=fs,
         max_scale_range=max_scale_range,

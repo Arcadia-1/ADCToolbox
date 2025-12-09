@@ -12,7 +12,7 @@ import matplotlib.pyplot as plt
 from pathlib import Path
 from typing import Optional, Union, Tuple, Dict, Any
 
-from .calculate_spectrum_data import calculate_spectrum_data
+from .compute_spectrum import compute_spectrum
 from .plot_spectrum_polar import plot_spectrum_polar
 
 
@@ -116,7 +116,7 @@ def analyze_spectrum_polar(
     """
 
     # Step 1: Calculate coherent spectrum (pure computation)
-    result = calculate_spectrum_data(
+    result = compute_spectrum(
         data=data,
         max_scale_range=max_code,
         osr=osr,

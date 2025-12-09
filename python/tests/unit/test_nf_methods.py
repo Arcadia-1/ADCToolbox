@@ -1,7 +1,7 @@
 """Test noise floor calculation methods."""
 
 import numpy as np
-from adctoolbox.spectrum.calculate_spectrum_data import calculate_spectrum_data
+from adctoolbox.spectrum.compute_spectrum import compute_spectrum
 
 
 def test_nf_methods_comparison():
@@ -22,9 +22,9 @@ def test_nf_methods_comparison():
     signal = A * np.sin(2*np.pi*Fin_coherent*t) + np.random.randn(N_fft) * noise_rms
 
     # Test all three methods
-    results_method0 = calculate_spectrum_data(signal, fs=Fs, nf_method=0)
-    results_method1 = calculate_spectrum_data(signal, fs=Fs, nf_method=1)
-    results_method2 = calculate_spectrum_data(signal, fs=Fs, nf_method=2)
+    results_method0 = compute_spectrum(signal, fs=Fs, nf_method=0)
+    results_method1 = compute_spectrum(signal, fs=Fs, nf_method=1)
+    results_method2 = compute_spectrum(signal, fs=Fs, nf_method=2)
 
     # Extract metrics
     metrics0 = results_method0['metrics']

@@ -8,7 +8,7 @@ Vectorized to support both scalar and array inputs.
 import numpy as np
 
 
-def calculate_aliased_freq(fin, fs):
+def fold_frequency_to_nyquist(fin, fs):
     """
     Calculate the aliased (folded) frequency in the first Nyquist zone.
 

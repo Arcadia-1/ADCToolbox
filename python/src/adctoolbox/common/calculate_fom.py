@@ -13,7 +13,7 @@ import numpy as np
 
 # --- Comprehensive Performance Metrics (Figure of Merit) ---
 
-def calculate_fom_walden(power, fs, enob):
+def calculate_walden_fom(power, fs, enob):
     """
     Calculate Walden Figure of Merit (FoM_w).
 
@@ -33,7 +33,7 @@ def calculate_fom_walden(power, fs, enob):
     return power / (2**enob * fs)
 
 
-def calculate_fom_schreier(power, sndr_db, bw):
+def calculate_schreier_fom(power, sndr_db, bw):
     """
     Calculate Schreier Figure of Merit (FoM_s).
 

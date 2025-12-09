@@ -2,7 +2,7 @@
 import numpy as np
 import matplotlib.pyplot as plt
 from pathlib import Path
-from adctoolbox import calculate_coherent_freq, calc_inl_sine, analyze_spectrum
+from adctoolbox import find_coherent_frequency, compute_inl_from_sine, analyze_spectrum
 
 output_dir = Path(__file__).parent / "output"
 output_dir.mkdir(exist_ok=True)
@@ -36,7 +36,7 @@ print(f"  [HD2 = {hd2_dB} dB, HD3 = {hd3_dB} dB, Noise = {base_noise*1e6:.1f} uV
 for idx, N in enumerate(N_list):
 
     # Generate signal with distortion
-    fin, J = calculate_coherent_freq(fs, fin_target, N)
+    fin, J = find_coherent_frequency(fs, fin_target, N)
     t = np.arange(N) / fs
     sinewave = A * np.sin(2 * np.pi * fin * t)
     signal_distorted = sinewave + k2 * sinewave**2 + k3 * sinewave**3 + DC + np.random.randn(N) * base_noise
@@ -49,7 +49,7 @@ for idx, N in enumerate(N_list):
     digital_output = np.clip(digital_output, 0, 2**n_bits - 1)
 
     # Calculate INL and DNL
-    inl, dnl, code = calc_inl_sine(digital_output, num_bits=n_bits, clip_percent=0.01)
+    inl, dnl, code = compute_inl_from_sine(digital_output, num_bits=n_bits, clip_percent=0.01)
 
     # Plot DNL (top row)
     axes[0, idx].plot(code, dnl, 'r-', linewidth=0.5)
@@ -72,7 +72,7 @@ for idx, N in enumerate(N_list):
     print(f"  [N = 2^{int(np.log2(N)):2d} = {N:5d}] [ENOB = {enob:5.2f}] [INL: {np.min(inl):5.2f} to {np.max(inl):5.2f}] [DNL: {np.min(dnl):5.2f} to {np.max(dnl):5.2f}] LSB")
 
 plt.tight_layout()
-fig_path = output_dir / 'exp_a12_calc_inl_sine.png'
+fig_path = output_dir / 'exp_a12_compute_inl_from_sine.png'
 plt.savefig(fig_path, dpi=150)
 print(f"\n[Save fig] -> [{fig_path}]")
 plt.close()

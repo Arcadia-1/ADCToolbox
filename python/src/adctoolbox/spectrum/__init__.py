@@ -7,8 +7,7 @@ from .analyze_spectrum_polar import analyze_spectrum_polar
 from .analyze_two_tone_spectrum import analyze_two_tone_spectrum
 
 # Calculation engines (modular core)
-from .calculate_spectrum_data import calculate_spectrum_data
-from .calculate_coherent_spectrum import calculate_coherent_spectrum
+from .compute_spectrum import compute_spectrum
 
 # Plotting functions (visualization)
 from .plot_spectrum import plot_spectrum
@@ -27,8 +26,7 @@ __all__ = [
     'analyze_spectrum_polar',
     'analyze_two_tone_spectrum',
     # Calculation engines
-    'calculate_spectrum_data',
-    'calculate_coherent_spectrum',
+    'compute_spectrum',
     # Plotting functions
     'plot_spectrum',
     'plot_spectrum_polar',

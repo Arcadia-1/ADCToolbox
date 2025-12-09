@@ -7,7 +7,7 @@ This is an internal helper module, not intended for direct use by end users.
 """
 
 import numpy as np
-from adctoolbox.common.calculate_aliased_freq import calculate_aliased_freq
+from adctoolbox.common.fold_frequency_to_nyquist import fold_frequency_to_nyquist
 
 
 def _find_harmonic_bins(
@@ -18,7 +18,7 @@ def _find_harmonic_bins(
     """Find harmonic bin positions with aliasing.
 
     Calculates the bin positions for harmonics of the fundamental frequency,
-    handling aliasing for real signals using calculate_aliased_freq().
+    handling aliasing for real signals using fold_frequency_to_nyquist().
 
     Parameters
     ----------
@@ -36,7 +36,7 @@ def _find_harmonic_bins(
 
     Notes
     -----
-    - Uses calculate_aliased_freq() from common module for aliasing calculation
+    - Uses fold_frequency_to_nyquist() from common module for aliasing calculation
     - For real signals, frequencies above Nyquist are aliased/mirrored
     - Harmonic h appears at frequency = h * fundamental_frequency
     - Bin index = h * fundamental_bin (mod n_fft)
@@ -55,7 +55,7 @@ def _find_harmonic_bins(
         # Use calc_aliased_freq to handle aliasing
         # fs = 1.0 (normalized), so Nyquist = 0.5
         # The function returns frequency in [0, fs/2]
-        aliased_freq = calculate_aliased_freq(harmonic_freq_normalized, 1.0)
+        aliased_freq = fold_frequency_to_nyquist(harmonic_freq_normalized, 1.0)
 
         # Convert back to bin index
         harmonic_bin = aliased_freq * n_fft

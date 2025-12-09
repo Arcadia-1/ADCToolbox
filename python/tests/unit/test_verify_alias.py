@@ -6,7 +6,7 @@ Purpose: Self-verify that alias function correctly computes frequency folding
 """
 import numpy as np
 import pytest
-from adctoolbox.common import calculate_aliased_freq
+from adctoolbox.common import fold_frequency_to_nyquist
 
 
 def test_verify_alias_basic():
@@ -29,7 +29,7 @@ def test_verify_alias_basic():
     print(f'\n[Verify Alias] [Fs={Fs} Hz]')
 
     for Fin, expected in test_cases:
-        result = calculate_aliased_freq(Fin, Fs)
+        result = fold_frequency_to_nyquist(Fin, Fs)
         error = abs(result - expected)
         status = 'PASS' if error < 0.01 else 'FAIL'
         print(f'  [Fin={Fin:4d} Hz] -> [Alias={result:3.0f} Hz] [Expected={expected:3d} Hz] [{status}]')
@@ -64,7 +64,7 @@ def test_verify_alias_zones():
     ]
 
     for Fin, zone, expected, direction in test_points:
-        result = calculate_aliased_freq(Fin, Fs)
+        result = fold_frequency_to_nyquist(Fin, Fs)
         error = abs(result - expected)
         status = 'PASS' if error < 0.01 else 'FAIL'
         print(f'  [Zone {zone}] [Fin={Fin:4d} Hz] -> [{result:3.0f} Hz] ({direction:9s}) [{status}]')
@@ -102,7 +102,7 @@ def test_verify_alias_harmonics():
 
     for h in range(1, 11):
         freq = Fin * h
-        result = calculate_aliased_freq(freq, Fs)
+        result = fold_frequency_to_nyquist(freq, Fs)
         expected = expected_aliases[h-1]
         error = abs(result - expected)
         zone = int(freq / Fnyq)
