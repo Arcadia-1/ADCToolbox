@@ -38,6 +38,7 @@ def plot_spectrum(analysis_results, show_label=True, plot_harmonics_up_to=3, ax=
     osr = plot_data['osr']
     nf_line_level = plot_data['nf_line_level']
     harmonics = plot_data['harmonics']
+    is_coherent = plot_data.get('is_coherent', False)  # Default to False for backward compatibility
 
     # Extract metrics
     enob = metrics['enob']
@@ -142,6 +143,14 @@ def plot_spectrum(analysis_results, show_label=True, plot_harmonics_up_to=3, ax=
         ax.set_xlabel('Freq (Hz)', fontsize=10)
         ax.set_ylabel('dBFS', fontsize=10)
 
-    # Title
-    title_suffix = f'({M}x {"Jointed" if False else "Averaged"})' if M > 1 else ''
-    ax.set_title(f'Power Spectrum {title_suffix}', fontsize=12)
+    # Title - auto-generate based on mode and number of runs
+    if is_coherent:
+        if M > 1:
+            ax.set_title(f'Coherent averaging (N_run = {M})', fontsize=14, fontweight='bold')
+        else:
+            ax.set_title('Coherent Spectrum', fontsize=14, fontweight='bold')
+    else:
+        if M > 1:
+            ax.set_title(f'Power averaging (N_run = {M})', fontsize=14, fontweight='bold')
+        else:
+            ax.set_title('Power Spectrum', fontsize=14, fontweight='bold')

@@ -11,13 +11,21 @@ plt.rcParams['axes.grid'] = True
 def _process_analyze_spectrum(raw_data, sub_folder, dataset_name, figures_folder, test_name):
     # 1. Spectral Analysis - using Pythonic names
     fig = plt.figure(figsize=(8, 6))
-    enob, sndr, sfdr, snr, thd, signal_power, noise_floor, noise_spectral_density = analyze_spectrum(
+    result = analyze_spectrum(
         raw_data,
-        label=1,
-        harmonic=5,
+        show_label=True,
+        n_thd=5,
         osr=1,
         nf_method=0
     )
+    enob = result['enob']
+    sndr = result['sndr_db']
+    sfdr = result['sfdr_db']
+    snr = result['snr_db']
+    thd = result['thd_db']
+    signal_power = result['sig_pwr_dbfs']
+    noise_floor = result['noise_floor_db']
+    noise_spectral_density = result['nsd_dbfs_hz']
     plt.title("Spectrum")
 
     # 2. Save Variables - auto-mapped to MATLAB names

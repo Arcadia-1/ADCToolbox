@@ -20,14 +20,14 @@ noise_rms = 200e-6
 
 snr_ref = calculate_snr_from_amplitude(sig_amplitude=A, noise_amplitude=noise_rms)
 nsd_ref = snr_to_nsd(snr_ref, fs=Fs, osr=1)
-print(f"[Parameters] N = [{N_fft}], Fs = [{Fs/1e6:.1f} MHz], Fin = [{Fin/1e6:.1f} MHz] (Bin = [{Fin_bin}]) | [Theoretical] SNR = [{snr_ref:.2f} dB], NSD = [{nsd_ref:.2f} dBFS/Hz]")
+print(f"[Setting] N=[{N_fft}], Fs=[{Fs/1e6:.1f} MHz], Fin=[{Fin/1e6:.1f} MHz] (Bin=[{Fin_bin}]) | [Theory] SNR=[{snr_ref:.2f} dB], NSD=[{nsd_ref:.2f} dBFS/Hz]")
 
 t = np.arange(N_fft) / Fs
 signal = A * np.sin(2*np.pi*Fin*t) + np.random.randn(N_fft) * noise_rms
 
 result = analyze_spectrum(signal, fs=Fs)
 
-print(f"[analyze_spectrum] ENOB = [{result['enob']:.2f} b], SNDR = [{result['sndr_db']:.2f} dB], SFDR = [{result['sfdr_db']:.2f} dB], SNR = [{result['snr_db']:.2f} dB], NSD = [{result['nsd_dbfs_hz']:.2f} dBFS/Hz]")
+print(f"[analyze_spectrum] ENOB=[{result['enob']:.2f} b], SNDR=[{result['sndr_db']:.2f} dB], SFDR=[{result['sfdr_db']:.2f} dB], SNR=[{result['snr_db']:.2f} dB], NSD=[{result['nsd_dbfs_hz']:.2f} dBFS/Hz]")
 
 fig_path = (output_dir / 'exp_s02_analyze_spectrum_savefig.png').resolve()
 print(f"\n[Save fig] -> [{fig_path}]\n")

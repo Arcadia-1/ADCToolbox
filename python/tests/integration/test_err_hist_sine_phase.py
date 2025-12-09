@@ -23,12 +23,11 @@ def _process_plot_error_hist_phase(raw_data, sub_folder, dataset_name, figures_f
     freq = estimate_frequency(raw_data, fs=1)
 
     # 2. Error Histogram Analysis (Phase Mode)
-    emean, erms, phase_code, anoi, pnoi, _, _ = plot_error_hist_phase(
+    emean, erms, phase_code, anoi, pnoi, error, phase = plot_error_hist_phase(
         raw_data,
-        bin=360,
-        fin=freq,
-        disp=1,
-        mode=0
+        bins=360,
+        freq=freq,
+        disp=1
     )
 
     # Get the figure that err_hist_sine created and add title

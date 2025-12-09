@@ -1,9 +1,6 @@
 """
-Calculate theoretical SNR from signal amplitude and noise level.
-
-This example demonstrates calculate_snr_from_amplitude with:
-- Fixed amplitude (A=0.5V), sweep noise from 1 µV to 10 mV
-- Show effect of ADC quantization noise (6/8/10/12/14-bit)
+Calculates theoretical SNR from signal amplitude and noise level. Sweeps noise from 1µV to 10mV
+and compares against ADC quantization noise for 6-14 bit converters, visualizing SNR vs noise.
 """
 
 import numpy as np

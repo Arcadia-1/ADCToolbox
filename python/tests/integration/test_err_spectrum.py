@@ -18,12 +18,13 @@ def _process_err_spectrum(raw_data, sub_folder, dataset_name, figures_folder, te
     4. Save plot
     """
     # Compute error data using sineFit
-    fitted_signal, frequency, amplitude, dc_offset, phase = fit_sine(raw_data)
+    fit_result = fit_sine(raw_data)
+    fitted_signal = fit_result['fitted_signal']
     err_data = raw_data - fitted_signal
 
-    # Run analyze_spectrum on error data (label=0 means no labeling)
+    # Run analyze_spectrum on error data (show_label=False means no labeling)
     plt.figure(figsize=(12, 8))
-    analyze_spectrum(err_data, label=0)
+    analyze_spectrum(err_data, show_label=False)
     plt.title(f'errSpectrum: {dataset_name}')
 
     # Save variables

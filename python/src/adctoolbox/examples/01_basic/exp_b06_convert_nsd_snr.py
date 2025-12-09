@@ -1,7 +1,6 @@
 """
-Convert between Noise Spectral Density (NSD) and Signal-to-Noise Ratio (SNR).
-
-Demonstrates the fundamental relationship: SNR = Psignal - NSD - 10*log10(BW)
+Converts between Noise Spectral Density (NSD) and SNR. Shows how SNR varies with bandwidth
+and sampling frequency, demonstrating the relationship: SNR = Psignal - NSD - 10*log10(BW).
 """
 
 import numpy as np

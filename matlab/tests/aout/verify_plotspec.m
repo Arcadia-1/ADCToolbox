@@ -7,7 +7,7 @@ N = 2^13;
 J = 323;
 sig = 0.499 * sin((0:N - 1)'*J*2*pi/N) + 0.5;
 
-nbits = 40;
+nbits = 10;
 sig_quantized = floor(sig*2^nbits) / 2^nbits;
 figure;
 enob_new = plotspec(sig_quantized);

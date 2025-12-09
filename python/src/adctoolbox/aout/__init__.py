@@ -5,12 +5,10 @@ from adctoolbox.spectrum import (
     analyze_spectrum,
     analyze_spectrum_coherent_averaging,
     analyze_spectrum_polar,
-    analyze_phase_spectrum,
     analyze_two_tone_spectrum,
     calculate_spectrum_data,
     calculate_coherent_spectrum,
     plot_spectrum,
-    plot_polar_phase,
     plot_spectrum_polar,
 )
 
@@ -44,14 +42,12 @@ __all__ = [
     'analyze_spectrum',
     'analyze_spectrum_coherent_averaging',
     'analyze_spectrum_polar',
-    'analyze_phase_spectrum',
     'analyze_two_tone_spectrum',
     # Calculation engines
     'calculate_spectrum_data',
     'calculate_coherent_spectrum',
     # Plotting functions
     'plot_spectrum',
-    'plot_polar_phase',
     'plot_spectrum_polar',
     # Legacy functions
     'decompose_harmonics',

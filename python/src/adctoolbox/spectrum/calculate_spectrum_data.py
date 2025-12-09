@@ -72,47 +72,79 @@ def calculate_spectrum_data(
             if np.max(np.abs(run_data)) < 1e-10:
                 continue
 
+            # Compute FFT
             fft_data = np.fft.fft(run_data)
-            bin_idx, bin_r = _find_fundamental(fft_data, N, osr, method='magnitude')
-            if bin_idx == 0:
+            fft_data[0] = 0  # Remove DC (MATLAB plotspec.m:282)
+
+            # Find fundamental bin (MATLAB plotspec.m:284)
+            fft_mag = np.abs(fft_data[:n_search_inband])
+            bin_idx = np.argmax(fft_mag)
+
+            # Guard against DC bin (MATLAB plotspec.m:286-289)
+            if bin_idx <= 0:
                 continue
 
+            # Parabolic interpolation PER-RUN (MATLAB plotphase.m:144-152)
+            # This is done BEFORE phase alignment
+            if bin_idx > 0 and bin_idx < n_search_inband - 1:
+                sig_e = np.log10(max(fft_mag[bin_idx], 1e-20))
+                sig_l = np.log10(max(fft_mag[bin_idx - 1], 1e-20))
+                sig_r = np.log10(max(fft_mag[bin_idx + 1], 1e-20))
+
+                # Parabolic interpolation formula (MATLAB plotphase.m:149)
+                delta = (sig_r - sig_l) / (2 * sig_e - sig_l - sig_r) / 2
+                bin_r = bin_idx + delta
+
+                if np.isnan(bin_r) or np.isinf(bin_r):
+                    bin_r = float(bin_idx)
+            else:
+                bin_r = float(bin_idx)
+
+            # Phase alignment (MATLAB plotspec.m:292-322)
             fft_aligned = _align_spectrum_phase(fft_data, bin_idx, bin_r, N)
             spec_coherent += fft_aligned
             n_valid_runs += 1
 
-        if n_valid_runs > 0:
-            spec_coherent /= n_valid_runs
-
-        spec_coherent = spec_coherent[:n_half]
+        # Apply coherent scaling: MATLAB plotspec.m:337
+        # spec = abs(spec).^2/(N_fft^2)*16/ME^2
+        # Keep complex spectrum (no division yet)
+        spec_coherent_full = spec_coherent[:n_half]
         if cutoff_freq > 0:
-            spec_coherent[:int(cutoff_freq / fs * N)] = 0
+            spec_coherent_full[:int(cutoff_freq / fs * N)] = 0
 
-        # Noise floor for complex mode
-        mag_db = 20 * np.log10(np.abs(spec_coherent) + 1e-20)
-        coherent_mag = np.abs(spec_coherent)
-        signal_mask = np.zeros_like(coherent_mag, dtype=bool)
-        temp_bin = np.argmax(coherent_mag[:n_search_inband])
-        if 1 <= temp_bin < len(signal_mask):
-            signal_mask[max(temp_bin-2, 0):min(temp_bin+3, len(signal_mask))] = True
+        # Convert to power spectrum with proper scaling
+        # MATLAB: spec = abs(spec).^2/(N_fft^2)*16/ME^2
+        # Factor of 16 comes from window power normalization
+        if n_valid_runs > 0:
+            spectrum_power_coherent = (np.abs(spec_coherent_full) ** 2) / (N ** 2) * 16 / (n_valid_runs ** 2)
+        else:
+            spectrum_power_coherent = (np.abs(spec_coherent_full) ** 2) / (N ** 2) * 16
 
-        noise_region = mag_db[~signal_mask]
-        noise_floor_db = np.median(noise_region) if len(noise_region) > 0 else np.percentile(mag_db, 1)
+        # Calculate noise floor for complex mode (used for polar plot)
+        # MATLAB plotphase.m:195-200
+        # Use amplitude (20*log10) to match plot_spectrum_polar.py line 87
+        mag_db = 20 * np.log10(np.abs(spec_coherent_full) + 1e-20)
+
+        # Use 1st percentile of entire spectrum (MATLAB: spec_sort(ceil(length(spec_sort)*0.01)))
+        mag_db_sorted = np.sort(mag_db)
+        percentile_idx = int(np.ceil(len(mag_db_sorted) * 0.01))
+        percentile_idx = max(0, min(percentile_idx, len(mag_db_sorted) - 1))
+        noise_floor_db = mag_db_sorted[percentile_idx]
+
+        # Default to -100 if infinite (MATLAB: if(isinf(minR)) minR = -100; end)
         noise_floor_db = -100 if np.isinf(noise_floor_db) else noise_floor_db
 
-        # Store complex data
+        # Store complex spectrum for polar plot (normalized to noise floor)
         results.update({
-            'complex_spec_coherent': spec_coherent,
+            'complex_spec_coherent': spec_coherent_full,
             'minR_dB': noise_floor_db,
-            'bin_idx': np.argmax(coherent_mag[:n_search_inband]),
+            'bin_idx': np.argmax(spectrum_power_coherent[:n_search_inband]),
             'N': N
         })
 
-        # Normalize for metrics
-        peak_mag = np.max(coherent_mag)
-        normalized_mag = coherent_mag / (peak_mag + 1e-20)
-        spectrum_power = normalized_mag ** 2
-        spec_mag_db = 20 * np.log10(normalized_mag + 1e-20)
+        # Use power spectrum for metrics calculation
+        spectrum_power = spectrum_power_coherent
+        spec_mag_db = 10 * np.log10(spectrum_power + 1e-20)
 
     else:
         # Power spectrum: traditional power averaging
@@ -243,7 +275,8 @@ def calculate_spectrum_data(
         'fs': fs,
         'osr': osr,
         'nf_line_level': -(noise_floor_db + 10*np.log10(n_search_inband)),
-        'harmonics': []
+        'harmonics': [],
+        'is_coherent': complex_spectrum  # Flag to indicate coherent vs power averaging
     }
 
     return results

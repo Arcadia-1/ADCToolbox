@@ -4,7 +4,6 @@
 from .analyze_spectrum import analyze_spectrum
 from .analyze_spectrum_coherent_averaging import analyze_spectrum_coherent_averaging
 from .analyze_spectrum_polar import analyze_spectrum_polar
-from .analyze_phase_spectrum import analyze_phase_spectrum
 from .analyze_two_tone_spectrum import analyze_two_tone_spectrum
 
 # Calculation engines (modular core)
@@ -13,7 +12,6 @@ from .calculate_coherent_spectrum import calculate_coherent_spectrum
 
 # Plotting functions (visualization)
 from .plot_spectrum import plot_spectrum
-from .plot_polar_phase import plot_polar_phase
 from .plot_spectrum_polar import plot_spectrum_polar
 
 # Helper functions (internal)
@@ -27,14 +25,12 @@ __all__ = [
     'analyze_spectrum',
     'analyze_spectrum_coherent_averaging',
     'analyze_spectrum_polar',
-    'analyze_phase_spectrum',
     'analyze_two_tone_spectrum',
     # Calculation engines
     'calculate_spectrum_data',
     'calculate_coherent_spectrum',
     # Plotting functions
     'plot_spectrum',
-    'plot_polar_phase',
     'plot_spectrum_polar',
     # Helper functions
     '_prepare_fft_input',

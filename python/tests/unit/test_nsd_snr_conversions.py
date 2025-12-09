@@ -2,7 +2,7 @@
 
 import numpy as np
 import pytest
-from adctoolbox import snr_to_nsd, nsd_to_snr
+from adctoolbox.common import snr_to_nsd, nsd_to_snr
 
 
 class TestNsdSnrConversions:

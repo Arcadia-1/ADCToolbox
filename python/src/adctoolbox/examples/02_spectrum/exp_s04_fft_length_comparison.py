@@ -28,7 +28,7 @@ n_cases = len(N_values)
 snr_ref = calculate_snr_from_amplitude(sig_amplitude=A, noise_amplitude=noise_rms)
 nsd_ref = snr_to_nsd(snr_ref, fs=Fs, osr=1)
 
-print(f"[Parameters] Fs = [{Fs/1e6:.1f} MHz], Fin_target = [{Fin_target/1e6:.1f} MHz], Noise RMS = [{noise_rms*1e6:.1f} uV] | [Theoretical] SNR = [{snr_ref:.2f} dB], NSD = [{nsd_ref:.2f} dBFS/Hz]")
+print(f"[Setting] Fs=[{Fs/1e6:.1f} MHz], Fin_target=[{Fin_target/1e6:.1f} MHz], Noise RMS=[{noise_rms*1e6:.1f} uV] | [Theory] SNR=[{snr_ref:.2f} dB], NSD=[{nsd_ref:.2f} dBFS/Hz]")
 
 # Calculate grid dimensions and figure size
 n_cols = 4
@@ -58,7 +58,7 @@ for idx, N_fft in enumerate(N_values):
     bin_width = Fs / N_fft
 
     # Print results
-    print(f"[N = {N_fft:5d} (2^{int(np.log2(N_fft)):2d})] [Bin width = {bin_width/1e3:7.3f} kHz] ENOB = [{result['enob']:.2f} b], SNDR = [{result['sndr_db']:.2f} dB], SNR = [{result['snr_db']:.2f} dB], NSD = [{result['nsd_dbfs_hz']:.2f} dBFS/Hz]")
+    print(f"[N={N_fft:5d} (2^{int(np.log2(N_fft)):2d})] [Bin width={bin_width/1e3:7.3f} kHz] ENOB=[{result['enob']:.2f} b], SNDR=[{result['sndr_db']:.2f} dB], SNR=[{result['snr_db']:.2f} dB], NSD=[{result['nsd_dbfs_hz']:.2f} dBFS/Hz]")
 
     # Update subplot title
     axes[idx].set_title(f"N = {N_fft} (2^{int(np.log2(N_fft))}), Bin Width = {bin_width/1e3:.3f} kHz")

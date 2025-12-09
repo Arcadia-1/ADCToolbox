@@ -17,7 +17,8 @@ def _process_plot_error_autocorr(raw_data, sub_folder, dataset_name, figures_fol
     3. Save variables and plot
     """
     # Compute error data using sineFit
-    fitted_signal, frequency, amplitude, dc_offset, phase = fit_sine(raw_data)
+    fit_result = fit_sine(raw_data)
+    fitted_signal = fit_result['fitted_signal']
     err_data = raw_data - fitted_signal
 
     # Run errAutoCorrelation

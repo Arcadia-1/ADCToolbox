@@ -1,4 +1,7 @@
-"""Unit conversions for ADC testing"""
+"""
+Comprehensive unit conversion examples for ADC testing: dB, power, voltage, LSB, frequency bins,
+ENOB/SNR, and NSD. Tests bidirectional conversions to verify accuracy (forward and reverse).
+"""
 import numpy as np
 from pathlib import Path
 from adctoolbox import (db_to_mag, mag_to_db, db_to_power, power_to_db,

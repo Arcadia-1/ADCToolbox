@@ -1,8 +1,11 @@
-"""Aliasing visualization within several Nyquist zones"""
+"""
+Demonstrates frequency aliasing across 6 Nyquist zones. Shows how different input frequencies
+fold back into the baseband (0-Fs/2) due to undersampling, visualizing the "sawtooth" pattern.
+"""
 import numpy as np
 import matplotlib.pyplot as plt
 from pathlib import Path
-from adctoolbox import calc_aliased_freq
+from adctoolbox import calculate_aliased_freq
 
 output_dir = Path(__file__).parent / "output"
 output_dir.mkdir(exist_ok=True)

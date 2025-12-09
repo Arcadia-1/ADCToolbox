@@ -1,5 +1,6 @@
 """Common utility functions for ADC analysis."""
 
+from .calculate_aliased_bin import calculate_aliased_bin
 from .calculate_aliased_freq import calculate_aliased_freq
 from .calculate_coherent_freq import calculate_coherent_freq
 from .calculate_snr_from_amplitude import calculate_snr_from_amplitude
@@ -26,6 +27,7 @@ from .calculate_fom import (
 
 __all__ = [
     # Function names
+    'calculate_aliased_bin',
     'calculate_aliased_freq',
     'calculate_coherent_freq',
     'calculate_snr_from_amplitude',
