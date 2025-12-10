@@ -7,42 +7,60 @@ calibration algorithms, and more.
 
 Usage:
 ------
->>> from adctoolbox import spec_plot, sine_fit, fg_cal_sine
->>> from adctoolbox import alias, find_bin, err_hist_sine
+>>> from adctoolbox import analyze_spectrum, sine_fit, cal_weight_sine
+>>> from adctoolbox import alias, find_bin, plot_error_hist_phase
 """
 
-__version__ = '0.2.0'
+__version__ = '0.2.4'
 
 # Import all public functions from submodules
 from .common import (
-    alias,
-    find_bin,
-    find_fin_coherent,
-    find_fin,
-    sine_fit,
-    bit_in_band,
-    cap2weight,
-    find_vinpp,
+    fold_bin_to_nyquist,
+    fold_frequency_to_nyquist,
+    find_coherent_frequency,
+    amplitudes_to_snr,
+    estimate_frequency,
+    fit_sine,
+    extract_freq_components,
+    convert_cap_to_weight,
+    calculate_target_vpp,
+    db_to_mag,
+    mag_to_db,
+    db_to_power,
+    power_to_db,
+    lsb_to_volts,
+    volts_to_lsb,
+    bin_to_freq,
+    freq_to_bin,
+    snr_to_enob,
+    enob_to_snr,
+    snr_to_nsd,
+    nsd_to_snr,
+    dbm_to_vrms,
+    vrms_to_dbm,
+    dbm_to_mw,
+    mw_to_dbm,
+    sine_amplitude_to_power,
 )
 
 from .aout import (
-    spec_plot,
-    spec_plot_phase,
-    spec_plot_2tone,
-    err_envelope_spectrum,
-    err_auto_correlation,
-    err_hist_sine,
-    err_pdf,
-    tom_decomp,
-    inl_sine,
-    fit_static_nol,
+    analyze_spectrum,
+    plot_spectrum,
+    analyze_two_tone_spectrum,
+    decompose_harmonics,
+    compute_inl_from_sine,
+    fit_static_nonlin,
 )
 
 from .dout import (
-    fg_cal_sine,
-    fg_cal_sine_os,
-    fg_cal_sine_2freq,
-    overflow_chk,
+    calibrate_weight_sine,
+    calibrate_weight_sine_osr,
+    calibrate_weight_two_tone,
+    check_overflow,
+    check_bit_activity,
+    analyze_enob_sweep,
+    plot_weight_radix,
+    generate_dout_dashboard,
 )
 
 from .oversampling import (
@@ -58,6 +76,10 @@ from .data_generation import (
     generate_jitter_signal,
 )
 
+from .spectrum import (
+    analyze_spectrum_polar,
+)
+
 # Keep submodules accessible for those who prefer explicit imports
 from . import common
 from . import aout
@@ -65,38 +87,60 @@ from . import dout
 from . import oversampling
 from . import utils
 from . import data_generation
+from . import spectrum
 
 __all__ = [
     # Version
     '__version__',
 
     # Common functions
-    'alias',
-    'find_bin',
-    'find_fin_coherent',
-    'find_fin',
-    'sine_fit',
-    'bit_in_band',
-    'cap2weight',
-    'find_vinpp',
+    'fold_bin_to_nyquist',
+    'fold_frequency_to_nyquist',
+    'find_coherent_frequency',
+    'amplitudes_to_snr',
+    'estimate_frequency',
+    'fit_sine',
+    'extract_freq_components',
+    'convert_cap_to_weight',
+    'calculate_target_vpp',
+    'db_to_mag',
+    'mag_to_db',
+    'db_to_power',
+    'power_to_db',
+    'lsb_to_volts',
+    'volts_to_lsb',
+    'bin_to_freq',
+    'freq_to_bin',
+    'snr_to_enob',
+    'enob_to_snr',
+    'snr_to_nsd',
+    'nsd_to_snr',
+    'dbm_to_vrms',
+    'vrms_to_dbm',
+    'dbm_to_mw',
+    'mw_to_dbm',
+    'sine_amplitude_to_power',
 
     # Analog output (aout) functions
-    'spec_plot',
-    'spec_plot_phase',
-    'spec_plot_2tone',
-    'err_envelope_spectrum',
-    'err_auto_correlation',
-    'err_hist_sine',
-    'err_pdf',
-    'tom_decomp',
-    'inl_sine',
-    'fit_static_nol',
+    'analyze_spectrum',
+    'plot_spectrum',
+    'analyze_two_tone_spectrum',
+    'decompose_harmonics',
+    'compute_inl_from_sine',
+    'fit_static_nonlin',
+
+    # Spectrum functions
+    'analyze_spectrum_polar',
 
     # Digital output (dout) functions
-    'fg_cal_sine',
-    'fg_cal_sine_os',
-    'fg_cal_sine_2freq',
+    'cal_weight_sine',
+    'cal_weight_sine_os',
+    'cal_weight_sine_2freq',
     'overflow_chk',
+    'bit_activity',
+    'sweep_bit_enob',
+    'weight_scaling',
+    'generate_dout_dashboard',
 
     # Oversampling functions
     'ntf_analyzer',
@@ -115,4 +159,5 @@ __all__ = [
     'oversampling',
     'utils',
     'data_generation',
+    'spectrum',
 ]

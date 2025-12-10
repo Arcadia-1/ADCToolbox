@@ -1,20 +1,64 @@
 """Common utility functions for ADC analysis."""
 
-from .alias import alias
-from .find_bin import find_bin, find_fin_coherent
-from .find_fin import find_fin
-from .sine_fit import sine_fit
-from .bit_in_band import bit_in_band
-from .cap2weight import cap2weight
-from .find_vinpp import find_vinpp
+from .fold_bin_to_nyquist import fold_bin_to_nyquist
+from .fold_frequency_to_nyquist import fold_frequency_to_nyquist
+from .find_coherent_frequency import find_coherent_frequency
+from .amplitudes_to_snr import amplitudes_to_snr
+from .estimate_frequency import estimate_frequency
+from .fit_sine import fit_sine
+from .extract_freq_components import extract_freq_components
+from .convert_cap_to_weight import convert_cap_to_weight
+from .calculate_target_vpp import calculate_target_vpp
+from .validate import validate_aout_data, validate_dout_data
+from .unit_conversions import (
+    db_to_mag, mag_to_db, db_to_power, power_to_db,
+    lsb_to_volts, volts_to_lsb,
+    bin_to_freq, freq_to_bin,
+    snr_to_enob, enob_to_snr,
+    snr_to_nsd, nsd_to_snr,
+    dbm_to_vrms, vrms_to_dbm,
+    dbm_to_mw, mw_to_dbm,
+    sine_amplitude_to_power
+)
+from .calculate_fom import (
+    calculate_walden_fom, calculate_schreier_fom,
+    calculate_thermal_noise_limit, calculate_jitter_limit
+)
 
 __all__ = [
-    'alias',
-    'find_bin',
-    'find_fin_coherent',
-    'find_fin',
-    'sine_fit',
-    'bit_in_band',
-    'cap2weight',
-    'find_vinpp',
+    # Function names
+    'fold_bin_to_nyquist',
+    'fold_frequency_to_nyquist',
+    'find_coherent_frequency',
+    'amplitudes_to_snr',
+    'calculate_target_vpp',
+    'calculate_walden_fom',
+    'calculate_schreier_fom',
+    'calculate_thermal_noise_limit',
+    'calculate_jitter_limit',
+    # Other functions
+    'estimate_frequency',
+    'fit_sine',
+    'extract_freq_components',
+    'convert_cap_to_weight',
+    'validate_aout_data',
+    'validate_dout_data',
+    # Conversions
+    'db_to_mag',
+    'mag_to_db',
+    'db_to_power',
+    'power_to_db',
+    'lsb_to_volts',
+    'volts_to_lsb',
+    'bin_to_freq',
+    'freq_to_bin',
+    'snr_to_enob',
+    'enob_to_snr',
+    'snr_to_nsd',
+    'nsd_to_snr',
+    'dbm_to_vrms',
+    'vrms_to_dbm',
+    'dbm_to_mw',
+    'mw_to_dbm',
+    'sine_amplitude_to_power',
 ]

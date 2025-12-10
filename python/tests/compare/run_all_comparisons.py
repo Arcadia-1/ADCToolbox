@@ -25,23 +25,23 @@ def run_all_comparisons(project_root):
     tests = [
         # Basic tests
         ("test_basic", "flat"),
-        ("test_sinfit", "nested"),
-        ("test_alias", "nested"),
+        ("run_sinfit", "nested"),
+        ("run_alias", "nested"),
 
-        # AOUT tests (analog output)
-        ("test_errsin_phase", "nested"),
-        ("test_errsin_code", "nested"),
-        ("test_plotspec", "nested"),
-        ("test_plotphase", "nested"),
-        ("test_fitstaticnl", "nested"),
-        ("test_errpdf", "nested"),
-        ("test_errspec", "nested"),
-        ("test_errac", "nested"),
-        ("test_errevspec", "nested"),
-        ("test_inlsine", "nested"),
-        ("test_tomdec", "nested"),
+        # AOUT tests (analog output) - MATLAB uses run_* prefix
+        ("run_errsin_phase", "nested"),
+        ("run_errsin_code", "nested"),
+        ("run_plotspec", "nested"),
+        ("run_plotphase", "nested"),
+        ("run_fitstaticnl", "nested"),
+        ("run_errpdf", "nested"),
+        ("run_errspec", "nested"),
+        ("run_errac", "nested"),
+        ("run_errevspec", "nested"),
+        ("run_inlsine", "nested"),
+        ("run_tomdec", "nested"),
 
-        # DOUT tests (digital output)
+        # DOUT tests (digital output) - MATLAB uses test_* prefix
         ("test_bitact", "nested"),
         ("test_wscaling", "nested"),
         ("test_bitsweep", "nested"),
