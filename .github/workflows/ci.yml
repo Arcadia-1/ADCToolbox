@@ -53,7 +53,6 @@ jobs:
           # List of examples to run (add/remove as needed)
           EXAMPLES="
             exp_s00_analyze_spectrum_simplest.py
-            # exp_s01_analyze_spectrum_interactive.py  # (interactive, skip in CI)
             exp_s02_analyze_spectrum_savefig.py
             exp_s03_modular_calculation_plotting.py
             exp_s04_annotating_spur.py
