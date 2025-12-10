@@ -60,7 +60,7 @@ for i, (signal, title) in enumerate(zip(signals, description)):
           f"thd=[{result['thd_db']:.2f} dB],hd2=[{result['hd2_db']:.2f} dB], hd3=[{result['hd3_db']:.2f} dB]")
 
 plt.tight_layout()
-fig_path = output_dir / 'exp_s21_polar_harmonic.png'
+fig_path = output_dir / 'exp_s21_analyze_spectrum_polar.png'
 plt.savefig(fig_path, dpi=300, bbox_inches='tight')
 print(f"\n[Save fig] -> [{fig_path}]")
 plt.close()
