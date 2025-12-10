@@ -10,8 +10,11 @@ from adctoolbox.spectrum import (
     plot_spectrum_polar,
 )
 
-# Legacy functions (backward compatibility)
-from .decompose_harmonics import decompose_harmonics
+# Harmonic decomposition functions
+from .compute_harmonic_decomposition import compute_harmonic_decomposition
+from .plot_harmonic_decomposition_time import plot_harmonic_decomposition_time
+from .plot_harmonic_decomposition_polar import plot_harmonic_decomposition_polar
+from .analyze_harmonic_decomposition import analyze_harmonic_decomposition
 from .compute_inl_from_sine import compute_inl_from_sine
 from .analyze_inl_from_sine import analyze_inl_from_sine
 from .fit_static_nonlin import fit_static_nonlin
@@ -46,14 +49,16 @@ __all__ = [
     # Calculation engines
     'compute_spectrum',
     'compute_inl_from_sine',
+    'compute_harmonic_decomposition',
     # Plotting functions
     'plot_spectrum',
     'plot_spectrum_polar',
     'plot_dnl_inl',
+    'plot_harmonic_decomposition_time',
+    'plot_harmonic_decomposition_polar',
     # Analysis wrappers
     'analyze_inl_from_sine',
-    # Legacy functions
-    'decompose_harmonics',
+    'analyze_harmonic_decomposition',
     'fit_static_nonlin',
 ]
 

@@ -162,7 +162,7 @@ for i, (signal, title) in enumerate(zip(signals, titles)):
     print(f"  {i+1:2d}. {title.split(chr(10))[0]:25s} - ACF[0]={acf_0:6.3f}, ACF[1]={acf_1:7.4f}")
 
 plt.tight_layout()
-fig_path = output_dir / 'exp_a22_plot_error_autocorrelation.png'
+fig_path = output_dir / 'exp_a42_plot_error_autocorrelation.png'
 plt.savefig(fig_path, dpi=150)
 plt.close()
 
