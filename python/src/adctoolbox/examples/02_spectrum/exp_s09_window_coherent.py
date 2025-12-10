@@ -1,8 +1,8 @@
 """
-Demonstrate window effects with short FFT (N=128, bin width 781 kHz): coarse resolution limits performance.
-Rectangular through Chebyshev: ~12.7b ENOB. Kaiser: SEVERE degradation (5.35b ENOB!) - 8 side bins
-consume excessive noise relative to total bins. Wide main lobes spread signal power across many bins.
-Rule: For short FFT, avoid very wide windows (Kaiser). Use Rectangular/Hann/Hamming instead.
+Demonstrate window functions with coherent sampling: most windows achieve ~12.5b ENOB, SFDR >103 dB.
+No spectral leakage - signal sits perfectly in one bin. Rectangular/Hann/Hamming/Blackman/Blackman-Harris
+all perform excellently (~12.5b ENOB). Only Chebyshev shows slight degradation (12.39b ENOB, SFDR 96 dB).
+Rule: For coherent sampling, Rectangular/Hann/Hamming/Blackman/Blackman-Harris all work equally well.
 """
 import numpy as np
 import matplotlib.pyplot as plt
@@ -12,7 +12,7 @@ from adctoolbox import find_coherent_frequency, analyze_spectrum, amplitudes_to_
 output_dir = Path(__file__).parent / "output"
 output_dir.mkdir(exist_ok=True)
 
-N_fft = 128
+N_fft = 2**13
 Fs = 100e6
 A = 0.5
 noise_rms = 50e-6
@@ -23,8 +23,7 @@ Fin, Fin_bin = find_coherent_frequency(Fs, Fin_target, N_fft)
 snr_ref = amplitudes_to_snr(sig_amplitude=A, noise_amplitude=noise_rms)
 nsd_ref = snr_to_nsd(snr_ref, fs=Fs, osr=1)
 print(f"[Sinewave] Fs=[{Fs/1e6:.2f} MHz], Fin=[{Fin/1e6:.6f} MHz] (coherent, Bin {Fin_bin}), N=[{N_fft}], A=[{A:.3f} Vpeak]")
-print(f"[Nonideal] Noise RMS=[{noise_rms*1e6:.2f} uVrms], Theoretical SNR=[{snr_ref:.2f} dB], Theoretical NSD=[{nsd_ref:.2f} dBFS/Hz]")
-print(f"[Bin width] = {Fs/N_fft/1e3:.1f} kHz (coarse resolution)\n")
+print(f"[Nonideal] Noise RMS=[{noise_rms*1e6:.2f} uVrms], Theoretical SNR=[{snr_ref:.2f} dB], Theoretical NSD=[{nsd_ref:.2f} dBFS/Hz]\n")
 
 WINDOW_CONFIGS = {
     'rectangular': {'description': 'Rectangular (no window)', 'side_bins': 1},
@@ -53,10 +52,10 @@ for idx, win_type in enumerate(WINDOW_CONFIGS.keys()):
 
     print(f"[{win_type:14s}] ENoB=[{result['enob']:5.2f} b], SNDR=[{result['sndr_db']:6.2f} dB], SFDR=[{result['sfdr_db']:6.2f} dB], SNR=[{result['snr_db']:6.2f} dB], NSD=[{result['nsd_dbfs_hz']:7.2f} dBFS/Hz]")
 
-fig.suptitle(f'Short FFT: Window Comparison (Fin={Fin/1e6:.6f} MHz, Bin {Fin_bin}, N={N_fft})',
+fig.suptitle(f'Coherent Sampling: Window Comparison (Fin={Fin/1e6:.6f} MHz, Bin {Fin_bin}, N={N_fft})',
              fontsize=14, fontweight='bold')
 plt.tight_layout()
-fig_path = output_dir / 'exp_s09_window_short_fft.png'
+fig_path = output_dir / 'exp_s09_window_coherent.png'
 print(f"\n[Save fig] -> [{fig_path}]")
 plt.savefig(fig_path, dpi=150)
 plt.close()

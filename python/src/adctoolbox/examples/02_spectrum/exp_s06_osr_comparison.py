@@ -47,7 +47,7 @@ for idx, osr in enumerate(osr_values):
     print(f"[OSR={osr:3d}] ENoB=[{result['enob']:5.2f} b], SNDR=[{result['sndr_db']:6.2f} dB], SFDR=[{result['sfdr_db']:6.2f} dB], SNR=[{result['snr_db']:6.2f} dB], NSD=[{result['nsd_dbfs_hz']:7.2f} dBFS/Hz], Delta SNR=[+{snr_improvement:.1f} dB]")
 
 plt.tight_layout()
-fig_path = (output_dir / 'exp_s05_osr_comparison.png').resolve()
+fig_path = (output_dir / 'exp_s06_osr_comparison.png').resolve()
 print(f"\n[Save fig] -> [{fig_path}]\n")
 plt.savefig(fig_path, dpi=150)
 plt.close()

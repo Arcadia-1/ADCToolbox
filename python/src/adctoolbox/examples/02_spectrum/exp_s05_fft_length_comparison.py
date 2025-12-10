@@ -53,7 +53,7 @@ for idx, N_fft in enumerate(N_values):
 
 
 plt.tight_layout()
-fig_path = (output_dir / 'exp_s04_fft_length_comparison.png').resolve()
+fig_path = (output_dir / 'exp_s05_fft_length_comparison.png').resolve()
 print(f"\n[Save fig] -> [{fig_path}]\n")
 plt.savefig(fig_path, dpi=150)
 plt.close()

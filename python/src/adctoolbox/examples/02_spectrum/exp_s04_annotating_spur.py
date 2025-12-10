@@ -35,7 +35,7 @@ k3 = hd3_amp / (A**2 / 4)
 
 # Two test frequencies: collision vs non-collision
 freq_configs = [
-    {'target': Fs / 3, 'name': 'Fs/3', 'note': 'HD2,HD6,HD10 collide at Nyquist'},
+    {'target': Fs / 3, 'name': 'Fs/3', 'note': 'Collide at Nyquist!'},
     {'target': Fs / 17.6, 'name': 'Fs/17.6 (No Collision)', 'note': 'Harmonics spread'}
 ]
 
@@ -66,7 +66,7 @@ for freq_idx, freq_config in enumerate(freq_configs):
 plt.tight_layout()
 
 # Save figure
-fig_path = (output_dir / 'exp_s04_spectrum_spur.png').resolve()
+fig_path = (output_dir / 'exp_s04_annotating_spur.png').resolve()
 print(f"\n[Save fig] -> [{fig_path}]")
 plt.savefig(fig_path, dpi=150, bbox_inches='tight')
 plt.close()

@@ -1,18 +1,18 @@
 """
-Coherent spectrum averaging with OSR: aligns phases across runs before averaging complex FFT values.
-Demonstrates coherent integration gain with oversampling ratio (OSR=4) and varying number of runs.
-Compare power vs coherent averaging results with OSR.
+Coherent spectrum averaging: aligns phases across runs before averaging complex FFT values.
+Preserves phase relationships between fundamental and harmonics. More effective than power averaging
+for reducing noise while maintaining harmonic structure. Compare power vs coherent averaging results.
 """
 
 import numpy as np
 import matplotlib.pyplot as plt
 from pathlib import Path
-from adctoolbox import find_coherent_frequency, analyze_spectrum
+from adctoolbox import find_coherent_frequency, analyze_spectrum, amplitudes_to_snr, snr_to_nsd
 
 output_dir = Path(__file__).parent / "output"
 output_dir.mkdir(exist_ok=True)
 
-N_fft = 2**13
+N_fft = 2**10
 Fs = 100e6
 A = 0.499
 noise_rms = 100e-6
@@ -22,19 +22,21 @@ hd2_amp = 10**(hd2_dB/20)
 hd3_amp = 10**(hd3_dB/20)
 k2 = hd2_amp / (A / 2)
 k3 = hd3_amp / (A**2 / 4)
-osr = 4
 
-Fin, Fin_bin = find_coherent_frequency(fs=Fs, fin_target=1e6, n_fft=N_fft)
-print(f"[Sinewave] Fs=[{Fs/1e6:.2f} MHz], Fin=[{Fin/1e6:.6f} MHz] (coherent, Bin {Fin_bin}), N=[{N_fft}], A=[{A:.3f} Vpeak], OSR=[{osr}]")
-print(f"[Nonideal] HD2=[{hd2_dB} dB], HD3=[{hd3_dB} dB], Noise RMS=[{noise_rms*1e6:.2f} uVrms]\n")
+Fin, Fin_bin = find_coherent_frequency(fs=Fs, fin_target=5e6, n_fft=N_fft)
+
+snr_ref = amplitudes_to_snr(sig_amplitude=A, noise_amplitude=noise_rms)
+nsd_ref = snr_to_nsd(snr_ref, fs=Fs, osr=1)
+print(f"[Sinewave] Fs=[{Fs/1e6:.2f} MHz], Fin=[{Fin/1e6:.6f} MHz] (coherent, Bin {Fin_bin}), N=[{N_fft}], A=[{A:.3f} Vpeak]")
+print(f"[Nonideal] HD2=[{hd2_dB} dB], HD3=[{hd3_dB} dB], Noise RMS=[{noise_rms*1e6:.2f} uVrms], Theoretical SNR=[{snr_ref:.2f} dB], Theoretical NSD=[{nsd_ref:.2f} dBFS/Hz]\n")
 
 # Number of runs to test
-N_runs = [1, 4, 16]
+N_runs = [1, 10, 100]
 
 # Generate signals for all runs - same method as exp_s07
 t = np.arange(N_fft) / Fs
 N_max = max(N_runs)
-signal_matrix = np.zeros((N_fft, N_max))
+signal_matrix = np.zeros((N_max, N_fft))  # M x N: (runs, samples)
 
 
 for run_idx in range(N_max):
@@ -44,7 +46,7 @@ for run_idx in range(N_max):
     # Apply static nonlinearity: y = x + k2*x^2 + k3*x^3
     sig_distorted = sig_ideal + k2 * sig_ideal**2 + k3 * sig_ideal**3 + np.random.randn(N_fft) * noise_rms
 
-    signal_matrix[:, run_idx] = sig_distorted
+    signal_matrix[run_idx, :] = sig_distorted
 
 print(f"[Generated] {N_max} runs with random phase\n")
 
@@ -58,27 +60,22 @@ fig, axes = plt.subplots(2, len(N_runs), figsize=(fig_width, fig_height))
 
 
 for idx, N_run in enumerate(N_runs):
-    # Prepare signal data
-    if N_run == 1:
-        signal_single = signal_matrix[:, 0]
-        signal_data = signal_single
-    else:
-        signal_data = signal_matrix[:, :N_run].T
+    signal_data = signal_matrix[:N_run, :]
 
     # Traditional power averaging (analyze_spectrum, coherent_averaging=False by default)
     plt.sca(axes[0, idx])
-    result_trad = analyze_spectrum(signal_data, fs=Fs, osr=osr)
-    axes[0, idx].set_ylim([-140, 0])
+    result_trad = analyze_spectrum(signal_data, fs=Fs)
+    axes[0, idx].set_ylim([-120, 0])
 
     # Coherent averaging (coherent_averaging=True)
     plt.sca(axes[1, idx])
-    result_coh = analyze_spectrum(signal_data, fs=Fs, osr=osr, coherent_averaging=True)
-    axes[1, idx].set_ylim([-140, 0])
+    result_coh = analyze_spectrum(signal_data, fs=Fs, coherent_averaging=True)
+    axes[1, idx].set_ylim([-120, 0])
 
     print(f"[{N_run:3d} Run(s)] Power Avg: ENoB=[{result_trad['enob']:5.2f} b], SNR=[{result_trad['snr_db']:6.2f} dB] | Coherent Avg: ENoB=[{result_coh['enob']:5.2f} b], SNR=[{result_coh['snr_db']:6.2f} dB]")
 
 # Add overall title
-fig.suptitle(f'Power Spectrum Averaging vs Complex Spectrum Coherent Averaging (N_fft = {N_fft}, OSR = {osr})',
+fig.suptitle(f'Power Spectrum Averaging vs Complex Spectrum Coherent Averaging (N_fft = {N_fft})',
              fontsize=16, fontweight='bold')
 
 plt.tight_layout()

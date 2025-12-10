@@ -41,7 +41,7 @@ plot_spectrum(results, show_title=True, show_label=True, ax=ax1, plot_harmonics_
 plot_spectrum(results, show_title=False, show_label=False, ax=ax2)
 
 # Step 4: Save figure
-fig_path = (output_dir / 'exp_s03_analyze_spectrum_manual.png').resolve()
+fig_path = (output_dir / 'exp_s03_modular_calculation_plotting.png').resolve()
 print(f"\n[Save fig] -> [{fig_path}]\n")
 plt.savefig(fig_path, dpi=150, bbox_inches='tight')
 plt.close()
