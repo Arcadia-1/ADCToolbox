@@ -27,8 +27,7 @@ k3 = hd3_amp / (A**2 / 4)
 
 N_list = [2**i for i in range(10, 18, 2)]  # [2^8, 2^10, 2^12, 2^14, 2^16]
 n_plots = len(N_list)
-fig_width = n_plots * 4
-fig, axes = plt.subplots(2, n_plots, figsize=(fig_width, 6))
+fig, axes = plt.subplots(2, n_plots, figsize=(8 * n_plots, 12))
 
 print(f"[INL/DNL Sweep] [Fs = {fs/1e6:.0f} MHz, Fin = {fin_target/1e6:.0f} MHz]")
 print(f"  [HD2 = {hd2_dB} dB, HD3 = {hd3_dB} dB, Noise = {base_noise*1e6:.1f} uV]\n")
