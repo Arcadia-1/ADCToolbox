@@ -2,7 +2,7 @@
 import numpy as np
 import matplotlib.pyplot as plt
 from pathlib import Path
-from adctoolbox import find_coherent_frequency, fold_frequency_to_nyquist, analyze_spectrum
+from adctoolbox import find_coherent_frequency, fold_frequency_to_nyquist, analyze_spectrum, amplitudes_to_snr, snr_to_nsd
 
 output_dir = Path(__file__).parent / "output"
 output_dir.mkdir(exist_ok=True)
@@ -14,17 +14,28 @@ jitter_rms = 50e-15
 base_noise = 1e-6
 
 # Four frequencies across 4 Nyquist zones - all alias to 1GHz
-Fin_list = [1e9,9e9,11e9,19e9]
+Fin_list = [1e9, 9e9, 11e9, 19e9]
 zone_labels = ['1st', '2nd', '3rd', '4th']
 
-print(f"[Jitter Across Nyquist Zones] [Fs = {Fs/1e9:.1f} GHz, Jitter = {jitter_rms*1e15:.1f} fs, N = {N}]")
+print(f"[Configuration] Fs={Fs/1e9:.1f} GHz, Jitter={jitter_rms*1e15:.1f} fs, N={N}, A={A:.3f} Vpeak, Base Noise={base_noise*1e6:.2f} uVrms\n")
 
 fig, axes = plt.subplots(2, 2, figsize=(14, 10))
 
 for i, (fin, zone) in enumerate(zip(Fin_list, zone_labels)):
     fin_coherent, bin = find_coherent_frequency(fs=Fs, fin_target=fin, n_fft=N)
-    t = np.arange(N) / Fs
+    fin_alias = fold_frequency_to_nyquist(fin=fin_coherent, fs=Fs)
 
+    # Calculate theoretical SNR and NSD
+    # Jitter noise power: (2*pi*fin*jitter_rms)^2 / 2
+    jitter_noise_rms = 2 * np.pi * fin_coherent * jitter_rms * A / np.sqrt(2)
+    total_noise_rms = np.sqrt(base_noise**2 + jitter_noise_rms**2)
+    snr_ref = amplitudes_to_snr(sig_amplitude=A, noise_amplitude=total_noise_rms)
+    nsd_ref = snr_to_nsd(snr_ref, fs=Fs, osr=1)
+
+    print(f"[{zone} Zone] Fin={fin_coherent/1e9:.2f} GHz (Bin/N={bin}/{N}) -> Alias to {fin_alias/1e9:.3f} GHz")
+    print(f"  [Theoretical] SNR={snr_ref:.2f} dB, NSD={nsd_ref:.2f} dBFS/Hz")
+
+    t = np.arange(N) / Fs
     phase_jitter = np.random.randn(N) * 2 * np.pi * fin_coherent * jitter_rms
     signal = A * np.sin(2*np.pi*fin_coherent*t + phase_jitter) + np.random.randn(N) * base_noise
 
@@ -33,17 +44,15 @@ for i, (fin, zone) in enumerate(zip(Fin_list, zone_labels)):
     result = analyze_spectrum(signal, fs=Fs)
     axes[row, col].set_ylim([-120, 0])
 
-    fin_GHz = fin_coherent / 1e9
-    fin_alias_GHz = fold_frequency_to_nyquist(fin=fin_coherent, fs=Fs) / 1e9
-    axes[row, col].set_title(f'{zone} Nyquist Zone: Fin = {fin_GHz:.2f} GHz → {fin_alias_GHz:.3f} GHz')
+    print(f"  [Measured] ENoB={result['enob']:5.2f} b, SNDR={result['sndr_db']:6.2f} dB, SFDR={result['sfdr_db']:6.2f} dB, SNR={result['snr_db']:6.2f} dB, NSD={result['nsd_dbfs_hz']:7.2f} dBFS/Hz\n")
 
-    # Print info for this zone
-    print(f"  [{zone} Zone] Fin = {fin_GHz:4.1f} GHz -> Alias to {fin_alias_GHz:3.1f} GHz")
+    fin_GHz = fin_coherent / 1e9
+    fin_alias_GHz = fin_alias / 1e9
+    axes[row, col].set_title(f'{zone} Nyquist Zone: Fin = {fin_GHz:.2f} GHz → {fin_alias_GHz:.3f} GHz')
 
 fig.suptitle(f'Jitter Across Nyquist Zones (Jitter = {jitter_rms*1e15:.0f}fs, Fs = {Fs/1e9:.1f} GHz)', fontsize=12, fontweight='bold')
 plt.tight_layout()
-fig_path = output_dir / 'exp_a02_analyze_spectrum_jitter.png'
+fig_path = (output_dir / 'exp_a02_analyze_spectrum_jitter.png').resolve()
+print(f"[Save fig] -> [{fig_path}]")
 plt.savefig(fig_path, dpi=150)
 plt.close()
-
-print(f"[Save fig] -> [{fig_path}]")
