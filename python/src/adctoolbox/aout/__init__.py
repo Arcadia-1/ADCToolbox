@@ -3,7 +3,6 @@
 # Import spectrum analysis functions from the new spectrum module
 from adctoolbox.spectrum import (
     analyze_spectrum,
-    analyze_spectrum_coherent_averaging,
     analyze_spectrum_polar,
     analyze_two_tone_spectrum,
     compute_spectrum,
@@ -40,7 +39,6 @@ except ImportError:
 __all__ = [
     # Spectrum functions (from spectrum module)
     'analyze_spectrum',
-    'analyze_spectrum_coherent_averaging',
     'analyze_spectrum_polar',
     'analyze_two_tone_spectrum',
     # Calculation engines

@@ -67,7 +67,7 @@ for idx, N_run in enumerate(N_runs):
     result = analyze_two_tone_spectrum(signal_data, fs=Fs)
     axes[idx].set_ylim([-140, 0])
 
-    print(f"[{N_run:2d} Run(s)] ENoB=[{result['enob']:5.2f} b], SNDR=[{result['sndr_db']:6.2f} dB], SFDR=[{result['sfdr_db']:6.2f} dB], SNR=[{result['snr_db']:6.2f} dB], IMD2=[{result['imd2_db']:6.2f} dB], IMD3=[{result['imd3_db']:6.2f} dB], NSD=[{result['nsd_dbfs_hz']:7.2f} dBFS/Hz]")
+    print(f"[{N_run:2d} Run(s)] SNDR=[{result['sndr_db']:6.2f} dB], SFDR=[{result['sfdr_db']:6.2f} dB], SNR=[{result['snr_db']:6.2f} dB], IMD2=[{result['imd2_db']:6.2f} dB], IMD3=[{result['imd3_db']:6.2f} dB], NSD=[{result['nsd_dbfs_hz']:7.2f} dBFS/Hz]")
 
 plt.suptitle(f"Two-Tone Power Spectrum Averaging: Noise Reduction over Multiple Runs (N_fft = {N_fft})",
              fontsize=16, fontweight='bold')
