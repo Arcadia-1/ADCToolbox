@@ -97,7 +97,7 @@ plot_decomposition_time(plot_data_nonlin, ax=ax2)
 print(f"    Noise floor: {decomp_nonlin['noise_dB']:.1f} dB")
 
 plt.tight_layout()
-fig_path_time = output_dir / 'exp_a04b_decompose_time_modular.png'
+fig_path_time = output_dir / 'exp_a11_decompose_time_modular.png'
 plt.savefig(fig_path_time, dpi=150, bbox_inches='tight')
 print(f"\n[Save fig] -> [{fig_path_time}]")
 plt.close(fig)
@@ -144,7 +144,7 @@ for i in range(5):
     print(f"     {i+1:2d}    |  {decomp_noise['harm_dB'][i]:7.1f}   |  {decomp_nonlin['harm_dB'][i]:7.1f}")
 
 plt.tight_layout()
-fig_path_polar = output_dir / 'exp_a04b_decompose_polar_modular.png'
+fig_path_polar = output_dir / 'exp_a11_decompose_polar_modular.png'
 plt.savefig(fig_path_polar, dpi=150, bbox_inches='tight')
 print(f"\n[Save fig] -> [{fig_path_polar}]")
 plt.close(fig)
@@ -161,10 +161,10 @@ decomp_result, plot_data = analyze_decomposition_time(
     harmonic=10,
     fs=Fs,
     title=f'Static Nonlinearity (k2={k2:.3f}, k3={k3:.3f}) - Wrapper Demo',
-    save_path=output_dir / 'exp_a04b_wrapper_time.png',
+    save_path=output_dir / 'exp_a11_wrapper_time.png',
     show_plot=False
 )
-print(f"  Time wrapper saved -> [{output_dir / 'exp_a04b_wrapper_time.png'}]")
+print(f"  Time wrapper saved -> [{output_dir / 'exp_a11_wrapper_time.png'}]")
 
 # Polar wrapper
 decomp_result, plot_data = analyze_decomposition_polar(
@@ -172,10 +172,10 @@ decomp_result, plot_data = analyze_decomposition_polar(
     harmonic=10,
     fs=Fs,
     title=f'Static Nonlinearity (k2={k2:.3f}, k3={k3:.3f}) - Wrapper Demo',
-    save_path=output_dir / 'exp_a04b_wrapper_polar.png',
+    save_path=output_dir / 'exp_a11_wrapper_polar.png',
     show_plot=False
 )
-print(f"  Polar wrapper saved -> [{output_dir / 'exp_a04b_wrapper_polar.png'}]")
+print(f"  Polar wrapper saved -> [{output_dir / 'exp_a11_wrapper_polar.png'}]")
 
 print("\n[Modular Architecture Summary]")
 print("  Calculation Engines:")

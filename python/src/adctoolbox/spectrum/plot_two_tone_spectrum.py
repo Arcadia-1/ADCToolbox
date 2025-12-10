@@ -56,8 +56,10 @@ def plot_two_tone_spectrum(
     bin1 = plot_data['bin1']
     bin2 = plot_data['bin2']
     N = plot_data['N']
+    M = plot_data.get('M', 1)  # Number of runs
     fs = plot_data['fs']
     harmonic_products = plot_data['harmonic_products']
+    coherent_averaging = plot_data.get('coherent_averaging', False)
 
     # Setup axes
     if ax is None:
@@ -174,8 +176,15 @@ def plot_two_tone_spectrum(
     ax.set_xlabel('Freq (Hz)', fontsize=10)
     ax.set_ylabel('dBFS', fontsize=10)
 
+    # Title - auto-generate based on number of runs and averaging mode (matching plot_spectrum.py style)
     if show_title:
-        ax.set_title('Power Spectrum', fontsize=12, fontweight='bold')
+        if M > 1:
+            if coherent_averaging:
+                ax.set_title(f'Coherent averaging (N_run = {M})', fontsize=12, fontweight='bold')
+            else:
+                ax.set_title(f'Power averaging (N_run = {M})', fontsize=12, fontweight='bold')
+        else:
+            ax.set_title('Power Spectrum', fontsize=12, fontweight='bold')
 
     ax.grid(True, alpha=0.3)
     ax.set_xlim([freq[1], fs / 2])

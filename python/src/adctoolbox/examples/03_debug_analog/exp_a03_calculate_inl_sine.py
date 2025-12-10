@@ -41,7 +41,7 @@ for idx, N in enumerate(N_list):
     sinewave = A * np.sin(2 * np.pi * fin * t)
     signal_distorted = sinewave + k2 * sinewave**2 + k3 * sinewave**3 + DC + np.random.randn(N) * base_noise
 
-    result = analyze_spectrum(signal_distorted, fs=fs, is_plot=False)
+    result = analyze_spectrum(signal_distorted, fs=fs)
     enob = result['enob']
 
     # Quantize to ADC codes
@@ -72,7 +72,7 @@ for idx, N in enumerate(N_list):
     print(f"  [N = 2^{int(np.log2(N)):2d} = {N:5d}] [ENOB = {enob:5.2f}] [INL: {np.min(inl):5.2f} to {np.max(inl):5.2f}] [DNL: {np.min(dnl):5.2f} to {np.max(dnl):5.2f}] LSB")
 
 plt.tight_layout()
-fig_path = output_dir / 'exp_a12_compute_inl_from_sine.png'
+fig_path = output_dir / 'exp_a03_compute_inl_from_sine.png'
 plt.savefig(fig_path, dpi=150)
 print(f"\n[Save fig] -> [{fig_path}]")
 plt.close()

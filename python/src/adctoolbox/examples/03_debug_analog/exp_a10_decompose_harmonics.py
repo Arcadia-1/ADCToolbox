@@ -39,7 +39,7 @@ decompose_harmonics(signal_nonlin, re_fin=Fin/Fs, order=10, disp=1)
 ax2.set_title(f'Case 2: Static Nonlinearity (k2={k2:.3f}, k3={k3:.3f})', fontsize=14, fontweight='bold')
 
 plt.tight_layout()
-fig_path = output_dir / 'exp_a04_decompose_harmonics.png'
+fig_path = output_dir / 'exp_a10_decompose_harmonics.png'
 plt.savefig(fig_path, dpi=150, bbox_inches='tight')
 print(f"\n[Save fig] -> [{fig_path}]\n")
 plt.close(fig)

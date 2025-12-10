@@ -2,7 +2,8 @@
 import numpy as np
 import matplotlib.pyplot as plt
 from pathlib import Path
-from adctoolbox import find_coherent_frequency, plot_error_autocorr
+from adctoolbox import find_coherent_frequency
+from adctoolbox.aout import plot_error_autocorr
 from adctoolbox.common.fit_sine import fit_sine
 
 output_dir = Path(__file__).parent / "output"
@@ -161,7 +162,7 @@ for i, (signal, title) in enumerate(zip(signals, titles)):
     print(f"  {i+1:2d}. {title.split(chr(10))[0]:25s} - ACF[0]={acf_0:6.3f}, ACF[1]={acf_1:7.4f}")
 
 plt.tight_layout()
-fig_path = output_dir / 'exp_a09_plot_error_autocorrelation.png'
+fig_path = output_dir / 'exp_a22_plot_error_autocorrelation.png'
 plt.savefig(fig_path, dpi=150)
 plt.close()
 
