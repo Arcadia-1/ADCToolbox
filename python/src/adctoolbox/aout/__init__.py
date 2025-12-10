@@ -13,6 +13,7 @@ from adctoolbox.spectrum import (
 # Legacy functions (backward compatibility)
 from .decompose_harmonics import decompose_harmonics
 from .compute_inl_from_sine import compute_inl_from_sine
+from .analyze_inl_from_sine import analyze_inl_from_sine
 from .fit_static_nonlin import fit_static_nonlin
 from .plot_dnl_inl import plot_dnl_inl
 
@@ -44,13 +45,15 @@ __all__ = [
     'analyze_two_tone_spectrum',
     # Calculation engines
     'compute_spectrum',
+    'compute_inl_from_sine',
     # Plotting functions
     'plot_spectrum',
     'plot_spectrum_polar',
     'plot_dnl_inl',
+    # Analysis wrappers
+    'analyze_inl_from_sine',
     # Legacy functions
     'decompose_harmonics',
-    'compute_inl_from_sine',
     'fit_static_nonlin',
 ]
 

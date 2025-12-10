@@ -2,7 +2,7 @@
 import numpy as np
 import matplotlib.pyplot as plt
 from pathlib import Path
-from adctoolbox import find_coherent_frequency, compute_inl_from_sine, analyze_spectrum, plot_dnl_inl
+from adctoolbox import find_coherent_frequency, analyze_spectrum, analyze_inl_from_sine
 
 output_dir = Path(__file__).parent / "output"
 output_dir.mkdir(exist_ok=True)
@@ -27,7 +27,7 @@ k3 = hd3_amp / (A**2 / 4)
 
 N_list = [2**i for i in range(10, 18, 2)]  # [2^10, 2^12, 2^14, 2^16]
 n_plots = len(N_list)
-fig, axes = plt.subplots(1, n_plots, figsize=(5 * n_plots, 6))
+fig, axes = plt.subplots(1, n_plots, figsize=(4 * n_plots, 6))
 
 print(f"[INL/DNL Sweep] [Fs = {fs/1e6:.0f} MHz, Fin = {fin_target/1e6:.0f} MHz]")
 print(f"  [HD2 = {hd2_dB} dB, HD3 = {hd3_dB} dB, Noise = {base_noise*1e6:.1f} uV]\n")
@@ -41,22 +41,23 @@ for idx, N in enumerate(N_list):
 
     result = analyze_spectrum(signal_distorted, fs=fs, show_plot=False)
 
-    # Quantize to ADC codes
-    digital_output = np.round(signal_distorted * (2**n_bits) / full_scale).astype(int)
-    digital_output = np.clip(digital_output, 0, 2**n_bits - 1)
-
-    # Calculate INL and DNL
-    inl, dnl, code = compute_inl_from_sine(digital_output, num_bits=n_bits, clip_percent=0.01)
-
-    # Plot DNL and INL - automatically splits the axis into 2 rows
+    # Analyze INL/DNL and plot (quantization handled internally)
     plt.sca(axes[idx])
-    plot_dnl_inl(code, dnl, inl, num_bits=n_bits)
+    result_inl = analyze_inl_from_sine(
+        signal_distorted,
+        num_bits=n_bits,
+        full_scale=full_scale,
+        clip_percent=0.01,
+        col_title=f'N = 2^{int(np.log2(N))}'
+    )
+    inl, dnl, code = result_inl['inl'], result_inl['dnl'], result_inl['code']
 
     print(f"  [N = 2^{int(np.log2(N)):2d} = {N:5d}] [ENOB = {result['enob']:5.2f}] [INL: {np.min(inl):5.2f} to {np.max(inl):5.2f}] [DNL: {np.min(dnl):5.2f} to {np.max(dnl):5.2f}] LSB")
-fig.suptitle(f'INL/DNL Sweep: N-bit ADC Characterization (Fs={fs/1e6:.0f} MHz, Fin={fin_target/1e6:.0f} MHz)',
+    
+fig.suptitle(f'INL/DNL Sweep: Record Length Comparison (Fs={fs/1e6:.0f} MHz, Fin={fin_target/1e6:.0f} MHz)',
              fontsize=14, fontweight='bold')
-plt.subplots_adjust(left=0.05, right=0.98, top=0.88, bottom=0.08, wspace=0.3, hspace=0.5)
-fig_path = output_dir / 'exp_a04_compute_inl_sweep_length.png'
+plt.tight_layout(rect=[0, 0, 1, 0.96])
+fig_path = output_dir / 'exp_a13_compute_inl_sweep_length.png'
 fig.savefig(fig_path, dpi=150)
 print(f"\n[Save fig] -> [{fig_path}]")
 plt.close(fig)
