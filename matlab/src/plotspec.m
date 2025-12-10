@@ -528,7 +528,7 @@ if(dispPlot)
         if (OSR>1)
             text(bin/N_fft*Fs,min(pwr,TYD/2),['Sig = ',num2str(pwr,'%.2f'),' dB']);
             semilogx([Fs/N_fft,Fs/2/OSR],-[1,1]*(NF+10*log10(N_fft/2/OSR)),'r--');
-            text(TX,TYD*8,['NSD = ',num2str(NF+10*log10(Fs/2/OSR),'%.2f'),' dBFS/Hz']);
+            text(TX,TYD*8,['NSD = ',num2str(-NF-10*log10(Fs/2/OSR),'%.2f'),' dBFS/Hz']);
             text(TX,TYD*9,['OSR = ',num2str(OSR,'%.2f')]);
         else
             % Position signal power label to avoid signal peak
@@ -538,7 +538,7 @@ if(dispPlot)
                 text((bin/N_fft+0.01)*Fs,min(pwr,TYD/2),['Sig = ',num2str(pwr,'%.2f'),' dB']);
             end
             plot([0,Fs/2],-[1,1]*(NF+10*log10(N_fft/2/OSR)),'r--');
-            text(TX,TYD*8,['NSD = ',num2str(NF+10*log10(Fs/2/OSR),'%.2f'),' dBFS/Hz']);
+            text(TX,TYD*8,['NSD = ',num2str(-NF-10*log10(Fs/2/OSR),'%.2f'),' dBFS/Hz']);
         end
     end
     % Set axis labels and title
@@ -563,7 +563,7 @@ snr = SNR;
 thd = THD;
 sigpwr = pwr;
 noi = NF;
-nsd = NF + 10*log10(Fs/2/OSR);
+nsd = -(NF + 10*log10(Fs/2/OSR));
 
 if(~dispPlot)
     h = [];

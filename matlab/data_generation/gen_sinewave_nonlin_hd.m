@@ -2,8 +2,8 @@
 common_gen_sinewave;
 
 %% Sinewave with specific HD2 / HD3 distortion levels
-HD2_dB_list = -150; % Target HD2 levels in dB
-HD3_dB_list = -66.19; % Target HD3 levels in dB
+HD2_dB_list = -80; % Target HD2 levels in dB
+HD3_dB_list = -73; % Target HD3 levels in dB
 
 sinewave = A * sin((0:N - 1)'*J*2*pi/N); % Base sinewave (zero mean)
 

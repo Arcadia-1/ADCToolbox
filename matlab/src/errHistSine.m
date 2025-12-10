@@ -39,7 +39,7 @@ function [emean, erms, phase_code, anoi, pnoi, err, xx, polycoeff, k1_static, k2
         [data_fit,~,mag,~,phi] = sineFit(data,fin);
     end
 
-    err = data_fit-data;
+    err = data_fit-data';
     
     if(codeMode)
         xx = data;

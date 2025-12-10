@@ -24,6 +24,15 @@ VARIABLE_MAPPINGS = {
     'noise_spectral_density': 'nsd',
     'plot_line': 'h',
 
+    # err_envelope_spectrum / errEnvelopeSpectrum (uses capitalized names)
+    'ENoB': 'ENoB',        # Alternate capital form used by errEnvelopeSpectrum
+    'SNDR': 'SNDR',        # Alternate capital form
+    'SFDR': 'SFDR',        # Alternate capital form
+    'SNR': 'SNR',          # Alternate capital form
+    'THD': 'THD',          # Alternate capital form
+    'pwr': 'pwr',          # Alternate form used by errEnvelopeSpectrum
+    'NF': 'NF',            # Alternate form (Noise Floor)
+
     # sine_fit / sinfit
     'fitted_signal': 'data_fit',  # MATLAB test uses data_fit variable name
     'frequency': 'freq',
@@ -37,10 +46,32 @@ VARIABLE_MAPPINGS = {
     'harmonic_error': 'harmic',
     'residual_error': 'others',
 
+    # err_hist_sine (phase mode)
+    'phase_code': 'xx',           # MATLAB uses xx for phase axis
+    'error_mean': 'emean',        # Future: use error_mean instead of emean
+    'error_rms': 'erms',          # Future: use error_rms instead of erms
+    'amplitude_noise': 'anoi',    # Future: use amplitude_noise instead of anoi
+    'phase_noise': 'pnoi',        # Future: use phase_noise instead of pnoi
+
+    # inl_sine
+    'INL': 'INL',          # Domain convention - keep uppercase
+    'DNL': 'DNL',          # Domain convention - keep uppercase
+    'code': 'code',
+
+    # err_spectrum
+    'err_data': 'err_data',
+
     # Other functions (names already match)
     'bit_usage': 'bit_usage',
     'acf': 'acf',
     'lags': 'lags',
+    'code_axis': 'code_axis',
+    'emean_code': 'emean_code',
+    'erms_code': 'erms_code',
+    'emean': 'emean',
+    'erms': 'erms',
+    'anoi': 'anoi',
+    'pnoi': 'pnoi',
 }
 
 

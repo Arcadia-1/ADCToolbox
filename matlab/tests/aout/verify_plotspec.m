@@ -7,18 +7,18 @@ N = 2^13;
 J = 323;
 sig = 0.499 * sin((0:N - 1)'*J*2*pi/N) + 0.5;
 
-nbits = 20;
+nbits = 10;
 sig_quantized = floor(sig*2^nbits) / 2^nbits;
-figure('Position', [100, 100, 800, 600]);
+figure;
 enob_new = plotspec(sig_quantized);
-figure('Position', [100, 100, 800, 600]);
+figure;
 enob_old = specPlot(sig_quantized);
 
-fprintf('[%2d bit] ENOB (new) = %.4f, ENOB (old) = %.4f\n',nbits, enob_new, enob_old);
+fprintf('[%2d bit] ENOB (new) = %6.4f, ENOB (old) = %.4f\n',nbits, enob_new, enob_old);
 
 %% Sweep 1 to 40 bits
 fprintf('[Sweeping 1-40 bits]\n');
-bit_sweep = 1:20;
+bit_sweep = 1:40;
 enob_new_results = zeros(size(bit_sweep));
 enob_old_results = zeros(size(bit_sweep));
 sndr_results = zeros(size(bit_sweep));
@@ -35,7 +35,7 @@ for idx = 1:length(bit_sweep)
     sndr_results(idx) = sndr;
 
     if mod(nbits, 5) == 0
-        fprintf('[%2dbit] ENOB_new=%.2f, ENOB_old=%.2f, SNDR=%.2f\n', nbits, enob_new, enob_old, sndr);
+        fprintf('[%2d bit] ENOB (new) = %8.4f, ENOB (old) = %8.4f\n',nbits, enob_new, enob_old);
     end
 end
 fprintf('\n');
