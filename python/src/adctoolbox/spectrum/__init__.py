@@ -2,7 +2,6 @@
 
 # High-level wrappers (user-facing)
 from .analyze_spectrum import analyze_spectrum
-from .analyze_spectrum_coherent_averaging import analyze_spectrum_coherent_averaging
 from .analyze_spectrum_polar import analyze_spectrum_polar
 from .analyze_two_tone_spectrum import analyze_two_tone_spectrum
 
@@ -22,7 +21,6 @@ from ._align_spectrum_phase import _align_spectrum_phase
 __all__ = [
     # High-level wrappers
     'analyze_spectrum',
-    'analyze_spectrum_coherent_averaging',
     'analyze_spectrum_polar',
     'analyze_two_tone_spectrum',
     # Calculation engines
