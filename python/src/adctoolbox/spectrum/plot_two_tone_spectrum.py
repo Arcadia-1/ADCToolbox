@@ -2,8 +2,6 @@
 
 This module provides plotting functions for two-tone IMD analysis,
 following the modular architecture pattern with separation of concerns.
-
-Matches MATLAB specPlot2Tone.m annotation style.
 """
 
 import numpy as np
@@ -22,7 +20,6 @@ def plot_two_tone_spectrum(
     Plot two-tone spectrum with IMD products marked.
 
     Pure visualization function - no calculations performed.
-    Matches MATLAB specPlot2Tone.m annotation style.
 
     Parameters
     ----------
@@ -52,7 +49,6 @@ def plot_two_tone_spectrum(
 
     freq = plot_data['freq']
     spec_db = plot_data['spec_db']
-    spectrum_power = plot_data['spectrum_power']
     bin1 = plot_data['bin1']
     bin2 = plot_data['bin2']
     N = plot_data['N']
@@ -65,13 +61,36 @@ def plot_two_tone_spectrum(
     if ax is None:
         ax = plt.gca()
 
+    # Helper function for frequency formatting
+    def format_freq(f: float) -> str:
+        """Format frequency with appropriate SI prefix."""
+        if f >= 1e9:
+            return f'{f/1e9:.1f} GHz'
+        elif f >= 1e6:
+            return f'{f/1e6:.1f} MHz'
+        elif f >= 1e3:
+            return f'{f/1e3:.1f} kHz'
+        else:
+            return f'{f:.1f} Hz'
+
+    def format_freq_short(f: float) -> str:
+        """Format frequency with short SI prefix (for axis labels)."""
+        if f >= 1e9:
+            return f'{f/1e9:.1f}G'
+        elif f >= 1e6:
+            return f'{f/1e6:.1f}M'
+        elif f >= 1e3:
+            return f'{f/1e3:.1f}K'
+        else:
+            return f'{f:.1f}'
+
     # Plot spectrum
     ax.plot(freq, spec_db, 'b-', linewidth=0.5, alpha=0.7)
 
-    # Calculate min for text positioning (MATLAB: mins = min(10*log10(spec)))
-    mins = np.min(spec_db[spec_db > -200])
+    # Calculate minimum for text positioning
+    min_db = np.min(spec_db[spec_db > -200])
 
-    # Mark fundamental tone bins with red (MATLAB style)
+    # Mark fundamental tone bins
     if show_labels:
         # F1 bins
         f1_start = max(bin1 - 1, 0)
@@ -87,71 +106,56 @@ def plot_two_tone_spectrum(
     if harmonic > 0:
         for product in harmonic_products:
             if product['order'] <= harmonic:
-                b = product['bin']
+                bin_idx = product['bin']
                 order = product['order']
-                # Text label with order number (MATLAB: fontsize=12)
-                ax.text(freq[b], spec_db[b] + 5, str(order),
+                # Text label with order number
+                ax.text(freq[bin_idx], spec_db[bin_idx] + 5, str(order),
                        fontname='Arial', fontsize=12, ha='center', color='red')
-                # Red line on bins (MATLAB: plot red line on b-2:b+2)
-                b_start = max(b - 2, 0)
-                b_end = min(b + 3, len(freq))
-                ax.plot(freq[b_start:b_end], spec_db[b_start:b_end], 'r-', linewidth=1.5)
+                # Highlight bins around the product
+                bin_start = max(bin_idx - 2, 0)
+                bin_end = min(bin_idx + 3, len(freq))
+                ax.plot(freq[bin_start:bin_end], spec_db[bin_start:bin_end], 'r-', linewidth=1.5)
 
-    # Add Nyquist line (MATLAB: plot([1,1]*Fs/2,[0,-mins],'--'))
+    # Add Nyquist frequency line
     if show_labels:
         ax.axvline(fs / 2, color='k', linestyle='--', linewidth=1, alpha=0.5)
 
-    # Add frequency and power labels for F1 and F2 (MATLAB: lines 114-122)
+    # Add frequency and power labels for F1 and F2
     if show_labels:
-        pwr1 = metrics['signal_power_1_dbfs']
-        pwr2 = metrics['signal_power_2_dbfs']
-        freq1 = freq[bin1]
-        freq2 = freq[bin2]
+        power_1_dbfs = metrics['signal_power_1_dbfs']
+        power_2_dbfs = metrics['signal_power_2_dbfs']
+        freq_1 = freq[bin1]
+        freq_2 = freq[bin2]
 
-        # Format frequency display (K/M/G suffix like plot_spectrum.py)
-        def format_freq(f):
-            if f >= 1e9: return f'{f/1e9:.1f} GHz'
-            elif f >= 1e6: return f'{f/1e6:.1f} MHz'
-            elif f >= 1e3: return f'{f/1e3:.1f} kHz'
-            else: return f'{f:.1f} Hz'
+        freq_1_str = format_freq(freq_1)
+        freq_2_str = format_freq(freq_2)
 
-        freq1_str = format_freq(freq1)
-        freq2_str = format_freq(freq2)
-
-        # Position labels: left signal gets right-aligned label (on its left)
-        #                  right signal gets left-aligned label (on its right)
+        # Position labels: left signal gets right-aligned label, right signal gets left-aligned
         freq_span = fs / 2 - freq[1]
-        x_offset = freq_span * 0.01  # 3% of frequency range
+        x_offset = freq_span * 0.01  # 1% of frequency range
 
         # F1 is always < F2 (ensured in calculate function)
-        # F1 label on left side of peak (right-aligned), positioned above peak
-        ax.text(freq1 - x_offset, pwr1, freq1_str,
+        # F1 label on left side of peak (right-aligned)
+        ax.text(freq_1 - x_offset, power_1_dbfs, freq_1_str,
                ha='right', va='center', fontsize=10, color='red')
-        ax.text(freq1 - x_offset, pwr1 - 5, f'{pwr1:.1f} dB',
+        ax.text(freq_1 - x_offset, power_1_dbfs - 5, f'{power_1_dbfs:.1f} dB',
                ha='right', va='center', fontsize=10, color='red')
 
-        # F2 label on right side of peak (left-aligned), positioned above peak
-        ax.text(freq2 + x_offset, pwr2, freq2_str,
+        # F2 label on right side of peak (left-aligned)
+        ax.text(freq_2 + x_offset, power_2_dbfs, freq_2_str,
                ha='left', va='center', fontsize=10, color='red')
-        ax.text(freq2 + x_offset, pwr2 - 5, f'{pwr2:.1f} dB',
+        ax.text(freq_2 + x_offset, power_2_dbfs - 5, f'{power_2_dbfs:.1f} dB',
                ha='left', va='center', fontsize=10, color='red')
 
-    # Add metrics text (MATLAB: lines 124-130)
+    # Add metrics text
     if show_labels:
-        # Format frequency display for Fs (K/M/G suffix like plot_spectrum.py)
-        def format_freq(f):
-            if f >= 1e9: return f'{f/1e9:.1f}G'
-            elif f >= 1e6: return f'{f/1e6:.1f}M'
-            elif f >= 1e3: return f'{f/1e3:.1f}K'
-            else: return f'{f:.1f}'
+        fs_str = f'Fs = {format_freq_short(fs)} Hz'
 
-        fs_str = f'Fs = {format_freq(fs)} Hz'
-
-        # Adaptive positioning: avoid signal peaks (like plot_spectrum.py)
+        # Adaptive positioning: avoid signal peaks
         # Check if both tones are on the left side of spectrum
-        if bin2 / N < 0.3:  # Both tones on left side
+        if bin2 / N < 0.3:
             x_pos = fs * 0.3  # Put metrics on right
-        else:  # Tones on right or spread across
+        else:
             x_pos = fs * 0.01  # Put metrics on left
 
         metrics_text = [
@@ -165,18 +169,18 @@ def plot_two_tone_spectrum(
             f"IMD3 = {metrics['imd3_db']:.2f} dB"
         ]
 
-        # Calculate y position based on plot range (like plot_spectrum.py)
-        y_start = mins * 0.05
-        y_step = mins * 0.05
+        # Calculate y position based on plot range
+        y_start = min_db * 0.05
+        y_step = min_db * 0.05
 
         for i, text in enumerate(metrics_text):
             ax.text(x_pos, y_start + i * y_step, text, fontsize=10)
 
-    # Configure axes (MATLAB: axis([Fs/N, Fs/2, mins, 0]))
+    # Configure axes
     ax.set_xlabel('Freq (Hz)', fontsize=10)
     ax.set_ylabel('dBFS', fontsize=10)
 
-    # Title - auto-generate based on number of runs and averaging mode (matching plot_spectrum.py style)
+    # Auto-generate title based on averaging mode
     if show_title:
         if M > 1:
             if coherent_averaging:
@@ -189,18 +193,18 @@ def plot_two_tone_spectrum(
     ax.grid(True, alpha=0.3)
     ax.set_xlim([freq[1], fs / 2])
 
-    # Set ylim based on noise floor (unified with plot_spectrum.py)
-    # Adaptive y-axis: start at -100 dB, extend if >5% of data is below each threshold
+    # Adaptive y-axis limits based on noise floor
+    # Start at -100 dB, extend if >5% of data is below each threshold
     valid_spec_db = spec_db[spec_db > -200]
-    minx = -100
+    y_min = -100
     for threshold in [-100, -120, -140, -160, -180]:
         below_threshold = np.sum(valid_spec_db < threshold)
         percentage = below_threshold / len(valid_spec_db) * 100
         if percentage > 5.0:
-            minx = threshold - 20  # Extend to next level
+            y_min = threshold - 20  # Extend to next level
         else:
             break
-    minx = max(minx, -200)  # Absolute floor
-    ax.set_ylim([minx, 0])
+    y_min = max(y_min, -200)  # Absolute floor
+    ax.set_ylim([y_min, 0])
 
     return ax

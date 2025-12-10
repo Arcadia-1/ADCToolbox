@@ -23,7 +23,7 @@ from .common import (
     fit_sine,
     extract_freq_components,
     convert_cap_to_weight,
-    calculate_target_vpp,
+    vpp_for_target_dbfs,
     db_to_mag,
     mag_to_db,
     db_to_power,
@@ -50,6 +50,7 @@ from .aout import (
     decompose_harmonics,
     compute_inl_from_sine,
     fit_static_nonlin,
+    plot_dnl_inl,
 )
 
 from .dout import (
@@ -102,7 +103,7 @@ __all__ = [
     'fit_sine',
     'extract_freq_components',
     'convert_cap_to_weight',
-    'calculate_target_vpp',
+    'vpp_for_target_dbfs',
     'db_to_mag',
     'mag_to_db',
     'db_to_power',
@@ -128,6 +129,7 @@ __all__ = [
     'decompose_harmonics',
     'compute_inl_from_sine',
     'fit_static_nonlin',
+    'plot_dnl_inl',
 
     # Spectrum functions
     'analyze_spectrum_polar',

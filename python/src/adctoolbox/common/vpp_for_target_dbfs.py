@@ -8,7 +8,7 @@ signal level (dBFS). Useful for automated instrument control loops.
 from adctoolbox.common.unit_conversions import db_to_mag
 
 
-def calculate_target_vpp(vpp_current: float, signal_db_measured: float, signal_db_target: float = -0.5) -> float:
+def vpp_for_target_dbfs(vpp_current: float, signal_db_measured: float, signal_db_target: float = -0.5) -> float:
     """
     Calculate the required Vpp to achieve a target dBFS level.
 
@@ -25,9 +25,9 @@ def calculate_target_vpp(vpp_current: float, signal_db_measured: float, signal_d
     """
     # Calculate how far off we are (in dB)
     delta_db = signal_db_target - signal_db_measured
-    
+
     # Convert dB difference to a linear voltage gain ratio
     gain_ratio = db_to_mag(delta_db)
-    
+
     # Apply gain to current voltage
     return vpp_current * gain_ratio

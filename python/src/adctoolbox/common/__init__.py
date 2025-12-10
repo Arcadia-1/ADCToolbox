@@ -8,7 +8,7 @@ from .estimate_frequency import estimate_frequency
 from .fit_sine import fit_sine
 from .extract_freq_components import extract_freq_components
 from .convert_cap_to_weight import convert_cap_to_weight
-from .calculate_target_vpp import calculate_target_vpp
+from .vpp_for_target_dbfs import vpp_for_target_dbfs
 from .validate import validate_aout_data, validate_dout_data
 from .unit_conversions import (
     db_to_mag, mag_to_db, db_to_power, power_to_db,
@@ -31,7 +31,7 @@ __all__ = [
     'fold_frequency_to_nyquist',
     'find_coherent_frequency',
     'amplitudes_to_snr',
-    'calculate_target_vpp',
+    'vpp_for_target_dbfs',
     'calculate_walden_fom',
     'calculate_schreier_fom',
     'calculate_thermal_noise_limit',

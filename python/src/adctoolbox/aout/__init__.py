@@ -14,6 +14,7 @@ from adctoolbox.spectrum import (
 from .decompose_harmonics import decompose_harmonics
 from .compute_inl_from_sine import compute_inl_from_sine
 from .fit_static_nonlin import fit_static_nonlin
+from .plot_dnl_inl import plot_dnl_inl
 
 # Placeholder functions for functions not yet moved
 try:
@@ -46,6 +47,7 @@ __all__ = [
     # Plotting functions
     'plot_spectrum',
     'plot_spectrum_polar',
+    'plot_dnl_inl',
     # Legacy functions
     'decompose_harmonics',
     'compute_inl_from_sine',

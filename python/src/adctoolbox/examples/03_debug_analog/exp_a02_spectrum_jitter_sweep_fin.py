@@ -17,7 +17,8 @@ base_noise = 1e-6
 Fin_list = [1e9, 9e9, 11e9, 19e9]
 zone_labels = ['1st', '2nd', '3rd', '4th']
 
-print(f"[Configuration] Fs={Fs/1e9:.1f} GHz, Jitter={jitter_rms*1e15:.1f} fs, N={N}, A={A:.3f} Vpeak, Base Noise={base_noise*1e6:.2f} uVrms\n")
+print(f"[Sinewave] Fs=[{Fs/1e9:.1f} GHz], N=[{N}], A=[{A:.3f} Vpeak]")
+print(f"[Nonideal] Jitter=[{jitter_rms*1e15:.1f} fs], Base Noise=[{base_noise*1e6:.2f} uVrms]\n")
 
 fig, axes = plt.subplots(2, 2, figsize=(14, 10))
 
@@ -32,9 +33,6 @@ for i, (fin, zone) in enumerate(zip(Fin_list, zone_labels)):
     snr_ref = amplitudes_to_snr(sig_amplitude=A, noise_amplitude=total_noise_rms)
     nsd_ref = snr_to_nsd(snr_ref, fs=Fs, osr=1)
 
-    print(f"[{zone} Zone] Fin={fin_coherent/1e9:.2f} GHz (Bin/N={bin}/{N}) -> Alias to {fin_alias/1e9:.3f} GHz")
-    print(f"  [Theoretical] SNR={snr_ref:.2f} dB, NSD={nsd_ref:.2f} dBFS/Hz")
-
     t = np.arange(N) / Fs
     phase_jitter = np.random.randn(N) * 2 * np.pi * fin_coherent * jitter_rms
     signal = A * np.sin(2*np.pi*fin_coherent*t + phase_jitter) + np.random.randn(N) * base_noise
@@ -44,7 +42,9 @@ for i, (fin, zone) in enumerate(zip(Fin_list, zone_labels)):
     result = analyze_spectrum(signal, fs=Fs)
     axes[row, col].set_ylim([-120, 0])
 
-    print(f"  [Measured] ENoB={result['enob']:5.2f} b, SNDR={result['sndr_db']:6.2f} dB, SFDR={result['sfdr_db']:6.2f} dB, SNR={result['snr_db']:6.2f} dB, NSD={result['nsd_dbfs_hz']:7.2f} dBFS/Hz\n")
+    print(f"[{zone:4s} Zone] Fin=[{fin_coherent/1e9:.2f} GHz] (Bin/N=[{bin}/{N}]) → Alias=[{fin_alias/1e9:.3f} GHz]")
+    print(f"  [Theoretical] SNR=[{snr_ref:.2f} dB], NSD=[{nsd_ref:.2f} dBFS/Hz]")
+    print(f"  [Measured] ENoB=[{result['enob']:5.2f} b], SNDR=[{result['sndr_db']:6.2f} dB], SFDR=[{result['sfdr_db']:6.2f} dB], SNR=[{result['snr_db']:6.2f} dB], NSD=[{result['nsd_dbfs_hz']:7.2f} dBFS/Hz]")
 
     fin_GHz = fin_coherent / 1e9
     fin_alias_GHz = fin_alias / 1e9
@@ -52,7 +52,7 @@ for i, (fin, zone) in enumerate(zip(Fin_list, zone_labels)):
 
 fig.suptitle(f'Jitter Across Nyquist Zones (Jitter = {jitter_rms*1e15:.0f}fs, Fs = {Fs/1e9:.1f} GHz)', fontsize=12, fontweight='bold')
 plt.tight_layout()
-fig_path = (output_dir / 'exp_a02_analyze_spectrum_jitter.png').resolve()
-print(f"[Save fig] -> [{fig_path}]")
+fig_path = output_dir / 'exp_a02_spectrum_jitter_sweep_fin.png'
+print(f"\n[Save fig] -> [{fig_path}]")
 plt.savefig(fig_path, dpi=150)
 plt.close()
