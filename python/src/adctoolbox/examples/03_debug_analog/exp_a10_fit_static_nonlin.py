@@ -21,17 +21,17 @@ print(f"[Sinewave] Fs=[{Fs/1e6:.2f} MHz], Fin=[{Fin/1e6:.2f} MHz], Bin/N=[{Fin_b
 print(f"[Nonideal] Noise RMS=[{base_noise*1e6:.2f} uVrms], Theoretical SNR=[{snr_ref:.2f} dB], Theoretical NSD=[{nsd_ref:.2f} dBFS/Hz]")
 
 
-# Scenarios: (k2, k3, title)
+# Scenarios: (k2_inject, k3_inject)
 scenarios = [
-    (0.00, 0.00, 'Ideal (No Distortion)'),
-    (0.01, 0.00, '2nd Order Only (k2=1%)'),
-    (0.00, 0.01, '3rd Order Only (k3=1%)'),
-    (0.01, 0.01, 'Mixed (k2=1%, k3=1%)'),
+    (0.00, 0.00),
+    (0.01, 0.00),
+    (0.00, 0.01),
+    (0.01, 0.01),
 ]
 
 fig, axes = plt.subplots(2, 4, figsize=(20, 10))
 
-for idx, (k2_inject, k3_inject, title) in enumerate(scenarios):
+for idx, (k2_inject, k3_inject) in enumerate(scenarios):
     sig_distorted = sig_ideal + k2_inject * sig_ideal**2 + k3_inject * sig_ideal**3 + np.random.randn(N) * base_noise
     
     k2_extracted, k3_extracted, fitted_sine, fitted_transfer = fit_static_nonlin(sig_distorted, order=3)
@@ -46,7 +46,7 @@ for idx, (k2_inject, k3_inject, title) in enumerate(scenarios):
     lim = max(abs(fitted_sine).max(), abs(sig_distorted).max())
     ax_top.plot([-lim, lim], [-lim, lim], 'k--', lw=1, alpha=0.5, label='Ideal (y=x)')
     ax_top.plot(transfer_x, transfer_y, 'r-', lw=2, label='Fitted')
-    ax_top.set_title(f"{title}\nTransfer Function", fontsize=11, fontweight='bold')
+    ax_top.set_title(f"Transfer Curve\nInjected: k2={k2_inject:.4f}, k3={k3_inject:.4f}\nExtracted: k2={k2_extracted:.4f}, k3={k3_extracted:.4f}", fontsize=11, fontweight='bold')
     ax_top.set_xlabel('Input Amplitude (V)', fontsize=10)
     if idx == 0:
         ax_top.set_ylabel('Output Amplitude (V)', fontsize=10)
@@ -58,18 +58,17 @@ for idx, (k2_inject, k3_inject, title) in enumerate(scenarios):
     ax_bottom = axes[1, idx]
     ax_bottom.plot(fitted_sine, residual, 'b.', ms=1, alpha=0.5, label='Measured')
     ax_bottom.plot(transfer_x, nonlinearity_curve, 'r-', lw=2, label='Fitted Model')
-    ax_bottom.set_title(f"Extracted: k2={k2_extracted:.4f}, k3={k3_extracted:.4f}",
-                       fontsize=11, fontweight='bold')
+    ax_bottom.set_title("Residue Error", fontsize=11, fontweight='bold')
     ax_bottom.set_xlabel('Input Amplitude (V)', fontsize=10)
     if idx == 0:
         ax_bottom.set_ylabel('Nonlinearity Error (V)', fontsize=10)
     ax_bottom.grid(True, alpha=0.3)
     ax_bottom.legend(loc='upper left', fontsize=9)
 
-    print(f"[{title:24s}] Injected: k2={k2_inject:7.4f}, k3={k3_inject:7.4f}  |  Extracted: k2={k2_extracted:7.4f}, k3={k3_extracted:7.4f}")
+    print(f"[Injected: k2={k2_inject:7.4f}, k3={k3_inject:7.4f}] [Extracted: k2={k2_extracted:7.4f}, k3={k3_extracted:7.4f}]")
 
 plt.tight_layout()
-fig_path = output_dir / 'exp_a05_fit_static_nonlin.png'
+fig_path = output_dir / 'exp_a10_fit_static_nonlin.png'
 plt.savefig(fig_path, dpi=150)
 print(f"\n[Saved] -> {fig_path}")
 plt.close()

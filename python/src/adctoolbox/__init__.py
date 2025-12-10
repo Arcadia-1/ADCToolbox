@@ -49,6 +49,7 @@ from .aout import (
     analyze_two_tone_spectrum,
     decompose_harmonics,
     compute_inl_from_sine,
+    analyze_inl_from_sine,
     fit_static_nonlin,
     plot_dnl_inl,
 )
@@ -126,6 +127,7 @@ __all__ = [
     'analyze_spectrum',
     'plot_spectrum',
     'analyze_two_tone_spectrum',
+    'analyze_inl_from_sine',
     'decompose_harmonics',
     'compute_inl_from_sine',
     'fit_static_nonlin',

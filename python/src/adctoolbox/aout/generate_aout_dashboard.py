@@ -71,7 +71,7 @@ def generate_aout_dashboard(aout_data, output_dir, visible=False, resolution=11,
     # Tool 1: Harmonic Decomposition
     print('[1/9][Harmonic Decomposition]', end='')
     try:
-        fundamental, total_error, harmonic_error, other_error = decompose_harmonics(aout_data, freq_cal, order=10, disp=1)
+        fundamental, total_error, harmonic_error, other_error = decompose_harmonics(aout_data, freq_cal, order=10, show_plot=True)
         plt.gca().tick_params(labelsize=14)
         png_path = output_dir / f'{prefix}_1_harmonicDecomp.png'
         plt.savefig(png_path, dpi=150, bbox_inches='tight')
