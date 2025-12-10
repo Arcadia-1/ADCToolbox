@@ -9,7 +9,6 @@ Matches MATLAB specPlot2Tone.m annotation style.
 import numpy as np
 import matplotlib.pyplot as plt
 from typing import Optional, Dict
-from ..common import fold_bin_to_nyquist
 
 
 def plot_two_tone_spectrum(
@@ -53,10 +52,12 @@ def plot_two_tone_spectrum(
 
     freq = plot_data['freq']
     spec_db = plot_data['spec_db']
+    spectrum_power = plot_data['spectrum_power']
     bin1 = plot_data['bin1']
     bin2 = plot_data['bin2']
     N = plot_data['N']
     fs = plot_data['fs']
+    harmonic_products = plot_data['harmonic_products']
 
     # Setup axes
     if ax is None:
@@ -80,40 +81,19 @@ def plot_two_tone_spectrum(
         f2_end = min(bin2 + 2, len(freq))
         ax.plot(freq[f2_start:f2_end], spec_db[f2_start:f2_end], 'r-', linewidth=1.5)
 
-    # Mark harmonics and IMD products (MATLAB style: lines 67-94)
+    # Mark harmonics and IMD products using pre-calculated data
     if harmonic > 0:
-        for i in range(2, harmonic + 1):
-            for jj in range(i + 1):
-                # Positive combination: jj*f1 + (i-jj)*f2
-                b = fold_bin_to_nyquist((bin1) * jj + (bin2) * (i - jj), N)
-                if 0 < b < len(freq):
-                    # Text label with order number (MATLAB: fontsize=12)
-                    ax.text(freq[b], spec_db[b] + 5, str(i),
-                           fontname='Arial', fontsize=12, ha='center', color='red')
-                    # Red line on bins (MATLAB: plot red line on b-2:b+2)
-                    b_start = max(b - 2, 0)
-                    b_end = min(b + 3, len(freq))
-                    ax.plot(freq[b_start:b_end], spec_db[b_start:b_end], 'r-', linewidth=1.5)
-
-                # Negative combination 1: -jj*f1 + (i-jj)*f2
-                if -(bin1) * jj + (bin2) * (i - jj) > 0:
-                    b = fold_bin_to_nyquist(-(bin1) * jj + (bin2) * (i - jj), N)
-                    if 0 < b < len(freq):
-                        ax.text(freq[b], spec_db[b] + 5, str(i),
-                               fontname='Arial', fontsize=12, ha='center', color='red')
-                        b_start = max(b - 2, 0)
-                        b_end = min(b + 3, len(freq))
-                        ax.plot(freq[b_start:b_end], spec_db[b_start:b_end], 'r-', linewidth=1.5)
-
-                # Negative combination 2: jj*f1 - (i-jj)*f2
-                if (bin1) * jj - (bin2) * (i - jj) > 0:
-                    b = fold_bin_to_nyquist((bin1) * jj - (bin2) * (i - jj), N)
-                    if 0 < b < len(freq):
-                        ax.text(freq[b], spec_db[b] + 5, str(i),
-                               fontname='Arial', fontsize=12, ha='center', color='red')
-                        b_start = max(b - 2, 0)
-                        b_end = min(b + 3, len(freq))
-                        ax.plot(freq[b_start:b_end], spec_db[b_start:b_end], 'r-', linewidth=1.5)
+        for product in harmonic_products:
+            if product['order'] <= harmonic:
+                b = product['bin']
+                order = product['order']
+                # Text label with order number (MATLAB: fontsize=12)
+                ax.text(freq[b], spec_db[b] + 5, str(order),
+                       fontname='Arial', fontsize=12, ha='center', color='red')
+                # Red line on bins (MATLAB: plot red line on b-2:b+2)
+                b_start = max(b - 2, 0)
+                b_end = min(b + 3, len(freq))
+                ax.plot(freq[b_start:b_end], spec_db[b_start:b_end], 'r-', linewidth=1.5)
 
     # Add Nyquist line (MATLAB: plot([1,1]*Fs/2,[0,-mins],'--'))
     if show_labels:
@@ -142,17 +122,17 @@ def plot_two_tone_spectrum(
         x_offset = freq_span * 0.01  # 3% of frequency range
 
         # F1 is always < F2 (ensured in calculate function)
-        # F1 label on left side of peak (right-aligned)
-        ax.text(freq1 - x_offset, pwr1 - 8, freq1_str,
-               ha='right', va='top', fontsize=10, color='red')
-        ax.text(freq1 - x_offset, pwr1 - 13, f'{pwr1:.1f} dB',
-               ha='right', va='top', fontsize=10, color='red')
+        # F1 label on left side of peak (right-aligned), positioned above peak
+        ax.text(freq1 - x_offset, pwr1, freq1_str,
+               ha='right', va='center', fontsize=10, color='red')
+        ax.text(freq1 - x_offset, pwr1 - 5, f'{pwr1:.1f} dB',
+               ha='right', va='center', fontsize=10, color='red')
 
-        # F2 label on right side of peak (left-aligned)
-        ax.text(freq2 + x_offset, pwr2 - 8, freq2_str,
-               ha='left', va='top', fontsize=10, color='red')
-        ax.text(freq2 + x_offset, pwr2 - 13, f'{pwr2:.1f} dB',
-               ha='left', va='top', fontsize=10, color='red')
+        # F2 label on right side of peak (left-aligned), positioned above peak
+        ax.text(freq2 + x_offset, pwr2, freq2_str,
+               ha='left', va='center', fontsize=10, color='red')
+        ax.text(freq2 + x_offset, pwr2 - 5, f'{pwr2:.1f} dB',
+               ha='left', va='center', fontsize=10, color='red')
 
     # Add metrics text (MATLAB: lines 124-130)
     if show_labels:
@@ -200,10 +180,18 @@ def plot_two_tone_spectrum(
     ax.grid(True, alpha=0.3)
     ax.set_xlim([freq[1], fs / 2])
 
-    # Set ylim based on noise floor (like plot_spectrum.py)
-    # Round down to nearest -20 dB for clean axis
-    minx = min(max(np.median(spec_db[spec_db > -200]) - 20, -200), -40)
-    minx = np.floor(minx / 20) * 20  # Round to -120, -140, etc.
+    # Set ylim based on noise floor (unified with plot_spectrum.py)
+    # Adaptive y-axis: start at -100 dB, extend if >5% of data is below each threshold
+    valid_spec_db = spec_db[spec_db > -200]
+    minx = -100
+    for threshold in [-100, -120, -140, -160, -180]:
+        below_threshold = np.sum(valid_spec_db < threshold)
+        percentage = below_threshold / len(valid_spec_db) * 100
+        if percentage > 5.0:
+            minx = threshold - 20  # Extend to next level
+        else:
+            break
+    minx = max(minx, -200)  # Absolute floor
     ax.set_ylim([minx, 0])
 
     return ax

@@ -5,9 +5,9 @@ following the modular architecture pattern used throughout the spectrum package.
 """
 
 import numpy as np
-from typing import Dict, Optional, Tuple
-from ..common import fold_bin_to_nyquist
-from ._prepare_fft_input import _prepare_fft_input
+from typing import Dict, Optional
+from adctoolbox.common.fold_bin_to_nyquist import fold_bin_to_nyquist
+from adctoolbox.spectrum._prepare_fft_input import _prepare_fft_input
 
 
 def compute_two_tone_spectrum(
@@ -15,7 +15,8 @@ def compute_two_tone_spectrum(
     fs: float = 1.0,
     max_scale_range: Optional[float] = None,
     win_type: str = 'hann',
-    side_bin: int = 1
+    side_bin: int = 1,
+    harmonic: int = 7
 ) -> Dict[str, any]:
     """
     Calculate two-tone spectrum data with IMD analysis.
@@ -35,6 +36,8 @@ def compute_two_tone_spectrum(
         Window type: 'hann', 'blackman', 'hamming', 'boxcar', default: 'hann'
     side_bin : int, optional
         Side bins to include in signal power, default: 1
+    harmonic : int, optional
+        Number of harmonic orders to calculate for IMD products, default: 7
 
     Returns
     -------
@@ -67,10 +70,12 @@ def compute_two_tone_spectrum(
     if n_valid_runs == 0:
         raise ValueError("No valid data runs")
 
-    # Normalize spectrum (MATLAB: spec = spec/(N_fft^2)*16/ME)
+    # Normalize spectrum (single-sided power spectrum)
+    # Window is already power-normalized in _prepare_fft_input
+    # Factor of 4 = 2 (single-sided) * 2 (dBFS reference: full-scale sine power = 0.5)
     spectrum_sum = spectrum_sum[:n_half]
     spectrum_sum[:side_bin] = 0  # Remove DC and low-frequency bins
-    spectrum_power = spectrum_sum / (N**2) * 16 / n_valid_runs
+    spectrum_power = spectrum_sum / (N**2) * 4 / n_valid_runs
 
     # ========== Find two tones ==========
     bin1 = np.argmax(spectrum_power)
@@ -130,21 +135,83 @@ def compute_two_tone_spectrum(
     imd3_power_4 = np.sum(spectrum_power[max(bin_imd3_2f2_minus_f1, 0):min(bin_imd3_2f2_minus_f1 + 3, n_half)])
     imd3_total_power = imd3_power_1 + imd3_power_2 + imd3_power_3 + imd3_power_4
 
-    # ========== Calculate THD (interleaved harmonics) ==========
+    # ========== Calculate all harmonic/IMD product bins for plotting ==========
+    harmonic_products = []
+    collision_threshold = 2 * side_bin
+
+    for i in range(2, harmonic + 1):
+        for jj in range(i + 1):
+            # Positive combination: jj*f1 + (i-jj)*f2
+            b = fold_bin_to_nyquist(bin1 * jj + bin2 * (i - jj), N)
+
+            # Skip if this harmonic/IMD product collides with fundamental tones
+            # Use same threshold as single-tone analysis
+            if abs(b - bin1) <= collision_threshold or abs(b - bin2) <= collision_threshold:
+                continue
+
+            # Skip if this harmonic aliases to DC (bin 0)
+            if b <= side_bin:
+                continue
+
+            if 0 < b < n_half:
+                harmonic_products.append({
+                    'bin': b,
+                    'freq': freq[b],
+                    'power_db': 10 * np.log10(spectrum_power[b] + 1e-20),
+                    'order': i
+                })
+
+            # Negative combination 1: -jj*f1 + (i-jj)*f2
+            if -bin1 * jj + bin2 * (i - jj) > 0:
+                b = fold_bin_to_nyquist(-bin1 * jj + bin2 * (i - jj), N)
+
+                # Skip if collision with fundamentals
+                if abs(b - bin1) <= collision_threshold or abs(b - bin2) <= collision_threshold:
+                    continue
+
+                # Skip if aliases to DC
+                if b <= side_bin:
+                    continue
+
+                if 0 < b < n_half:
+                    harmonic_products.append({
+                        'bin': b,
+                        'freq': freq[b],
+                        'power_db': 10 * np.log10(spectrum_power[b] + 1e-20),
+                        'order': i
+                    })
+
+            # Negative combination 2: jj*f1 - (i-jj)*f2
+            if bin1 * jj - bin2 * (i - jj) > 0:
+                b = fold_bin_to_nyquist(bin1 * jj - bin2 * (i - jj), N)
+
+                # Skip if collision with fundamentals
+                if abs(b - bin1) <= collision_threshold or abs(b - bin2) <= collision_threshold:
+                    continue
+
+                # Skip if aliases to DC
+                if b <= side_bin:
+                    continue
+
+                if 0 < b < n_half:
+                    harmonic_products.append({
+                        'bin': b,
+                        'freq': freq[b],
+                        'power_db': 10 * np.log10(spectrum_power[b] + 1e-20),
+                        'order': i
+                    })
+
+    # ========== Calculate THD and remove all distortion products for noise calculation ==========
     thd_power = 0
     spectrum_thd = spectrum_noise.copy()
 
-    for i in range(2, N // 100 + 1):
-        # Upper harmonics
-        b = fold_bin_to_nyquist(bin2 + (bin2 - bin1) * (i - 1), N)
-        thd_power += np.sum(spectrum_thd[max(b, 0):min(b + 3, n_half)])
-        spectrum_thd[max(b, 0):min(b + 3, n_half)] = 0
-
-        # Lower harmonics
-        b = fold_bin_to_nyquist(bin1 - (bin2 - bin1) * (i - 1), N)
-        if b >= 0:
-            thd_power += np.sum(spectrum_thd[max(b, 0):min(b + 3, n_half)])
-            spectrum_thd[max(b, 0):min(b + 3, n_half)] = 0
+    # Remove all identified IMD products from noise floor calculation
+    for product in harmonic_products:
+        b = product['bin']
+        b_start = max(b - 1, 0)
+        b_end = min(b + 2, n_half)
+        thd_power += np.sum(spectrum_thd[b_start:b_end])
+        spectrum_thd[b_start:b_end] = 0
 
     noise_power_final = np.sum(spectrum_thd)
 
@@ -176,13 +243,15 @@ def compute_two_tone_spectrum(
     plot_data = {
         'freq': freq,
         'spec_db': 10 * np.log10(spectrum_power + 1e-20),
+        'spectrum_power': spectrum_power,
         'bin1': bin1,
         'bin2': bin2,
         'freq1': freq[bin1],
         'freq2': freq[bin2],
         'N': N,
         'M': n_valid_runs,
-        'fs': fs
+        'fs': fs,
+        'harmonic_products': harmonic_products
     }
 
     imd_bins = {

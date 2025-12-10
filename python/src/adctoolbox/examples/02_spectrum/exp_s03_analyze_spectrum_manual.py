@@ -25,7 +25,7 @@ t = np.arange(N_fft) / Fs
 signal = A * np.sin(2*np.pi*Fin*t) + np.random.randn(N_fft) * noise_rms
 
 # Step 1: Calculate spectrum metrics (pure computation)
-results = compute_spectrum(signal, fs=Fs)
+results = compute_spectrum(signal, fs=Fs, n_thd=11)
 metrics = results['metrics']
 
 # Step 2: Display results
@@ -35,7 +35,7 @@ print(f"[compute_spectrum] ENoB=[{metrics['enob']:5.2f} b], SNDR=[{metrics['sndr
 fig, (ax1, ax2) = plt.subplots(1, 2, figsize=(16, 6))
 
 # Left plot: with labels and title
-plot_spectrum(results, show_title=True, show_label=True, ax=ax1)
+plot_spectrum(results, show_title=True, show_label=True, ax=ax1, plot_harmonics_up_to=11)
 
 # Right plot: without labels and title
 plot_spectrum(results, show_title=False, show_label=False, ax=ax2)

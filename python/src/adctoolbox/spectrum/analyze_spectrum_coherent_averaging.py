@@ -8,8 +8,8 @@ MATLAB counterpart: Coherent FFT averaging analysis
 """
 
 import numpy as np
-from .compute_spectrum import compute_spectrum
-from .plot_spectrum import plot_spectrum
+from adctoolbox.spectrum.compute_spectrum import compute_spectrum
+from adctoolbox.spectrum.plot_spectrum import plot_spectrum
 
 
 def analyze_spectrum_coherent_averaging(data, fs=1.0, osr=1, max_scale_range=None,

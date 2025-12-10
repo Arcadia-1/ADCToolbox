@@ -28,7 +28,8 @@ Fin, Fin_bin = find_coherent_frequency(fs=Fs, fin_target=5e6, n_fft=N_fft)
 snr_ref = amplitudes_to_snr(sig_amplitude=A, noise_amplitude=noise_rms)
 nsd_ref = snr_to_nsd(snr_ref, fs=Fs, osr=1)
 print(f"[Sinewave] Fs=[{Fs/1e6:.2f} MHz], Fin=[{Fin/1e6:.6f} MHz] (coherent, Bin {Fin_bin}), N=[{N_fft}], A=[{A:.3f} Vpeak]")
-print(f"[Nonideal] HD2=[{hd2_dB} dB], HD3=[{hd3_dB} dB], Noise RMS=[{noise_rms*1e6:.2f} uVrms], Theoretical SNR=[{snr_ref:.2f} dB], Theoretical NSD=[{nsd_ref:.2f} dBFS/Hz]\n")
+print(f"[Base Noise] Noise RMS=[{noise_rms*1e6:.2f} uVrms], Theoretical SNR=[{snr_ref:.2f} dB], Theoretical NSD=[{nsd_ref:.2f} dBFS/Hz]")
+print(f"[Nonlinearity] HD2=[{hd2_dB} dB], HD3=[{hd3_dB} dB]\n")
 
 # Number of runs to test
 N_runs = [1, 10, 100]
@@ -81,7 +82,7 @@ plt.tight_layout(rect=[0, 0, 1, 0.96])
 for ax, ylim in axes_info:
     ax.set_ylim(ylim)
 
-fig_path = output_dir / 'exp_s22_polar_spectrum_coherent_averaging.png'
+fig_path = output_dir / 'exp_s22_polar_coherent_averaging.png'
 print(f"\n[Save fig] -> [{fig_path}]")
 plt.savefig(fig_path, dpi=150, bbox_inches='tight')
 plt.close()

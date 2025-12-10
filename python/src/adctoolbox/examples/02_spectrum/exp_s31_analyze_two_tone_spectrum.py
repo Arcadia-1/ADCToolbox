@@ -11,7 +11,7 @@ from adctoolbox import analyze_two_tone_spectrum, find_coherent_frequency, ampli
 output_dir = Path(__file__).parent / "output"
 output_dir.mkdir(exist_ok=True)
 
-N_fft = 2**16
+N_fft = 2**13
 Fs = 1000e6
 A1 = 0.5
 A2 = 0.5
@@ -36,7 +36,8 @@ t = np.arange(N_fft) / Fs
 
 signal = A1 * np.sin(2*np.pi*F1*t) + A2 * np.sin(2*np.pi*F2*t) + np.random.randn(N_fft) * noise_rms
 
-result = analyze_two_tone_spectrum(signal, fs=Fs)
+fig, ax = plt.subplots(figsize=(8, 6))
+result = analyze_two_tone_spectrum(signal, fs=Fs, ax=ax)
 
 print(f"[two_tone] ENoB=[{result['enob']:5.2f} b], SNDR=[{result['sndr_db']:6.2f} dB], SFDR=[{result['sfdr_db']:6.2f} dB], SNR=[{result['snr_db']:6.2f} dB], IMD2=[{result['imd2_db']:6.2f} dB], IMD3=[{result['imd3_db']:6.2f} dB]")
 

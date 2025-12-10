@@ -23,6 +23,7 @@ def plot_spectrum(analysis_results, show_title=True, show_label=True, plot_harmo
     # Extract metrics and plot_data from analysis_results
     metrics = analysis_results['metrics']
     plot_data = analysis_results['plot_data']
+    collided_harmonics = metrics.get('collided_harmonics', [])
 
     # Extract plot data
     spec_db = plot_data['spec_db']
@@ -79,7 +80,16 @@ def plot_spectrum(analysis_results, show_title=True, show_label=True, plot_harmo
                 fontname='Arial', fontsize=10, ha='center')
 
     # --- Set axis limits ---
-    minx = min(max(np.median(spec_db[:Nd2_inband])-20, -200), -40)
+    # Adaptive y-axis: start at -100 dB, extend if >5% of data is below each threshold
+    minx = -100
+    for threshold in [-100, -120, -140, -160, -180]:
+        below_threshold = np.sum(spec_db[:Nd2_inband] < threshold)
+        percentage = below_threshold / len(spec_db[:Nd2_inband]) * 100
+        if percentage > 5.0:
+            minx = threshold - 20  # Extend to next level
+        else:
+            break
+    minx = max(minx, -200)  # Absolute floor
     ax.set_xlim(fs/N, fs/2)
     ax.set_ylim(minx, 0)
 
@@ -135,9 +145,15 @@ def plot_spectrum(analysis_results, show_title=True, show_label=True, plot_harmo
         if is_coherent and M > 1:
             coh_gain_db = 10 * np.log10(M)
             if osr > 1:
-                ax.text(TX, TYD*10, f'*Coherent Integration Gain = {coh_gain_db:.2f} dB', fontsize=10, style='italic')
+                ax.text(TX, TYD*10, f'*Coherent Integration Gain = {coh_gain_db:.2f} dB', fontsize=10)
             else:
-                ax.text(TX, TYD*9, f'*Coherent Integration Gain = {coh_gain_db:.2f} dB', fontsize=10, style='italic')
+                ax.text(TX, TYD*9, f'*Coherent Integration Gain = {coh_gain_db:.2f} dB', fontsize=10)
+
+        # Add collision warning if harmonics collided with fundamental
+        if collided_harmonics:
+            collision_str = ', '.join([f'HD{h}' for h in sorted(collided_harmonics)])
+            text_y_offset = TYD*11 if (is_coherent and M > 1 and osr > 1) else (TYD*10 if (is_coherent and M > 1) or osr > 1 else TYD*9)
+            ax.text(TX, text_y_offset, f'*Collided with fundamental: {collision_str}', fontsize=10, color='orange')
 
         # Signal annotation
         sig_y_pos = min(sig_pwr_dbfs, TYD/2)

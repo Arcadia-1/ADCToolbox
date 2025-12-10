@@ -38,7 +38,7 @@ nonlinearity_configs = [
 t = np.arange(N_fft) / Fs
 sig_ideal = A1 * np.sin(2*np.pi*F1*t) + A2 * np.sin(2*np.pi*F2*t)
 
-fig, axes = plt.subplots(1, 2, figsize=(16, 6))
+fig, axes = plt.subplots(1, 2, figsize=(14, 6))
 
 for idx, config in enumerate(nonlinearity_configs):
     k2 = config['k2']
