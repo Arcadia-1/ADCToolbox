@@ -83,7 +83,7 @@ for i, (signal, title, param) in enumerate(zip(signals, titles, params)):
     print(f"  {title:20s} - Envelope peak: {np.max(envelope)*1e6:.2f} uV")
 
 plt.tight_layout()
-fig_path = output_dir / 'exp_a23_plot_error_envelope_spectrum.png'
+fig_path = output_dir / 'exp_a43_plot_error_envelope_spectrum.png'
 plt.savefig(fig_path, dpi=150)
 plt.close()
 

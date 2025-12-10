@@ -2,7 +2,7 @@
 import numpy as np
 import matplotlib.pyplot as plt
 from pathlib import Path
-from adctoolbox import find_coherent_frequency, decompose_harmonics
+from adctoolbox import find_coherent_frequency, analyze_harmonic_decomposition
 
 output_dir = Path(__file__).parent / "output"
 output_dir.mkdir(exist_ok=True)
@@ -31,15 +31,15 @@ fig, (ax1, ax2) = plt.subplots(1, 2, figsize=(18, 6))
 fig.suptitle('Harmonic Decomposition', fontsize=16, fontweight='bold')
 
 plt.sca(ax1)
-decompose_harmonics(signal_noise, normalized_freq=Fin/Fs, order=10, show_plot=True)
+analyze_harmonic_decomposition(signal_noise, normalized_freq=Fin/Fs, order=10, show_plot=True)
 ax1.set_title(f'Case 1: Thermal Noise ({noise_rms*1e6:.0f}uV RMS)', fontsize=14, fontweight='bold')
 
 plt.sca(ax2)
-decompose_harmonics(signal_nonlin, normalized_freq=Fin/Fs, order=10, show_plot=True)
+analyze_harmonic_decomposition(signal_nonlin, normalized_freq=Fin/Fs, order=10, show_plot=True)
 ax2.set_title(f'Case 2: Static Nonlinearity (k2={k2:.3f}, k3={k3:.3f})', fontsize=14, fontweight='bold')
 
 plt.tight_layout()
-fig_path = output_dir / 'exp_a10_decompose_harmonics.png'
+fig_path = output_dir / 'exp_a21_decompose_harmonics.png'
 plt.savefig(fig_path, dpi=150, bbox_inches='tight')
 print(f"\n[Save fig] -> [{fig_path}]\n")
 plt.close(fig)
