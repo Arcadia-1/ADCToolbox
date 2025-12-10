@@ -70,7 +70,7 @@ plt.suptitle(f"Power Spectrum Averaging: Randomneess Reduction over Multiple Run
              fontsize=16, fontweight='bold')
 
 plt.tight_layout()
-fig_path = (output_dir / 'exp_s10_spectrum_power_averaging.png').resolve()
+fig_path = (output_dir / 'exp_s11_spectrum_power_averaging.png').resolve()
 print(f"\n[Save fig] -> [{fig_path}]")
 plt.savefig(fig_path, dpi=150)
 plt.close()
