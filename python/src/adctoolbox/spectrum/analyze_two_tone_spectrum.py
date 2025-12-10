@@ -10,8 +10,8 @@ MATLAB counterpart: specPlot2Tone.m
 import numpy as np
 from typing import Optional
 
-from .compute_two_tone_spectrum import compute_two_tone_spectrum
-from .plot_two_tone_spectrum import plot_two_tone_spectrum
+from adctoolbox.spectrum.compute_two_tone_spectrum import compute_two_tone_spectrum
+from adctoolbox.spectrum.plot_two_tone_spectrum import plot_two_tone_spectrum
 
 
 def analyze_two_tone_spectrum(
@@ -63,7 +63,8 @@ def analyze_two_tone_spectrum(
         fs=fs,
         max_scale_range=max_scale_range,
         win_type=win_type,
-        side_bin=side_bin
+        side_bin=side_bin,
+        harmonic=harmonic
     )
 
     # Step 2: Plot if requested (pure visualization)

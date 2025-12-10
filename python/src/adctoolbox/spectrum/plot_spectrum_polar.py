@@ -26,6 +26,7 @@ def plot_spectrum_polar(analysis_results, show_metrics=True, harmonic=5, fixed_r
     bin_idx = analysis_results['bin_idx']
     N_fft = analysis_results['N']
     metrics = analysis_results.get('metrics', {})
+    collided_harmonics = analysis_results.get('collided_harmonics', [])
 
     # Setup axes
     if ax is None:
@@ -83,9 +84,17 @@ def plot_spectrum_polar(analysis_results, show_metrics=True, harmonic=5, fixed_r
 
     # Mark harmonics
     for h in range(2, harmonic + 1):
+        # Skip if this harmonic collides with fundamental (collision makes plotting meaningless)
+        if h in collided_harmonics:
+            continue
+
         harmonic_bin = (bin_idx * h) % N_fft
         if harmonic_bin > N_fft // 2:
             harmonic_bin = N_fft - harmonic_bin
+
+        # Skip if this harmonic aliases to DC (bin 0)
+        if harmonic_bin == 0:
+            continue
 
         if harmonic_bin < len(spec_polar):
             ax.plot(phase[harmonic_bin], mag[harmonic_bin], 'bs',
@@ -98,13 +107,21 @@ def plot_spectrum_polar(analysis_results, show_metrics=True, harmonic=5, fixed_r
 
     # Add metrics annotation
     if show_metrics and metrics:
-        hd2_str = f"HD2 = {metrics['hd2_db']:.2f} dB ∠{analysis_results['hd2_phase_deg']:6.1f}°"
-        hd3_str = f"HD3 = {metrics['hd3_db']:.2f} dB ∠{analysis_results['hd3_phase_deg']:6.1f}°"
+        hd2_str = f"HD2 = {metrics['hd2_db']:7.2f} dB ∠{analysis_results['hd2_phase_deg']:6.1f}°"
+        hd3_str = f"HD3 = {metrics['hd3_db']:7.2f} dB ∠{analysis_results['hd3_phase_deg']:6.1f}°"
+
+        # Build collision warning if present
+        collision_warning = ""
+        if collided_harmonics:
+            collision_str = ', '.join([f'HD{h}' for h in sorted(collided_harmonics)])
+            collision_warning = f"\n*Collided: {collision_str}"
+
         metrics_text = (
-            f"SNR = {metrics['snr_db']:6.2f} dB\n"
-            f"THD = {metrics['thd_db']:.2f} dB\n"
+            f"SNR = {metrics['snr_db']:7.2f} dB\n"
+            f"THD = {metrics['thd_db']:7.2f} dB\n"
             f"{hd2_str}\n"
             f"{hd3_str}"
+            f"{collision_warning}"
         )
         ax.text(0.02, 0.02, metrics_text, transform=ax.transAxes, fontsize=10,
                verticalalignment='bottom', family='monospace',

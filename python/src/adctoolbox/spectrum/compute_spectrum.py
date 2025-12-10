@@ -2,11 +2,11 @@
 
 import numpy as np
 from typing import Dict, Optional, Union
-from ._prepare_fft_input import _prepare_fft_input
-from ._find_fundamental import _find_fundamental
-from ._find_harmonic_bins import _find_harmonic_bins
-from ._align_spectrum_phase import _align_spectrum_phase
-from ._exclude_bins import _exclude_bins_from_spectrum
+from adctoolbox.spectrum._prepare_fft_input import _prepare_fft_input
+from adctoolbox.spectrum._find_fundamental import _find_fundamental
+from adctoolbox.spectrum._find_harmonic_bins import _find_harmonic_bins
+from adctoolbox.spectrum._align_spectrum_phase import _align_spectrum_phase
+from adctoolbox.spectrum._exclude_bins import _exclude_bins_from_spectrum
 
 
 def compute_spectrum(
@@ -63,8 +63,8 @@ def compute_spectrum(
 
     # Power correction factor for proper dBFS scaling
     # After power-normalizing the window, all windows need the same correction
-    # Factor of 16 = 4 (single-sided) * 4 (peak-to-RMS conversion for sine)
-    power_correction = 16.0
+    # Factor of 4 = 2 (single-sided) * 2 (dBFS reference: full-scale sine power = 0.5)
+    power_correction = 4.0
 
     # Mode-specific FFT processing
     if coherent_averaging:
@@ -241,13 +241,39 @@ def compute_spectrum(
     thd_power = 0
     hd2_power = 0
     hd3_power = 0
+
+    # Track which bins we've already counted to avoid double-counting when harmonics alias to same frequency
+    counted_bins = set()
+    collided_harmonics = []  # Track which harmonics collide with fundamental
+
     for h_idx in range(1, n_thd):
         h_bin = int(round(harmonic_bins[h_idx]))
+
+        # Skip if this harmonic aliases to the fundamental (happens when h*f_in wraps to f_in)
+        # Collision occurs when the side bins overlap: abs(h_bin - bin_idx) <= 2*side_bin
+        collision_threshold = 2 * side_bin
+        if abs(h_bin - bin_idx) <= collision_threshold:
+            collided_harmonics.append(h_idx + 1)  # Store harmonic number (HD2 = h_idx+1)
+            continue
+
+        # Skip if this harmonic aliases to DC (bin 0) - DC is excluded from spectrum analysis
+        if h_bin <= side_bin:
+            continue
+
+        # Skip if we've already counted this bin (happens when multiple harmonics alias to same frequency)
+        if h_bin in counted_bins:
+            continue
+
         if h_bin < len(spectrum_power):
             h_start = max(h_bin - side_bin, 0)
             h_end = min(h_bin + side_bin + 1, len(spectrum_power))
             h_power = np.sum(spectrum_power[h_start:h_end])
             thd_power += h_power
+
+            # Mark these bins as counted
+            for b in range(h_start, h_end):
+                counted_bins.add(b)
+
             # Store HD2 and HD3 individually
             if h_idx == 1:
                 hd2_power = h_power
@@ -307,7 +333,8 @@ def compute_spectrum(
         'nsd_dbfs_hz': nsd_dbfs_hz,
         'bin_idx': bin_idx,
         'bin_r': bin_r,
-        'harmonic_bins': harmonic_bins
+        'harmonic_bins': harmonic_bins,
+        'collided_harmonics': collided_harmonics  # List of harmonic numbers that collide with fundamental
     }
 
     # ============= Plot data =============
@@ -319,8 +346,19 @@ def compute_spectrum(
 
     # Build harmonics list for plotting
     harmonics_list = []
+    collision_threshold = 2 * side_bin
     for h_idx in range(1, n_thd):
         h_bin = int(round(harmonic_bins[h_idx]))
+
+        # Skip if this harmonic aliases to the fundamental (collision makes plotting meaningless)
+        # Use same threshold as THD calculation: abs(h_bin - bin_idx) <= 2*side_bin
+        if abs(h_bin - bin_idx) <= collision_threshold:
+            continue
+
+        # Skip if this harmonic aliases to DC (bin 0) - DC is excluded from spectrum analysis
+        if h_bin <= side_bin:
+            continue
+
         if h_bin < len(spectrum_power):
             h_start = max(h_bin - side_bin, 0)
             h_end = min(h_bin + side_bin + 1, len(spectrum_power))
