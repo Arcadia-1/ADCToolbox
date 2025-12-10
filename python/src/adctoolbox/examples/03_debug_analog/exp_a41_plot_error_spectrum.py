@@ -84,7 +84,7 @@ for i, (signal, title, param) in enumerate(zip(signals, titles, params)):
     print(f"  {title:35s} - Error RMS: {err_rms*1e6:.2f} uV")
 
 plt.tight_layout()
-fig_path = output_dir / 'exp_a21_plot_error_spectrum.png'
+fig_path = output_dir / 'exp_a41_plot_error_spectrum.png'
 plt.savefig(fig_path, dpi=150)
 plt.close()
 

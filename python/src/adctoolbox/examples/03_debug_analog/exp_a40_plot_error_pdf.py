@@ -86,7 +86,7 @@ fig.suptitle(f'Error PDF Comparison: 4 Non-idealities (Fs = {Fs/1e6:.0f} MHz, Fi
              fontsize=13, fontweight='bold')
 plt.tight_layout()
 
-fig_path = output_dir / 'exp_a20_plot_error_pdf.png'
+fig_path = output_dir / 'exp_a40_plot_error_pdf.png'
 plt.savefig(fig_path, dpi=150)
 print(f"\n[Save fig] -> [{fig_path}]")
 plt.close()
