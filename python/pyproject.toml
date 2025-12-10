@@ -4,7 +4,7 @@ build-backend = "setuptools.build_meta"
 
 [project]
 name = "adctoolbox"
-version = "0.2.1"
+version = "0.3.0"
 description = "ADC Testing and Analysis Toolkit"
 readme = "README.md"
 license = {text = "MIT"}

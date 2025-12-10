@@ -1,31 +1,27 @@
-function [k1, k2, k3, polycoeff, fit_curve] = fitstaticnl(sig, order, freq)
-%FITSTATICNL Extract static nonlinearity coefficients from ADC transfer function
-%   This function fits a polynomial to the ADC transfer function to extract
-%   static nonlinearity coefficients. It models the relationship between
-%   ideal input (fitted sine wave) and actual output (measured signal).
+function [k2, k3, fitted_sine, fitted_transfer] = fitstaticnl(sig, order, freq)
+%FITSTATICNL Extract static nonlinearity coefficients from distorted sinewave
+%   This function extracts 2nd-order (k2) and 3rd-order (k3) static nonlinearity
+%   coefficients from a distorted single-tone signal. It CANNOT extract gain error
+%   since the sine fitting absorbs amplitude into the reference.
 %
 %   Syntax:
-%     [k1, k2, k3] = FITSTATICNL(sig, order)
-%     [k1, k2, k3] = FITSTATICNL(sig, order, freq)
-%     [k1, k2, k3, polycoeff, fit_curve] = FITSTATICNL(sig, order, freq)
+%     [k2, k3] = FITSTATICNL(sig, order)
+%     [k2, k3] = FITSTATICNL(sig, order, freq)
+%     [k2, k3, fitted_sine, fitted_transfer] = FITSTATICNL(sig, order, freq)
 %
 %   Inputs:
-%     sig - ADC output signal (sinewave samples)
+%     sig - Distorted sinewave signal samples
 %       Vector of real numbers
 %     order - Polynomial order for fitting
-%       Positive integer (1-10), typically 2-4
-%       order=1: Linear gain only (k1)
-%       order=2: Linear + quadratic (k1, k2)
-%       order=3: Linear + quadratic + cubic (k1, k2, k3)
+%       Positive integer (>=2), typically 2-3
+%       order=2: Quadratic nonlinearity only (k2)
+%       order=3: Quadratic + cubic nonlinearity (k2, k3)
 %     freq - Normalized input frequency (frequency/fs), optional
 %       Scalar in range (0, 0.5)
 %       If omitted or 0, frequency is automatically estimated
 %       Default: 0 (auto-detect)
 %
 %   Outputs:
-%     k1 - Linear gain coefficient
-%       Scalar, represents ideal linear gain
-%       For ideal ADC: k1 = 1.0
 %     k2 - Quadratic nonlinearity coefficient
 %       Scalar, represents 2nd-order distortion
 %       For ideal ADC: k2 = 0
@@ -34,45 +30,41 @@ function [k1, k2, k3, polycoeff, fit_curve] = fitstaticnl(sig, order, freq)
 %       Scalar, represents 3rd-order distortion
 %       For ideal ADC: k3 = 0
 %       Returns NaN if order < 3
-%     polycoeff - Full polynomial coefficients (highest to lowest order)
-%       Vector [c_n, c_(n-1), ..., c_1, c_0]
-%       Transfer function: y = c_n*x^n + ... + c_1*x + c_0
-%     fit_curve - Fitted transfer function evaluated at signal points
-%       Vector (N×1), same length as sig
-%       Useful for plotting fitted curve
+%     fitted_sine - Fitted ideal sinewave input (reference signal)
+%       Vector (N×1), same length as sig, in time order
+%       This is the ideal sine wave extracted from the distorted signal
+%     fitted_transfer - Fitted transfer curve for plotting, struct
+%       struct with fields:
+%         x: 1000 smooth input points from min to max (sorted)
+%         y: polynomial-evaluated output at those points
+%       For ideal system: y=x (straight line)
 %
 %   Transfer Function Model:
-%     y = k1*x + k2*x^2 + k3*x^3 + ...
+%     y = x + k2*x^2 + k3*x^3
 %     where:
-%       x = ideal input (zero-mean)
+%       x = ideal input (zero-mean sine)
 %       y = actual output (zero-mean)
+%       k2, k3 = nonlinearity coefficients
 %
 %   Examples:
-%     % Extract linear and quadratic coefficients (order=2)
-%     sig = 0.5*sin(2*pi*0.123*(0:999)') + 0.01*randn(1000,1);
-%     [k1, k2] = fitstaticnl(sig, 2)
+%     % Extract coefficients only
+%     sig = 0.5*sin(2*pi*0.123*(0:999)') + distortion;
+%     [k2, k3] = fitstaticnl(sig, 3);
 %
-%     % Extract up to cubic nonlinearity with auto frequency detection
-%     [k1, k2, k3] = fitstaticnl(sig, 3)
-%
-%     % Specify frequency explicitly for faster computation
-%     [k1, k2, k3] = fitstaticnl(sig, 3, 0.123)
-%
-%     % Get full polynomial and plot transfer function
-%     [k1, k2, k3, polycoeff, fit_curve] = fitstaticnl(sig, 3);
-%     [sig_fit, ~, ~, ~, ~] = sinfit(sig);
+%     % Full extraction with plotting
+%     [k2, k3, fitted_sine, fitted_transfer] = fitstaticnl(sig, 3);
 %     figure;
-%     plot(sig_fit, sig, 'b.', sig_fit, fit_curve, 'r-', 'LineWidth', 2);
-%     xlabel('Ideal Input'); ylabel('Actual Output');
-%     legend('Measured', 'Fitted');
-%     title(sprintf('Transfer Function: k1=%.4f, k2=%.4f, k3=%.4f', k1, k2, k3));
+%     plot(fitted_transfer.x, fitted_transfer.y - fitted_transfer.x, 'r-', 'LineWidth', 2);
+%     xlabel('Input (V)');
+%     ylabel('Nonlinearity Error (V)');
+%     title(sprintf('Static Nonlinearity: k2=%.4f, k3=%.4f', k2, k3));
+%     grid on;
 %
 %   Notes:
 %     - Input signal must contain predominantly a single-tone sinewave
-%     - Coefficients are normalized (k1 ≈ 1.0 for ideal ADC)
-%     - Higher-order terms (k2, k3, ...) represent static distortion
+%     - Gain error CANNOT be extracted from single-tone measurements
+%     - The sine fitting absorbs amplitude variations into the reference
 %     - For accurate results, signal should have good SNR (>40 dB)
-%     - Coefficients are denormalized to handle any amplitude range
 %     - DC offset is automatically removed before fitting
 %
 %   Algorithm:
@@ -80,7 +72,8 @@ function [k1, k2, k3, polycoeff, fit_curve] = fitstaticnl(sig, order, freq)
 %     2. Extract zero-mean ideal input (x) and actual output (y)
 %     3. Normalize x for numerical stability
 %     4. Fit polynomial: y = polyfit(x_normalized, order)
-%     5. Denormalize coefficients to get physical k1, k2, k3
+%     5. Denormalize coefficients to get k2, k3 (normalized by k1)
+%     6. Generate smooth transfer curve for plotting
 %
 %   See also: sinfit, errsin, polyfit, inlsin
 
@@ -99,9 +92,9 @@ function [k1, k2, k3, polycoeff, fit_curve] = fitstaticnl(sig, order, freq)
               'Signal must be a real-valued numeric vector');
     end
 
-    if ~isnumeric(order) || ~isscalar(order) || order < 1 || mod(order, 1) ~= 0
+    if ~isnumeric(order) || ~isscalar(order) || order < 2 || mod(order, 1) ~= 0
         error('fitstaticnl:invalidOrder', ...
-              'Order must be a positive integer');
+              'Order must be an integer >= 2');
     end
 
     if order > 10
@@ -125,15 +118,15 @@ function [k1, k2, k3, polycoeff, fit_curve] = fitstaticnl(sig, order, freq)
 
     % Fit ideal sinewave to signal
     if freq == 0
-        [sig_fit, ~, ~, ~, ~] = sinfit(sig);
+        [fitted_sine, ~, ~, ~, ~] = sinfit(sig);
     else
-        [sig_fit, ~, ~, ~, ~] = sinfit(sig, freq);
+        [fitted_sine, ~, ~, ~, ~] = sinfit(sig, freq);
     end
 
     % Extract transfer function components
     % x = ideal input (zero-mean)
     % y = actual output (zero-mean)
-    x_ideal = sig_fit - mean(sig_fit);
+    x_ideal = fitted_sine - mean(fitted_sine);
     y_actual = sig - mean(sig);
 
     % Normalize for numerical stability
@@ -152,34 +145,46 @@ function [k1, k2, k3, polycoeff, fit_curve] = fitstaticnl(sig, order, freq)
     polycoeff = polyfit(x_norm, y_actual, order);
 
     % Extract and denormalize coefficients
-    % Transfer function: y = k1*x + k2*x^2 + k3*x^3 + ...
+    % Transfer function: y = x + k2*x^2 + k3*x^3
     % After normalization: y = c1*(x/x_max) + c2*(x/x_max)^2 + ...
     % Therefore: k_i = c_i / (x_max^i)
 
-    % Linear coefficient (k1)
+    % Linear coefficient (we don't return this, but need it for normalization)
     k1 = polycoeff(end-1) / x_max;
 
-    % Quadratic coefficient (k2)
+    % Quadratic coefficient (k2) - normalized by k1 to represent pure 2nd-order distortion
     if order >= 2
-        k2 = polycoeff(end-2) / (x_max^2);
+        k2_abs = polycoeff(end-2) / (x_max^2);
+        k2 = k2_abs / k1;  % Normalize to unity gain
     else
         k2 = NaN;
     end
 
-    % Cubic coefficient (k3)
+    % Cubic coefficient (k3) - normalized by k1 to represent pure 3rd-order distortion
     if order >= 3
-        k3 = polycoeff(end-3) / (x_max^3);
+        k3_abs = polycoeff(end-3) / (x_max^3);
+        k3 = k3_abs / k1;  % Normalize to unity gain
     else
         k3 = NaN;
     end
 
-    % Calculate fitted curve if requested
-    if nargout >= 5
-        % Evaluate polynomial at normalized input points
-        y_fit_norm = polyval(polycoeff, x_norm);
+    % Calculate fitted transfer curve on smooth grid for plotting (1000 sorted points)
+    if nargout >= 4
+        % Create smooth x-axis from min to max of fitted sine
+        x_smooth = linspace(min(fitted_sine), max(fitted_sine), 1000)';
 
-        % Convert back to original scale (add mean back)
-        fit_curve = y_fit_norm + mean(sig);
+        % Normalize smooth x values (same normalization as used in fitting)
+        x_smooth_norm = (x_smooth - mean(fitted_sine)) / x_max;
+
+        % Evaluate polynomial at smooth points
+        y_smooth_norm = polyval(polycoeff, x_smooth_norm);
+
+        % Convert back to original scale
+        y_smooth = y_smooth_norm + mean(sig);
+
+        % Return as struct with x and y fields (matches Python tuple structure)
+        fitted_transfer.x = x_smooth;
+        fitted_transfer.y = y_smooth;
     end
 
 end

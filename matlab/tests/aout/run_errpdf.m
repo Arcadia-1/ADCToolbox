@@ -13,7 +13,7 @@ for k = 1:length(filesList)
 
     figure('Position', [100, 100, 800, 600], "Visible", verbose);
     [~, mu, sigma, KL_divergence, x, fx, gauss_pdf] = errpdf(err_data, ...
-        'Resolution', 8, 'FullScale', max(read_data) - min(read_data));
+        'Resolution', 12, 'FullScale', max(read_data) - min(read_data));
     title("PDF of Error");
     set(gca, "FontSize", 16);
 

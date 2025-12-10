@@ -11,5 +11,5 @@ if verbose
 
     pause(1)
 end
-close all;
+% close all;
 end
