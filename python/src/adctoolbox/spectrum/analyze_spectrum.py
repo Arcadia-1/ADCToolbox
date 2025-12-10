@@ -8,13 +8,13 @@ for backward compatibility with existing code.
 """
 
 import numpy as np
-from .compute_spectrum import compute_spectrum
-from .plot_spectrum import plot_spectrum
+from adctoolbox.spectrum.compute_spectrum import compute_spectrum
+from adctoolbox.spectrum.plot_spectrum import plot_spectrum
 
 
-def analyze_spectrum(data, fs=1.0, osr=1, max_scale_range=None, win_type='hann', side_bin=1, 
+def analyze_spectrum(data, fs=1.0, osr=1, max_scale_range=None, win_type='hann', side_bin=1,
                      n_thd=5, nf_method=2, assumed_sig_pwr_dbfs=np.nan, coherent_averaging=False,
-                     show_plot=True, show_label=True, plot_harmonics_up_to=3, ax=None):
+                     show_plot=True, show_title=True, show_label=True, plot_harmonics_up_to=3, ax=None):
     """
     Spectral analysis and plotting. (Wrapper function for modular core and plotting)
 
@@ -31,6 +31,7 @@ def analyze_spectrum(data, fs=1.0, osr=1, max_scale_range=None, win_type='hann',
         nf_method: Noise floor calculation method (0=median, 1=trimmed mean, 2=exclude harmonics)
         assumed_sig_pwr_dbfs: Pre-defined signal level in dBFS
         show_plot: Plot the spectrum (True) or not (False)
+        show_title: Display auto-generated title (True) or not (False)
         show_label: Add labels and annotations (True) or not (False)
         plot_harmonics_up_to: Number of harmonics to mark on the plot
         ax: Optional matplotlib axes object. If None and show_plot=True, a new figure is created.
@@ -62,11 +63,17 @@ def analyze_spectrum(data, fs=1.0, osr=1, max_scale_range=None, win_type='hann',
         assumed_sig_pwr_dbfs=assumed_sig_pwr_dbfs
     )
 
+    # Print warning if harmonics collide with fundamental
+    collided = results['metrics'].get('collided_harmonics', [])
+    if collided and show_label:
+        print(f"Warning: Harmonics {collided} alias to fundamental (excluded from THD)")
+
     # 2. --- Optional Plotting ---
     if show_plot:
         # Pass the analysis results to the pure plotting function.
         plot_spectrum(
             analysis_results=results,
+            show_title=show_title,
             show_label=show_label,
             plot_harmonics_up_to=plot_harmonics_up_to,
             ax=ax

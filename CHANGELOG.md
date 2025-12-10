@@ -7,7 +7,31 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Added
+- Comprehensive spectrum examples (18 total):
+  - Basic workflows (s00-s03): simplest → interactive → savefig → manual
+  - FFT concepts (s04-s05): FFT length, OSR comparison
+  - Windowing (s06-s09): spectral leakage, window types, coherent signals
+  - Averaging methods (s10-s12): power averaging, coherent averaging, coherent + OSR
+  - Polar visualization (s21-s24): polar plots, coherent averaging, kickback
+  - Two-tone IMD (s31-s32): two-tone analysis, IMD comparison
+- Complete API reference documentation in `agent_playground/ADCToolbox_API_Reference.md`
+  - 100+ public functions documented
+  - All module descriptions
+  - Usage examples
+  - Version history
+
 ### Changed
+- **BREAKING**: Common module functions renamed for consistency:
+  - `calc_coherent_freq()` → `find_coherent_frequency()`
+  - `calculate_aliased_freq()` → `fold_frequency_to_nyquist()`
+  - `calculate_aliased_bin()` → `fold_bin_to_nyquist()`
+  - `calculate_snr_from_amplitude()` → `amplitudes_to_snr()` (added `osr` parameter)
+  - `calculate_fom_walden()` → `calculate_walden_fom()`
+  - `calculate_fom_schreier()` → `calculate_schreier_fom()`
+- **BREAKING**: Spectrum calculation functions renamed:
+  - `calculate_spectrum_data()` → `compute_spectrum()`
+  - `calculate_two_tone_spectrum_data()` → `compute_two_tone_spectrum()`
 - **BREAKING**: All dout functions renamed to match filenames for consistency
   - `cal_weight_sine()` → `calibrate_weight_sine()`
   - `cal_weight_sine_os()` → `calibrate_weight_sine_osr()`
@@ -16,22 +40,25 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   - `overflow_chk()` → `check_overflow()`
   - `weight_scaling()` → `plot_weight_radix()`
   - `sweep_bit_enob()` → `analyze_enob_sweep()`
-  - Updated all imports across 16 files (examples, tests, toolsets)
 - **BREAKING**: `analyze_spectrum()` now returns a dictionary instead of tuple
   - Before: `enob, sndr, sfdr, snr, thd, pwr, nf, nsd = analyze_spectrum(...)`
   - After: `result = analyze_spectrum(...)`  → Access via `result['enob']`, `result['sndr_db']`, etc.
   - Dictionary keys: `enob`, `sndr_db`, `sfdr_db`, `snr_db`, `thd_db`, `sig_pwr_dbfs`, `noise_floor_db`, `nsd_dbfs_hz`
 - **BREAKING**: `plot_envelope_spectrum()` now returns a dictionary (same structure as `analyze_spectrum`)
+- Enhanced `compute_spectrum()` with `coherent_averaging` parameter
+- Enhanced `plot_spectrum()` with `plot_harmonics_up_to` parameter (default: 3)
+- Updated `plot_spectrum()`, `plot_spectrum_polar()`, and `plot_two_tone_spectrum()` parameter names for consistency
 - All aout functions now use absolute imports (`from adctoolbox.common.*` instead of `from ..common.*`)
 - All aout functions now include MATLAB counterpart documentation in module docstrings
 
 ### Fixed
 - Fixed `ModuleNotFoundError` in `calibrate_weight_two_tone.py`
-  - Changed `from ..common.alias import alias` to `from adctoolbox.common.calc_aliased_freq import calc_aliased_freq`
-  - Updated all `alias()` calls to `calc_aliased_freq()`
+  - Changed `from ..common.alias import alias` to `from adctoolbox.common.fold_frequency_to_nyquist import fold_frequency_to_nyquist`
+  - Updated all `alias()` calls to `fold_frequency_to_nyquist()`
 - Fixed `IndexError` in `analyze_spectrum` when indexing harmonics
-  - Added `int()` wrapper around `calc_aliased_freq()` calls to ensure integer indices
+  - Added `int()` wrapper around `fold_frequency_to_nyquist()` calls to ensure integer indices
 - Fixed `exp_a01` example to use `find_coherent_frequency` instead of deprecated `find_bin`
+- Fixed spectrum plot function signatures in API documentation to match actual implementation
 
 ## [0.2.1] - 2025-12-06
 

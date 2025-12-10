@@ -10,8 +10,8 @@ Matches MATLAB plotphase.m FFT mode functionality.
 import numpy as np
 from typing import Optional, Dict, Any
 
-from .compute_spectrum import compute_spectrum
-from .plot_spectrum_polar import plot_spectrum_polar
+from adctoolbox.spectrum.compute_spectrum import compute_spectrum
+from adctoolbox.spectrum.plot_spectrum_polar import plot_spectrum_polar
 
 
 def analyze_spectrum_polar(

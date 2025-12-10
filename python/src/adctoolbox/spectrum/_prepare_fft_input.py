@@ -46,7 +46,9 @@ def _prepare_fft_input(
     M, N = data.shape
 
     # Normalization scale
-    max_scale_range = max_scale_range or (np.max(data) - np.min(data))
+    # When auto-detecting (None), use peak value
+    # dBFS reference: full-scale sine (peak=1) has power=0.5 = 0 dBFS
+    max_scale_range = max_scale_range or np.max(np.abs(data))
 
     # Create window function
     if win_type.lower() in ('boxcar', 'rectangular'):
