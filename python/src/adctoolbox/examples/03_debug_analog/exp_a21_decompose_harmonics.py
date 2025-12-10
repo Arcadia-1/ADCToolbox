@@ -31,11 +31,11 @@ fig, (ax1, ax2) = plt.subplots(1, 2, figsize=(18, 6))
 fig.suptitle('Harmonic Decomposition', fontsize=16, fontweight='bold')
 
 plt.sca(ax1)
-decompose_harmonics(signal_noise, re_fin=Fin/Fs, order=10, disp=1)
+decompose_harmonics(signal_noise, normalized_freq=Fin/Fs, order=10, show_plot=True)
 ax1.set_title(f'Case 1: Thermal Noise ({noise_rms*1e6:.0f}uV RMS)', fontsize=14, fontweight='bold')
 
 plt.sca(ax2)
-decompose_harmonics(signal_nonlin, re_fin=Fin/Fs, order=10, disp=1)
+decompose_harmonics(signal_nonlin, normalized_freq=Fin/Fs, order=10, show_plot=True)
 ax2.set_title(f'Case 2: Static Nonlinearity (k2={k2:.3f}, k3={k3:.3f})', fontsize=14, fontweight='bold')
 
 plt.tight_layout()

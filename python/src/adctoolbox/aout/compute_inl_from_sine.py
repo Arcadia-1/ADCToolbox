@@ -8,16 +8,16 @@ MATLAB counterpart: inlsin.m
 
 import numpy as np
 
-def compute_inl_from_sine(data, num_bits=None, clip_percent=0.01):
+def compute_inl_from_sine(data, num_bits=None, full_scale=None, clip_percent=0.01):
     """
     Calculate ADC INL/DNL.
-    
+
     Auto-detection logic:
     1. If input is Integer type -> Treated as ADC Codes.
     2. If input is Float type:
        - Range > 2.0  -> Treated as ADC Codes (floating point representation of codes).
        - Range <= 2.0 -> Treated as Normalized Voltage (auto-quantized to num_bits).
-    
+
     Parameters
     ----------
     data : array_like
@@ -25,47 +25,60 @@ def compute_inl_from_sine(data, num_bits=None, clip_percent=0.01):
     num_bits : int, optional
         - If Input is Voltage: Target quantization resolution (default 10 if None).
         - If Input is Codes: ADC resolution (inferred from data range if None).
+    full_scale : float, optional
+        Full scale voltage range for quantization. If provided with float input,
+        used for quantization: codes = round(data * 2^num_bits / full_scale).
+        If None, assumes normalized input (0-1 or -1 to 1).
+    clip_percent : float, default=0.01
+        Percentage of codes to clip from edges.
     """
     data = np.asarray(data).flatten()
-    
+
     data_min = np.min(data)
     data_max = np.max(data)
     span = data_max - data_min
-    
+
     # --- 1. Auto-Detect Mode (Voltage vs Code) ---
     # Default assumption: It's codes unless proven otherwise
     is_voltage = False
-    
+
     if np.issubdtype(data.dtype, np.floating):
         # If float and range is small (e.g. 0.0 to 1.0), it's likely voltage
         if span <= 2.0:
             is_voltage = True
-    
+
     # --- 2. Process Data ---
     if is_voltage:
-        # Case A: Normalized Voltage Input
+        # Case A: Analog Voltage Input (Quantize to Codes)
         if num_bits is None:
             num_bits = 10
-            # Optional: Print info so user knows what happened
-            # print(f"[Auto] Detected voltage input. Quantizing to {num_bits} bits.")
-            
-        full_scale = 2**num_bits
-        
-        # Handle Bipolar (-1 to 1) vs Unipolar (0 to 1)
-        if data_min < -0.1: 
-            # Map -1..1 to 0..FS
-            data = (data + 1.0) / 2.0 * full_scale
+
+        adc_full_scale = 2**num_bits
+
+        # Quantize based on full_scale or auto-detect
+        if full_scale is not None:
+            # User provided full_scale: data in volts, scale to 0..2^n_bits-1
+            codes_input = np.round(data / full_scale * adc_full_scale).astype(int)
         else:
-            # Map 0..1 to 0..FS
-            data = data * full_scale
-            
-        # Quantize to Code
-        codes_input = np.round(data).astype(int)
-        
+            # Auto-detect: assume normalized voltage
+            # Handle Bipolar (-1 to 1) vs Unipolar (0 to 1)
+            if data_min < -0.1:
+                # Map -1..1 to 0..FS
+                data = (data + 1.0) / 2.0 * adc_full_scale
+            else:
+                # Map 0..1 to 0..FS
+                data = data * adc_full_scale
+
+            # Quantize to Code
+            codes_input = np.round(data).astype(int)
+
+        # Clip to valid code range
+        codes_input = np.clip(codes_input, 0, adc_full_scale - 1)
+
     else:
         # Case B: Code Input (Integer or Float-Codes)
         codes_input = np.round(data).astype(int)
-        
+
         if num_bits is None:
             # Infer resolution from the codes themselves
             # e.g. max code 1020 -> log2(1020) ~ 9.99 -> 10 bits
