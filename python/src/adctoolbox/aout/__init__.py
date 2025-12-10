@@ -18,6 +18,7 @@ from .fit_static_nonlin import fit_static_nonlin
 
 # Placeholder functions for functions not yet moved
 try:
+    from .calculate_lms_decomposition import calculate_lms_decomposition
     from .analyze_decomposition_time import analyze_decomposition_time
     from .analyze_decomposition_polar import analyze_decomposition_polar
     from .plot_decomposition_time import plot_decomposition_time
