@@ -1,8 +1,9 @@
-"""Error histogram vs code value: noise, jitter, harmonic distortion, kickback"""
+"""Error histogram vs sine phase: noise, jitter, harmonic distortion, kickback"""
 import numpy as np
 import matplotlib.pyplot as plt
 from pathlib import Path
-from adctoolbox import find_coherent_frequency, plot_error_hist_code
+from adctoolbox import find_coherent_frequency
+from adctoolbox.aout import plot_error_hist_phase
 
 output_dir = Path(__file__).parent / "output"
 output_dir.mkdir(exist_ok=True)
@@ -10,12 +11,12 @@ output_dir.mkdir(exist_ok=True)
 N = 2**13
 Fs = 800e6
 Fin_target = 80e6
-Fin, Fin_bin = find_coherent_frequency(Fs, Fin_target, N)
+Fin, J = find_coherent_frequency(Fs, Fin_target, N)
 t = np.arange(N) / Fs
 A, DC = 0.49, 0.5
 base_noise = 50e-6
 
-print(f"[Error Histogram vs Code] Fs={Fs/1e6:.1f} MHz, Fin={Fin/1e6:.6f} MHz, Bin={Fin_bin}, N_fft={N}")
+print(f"[Error Histogram vs Phase] [Fs = {Fs/1e6:.0f} MHz, Fin = {Fin/1e6:.1f} MHz, N = {N}]\n")
 
 # Signal 1: Noise
 noise_rms = 180e-6
@@ -51,12 +52,14 @@ params = [f'RMS = {noise_rms*1e3:.2f} mV',
 
 # Generate individual plots using built-in plotting
 for signal, title, param in zip(signals, titles, params):
-    plot_error_hist_code(signal, bins=100, disp=1)
+    plot_error_hist_phase(signal, bins=100, disp=1)
     plt.gcf().suptitle(f'{title}: {param}', fontsize=14, fontweight='bold')
     plt.tight_layout()
 
     fig_name = title.lower().replace(' ', '_')
-    fig_path = output_dir / f'exp_a05_err_hist_sine_code_{fig_name}.png'
+    fig_path = output_dir / f'exp_a13_err_hist_sine_phase_{fig_name}.png'
     plt.savefig(fig_path, dpi=150, bbox_inches='tight')
     plt.close()
     print(f"[{title:20s}] -> [{fig_path}]")
+
+print(f"\n[Complete] All 4 error histogram (phase) plots saved")

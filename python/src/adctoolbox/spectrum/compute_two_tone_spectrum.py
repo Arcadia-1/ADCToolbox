@@ -8,6 +8,7 @@ import numpy as np
 from typing import Dict, Optional
 from adctoolbox.common.fold_bin_to_nyquist import fold_bin_to_nyquist
 from adctoolbox.spectrum._prepare_fft_input import _prepare_fft_input
+from adctoolbox.spectrum._align_spectrum_phase import _align_spectrum_phase
 
 
 def compute_two_tone_spectrum(
@@ -16,7 +17,8 @@ def compute_two_tone_spectrum(
     max_scale_range: Optional[float] = None,
     win_type: str = 'hann',
     side_bin: int = 1,
-    harmonic: int = 7
+    harmonic: int = 7,
+    coherent_averaging: bool = False
 ) -> Dict[str, any]:
     """
     Calculate two-tone spectrum data with IMD analysis.
@@ -38,6 +40,8 @@ def compute_two_tone_spectrum(
         Side bins to include in signal power, default: 1
     harmonic : int, optional
         Number of harmonic orders to calculate for IMD products, default: 7
+    coherent_averaging : bool, optional
+        If True, performs coherent averaging with phase alignment, default: False
 
     Returns
     -------
@@ -54,38 +58,120 @@ def compute_two_tone_spectrum(
 
     freq = np.arange(n_half) / N * fs
 
-    # Average spectrum over multiple runs (power averaging)
-    spectrum_sum = np.zeros(N)
-    n_valid_runs = 0
+    if coherent_averaging:
+        # Step 1: First find reliable bin locations using power averaging
+        spectrum_sum_prelim = np.zeros(N)
+        n_valid_prelim = 0
 
-    for i in range(M):
-        run_data = data_processed[i, :]
-        if np.max(np.abs(run_data)) < 1e-10:
-            continue
+        for i in range(M):
+            run_data = data_processed[i, :]
+            if np.max(np.abs(run_data)) < 1e-10:
+                continue
+            spectrum_sum_prelim += np.abs(np.fft.fft(run_data))**2
+            n_valid_prelim += 1
 
-        # Accumulate power spectrum
-        spectrum_sum += np.abs(np.fft.fft(run_data))**2
-        n_valid_runs += 1
+        if n_valid_prelim == 0:
+            raise ValueError("No valid data runs")
 
-    if n_valid_runs == 0:
-        raise ValueError("No valid data runs")
+        # Compute magnitude spectrum for bin finding and parabolic interpolation
+        spectrum_mag_prelim = np.sqrt(spectrum_sum_prelim / n_valid_prelim) / N * 2
+        spectrum_mag_prelim = spectrum_mag_prelim[:n_half]
+        spectrum_mag_prelim[:side_bin] = 0
 
-    # Normalize spectrum (single-sided power spectrum)
-    # Window is already power-normalized in _prepare_fft_input
-    # Factor of 4 = 2 (single-sided) * 2 (dBFS reference: full-scale sine power = 0.5)
-    spectrum_sum = spectrum_sum[:n_half]
-    spectrum_sum[:side_bin] = 0  # Remove DC and low-frequency bins
-    spectrum_power = spectrum_sum / (N**2) * 4 / n_valid_runs
+        # Find bins from magnitude-averaged spectrum (reliable bin detection)
+        bin1 = np.argmax(spectrum_mag_prelim)
+        spectrum_temp_prelim = spectrum_mag_prelim.copy()
+        spectrum_temp_prelim[bin1] = 0
+        bin2 = np.argmax(spectrum_temp_prelim)
 
-    # ========== Find two tones ==========
-    bin1 = np.argmax(spectrum_power)
-    spectrum_temp = spectrum_power.copy()
-    spectrum_temp[bin1] = 0
-    bin2 = np.argmax(spectrum_temp)
+        # Ensure bin1 < bin2
+        if bin1 > bin2:
+            bin1, bin2 = bin2, bin1
 
-    # Ensure bin1 < bin2
-    if bin1 > bin2:
-        bin1, bin2 = bin2, bin1
+        # Compute parabolic interpolation using log10(magnitude) (same as single-tone)
+        if bin1 > 0 and bin1 < n_half - 1:
+            sig_e = np.log10(max(spectrum_mag_prelim[bin1], 1e-20))
+            sig_l = np.log10(max(spectrum_mag_prelim[bin1 - 1], 1e-20))
+            sig_r = np.log10(max(spectrum_mag_prelim[bin1 + 1], 1e-20))
+
+            delta = (sig_r - sig_l) / (2 * sig_e - sig_l - sig_r) / 2
+            bin_r1 = bin1 + delta
+
+            if np.isnan(bin_r1) or np.isinf(bin_r1):
+                bin_r1 = float(bin1)
+        else:
+            bin_r1 = float(bin1)
+
+        # Step 2: Coherent averaging using fixed bins and fixed bin_r1
+        spec_coherent = np.zeros(N, dtype=complex)
+        n_valid_runs = 0
+
+        for i in range(M):
+            run_data = data_processed[i, :]
+            if np.max(np.abs(run_data)) < 1e-10:
+                continue
+
+            # Compute FFT
+            fft_data = np.fft.fft(run_data)
+            fft_data[0] = 0  # Remove DC
+
+            # Align phase to F1 using fixed bin_r1 from power-averaged spectrum
+            fft_aligned = _align_spectrum_phase(fft_data, bin1, bin_r1, N)
+
+            # Accumulate complex spectrum
+            spec_coherent += fft_aligned
+            n_valid_runs += 1
+
+        # Normalize and convert to power spectrum
+        spec_coherent /= n_valid_runs
+        # Window is already power-normalized in _prepare_fft_input
+        # Factor of 4 = 2 (single-sided) * 2 (dBFS reference: full-scale sine power = 0.5)
+        spectrum_power = (np.abs(spec_coherent[:n_half])**2) * 4 / (N**2)
+        spectrum_power[:side_bin] = 0  # Remove DC and low-frequency bins
+
+        # Re-find bins from final coherent-averaged spectrum for accurate measurement
+        bin1 = np.argmax(spectrum_power)
+        spectrum_temp = spectrum_power.copy()
+        spectrum_temp[bin1] = 0
+        bin2 = np.argmax(spectrum_temp)
+
+        # Ensure bin1 < bin2
+        if bin1 > bin2:
+            bin1, bin2 = bin2, bin1
+
+    else:
+        # Average spectrum over multiple runs (power averaging)
+        spectrum_sum = np.zeros(N)
+        n_valid_runs = 0
+
+        for i in range(M):
+            run_data = data_processed[i, :]
+            if np.max(np.abs(run_data)) < 1e-10:
+                continue
+
+            # Accumulate power spectrum
+            spectrum_sum += np.abs(np.fft.fft(run_data))**2
+            n_valid_runs += 1
+
+        if n_valid_runs == 0:
+            raise ValueError("No valid data runs")
+
+        # Normalize spectrum (single-sided power spectrum)
+        # Window is already power-normalized in _prepare_fft_input
+        # Factor of 4 = 2 (single-sided) * 2 (dBFS reference: full-scale sine power = 0.5)
+        spectrum_sum = spectrum_sum[:n_half]
+        spectrum_sum[:side_bin] = 0  # Remove DC and low-frequency bins
+        spectrum_power = spectrum_sum / (N**2) * 4 / n_valid_runs
+
+        # Find two tones from power-averaged spectrum
+        bin1 = np.argmax(spectrum_power)
+        spectrum_temp = spectrum_power.copy()
+        spectrum_temp[bin1] = 0
+        bin2 = np.argmax(spectrum_temp)
+
+        # Ensure bin1 < bin2
+        if bin1 > bin2:
+            bin1, bin2 = bin2, bin1
 
     # ========== Calculate signal powers ==========
     sig1_start = max(bin1 - side_bin, 0)
@@ -225,6 +311,7 @@ def compute_two_tone_spectrum(
     imd3_db = 10 * np.log10(total_signal_power / (imd3_total_power + 1e-20))
     sig_pwr_dbfs = 10 * np.log10(total_signal_power)
     noise_floor_db = sig_pwr_dbfs - snr_db
+    nsd_dbfs_hz = noise_floor_db - 10 * np.log10(fs / 2)  # Noise spectral density
 
     # ========== Prepare return data ==========
     metrics = {
@@ -236,6 +323,7 @@ def compute_two_tone_spectrum(
         'signal_power_1_dbfs': pwr1_dbfs,
         'signal_power_2_dbfs': pwr2_dbfs,
         'noise_floor_db': noise_floor_db,
+        'nsd_dbfs_hz': nsd_dbfs_hz,
         'imd2_db': imd2_db,
         'imd3_db': imd3_db
     }
@@ -251,7 +339,8 @@ def compute_two_tone_spectrum(
         'N': N,
         'M': n_valid_runs,
         'fs': fs,
-        'harmonic_products': harmonic_products
+        'harmonic_products': harmonic_products,
+        'coherent_averaging': coherent_averaging
     }
 
     imd_bins = {

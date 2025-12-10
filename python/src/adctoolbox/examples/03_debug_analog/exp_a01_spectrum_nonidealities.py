@@ -54,25 +54,21 @@ fig, axes = plt.subplots(2, 2, figsize=(14, 10))
 
 plt.sca(axes[0, 0])
 result1 = analyze_spectrum(signal_noise, fs=Fs)
-axes[0, 0].set_ylim([-120, 0])
 axes[0, 0].set_title(f'Noise: RMS={noise_rms*1e6:.0f} uV')
 print(f"[Noise   ] [ENOB] = {result1['enob']:.3f} b, [SNDR] = {result1['sndr_db']:.2f} dB, [SFDR] = {result1['sfdr_db']:.2f} dB, [SNR] = {result1['snr_db']:.2f} dB")
 
 plt.sca(axes[0, 1])
 result2 = analyze_spectrum(signal_jitter, fs=Fs)
-axes[0, 1].set_ylim([-120, 0])
 axes[0, 1].set_title(f'Jitter: {jitter_rms*1e15:.0f} fs')
 print(f"[Jitter  ] [ENOB] = {result2['enob']:.3f} b, [SNDR] = {result2['sndr_db']:.2f} dB, [SFDR] = {result2['sfdr_db']:.2f} dB, [SNR] = {result2['snr_db']:.2f} dB")
 
 plt.sca(axes[1, 0])
 result3 = analyze_spectrum(signal_harmonic, fs=Fs)
-axes[1, 0].set_ylim([-120, 0])
 axes[1, 0].set_title(f'Harmonic Distortion: HD2 = {hd2_dB} dB, HD3 = {hd3_dB} dB')
 print(f"[Harmonic] [ENOB] = {result3['enob']:.3f} b, [SNDR] = {result3['sndr_db']:.2f} dB, [SFDR] = {result3['sfdr_db']:.2f} dB, [SNR] = {result3['snr_db']:.2f} dB")
 
 plt.sca(axes[1, 1])
 result4 = analyze_spectrum(signal_kickback, fs=Fs)
-axes[1, 1].set_ylim([-120, 0])
 axes[1, 1].set_title(f'Kickback: strength = {kickback_strength}')
 print(f"[Kickback] [ENOB] = {result4['enob']:.3f} b, [SNDR] = {result4['sndr_db']:.2f} dB, [SFDR] = {result4['sfdr_db']:.2f} dB, [SNR] = {result4['snr_db']:.2f} dB")
 

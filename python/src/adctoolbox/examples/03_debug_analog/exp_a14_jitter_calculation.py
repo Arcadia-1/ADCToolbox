@@ -2,7 +2,8 @@
 import numpy as np
 import matplotlib.pyplot as plt
 from pathlib import Path
-from adctoolbox import find_coherent_frequency, plot_error_hist_phase
+from adctoolbox import find_coherent_frequency
+from adctoolbox.aout import plot_error_hist_phase
 
 output_dir = Path(__file__).parent / "output"
 output_dir.mkdir(exist_ok=True)
@@ -100,7 +101,7 @@ for idx, Fin in enumerate(Fin_list):
 
 fig.suptitle(f'Jitter Measurement Accuracy (Fs = {Fs/1e9:.0f} GHz)', fontsize=14, fontweight='bold')
 plt.tight_layout()
-fig_path = output_dir / 'exp_a07_jitter_calculation.png'
+fig_path = output_dir / 'exp_a14_jitter_calculation.png'
 plt.savefig(fig_path, dpi=150)
 plt.close()
 

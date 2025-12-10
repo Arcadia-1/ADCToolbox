@@ -21,6 +21,7 @@ def analyze_two_tone_spectrum(
     harmonic: int = 3,
     win_type: str = 'hann',
     side_bin: int = 1,
+    coherent_averaging: bool = False,
     show_plot: bool = True,
     show_title: bool = True,
     show_labels: bool = True,
@@ -38,6 +39,7 @@ def analyze_two_tone_spectrum(
         harmonic: Number of harmonics to mark on plot
         win_type: Window function type ('hann', 'blackman', 'hamming', 'boxcar')
         side_bin: Number of side bins around fundamental
+        coherent_averaging: If True, performs coherent averaging with phase alignment
         show_plot: Plot the spectrum (True) or not (False)
         show_title: Display title (True) or not (False)
         show_labels: Add labels and annotations (True) or not (False)
@@ -64,7 +66,8 @@ def analyze_two_tone_spectrum(
         max_scale_range=max_scale_range,
         win_type=win_type,
         side_bin=side_bin,
-        harmonic=harmonic
+        harmonic=harmonic,
+        coherent_averaging=coherent_averaging
     )
 
     # Step 2: Plot if requested (pure visualization)
