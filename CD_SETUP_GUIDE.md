@@ -31,8 +31,8 @@ Your CD workflow will automatically publish ADCToolbox to PyPI whenever you crea
 ```
 ┌─────────────────────────────────────────────────────────┐
 │  Developer Action: Create and Push Version Tag         │
-│  $ git tag v0.2.2                                       │
-│  $ git push origin v0.2.2                               │
+│  $ git tag v0.3.0                                       │
+│  $ git push origin v0.3.0                               │
 └─────────────────────────────────────────────────────────┘
                          ↓
 ┌─────────────────────────────────────────────────────────┐
@@ -67,7 +67,7 @@ Your CD workflow will automatically publish ADCToolbox to PyPI whenever you crea
 ┌─────────────────────────────────────────────────────────┐
 │  Users can install:                                     │
 │  $ pip install adctoolbox                               │
-│  $ pip install adctoolbox==0.2.2                        │
+│  $ pip install adctoolbox==0.3.0                        │
 │  $ pip install --upgrade adctoolbox                     │
 └─────────────────────────────────────────────────────────┘
 ```
@@ -80,7 +80,7 @@ Edit `python/pyproject.toml`:
 ```toml
 [project]
 name = "adctoolbox"
-version = "0.2.2"  # ← Update this
+version = "0.3.0"  # ← Update this
 ```
 
 ### Step 2: Update CHANGELOG (optional but recommended)
@@ -89,25 +89,31 @@ Create/update `CHANGELOG.md`:
 ```markdown
 # Changelog
 
-## [0.2.2] - 2025-12-06
+## [0.3.0] - 2025-12-10
 
 ### Added
-- 21 ready-to-run examples (b01-b04, a01-a14, d01-d05)
-- CI workflow testing examples
-
-### Fixed
-- spec_plot return value in exp_b02_spectrum.py
-- inl_dnl_from_sine data clipping
+- Modular spectrum architecture with `compute_spectrum()` and `compute_two_tone_spectrum()`
+- Coherent averaging support for single-tone and two-tone spectrum analysis
+- Auto-generated titles in `plot_spectrum()` for better usability
+- Theoretical SNR/NSD calculations in analog examples (exp_a01, exp_a02)
 
 ### Changed
-- Updated documentation with 3-step install process
+- Renamed `calculate_spectrum_data()` → `compute_spectrum()`
+- Renamed `calculate_two_tone_spectrum_data()` → `compute_two_tone_spectrum()`
+- Removed `analyze_spectrum_coherent_averaging()` (functionality integrated into `compute_spectrum()`)
+- Improved two-tone IMD2/IMD3 calculations with better spur collision detection
+- Standardized print format across all examples ([Setting]/[Theory]/[Measured])
+
+### Fixed
+- Two-tone amplitude normalization and signal power calculations
+- Spectrum averaging behavior for power vs coherent modes
 ```
 
 ### Step 3: Commit Changes
 
 ```bash
 git add python/pyproject.toml CHANGELOG.md
-git commit -m "Bump version to 0.2.2"
+git commit -m "Bump version to 0.3.0"
 git push origin main
 ```
 
@@ -115,13 +121,13 @@ git push origin main
 
 ```bash
 # Create annotated tag (recommended)
-git tag -a v0.2.2 -m "Release v0.2.2 - 21 examples complete"
+git tag -a v0.3.0 -m "Release v0.3.0 - Updated spectrum tools"
 
 # Or simple tag
-git tag v0.2.2
+git tag v0.3.0
 
 # Push the tag (this triggers CD!)
-git push origin v0.2.2
+git push origin v0.3.0
 ```
 
 ### Step 5: Monitor Deployment
@@ -146,7 +152,7 @@ python -m build
 twine check dist/*
 
 # Install locally to test
-pip install dist/adctoolbox-0.2.2-py3-none-any.whl
+pip install dist/adctoolbox-0.3.0-py3-none-any.whl
 
 # Test it works
 python -c "from adctoolbox import spec_plot; print('Success!')"
@@ -175,8 +181,8 @@ Use semantic versioning: `MAJOR.MINOR.PATCH`
 - **PATCH** (0.2.2): Bug fixes, backwards compatible
 
 Examples:
-- `v0.2.1` → `v0.2.2`: Bug fix (spec_plot return values)
-- `v0.2.2` → `v0.3.0`: New features (add NTF analyzer)
+- `v0.2.5` → `v0.2.6`: Bug fix (spec_plot return values)
+- `v0.2.6` → `v0.3.0`: New features (updated spectrum tools)
 - `v0.3.0` → `v1.0.0`: Major release (API redesign)
 
 ## Troubleshooting
@@ -206,10 +212,10 @@ Examples:
 ### Delete a Tag (if you made a mistake)
 ```bash
 # Delete local tag
-git tag -d v0.2.2
+git tag -d v0.3.0
 
 # Delete remote tag
-git push origin :refs/tags/v0.2.2
+git push origin :refs/tags/v0.3.0
 ```
 
 **Note**: Can't delete from PyPI once published! Only option is to "yank" the release.
@@ -225,7 +231,7 @@ Then on PyPI website → Manage → Options → "Yank this release"
 
 ## First-Time Checklist
 
-Before publishing v0.2.2 for the first time:
+Before publishing v0.3.0 for the first time:
 
 - [ ] PyPI account created and verified
 - [ ] PyPI API token created
@@ -238,8 +244,8 @@ Before publishing v0.2.2 for the first time:
 - [ ] Version number updated in `pyproject.toml`
 - [ ] CHANGELOG.md updated (optional)
 - [ ] All changes committed to main branch
-- [ ] Tag created: `git tag v0.2.2`
-- [ ] Tag pushed: `git push origin v0.2.2`
+- [ ] Tag created: `git tag v0.3.0`
+- [ ] Tag pushed: `git push origin v0.3.0`
 
 ## After Publishing
 
