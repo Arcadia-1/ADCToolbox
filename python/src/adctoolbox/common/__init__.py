@@ -5,7 +5,6 @@ from .fold_frequency_to_nyquist import fold_frequency_to_nyquist
 from .find_coherent_frequency import find_coherent_frequency
 from .amplitudes_to_snr import amplitudes_to_snr
 from .estimate_frequency import estimate_frequency
-from .fit_sine import fit_sine
 from .extract_freq_components import extract_freq_components
 from .convert_cap_to_weight import convert_cap_to_weight
 from .vpp_for_target_dbfs import vpp_for_target_dbfs
@@ -38,7 +37,6 @@ __all__ = [
     'calculate_jitter_limit',
     # Other functions
     'estimate_frequency',
-    'fit_sine',
     'extract_freq_components',
     'convert_cap_to_weight',
     'validate_aout_data',
