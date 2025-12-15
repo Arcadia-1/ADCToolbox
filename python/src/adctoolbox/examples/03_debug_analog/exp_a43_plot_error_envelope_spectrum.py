@@ -2,8 +2,8 @@
 import numpy as np
 import matplotlib.pyplot as plt
 from pathlib import Path
-from adctoolbox import find_coherent_frequency
-from adctoolbox.common.fit_sine import fit_sine
+from adctoolbox import find_coherent_frequency, amplitudes_to_snr, snr_to_nsd
+from adctoolbox.aout.fit_sine_4param import fit_sine_4param as fit_sine
 from adctoolbox.aout.plot_envelope_spectrum import plot_envelope_spectrum
 
 output_dir = Path(__file__).parent / "output"
@@ -50,6 +50,15 @@ params = [f'RMS = {noise_rms*1e3:.2f} mV',
           f'strength = {kickback_strength}']
 
 print(f"[Error Envelope Spectrum] [Fs = {Fs/1e6:.0f} MHz, Fin = {Fin/1e6:.1f} MHz, N = {N}]")
+print(f"[Signal Parameters] A={A:.3f} V, DC={DC:.3f} V")
+
+snr_noise = amplitudes_to_snr(sig_amplitude=A, noise_amplitude=noise_rms)
+nsd_noise = snr_to_nsd(snr_noise, fs=Fs, osr=1)
+print(f"[Noise Signal] Noise RMS=[{noise_rms*1e6:.2f} uVrms], Theoretical SNR=[{snr_noise:.2f} dB], Theoretical NSD=[{nsd_noise:.2f} dBFS/Hz]")
+
+snr_harmonic = amplitudes_to_snr(sig_amplitude=A, noise_amplitude=base_noise)
+nsd_harmonic = snr_to_nsd(snr_harmonic, fs=Fs, osr=1)
+print(f"[Harmonic Signal] Noise RMS=[{base_noise*1e6:.2f} uVrms], HD2={hd2_dB}dB, HD3={hd3_dB}dB, Theoretical SNR=[{snr_harmonic:.2f} dB], Theoretical NSD=[{nsd_harmonic:.2f} dBFS/Hz]\n")
 
 fig, axes = plt.subplots(2, 2, figsize=(12, 8))
 axes = axes.flatten()

@@ -7,7 +7,7 @@ MATLAB counterpart: fitstaticnl.m
 """
 
 import numpy as np
-from adctoolbox.common.fit_sine import fit_sine
+from .fit_sine_4param import fit_sine_4param as fit_sine
 
 
 def fit_static_nonlin(sig_distorted, order):

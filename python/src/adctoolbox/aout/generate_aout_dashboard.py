@@ -11,7 +11,7 @@ from adctoolbox.aout.plot_error_hist_phase import plot_error_hist_phase
 from adctoolbox.aout.plot_error_pdf import plot_error_pdf
 from adctoolbox.aout.plot_error_autocorr import plot_error_autocorr
 from adctoolbox.aout.plot_envelope_spectrum import plot_envelope_spectrum
-from adctoolbox.common.fit_sine import fit_sine
+from adctoolbox.aout.fit_sine_4param import fit_sine_4param as fit_sine
 from adctoolbox.common.estimate_frequency import estimate_frequency
 
 

@@ -2,9 +2,9 @@
 import numpy as np
 import matplotlib.pyplot as plt
 from pathlib import Path
-from adctoolbox import find_coherent_frequency
+from adctoolbox import find_coherent_frequency, amplitudes_to_snr, snr_to_nsd
 from adctoolbox.aout import plot_error_autocorr
-from adctoolbox.common.fit_sine import fit_sine
+from adctoolbox.aout.fit_sine_4param import fit_sine_4param as fit_sine
 
 output_dir = Path(__file__).parent / "output"
 output_dir.mkdir(exist_ok=True)
@@ -18,7 +18,12 @@ t = np.arange(N) / Fs
 A, DC = 0.49, 0.5
 base_noise = 50e-6
 
-print(f"[Error Autocorrelation - 12 Cases] [Fs = {Fs/1e6:.0f} MHz, Fin = {Fin/1e6:.1f} MHz, N = {N}]\n")
+print(f"[Error Autocorrelation - 12 Cases] [Fs = {Fs/1e6:.0f} MHz, Fin = {Fin/1e6:.1f} MHz, N = {N}]")
+print(f"[Signal Parameters] A={A:.3f} V, DC={DC:.3f} V")
+
+snr_base = amplitudes_to_snr(sig_amplitude=A, noise_amplitude=base_noise)
+nsd_base = snr_to_nsd(snr_base, fs=Fs, osr=1)
+print(f"[Base Signal] Noise RMS=[{base_noise*1e6:.2f} uVrms], Theoretical SNR=[{snr_base:.2f} dB], Theoretical NSD=[{nsd_base:.2f} dBFS/Hz]\n")
 
 signals = []
 titles = []
