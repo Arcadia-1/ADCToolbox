@@ -8,7 +8,7 @@ MATLAB counterpart: errpdf.m
 
 import numpy as np
 import matplotlib.pyplot as plt
-from adctoolbox.common.fit_sine import fit_sine
+from adctoolbox.aout.fit_sine_4param import fit_sine_4param as fit_sine
 
 
 def plot_error_pdf(sig_distorted, resolution=12, full_scale=1, freq=0, plot=False):
@@ -48,7 +48,7 @@ def plot_error_pdf(sig_distorted, resolution=12, full_scale=1, freq=0, plot=Fals
     """
 
     # Fit ideal sine to extract reference
-    from adctoolbox.common.fit_sine import fit_sine
+    from adctoolbox.aout.fit_sine_4param import fit_sine_4param as fit_sine
     if freq == 0:
         fit_result = fit_sine(sig_distorted)
         sig_ideal = fit_result['fitted_signal']

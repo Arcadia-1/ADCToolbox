@@ -13,7 +13,7 @@ Compares two cases:
 import numpy as np
 import matplotlib.pyplot as plt
 from pathlib import Path
-from adctoolbox import find_coherent_frequency
+from adctoolbox import find_coherent_frequency, amplitudes_to_snr, snr_to_nsd
 from adctoolbox.aout import (
     calculate_lms_decomposition,
     plot_decomposition_time,
@@ -41,11 +41,19 @@ print(f"[LMS Harmonic Decomposition - Modular] Fs={Fs/1e6:.1f} MHz, Fin={Fin/1e6
 noise_rms = 500e-6
 signal_noise = sig_ideal + np.random.randn(N) * noise_rms
 
+snr_ref = amplitudes_to_snr(sig_amplitude=A, noise_amplitude=noise_rms)
+nsd_ref = snr_to_nsd(snr_ref, fs=Fs, osr=1)
+print(f"[Thermal Noise] Noise RMS=[{noise_rms*1e6:.2f} uVrms], Theoretical SNR=[{snr_ref:.2f} dB], Theoretical NSD=[{nsd_ref:.2f} dBFS/Hz]\n")
+
 # Case 2: Static nonlinearity (k2 and k3) + base noise
 k2 = 0.001
 k3 = 0.005
 base_noise_rms = 50e-6
 signal_nonlin = sig_ideal + k2 * sig_ideal**2 + k3 * sig_ideal**3 + np.random.randn(N) * base_noise_rms
+
+snr_nonlin = amplitudes_to_snr(sig_amplitude=A, noise_amplitude=base_noise_rms)
+nsd_nonlin = snr_to_nsd(snr_nonlin, fs=Fs, osr=1)
+print(f"[Static Nonlin] Noise RMS=[{base_noise_rms*1e6:.2f} uVrms], k2={k2:.4f}, k3={k3:.4f}, Theoretical SNR=[{snr_nonlin:.2f} dB], Theoretical NSD=[{nsd_nonlin:.2f} dBFS/Hz]\n")
 
 print("\n[Modular Structure Demonstration]")
 print("  Step 1: calculate_lms_decomposition() - Pure calculation")

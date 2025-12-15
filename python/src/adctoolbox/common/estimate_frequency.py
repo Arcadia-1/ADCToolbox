@@ -7,7 +7,7 @@ using least-squares sine fitting algorithm.
 MATLAB counterpart: findfin.m
 """
 
-from adctoolbox.common.fit_sine import fit_sine
+from adctoolbox.aout.fit_sine_4param import fit_sine_4param
 
 
 def estimate_frequency(data, fs=1.0):
@@ -26,7 +26,7 @@ def estimate_frequency(data, fs=1.0):
         float or np.ndarray: Estimated frequency in Hz.
                              (Scalar if input is 1D, Array if input is 2D)
     """
-    result = fit_sine(data)
+    result = fit_sine_4param(data)
 
     freq_norm = result['frequency']
 

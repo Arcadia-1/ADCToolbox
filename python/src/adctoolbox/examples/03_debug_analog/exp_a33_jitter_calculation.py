@@ -2,7 +2,7 @@
 import numpy as np
 import matplotlib.pyplot as plt
 from pathlib import Path
-from adctoolbox import find_coherent_frequency
+from adctoolbox import find_coherent_frequency, amplitudes_to_snr, snr_to_nsd
 from adctoolbox.aout import plot_error_hist_phase
 
 output_dir = Path(__file__).parent / "output"
@@ -19,8 +19,12 @@ base_noise = 10e-6
 jitter_levels = np.logspace(-15, -20, 12)
 
 print(f"[Jitter Calculation] [Fs={Fs/1e9:.0f}GHz, N={N}]")
-print(f"  Sweep: {jitter_levels[0]*1e15:.0f}fs to {jitter_levels[-1]*1e12:.1f}ps (15 points)")
-print(f"  Testing {len(Fin_list)} frequencies: {[f/1e6 for f in Fin_list]} MHz\n")
+print(f"[Signal Parameters] A={A:.3f} V, DC={DC:.3f} V")
+snr_base = amplitudes_to_snr(sig_amplitude=A, noise_amplitude=base_noise)
+nsd_base = snr_to_nsd(snr_base, fs=Fs, osr=1)
+print(f"[Base Signal] Noise RMS=[{base_noise*1e6:.2f} uVrms], Theoretical SNR=[{snr_base:.2f} dB], Theoretical NSD=[{nsd_base:.2f} dBFS/Hz]")
+print(f"  Sweep: {jitter_levels[0]*1e15:.0f}fs to {jitter_levels[-1]*1e12:.1f}ps ({len(jitter_levels)} points)")
+print(f"  Testing {len(Fin_list)} frequencies: {[int(f/1e6) for f in Fin_list]} MHz\n")
 
 # Create figure with 3 subplots side by side
 fig, axes = plt.subplots(1, 3, figsize=(18, 6))

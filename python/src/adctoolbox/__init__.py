@@ -20,7 +20,6 @@ from .common import (
     find_coherent_frequency,
     amplitudes_to_snr,
     estimate_frequency,
-    fit_sine,
     extract_freq_components,
     convert_cap_to_weight,
     vpp_for_target_dbfs,
@@ -53,6 +52,7 @@ from .aout import (
     analyze_harmonic_decomposition,
     compute_inl_from_sine,
     analyze_inl_from_sine,
+    fit_sine_4param,
     fit_static_nonlin,
     plot_dnl_inl,
 )
@@ -104,7 +104,6 @@ __all__ = [
     'find_coherent_frequency',
     'amplitudes_to_snr',
     'estimate_frequency',
-    'fit_sine',
     'extract_freq_components',
     'convert_cap_to_weight',
     'vpp_for_target_dbfs',
@@ -136,6 +135,7 @@ __all__ = [
     'analyze_harmonic_decomposition',
     'analyze_inl_from_sine',
     'compute_inl_from_sine',
+    'fit_sine_4param',
     'fit_static_nonlin',
     'plot_dnl_inl',
 

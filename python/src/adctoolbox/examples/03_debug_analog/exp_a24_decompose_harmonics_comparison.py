@@ -4,6 +4,8 @@ import matplotlib.pyplot as plt
 from pathlib import Path
 from adctoolbox import (
     find_coherent_frequency,
+    amplitudes_to_snr,
+    snr_to_nsd,
     compute_harmonic_decomposition,
     plot_harmonic_decomposition_time,
     plot_harmonic_decomposition_polar
@@ -20,7 +22,7 @@ Fin, Fin_bin = find_coherent_frequency(Fs, Fin_target, N)
 A = 0.49
 
 sig_ideal = A * np.sin(2 * np.pi * Fin * np.arange(N) / Fs)
-print(f"[Harmonic Decomposition - Time vs Polar] Fs={Fs/1e6:.1f} MHz, Fin={Fin/1e6:.6f} MHz")
+print(f"[Harmonic Decomposition - Time vs Polar] Fs={Fs/1e6:.1f} MHz, Fin={Fin/1e6:.6f} MHz, A={A:.3f} V")
 
 # Test case: Static nonlinearity
 k2 = 0.001
@@ -28,9 +30,12 @@ k3 = 0.005
 noise_rms = 50e-6
 signal_distorted = sig_ideal + k2 * sig_ideal**2 + k3 * sig_ideal**3 + np.random.randn(N) * noise_rms
 
+snr_test = amplitudes_to_snr(sig_amplitude=A, noise_amplitude=noise_rms)
+nsd_test = snr_to_nsd(snr_test, fs=Fs, osr=1)
+print(f"[Static Nonlin] Noise RMS=[{noise_rms*1e6:.2f} uVrms], k2={k2:.4f}, k3={k3:.4f}, Theoretical SNR=[{snr_test:.2f} dB], Theoretical NSD=[{nsd_test:.2f} dBFS/Hz]\n")
+
 # Compute harmonic decomposition
 results = compute_harmonic_decomposition(signal_distorted, normalized_freq=Fin/Fs, order=10)
-print(f"[Signal] Ideal sine + k2={k2:.3f}*x^2 + k3={k3:.3f}*x^3 + noise={noise_rms*1e6:.0f}uV RMS")
 
 # Create figure with 2 rows, 1 column (time on top, polar on bottom)
 fig = plt.figure(figsize=(14, 10))

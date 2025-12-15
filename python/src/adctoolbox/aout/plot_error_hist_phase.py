@@ -40,15 +40,15 @@ def plot_error_hist_phase(data, bins=100, freq=0, disp=1, error_range=None):
     N = len(data)
 
     # Sine fit to get ideal signal and error
-    from adctoolbox.common.fit_sine import fit_sine
+    from adctoolbox.aout.fit_sine_4param import fit_sine_4param
     if freq == 0:
-        fit_result = fit_sine(data)
+        fit_result = fit_sine_4param(data)
         data_fit = fit_result['fitted_signal']
         freq = fit_result['frequency']
         phi = fit_result['phase']
         mag = fit_result['amplitude']
     else:
-        fit_result = fit_sine(data, freq)
+        fit_result = fit_sine_4param(data, freq)
         data_fit = fit_result['fitted_signal']
         phi = fit_result['phase']
         mag = fit_result['amplitude']
