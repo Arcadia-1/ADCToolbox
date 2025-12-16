@@ -62,9 +62,9 @@ def compute_spectrum(
     results = {}
 
     # Power correction factor for proper dBFS scaling
-    # After power-normalizing the window, all windows need the same correction
-    # Factor of 4 = 2 (single-sided) * 2 (dBFS reference: full-scale sine power = 0.5)
-    power_correction = 4.0
+    # Factor of 16 = 2 (single-sided) * 2 (window power norm) * 2 (peak-to-RMS) * 2 (dBFS ref)
+    # This ensures: full-scale sine (peak=1) -> power = 0 dBFS
+    power_correction = 16.0
 
     # Mode-specific FFT processing
     if coherent_averaging:
@@ -206,11 +206,16 @@ def compute_spectrum(
     # Common post-processing
     freq = np.arange(n_half) * fs / N
     bin_idx, bin_r = _find_fundamental(spectrum_power, N, osr, method='power')
+    n_search_inband = n_half // osr
+
+    # Normalize spectrum to signal peak (0 dBFS reference)
+    # This ensures the signal fundamental appears at 0 dB on the plot
+    spec_normalized_db = spec_mag_db - spec_mag_db[bin_idx]
 
     results.update({
         'freq': freq,
         'spec_mag_db': spec_mag_db,
-        'spec_db': spec_mag_db,
+        'spec_db': spec_normalized_db,
         'bin_idx': bin_idx,
         'sig_bin_start': max(bin_idx - side_bin, 0),
         'sig_bin_end': min(bin_idx + side_bin + 1, len(freq)),
@@ -307,11 +312,22 @@ def compute_spectrum(
     hd3_db = 10 * np.log10(hd3_power)
     enob = (sndr_db - 1.76) / 6.02
 
-    # SFDR
-    spectrum_copy = spectrum_power.copy()
-    if 1 <= bin_idx < len(spectrum_copy):
-        spectrum_copy[bin_idx-side_bin:bin_idx+side_bin+1] = 0
-    spur_power = spectrum_copy[np.argmax(spectrum_copy)]
+    # SFDR (Limited to in-band search when OSR > 1)
+    # For OSR > 1, only search for spurs within signal band [0, Fs/2/OSR]
+    # This matches MATLAB plotspec behavior for oversampled ADCs (Delta-Sigma)
+    spectrum_copy = spectrum_power[:n_search_inband].copy()
+
+    # Exclude signal and sidebins from search
+    sig_start_inband = max(bin_idx - side_bin, 0)
+    sig_end_inband = min(bin_idx + side_bin + 1, n_search_inband)
+    if sig_start_inband < sig_end_inband:
+        spectrum_copy[sig_start_inband:sig_end_inband] = 0
+
+    # Find maximum spur within in-band range
+    if len(spectrum_copy) > 0:
+        spur_power = np.max(spectrum_copy)
+    else:
+        spur_power = 1e-20
     sfdr_db = sig_pwr_dbfs - 10 * np.log10(spur_power + 1e-20)
 
     # Noise floor (MATLAB: NF = SNR - pwr)
@@ -372,7 +388,7 @@ def compute_spectrum(
             })
 
     results['plot_data'] = {
-        'spec_db': spec_mag_db,
+        'spec_db': spec_normalized_db,
         'freq': freq,
         'bin_idx': bin_idx,
         'sig_bin_start': sig_start,
