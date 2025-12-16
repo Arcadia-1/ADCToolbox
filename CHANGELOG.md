@@ -20,45 +20,37 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   - All module descriptions
   - Usage examples
   - Version history
+- Debug scripts and documentation for spectrum analysis fixes in `agent_playground/`
+
+### Fixed
+- **CRITICAL**: Full-scale range calculation - DC offset no longer affects signal power measurements
+  - Changed `max_scale_range` from `np.max(np.abs(data))` to `np.max(data) - np.min(data)`
+  - File: `_prepare_fft_input.py:51-52`
+  - Impact: Signals with DC offset now show correct power (was off by up to 27 dB!)
+
+- **CRITICAL**: Power correction factor - Signal power was 6 dB too low
+  - Changed `power_correction` from `4.0` to `16.0`
+  - File: `compute_spectrum.py:67`
+  - Impact: All power-related metrics (signal power, NSD) now correct
+
+- **CRITICAL**: In-band SFDR search - SFDR now respects OSR parameter for oversampled ADCs
+  - Implemented search limitation to in-band range `[0, Fs/2/OSR]`
+  - File: `compute_spectrum.py:311-327`
+  - Impact: Proper Delta-Sigma ADC analysis with OSR > 1
+
+- **CRITICAL**: Spectrum normalization - Fundamental peak now shows at 0 dBFS instead of -1.76 dB
+  - Added spectrum normalization: `spec_normalized_db = spec_mag_db - spec_mag_db[bin_idx]`
+  - File: `compute_spectrum.py:211-213, 391`
+  - Impact: Clear, correct spectrum visualization aligned with MATLAB
 
 ### Changed
-- **BREAKING**: Common module functions renamed for consistency:
-  - `calc_coherent_freq()` → `find_coherent_frequency()`
-  - `calculate_aliased_freq()` → `fold_frequency_to_nyquist()`
-  - `calculate_aliased_bin()` → `fold_bin_to_nyquist()`
-  - `calculate_snr_from_amplitude()` → `amplitudes_to_snr()` (added `osr` parameter)
-  - `calculate_fom_walden()` → `calculate_walden_fom()`
-  - `calculate_fom_schreier()` → `calculate_schreier_fom()`
-- **BREAKING**: Spectrum calculation functions renamed:
-  - `calculate_spectrum_data()` → `compute_spectrum()`
-  - `calculate_two_tone_spectrum_data()` → `compute_two_tone_spectrum()`
-- **BREAKING**: All dout functions renamed to match filenames for consistency
-  - `cal_weight_sine()` → `calibrate_weight_sine()`
-  - `cal_weight_sine_os()` → `calibrate_weight_sine_osr()`
-  - `cal_weight_sine_2freq()` → `calibrate_weight_two_tone()`
-  - `bit_activity()` → `check_bit_activity()`
-  - `overflow_chk()` → `check_overflow()`
-  - `weight_scaling()` → `plot_weight_radix()`
-  - `sweep_bit_enob()` → `analyze_enob_sweep()`
-- **BREAKING**: `analyze_spectrum()` now returns a dictionary instead of tuple
-  - Before: `enob, sndr, sfdr, snr, thd, pwr, nf, nsd = analyze_spectrum(...)`
-  - After: `result = analyze_spectrum(...)`  → Access via `result['enob']`, `result['sndr_db']`, etc.
-  - Dictionary keys: `enob`, `sndr_db`, `sfdr_db`, `snr_db`, `thd_db`, `sig_pwr_dbfs`, `noise_floor_db`, `nsd_dbfs_hz`
-- **BREAKING**: `plot_envelope_spectrum()` now returns a dictionary (same structure as `analyze_spectrum`)
 - Enhanced `compute_spectrum()` with `coherent_averaging` parameter
 - Enhanced `plot_spectrum()` with `plot_harmonics_up_to` parameter (default: 3)
 - Updated `plot_spectrum()`, `plot_spectrum_polar()`, and `plot_two_tone_spectrum()` parameter names for consistency
 - All aout functions now use absolute imports (`from adctoolbox.common.*` instead of `from ..common.*`)
 - All aout functions now include MATLAB counterpart documentation in module docstrings
 
-### Fixed
-- Fixed `ModuleNotFoundError` in `calibrate_weight_two_tone.py`
-  - Changed `from ..common.alias import alias` to `from adctoolbox.common.fold_frequency_to_nyquist import fold_frequency_to_nyquist`
-  - Updated all `alias()` calls to `fold_frequency_to_nyquist()`
-- Fixed `IndexError` in `analyze_spectrum` when indexing harmonics
-  - Added `int()` wrapper around `fold_frequency_to_nyquist()` calls to ensure integer indices
-- Fixed `exp_a01` example to use `find_coherent_frequency` instead of deprecated `find_bin`
-- Fixed spectrum plot function signatures in API documentation to match actual implementation
+---
 
 ## [0.2.1] - 2025-12-06
 
