@@ -1,8 +1,8 @@
 """Test phase error analysis - binned vs raw approaches
 
 This example demonstrates both phase error computation methods:
-1. compute_phase_error_from_binned - trend analysis with binning
-2. compute_phase_error_from_raw - high-precision raw data analysis
+1. rearrange_error_by_phase with mode="binned" - trend analysis with binning
+2. rearrange_error_by_phase with mode="raw" - high-precision raw data analysis
 
 Tests:
 1. Pure Gaussian noise - both methods should give similar results
@@ -15,10 +15,7 @@ import numpy as np
 import matplotlib.pyplot as plt
 from pathlib import Path
 from adctoolbox import find_coherent_frequency, amplitudes_to_snr, snr_to_nsd
-from adctoolbox.aout import (
-    compute_phase_error_from_binned,
-    compute_phase_error_from_raw
-)
+from adctoolbox.aout import rearrange_error_by_phase
 
 output_dir = Path(__file__).parent / "output"
 output_dir.mkdir(exist_ok=True)
@@ -48,8 +45,8 @@ snr_noise = amplitudes_to_snr(sig_amplitude=A, noise_amplitude=noise_rms)
 nsd_noise = snr_to_nsd(snr_noise, fs=Fs, osr=1)
 print(f"[Signal] Noise RMS=[{noise_rms*1e6:.2f} uVrms], Theoretical SNR=[{snr_noise:.2f} dB], Theoretical NSD=[{nsd_noise:.2f} dBFS/Hz]\n")
 
-result_binned = compute_phase_error_from_binned(sig_noise, normalized_freq, bin_count=100)
-result_raw = compute_phase_error_from_raw(sig_noise, normalized_freq)
+result_binned = rearrange_error_by_phase(sig_noise, normalized_freq, mode="binned", bin_count=100)
+result_raw = rearrange_error_by_phase(sig_noise, normalized_freq, mode="raw")
 
 print(f"Expected noise RMS: {noise_rms:.6e}")
 print(f"\nBinned method:")
@@ -74,8 +71,8 @@ phase_jitter = 0.05 * np.random.randn(N)  # 0.05 rad RMS
 jitter_phase = 2 * np.pi * Fin * t + phase_jitter
 sig_jitter = A * np.sin(jitter_phase) + np.random.randn(N) * 10e-6
 
-result_binned_jit = compute_phase_error_from_binned(sig_jitter, normalized_freq, bin_count=100)
-result_raw_jit = compute_phase_error_from_raw(sig_jitter, normalized_freq)
+result_binned_jit = rearrange_error_by_phase(sig_jitter, normalized_freq, mode="binned", bin_count=100)
+result_raw_jit = rearrange_error_by_phase(sig_jitter, normalized_freq, mode="raw")
 
 print(f"Added phase jitter RMS: 0.05 rad")
 print(f"\nBinned method:")
@@ -96,8 +93,8 @@ print("="*70)
 gain_noise = 1.0 + 0.001 * np.sin(2 * np.pi * 100e3 * t)  # ~0.1% gain variation
 sig_gain = gain_noise * A * np.sin(2 * np.pi * Fin * t) + np.random.randn(N) * 10e-6
 
-result_binned_am = compute_phase_error_from_binned(sig_gain, normalized_freq, bin_count=100)
-result_raw_am = compute_phase_error_from_raw(sig_gain, normalized_freq)
+result_binned_am = rearrange_error_by_phase(sig_gain, normalized_freq, mode="binned", bin_count=100)
+result_raw_am = rearrange_error_by_phase(sig_gain, normalized_freq, mode="raw")
 
 print(f"Added amplitude modulation: ~0.1% gain variation")
 print(f"\nBinned method:")

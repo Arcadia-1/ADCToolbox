@@ -47,8 +47,6 @@ from .aout import (
     plot_spectrum,
     analyze_two_tone_spectrum,
     compute_harmonic_decomposition,
-    plot_harmonic_decomposition_time,
-    plot_harmonic_decomposition_polar,
     analyze_harmonic_decomposition,
     compute_inl_from_sine,
     analyze_inl_from_sine,
@@ -77,9 +75,13 @@ from .utils import (
     calculate_jitter,
 )
 
-from .data_generation import (
-    generate_jitter_signal,
-)
+try:
+    from .data_generation import (
+        generate_jitter_signal,
+    )
+except ImportError:
+    # data_generation module not available
+    pass
 
 from .spectrum import (
     analyze_spectrum_polar,
@@ -91,7 +93,11 @@ from . import aout
 from . import dout
 from . import oversampling
 from . import utils
-from . import data_generation
+try:
+    from . import data_generation
+except ImportError:
+    # data_generation module not available
+    pass
 from . import spectrum
 
 __all__ = [

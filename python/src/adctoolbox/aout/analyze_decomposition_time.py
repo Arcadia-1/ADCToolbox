@@ -11,7 +11,7 @@ import matplotlib.pyplot as plt
 from pathlib import Path
 from typing import Optional, Union, Tuple, Dict, Any
 
-from .calculate_lms_decomposition import calculate_lms_decomposition
+from .compute_harmonic_decomposition import compute_harmonic_decomposition
 from .plot_decomposition_time import plot_decomposition_time
 
 
@@ -27,7 +27,7 @@ def analyze_decomposition_time(
 ) -> Tuple[Dict[str, Any], Dict[str, Any]]:
     """Analyze harmonic decomposition with time-domain visualization.
 
-    This wrapper function combines LMS harmonic decomposition calculation
+    This wrapper function combines harmonic decomposition calculation
     with time-domain plotting, following the modular architecture pattern.
 
     Parameters
@@ -52,7 +52,7 @@ def analyze_decomposition_time(
     Returns
     -------
     decomp_result : dict
-        Dictionary containing decomposition results from calculate_lms_decomposition():
+        Dictionary containing decomposition results from compute_harmonic_decomposition():
         - 'harm_mag', 'harm_phase', 'harm_dB'
         - 'noise_power', 'noise_dB'
         - 'fundamental_freq'
@@ -84,13 +84,13 @@ def analyze_decomposition_time(
     Notes
     -----
     Modular architecture:
-    1. calculate_lms_decomposition() - Pure calculation
+    1. compute_harmonic_decomposition() - Pure calculation
     2. plot_decomposition_time() - Pure visualization
     3. analyze_decomposition_time() - Wrapper combining both
     """
 
-    # Step 1: Calculate LMS harmonic decomposition (pure computation)
-    decomp_result = calculate_lms_decomposition(
+    # Step 1: Compute harmonic decomposition (pure computation)
+    decomp_result = compute_harmonic_decomposition(
         data=data,
         max_code=max_code,
         harmonic=harmonic,

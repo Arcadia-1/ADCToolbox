@@ -7,10 +7,10 @@ error analysis.
 
 from typing import Tuple
 import numpy as np
-from .compute_error_by_code import compute_error_by_code
+from .rearrange_error_by_code import rearrange_error_by_code
 
 
-def analyze_code_error(
+def analyze_error_by_code(
     signal: np.ndarray,
     normalized_freq: float = None,
     num_bits: int = None,
@@ -69,7 +69,7 @@ def analyze_code_error(
     Examples
     --------
     >>> sig = np.sin(2*np.pi*0.1*np.arange(1000))
-    >>> emean, erms, codes = analyze_code_error(sig, 0.1, num_bits=10)
+    >>> emean, erms, codes = analyze_error_by_code(sig, 0.1, num_bits=10)
     >>> print(f"Code range: {codes[0]} to {codes[-1]}")
     >>> print(f"Max mean error: {np.nanmax(np.abs(emean)):.3e}")
     """
@@ -87,7 +87,7 @@ def analyze_code_error(
             print(f"Warning: findFin not found, using FFT detection: freq={normalized_freq:.6f}")
 
     # 1. --- Core Computation ---
-    results = compute_error_by_code(signal, normalized_freq, num_bits, clip_percent)
+    results = rearrange_error_by_code(signal, normalized_freq, num_bits, clip_percent)
 
     # 2. --- Optional Plotting ---
     if show_plot:
