@@ -141,10 +141,10 @@ def compute_spectrum(
         mag_db_sorted = np.sort(mag_db)
         percentile_idx = int(np.ceil(len(mag_db_sorted) * 0.01))
         percentile_idx = max(0, min(percentile_idx, len(mag_db_sorted) - 1))
-        noise_floor_db = mag_db_sorted[percentile_idx]
+        noise_floor_dbfs = mag_db_sorted[percentile_idx]
 
         # Default to -100 if infinite (MATLAB: if(isinf(minR)) minR = -100; end)
-        noise_floor_db = -100 if np.isinf(noise_floor_db) else noise_floor_db
+        noise_floor_dbfs = -100 if np.isinf(noise_floor_dbfs) else noise_floor_dbfs
 
         # Calculate harmonic bins for phase extraction (need bin_r for this)
         temp_bin_idx = np.argmax(spectrum_power_coherent[:n_search_inband])
@@ -177,7 +177,7 @@ def compute_spectrum(
 
         results.update({
             'complex_spec_coherent': spec_coherent_normalized,
-            'minR_dB': noise_floor_db,
+            'minR_dB': noise_floor_dbfs,
             'bin_idx': temp_bin_idx,
             'N': N,
             'hd2_phase_deg': hd2_phase_deg,
@@ -208,14 +208,14 @@ def compute_spectrum(
     bin_idx, bin_r = _find_fundamental(spectrum_power, N, osr, method='power')
     n_search_inband = n_half // osr
 
-    # Normalize spectrum to signal peak (0 dBFS reference)
-    # This ensures the signal fundamental appears at 0 dB on the plot
-    spec_normalized_db = spec_mag_db - spec_mag_db[bin_idx]
+    # Use spectrum without normalization to signal peak
+    # dBFS reference is the specified (or auto-detected) max_scale_range
+    # When auto-detected, signal power will naturally be ~0 dB
 
     results.update({
         'freq': freq,
         'spec_mag_db': spec_mag_db,
-        'spec_db': spec_normalized_db,
+        'spec_db': spec_mag_db,
         'bin_idx': bin_idx,
         'sig_bin_start': max(bin_idx - side_bin, 0),
         'sig_bin_end': min(bin_idx + side_bin + 1, len(freq)),
@@ -227,7 +227,7 @@ def compute_spectrum(
     if 1 <= bin_idx < len(spectrum_search) - side_bin:
         spectrum_search[bin_idx-side_bin:bin_idx+side_bin+1] = 0
     noise_power_percentile = np.percentile(spectrum_search[spectrum_search > 0], 1)
-    temp_noise_floor_db = 10 * np.log10(noise_power_percentile + 1e-20)
+    temp_noise_floor_dbfs = 10 * np.log10(noise_power_percentile + 1e-20)
 
     # ============= Calculate metrics =============
     # Signal power
@@ -325,16 +325,27 @@ def compute_spectrum(
 
     # Find maximum spur within in-band range
     if len(spectrum_copy) > 0:
-        spur_power = np.max(spectrum_copy)
+        spur_bin_idx = np.argmax(spectrum_copy)
+
+        # Calculate spur's summed power (including side bins)
+        spur_start = max(spur_bin_idx - side_bin, 0)
+        spur_end = min(spur_bin_idx + side_bin + 1, n_search_inband)
+
+        if spur_start < spur_end:
+            spur_power_summed = np.sum(spectrum_power[spur_start:spur_end])
+        else:
+            spur_power_summed = 1e-20
+
+        spur_power = spur_power_summed  # Use summed power instead of peak bin
     else:
         spur_power = 1e-20
     sfdr_db = sig_pwr_dbfs - 10 * np.log10(spur_power + 1e-20)
 
-    # Noise floor (MATLAB: NF = SNR - pwr)
-    noise_floor_db = sig_pwr_dbfs - snr_db
+    # Noise floor
+    noise_floor_dbfs = sig_pwr_dbfs - snr_db
 
     # NSD (Noise Spectral Density)
-    nsd_dbfs_hz = noise_floor_db - 10 * np.log10(fs / (2 * osr))
+    nsd_dbfs_hz = noise_floor_dbfs - 10 * np.log10(fs / (2 * osr))
 
     results['metrics'] = {
         'enob': enob,
@@ -345,7 +356,7 @@ def compute_spectrum(
         'hd2_db': hd2_db,
         'hd3_db': hd3_db,
         'sig_pwr_dbfs': sig_pwr_dbfs,
-        'noise_floor_db': noise_floor_db,
+        'noise_floor_dbfs': noise_floor_dbfs,
         'nsd_dbfs_hz': nsd_dbfs_hz,
         'bin_idx': bin_idx,
         'bin_r': bin_r,
@@ -358,7 +369,18 @@ def compute_spectrum(
     if 1 <= bin_idx < len(spectrum_search_copy) - side_bin:
         spectrum_search_copy[bin_idx-side_bin:bin_idx+side_bin+1] = 0
     spur_bin_idx = np.argmax(spectrum_search_copy)
-    spur_db = 10 * np.log10(spectrum_power[spur_bin_idx] + 1e-20) if spur_bin_idx < len(spectrum_power) else -200
+    
+    # Calculate spur_db using summed power (center + side bins) for consistency with SFDR
+    if spur_bin_idx < len(spectrum_power):
+        spur_start = max(spur_bin_idx - side_bin, 0)
+        spur_end = min(spur_bin_idx + side_bin + 1, n_search_inband)
+        if spur_start < spur_end:
+            spur_power_summed = np.sum(spectrum_power[spur_start:spur_end])
+        else:
+            spur_power_summed = 1e-20
+        spur_db = 10 * np.log10(spur_power_summed + 1e-20)
+    else:
+        spur_db = -200
 
     # Build harmonics list for plotting
     harmonics_list = []
@@ -388,7 +410,7 @@ def compute_spectrum(
             })
 
     results['plot_data'] = {
-        'spec_db': spec_normalized_db,
+        'spec_db': spec_mag_db,
         'freq': freq,
         'bin_idx': bin_idx,
         'sig_bin_start': sig_start,
@@ -400,7 +422,7 @@ def compute_spectrum(
         'M': M,
         'fs': fs,
         'osr': osr,
-        'nf_line_level': noise_floor_db - 10*np.log10(n_search_inband),
+        'nf_line_level': noise_floor_dbfs - 10*np.log10(n_search_inband),
         'harmonics': harmonics_list,
         'is_coherent': coherent_averaging  # Flag to indicate coherent vs power averaging
     }

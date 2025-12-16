@@ -10,7 +10,7 @@ import numpy as np
 import matplotlib.pyplot as plt
 
 
-def plot_error_autocorr(err_data, max_lag=100, normalize=True, plot=False):
+def analyze_error_autocorr(err_data, max_lag=100, normalize=True, plot=False):
     """
     Compute and optionally plot autocorrelation function (ACF) of error signal.
 
