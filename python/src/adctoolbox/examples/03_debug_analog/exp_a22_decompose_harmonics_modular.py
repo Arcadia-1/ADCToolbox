@@ -1,7 +1,7 @@
 """Harmonic decomposition: thermal noise vs static nonlinearity (Modular Version)
 
-This example demonstrates the new modular architecture for LMS harmonic decomposition:
-1. calculate_lms_decomposition() - Pure calculation
+This example demonstrates the new modular architecture for harmonic decomposition:
+1. compute_harmonic_decomposition() - Pure calculation
 2. plot_decomposition_time() - Time domain visualization
 3. plot_decomposition_polar() - Polar plot visualization
 
@@ -15,7 +15,7 @@ import matplotlib.pyplot as plt
 from pathlib import Path
 from adctoolbox import find_coherent_frequency, amplitudes_to_snr, snr_to_nsd
 from adctoolbox.aout import (
-    calculate_lms_decomposition,
+    compute_harmonic_decomposition,
     plot_decomposition_time,
     plot_decomposition_polar,
     analyze_decomposition_time,
@@ -56,7 +56,7 @@ nsd_nonlin = snr_to_nsd(snr_nonlin, fs=Fs, osr=1)
 print(f"[Static Nonlin] Noise RMS=[{base_noise_rms*1e6:.2f} uVrms], k2={k2:.4f}, k3={k3:.4f}, Theoretical SNR=[{snr_nonlin:.2f} dB], Theoretical NSD=[{nsd_nonlin:.2f} dBFS/Hz]\n")
 
 print("\n[Modular Structure Demonstration]")
-print("  Step 1: calculate_lms_decomposition() - Pure calculation")
+print("  Step 1: compute_harmonic_decomposition() - Pure calculation")
 print("  Step 2: plot_decomposition_time() or plot_decomposition_polar() - Pure visualization")
 print("  Or use wrappers: analyze_decomposition_time() or analyze_decomposition_polar()")
 
@@ -70,7 +70,7 @@ fig.suptitle('Harmonic Decomposition - Time Domain (Modular)', fontsize=16, font
 
 # Case 1: Thermal noise
 print("  Case 1: Thermal noise")
-decomp_noise = calculate_lms_decomposition(signal_noise, harmonic=10)
+decomp_noise = compute_harmonic_decomposition(signal_noise, harmonic=10)
 
 # Prepare plot data for Case 1
 signal_mean = np.mean(signal_noise)
@@ -88,7 +88,7 @@ print(f"    Noise floor: {decomp_noise['noise_dB']:.1f} dB")
 
 # Case 2: Static nonlinearity
 print("  Case 2: Static nonlinearity")
-decomp_nonlin = calculate_lms_decomposition(signal_nonlin, harmonic=10)
+decomp_nonlin = compute_harmonic_decomposition(signal_nonlin, harmonic=10)
 
 # Prepare plot data for Case 2
 signal_mean = np.mean(signal_nonlin)
@@ -187,7 +187,7 @@ print(f"  Polar wrapper saved -> [{output_dir / 'exp_a22_decompose_harmonics_mod
 
 print("\n[Modular Architecture Summary]")
 print("  Calculation Engines:")
-print("    - calculate_lms_decomposition() (NEW)")
+print("    - compute_harmonic_decomposition() (NEW)")
 print("    - calculate_coherent_spectrum() (from previous work)")
 print("    - calculate_spectrum_metrics() (existing)")
 print("\n  Visualization Functions:")

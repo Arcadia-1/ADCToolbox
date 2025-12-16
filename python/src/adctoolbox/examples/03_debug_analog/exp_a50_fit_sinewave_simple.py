@@ -1,6 +1,6 @@
 """Simple Sinewave Fitting - 1st Order with Noise
 
-This example demonstrates the basic fit_sinewave_components function
+This example demonstrates the basic fit_sine_harmonics function
 for fitting a single sinewave (1st order) in the presence of noise.
 
 Focus: Basic noise robustness and fitting accuracy
@@ -11,7 +11,7 @@ import numpy as np
 import matplotlib.pyplot as plt
 from pathlib import Path
 from adctoolbox import find_coherent_frequency, amplitudes_to_snr, snr_to_nsd
-from adctoolbox.aout import fit_sinewave_components
+from adctoolbox.aout import fit_sine_harmonics
 
 output_dir = Path(__file__).parent / "output"
 output_dir.mkdir(exist_ok=True)
@@ -35,7 +35,7 @@ sig_ideal = A * np.sin(2 * np.pi * Fin * t)
 
 sig_noisy = sig_ideal + np.random.randn(N) * noise_rms
 
-W, sig_fit, A_matrix, phase = fit_sinewave_components(
+W, sig_fit, A_matrix, phase = fit_sine_harmonics(
     sig_noisy,
     freq=normalized_freq,
     order=1,

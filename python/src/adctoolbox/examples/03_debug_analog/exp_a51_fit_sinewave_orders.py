@@ -10,7 +10,7 @@ import numpy as np
 import matplotlib.pyplot as plt
 from pathlib import Path
 from adctoolbox import find_coherent_frequency, amplitudes_to_snr, snr_to_nsd
-from adctoolbox.aout import fit_sinewave_components
+from adctoolbox.aout import fit_sine_harmonics
 
 output_dir = Path(__file__).parent / "output"
 output_dir.mkdir(exist_ok=True)
@@ -58,7 +58,7 @@ residuals = {}
 errors_rms = {}
 
 for order in orders:
-    W, sig_fit, A_matrix, phase = fit_sinewave_components(
+    W, sig_fit, A_matrix, phase = fit_sine_harmonics(
         sig_noisy,
         freq=normalized_freq,
         order=order,

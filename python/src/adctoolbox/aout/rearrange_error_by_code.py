@@ -1,5 +1,5 @@
 """
-Compute error binned by code values (for INL/DNL analysis).
+Rearrange error by code values (for INL/DNL analysis).
 
 Core computation kernel for computing error statistics binned by ADC code
 value (amplitude). This is useful for analyzing static nonlinearity and
@@ -8,10 +8,10 @@ code-dependent errors.
 
 import numpy as np
 from typing import Dict
-from .decompose_harmonics import fit_sinewave_components
+from .fit_sine_harmonics import fit_sine_harmonics
 
 
-def compute_error_by_code(
+def rearrange_error_by_code(
     signal: np.ndarray,
     normalized_freq: float,
     num_bits: int = None,
@@ -82,7 +82,7 @@ def compute_error_by_code(
     Examples
     --------
     >>> sig = np.sin(2*np.pi*0.1*np.arange(1000))
-    >>> result = compute_error_by_code(sig, normalized_freq=0.1, num_bits=10)
+    >>> result = rearrange_error_by_code(sig, normalized_freq=0.1, num_bits=10)
     >>> print(f"Code range: {result['code_min']} to {result['code_max']}")
     >>> print(f"Mean error shape: {result['emean_by_code'].shape}")
     """
@@ -94,7 +94,7 @@ def compute_error_by_code(
         raise ValueError(f"normalized_freq must be in range (0, 0.5), got {normalized_freq}")
 
     # Step 1: Fit fundamental sinewave (DC + cos + sin)
-    W, fitted_signal, basis_matrix, phase = fit_sinewave_components(
+    W, fitted_signal, basis_matrix, phase = fit_sine_harmonics(
         signal, freq=normalized_freq, order=1, include_dc=True
     )
 

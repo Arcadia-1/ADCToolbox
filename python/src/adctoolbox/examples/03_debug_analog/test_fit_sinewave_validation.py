@@ -1,6 +1,6 @@
-"""Validation Tests for fit_sinewave_components Function
+"""Validation Tests for fit_sine_harmonics Function
 
-This script provides rigorous validation of the fit_sinewave_components function
+This script provides rigorous validation of the fit_sine_harmonics function
 using multiple independent approaches:
 
 1. Known signal test - fit a synthesized signal with known parameters
@@ -14,13 +14,13 @@ using multiple independent approaches:
 import numpy as np
 import matplotlib.pyplot as plt
 from pathlib import Path
-from adctoolbox.aout import fit_sinewave_components
+from adctoolbox.aout import fit_sine_harmonics
 
 output_dir = Path(__file__).parent / "output"
 output_dir.mkdir(exist_ok=True)
 
 print("="*80)
-print("VALIDATION: fit_sinewave_components Function")
+print("VALIDATION: fit_sine_harmonics Function")
 print("="*80)
 
 # Test parameters
@@ -41,7 +41,7 @@ cos_amp = 0.3
 sin_amp = 0.4
 signal_test = DC + cos_amp * np.cos(2*np.pi*f_test*t) + sin_amp * np.sin(2*np.pi*f_test*t)
 
-W, sig_fit, A, phase = fit_sinewave_components(signal_test, freq=f_test, order=1, include_dc=True)
+W, sig_fit, A, phase = fit_sine_harmonics(signal_test, freq=f_test, order=1, include_dc=True)
 
 print(f"Input parameters:")
 print(f"  DC = {DC:.6f}, Cos = {cos_amp:.6f}, Sin = {sin_amp:.6f}")
@@ -70,7 +70,7 @@ noise = 0.001 * np.random.randn(N)
 signal_noisy = signal_test + noise
 
 # Method 1: Our function
-W1, sig_fit1, A1, phase1 = fit_sinewave_components(signal_noisy, freq=f_test, order=1, include_dc=True)
+W1, sig_fit1, A1, phase1 = fit_sine_harmonics(signal_noisy, freq=f_test, order=1, include_dc=True)
 
 # Method 2: Direct lstsq (reproducing what our function does)
 phase_direct = 2 * np.pi * f_test * t
@@ -100,7 +100,7 @@ print("-" * 80)
 
 # Ideal signal (no noise) should be reconstructed perfectly
 signal_ideal = signal_test
-W3, sig_fit3, A3, phase3 = fit_sinewave_components(signal_ideal, freq=f_test, order=1, include_dc=True)
+W3, sig_fit3, A3, phase3 = fit_sine_harmonics(signal_ideal, freq=f_test, order=1, include_dc=True)
 
 reconstruction_error = np.sqrt(np.mean((signal_ideal - sig_fit3)**2))
 max_reconstruction_error = np.max(np.abs(signal_ideal - sig_fit3))
@@ -127,7 +127,7 @@ signal_multi = (0.5 * np.sin(2*np.pi*f1*t) +
                 0.1 * np.sin(2*np.pi*f2*t) +
                 0.05 * np.sin(2*np.pi*f3*t))
 
-W4, sig_fit4, A4, phase4 = fit_sinewave_components(signal_multi, freq=f1, order=3, include_dc=True)
+W4, sig_fit4, A4, phase4 = fit_sine_harmonics(signal_multi, freq=f1, order=3, include_dc=True)
 
 print(f"Signal composition: H1=0.5, H2=0.1, H3=0.05 (sin components)")
 print(f"\nFitted coefficients (DC, Cos(H1), Sin(H1), Cos(H2), Sin(H2), Cos(H3), Sin(H3)):")
@@ -154,7 +154,7 @@ order = 2
 phase_test = 2 * np.pi * f_test * t
 
 # Our function's basis
-W5, sig_fit5, A_our, phase_our = fit_sinewave_components(
+W5, sig_fit5, A_our, phase_our = fit_sine_harmonics(
     np.ones(N), freq=f_test, order=order, include_dc=True
 )
 
@@ -192,7 +192,7 @@ signal_base = 0.5 * np.sin(2*np.pi*f_test*t)
 
 for noise_level in noise_levels:
     signal_with_noise = signal_base + noise_level * np.random.randn(N)
-    W_noisy, sig_fit_noisy, _, _ = fit_sinewave_components(
+    W_noisy, sig_fit_noisy, _, _ = fit_sine_harmonics(
         signal_with_noise, freq=f_test, order=1, include_dc=True
     )
     # Check if fitted sin amplitude is close to 0.5
@@ -214,7 +214,7 @@ print("-" * 80)
 phase_test_angle = np.pi / 4  # 45 degrees
 signal_phase = np.sin(2*np.pi*f_test*t + phase_test_angle)
 
-W7, sig_fit7, A7, phase7 = fit_sinewave_components(signal_phase, freq=f_test, order=1, include_dc=True)
+W7, sig_fit7, A7, phase7 = fit_sine_harmonics(signal_phase, freq=f_test, order=1, include_dc=True)
 
 # Extract phase from fitted coefficients
 fitted_phase = np.arctan2(W7[2], W7[1])
@@ -240,12 +240,12 @@ print("-" * 80)
 signal_no_dc = 0.3 * np.cos(2*np.pi*f_test*t) + 0.4 * np.sin(2*np.pi*f_test*t)
 
 # With DC included
-W8a, sig_fit8a, A8a, phase8a = fit_sinewave_components(
+W8a, sig_fit8a, A8a, phase8a = fit_sine_harmonics(
     signal_no_dc, freq=f_test, order=1, include_dc=True
 )
 
 # Without DC
-W8b, sig_fit8b, A8b, phase8b = fit_sinewave_components(
+W8b, sig_fit8b, A8b, phase8b = fit_sine_harmonics(
     signal_no_dc, freq=f_test, order=1, include_dc=False
 )
 
@@ -292,7 +292,7 @@ print(f"Overall Result: {passed}/{total} tests passed")
 print(f"{'='*80}")
 
 if passed == total:
-    print("\n[SUCCESS] ALL TESTS PASSED - fit_sinewave_components is CORRECT!")
+    print("\n[SUCCESS] ALL TESTS PASSED - fit_sine_harmonics is CORRECT!")
 else:
     print(f"\n[WARNING] {total - passed} test(s) failed")
 

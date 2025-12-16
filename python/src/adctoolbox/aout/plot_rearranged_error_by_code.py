@@ -10,7 +10,7 @@ import numpy as np
 import matplotlib.pyplot as plt
 
 
-def plot_error_hist_code(data, bins=100, freq=0, disp=1, error_range=None):
+def plot_rearranged_error_by_code(data, bins=100, freq=0, disp=1, error_range=None):
     """
     Error histogram in code domain - for static nonlinearity analysis.
 

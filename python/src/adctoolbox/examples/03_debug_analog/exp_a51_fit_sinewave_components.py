@@ -1,6 +1,6 @@
-"""Test core fit_sinewave_components function - LS fitting kernel
+"""Test core fit_sine_harmonics function - LS fitting kernel
 
-This example demonstrates the fit_sinewave_components function, which is the
+This example demonstrates the fit_sine_harmonics function, which is the
 fundamental least-squares fitting kernel used by all analysis modes.
 
 Tests:
@@ -13,7 +13,7 @@ import numpy as np
 import matplotlib.pyplot as plt
 from pathlib import Path
 from adctoolbox import find_coherent_frequency, amplitudes_to_snr, snr_to_nsd
-from adctoolbox.aout import fit_sinewave_components
+from adctoolbox.aout import fit_sine_harmonics
 
 output_dir = Path(__file__).parent / "output"
 output_dir.mkdir(exist_ok=True)
@@ -47,7 +47,7 @@ print("\n" + "="*70)
 print("Test 1: Single Harmonic Fitting (order=1)")
 print("="*70)
 
-W1, sig_fit1, A1, phase1 = fit_sinewave_components(
+W1, sig_fit1, A1, phase1 = fit_sine_harmonics(
     sig_ideal,
     freq=normalized_freq,
     order=1,
@@ -64,7 +64,7 @@ print("\n" + "="*70)
 print("Test 2: Multi-Harmonic Fitting (order=5)")
 print("="*70)
 
-W5, sig_fit5, A5, phase5 = fit_sinewave_components(
+W5, sig_fit5, A5, phase5 = fit_sine_harmonics(
     sig_with_harmonics,
     freq=normalized_freq,
     order=5,
@@ -82,7 +82,7 @@ print("\n" + "="*70)
 print("Test 3: Noisy Signal Fitting")
 print("="*70)
 
-W_noisy, sig_fit_noisy, A_noisy, phase_noisy = fit_sinewave_components(
+W_noisy, sig_fit_noisy, A_noisy, phase_noisy = fit_sine_harmonics(
     sig_with_noise,
     freq=normalized_freq,
     order=1,

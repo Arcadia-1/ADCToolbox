@@ -9,7 +9,7 @@ import numpy as np
 from typing import Tuple
 
 
-def fit_sinewave_components(
+def fit_sine_harmonics(
     sig: np.ndarray,
     freq: float,
     order: int = 1,
@@ -17,7 +17,7 @@ def fit_sinewave_components(
     fs: float = None,
 ) -> Tuple[np.ndarray, np.ndarray, np.ndarray, np.ndarray]:
     """
-    Fit sinewave components using least-squares method.
+    Fit sine harmonics using least-squares method.
 
     Constructs a design matrix with DC, fundamental, and harmonic basis
     functions, then solves the least-squares problem to extract component
@@ -63,7 +63,7 @@ def fit_sinewave_components(
     Examples
     --------
     >>> sig = np.sin(2*np.pi*0.1*np.arange(1000))  # Normalized freq 0.1
-    >>> W, sig_fit, A, phase = fit_sinewave_components(sig, freq=0.1, order=1)
+    >>> W, sig_fit, A, phase = fit_sine_harmonics(sig, freq=0.1, order=1)
     >>> # W[0] ≈ DC offset, W[1] ≈ cos amplitude, W[2] ≈ sin amplitude
     """
     # Prepare input
