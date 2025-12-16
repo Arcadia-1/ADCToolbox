@@ -2,11 +2,10 @@
 
 This example demonstrates a complete ADC diagnostic workflow using all the
 new analysis functions:
-1. fit_sinewave_components - LS fit kernel
+1. fit_sine_harmonics - LS fit kernel
 2. compute_harmonic_decomposition - Signal decomposition
-3. compute_phase_error_from_binned - Phase error (trend)
-4. compute_phase_error_from_raw - Phase error (precision)
-5. compute_error_by_code - Code-based error (INL/DNL)
+3. rearrange_error_by_phase - Phase error (trend and precision)
+4. rearrange_error_by_code - Code-based error (INL/DNL)
 
 Scenario: Analyze a realistic ADC with combined faults:
 - Static nonlinearity (creates harmonics)
@@ -20,11 +19,10 @@ import matplotlib.pyplot as plt
 from pathlib import Path
 from adctoolbox import find_coherent_frequency, amplitudes_to_snr, snr_to_nsd
 from adctoolbox.aout import (
-    fit_sinewave_components,
+    fit_sine_harmonics,
     compute_harmonic_decomposition,
-    compute_phase_error_from_binned,
-    compute_phase_error_from_raw,
-    compute_error_by_code
+    rearrange_error_by_phase,
+    rearrange_error_by_code
 )
 
 output_dir = Path(__file__).parent / "output"
@@ -100,7 +98,7 @@ print("="*80)
 print("ANALYSIS 1: FIT SINEWAVE COMPONENTS (LS Fit Kernel)")
 print("="*80)
 
-W, sig_fit, A_matrix, phase = fit_sinewave_components(
+W, sig_fit, A_matrix, phase = fit_sine_harmonics(
     sig_measured,
     freq=normalized_freq,
     order=1,
@@ -149,9 +147,10 @@ print("\n" + "="*80)
 print("ANALYSIS 3: PHASE ERROR - BINNED APPROACH (Trend Analysis)")
 print("="*80)
 
-result_binned = compute_phase_error_from_binned(
+result_binned = rearrange_error_by_phase(
     sig_measured,
     normalized_freq,
+    mode="binned",
     bin_count=100
 )
 
@@ -168,7 +167,7 @@ print("\n" + "="*80)
 print("ANALYSIS 4: PHASE ERROR - RAW APPROACH (High Precision)")
 print("="*80)
 
-result_raw = compute_phase_error_from_raw(sig_measured, normalized_freq)
+result_raw = rearrange_error_by_phase(sig_measured, normalized_freq, mode="raw")
 
 print(f"AM parameter (amplitude modulation): {result_raw['am_param']:.6e}")
 print(f"PM parameter (phase modulation): {result_raw['pm_param']:.6e} rad")
@@ -187,7 +186,7 @@ print("\n" + "="*80)
 print("ANALYSIS 5: CODE-BASED ERROR (INL/DNL Analysis)")
 print("="*80)
 
-result_code = compute_error_by_code(
+result_code = rearrange_error_by_code(
     sig_measured,
     normalized_freq,
     num_bits=num_bits,

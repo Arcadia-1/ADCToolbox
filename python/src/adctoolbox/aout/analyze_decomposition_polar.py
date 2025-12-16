@@ -12,7 +12,7 @@ import matplotlib.pyplot as plt
 from pathlib import Path
 from typing import Optional, Union, Tuple, Dict, Any
 
-from .calculate_lms_decomposition import calculate_lms_decomposition
+from .compute_harmonic_decomposition import compute_harmonic_decomposition
 from .plot_decomposition_polar import plot_decomposition_polar
 
 
@@ -28,7 +28,7 @@ def analyze_decomposition_polar(
 ) -> Tuple[Dict[str, Any], Dict[str, Any]]:
     """Analyze harmonic decomposition with polar visualization (LMS mode).
 
-    This wrapper function combines LMS harmonic decomposition calculation
+    This wrapper function combines harmonic decomposition calculation
     with polar plot visualization, following the modular architecture pattern.
     Matches MATLAB plotphase.m LMS mode behavior.
 
@@ -54,7 +54,7 @@ def analyze_decomposition_polar(
     Returns
     -------
     decomp_result : dict
-        Dictionary containing decomposition results from calculate_lms_decomposition():
+        Dictionary containing decomposition results from compute_harmonic_decomposition():
         - 'harm_mag', 'harm_phase', 'harm_dB'
         - 'noise_power', 'noise_dB'
         - 'fundamental_freq'
@@ -86,7 +86,7 @@ def analyze_decomposition_polar(
     Notes
     -----
     Modular architecture:
-    1. calculate_lms_decomposition() - Pure calculation (LMS fitting)
+    1. compute_harmonic_decomposition() - Pure calculation (LMS fitting)
     2. plot_decomposition_polar() - Pure visualization (polar plot with noise circle)
     3. analyze_decomposition_polar() - Wrapper combining both
 
@@ -98,8 +98,8 @@ def analyze_decomposition_polar(
     - Harmonics shown as hollow blue squares
     """
 
-    # Step 1: Calculate LMS harmonic decomposition (pure computation)
-    decomp_result = calculate_lms_decomposition(
+    # Step 1: Compute harmonic decomposition (pure computation)
+    decomp_result = compute_harmonic_decomposition(
         data=data,
         max_code=max_code,
         harmonic=harmonic,

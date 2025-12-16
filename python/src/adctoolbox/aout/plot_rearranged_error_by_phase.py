@@ -9,7 +9,7 @@ import numpy as np
 import matplotlib.pyplot as plt
 
 
-def plot_error_binned_phase(results: dict, ax=None):
+def plot_rearranged_error_by_phase(results: dict, ax=None):
     """
     Plot phase error analysis results (RMS curves, AM/PM).
 
@@ -20,8 +20,7 @@ def plot_error_binned_phase(results: dict, ax=None):
     Parameters
     ----------
     results : dict
-        Dictionary from compute_phase_error_from_binned() or
-        compute_phase_error_from_raw(). Must contain:
+        Dictionary from rearrange_error_by_phase() with mode="binned" or mode="raw". Must contain:
         - 'erms': RMS error per phase bin
         - 'emean': Mean error per phase bin
         - 'phase_bins': Phase bin centers in radians
@@ -44,9 +43,9 @@ def plot_error_binned_phase(results: dict, ax=None):
 
     Examples
     --------
-    >>> from adctoolbox.aout import compute_phase_error_from_binned
+    >>> from adctoolbox.aout import rearrange_error_by_phase
     >>> sig = np.sin(2*np.pi*0.1*np.arange(1000)) + 0.01*np.random.randn(1000)
-    >>> results = compute_phase_error_from_binned(sig, 0.1)
+    >>> results = rearrange_error_by_phase(sig, 0.1, mode="binned")
     >>> plot_error_binned_phase(results)
     """
     # Extract data from results

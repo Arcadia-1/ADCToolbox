@@ -5,7 +5,11 @@ Wrapper function combining computation and optional plotting for convenience.
 """
 
 from .compute_harmonic_decomposition import compute_harmonic_decomposition
-from .plot_harmonic_decomposition_time import plot_harmonic_decomposition_time
+
+try:
+    from .plot_harmonic_decomposition_time import plot_harmonic_decomposition_time
+except ImportError:
+    plot_harmonic_decomposition_time = None
 
 
 def analyze_harmonic_decomposition(data, normalized_freq=None, order=10, show_plot=True):
@@ -28,32 +32,36 @@ def analyze_harmonic_decomposition(data, normalized_freq=None, order=10, show_pl
     Returns
     -------
     fundamental_signal : ndarray
-        Fundamental sinewave component (including DC)
-    total_error : ndarray
-        Total error (data - fundamental_signal)
-    harmonic_error : ndarray
+        Fundamental sinewave component
+    harmonic_signal : ndarray
         Harmonic distortions (2nd through nth harmonics)
-    other_error : ndarray
-        All other errors (data - all harmonics)
+    signal_reconstructed : ndarray
+        Complete reconstructed signal (fundamental + harmonics)
+    residual : ndarray
+        Residual/noise (data - signal_reconstructed)
 
     Notes
     -----
     The decomposition uses the following model:
 
-    - fundamental_signal = DC + weight_i*cos(ωt) + weight_q*sin(ωt)
-    - signal_all = DC + Σ[weight_i_k*cos(kωt) + weight_q_k*sin(kωt)]
-    - total_error = data - fundamental_signal
-    - harmonic_error = signal_all - fundamental_signal
-    - other_error = data - signal_all
+    - fundamental_signal = weight_i*cos(ωt) + weight_q*sin(ωt)
+    - signal_reconstructed = Σ[weight_i_k*cos(kωt) + weight_q_k*sin(kωt)] k=1..order
+    - harmonic_signal = signal_reconstructed - fundamental_signal
+    - residual = data - signal_reconstructed
     """
 
     # 1. --- Core Computation ---
-    results = compute_harmonic_decomposition(data, normalized_freq, order)
+    # Note: compute_harmonic_decomposition uses 'harmonic' parameter, not 'order'
+    results = compute_harmonic_decomposition(data, max_code=None, harmonic=order)
 
     # 2. --- Optional Plotting ---
     if show_plot:
-        plot_harmonic_decomposition_time(results)
+        if plot_harmonic_decomposition_time is not None:
+            plot_harmonic_decomposition_time(results)
+        else:
+            import warnings
+            warnings.warn("plot_harmonic_decomposition_time not available, skipping plot")
 
     # 3. --- Return Results ---
-    return (results['fundamental_signal'], results['total_error'],
-            results['harmonic_error'], results['other_error'])
+    return (results['fundamental_signal'], results['harmonic_signal'],
+            results['signal_reconstructed'], results['residual'])

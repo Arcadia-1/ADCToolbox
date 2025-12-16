@@ -3,7 +3,7 @@ import numpy as np
 import matplotlib.pyplot as plt
 from pathlib import Path
 from adctoolbox import find_coherent_frequency, amplitudes_to_snr, snr_to_nsd
-from adctoolbox.aout import plot_error_hist_code
+from adctoolbox.aout import plot_rearranged_error_by_code
 
 output_dir = Path(__file__).parent / "output"
 output_dir.mkdir(exist_ok=True)
@@ -62,7 +62,7 @@ params = [f'RMS = {noise_rms*1e3:.2f} mV',
 
 # Generate individual plots using built-in plotting
 for signal, title, param in zip(signals, titles, params):
-    plot_error_hist_code(signal, bins=100, disp=1)
+    plot_rearranged_error_by_code(signal, bins=100, disp=1)
     plt.gcf().suptitle(f'{title}: {param}', fontsize=14, fontweight='bold')
     plt.tight_layout()
 
