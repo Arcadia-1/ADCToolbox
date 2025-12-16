@@ -7,7 +7,7 @@ analysis with flexible mode selection.
 
 from typing import Tuple, Union
 import numpy as np
-from .rearrange_error_by_phase import rearrange_error_by_phase
+from adctoolbox.aout.rearrange_error_by_phase import rearrange_error_by_phase
 
 
 def analyze_error_by_phase(
@@ -15,7 +15,10 @@ def analyze_error_by_phase(
     normalized_freq: float = None,
     mode: str = "binned",
     bin_count: int = 100,
-    show_plot: bool = True
+    show_plot: bool = True,
+    plot_mode: str = None,
+    axes = None,
+    ax = None
 ) -> Union[Tuple[float, float, float, float], Tuple[float, float, float, np.ndarray, np.ndarray]]:
     """
     Analyze phase error using raw or binned approach for AM/PM decomposition.
@@ -38,6 +41,15 @@ def analyze_error_by_phase(
         Number of phase bins (only used if mode="binned").
     show_plot : bool, default=True
         Whether to display result plot.
+    plot_mode : str, optional
+        Plot visualization mode:
+        - "raw": Show all raw error points as scatter plot
+        - "binned": Show binned RMS bars with AM/PM curves (default)
+        If None, defaults to match the analysis mode parameter.
+    axes : tuple or array, optional
+        Tuple of (ax1, ax2) to plot on (for top and bottom panels).
+    ax : matplotlib.axes.Axes, optional
+        Single axis to plot on (will be split into 2 panels internally).
 
     Returns
     -------
@@ -125,6 +137,9 @@ def analyze_error_by_phase(
         try:
             from .plot_rearranged_error_by_phase import plot_rearranged_error_by_phase
 
+            # Determine plot_mode: if not specified, use analysis mode
+            plot_mode_to_use = plot_mode if plot_mode is not None else mode
+
             if mode == "raw":
                 # Convert raw results to binned format for plotting
                 bin_count_plot = 100
@@ -170,7 +185,7 @@ def analyze_error_by_phase(
                 # Binned mode: use results directly
                 plot_results = results
 
-            plot_rearranged_error_by_phase(plot_results)
+            plot_rearranged_error_by_phase(plot_results, plot_mode=plot_mode_to_use, axes=axes, ax=ax)
         except ImportError:
             print("Warning: plot_rearranged_error_by_phase not available, skipping plot")
 

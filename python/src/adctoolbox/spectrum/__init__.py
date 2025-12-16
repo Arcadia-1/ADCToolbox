@@ -1,36 +1,53 @@
-"""Spectrum analysis tools for ADC characterization."""
+"""
+Spectrum analysis tools for ADC characterization.
+"""
 
+# ----------------------------------------------------------------------
 # High-level wrappers (user-facing)
+# ----------------------------------------------------------------------
+
 from .analyze_spectrum import analyze_spectrum
 from .analyze_spectrum_polar import analyze_spectrum_polar
 from .analyze_two_tone_spectrum import analyze_two_tone_spectrum
 
-# Calculation engines (modular core)
-from .compute_spectrum import compute_spectrum
+# ----------------------------------------------------------------------
+# Calculation engines (core computation)
+# ----------------------------------------------------------------------
 
+from .compute_spectrum import compute_spectrum
+from .compute_two_tone_spectrum import compute_two_tone_spectrum
+
+# ----------------------------------------------------------------------
 # Plotting functions (visualization)
+# ----------------------------------------------------------------------
+
 from .plot_spectrum import plot_spectrum
 from .plot_spectrum_polar import plot_spectrum_polar
 
-# Helper functions (internal)
+# ----------------------------------------------------------------------
+# Internal helpers (NOT part of public API)
+# ----------------------------------------------------------------------
+
 from ._prepare_fft_input import _prepare_fft_input
 from ._find_fundamental import _find_fundamental
 from ._find_harmonic_bins import _find_harmonic_bins
 from ._align_spectrum_phase import _align_spectrum_phase
 
+# ----------------------------------------------------------------------
+# Public API of spectrum subpackage
+# ----------------------------------------------------------------------
+
 __all__ = [
-    # High-level wrappers
+    # High-level analysis
     'analyze_spectrum',
     'analyze_spectrum_polar',
     'analyze_two_tone_spectrum',
-    # Calculation engines
+
+    # Core computation
     'compute_spectrum',
-    # Plotting functions
+    'compute_two_tone_spectrum',
+
+    # Visualization
     'plot_spectrum',
     'plot_spectrum_polar',
-    # Helper functions
-    '_prepare_fft_input',
-    '_find_fundamental',
-    '_find_harmonic_bins',
-    '_align_spectrum_phase',
 ]

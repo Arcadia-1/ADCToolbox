@@ -52,6 +52,7 @@ def _prepare_fft_input(
 
     # Create window function
     if win_type.lower() in ('boxcar', 'rectangular'):
+        # Rectangular window
         win = np.ones(N)
     elif win_type.lower() == 'kaiser':
         # Kaiser window requires beta parameter (38 for very high side lobe suppression)
@@ -60,6 +61,7 @@ def _prepare_fft_input(
         # Chebyshev window requires attenuation parameter (100 dB typical)
         win = windows.chebwin(N, at=100, sym=False)
     else:
+        # Other window types from scipy.signal.windows, if not found default to Hann
         win_func = getattr(windows, win_type.lower(), windows.hann)
         win = win_func(N, sym=False)  # Periodic window for FFT
 

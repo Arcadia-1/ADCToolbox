@@ -45,7 +45,7 @@ def plot_dnl_inl(code, dnl, inl, num_bits=None, show_title=True, col_title=None,
     # Use provided axes tuple, or split a single axis
     if axes is not None:
         # Use provided axes tuple directly
-        pass
+        ax_dnl, ax_inl = axes
     else:
         # Single axis (or None), get current axis and split it
         if ax is None:
