@@ -11,7 +11,7 @@ import matplotlib.pyplot as plt
 from adctoolbox.aout.fit_sine_4param import fit_sine_4param as fit_sine
 
 
-def plot_error_pdf(sig_distorted, resolution=12, full_scale=1, freq=0, plot=False):
+def analyze_error_pdf(sig_distorted, resolution=12, full_scale=1, freq=0, plot=False):
     """
     Compute and optionally plot error probability density function using KDE.
 

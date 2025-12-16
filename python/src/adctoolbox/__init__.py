@@ -81,7 +81,8 @@ _export('analyze_spectrum_polar', analyze_spectrum_polar)
 
 from .aout import (
     analyze_inl_from_sine,
-    analyze_harmonic_decomposition,
+    analyze_decomposition_time,
+    analyze_decomposition_polar,
     analyze_error_by_value,
     analyze_error_by_phase,
     fit_sine_4param,
@@ -89,7 +90,8 @@ from .aout import (
 )
 
 _export('analyze_inl_from_sine', analyze_inl_from_sine)
-_export('analyze_harmonic_decomposition', analyze_harmonic_decomposition)
+_export('analyze_decomposition_time', analyze_decomposition_time)
+_export('analyze_decomposition_polar', analyze_decomposition_polar)
 _export('analyze_error_by_value', analyze_error_by_value)
 _export('analyze_error_by_phase', analyze_error_by_phase)
 _export('fit_sine_4param', fit_sine_4param)

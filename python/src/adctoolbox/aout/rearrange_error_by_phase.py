@@ -18,7 +18,8 @@ def rearrange_error_by_phase(
     signal: np.ndarray,
     normalized_freq: float,
     mode: str = "raw",
-    bin_count: int = 100
+    bin_count: int = 100,
+    include_baseline: bool = True
 ) -> Dict[str, np.ndarray]:
     """Rearrange error by phase using AM/PM separation.
 
@@ -38,6 +39,10 @@ def rearrange_error_by_phase(
         - "binned": Fit to binned RMS values (robust to outliers, trend analysis)
     bin_count : int, default=100
         Number of phase bins (only used if mode="binned")
+    include_baseline : bool, default=True
+        Include baseline (constant noise floor) in AM/PM fitting:
+        - True: Model = am² * cos²(φ) + pm² * A² * sin²(φ) + baseline
+        - False: Model = am² * cos²(φ) + pm² * A² * sin²(φ)
 
     Returns
     -------
@@ -154,7 +159,7 @@ def rearrange_error_by_phase(
         phase=phase,
         fundamental_amplitude=fundamental_amplitude,
         mode=mode,  # Pass through the mode parameter
-        include_baseline=True,  # Always include baseline estimation
+        include_baseline=include_baseline,
         bin_count=bin_count if mode == "binned" else None
     )
 
