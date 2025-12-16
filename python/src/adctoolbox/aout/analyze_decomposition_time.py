@@ -11,8 +11,8 @@ import matplotlib.pyplot as plt
 from pathlib import Path
 from typing import Optional, Union, Tuple, Dict, Any
 
-from .compute_harmonic_decomposition import compute_harmonic_decomposition
-from .plot_decomposition_time import plot_decomposition_time
+from adctoolbox.aout.compute_harmonic_decomposition import compute_harmonic_decomposition
+from adctoolbox.aout.plot_decomposition_time import plot_decomposition_time
 
 
 def analyze_decomposition_time(

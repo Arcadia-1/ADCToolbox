@@ -7,173 +7,136 @@ calibration algorithms, and more.
 
 Usage:
 ------
->>> from adctoolbox import analyze_spectrum, sine_fit, cal_weight_sine
->>> from adctoolbox import alias, find_bin, plot_error_hist_phase
+>>> from adctoolbox import analyze_spectrum, fit_sine_4param, calibrate_weight_sine
+>>> from adctoolbox import find_coherent_frequency, analyze_error_by_value
 """
 
 __version__ = '0.2.4'
 
-# Import all public functions from submodules
+# ======================================================================
+# Public API Registry
+# ======================================================================
+
+__all__ = []
+
+
+def _export(name, obj):
+    """
+    Register a public API symbol.
+
+    Guarantees:
+    1. The symbol exists in the module namespace
+    2. The symbol is listed in __all__
+    """
+    globals()[name] = obj
+    __all__.append(name)
+
+
+# ======================================================================
+# Core Common Functions (Essential Utilities)
+# ======================================================================
+
 from .common import (
+    find_coherent_frequency,
+    estimate_frequency,
     fold_bin_to_nyquist,
     fold_frequency_to_nyquist,
-    find_coherent_frequency,
     amplitudes_to_snr,
-    estimate_frequency,
-    extract_freq_components,
-    convert_cap_to_weight,
-    vpp_for_target_dbfs,
     db_to_mag,
     mag_to_db,
-    db_to_power,
-    power_to_db,
-    lsb_to_volts,
-    volts_to_lsb,
-    bin_to_freq,
-    freq_to_bin,
     snr_to_enob,
     enob_to_snr,
     snr_to_nsd,
-    nsd_to_snr,
-    dbm_to_vrms,
-    vrms_to_dbm,
-    dbm_to_mw,
-    mw_to_dbm,
-    sine_amplitude_to_power,
 )
 
-from .aout import (
+_export('find_coherent_frequency', find_coherent_frequency)
+_export('estimate_frequency', estimate_frequency)
+_export('fold_bin_to_nyquist', fold_bin_to_nyquist)
+_export('fold_frequency_to_nyquist', fold_frequency_to_nyquist)
+_export('amplitudes_to_snr', amplitudes_to_snr)
+_export('db_to_mag', db_to_mag)
+_export('mag_to_db', mag_to_db)
+_export('snr_to_enob', snr_to_enob)
+_export('enob_to_snr', enob_to_snr)
+_export('snr_to_nsd', snr_to_nsd)
+
+# ======================================================================
+# Spectrum Analysis Functions
+# ======================================================================
+
+from .spectrum import (
     analyze_spectrum,
-    plot_spectrum,
     analyze_two_tone_spectrum,
-    compute_harmonic_decomposition,
-    analyze_harmonic_decomposition,
-    compute_inl_from_sine,
-    analyze_inl_from_sine,
-    fit_sine_4param,
-    fit_static_nonlin,
-    plot_dnl_inl,
+    analyze_spectrum_polar,
 )
+
+_export('analyze_spectrum', analyze_spectrum)
+_export('analyze_two_tone_spectrum', analyze_two_tone_spectrum)
+_export('analyze_spectrum_polar', analyze_spectrum_polar)
+
+
+# ======================================================================
+# Analog Output (AOUT) Analysis Functions
+# ======================================================================
+
+from .aout import (
+    analyze_inl_from_sine,
+    analyze_harmonic_decomposition,
+    analyze_error_by_value,
+    analyze_error_by_phase,
+    fit_sine_4param,
+    fit_static_nonlin
+)
+
+_export('analyze_inl_from_sine', analyze_inl_from_sine)
+_export('analyze_harmonic_decomposition', analyze_harmonic_decomposition)
+_export('analyze_error_by_value', analyze_error_by_value)
+_export('analyze_error_by_phase', analyze_error_by_phase)
+_export('fit_sine_4param', fit_sine_4param)
+_export('fit_static_nonlin', fit_static_nonlin)
+
+
+# ======================================================================
+# Digital Output (DOUT) Analysis Functions
+# ======================================================================
 
 from .dout import (
     calibrate_weight_sine,
     calibrate_weight_sine_osr,
     calibrate_weight_two_tone,
-    check_overflow,
-    check_bit_activity,
-    analyze_enob_sweep,
-    plot_weight_radix,
     generate_dout_dashboard,
 )
+
+_export('calibrate_weight_sine', calibrate_weight_sine)
+_export('calibrate_weight_sine_osr', calibrate_weight_sine_osr)
+_export('calibrate_weight_two_tone', calibrate_weight_two_tone)
+_export('generate_dout_dashboard', generate_dout_dashboard)
+
+
+# ======================================================================
+# Oversampling Analysis Functions
+# ======================================================================
 
 from .oversampling import (
     ntf_analyzer,
 )
 
-from .utils import (
-    generate_multimodal_report,
-    calculate_jitter,
-)
+_export('ntf_analyzer', ntf_analyzer)
 
-try:
-    from .data_generation import (
-        generate_jitter_signal,
-    )
-except ImportError:
-    # data_generation module not available
-    pass
 
-from .spectrum import (
-    analyze_spectrum_polar,
-)
+# ======================================================================
+# Submodules (for explicit imports like: from adctoolbox.aout import ...)
+# ======================================================================
 
-# Keep submodules accessible for those who prefer explicit imports
 from . import common
 from . import aout
 from . import dout
 from . import oversampling
-from . import utils
-try:
-    from . import data_generation
-except ImportError:
-    # data_generation module not available
-    pass
 from . import spectrum
 
-__all__ = [
-    # Version
-    '__version__',
+_export('common', common)
+_export('aout', aout)
+_export('dout', dout)
+_export('oversampling', oversampling)
+_export('spectrum', spectrum)
 
-    # Common functions
-    'fold_bin_to_nyquist',
-    'fold_frequency_to_nyquist',
-    'find_coherent_frequency',
-    'amplitudes_to_snr',
-    'estimate_frequency',
-    'extract_freq_components',
-    'convert_cap_to_weight',
-    'vpp_for_target_dbfs',
-    'db_to_mag',
-    'mag_to_db',
-    'db_to_power',
-    'power_to_db',
-    'lsb_to_volts',
-    'volts_to_lsb',
-    'bin_to_freq',
-    'freq_to_bin',
-    'snr_to_enob',
-    'enob_to_snr',
-    'snr_to_nsd',
-    'nsd_to_snr',
-    'dbm_to_vrms',
-    'vrms_to_dbm',
-    'dbm_to_mw',
-    'mw_to_dbm',
-    'sine_amplitude_to_power',
-
-    # Analog output (aout) functions
-    'analyze_spectrum',
-    'plot_spectrum',
-    'analyze_two_tone_spectrum',
-    'compute_harmonic_decomposition',
-    'plot_harmonic_decomposition_time',
-    'plot_harmonic_decomposition_polar',
-    'analyze_harmonic_decomposition',
-    'analyze_inl_from_sine',
-    'compute_inl_from_sine',
-    'fit_sine_4param',
-    'fit_static_nonlin',
-    'plot_dnl_inl',
-
-    # Spectrum functions
-    'analyze_spectrum_polar',
-
-    # Digital output (dout) functions
-    'cal_weight_sine',
-    'cal_weight_sine_os',
-    'cal_weight_sine_2freq',
-    'overflow_chk',
-    'bit_activity',
-    'sweep_bit_enob',
-    'weight_scaling',
-    'generate_dout_dashboard',
-
-    # Oversampling functions
-    'ntf_analyzer',
-
-    # Utility functions
-    'generate_multimodal_report',
-    'calculate_jitter',
-
-    # Data generation functions
-    'generate_jitter_signal',
-
-    # Submodules (for explicit imports)
-    'common',
-    'aout',
-    'dout',
-    'oversampling',
-    'utils',
-    'data_generation',
-    'spectrum',
-]

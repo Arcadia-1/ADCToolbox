@@ -12,8 +12,8 @@ import matplotlib.pyplot as plt
 from pathlib import Path
 from typing import Optional, Union, Tuple, Dict, Any
 
-from .compute_harmonic_decomposition import compute_harmonic_decomposition
-from .plot_decomposition_polar import plot_decomposition_polar
+from adctoolbox.aout.compute_harmonic_decomposition import compute_harmonic_decomposition
+from adctoolbox.aout.plot_decomposition_polar import plot_decomposition_polar
 
 
 def analyze_decomposition_polar(

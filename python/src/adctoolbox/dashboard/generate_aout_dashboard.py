@@ -6,7 +6,8 @@ from pathlib import Path
 from adctoolbox.common.validate import validate_aout_data
 from adctoolbox.aout.decompose_harmonics import decompose_harmonics
 from adctoolbox.spectrum import analyze_spectrum, analyze_phase_spectrum
-from adctoolbox.aout.plot_rearranged_error_by_code import plot_rearranged_error_by_code
+from adctoolbox.aout.rearrange_error_by_value import rearrange_error_by_value
+from adctoolbox.aout.plot_rearranged_error_by_value import plot_rearranged_error_by_value
 from adctoolbox.aout.plot_error_hist_phase import plot_error_hist_phase
 from adctoolbox.aout.plot_error_pdf import plot_error_pdf
 from adctoolbox.aout.plot_error_autocorr import plot_error_autocorr
@@ -117,14 +118,15 @@ def generate_aout_dashboard(aout_data, output_dir, visible=False, resolution=11,
     except:
         err_data = aout_data - np.mean(aout_data)
 
-    # Tool 4: Error Histogram (code mode)
-    print('[4/9][Error Histogram (code)]', end='')
+    # Tool 4: Error Histogram (value mode)
+    print('[4/9][Error Histogram (value)]', end='')
     try:
-        error_mean_code, error_rms_code, code_bins, error_code, codes = plot_rearranged_error_by_code(
-            aout_data, bins=20, freq=freq_cal, disp=1)
+        results = rearrange_error_by_value(aout_data, normalized_freq=freq_cal, num_bits=resolution, num_bins=20)
+        fig = plt.figure(figsize=(12, 8))
+        plot_rearranged_error_by_value(results)
         png_path = output_dir / f'{prefix}_4_errHistSine_code.png'
         plt.savefig(png_path, dpi=150, bbox_inches='tight')
-        plt.close()
+        plt.close(fig)
         status['tools_completed'][3] = 1
         print(f' OK -> [{png_path}]')
     except Exception as e:

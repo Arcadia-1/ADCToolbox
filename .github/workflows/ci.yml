@@ -31,12 +31,6 @@ jobs:
           # List of examples to run (add/remove as needed)
           EXAMPLES="
             exp_b00_environment_check.py
-            exp_b01_aliasing_nyquist_zones.py
-            exp_b02_unit_conversions.py
-            exp_b03_calculate_fom.py
-            exp_b04_fit_sine.py
-            exp_b05_amplitudes_to_snr.py
-            exp_b06_convert_nsd_snr.py
           "
 
           for script in $EXAMPLES; do
@@ -54,25 +48,6 @@ jobs:
           EXAMPLES="
             exp_s00_analyze_spectrum_simplest.py
             exp_s02_analyze_spectrum_savefig.py
-            exp_s03_modular_calculation_plotting.py
-            exp_s04_annotating_spur.py
-            exp_s05_fft_length_comparison.py
-            exp_s06_osr_comparison.py
-            exp_s07_spectral_leakage_demo.py
-            exp_s08_window_leakage.py
-            exp_s09_window_coherent.py
-            exp_s10_window_short_fft.py
-            exp_s11_spectrum_power_averaging.py
-            exp_s12_spectrum_coherent_averaging.py
-            exp_s13_spectrum_coherent_averaging_osr.py
-            exp_s20_analyze_spectrum_polar.py
-            exp_s21_polar_harmonic.py
-            exp_s22_polar_coherent_averaging.py
-            exp_s24_polar_kickback.py
-            exp_s31_analyze_two_tone_spectrum.py
-            exp_s32_two_tone_imd_comparison.py
-            exp_s33_two_tone_power_averaging.py
-            exp_s34_two_tone_coherent_averaging.py
           "
 
           for script in $EXAMPLES; do

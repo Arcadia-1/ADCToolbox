@@ -28,15 +28,11 @@ from . import common
 from . import aout
 from . import dout
 from . import oversampling
-from . import utils
-from . import data_generation
 
 __all__ = [
     'common',
     'aout',
     'dout',
     'oversampling',
-    'utils',
-    'data_generation',
     '__version__',
 ]
