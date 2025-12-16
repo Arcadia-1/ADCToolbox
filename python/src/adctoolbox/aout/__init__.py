@@ -28,6 +28,7 @@ from .plot_rearranged_error_by_phase import plot_rearranged_error_by_phase
 # ----------------------------------------------------------------------
 
 from .analyze_harmonic_decomposition import analyze_harmonic_decomposition
+from .analyze_decomposition_time import analyze_decomposition_time
 from .compute_harmonic_decomposition import compute_harmonic_decomposition
 from .plot_decomposition_time import plot_decomposition_time
 from .plot_decomposition_polar import plot_decomposition_polar
@@ -64,6 +65,7 @@ __all__ = [
 
     # Harmonic decomposition
     'analyze_harmonic_decomposition',
+    'analyze_decomposition_time',
     'compute_harmonic_decomposition',
 
     # INL / DNL

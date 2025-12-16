@@ -12,7 +12,7 @@ from scipy.signal import hilbert
 from adctoolbox.spectrum import analyze_spectrum
 
 
-def plot_envelope_spectrum(err_data, fs=1):
+def analyze_error_envelope_spectrum(err_data, fs=1):
     """
     Compute envelope spectrum using Hilbert transform.
 

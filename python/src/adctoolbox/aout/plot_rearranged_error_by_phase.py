@@ -9,9 +9,10 @@ MATLAB counterpart: errsin.m (phase mode)
 
 import numpy as np
 import matplotlib.pyplot as plt
+from matplotlib.gridspec import GridSpecFromSubplotSpec
 
 
-def plot_rearranged_error_by_phase(results: dict, disp=1, plot_mode="binned"):
+def plot_rearranged_error_by_phase(results: dict, disp=1, plot_mode="binned", axes=None, ax=None):
     """
     Plot phase error analysis results (RMS curves, AM/PM).
 
@@ -42,6 +43,12 @@ def plot_rearranged_error_by_phase(results: dict, disp=1, plot_mode="binned"):
         Plot visualization mode:
         - "binned": Show binned RMS bars with AM/PM curves (default)
         - "raw": Show all raw error points as scatter plot
+
+    axes : tuple or array, optional
+        Tuple of (ax1, ax2) to plot on (for top and bottom panels).
+
+    ax : matplotlib.axes.Axes, optional
+        Single axis to plot on (will be split into 2 panels internally).
 
     Notes
     -----
@@ -75,9 +82,18 @@ def plot_rearranged_error_by_phase(results: dict, disp=1, plot_mode="binned"):
     error = results.get('error', np.array([]))
     phase = results.get('phase', np.array([]))
     fitted_signal = results.get('fitted_signal', np.array([]))
-    erms = results['erms']
-    emean = results['emean']
-    phase_bins = results['phase_bins']
+
+    # Mode-specific extraction (binned mode only has erms/emean/phase_bins)
+    if plot_mode == "binned":
+        erms = results.get('erms', np.array([]))
+        emean = results.get('emean', np.array([]))
+        phase_bins = results.get('phase_bins', np.array([]))
+    else:
+        # Raw mode doesn't have these, use empty arrays
+        erms = np.array([])
+        emean = np.array([])
+        phase_bins = np.array([])
+
     am_param = results['am_param']
     pm_param = results['pm_param']
     baseline = results['baseline']
@@ -87,8 +103,29 @@ def plot_rearranged_error_by_phase(results: dict, disp=1, plot_mode="binned"):
     phase_bins_deg = phase_bins * 180 / np.pi
     phase_deg = phase * 180 / np.pi
 
-    # Create figure with 2 subplots
-    fig, (ax1, ax2) = plt.subplots(2, 1, figsize=(10, 8))
+    # --- Axes Management ---
+    if axes is not None:
+        # Support both tuple (ax1, ax2) and numpy array [ax1, ax2]
+        ax1, ax2 = axes if isinstance(axes, (tuple, list)) else axes.flatten()
+    else:
+        # Single axis (or None), get current axis and split it
+        if ax is None:
+            # Create new figure with 2 subplots
+            fig, (ax1, ax2) = plt.subplots(2, 1, figsize=(10, 8))
+        else:
+            # Split single axis into 2 rows
+            fig = ax.get_figure()
+            if hasattr(ax, 'get_subplotspec') and ax.get_subplotspec():
+                gs = GridSpecFromSubplotSpec(2, 1, subplot_spec=ax.get_subplotspec(), hspace=0.35)
+                ax.remove()
+                ax1 = fig.add_subplot(gs[0])
+                ax2 = fig.add_subplot(gs[1])
+            else:
+                # Fallback for manual positioning
+                pos = ax.get_position()
+                ax.remove()
+                ax1 = fig.add_axes([pos.x0, pos.y0 + pos.height/2, pos.width, pos.height/2])
+                ax2 = fig.add_axes([pos.x0, pos.y0, pos.width, pos.height/2])
 
     # --- Top Panel: Signal and Error vs Phase (dual y-axis) ---
     ax1_left = ax1
@@ -105,7 +142,9 @@ def plot_rearranged_error_by_phase(results: dict, disp=1, plot_mode="binned"):
     # Right axis: error
     if len(phase_deg) > 0 and len(error) > 0:
         ax1_right.plot(phase_deg, error, 'r.', markersize=3, label='Error')
-        ax1_right.plot(phase_bins_deg, emean, 'b-', linewidth=2, label='Mean error')
+        # Only plot mean error for binned mode
+        if len(emean) > 0:
+            ax1_right.plot(phase_bins_deg, emean, 'b-', linewidth=2, label='Mean error')
         ax1_right.set_xlim([0, 360])
         ax1_right.set_ylim([np.min(error), np.max(error)])
         ax1_right.set_ylabel('Error', color='r')

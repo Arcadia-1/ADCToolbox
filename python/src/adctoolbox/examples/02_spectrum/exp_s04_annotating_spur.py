@@ -18,7 +18,7 @@ Fs = 100e6
 A = 0.5
 noise_rms = 50e-6
 hd2_dB = -100
-hd3_dB = -92
+hd3_dB = -80
 
 snr_ref = amplitudes_to_snr(sig_amplitude=A, noise_amplitude=noise_rms)
 nsd_ref = snr_to_nsd(snr_ref, fs=Fs, osr=1)

@@ -23,7 +23,8 @@ def analyze_spectrum(data, fs=1.0, osr=1, max_scale_range=None, win_type='hann',
     Parameters:
         data: Input data (N,) or (M, N)
         fs: Sampling frequency
-        max_scale_range: Full scale range (max-min) for normalization
+        max_scale_range: Full scale range for normalization.
+            Can be: scalar (direct range), tuple/list [min, max], or None (auto-detect)
         win_type: Window function type ('hann', 'hamming', 'boxcar')
         side_bin: Number of side bins around fundamental
         osr: Oversampling ratio
@@ -44,7 +45,7 @@ def analyze_spectrum(data, fs=1.0, osr=1, max_scale_range=None, win_type='hann',
             - snr_db: Signal-to-Noise Ratio (dB)
             - thd_db: Total Harmonic Distortion (dB)
             - sig_pwr_dbfs: Signal power (dBFS)
-            - noise_floor_db: Noise floor (dB)
+            - noise_floor_dbfs: Noise floor (dBFS)
             - nsd_dbfs_hz: Noise Spectral Density (dBFS/Hz)
     """
 

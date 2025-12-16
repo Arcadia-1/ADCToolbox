@@ -49,7 +49,7 @@ def plot_spectrum(analysis_results, show_title=True, show_label=True, plot_harmo
     thd_db = metrics['thd_db']
     snr_db = metrics['snr_db']
     sig_pwr_dbfs = metrics['sig_pwr_dbfs']
-    noise_floor_db = metrics['noise_floor_db']
+    noise_floor_dbfs = metrics['noise_floor_dbfs']
     nsd_dbfs_hz = metrics['nsd_dbfs_hz']
 
     # Setup axes
@@ -76,7 +76,7 @@ def plot_spectrum(analysis_results, show_title=True, show_label=True, plot_harmo
 
         # Plot max spurious
         ax.plot(spur_bin_idx / N * fs, spur_db, 'rd', markersize=5)
-        ax.text(spur_bin_idx / N * fs, spur_db + 5, 'MaxSpur',
+        ax.text(spur_bin_idx / N * fs, spur_db + 10, 'MaxSpur',
                 fontname='Arial', fontsize=10, ha='center')
 
     # --- Set axis limits ---
@@ -131,7 +131,7 @@ def plot_spectrum(analysis_results, show_title=True, show_label=True, plot_harmo
         ax.text(TX, TYD*4, f'SFDR = {sfdr_db:.2f} dB', fontsize=10)
         ax.text(TX, TYD*5, f'THD = {thd_db:.2f} dB', fontsize=10)
         ax.text(TX, TYD*6, f'SNR = {snr_db:.2f} dB', fontsize=10)
-        ax.text(TX, TYD*7, f'Noise Floor = {noise_floor_db:.2f} dB', fontsize=10)
+        ax.text(TX, TYD*7, f'Noise Floor = {noise_floor_dbfs:.2f} dB', fontsize=10)
         ax.text(TX, TYD*8, f'NSD = {nsd_dbfs_hz:.2f} dBFS/Hz', fontsize=10)
 
         # Noise floor baseline

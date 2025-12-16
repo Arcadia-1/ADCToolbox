@@ -53,13 +53,13 @@ def compute_harmonic_decomposition(
         - 'fundamental_freq': float
             Detected fundamental frequency (normalized, 0 to 1)
         - 'residual': np.ndarray, shape (N,)
-            Residual signal after removing all harmonics
+            Residual signal after removing all harmonics (centered at 0, no DC)
         - 'signal_reconstructed': np.ndarray, shape (N,)
-            Reconstructed signal with all harmonics
+            Reconstructed signal with all harmonics (includes DC offset)
         - 'fundamental_signal': np.ndarray, shape (N,)
-            Reconstructed fundamental component only
+            Reconstructed fundamental component only (includes DC offset)
         - 'harmonic_signal': np.ndarray, shape (N,)
-            Reconstructed harmonic components (2nd to nth)
+            Reconstructed harmonic components 2nd to nth (centered at 0, no DC)
         - 'n_samples': int
             Number of samples
         - 'fs': float
@@ -107,8 +107,9 @@ def compute_harmonic_decomposition(
     if max_code is None:
         max_code = np.max(sig_avg) - np.min(sig_avg)
 
-    # Normalize signal (matches MATLAB normalization)
-    sig_avg = sig_avg - np.mean(sig_avg)  # Remove DC
+    # Extract and remove DC (matching MATLAB: DC = mean(sig))
+    dc_offset = np.mean(sig_avg)
+    sig_avg = sig_avg - dc_offset  # Remove DC
     sig_normalized = sig_avg / max_code
 
     # Find fundamental frequency using FFT (matches MATLAB sinfit call)
@@ -128,13 +129,18 @@ def compute_harmonic_decomposition(
     # W layout: [cos(H1), sin(H1), cos(H2), sin(H2), ..., cos(Hn), sin(Hn)]
     fundamental_signal = basis_matrix[:, 0] * W[0] + basis_matrix[:, 1] * W[harmonic]
 
-    # Reconstruct harmonics only (2nd through nth)
-    harmonic_signal = np.zeros(n_samples)
-    for ii in range(1, harmonic):
-        harmonic_signal += basis_matrix[:, 2*ii] * W[ii] + basis_matrix[:, 2*ii + 1] * W[ii + harmonic]
+    # Reconstruct harmonics by difference: har = signal_all - sine (matching MATLAB tomdec.m)
+    # This ensures: signal = fundamental + harmonic + residual exactly
+    harmonic_signal = signal_reconstructed - fundamental_signal
 
     # Calculate residual (noise)
     residual = sig_normalized - signal_reconstructed
+
+    # Add DC back to all reconstructed signals (matching MATLAB tomdec.m: sine = DC + ...)
+    # This ensures the signals match the original signal which has DC
+    fundamental_signal = fundamental_signal + dc_offset
+    signal_reconstructed = signal_reconstructed + dc_offset
+    # Note: harmonic_signal and residual remain centered at 0 (no DC added)
     noise_power = np.sqrt(np.mean(residual**2)) * 2 * np.sqrt(2)
     noise_dB = 20 * np.log10(noise_power)
 

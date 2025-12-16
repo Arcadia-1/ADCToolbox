@@ -3,7 +3,7 @@ import numpy as np
 import matplotlib.pyplot as plt
 from pathlib import Path
 from adctoolbox import find_coherent_frequency, amplitudes_to_snr
-from adctoolbox.aout.analyze_error_pdf import plot_error_pdf
+from adctoolbox import analyze_error_pdf
 
 output_dir = Path(__file__).parent / "output"
 output_dir.mkdir(exist_ok=True)
@@ -68,25 +68,25 @@ fig, axes = plt.subplots(2, 2, figsize=(12, 8))
 
 # Plot 1: Thermal Noise
 plt.sca(axes[0, 0])
-err_lsb1, mu1, sigma1, KL1, x1, fx1, gauss1 = plot_error_pdf(signal_noise, resolution=B, full_scale=1, plot=True)
+err_lsb1, mu1, sigma1, KL1, x1, fx1, gauss1 = analyze_error_pdf(signal_noise, resolution=B, full_scale=1, plot=True)
 axes[0, 0].set_title(f'Thermal Noise: RMS = {noise_rms*1e6:.0f} uV', fontsize=11, fontweight='bold')
 print(f"  [Thermal Noise      ] μ = {mu1:6.3f} LSB, σ = {sigma1:6.3f} LSB, KL = {KL1:.4f}")
 
 # Plot 2: Jitter
 plt.sca(axes[0, 1])
-err_lsb2, mu2, sigma2, KL2, x2, fx2, gauss2 = plot_error_pdf(signal_jitter, resolution=B, full_scale=1, plot=True)
+err_lsb2, mu2, sigma2, KL2, x2, fx2, gauss2 = analyze_error_pdf(signal_jitter, resolution=B, full_scale=1, plot=True)
 axes[0, 1].set_title(f'Jitter: {jitter_rms*1e15:.1f} fs', fontsize=11, fontweight='bold')
 print(f"  [Jitter             ] μ = {mu2:6.3f} LSB, σ = {sigma2:6.3f} LSB, KL = {KL2:.4f}")
 
 # Plot 3: Harmonic Distortion
 plt.sca(axes[1, 0])
-err_lsb3, mu3, sigma3, KL3, x3, fx3, gauss3 = plot_error_pdf(signal_harmonic, resolution=B, full_scale=1, plot=True)
+err_lsb3, mu3, sigma3, KL3, x3, fx3, gauss3 = analyze_error_pdf(signal_harmonic, resolution=B, full_scale=1, plot=True)
 axes[1, 0].set_title(f'Harmonic Distortion: HD2 = {hd2_dB} dB, HD3 = {hd3_dB} dB', fontsize=11, fontweight='bold')
 print(f"  [Harmonic Distortion] μ = {mu3:6.3f} LSB, σ = {sigma3:6.3f} LSB, KL = {KL3:.4f}")
 
 # Plot 4: Kickback
 plt.sca(axes[1, 1])
-err_lsb4, mu4, sigma4, KL4, x4, fx4, gauss4 = plot_error_pdf(signal_kickback, resolution=B, full_scale=1, plot=True)
+err_lsb4, mu4, sigma4, KL4, x4, fx4, gauss4 = analyze_error_pdf(signal_kickback, resolution=B, full_scale=1, plot=True)
 axes[1, 1].set_title(f'Kickback: Strength = {kickback_strength}', fontsize=11, fontweight='bold')
 print(f"  [Kickback           ] μ = {mu4:6.3f} LSB, σ = {sigma4:6.3f} LSB, KL = {KL4:.4f}")
 
@@ -94,7 +94,7 @@ fig.suptitle(f'Error PDF Comparison: 4 Non-idealities (Fs = {Fs/1e6:.0f} MHz, Fi
              fontsize=13, fontweight='bold')
 plt.tight_layout()
 
-fig_path = output_dir / 'exp_a40_plot_error_pdf.png'
+fig_path = output_dir / 'exp_a40_analyze_error_pdf.png'
 plt.savefig(fig_path, dpi=150)
 print(f"\n[Save fig] -> [{fig_path}]")
 plt.close()

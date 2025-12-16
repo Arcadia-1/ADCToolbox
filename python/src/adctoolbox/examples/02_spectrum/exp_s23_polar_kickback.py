@@ -88,7 +88,7 @@ plt.tight_layout()
 for ax, ylim in axes_info:
     ax.set_ylim(ylim)
 
-fig_path = output_dir / 'exp_s24_polar_kickback.png'
+fig_path = output_dir / 'exp_s23_polar_kickback.png'
 plt.savefig(fig_path, dpi=300, bbox_inches='tight')
 plt.close()
 
