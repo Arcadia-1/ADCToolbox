@@ -2,8 +2,8 @@
 
 import numpy as np
 from typing import Dict, Optional, Tuple, Any
-from .fit_sine_4param import fit_sine_4param
-from ._infer_signal_range import _infer_signal_range
+from adctoolbox.fundamentals.fit_sine_4param import fit_sine_4param
+from adctoolbox.aout._infer_signal_range import _infer_signal_range
 
 def rearrange_error_by_value(
     signal: np.ndarray,
