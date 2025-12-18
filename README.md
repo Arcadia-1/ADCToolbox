@@ -2,19 +2,19 @@
 
 Comprehensive toolbox for ADC characterization, calibration, and performance analysis.
 
-[![Documentation Status](https://readthedocs.org/projects/adctoolbox/badge/?version=latest)](https://adctoolbox.readthedocs.io/en/latest/?badge=latest)
+[![Documentation](https://img.shields.io/badge/docs-GitHub%20Pages-blue)](https://arcadia-1.github.io/ADCToolbox/)
 [![PyPI version](https://badge.fury.io/py/adctoolbox.svg)](https://badge.fury.io/py/adctoolbox)
 [![Python 3.8+](https://img.shields.io/badge/python-3.8+-blue.svg)](https://www.python.org/downloads/)
 
 ## Documentation
 
-📚 **[Full Documentation](https://adctoolbox.readthedocs.io/)** - Complete API reference, algorithm guides, and tutorials
+📚 **[Full Documentation](https://arcadia-1.github.io/ADCToolbox/)** - Complete API reference, algorithm guides, and tutorials
 
-- **[Installation Guide](https://adctoolbox.readthedocs.io/en/latest/installation.html)** - Getting started
-- **[Quick Start](https://adctoolbox.readthedocs.io/en/latest/quickstart.html)** - First steps with examples
-- **[Algorithm Reference](https://adctoolbox.readthedocs.io/en/latest/algorithms/index.html)** - 15 detailed algorithm guides
-- **[API Documentation](https://adctoolbox.readthedocs.io/en/latest/api/index.html)** - Function signatures and parameters
-- **[Changelog](https://adctoolbox.readthedocs.io/en/latest/changelog.html)** - Version history
+- **[Installation Guide](https://arcadia-1.github.io/ADCToolbox/installation.html)** - Getting started
+- **[Quick Start](https://arcadia-1.github.io/ADCToolbox/quickstart.html)** - First steps with examples
+- **[Algorithm Reference](https://arcadia-1.github.io/ADCToolbox/algorithms/index.html)** - 15 detailed algorithm guides
+- **[API Documentation](https://arcadia-1.github.io/ADCToolbox/api/index.html)** - Function signatures and parameters
+- **[Changelog](https://arcadia-1.github.io/ADCToolbox/changelog.html)** - Version history
 
 ## Features
 
