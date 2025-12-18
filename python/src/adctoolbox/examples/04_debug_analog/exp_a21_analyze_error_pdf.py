@@ -47,9 +47,9 @@ t_plot = time.time()
 fig, axes = plt.subplots(3, 5, figsize=(25, 12))
 axes = axes.flatten()
 
-print("\n" + "=" * 80)
-print(f"{'Case':<4} | {'Non-Ideality':<30} | {'μ (LSB)':<10} | {'σ (LSB)':<10} | {'KL Div':<10}")
-print("-" * 80)
+print("\n" + "=" * 100)
+print(f"{'Case':<4} | {'Non-Ideality':<30} | {'mu (LSB)':<10} | {'sigma (LSB)':<10} | {'KL Div':<10}")
+print("-" * 100)
 
 for idx, case in enumerate(CASES):
     # Generate signal
@@ -61,7 +61,7 @@ for idx, case in enumerate(CASES):
     # Print metrics
     print(f"{idx+1:<4} | {case['title']:<30} | {result['mu']:>10.3f} | {result['sigma']:>10.3f} | {result['kl_divergence']:>10.4f}")
 
-print("=" * 80)
+print("=" * 100)
 print(f"\n[Timing] Signal Generation & Plotting: {time.time() - t_plot:.4f}s")
 
 # --- 5. Finalize and Save ---
