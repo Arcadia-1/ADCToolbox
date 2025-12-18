@@ -2,16 +2,17 @@
 
 from typing import Optional, Dict, Any
 import numpy as np
-from .compute_harmonic_decomposition import compute_harmonic_decomposition
+from .decompose_harmonic_error import decompose_harmonic_error
 from .plot_decomposition_time import plot_decomposition_time
 
 
 def analyze_decomposition_time(
     signal: np.ndarray,
     harmonic: int = 5,
-    fs: float = 1.0,
+    n_cycles: float = 5.0,
     show_plot: bool = True,
-    ax: Optional[object] = None
+    ax: Optional[object] = None,
+    title: str = None
 ) -> Dict[str, Any]:
     """
     Analyze harmonic decomposition with time-domain visualization.
@@ -24,34 +25,36 @@ def analyze_decomposition_time(
         Input signal (1D array).
     harmonic : int, default=5
         Number of harmonics to extract.
-    fs : float, default=1.0
-        Sampling frequency.
+    n_cycles : float, default=5.0
+        Number of cycles to display in the time-domain plot.
     show_plot : bool, default=True
         Whether to display result plot.
     ax : matplotlib.axes.Axes, optional
         Axis to plot on (will be split for multi-panel).
+    title : str, optional
+        Custom title for the plot.
 
     Returns
     -------
     results : dict
-        Dictionary containing decomposition results from compute_harmonic_decomposition().
+        Dictionary containing decomposition results from decompose_harmonic_error().
     """
 
     # 1. Compute
-    results = compute_harmonic_decomposition(
-        data=signal,
-        max_code=None,
-        harmonic=harmonic,
-        fs=fs
+    results = decompose_harmonic_error(
+        signal=signal,
+        n_harmonics=harmonic
     )
 
     # 2. Plot
     if show_plot:
-        # Prepare plot_data with required keys
-        plot_data = results.copy()
-        plot_data['signal'] = signal
-        plot_data['fundamental_freq'] = results.get('fundamental_freq', 0.1)
-        plot_decomposition_time(plot_data, ax=ax)
+        plot_decomposition_time(
+            results=results,
+            signal=signal,
+            n_cycles=n_cycles,
+            ax=ax,
+            title=title
+        )
 
     return results
 

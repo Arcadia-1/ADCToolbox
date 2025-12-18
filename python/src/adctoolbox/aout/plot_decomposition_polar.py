@@ -3,8 +3,6 @@
 This module provides a pure visualization utility for creating polar plots
 of LMS-decomposed harmonics, strictly adhering to the Single Responsibility
 Principle. No calculations are performed - only plotting.
-
-Matches MATLAB plotphase.m LMS mode behavior.
 """
 
 import numpy as np
@@ -16,7 +14,7 @@ def plot_decomposition_polar(plot_data: dict, ax: Optional[plt.Axes] = None) -> 
     """Create a polar plot of LMS harmonic decomposition results.
 
     This is a pure visualization function that displays harmonics on a polar
-    plot with a noise circle reference (matching MATLAB plotphase LMS mode).
+    plot with a noise circle reference.
 
     Parameters
     ----------
@@ -55,7 +53,7 @@ def plot_decomposition_polar(plot_data: dict, ax: Optional[plt.Axes] = None) -> 
     Notes
     -----
     - The function performs NO calculations, only visualization
-    - Fundamental shown as filled blue circle (NOT red as originally in MATLAB)
+    - Fundamental shown as filled blue circle
     - Harmonics shown as hollow blue squares
     - Noise circle (dashed line) shows residual error level
     - Harmonics outside noise circle indicate significant distortion
@@ -88,7 +86,7 @@ def plot_decomposition_polar(plot_data: dict, ax: Optional[plt.Axes] = None) -> 
         if not hasattr(ax, 'set_theta_zero_location'):
             raise ValueError("Axes must have polar projection")
 
-    # Calculate axis limits (matches MATLAB logic)
+    # Calculate axis limits
     if 'maxR_dB' in plot_data and 'minR_dB' in plot_data:
         maxR_dB = plot_data['maxR_dB']
         minR_dB = plot_data['minR_dB']
@@ -105,16 +103,16 @@ def plot_decomposition_polar(plot_data: dict, ax: Optional[plt.Axes] = None) -> 
     harm_radius = harm_dB - minR_dB
     noise_radius = noise_dB - minR_dB
 
-    # Configure polar axes (matches MATLAB settings)
+    # Configure polar axes
     ax.set_theta_zero_location('N')  # Theta zero at top
     ax.set_theta_direction(-1)  # Clockwise
 
-    # Draw noise circle (matches MATLAB: noise circle with label)
+    # Draw noise circle
     theta_circle = np.linspace(0, 2 * np.pi, 100)
     ax.plot(theta_circle, noise_radius * np.ones_like(theta_circle),
             'k--', linewidth=1.5, label='Residual Noise')
 
-    # Add noise circle label (matches MATLAB text annotation)
+    # Add noise circle label
     ax.text(np.pi * 3 / 4, noise_radius,
             f'Residue Errors\n{noise_dB:.1f} dB',
             fontsize=9, color='k', ha='left')
@@ -142,13 +140,13 @@ def plot_decomposition_polar(plot_data: dict, ax: Optional[plt.Axes] = None) -> 
             ax.text(harm_phase[ii] + 0.1, harm_radius[ii], str(ii + 1),
                    fontname='Arial', fontsize=10, ha='center')
 
-    # Set radial axis limits and ticks (matches MATLAB)
+    # Set radial axis limits and ticks
     max_radius = maxR_dB - minR_dB
     tick_values = np.arange(0, max_radius + 1, 10)  # Every 10 dB
     ax.set_rticks(tick_values)
     ax.set_ylim([0, max_radius])
 
-    # Set radial tick labels to show dB values (matches MATLAB RTickLabel)
+    # Set radial tick labels to show dB values
     tick_labels = [str(int(minR_dB + val)) for val in tick_values]
     ax.set_yticklabels(tick_labels)
 

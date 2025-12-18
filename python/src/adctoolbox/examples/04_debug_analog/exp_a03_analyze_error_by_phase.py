@@ -38,6 +38,7 @@ Fin = 10.1234567e6 # no need to be coherent
 norm_freq = Fin / Fs
 t = np.arange(N) / Fs
 A = 0.49  # Signal amplitude
+DC = 0.5   # Signal DC offset
 phase_clean = 2 * np.pi * Fin * t
 
 print(f"[Config] Fs={Fs/1e6:.0f} MHz, Fin={Fin/1e6:.2f} MHz, N={N}, A={A}")
@@ -76,7 +77,7 @@ for case in test_cases:
     am_noise = np.random.randn(N) * case['am'] if case['am'] > 0 else 0
     pm_noise = np.random.randn(N) * case['pm'] / A if case['pm'] > 0 else 0
     th_noise = np.random.randn(N) * case['thermal'] if case['thermal'] > 0 else 0
-    case['signal'] = (A + am_noise) * np.sin(phase_clean + pm_noise) + th_noise
+    case['signal'] = (A + am_noise) * np.sin(phase_clean + pm_noise) + DC + th_noise
 
 print(f"[Timing] Signal Generation: {time.time() - t_gen:.4f}s")
 

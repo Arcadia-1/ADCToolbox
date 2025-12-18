@@ -33,16 +33,16 @@ Fin = 10.1234567e6
 normalized_freq = Fin / Fs
 t = np.arange(N) / Fs
 A = 0.49
+DC = 0.5
 base_noise = 50e-6
 print(f"[Config] Fs={Fs/1e6:.0f} MHz, Fin={Fin/1e6:.2f} MHz, N={N}")
 
 # Case 1: Ideal ADC with Thermal Noise
-sig_noise = A * np.sin(2 * np.pi * Fin * t) + np.random.randn(N) * base_noise
+sig_noise = A * np.sin(2 * np.pi * Fin * t) + DC + np.random.randn(N) * base_noise
 
 # Case 2: ADC with 3rd Order Nonlinearity
 k3 = 0.01
-sig_nonlin = A * np.sin(2 * np.pi * Fin * t) + k3 * (A * np.sin(2 * np.pi * Fin * t))**3 + np.random.randn(N) * base_noise
-
+sig_nonlin = A * np.sin(2 * np.pi * Fin * t) + DC + k3 * (A * np.sin(2 * np.pi * Fin * t))**3 + np.random.randn(N) * base_noise
 print(f"[Timing] Data Generation: {time.time() - t_gen:.4f}s")
 
 # --- 3. Timing: Analysis & Plotting (InMemory) ---
