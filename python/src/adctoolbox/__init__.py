@@ -5,13 +5,22 @@ This package provides tools for analyzing both analog and digital aspects of
 Analog-to-Digital Converters, including spectrum analysis, error characterization,
 calibration algorithms, and more.
 
+Modules:
+--------
+- fundamentals: Core utilities (sine fitting, frequency utils, unit conversions, FOM metrics)
+- spectrum: FFT-based analysis (single-tone, two-tone, polar visualization)
+- aout: Analog output error analysis (decomposition, PDF, autocorrelation, etc.)
+- dout: Digital output calibration (foreground calibration, weight estimation)
+- siggen: Signal generation with non-idealities
+- oversampling: Noise transfer function analysis
+
 Usage:
 ------
 >>> from adctoolbox import analyze_spectrum, fit_sine_4param, calibrate_weight_sine
->>> from adctoolbox import find_coherent_frequency, analyze_error_by_value
+>>> from adctoolbox import find_coherent_frequency, analyze_error_by_phase
 """
 
-__version__ = '0.2.4'
+__version__ = '0.4.0'
 
 # ======================================================================
 # Public API Registry
