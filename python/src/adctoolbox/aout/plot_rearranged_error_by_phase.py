@@ -1,10 +1,9 @@
-"""
-Plot phase error analysis results (RMS curves, AM/PM decomposition).
+"""Plot phase error analysis results (visualization layer).
 
-Visualization function for displaying phase-binned error analysis results,
-including RMS curves and AM/PM noise separation.
-
-MATLAB counterpart: errsin.m (phase mode)
+Simplified design:
+- Always plots binned bar chart with AM/PM fitted curves
+- Displays R² for model validation
+- No mode selection needed
 """
 
 import numpy as np
@@ -12,198 +11,170 @@ import matplotlib.pyplot as plt
 from matplotlib.gridspec import GridSpecFromSubplotSpec
 
 
-def plot_rearranged_error_by_phase(results: dict, disp=1, plot_mode="binned", axes=None, ax=None):
-    """
-    Plot phase error analysis results (RMS curves, AM/PM).
+def _format_value_with_unit(value_v: float) -> str:
+    """Format voltage value with appropriate SI unit prefix."""
+    abs_val = abs(value_v)
+    if abs_val < 1e-12:  # Treat as zero
+        return "0.00 uV"
+    elif abs_val >= 1:
+        return f"{value_v:.2f} V"
+    elif abs_val >= 1e-3:
+        return f"{value_v * 1e3:.2f} mV"
+    elif abs_val >= 1e-6:
+        return f"{value_v * 1e6:.2f} uV"
+    elif abs_val >= 1e-9:
+        return f"{value_v * 1e9:.2f} nV"
+    else:
+        return f"{value_v * 1e12:.2f} pV"
 
-    Creates a comprehensive visualization showing:
-    - Top panel: Signal and error vs phase (dual y-axis)
-    - Bottom panel: RMS error vs phase with AM/PM fitted curves (binned mode)
-                   or raw error scatter (raw mode)
+
+def plot_rearranged_error_by_phase(results: dict, disp=1, axes=None, ax=None, title: str = None):
+    """Plot phase error analysis results.
 
     Parameters
     ----------
     results : dict
-        Dictionary from rearrange_error_by_phase(). Must contain:
-        - 'error': Raw error signal
-        - 'phase': Phase values for each sample (radians)
-        - 'fitted_signal': Fitted sine signal
-        - 'erms': RMS error per phase bin
-        - 'emean': Mean error per phase bin
-        - 'phase_bins': Phase bin centers (radians)
-        - 'am_param': AM parameter
-        - 'pm_param': PM parameter
-        - 'baseline': Baseline noise
-        - 'fundamental_amplitude': Fitted amplitude
-
+        Dictionary from rearrange_error_by_phase().
     disp : int, optional
-        Display plots (1=yes, 0=no) (default: 1)
-
-    plot_mode : str, optional
-        Plot visualization mode:
-        - "binned": Show binned RMS bars with AM/PM curves (default)
-        - "raw": Show all raw error points as scatter plot
-
-    axes : tuple or array, optional
-        Tuple of (ax1, ax2) to plot on (for top and bottom panels).
-
+        Display plots (1=yes, 0=no).
+    axes : tuple, optional
+        Tuple of (ax1, ax2) for top and bottom panels.
     ax : matplotlib.axes.Axes, optional
-        Single axis to plot on (will be split into 2 panels internally).
-
-    Notes
-    -----
-    The top panel uses dual y-axis:
-    - Left axis: Signal data
-    - Right axis: Error signal
-
-    The bottom panel shows the RMS error decomposition:
-    Binned mode:
-    - Blue curve: AM component (cos² dependence)
-    - Red curve: PM component (sin² dependence)
-    - Bars: Actual binned RMS values
-
-    Raw mode:
-    - Scatter: All raw error points
-
-    The fitted model is:
-        RMS²(φ) = am_param² * cos²(φ) + pm_param² * A² * sin²(φ) + baseline
-
-    Examples
-    --------
-    >>> from adctoolbox.aout import rearrange_error_by_phase
-    >>> sig = np.sin(2*np.pi*0.1*np.arange(1000)) + 0.01*np.random.randn(1000)
-    >>> results = rearrange_error_by_phase(sig, 0.1, mode="binned")
-    >>> plot_rearranged_error_by_phase(results, plot_mode="binned")
+        Single axis to split into 2 panels.
+    title : str, optional
+        Test setup description for title.
     """
     if not disp:
         return
 
-    # Extract data from results
+    # Extract data
     error = results.get('error', np.array([]))
     phase = results.get('phase', np.array([]))
     fitted_signal = results.get('fitted_signal', np.array([]))
 
-    # Mode-specific extraction (binned mode only has erms/emean/phase_bins)
-    if plot_mode == "binned":
-        erms = results.get('erms', np.array([]))
-        emean = results.get('emean', np.array([]))
-        phase_bins = results.get('phase_bins', np.array([]))
-    else:
-        # Raw mode doesn't have these, use empty arrays
-        erms = np.array([])
-        emean = np.array([])
-        phase_bins = np.array([])
+    bin_error_rms_v = results.get('bin_error_rms_v', np.array([]))
+    bin_error_mean_v = results.get('bin_error_mean_v', np.array([]))
+    phase_bin_centers_rad = results.get('phase_bin_centers_rad', np.array([]))
 
-    am_param = results['am_param']
-    pm_param = results['pm_param']
-    baseline = results['baseline']
-    fundamental_amplitude = results.get('fundamental_amplitude', 1.0)
+    am_noise_rms_v = results.get('am_noise_rms_v', 0.0)
+    pm_noise_rms_v = results.get('pm_noise_rms_v', 0.0)
+    pm_noise_rms_rad = results.get('pm_noise_rms_rad', 0.0)
+    noise_floor_rms_v = results.get('noise_floor_rms_v', 0.0)
+    r_squared_binned = results.get('r_squared_binned', 0.0)  # Model confidence
+    include_baseline = results.get('_include_baseline', True)
 
-    # Convert phase to degrees for plotting
-    phase_bins_deg = phase_bins * 180 / np.pi
-    phase_deg = phase * 180 / np.pi
+    # Use REDISTRIBUTED coefficients for curve plotting (after overlap absorption)
+    # This ensures curves match the legend values (physically interpreted)
+    coeffs_plot = results.get('_coeffs_plot', [0.0, 0.0, 0.0])
+    am_var_plot = coeffs_plot[0]
+    pm_var_plot = coeffs_plot[1]
+    baseline_var_plot = coeffs_plot[2] if len(coeffs_plot) > 2 else 0.0
+
+    # Convert to degrees
+    phase_bins_deg = phase_bin_centers_rad * 180 / np.pi
+    phase_deg = np.mod(phase * 180 / np.pi, 360)
 
     # --- Axes Management ---
     if axes is not None:
-        # Support both tuple (ax1, ax2) and numpy array [ax1, ax2]
         ax1, ax2 = axes if isinstance(axes, (tuple, list)) else axes.flatten()
     else:
-        # Single axis (or None), get current axis and split it
         if ax is None:
-            # Create new figure with 2 subplots
-            fig, (ax1, ax2) = plt.subplots(2, 1, figsize=(10, 8))
+            ax = plt.gca()
+        fig = ax.get_figure()
+        if hasattr(ax, 'get_subplotspec') and ax.get_subplotspec():
+            gs = GridSpecFromSubplotSpec(2, 1, subplot_spec=ax.get_subplotspec(), hspace=0.35)
+            ax.remove()
+            ax1 = fig.add_subplot(gs[0])
+            ax2 = fig.add_subplot(gs[1])
         else:
-            # Split single axis into 2 rows
-            fig = ax.get_figure()
-            if hasattr(ax, 'get_subplotspec') and ax.get_subplotspec():
-                gs = GridSpecFromSubplotSpec(2, 1, subplot_spec=ax.get_subplotspec(), hspace=0.35)
-                ax.remove()
-                ax1 = fig.add_subplot(gs[0])
-                ax2 = fig.add_subplot(gs[1])
-            else:
-                # Fallback for manual positioning
-                pos = ax.get_position()
-                ax.remove()
-                ax1 = fig.add_axes([pos.x0, pos.y0 + pos.height/2, pos.width, pos.height/2])
-                ax2 = fig.add_axes([pos.x0, pos.y0, pos.width, pos.height/2])
+            pos = ax.get_position()
+            ax.remove()
+            ax1 = fig.add_axes([pos.x0, pos.y0 + pos.height/2, pos.width, pos.height/2])
+            ax2 = fig.add_axes([pos.x0, pos.y0, pos.width, pos.height/2])
 
-    # --- Top Panel: Signal and Error vs Phase (dual y-axis) ---
+    # --- Top Panel: Signal and Error vs Phase ---
     ax1_left = ax1
     ax1_right = ax1.twinx()
 
-    # Left axis: signal data
+    lines_ax1 = []
+    labels_ax1 = []
+
     if len(phase_deg) > 0 and len(fitted_signal) > 0:
-        ax1_left.plot(phase_deg, fitted_signal, 'k.', markersize=3)
+        sort_idx = np.argsort(phase_deg)
+        line_data, = ax1_left.plot(phase_deg[sort_idx], fitted_signal[sort_idx], 'k-', linewidth=2)
+        lines_ax1.append(line_data)
+        labels_ax1.append('Data')
         ax1_left.set_xlim([0, 360])
-        ax1_left.set_ylim([np.min(fitted_signal), np.max(fitted_signal)])
+        s_min, s_max = np.min(fitted_signal), np.max(fitted_signal)
+        margin = (s_max - s_min) * 0.05
+        ax1_left.set_ylim([s_min - margin, s_max + margin])
         ax1_left.set_ylabel('Data', color='k')
         ax1_left.tick_params(axis='y', labelcolor='k')
 
-    # Right axis: error
     if len(phase_deg) > 0 and len(error) > 0:
-        ax1_right.plot(phase_deg, error, 'r.', markersize=3, label='Error')
-        # Only plot mean error for binned mode
-        if len(emean) > 0:
-            ax1_right.plot(phase_bins_deg, emean, 'b-', linewidth=2, label='Mean error')
+        line_err, = ax1_right.plot(phase_deg, error, 'r.', markersize=2, alpha=0.5)
+        lines_ax1.append(line_err)
+        labels_ax1.append('Error')
+        if len(bin_error_mean_v) > 0:
+            line_mean, = ax1_right.plot(phase_bins_deg, bin_error_mean_v, 'b-', linewidth=2)
+            lines_ax1.append(line_mean)
+            labels_ax1.append('Error Mean')
         ax1_right.set_xlim([0, 360])
         ax1_right.set_ylim([np.min(error), np.max(error)])
         ax1_right.set_ylabel('Error', color='r')
         ax1_right.tick_params(axis='y', labelcolor='r')
 
     ax1.set_xlabel('Phase (deg)')
-    ax1.set_title('Phase Error Analysis: Signal and Error')
-    ax1.grid(True, alpha=0.3)
-    if len(phase_deg) > 0:
-        ax1_right.legend(loc='upper right', fontsize=9)
-
-    # --- Bottom Panel: RMS Error vs Phase with AM/PM curves (Binned) OR Raw scatter (Raw) ---
-    if plot_mode == "raw":
-        # Raw mode: show all error points as scatter
-        ax2.scatter(phase_deg, error, alpha=0.3, s=1, label='Raw error', color='r')
-        ax2.set_xlim([0, 360])
-        ax2.set_ylim([np.min(error), np.max(error)])
-        ax2.set_ylabel('Error')
-        ax2.set_title('Error vs Phase (Raw Data - All Points)')
+    if title:
+        ax1.set_title(f'{title}\nSignal and Error vs Phase')
     else:
-        # Binned mode: show binned RMS bars with AM/PM curves
-        bin_width = 360 / len(phase_bins)
+        ax1.set_title('Signal and Error vs Phase')
+    ax1.grid(True, alpha=0.3)
+    if lines_ax1:
+        ax1.legend(lines_ax1, labels_ax1, loc='upper left', fontsize=8)
 
-        # Bar plot for actual RMS
-        ax2.bar(phase_bins_deg, erms, width=bin_width*0.8, color='skyblue', alpha=0.7)
+    # --- Bottom Panel: RMS Error Bar Chart with Fitted Curves ---
+    if len(bin_error_rms_v) > 0 and len(phase_bin_centers_rad) > 0:
+        bin_width = 360 / len(phase_bin_centers_rad)
 
-        # Compute fitted curves using sensitivity patterns
-        asen = np.cos(phase_bins * 2 * np.pi / 360)**2  # AM sensitivity
-        psen = np.sin(phase_bins * 2 * np.pi / 360)**2  # PM sensitivity
+        # Bar plot
+        ax2.bar(phase_bins_deg, bin_error_rms_v, width=bin_width*0.8,
+                color='#4472C4', alpha=1.0, edgecolor='darkblue', linewidth=0.5)
 
-        am_curve = np.sqrt(am_param**2 * asen + baseline)
-        pm_curve = np.sqrt(pm_param**2 * fundamental_amplitude**2 * psen + baseline)
+        # Fitted curves: use REDISTRIBUTED coefficients (after overlap absorption)
+        # Cosine basis: AM sensitivity = cos², PM sensitivity = sin²
+        am_sen = np.cos(phase_bin_centers_rad) ** 2
+        pm_sen = np.sin(phase_bin_centers_rad) ** 2
 
-        ax2.plot(phase_bins_deg, am_curve, 'b-', linewidth=2, label='AM Component')
-        ax2.plot(phase_bins_deg, pm_curve, 'r-', linewidth=2, label='PM Component')
+        # Curves use redistributed coefficients (physically interpreted values)
+        am_curve = np.sqrt(am_var_plot * am_sen + baseline_var_plot)
+        pm_curve = np.sqrt(pm_var_plot * pm_sen + baseline_var_plot)
+        total_curve = np.sqrt(am_var_plot * am_sen + pm_var_plot * pm_sen + baseline_var_plot)
+
+        # Legend labels show REDISTRIBUTED physical values (after overlap adjustment)
+        am_str = _format_value_with_unit(am_noise_rms_v)
+        pm_str = _format_value_with_unit(pm_noise_rms_v)
+        pm_rad_str = '0.00 urad' if pm_noise_rms_rad < 1e-12 else f'{pm_noise_rms_rad * 1e6:.2f} urad'
+        baseline_str = _format_value_with_unit(noise_floor_rms_v)
+        total_rms = results.get('total_rms_v', 0.0)
+        total_str = _format_value_with_unit(total_rms)
+
+        ax2.plot(phase_bins_deg, am_curve, 'b-', linewidth=2, label=f'AM = {am_str}')
+        ax2.plot(phase_bins_deg, pm_curve, 'r-', linewidth=2, label=f'PM = {pm_str} ({pm_rad_str})')
+        if include_baseline:
+            baseline_curve = np.full_like(phase_bins_deg, np.sqrt(baseline_var_plot))
+            ax2.plot(phase_bins_deg, baseline_curve, 'g-', linewidth=1.5, label=f'Baseline = {baseline_str}')
+        ax2.plot(phase_bins_deg, total_curve, 'k--', linewidth=2, label=f'Total = {total_str}')
 
         ax2.set_xlim([0, 360])
-        ax2.set_ylim([0, np.max(erms) * 1.2])
+        max_rms = np.nanmax(bin_error_rms_v)
+        ax2.set_ylim([0, max_rms * 1.5])
         ax2.set_ylabel('RMS Error')
-        ax2.set_title('RMS Error vs Phase (AM/PM Decomposition)')
+        ax2.set_title(f'RMS Error vs Phase\nModel Confidence: R²={r_squared_binned:.3f}')
+        ax2.legend(loc='upper left', fontsize=9)
 
     ax2.set_xlabel('Phase (deg)')
     ax2.grid(True, alpha=0.3)
 
-    # Add parameter annotations (MATLAB style) - only for binned mode
-    if plot_mode == "binned":
-        max_rms = np.max(erms)
-        text_y1 = max_rms * 1.15
-        text_y2 = max_rms * 1.05
-
-        # Normalize AM parameter by amplitude for display
-        am_normalized = am_param / fundamental_amplitude if fundamental_amplitude > 1e-10 else am_param
-
-        ax2.text(10, text_y1,
-                f'Normalized Amplitude Noise RMS = {am_normalized:.2e}',
-                color='b', fontsize=10, fontweight='bold')
-        ax2.text(10, text_y2,
-                f'Phase Noise RMS = {pm_param:.2e} rad',
-                color='r', fontsize=10, fontweight='bold')
-        ax2.legend(loc='upper right', fontsize=9)
-
-    plt.tight_layout()
+    if ax is None:
+        plt.tight_layout()

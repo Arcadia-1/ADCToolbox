@@ -1,7 +1,13 @@
-"""Phase-based error analysis: Binned mode WITH baseline
+"""Phase-based error analysis with AM/PM decomposition.
 
-Demonstrates binned mode (robust trend analysis) with baseline noise term
-included in the AM/PM fitting model.
+Demonstrates dual-track parallel design:
+- Raw fitting on all N samples for highest precision numerics
+- Binned statistics for visualization with R² validation
+
+9 Test Cases in 3 Figures:
+- Figure 1 (Pure): Thermal only, AM only, PM only
+- Figure 2 (Mixed): AM+Thermal, PM+Thermal, AM+PM+Thermal
+- Figure 3 (AM+PM): Equal, PM dominates, AM dominates
 """
 
 import time
@@ -18,106 +24,82 @@ print(f"[Timing] Library Imports: {time.time() - t_start:.4f}s")
 output_dir = Path(__file__).parent / "output"
 output_dir.mkdir(exist_ok=True)
 
-# --- 2. Timing: Data Generation ---
+# --- 2. Setup & Signal Generation ---
 t_gen = time.time()
 
-# Setup parameters
+# Base parameters
 N = 2**16
 Fs = 800e6
-Fin = 10.1234567e6
-normalized_freq = Fin / Fs
+Fin = 10.1234567e6 # no need to be coherent
+norm_freq = Fin / Fs
 t = np.arange(N) / Fs
-A = 0.49
-target_thermal = 50e-6
-target_pm_rad = 0.05
-target_am = 50e-6
-print(f"[Config] Fs={Fs/1e6:.0f} MHz, Fin={Fin/1e6:.2f} MHz, N={N}")
-
-# Set seed for reproducibility
-np.random.seed(42)
-
-# Case 1: Thermal Noise Only (White noise baseline)
+A = 0.49  # Signal amplitude
 phase_clean = 2 * np.pi * Fin * t
-n_thermal = np.random.randn(N) * target_thermal
-sig_thermal_only = A * np.sin(phase_clean) + n_thermal
 
-# Case 2: Phase Jitter Only (Phase modulation)
-n_pm = np.random.randn(N) * target_pm_rad
-phase_jittered = phase_clean + n_pm
-sig_pm_only = A * np.sin(phase_jittered)
+print(f"[Config] Fs={Fs/1e6:.0f} MHz, Fin={Fin/1e6:.2f} MHz, N={N}, A={A}")
 
-# Case 3: Amplitude Modulation Only (Amplitude noise)
-n_am = np.random.randn(N) * target_am
-sig_am_only = (A + n_am) * np.sin(phase_clean)
+# =============================================================================
+# Define all 9 test cases (noise levels in Volts)
+# =============================================================================
+test_cases = [
+    # --- Figure 1: Pure Cases ---
+    {'am': 0,    'pm': 0,    'thermal': 50e-6, 'label': 'Thermal Only',
+     'expected': {'am': 0, 'pm': 0, 'baseline': 50}},
+    {'am': 50e-6, 'pm': 0,    'thermal': 0,     'label': 'AM Only',
+     'expected': {'am': 50, 'pm': 0, 'baseline': 0}},
+    {'am': 0,    'pm': 50e-6, 'thermal': 0,     'label': 'PM Only',
+     'expected': {'am': 0, 'pm': 50, 'baseline': 0}},
 
-print(f"[Timing] Data Generation: {time.time() - t_gen:.4f}s")
+    # --- Figure 2: Mixed Cases ---
+    {'am': 50e-6, 'pm': 0,    'thermal': 30e-6, 'label': 'AM + Thermal',
+     'expected': {'am': 50, 'pm': 0, 'baseline': 30}},
+    {'am': 0,    'pm': 50e-6, 'thermal': 30e-6, 'label': 'PM + Thermal',
+     'expected': {'am': 0, 'pm': 50, 'baseline': 30}},
+    {'am': 50e-6, 'pm': 50e-6, 'thermal': 30e-6, 'label': 'AM + PM + Thermal',
+     'expected': {'am': 0, 'pm': 0, 'baseline': 58}},  # sqrt(50^2+50^2+30^2) when AM=PM
 
-# --- 3. Timing: Analysis & Plotting ---
+    # --- Figure 3: AM+PM Cases (no thermal) ---
+    {'am': 50e-6, 'pm': 50e-6, 'thermal': 0,     'label': 'AM + PM (equal)',
+     'expected': {'am': 0, 'pm': 0, 'baseline': 50}},  # Equal cancels to flat
+    {'am': 30e-6, 'pm': 50e-6, 'thermal': 0,     'label': 'AM(30) + PM(50)',
+     'expected': {'am': 0, 'pm': 40, 'baseline': 30}},  # PM dominates
+    {'am': 50e-6, 'pm': 30e-6, 'thermal': 0,     'label': 'AM(50) + PM(30)',
+     'expected': {'am': 40, 'pm': 0, 'baseline': 30}},  # AM dominates
+]
+
+# Generate signals for all test cases
+for case in test_cases:
+    am_noise = np.random.randn(N) * case['am'] if case['am'] > 0 else 0
+    pm_noise = np.random.randn(N) * case['pm'] / A if case['pm'] > 0 else 0
+    th_noise = np.random.randn(N) * case['thermal'] if case['thermal'] > 0 else 0
+    case['signal'] = (A + am_noise) * np.sin(phase_clean + pm_noise) + th_noise
+
+print(f"[Timing] Signal Generation: {time.time() - t_gen:.4f}s")
+
+# --- 3. Analysis & Plotting ---
 t_plot = time.time()
+fig_titles = ['Pure Noise Cases', 'Mixed Noise Cases', 'Mixed Noise Cases (AM+PM)']
 
-fig = plt.figure(figsize=(18, 12))
-fig.suptitle('Phase Error Analysis (Binned Mode WITH Baseline) - Thermal Noise vs Phase Jitter vs Amplitude Modulation', fontsize=16, fontweight='bold')
+for fig_idx in range(3):
+    fig, axes = plt.subplots(1, 3, figsize=(18, 8))
+    fig.suptitle(f'Phase Error Analysis - {fig_titles[fig_idx]}', fontsize=14, fontweight='bold')
+    print(f"\n=== Figure {fig_idx + 1}: {fig_titles[fig_idx]} ===")
 
-# Analyze 3 cases
-# Case 1: Thermal Noise Only
-ax1 = plt.subplot(3, 2, 1)
-analyze_error_by_phase(sig_thermal_only, normalized_freq, data_mode="binned", include_baseline=True, ax=ax1)
+    for i in range(3):
+        case = test_cases[fig_idx * 3 + i]
+        exp = case['expected']
+        plt.sca(axes[i])
+        r = analyze_error_by_phase(case['signal'], norm_freq, n_bins=50, include_baseline=True, title=case['label'])
+        exp_total = np.sqrt((exp['am']**2)/2 + (exp['pm']**2)/2 + exp['baseline']**2)
+        print(f"{case['label']:15s}")
+        print(f"  [Expected  ] [AM={exp['am']:4.0f} uV] [PM={exp['pm']:4.0f} uV] [Base={exp['baseline']:4.0f} uV] [Total={exp_total:4.1f} uV]")
+        print(f"  [Calculated] [AM={r['am_noise_rms_v']*1e6:4.1f} uV] [PM={r['pm_noise_rms_v']*1e6:4.1f} uV] [Base={r['noise_floor_rms_v']*1e6:4.1f} uV] [Total={r['total_rms_v']*1e6:4.1f} uV] [R2={r['r_squared_binned']:.3f}]\n")
 
-# Case 2: Phase Jitter Only
-ax2 = plt.subplot(3, 2, 2)
-analyze_error_by_phase(sig_pm_only, normalized_freq, data_mode="binned", include_baseline=True, ax=ax2)
+    plt.tight_layout()
+    fig_path = output_dir / f'exp_a11_analyze_error_by_phase_{fig_idx + 1}.png'
+    plt.savefig(fig_path, dpi=150, bbox_inches='tight')
+    plt.close(fig)
+    print(f"[Save fig] -> [{fig_path.resolve()}]")
 
-# Case 3: Amplitude Modulation Only
-ax3 = plt.subplot(3, 2, 3)
-analyze_error_by_phase(sig_am_only, normalized_freq, data_mode="binned", include_baseline=True, ax=ax3)
-
-plt.tight_layout(rect=[0, 0.03, 1, 0.96])
-
-print(f"[Timing] Analysis & Plotting Setup: {time.time() - t_plot:.4f}s")
-
-# --- 4. Timing: File Saving ---
-t_save = time.time()
-
-fig_path = (output_dir / 'exp_a11_error_phase_binned_with_baseline.png').resolve()
-plt.savefig(fig_path, dpi=150, bbox_inches='tight')
-plt.close(fig)
-
-print(f"[Save fig] -> [{fig_path}]")
-print(f"[Timing] Image Rendering & Saving: {time.time() - t_save:.4f}s")
-
-# ============================================================================
-# 3-Plot Comparison: Thermal Noise vs Phase Noise vs Amplitude Noise
-# ============================================================================
-
-print("\n" + "="*80)
-print("3-PLOT COMPARISON: Thermal Noise Only vs Phase Noise Only vs Amplitude Noise Only")
-print("="*80 + "\n")
-
-# Create 3-plot comparison figure
-fig, axes = plt.subplots(1, 3, figsize=(18, 5))
-
-# Set titles first
-axes[0].set_title(f'Thermal Noise Only\n({target_thermal*1e6:.0f} µV)', fontsize=12, fontweight='bold', pad=10)
-axes[1].set_title(f'Phase Noise Only\n({target_pm_rad*1e6:.0f} µV)', fontsize=12, fontweight='bold', pad=10)
-axes[2].set_title(f'Amplitude Noise Only\n({target_am*1e6:.0f} µV)', fontsize=12, fontweight='bold', pad=10)
-
-fig.suptitle('Phase Error Analysis Comparison: Thermal vs Phase vs Amplitude Noise (Binned Mode WITH Baseline)',
-             fontsize=14, fontweight='bold')
-
-# Case 1: Thermal Noise Only
-analyze_error_by_phase(sig_thermal_only, normalized_freq, data_mode="binned", include_baseline=True, ax=axes[0])
-
-# Case 2: Phase Noise Only
-analyze_error_by_phase(sig_pm_only, normalized_freq, data_mode="binned", include_baseline=True, ax=axes[1])
-
-# Case 3: Amplitude Noise Only
-analyze_error_by_phase(sig_am_only, normalized_freq, data_mode="binned", include_baseline=True, ax=axes[2])
-
-plt.tight_layout()
-fig_path_3plot = (output_dir / 'exp_a11_error_phase_binned_with_baseline_3plot.png').resolve()
-plt.savefig(fig_path_3plot, dpi=150, bbox_inches='tight')
-plt.close(fig)
-
-print(f"[Save fig] -> [{fig_path_3plot}]")
-
-print(f"--- Total Runtime: {time.time() - t_start:.4f}s ---\n")
+print(f"\n[Timing] Analysis & Plotting: {time.time() - t_plot:.4f}s")
+print(f"--- Total Runtime: {time.time() - t_start:.4f}s ---")
