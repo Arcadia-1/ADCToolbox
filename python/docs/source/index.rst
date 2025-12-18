@@ -19,12 +19,13 @@ and digital output analysis.
 Features
 --------
 
-* **Analog Output Analysis**: INL/DNL analysis, harmonic decomposition, error analysis (PDF, spectrum, autocorrelation)
-* **Digital Output Analysis**: Bit weight calibration, overflow detection, bit activity checking
-* **Spectrum Analysis**: FFT-based metrics, SFDR, ENOB, polar plots
-* **Signal Generation**: Coherent frequency calculation, test signal generation
+* **Spectrum Analysis**: FFT-based analysis with ENOB, SNR, SFDR, THD, windowing, averaging, and polar visualization
+* **Signal Generation**: Thermal noise, jitter, quantization, static/dynamic nonlinearity, and interference modeling
+* **Analog Error Analysis**: Time-domain, frequency-domain, and statistical error characterization (PDF, autocorrelation, envelope spectrum)
+* **Digital Calibration**: Bit-weighted ADC calibration and redundancy analysis
+* **Fundamental Utilities**: Sine fitting, frequency calculation, unit conversion, and FOM metrics
 * **Oversampling Analysis**: Delta-Sigma modulator characterization, NTF analysis
-* **Comprehensive Examples**: 21 ready-to-run examples across 6 categories
+* **Comprehensive Examples**: 45 ready-to-run examples across 6 categories
 
 Quick Links
 -----------

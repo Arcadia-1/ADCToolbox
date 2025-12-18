@@ -3,6 +3,82 @@ Quick Start Guide
 
 This guide will help you get started with ADCToolbox quickly.
 
+Learning with Examples (Recommended)
+-------------------------------------
+
+**The best way to learn ADCToolbox is through the 45 ready-to-run examples.**
+
+Get All Examples
+~~~~~~~~~~~~~~~~
+
+.. code-block:: bash
+
+    cd /path/to/your/workspace
+    adctoolbox-get-examples
+
+This creates an ``adctoolbox_examples/`` directory with examples organized into 6 categories:
+
+* **01_basic/** - Fundamentals (2 examples)
+* **02_spectrum/** - FFT-Based Analysis (14 examples)
+* **03_generate_signals/** - Non-Ideality Modeling (6 examples)
+* **04_debug_analog/** - Error Characterization (13 examples)
+* **05_debug_digital/** - Calibration & Redundancy (5 examples)
+* **06_calculate_metric/** - Utility Functions (5 examples)
+
+Run Your First Examples
+~~~~~~~~~~~~~~~~~~~~~~~~
+
+Start with the basics, then move to spectrum analysis:
+
+.. code-block:: bash
+
+    cd adctoolbox_examples/01_basic
+
+    # Verify environment
+    python exp_b01_environment_check.py
+
+    # Learn coherent sampling
+    python exp_b02_coherent_vs_non_coherent.py
+
+    # Move to spectrum analysis
+    cd ../02_spectrum
+    python exp_s01_analyze_spectrum_simplest.py
+
+    # Try more spectrum examples
+    python exp_s02_analyze_spectrum_interactive.py
+    python exp_s21_analyze_two_tone_spectrum.py
+
+All outputs are saved to the ``output/`` directory within each category.
+
+Browse More Examples
+~~~~~~~~~~~~~~~~~~~~
+
+.. code-block:: bash
+
+    # Spectrum analysis (14 examples)
+    cd 02_spectrum
+    python exp_s01_analyze_spectrum_simplest.py
+    python exp_s04_sweep_dynamic_range.py
+    python exp_s08_windowing_deep_dive.py
+
+    # Signal generation (6 examples)
+    cd ../03_generate_signals
+    python exp_g01_generate_signal_demo.py
+
+    # Analog debugging (13 examples)
+    cd ../04_debug_analog
+    python exp_a01_fit_sine_4param.py
+    python exp_a21_analyze_error_pdf.py
+
+    # Digital debugging (5 examples)
+    cd ../05_debug_digital
+    python exp_d01_bit_activity.py
+    python exp_d02_cal_weight_sine.py
+
+    # Metrics & utilities (5 examples)
+    cd ../06_calculate_metric
+    python exp_b01_aliasing_nyquist_zones.py
+
 Basic Usage
 -----------
 
@@ -14,22 +90,31 @@ Analyze an ADC output spectrum:
 .. code-block:: python
 
     import numpy as np
-    from adctoolbox import compute_spectrum
+    from adctoolbox import analyze_spectrum, amplitudes_to_snr, snr_to_nsd
 
-    # Load ADC data
-    data = np.loadtxt('adc_output.csv')
+    # Generate test signal
+    N_fft = 2**13
+    Fs = 100e6
+    Fin = 123/N_fft * Fs  # Coherent frequency
+    t = np.arange(N_fft) / Fs
+    A = 0.5
+    noise_rms = 10e-6
+    signal = 0.5 * np.sin(2*np.pi*Fin*t) + np.random.randn(N_fft) * noise_rms
 
-    # Compute spectrum
-    result = compute_spectrum(
-        data,
-        fs=800e6,           # Sampling frequency: 800 MHz
-        window='hann',      # Window function
-        nfft=8192          # FFT points
-    )
+    # Calculate theoretical metrics
+    snr_ref = amplitudes_to_snr(sig_amplitude=A, noise_amplitude=noise_rms)
+    nsd_ref = snr_to_nsd(snr_ref, fs=Fs, osr=1)
+    print(f"Theoretical SNR: {snr_ref:.2f} dB, NSD: {nsd_ref:.2f} dBFS/Hz")
+
+    # Analyze spectrum
+    result = analyze_spectrum(signal, fs=Fs)
 
     # Access metrics
-    print(f"SFDR: {result['metrics']['sfdr_db']:.2f} dB")
-    print(f"ENOB: {result['metrics']['enob']:.2f} bits")
+    print(f"ENOB: {result['enob']:.2f} bits")
+    print(f"SNDR: {result['sndr_db']:.2f} dB")
+    print(f"SFDR: {result['sfdr_db']:.2f} dB")
+    print(f"SNR: {result['snr_db']:.2f} dB")
+    print(f"NSD: {result['nsd_dbfs_hz']:.2f} dBFS/Hz")
 
 Sine Fitting
 ~~~~~~~~~~~~
@@ -48,23 +133,6 @@ Fit a sine wave to ADC data:
     print(f"Frequency: {result['frequency']:.6f}")
     print(f"Phase: {result['phase']:.4f} rad")
     print(f"DC Offset: {result['dc_offset']:.4f}")
-
-INL/DNL Analysis
-~~~~~~~~~~~~~~~~
-
-Analyze INL and DNL from sine wave data:
-
-.. code-block:: python
-
-    from adctoolbox import analyze_inl_from_sine
-
-    # Compute INL/DNL
-    result = analyze_inl_from_sine(data, output_dir='output')
-
-    # Results include:
-    # - INL/DNL plots
-    # - Statistical metrics
-    # - Data arrays for further analysis
 
 Using Toolsets
 --------------
@@ -109,38 +177,6 @@ Execute digital output analysis tools:
 
     # Creates 3 diagnostic plots + 1 panel overview
 
-Working with Examples
----------------------
-
-Copy Examples to Your Workspace
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-
-.. code-block:: bash
-
-    cd /path/to/your/workspace
-    adctoolbox-get-examples
-
-Run Example Scripts
-~~~~~~~~~~~~~~~~~~~
-
-.. code-block:: bash
-
-    cd adctoolbox_examples
-
-    # Basic examples
-    python exp_b01_plot_sine.py
-    python exp_b02_spectrum.py
-
-    # Analog analysis examples
-    python exp_a01_spec_plot_nonidealities.py
-    python exp_a03_err_pdf.py
-
-    # Digital analysis examples
-    python exp_d01_bit_activity.py
-    python exp_d02_fg_cal_sine.py
-
-All outputs are saved to the ``output/`` directory.
-
 Common Patterns
 ---------------
 
@@ -166,19 +202,29 @@ Calculate a coherent test frequency for ADC testing:
 Error Analysis
 ~~~~~~~~~~~~~~
 
-Analyze errors in ADC output by code value:
+Analyze errors in ADC output using various methods:
 
 .. code-block:: python
 
-    from adctoolbox import analyze_error_by_value
-
-    result = analyze_error_by_value(
-        data,
-        output_dir='output',
-        freq_cal=None    # Auto-detect frequency
+    from adctoolbox import (
+        analyze_error_pdf,
+        analyze_error_spectrum,
+        analyze_error_autocorr,
+        analyze_error_envelope_spectrum
     )
 
-    # Creates error vs. code plot with statistics
+    # Error PDF (probability distribution)
+    result_pdf = analyze_error_pdf(data, resolution=12, show_plot=True)
+    print(f"Error std: {result_pdf['sigma']:.2f} LSB")
+
+    # Error spectrum (frequency domain)
+    result_spectrum = analyze_error_spectrum(data, fs=800e6, show_plot=True)
+
+    # Error autocorrelation (temporal correlation)
+    result_autocorr = analyze_error_autocorr(data, max_lag=100, show_plot=True)
+
+    # Error envelope spectrum (AM patterns)
+    result_envelope = analyze_error_envelope_spectrum(data, fs=800e6, show_plot=True)
 
 Next Steps
 ----------

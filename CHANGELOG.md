@@ -7,20 +7,98 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Work in Progress
+- Additional examples and tutorials
+- Performance optimizations
+
+## [0.4.0] - 2025-12-18
+
+**Documentation Release** - Complete Sphinx documentation overhaul with algorithm guides.
+
 ### Added
-- Comprehensive spectrum examples (18 total):
-  - Basic workflows (s00-s03): simplest → interactive → savefig → manual
-  - FFT concepts (s04-s05): FFT length, OSR comparison
-  - Windowing (s06-s09): spectral leakage, window types, coherent signals
-  - Averaging methods (s10-s12): power averaging, coherent averaging, coherent + OSR
-  - Polar visualization (s21-s24): polar plots, coherent averaging, kickback
-  - Two-tone IMD (s31-s32): two-tone analysis, IMD comparison
-- Complete API reference documentation in `agent_playground/ADCToolbox_API_Reference.md`
-  - 100+ public functions documented
-  - All module descriptions
-  - Usage examples
-  - Version history
-- Debug scripts and documentation for spectrum analysis fixes in `agent_playground/`
+- **Complete Documentation Overhaul**:
+  - 15 detailed algorithm documentation pages with Python API
+  - Updated installation guide emphasizing `adctoolbox-get-examples`
+  - Enhanced quickstart guide with learning path
+  - All API reference docs updated to Python snake_case naming
+
+### Changed
+- **Documentation Structure**:
+  - Installation guide shortened, git clone moved to bottom
+  - Quickstart restructured to start with basic examples (exp_b01, exp_b02, then exp_s01)
+  - Used actual code from examples instead of synthetic snippets
+  - Emphasized "Learning with Examples" throughout documentation
+
+### Removed
+- Deleted 13 obsolete MATLAB-named algorithm documentation files
+- Removed obsolete `src/__init__.py` file
+
+### Fixed
+- Version number synchronization across all files
+- Dynamic versioning in `pyproject.toml`
+- Documentation links and references updated to v0.4.0
+
+## [0.3.0] - 2025-12-18
+
+**Major Refactoring Release** - Complete Python architecture modernization with 45 examples.
+
+### Breaking Changes
+- **API Naming Convention**: All functions converted from MATLAB camelCase to Python snake_case
+  - `sineFit` → `fit_sine_4param`
+  - `INLsine` → `analyze_inl_from_sine`
+  - `specPlot` → `analyze_spectrum`
+  - `specPlotPhase` → `analyze_spectrum_polar`
+  - `spec_plot_2tone` → `analyze_two_tone_spectrum`
+  - `errPDF` → `analyze_error_pdf`
+  - `errHistSine` → `analyze_error_by_value` / `analyze_error_by_phase`
+  - `errAutoCorrelation` → `analyze_error_autocorr`
+  - `errEnvelopeSpectrum` → `analyze_error_envelope_spectrum`
+  - `tomDecomp` → `analyze_decomposition_time` / `analyze_decomposition_polar`
+  - `FGCalSine` → `calibrate_weight_sine`
+  - And 20+ more function renamings
+
+- **Module Structure**: Consolidated and reorganized for better maintainability
+  - `fundamentals`: Sine fitting, frequency utils, unit conversions, FOM metrics, validation
+  - `spectrum`: Single-tone, two-tone, polar analysis (extracted from aout)
+  - `aout`: Analog error analysis (10+ functions)
+  - `dout`: Digital calibration (3 functions)
+  - `siggen`: Signal generator with non-idealities
+  - `oversampling`: NTF analysis
+
+- **Return Values**: All functions now return dictionaries instead of tuples
+  - Old: `enob, sndr, sfdr, ... = analyze_spectrum(...)`
+  - New: `result = analyze_spectrum(...); enob = result['enob']`
+
+### Added
+- **45 Ready-to-Run Examples** (up from 21) across 6 categories:
+  - `01_basic/` - Fundamentals (2 examples)
+  - `02_spectrum/` - FFT-Based Analysis (14 examples)
+  - `03_generate_signals/` - Non-Ideality Modeling (6 examples)
+  - `04_debug_analog/` - Error Characterization (13 examples)
+  - `05_debug_digital/` - Calibration & Redundancy (5 examples)
+  - `06_calculate_metric/` - Utility Functions (5 examples)
+
+- **Enhanced Error Analysis Functions**:
+  - `analyze_error_by_phase`: AM/PM decomposition
+  - `analyze_error_spectrum`: Error frequency analysis
+  - `analyze_decomposition_polar`: Polar harmonic visualization
+  - `fit_static_nonlin`: Extract k2/k3 nonlinearity coefficients
+
+- **Expanded Fundamentals Module**:
+  - Comprehensive unit conversions (dB, power, voltage, frequency, NSD)
+  - FOM calculations (Walden, Schreier)
+  - Noise/jitter limit calculations
+  - Data validation utilities (validate_aout_data, validate_dout_data)
+
+- **Complete Documentation Overhaul**:
+  - 15 detailed algorithm documentation pages (fit_sine_4param, analyze_spectrum, etc.)
+  - Updated installation guide emphasizing examples
+  - Enhanced quickstart guide with learning path
+  - Updated API reference docs
+
+- **CLI Improvements**:
+  - `adctoolbox-get-examples`: One-command example deployment
+  - Organized output directory structure
 
 ### Fixed
 - **CRITICAL**: Full-scale range calculation - DC offset no longer affects signal power measurements

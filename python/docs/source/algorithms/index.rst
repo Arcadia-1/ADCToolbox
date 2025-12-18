@@ -7,34 +7,14 @@ This section provides detailed documentation of the algorithms and theory behind
    :maxdepth: 2
 
    AlgorithmOverview
-   toolset_aout
-   toolset_dout
 
-Analog Analysis Algorithms
----------------------------
+Fundamental Algorithms
+----------------------
 
 .. toctree::
    :maxdepth: 1
 
-   sineFit
-   INLsine
-   errPDF
-   errHistSine
-   errAutoCorrelation
-   errEnvelopeSpectrum
-   tomDecomp
-
-Digital Analysis Algorithms
-----------------------------
-
-.. toctree::
-   :maxdepth: 1
-
-   FGCalSine
-   overflowChk
-   bitActivity
-   ENoB_bitSweep
-   weightScaling
+   fit_sine_4param
 
 Spectrum Analysis Algorithms
 -----------------------------
@@ -42,9 +22,34 @@ Spectrum Analysis Algorithms
 .. toctree::
    :maxdepth: 1
 
-   specPlot
-   specPlotPhase
-   spec_plot_2tone
+   analyze_spectrum
+   analyze_spectrum_polar
+   analyze_two_tone_spectrum
+
+Analog Error Analysis Algorithms
+---------------------------------
+
+.. toctree::
+   :maxdepth: 1
+
+   analyze_inl_from_sine
+   analyze_error_pdf
+   analyze_error_by_value
+   analyze_error_by_phase
+   analyze_error_spectrum
+   analyze_error_autocorr
+   analyze_error_envelope_spectrum
+   analyze_decomposition_time
+   analyze_decomposition_polar
+   fit_static_nonlin
+
+Digital Calibration Algorithms
+-------------------------------
+
+.. toctree::
+   :maxdepth: 1
+
+   calibrate_weight_sine
 
 Oversampling Algorithms
 -----------------------
@@ -53,12 +58,3 @@ Oversampling Algorithms
    :maxdepth: 1
 
    NTFAnalyzer
-
-Utilities
----------
-
-.. toctree::
-   :maxdepth: 1
-
-   jitterCalculation
-   UtilityFunctions
