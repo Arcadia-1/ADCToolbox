@@ -4,11 +4,10 @@ Analyzes the spectrum of the fitting error signal directly to reveal
 frequency components and error characteristics.
 """
 
-import numpy as np
 import matplotlib.pyplot as plt
 from typing import Optional
 from adctoolbox.spectrum import analyze_spectrum
-from .fit_sine_4param import fit_sine_4param
+from adctoolbox.fundamentals.fit_sine_4param import fit_sine_4param
 
 
 def analyze_error_spectrum(signal, fs=1, frequency=None, show_plot=True,

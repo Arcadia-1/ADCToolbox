@@ -15,10 +15,8 @@ import time
 
 # --- 1. Timing: Imports ---
 t_start = time.time()
-import numpy as np
 import matplotlib.pyplot as plt
-from adctoolbox.aout.analyze_error_autocorr import analyze_error_autocorr
-from adctoolbox.aout.fit_sine_4param import fit_sine_4param
+from adctoolbox import analyze_error_autocorr
 from nonideality_cases import get_batch_test_setup  # type: ignore
 
 print(f"[Timing] Library Imports: {time.time() - t_start:.4f}s")
@@ -56,14 +54,10 @@ for idx, case in enumerate(CASES):
     # Generate signal
     signal = case['func']()
 
-    # Fit sine and get error
-    fit_result = fit_sine_4param(signal, frequency_estimate=params['Fin']/params['Fs'])
-    sig_fit = fit_result['fitted_signal']
-    err = signal - sig_fit
-
-    # Analyze error autocorrelation
-    acf, lags = analyze_error_autocorr(
-        err,
+    # Analyze error autocorrelation (now handles fitting internally)
+    result = analyze_error_autocorr(
+        signal,
+        frequency=params['Fin']/params['Fs'],
         max_lag=100,
         normalize=True,
         show_plot=True,
@@ -72,6 +66,8 @@ for idx, case in enumerate(CASES):
     )
 
     # Extract ACF values
+    acf = result['acf']
+    lags = result['lags']
     acf_0 = acf[lags==0][0]
     acf_1 = acf[lags==1][0] if len(acf[lags==1]) > 0 else 0
     acf_10 = acf[lags==10][0] if len(acf[lags==10]) > 0 else 0

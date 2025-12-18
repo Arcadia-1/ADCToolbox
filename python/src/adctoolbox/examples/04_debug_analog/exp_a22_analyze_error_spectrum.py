@@ -15,9 +15,8 @@ import time
 
 # --- 1. Timing: Imports ---
 t_start = time.time()
-import numpy as np
 import matplotlib.pyplot as plt
-from adctoolbox.aout.analyze_error_spectrum import analyze_error_spectrum
+from adctoolbox import analyze_error_spectrum
 from nonideality_cases import get_batch_test_setup  # type: ignore
 
 print(f"[Timing] Library Imports: {time.time() - t_start:.4f}s")

@@ -15,10 +15,8 @@ import time
 
 # --- 1. Timing: Imports ---
 t_start = time.time()
-import numpy as np
 import matplotlib.pyplot as plt
-from adctoolbox.aout.fit_sine_4param import fit_sine_4param
-from adctoolbox.aout.analyze_error_envelope_spectrum import analyze_error_envelope_spectrum
+from adctoolbox import analyze_error_envelope_spectrum
 from nonideality_cases import get_batch_test_setup  # type: ignore
 
 print(f"[Timing] Library Imports: {time.time() - t_start:.4f}s")
@@ -52,13 +50,14 @@ for idx, case in enumerate(CASES):
     # Generate signal
     signal = case['func']()
 
-    # Fit sine and get error
-    fit_result = fit_sine_4param(signal, frequency_estimate=params['Fin']/params['Fs'])
-    sig_fit = fit_result['fitted_signal']
-    err = signal - sig_fit
-
-    # Analyze error envelope spectrum
-    result = analyze_error_envelope_spectrum(err, fs=params['Fs'], ax=axes[idx], title=case['title'])
+    # Analyze error envelope spectrum (now handles fitting internally)
+    result = analyze_error_envelope_spectrum(
+        signal,
+        fs=params['Fs'],
+        frequency=params['Fin']/params['Fs'],
+        ax=axes[idx],
+        title=case['title']
+    )
 
 print(f"\n[Timing] Signal Generation & Plotting: {time.time() - t_plot:.4f}s")
 

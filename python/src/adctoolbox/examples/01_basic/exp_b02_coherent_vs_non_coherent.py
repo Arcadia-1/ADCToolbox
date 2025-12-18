@@ -45,7 +45,7 @@ ax1.set_title(f'Non-Coherent: Fin={Fin_arbitrary/1e6:.1f} MHz (spectral leakage!
 ax2.set_title(f'Coherent: Fin={Fin_coherent/1e6:.3f} MHz (Bin {Fin_bin})')
 
 plt.tight_layout()
-fig_path = (output_dir / 'exp_s07_spectral_leakage_demo.png').resolve()
+fig_path = (output_dir / 'exp_b02_coherent_vs_non_coherent.png').resolve()
 print(f"\n[Save fig] -> [{fig_path}]\n")
 plt.savefig(fig_path, dpi=150)
 plt.close()

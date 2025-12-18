@@ -1,5 +1,4 @@
 import matplotlib.pyplot as plt
-import numpy as np
 from pathlib import Path
 from adctoolbox import find_coherent_frequency, analyze_spectrum 
 from adctoolbox.siggen import ADC_Signal_Generator 
@@ -72,6 +71,7 @@ plt.suptitle(f'Static Nonlinearity Sweep: HD2/HD3 Sign Analysis\n|HD2|={HD2_TARG
 plt.tight_layout()
 
 fig_path = output_dir / "exp_g05_sweep_nonlinear_sign_fixed.png"
-print(f"\n[Save figure] -> [{fig_path}]\n")
 plt.savefig(fig_path, dpi=300, bbox_inches='tight')
 plt.close()
+
+print(f"\n[Save figure] -> [{fig_path}]")

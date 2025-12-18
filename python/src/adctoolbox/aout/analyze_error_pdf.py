@@ -6,7 +6,7 @@ Computes error PDF, fits Gaussian, and calculates KL divergence for goodness-of-
 import numpy as np
 import matplotlib.pyplot as plt
 from typing import Optional
-from .fit_sine_4param import fit_sine_4param
+from adctoolbox.fundamentals.fit_sine_4param import fit_sine_4param
 
 
 def analyze_error_pdf(signal, resolution=12, full_scale=None, frequency=None, show_plot=True,
