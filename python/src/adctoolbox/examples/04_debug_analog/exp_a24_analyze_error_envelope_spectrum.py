@@ -58,8 +58,8 @@ for idx, case in enumerate(CASES):
     err = signal - sig_fit
 
     # Analyze error envelope spectrum
-    result = analyze_error_envelope_spectrum(err, ax=axes[idx], title=case['title'])
-    
+    result = analyze_error_envelope_spectrum(err, fs=params['Fs'], ax=axes[idx], title=case['title'])
+
 print(f"\n[Timing] Signal Generation & Plotting: {time.time() - t_plot:.4f}s")
 
 # --- 5. Finalize and Save ---
