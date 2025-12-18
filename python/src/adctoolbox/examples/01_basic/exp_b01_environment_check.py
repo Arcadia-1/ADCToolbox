@@ -29,7 +29,7 @@ ax.set_title(f'Sine Wave: {n_samples} samples', fontsize=14)
 ax.grid(True, alpha=0.3)
 
 plt.tight_layout()
-fig_path = (output_dir / 'exp_b00_environment_check.png').resolve()
+fig_path = (output_dir / 'exp_b01_environment_check.png').resolve()
 print(f"\n[Save fig] -> [{fig_path}]\n")
 plt.savefig(fig_path, dpi=150)
 plt.close()

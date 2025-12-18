@@ -6,7 +6,7 @@ following the modular architecture pattern used throughout the spectrum package.
 
 import numpy as np
 from typing import Dict, Optional
-from adctoolbox.common.fold_bin_to_nyquist import fold_bin_to_nyquist
+from adctoolbox.fundamentals.frequency import fold_bin_to_nyquist
 from adctoolbox.spectrum._prepare_fft_input import _prepare_fft_input
 from adctoolbox.spectrum._align_spectrum_phase import _align_spectrum_phase
 

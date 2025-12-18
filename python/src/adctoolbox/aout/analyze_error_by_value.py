@@ -2,8 +2,8 @@
 
 from typing import Optional, Tuple, Dict, Any
 import numpy as np
-from .rearrange_error_by_value import rearrange_error_by_value
-from .plot_rearranged_error_by_value import plot_rearranged_error_by_value
+from adctoolbox.aout.rearrange_error_by_value import rearrange_error_by_value
+from adctoolbox.aout.plot_rearranged_error_by_value import plot_rearranged_error_by_value
 
 
 def analyze_error_by_value(

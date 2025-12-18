@@ -9,22 +9,28 @@ MATLAB counterpart: errac.m
 import numpy as np
 import matplotlib.pyplot as plt
 from typing import Optional
+from adctoolbox.fundamentals.fit_sine_4param import fit_sine_4param
 
 
-def analyze_error_autocorr(err_data, max_lag=100, normalize=True, show_plot=False,
+def analyze_error_autocorr(signal, frequency=None, max_lag=50, normalize=True, show_plot=True,
                            ax: Optional[plt.Axes] = None, title: str = None):
     """
     Compute and optionally plot autocorrelation function (ACF) of error signal.
 
+    This function fits an ideal sine to the signal, computes the error,
+    and analyzes its autocorrelation to detect temporal correlation patterns.
+
     Parameters
     ----------
-    err_data : array_like
-        Error signal (1D array)
-    max_lag : int, default=100
+    signal : np.ndarray
+        ADC output signal (1D array)
+    frequency : float, optional
+        Normalized frequency (0-0.5). If None, auto-detected
+    max_lag : int, default=50
         Maximum lag in samples
     normalize : bool, default=True
         Normalize ACF so ACF[0] = 1
-    show_plot : bool, default=False
+    show_plot : bool, default=True
         If True, plot the autocorrelation
     ax : matplotlib.axes.Axes, optional
         Axes to plot on. If None, uses current axes (plt.gca())
@@ -33,13 +39,32 @@ def analyze_error_autocorr(err_data, max_lag=100, normalize=True, show_plot=Fals
 
     Returns
     -------
-    acf : ndarray
-        Autocorrelation values
-    lags : ndarray
-        Lag indices (-max_lag to +max_lag)
+    result : dict
+        Dictionary containing:
+        - 'acf': Autocorrelation values
+        - 'lags': Lag indices (-max_lag to +max_lag)
+        - 'error_signal': Error signal (signal - fitted sine)
+
+    Notes
+    -----
+    - Error = signal - ideal_sine (fitted using fit_sine_4param)
+    - ACF reveals temporal correlation in the error signal
+    - White noise shows ACF ≈ 0 for all lags except 0
+    - Correlated errors show non-zero ACF at specific lags
     """
+    # Fit ideal sine to extract reference
+    if frequency is None:
+        fit_result = fit_sine_4param(signal)
+    else:
+        fit_result = fit_sine_4param(signal, frequency_estimate=frequency)
+
+    sig_ideal = fit_result['fitted_signal']
+
+    # Compute error
+    error_signal = signal - sig_ideal
+
     # Ensure column data
-    e = np.asarray(err_data).flatten()
+    e = np.asarray(error_signal).flatten()
     N = len(e)
 
     # Subtract mean
@@ -83,4 +108,9 @@ def analyze_error_autocorr(err_data, max_lag=100, normalize=True, show_plot=Fals
         if title is not None:
             ax.set_title(title, fontsize=10, fontweight='bold')
 
-    return acf, lags
+    # Return dictionary for consistency with other analyze functions
+    return {
+        'acf': acf,
+        'lags': lags,
+        'error_signal': error_signal
+    }

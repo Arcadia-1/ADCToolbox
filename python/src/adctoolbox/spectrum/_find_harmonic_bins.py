@@ -7,7 +7,7 @@ This is an internal helper module, not intended for direct use by end users.
 """
 
 import numpy as np
-from adctoolbox.common.fold_frequency_to_nyquist import fold_frequency_to_nyquist
+from adctoolbox.fundamentals.frequency import fold_frequency_to_nyquist
 
 
 def _find_harmonic_bins(

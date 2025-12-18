@@ -5,7 +5,6 @@ This is a wrapper function that combines INL/DNL computation and plotting
 for convenient use.
 """
 
-import numpy as np
 from adctoolbox.aout.compute_inl_from_sine import compute_inl_from_sine
 from adctoolbox.aout.plot_dnl_inl import plot_dnl_inl
 

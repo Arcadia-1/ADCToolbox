@@ -17,7 +17,7 @@ import numpy as np
 import matplotlib.pyplot as plt
 from pathlib import Path
 from adctoolbox import analyze_error_by_phase, find_coherent_frequency, analyze_spectrum
-from adctoolbox.common.calculate_fom import calculate_jitter_limit
+from adctoolbox.fundamentals.metrics import calculate_jitter_limit
 
 print(f"[Timing] Library Imports: {time.time() - t_start:.4f}s")
 

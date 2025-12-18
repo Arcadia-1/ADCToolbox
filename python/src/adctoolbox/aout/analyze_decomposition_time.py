@@ -2,8 +2,8 @@
 
 from typing import Optional, Dict, Any
 import numpy as np
-from .decompose_harmonic_error import decompose_harmonic_error
-from .plot_decomposition_time import plot_decomposition_time
+from adctoolbox.aout.decompose_harmonic_error import decompose_harmonic_error
+from adctoolbox.aout.plot_decomposition_time import plot_decomposition_time
 
 
 def analyze_decomposition_time(

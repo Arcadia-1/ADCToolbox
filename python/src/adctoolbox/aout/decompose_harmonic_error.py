@@ -6,9 +6,9 @@ Single Responsibility Principle. No visualization is performed.
 """
 
 import numpy as np
-from typing import Optional, Dict, Any
-from .fit_sine_harmonics import fit_sine_harmonics
-from .fit_sine_4param import fit_sine_4param
+from typing import Dict, Any
+from adctoolbox.aout._fit_sine_harmonics import _fit_sine_harmonics
+from adctoolbox.fundamentals.fit_sine_4param import fit_sine_4param
 
 
 def decompose_harmonic_error(
@@ -92,7 +92,7 @@ def decompose_harmonic_error(
     # Use fit_sine_harmonics as the core math kernel for least-squares fitting
     # Include DC term to capture any residual numerical bias and avoid offset in residual
     include_dc = True
-    W, signal_reconstructed, basis_matrix, phase = fit_sine_harmonics(
+    W, signal_reconstructed, basis_matrix, phase = _fit_sine_harmonics(
         sig_zero_mean,
         freq=fundamental_freq,
         order=n_harmonics,

@@ -9,7 +9,7 @@ Ported from MATLAB: FGCalSine_2freq.m
 
 import numpy as np
 from typing import Optional, Tuple, Union, List
-from adctoolbox.common.fold_frequency_to_nyquist import fold_frequency_to_nyquist
+from adctoolbox.fundamentals.frequency import fold_frequency_to_nyquist
 
 
 def calibrate_weight_two_tone(

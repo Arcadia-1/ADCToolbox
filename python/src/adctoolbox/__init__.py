@@ -33,10 +33,10 @@ def _export(name, obj):
 
 
 # ======================================================================
-# Core Common Functions (Essential Utilities)
+# Core Fundamental Functions (Essential Utilities)
 # ======================================================================
 
-from .common import (
+from .fundamentals import (
     find_coherent_frequency,
     estimate_frequency,
     fold_bin_to_nyquist,
@@ -47,6 +47,7 @@ from .common import (
     snr_to_enob,
     enob_to_snr,
     snr_to_nsd,
+    fit_sine_4param,
 )
 
 _export('find_coherent_frequency', find_coherent_frequency)
@@ -59,6 +60,7 @@ _export('mag_to_db', mag_to_db)
 _export('snr_to_enob', snr_to_enob)
 _export('enob_to_snr', enob_to_snr)
 _export('snr_to_nsd', snr_to_nsd)
+_export('fit_sine_4param', fit_sine_4param)
 
 # ======================================================================
 # Spectrum Analysis Functions
@@ -85,7 +87,10 @@ from .aout import (
     analyze_decomposition_polar,
     analyze_error_by_value,
     analyze_error_by_phase,
-    fit_sine_4param,
+    analyze_error_pdf,
+    analyze_error_spectrum,
+    analyze_error_autocorr,
+    analyze_error_envelope_spectrum,
     fit_static_nonlin
 )
 
@@ -94,7 +99,10 @@ _export('analyze_decomposition_time', analyze_decomposition_time)
 _export('analyze_decomposition_polar', analyze_decomposition_polar)
 _export('analyze_error_by_value', analyze_error_by_value)
 _export('analyze_error_by_phase', analyze_error_by_phase)
-_export('fit_sine_4param', fit_sine_4param)
+_export('analyze_error_pdf', analyze_error_pdf)
+_export('analyze_error_spectrum', analyze_error_spectrum)
+_export('analyze_error_autocorr', analyze_error_autocorr)
+_export('analyze_error_envelope_spectrum', analyze_error_envelope_spectrum)
 _export('fit_static_nonlin', fit_static_nonlin)
 
 
@@ -106,13 +114,11 @@ from .dout import (
     calibrate_weight_sine,
     calibrate_weight_sine_osr,
     calibrate_weight_two_tone,
-    generate_dout_dashboard,
 )
 
 _export('calibrate_weight_sine', calibrate_weight_sine)
 _export('calibrate_weight_sine_osr', calibrate_weight_sine_osr)
 _export('calibrate_weight_two_tone', calibrate_weight_two_tone)
-_export('generate_dout_dashboard', generate_dout_dashboard)
 
 
 # ======================================================================
@@ -130,13 +136,13 @@ _export('ntf_analyzer', ntf_analyzer)
 # Submodules (for explicit imports like: from adctoolbox.aout import ...)
 # ======================================================================
 
-from . import common
+from . import fundamentals
 from . import aout
 from . import dout
 from . import oversampling
 from . import spectrum
 
-_export('common', common)
+_export('fundamentals', fundamentals)
 _export('aout', aout)
 _export('dout', dout)
 _export('oversampling', oversampling)

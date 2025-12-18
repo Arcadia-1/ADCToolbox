@@ -8,8 +8,8 @@ Dual-track parallel design:
 
 import numpy as np
 from typing import Dict
-from .fit_sine_4param import fit_sine_4param
-from .fit_error_phase import fit_error_phase
+from adctoolbox.fundamentals.fit_sine_4param import fit_sine_4param
+from adctoolbox.aout._fit_error_phase import _fit_error_phase
 
 
 def rearrange_error_by_phase(
@@ -71,7 +71,7 @@ def rearrange_error_by_phase(
 
     # ===== Step 2: Path A - Raw fitting (The Numerics) =====
     error_sq = error ** 2
-    raw_result = fit_error_phase(error_sq, phase_wrapped, include_base_noise)
+    raw_result = _fit_error_phase(error_sq, phase_wrapped, include_base_noise)
     r_squared_raw = raw_result['r_squared']  # Energy ratio (typically low)
     coeffs = raw_result['coeffs']  # [am², pm², base_noise]
 

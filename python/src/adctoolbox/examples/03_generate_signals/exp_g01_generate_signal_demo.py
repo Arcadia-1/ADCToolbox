@@ -4,7 +4,6 @@ This example shows how thermal noise affects ADC signal quality and spectrum.
 Generates clean signal and three thermal noise levels for comparison.
 """
 
-import numpy as np
 import matplotlib.pyplot as plt
 from pathlib import Path
 from adctoolbox import find_coherent_frequency, amplitudes_to_snr, snr_to_nsd, analyze_spectrum
@@ -78,6 +77,4 @@ fig_path = output_dir / 'exp_g01_generate_signal_demo_thermal_noise.png'
 plt.savefig(fig_path, dpi=300, bbox_inches='tight')
 plt.close()
 
-print("=" * 80)
-print(f"[Save figure] -> [{fig_path}]")
-print("Done!")
+print(f"\n[Save figure] -> [{fig_path}]")

@@ -11,19 +11,26 @@ import matplotlib.pyplot as plt
 from typing import Optional
 from scipy.signal import hilbert
 from adctoolbox.spectrum import analyze_spectrum
+from adctoolbox.fundamentals.fit_sine_4param import fit_sine_4param
 
 
-def analyze_error_envelope_spectrum(err_data, fs=1, show_plot=True,
+def analyze_error_envelope_spectrum(signal, fs=1, frequency=None, show_plot=True,
                                      ax: Optional[plt.Axes] = None, title: str = None):
     """
     Compute envelope spectrum using Hilbert transform.
 
+    This function fits an ideal sine to the signal, computes the error,
+    extracts the error envelope using Hilbert transform, and analyzes
+    its spectrum to reveal amplitude modulation patterns.
+
     Parameters
     ----------
-    err_data : array_like
-        Error signal (1D array)
+    signal : np.ndarray
+        ADC output signal (1D array)
     fs : float, default=1
         Sampling frequency in Hz
+    frequency : float, optional
+        Normalized frequency (0-0.5). If None, auto-detected
     show_plot : bool, default=True
         If True, plot the envelope spectrum on current axes
     ax : matplotlib.axes.Axes, optional
@@ -41,10 +48,29 @@ def analyze_error_envelope_spectrum(err_data, fs=1, show_plot=True,
         - 'snr_db': Signal-to-Noise Ratio (dB)
         - 'thd_db': Total Harmonic Distortion (dB)
         - 'sig_pwr_dbfs': Signal power (dBFS)
-        - 'noise_floor_db': Noise floor (dB)
+        - 'noise_floor_dbfs': Noise floor (dBFS)
+        - 'error_signal': Error signal (signal - fitted sine)
+        - 'envelope': Error envelope extracted via Hilbert transform
+
+    Notes
+    -----
+    - Error = signal - ideal_sine (fitted using fit_sine_4param)
+    - Envelope = |Hilbert(error)|
+    - Analyzes spectrum of envelope to reveal AM patterns
     """
+    # Fit ideal sine to extract reference
+    if frequency is None:
+        fit_result = fit_sine_4param(signal)
+    else:
+        fit_result = fit_sine_4param(signal, frequency_estimate=frequency)
+
+    sig_ideal = fit_result['fitted_signal']
+
+    # Compute error
+    error_signal = signal - sig_ideal
+
     # Ensure column data
-    e = np.asarray(err_data).flatten()
+    e = np.asarray(error_signal).flatten()
 
     # Envelope extraction via Hilbert transform
     env = np.abs(hilbert(e))
@@ -73,5 +99,9 @@ def analyze_error_envelope_spectrum(err_data, fs=1, show_plot=True,
         plt.close()
 
         matplotlib.use(backend_orig)  # Restore original backend
+
+    # Add error signal and envelope to result
+    result['error_signal'] = error_signal
+    result['envelope'] = env
 
     return result
