@@ -57,7 +57,7 @@ for idx, N in enumerate(N_list):
 fig.suptitle(f'INL/DNL Sweep: Record Length Comparison (Fs={fs/1e6:.0f} MHz, Fin={fin_target/1e6:.0f} MHz)',
              fontsize=14, fontweight='bold')
 plt.tight_layout(rect=[0, 0, 1, 0.96])
-fig_path = output_dir / 'exp_a13_compute_inl_sweep_length.png'
+fig_path = output_dir / 'exp_a33_compute_inl_sweep_length.png'
 fig.savefig(fig_path, dpi=150)
 print(f"\n[Save fig] -> [{fig_path}]")
 plt.close(fig)

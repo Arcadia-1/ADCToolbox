@@ -68,7 +68,7 @@ for idx, (k2_inject, k3_inject) in enumerate(scenarios):
     print(f"[Injected: k2={k2_inject:7.4f}, k3={k3_inject:7.4f}] [Extracted: k2={k2_extracted:7.4f}, k3={k3_extracted:7.4f}]")
 
 plt.tight_layout()
-fig_path = output_dir / 'exp_a10_fit_static_nonlin.png'
+fig_path = output_dir / 'exp_a31_fit_static_nonlin.png'
 plt.savefig(fig_path, dpi=150)
 print(f"\n[Saved] -> {fig_path}")
 plt.close()

@@ -38,7 +38,7 @@ inl, dnl, code = result_inl['inl'], result_inl['dnl'], result_inl['code']
 print(f"[analyze_inl_from_sine] [INL: {np.min(inl):5.2f}, {np.max(inl):5.2f}] LSB, [DNL: {np.min(dnl):5.2f}, {np.max(dnl):5.2f}] LSB")
 
 plt.tight_layout()
-fig_path = output_dir / 'exp_a51_compute_inl_from_sine.png'
+fig_path = output_dir / 'exp_a32_compute_inl_from_sine.png'
 fig.savefig(fig_path, dpi=150)
 print(f"[Save fig] -> [{fig_path}]")
 plt.close(fig)

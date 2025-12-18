@@ -1,111 +1,133 @@
-"""
-Error probability density function (PDF) analysis with KDE and Gaussian comparison.
+"""Error probability density function (PDF) analysis with KDE and Gaussian comparison.
 
 Computes error PDF, fits Gaussian, and calculates KL divergence for goodness-of-fit.
-
-MATLAB counterpart: errpdf.m
 """
 
 import numpy as np
 import matplotlib.pyplot as plt
-from adctoolbox.aout.fit_sine_4param import fit_sine_4param as fit_sine
+from typing import Optional
+from .fit_sine_4param import fit_sine_4param
 
 
-def analyze_error_pdf(sig_distorted, resolution=12, full_scale=1, freq=0, plot=False):
+def analyze_error_pdf(signal, resolution=12, full_scale=None, frequency=None, show_plot=True,
+                       ax: Optional[plt.Axes] = None, title: str = None):
     """
     Compute and optionally plot error probability density function using KDE.
 
-    This function automatically fits an ideal sine to the distorted signal,
+    This function automatically fits an ideal sine to the signal,
     computes the error, and analyzes its probability distribution.
 
-    Parameters:
-        sig_distorted: Distorted ADC output signal (1D array)
-        resolution: ADC resolution in bits (default: 12)
-        full_scale: Full-scale range (default: 1)
-        freq: Normalized frequency (0-0.5), 0 for auto-detection (default: 0)
-        plot: If True, plot the PDF on current axes (default: False)
+    Parameters
+    ----------
+    signal : np.ndarray
+        ADC output signal (1D array)
+    resolution : int, default=12
+        ADC resolution in bits
+    full_scale : float, optional
+        Full-scale range. If None, inferred from signal range (max - min)
+    frequency : float, optional
+        Normalized frequency (0-0.5). If None, auto-detected
+    show_plot : bool, default=True
+        If True, plot the PDF on current axes
+    ax : matplotlib.axes.Axes, optional
+        Axes to plot on. If None, uses current axes (plt.gca())
+    title : str, optional
+        Title for the plot. If None, no title is set
 
-    Returns:
-        err_lsb: Error in LSB units (1D array)
-        mu: Mean of error distribution (LSB)
-        sigma: Standard deviation of error distribution (LSB)
-        KL_divergence: KL divergence from Gaussian distribution
-        x: Sample points for PDF
-        fx: KDE-estimated PDF values
-        gauss_pdf: Fitted Gaussian PDF values
+    Returns
+    -------
+    result : dict
+        Dictionary containing PDF analysis results:
+        - 'err_lsb': Error in LSB units (1D array)
+        - 'mu': Mean of error distribution (LSB)
+        - 'sigma': Standard deviation of error distribution (LSB)
+        - 'kl_divergence': KL divergence from Gaussian distribution
+        - 'x': Sample points for PDF
+        - 'pdf': KDE-estimated PDF values
+        - 'gauss_pdf': Fitted Gaussian PDF values
 
-    Transfer Function Model:
-        error = sig_distorted - sig_ideal
-        where sig_ideal is fitted using sine_fit
-
-    Usage Examples:
-        # Basic usage (no plot)
-        err_lsb, mu, sigma, KL, x, fx, gauss = err_pdf(signal, resolution=12)
-
-        # With automatic plotting on current axes
-        plt.sca(ax)
-        err_lsb, mu, sigma, KL, x, fx, gauss = err_pdf(signal, resolution=12, plot=True)
+    Notes
+    -----
+    - Error = signal - ideal_sine (fitted using fit_sine_4param)
+    - Uses Kernel Density Estimation (KDE) with Silverman's bandwidth rule
+    - KL divergence measures how different the actual error PDF is from Gaussian
     """
 
     # Fit ideal sine to extract reference
-    from adctoolbox.aout.fit_sine_4param import fit_sine_4param as fit_sine
-    if freq == 0:
-        fit_result = fit_sine(sig_distorted)
-        sig_ideal = fit_result['fitted_signal']
+    if frequency is None:
+        fit_result = fit_sine_4param(signal)
     else:
-        fit_result = fit_sine(sig_distorted, freq)
-        sig_ideal = fit_result['fitted_signal']
+        fit_result = fit_sine_4param(signal, frequency_estimate=frequency)
+
+    sig_ideal = fit_result['fitted_signal']
 
     # Compute error
-    err_data = sig_distorted - sig_ideal
+    err_data = signal - sig_ideal
+
+    # Infer full_scale from signal if not provided
+    if full_scale is None:
+        full_scale = np.max(signal) - np.min(signal)
 
     # Convert error to LSB units
     lsb = full_scale / (2**resolution)
     err_lsb = np.asarray(err_data).flatten() / lsb
-    n = err_lsb
-    N = len(n)
+    N = len(err_lsb)
 
     # Silverman's rule for bandwidth
-    h = 1.06 * np.std(n, ddof=1) * N**(-1/5)
+    h = 1.06 * np.std(err_lsb, ddof=1) * N**(-1/5)
 
     # Determine x-axis range
-    max_abs_noise = np.max(np.abs(n))
+    max_abs_noise = np.max(np.abs(err_lsb))
     xlim_range = max(0.5, max_abs_noise)
     x = np.linspace(-xlim_range, xlim_range, 200)
     fx = np.zeros_like(x)
 
-    # KDE computation (manual implementation for consistency with MATLAB)
+    # KDE computation
     for i in range(len(x)):
-        u = (x[i] - n) / h
+        u = (x[i] - err_lsb) / h
         fx[i] = np.mean(np.exp(-0.5 * u**2)) / (h * np.sqrt(2*np.pi))
 
     # Gaussian fit
-    mu = np.mean(n)
-    sigma = np.std(n, ddof=1)
+    mu = np.mean(err_lsb)
+    sigma = np.std(err_lsb, ddof=1)
     gauss_pdf = (1/(sigma*np.sqrt(2*np.pi))) * np.exp(-(x - mu)**2 / (2*sigma**2))
 
     # KL divergence calculation
     dx = x[1] - x[0]
     p = fx + np.finfo(float).eps
     q = gauss_pdf + np.finfo(float).eps
-    KL_divergence = np.sum(p * np.log(p / q)) * dx
+    kl_divergence = np.sum(p * np.log(p / q)) * dx
 
     # Plot if requested
-    if plot:
-        plt.plot(x, fx, 'b-', linewidth=2, label='Actual PDF (KDE)')
-        plt.plot(x, gauss_pdf, 'r--', linewidth=2, label='Gaussian Fit')
-        plt.xlabel('Error (LSB)', fontsize=11)
-        plt.ylabel('Probability Density', fontsize=11)
-        plt.title('Error Probability Density Function', fontsize=12, fontweight='bold')
-        plt.legend(fontsize=10)
-        plt.grid(True, alpha=0.3)
+    if show_plot:
+        # Use provided axes or get current axes
+        if ax is None:
+            ax = plt.gca()
+
+        ax.plot(x, fx, 'b-', linewidth=2, label='Actual PDF (KDE)')
+        ax.plot(x, gauss_pdf, 'r--', linewidth=2, label='Gaussian Fit')
+        ax.set_xlabel('Error (LSB)')
+        ax.set_ylabel('Probability Density')
+        ax.legend(fontsize=8, loc='upper left')
+        ax.grid(True, alpha=0.3)
 
         # Add statistics text box
-        stats_text = f'μ = {mu:.3f} LSB\nσ = {sigma:.3f} LSB\nKL = {KL_divergence:.4f}'
-        ax = plt.gca()
+        stats_text = f'μ = {mu:.3f} LSB\nσ = {sigma:.3f} LSB\nKL = {kl_divergence:.4f}'
         ax.text(0.98, 0.98, stats_text,
-                transform=ax.transAxes, fontsize=10,
+                transform=ax.transAxes, fontsize=9,
                 verticalalignment='top', horizontalalignment='right',
                 bbox=dict(boxstyle='round', facecolor='wheat', alpha=0.5))
 
-    return err_lsb, mu, sigma, KL_divergence, x, fx, gauss_pdf
+        # Set title if provided
+        if title is not None:
+            ax.set_title(title, fontsize=10, fontweight='bold')
+
+    return {
+        'err_lsb': err_lsb,
+        'mu': mu,
+        'sigma': sigma,
+        'kl_divergence': kl_divergence,
+        'x': x,
+        'pdf': fx,
+        'gauss_pdf': gauss_pdf
+    }
