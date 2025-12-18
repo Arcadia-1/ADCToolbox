@@ -4,7 +4,7 @@ Analyze harmonic decomposition of signal.
 Wrapper function combining computation and optional plotting for convenience.
 """
 
-from .compute_harmonic_decomposition import compute_harmonic_decomposition
+from .decompose_harmonic_error import decompose_harmonic_error
 
 try:
     from .plot_decomposition_time import plot_decomposition_time
@@ -51,8 +51,11 @@ def analyze_harmonic_decomposition(data, normalized_freq=None, order=10, show_pl
     """
 
     # 1. --- Core Computation ---
-    # Note: compute_harmonic_decomposition uses 'harmonic' parameter, not 'order'
-    results = compute_harmonic_decomposition(data, max_code=None, harmonic=order)
+    # Note: decompose_harmonic_error uses 'n_harmonics' parameter, not 'order'
+    results = decompose_harmonic_error(
+        signal=data,
+        n_harmonics=order
+    )
 
     # 2. --- Optional Plotting ---
     if show_plot:

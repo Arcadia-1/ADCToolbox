@@ -27,46 +27,50 @@ Fs = 800e6
 Fin = 10.1234567e6
 normalized_freq = Fin / Fs
 t = np.arange(N) / Fs
-A = 0.499
+A = 0.25
 DC = 0.5
 base_noise = 50e-6
 
-sig_ideal = A * np.sin(2 * np.pi * Fin * t) + DC
+sig_ac = A * np.sin(2 * np.pi * Fin * t)  # AC component only
+sig_ideal = sig_ac + DC
 print(f"[Config] Fs={Fs/1e6:.0f} MHz, Fin={Fin/1e6:.2f} MHz, N={N}")
 
 # Case 1: Ideal ADC with Thermal Noise
 sig_noise = sig_ideal + np.random.randn(N) * base_noise
 
-# Case 2: ADC with Nonlinearity (k2 and k3)
+# Case 2: ADC with Nonlinearity (k2 and k3 applied to AC component only)
 k2 = 0.001
 k3 = 0.005
-sig_nonlin = sig_ideal + k2 * sig_ideal**2 + k3 * sig_ideal**3 + np.random.randn(N) * base_noise
+sig_nonlin = DC + sig_ac + k2 * sig_ac**2 + k3 * sig_ac**3 + np.random.randn(N) * base_noise
+ 
+# Case 3: ADC with Glitches
+glitch_prob = 0.01
+glitch_amplitude = 0.1
+glitch_mask = np.random.rand(N) < glitch_prob
+glitch = glitch_mask * glitch_amplitude
+sig_glitch = sig_ideal + glitch + np.random.randn(N) * base_noise
 
 print(f"[Timing] Data Generation: {time.time() - t_gen:.4f}s")
 
-# --- 3. Timing: Analysis & Plotting (In-Memory) ---
+# --- 3. Timing: Analysis & Plotting ---
 t_plot = time.time()
 
-# Analyze and plot results
-fig = plt.figure(figsize=(16, 8))
-fig.suptitle('Harmonic Decomposition - Thermal Noise vs Static Nonlinearity', fontsize=16, fontweight='bold')
+# Analyze and plot results with 3 cases
+fig, axes = plt.subplots(1, 3, figsize=(18, 8))
+fig.suptitle('Harmonic Decomposition - Thermal Noise vs Nonlinearity vs Glitches', fontsize=14, fontweight='bold')
 
-ax1 = plt.subplot(1, 2, 1)
-analyze_decomposition_time(sig_noise, harmonic=3, fs=Fs, show_plot=True, ax=ax1)
-ax1.set_title('Case 1: Thermal Noise (50μV RMS)', fontweight='bold')
-
-ax2 = plt.subplot(1, 2, 2)
-analyze_decomposition_time(sig_nonlin, harmonic=3, fs=Fs, show_plot=True, ax=ax2)
-ax2.set_title(f'Case 2: Static Nonlinearity (k2={k2:.3f}, k3={k3:.3f})', fontweight='bold')
+analyze_decomposition_time(sig_noise, ax=axes[0], title='Thermal Noise Only')
+analyze_decomposition_time(sig_nonlin, ax=axes[1], title=f'Nonlinearity (k2={k2:.3f}, k3={k3:.3f})')
+analyze_decomposition_time(sig_glitch, ax=axes[2], title=f'Glitches (prob={glitch_prob*100:.2f}%, amp={glitch_amplitude:.1f})')
 
 plt.tight_layout()
 
-print(f"[Timing] Analysis & Plotting Setup: {time.time() - t_plot:.4f}s")
+print(f"[Timing] Analysis & Plotting: {time.time() - t_plot:.4f}s")
 
 # --- 4. Timing: File Saving (Rendering) ---
 t_save = time.time()
 
-fig_path = (output_dir / 'exp_a21_decompose_harmonics.png').resolve()
+fig_path = (output_dir / 'exp_a11_decompose_harmonics.png').resolve()
 plt.savefig(fig_path, dpi=150, bbox_inches='tight')
 plt.close(fig)
 

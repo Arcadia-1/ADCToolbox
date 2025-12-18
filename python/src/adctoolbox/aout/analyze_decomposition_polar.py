@@ -4,7 +4,6 @@ This module provides a high-level wrapper that combines LMS harmonic
 decomposition calculation with polar plot visualization.
 
 Part of the modular ADC analysis architecture.
-Matches MATLAB plotphase.m LMS mode functionality.
 """
 
 import numpy as np
@@ -12,13 +11,12 @@ import matplotlib.pyplot as plt
 from pathlib import Path
 from typing import Optional, Union, Tuple, Dict, Any
 
-from adctoolbox.aout.compute_harmonic_decomposition import compute_harmonic_decomposition
+from adctoolbox.aout.decompose_harmonic_error import decompose_harmonic_error
 from adctoolbox.aout.plot_decomposition_polar import plot_decomposition_polar
 
 
 def analyze_decomposition_polar(
     data: np.ndarray,
-    max_code: Optional[float] = None,
     harmonic: int = 5,
     fs: float = 1.0,
     title: Optional[str] = None,
@@ -54,7 +52,7 @@ def analyze_decomposition_polar(
     Returns
     -------
     decomp_result : dict
-        Dictionary containing decomposition results from compute_harmonic_decomposition():
+        Dictionary containing decomposition results from decompose_harmonic_error():
         - 'harm_mag', 'harm_phase', 'harm_dB'
         - 'noise_power', 'noise_dB'
         - 'fundamental_freq'
@@ -86,7 +84,7 @@ def analyze_decomposition_polar(
     Notes
     -----
     Modular architecture:
-    1. compute_harmonic_decomposition() - Pure calculation (LMS fitting)
+    1. decompose_harmonic_error() - Pure calculation (LMS fitting)
     2. plot_decomposition_polar() - Pure visualization (polar plot with noise circle)
     3. analyze_decomposition_polar() - Wrapper combining both
 
@@ -99,11 +97,9 @@ def analyze_decomposition_polar(
     """
 
     # Step 1: Compute harmonic decomposition (pure computation)
-    decomp_result = compute_harmonic_decomposition(
-        data=data,
-        max_code=max_code,
-        harmonic=harmonic,
-        fs=fs
+    decomp_result = decompose_harmonic_error(
+        signal=data,
+        n_harmonics=harmonic
     )
 
     # Step 2: Prepare plot data

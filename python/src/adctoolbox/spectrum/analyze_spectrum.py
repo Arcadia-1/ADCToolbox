@@ -67,7 +67,7 @@ def analyze_spectrum(data, fs=1.0, osr=1, max_scale_range=None, win_type='hann',
     # Print warning if harmonics collide with fundamental
     collided = results['metrics'].get('collided_harmonics', [])
     if collided and show_label:
-        print(f"Warning: Harmonics {collided} alias to fundamental (excluded from THD)")
+        print(f"[Warning from analyze_spectrum]: Harmonics {collided} alias to fundamental (excluded from THD)")
 
     # 2. --- Optional Plotting ---
     if show_plot:
