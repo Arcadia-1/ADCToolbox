@@ -8,9 +8,9 @@ from adctoolbox.aout.plot_rearranged_error_by_phase import plot_rearranged_error
 
 def analyze_error_by_phase(
     signal: np.ndarray,
-    norm_freq: float,
+    norm_freq: float = None,
     n_bins: int = 100,
-    include_baseline: bool = True,
+    include_base_noise: bool = True,
     show_plot: bool = True,
     axes=None,
     ax=None,
@@ -27,12 +27,12 @@ def analyze_error_by_phase(
     ----------
     signal : np.ndarray
         Input signal (1D array).
-    norm_freq : float
-        Normalized frequency (f/fs), range (0, 0.5).
+    norm_freq : float, optional
+        Normalized frequency (f/fs), range (0, 0.5). If None, auto-detected via FFT.
     n_bins : int, default=100
         Number of phase bins for visualization.
-    include_baseline : bool, default=True
-        Include baseline noise term in fitting model.
+    include_base_noise : bool, default=True
+        Include base noise term in fitting model.
     show_plot : bool, default=True
         Whether to display result plot.
     axes : tuple, optional
@@ -45,7 +45,7 @@ def analyze_error_by_phase(
     Returns
     -------
     dict
-        Numerics: am_noise_rms_v, pm_noise_rms_v, pm_noise_rms_rad, noise_floor_rms_v, total_rms_v
+        Numerics: am_noise_rms_v, pm_noise_rms_v, pm_noise_rms_rad, base_noise_rms_v, total_rms_v
         Validation: r_squared_raw (energy ratio), r_squared_binned (model confidence)
         Visualization: bin_error_rms_v, bin_error_mean_v, phase_bin_centers_rad
         Metadata: amplitude, dc_offset, norm_freq, fitted_signal, error, phase
@@ -55,7 +55,7 @@ def analyze_error_by_phase(
         signal=signal,
         norm_freq=norm_freq,
         n_bins=n_bins,
-        include_baseline=include_baseline
+        include_base_noise=include_base_noise
     )
 
     # 2. Plot (always uses binned bar plot)

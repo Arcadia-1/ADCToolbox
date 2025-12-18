@@ -4,10 +4,14 @@ Demonstrates dual-track parallel design:
 - Raw fitting on all N samples for highest precision numerics
 - Binned statistics for visualization with R² validation
 
-9 Test Cases in 3 Figures:
+9 Test Cases in 6 Figures (3 figures × 2 baseline modes):
 - Figure 1 (Pure): Thermal only, AM only, PM only
 - Figure 2 (Mixed): AM+Thermal, PM+Thermal, AM+PM+Thermal
 - Figure 3 (AM+PM): Equal, PM dominates, AM dominates
+
+Each set is generated twice:
+- With base noise (include_base_noise=True)
+- Without base noise (include_base_noise=False)
 """
 
 import time
@@ -79,27 +83,38 @@ print(f"[Timing] Signal Generation: {time.time() - t_gen:.4f}s")
 # --- 3. Analysis & Plotting ---
 t_plot = time.time()
 fig_titles = ['Pure Noise Cases', 'Mixed Noise Cases', 'Mixed Noise Cases (AM+PM)']
+base_noise_modes = [True, False]
 
-for fig_idx in range(3):
-    fig, axes = plt.subplots(1, 3, figsize=(18, 8))
-    fig.suptitle(f'Phase Error Analysis - {fig_titles[fig_idx]}', fontsize=14, fontweight='bold')
-    print(f"\n=== Figure {fig_idx + 1}: {fig_titles[fig_idx]} ===")
+for base_noise_mode in base_noise_modes:
+    base_noise_suffix = 'with_base_noise' if base_noise_mode else 'no_base_noise'
+    print(f"\n{'='*80}")
+    print(f"Mode: include_base_noise={base_noise_mode}")
+    print(f"{'='*80}")
 
-    for i in range(3):
-        case = test_cases[fig_idx * 3 + i]
-        exp = case['expected']
-        plt.sca(axes[i])
-        r = analyze_error_by_phase(case['signal'], norm_freq, n_bins=50, include_baseline=True, title=case['label'])
-        exp_total = np.sqrt((exp['am']**2)/2 + (exp['pm']**2)/2 + exp['baseline']**2)
-        print(f"{case['label']:15s}")
-        print(f"  [Expected  ] [AM={exp['am']:4.0f} uV] [PM={exp['pm']:4.0f} uV] [Base={exp['baseline']:4.0f} uV] [Total={exp_total:4.1f} uV]")
-        print(f"  [Calculated] [AM={r['am_noise_rms_v']*1e6:4.1f} uV] [PM={r['pm_noise_rms_v']*1e6:4.1f} uV] [Base={r['noise_floor_rms_v']*1e6:4.1f} uV] [Total={r['total_rms_v']*1e6:4.1f} uV] [R2={r['r_squared_binned']:.3f}]\n")
+    for fig_idx in range(3):
+        fig, axes = plt.subplots(1, 3, figsize=(18, 8))
+        mode_str = 'With Base Noise' if base_noise_mode else 'Without Base Noise'
+        fig.suptitle(f'Phase Error Analysis - {fig_titles[fig_idx]} ({mode_str})', fontsize=14, fontweight='bold')
+        print(f"\n=== Figure {fig_idx + 1}: {fig_titles[fig_idx]} ({mode_str}) ===")
 
-    plt.tight_layout()
-    fig_path = output_dir / f'exp_a11_analyze_error_by_phase_{fig_idx + 1}.png'
-    plt.savefig(fig_path, dpi=150, bbox_inches='tight')
-    plt.close(fig)
-    print(f"[Save fig] -> [{fig_path.resolve()}]")
+        for i in range(3):
+            case = test_cases[fig_idx * 3 + i]
+
+            plt.sca(axes[i])
+            results = analyze_error_by_phase(case['signal'], n_bins=100, include_base_noise=base_noise_mode, title=case['label'])
+
+            exp = case['expected']
+            exp_total = np.sqrt((exp['am']**2)/2 + (exp['pm']**2)/2 + exp['baseline']**2)
+
+            print(f"{case['label']:15s}")
+            print(f"  [Expected  ] [AM={exp['am']:4.0f} uV] [PM={exp['pm']:4.0f} uV] [Base={exp['baseline']:4.0f} uV] [Total={exp_total:4.1f} uV]")
+            print(f"  [Calculated] [AM={results['am_noise_rms_v']*1e6:4.1f} uV] [PM={results['pm_noise_rms_v']*1e6:4.1f} uV] [Base={results['base_noise_rms_v']*1e6:4.1f} uV] [Total={results['total_rms_v']*1e6:4.1f} uV] [R2={results['r_squared_binned']:.3f}]\n")
+
+        plt.tight_layout()
+        fig_path = output_dir / f'exp_a03_analyze_error_by_phase_{fig_idx + 1}_{base_noise_suffix}.png'
+        plt.savefig(fig_path, dpi=150, bbox_inches='tight')
+        plt.close(fig)
+        print(f"[Save fig] -> [{fig_path.resolve()}]")
 
 print(f"\n[Timing] Analysis & Plotting: {time.time() - t_plot:.4f}s")
 print(f"--- Total Runtime: {time.time() - t_start:.4f}s ---")

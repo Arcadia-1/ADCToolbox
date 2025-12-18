@@ -91,7 +91,7 @@ ax1.set_title(f'Sine Fit: 3 Periods (Noise={noise_rms*1e3:.2f}mV)', fontsize=12)
 ax1.legend(loc='upper left')
 ax1.grid(True, alpha=0.3)
 
-fig_path = (output_dir / 'exp_a00_fit_sine_4param.png').resolve()
+fig_path = (output_dir / 'exp_a01_fit_sine_4param.png').resolve()
 print(f"\n[Save fig] -> [{fig_path}]\n")
 plt.savefig(fig_path, dpi=150, bbox_inches='tight')
 plt.close(fig)

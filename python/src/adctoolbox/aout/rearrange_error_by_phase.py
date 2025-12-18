@@ -14,9 +14,9 @@ from .fit_error_phase import fit_error_phase
 
 def rearrange_error_by_phase(
     signal: np.ndarray,
-    norm_freq: float,
+    norm_freq: float = None,
     n_bins: int = 100,
-    include_baseline: bool = True
+    include_base_noise: bool = True
 ) -> Dict[str, np.ndarray]:
     """Rearrange error by phase using dual-track AM/PM separation.
 
@@ -24,12 +24,12 @@ def rearrange_error_by_phase(
     ----------
     signal : np.ndarray
         Input signal, 1D numpy array.
-    norm_freq : float
-        Normalized frequency (f/fs), range 0-0.5.
+    norm_freq : float, optional
+        Normalized frequency (f/fs), range 0-0.5. If None, auto-detected via FFT.
     n_bins : int, default=100
         Number of phase bins for visualization.
-    include_baseline : bool, default=True
-        Include baseline noise floor in fitting model.
+    include_base_noise : bool, default=True
+        Include base noise floor in fitting model.
 
     Returns
     -------
@@ -48,9 +48,6 @@ def rearrange_error_by_phase(
     signal = np.asarray(signal).flatten()
     n_samples = len(signal)
 
-    if not (0 < norm_freq < 0.5):
-        raise ValueError(f"norm_freq must be in range (0, 0.5), got {norm_freq}")
-
     # ===== Step 1: Fit fundamental sinewave (Cosine basis) =====
     # fit_sine_4param: y = A*cos(wt) + B*sin(wt) + C
     # phase = atan2(-B, A), so fitted = amplitude * cos(wt + phase)
@@ -65,31 +62,35 @@ def rearrange_error_by_phase(
     phase_offset = fit_result['phase']
     phase = 2 * np.pi * freq * t + phase_offset
 
+    # Use detected frequency if norm_freq was not provided
+    if norm_freq is None:
+        norm_freq = freq
+
     error = signal - fitted_signal
     phase_wrapped = np.mod(phase, 2 * np.pi)
 
     # ===== Step 2: Path A - Raw fitting (The Numerics) =====
     error_sq = error ** 2
-    raw_result = fit_error_phase(error_sq, phase_wrapped, include_baseline)
+    raw_result = fit_error_phase(error_sq, phase_wrapped, include_base_noise)
     r_squared_raw = raw_result['r_squared']  # Energy ratio (typically low)
-    coeffs = raw_result['coeffs']  # [am², pm², baseline]
+    coeffs = raw_result['coeffs']  # [am², pm², base_noise]
 
     # --- Use cos(2φ) basis to avoid rank deficiency ---
-    # The standard model: y = am²·cos²(φ) + pm²·sin²(φ) + base
+    # The standard model: y = am²·cos²(φ) + pm²·sin²(φ) + base_noise
     # Is rank-deficient because cos² + sin² = 1
     #
     # Transform to orthogonal basis using: cos²(φ) = (1 + cos(2φ))/2
     #   y = A·cos(2φ) + B
     # where:
     #   A = (am² - pm²) / 2
-    #   B = (am² + pm²) / 2 + base
+    #   B = (am² + pm²) / 2 + base_noise
     #
     # Physical interpretation (overlap redistribution built-in):
-    #   If A > 0: AM dominates → am² = 2A, pm² = 0, base = B - A
-    #   If A < 0: PM dominates → am² = 0, pm² = -2A, base = B + A
-    #   If A = 0: Flat → am² = 0, pm² = 0, base = B
+    #   If A > 0: AM dominates → am² = 2A, pm² = 0, base_noise = B - A
+    #   If A < 0: PM dominates → am² = 0, pm² = -2A, base_noise = B + A
+    #   If A = 0: Flat → am² = 0, pm² = 0, base_noise = B
 
-    if include_baseline:
+    if include_base_noise:
         # Fit y = A·cos(2φ) + B (2 parameters, full rank)
         cos2phi = np.cos(2 * phase_wrapped)
         X = np.column_stack([cos2phi, np.ones_like(cos2phi)])
@@ -101,22 +102,22 @@ def rearrange_error_by_phase(
             # AM dominates
             am_var_final = max(0.0, 2 * A)
             pm_var_final = 0.0
-            baseline_var = max(0.0, B - A)
+            base_noise_var = max(0.0, B - A)
         elif A < 0:
             # PM dominates
             am_var_final = 0.0
             pm_var_final = max(0.0, -2 * A)
-            baseline_var = max(0.0, B + A)
+            base_noise_var = max(0.0, B + A)
         else:
             # Flat (thermal or AM=PM)
             am_var_final = 0.0
             pm_var_final = 0.0
-            baseline_var = max(0.0, B)
+            base_noise_var = max(0.0, B)
     else:
-        # No baseline: use original 2-parameter fit (am², pm²)
+        # No base noise: use original 2-parameter fit (am², pm²)
         am_var_final = max(0.0, coeffs[0])
         pm_var_final = max(0.0, coeffs[1])
-        baseline_var = 0.0
+        base_noise_var = 0.0
 
     # Physical interpretation: variances → RMS (peak) values
     am_v = float(np.sqrt(am_var_final))
@@ -153,13 +154,13 @@ def rearrange_error_by_phase(
         # Predict using final coefficients (Cosine basis)
         am_sen = np.cos(phi_valid) ** 2
         pm_sen = np.sin(phi_valid) ** 2
-        rms_sq_pred = am_var_final * am_sen + pm_var_final * pm_sen + baseline_var
+        rms_sq_pred = am_var_final * am_sen + pm_var_final * pm_sen + base_noise_var
 
         # Compute R² for binned trend (model confidence)
         ss_res = np.sum((rms_sq_actual - rms_sq_pred) ** 2)
         ss_tot = np.sum((rms_sq_actual - np.mean(rms_sq_actual)) ** 2)
 
-        # For flat data (baseline-dominated), use normalized RMSE instead
+        # For flat data (base_noise-dominated), use normalized RMSE instead
         mean_actual = np.mean(rms_sq_actual)
         if ss_tot > 1e-20 and ss_tot > 0.01 * mean_actual ** 2 * len(rms_sq_actual):
             r_squared_binned = 1.0 - ss_res / ss_tot
@@ -178,7 +179,7 @@ def rearrange_error_by_phase(
         'am_relative': float(am_v / amplitude) if amplitude > 1e-10 else 0.0,
         'pm_noise_rms_v': float(pm_v),
         'pm_noise_rms_rad': float(pm_rad),
-        'noise_floor_rms_v': float(np.sqrt(baseline_var)),
+        'base_noise_rms_v': float(np.sqrt(base_noise_var)),
         'total_rms_v': total_rms_v,
 
         # Validation (dual R²)
@@ -199,8 +200,8 @@ def rearrange_error_by_phase(
         'error': error,
         'phase': phase,
 
-        # Coefficients for plotting (after smart baseline detection)
+        # Coefficients for plotting (after smart base_noise detection)
         '_coeffs_raw': coeffs,
-        '_coeffs_plot': [am_var_final, pm_var_final, baseline_var],
-        '_include_baseline': include_baseline,
+        '_coeffs_plot': [am_var_final, pm_var_final, base_noise_var],
+        '_include_base_noise': include_base_noise,
     }

@@ -9,12 +9,13 @@ from .plot_rearranged_error_by_value import plot_rearranged_error_by_value
 def analyze_error_by_value(
     signal: np.ndarray,
     norm_freq: float = None,
-    n_bins: int = 100, 
+    n_bins: int = 100,
     clip_percent: float = 0.01,
     value_range: Optional[Tuple[float, float]] = None,
-    show_plot: bool = True,    
+    show_plot: bool = True,
     axes = None,
-    ax = None
+    ax = None,
+    title: str = None
 ) -> Dict[str, Any]:
     """
     Analyze error binned by value (INL/DNL/Noise).
@@ -39,6 +40,8 @@ def analyze_error_by_value(
         Tuple of (ax1, ax2) to plot on.
     ax : matplotlib.axes.Axes, optional
         Single axis to plot on (will be split).
+    title : str, optional
+        Test setup description for title.
 
     Returns
     -------
@@ -57,6 +60,6 @@ def analyze_error_by_value(
 
     # 2. Plot
     if show_plot:
-        plot_rearranged_error_by_value(results, axes=axes, ax=ax)
+        plot_rearranged_error_by_value(results, axes=axes, ax=ax, title=title)
 
     return results

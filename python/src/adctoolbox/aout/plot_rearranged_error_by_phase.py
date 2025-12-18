@@ -59,16 +59,16 @@ def plot_rearranged_error_by_phase(results: dict, disp=1, axes=None, ax=None, ti
     am_noise_rms_v = results.get('am_noise_rms_v', 0.0)
     pm_noise_rms_v = results.get('pm_noise_rms_v', 0.0)
     pm_noise_rms_rad = results.get('pm_noise_rms_rad', 0.0)
-    noise_floor_rms_v = results.get('noise_floor_rms_v', 0.0)
+    base_noise_rms_v = results.get('base_noise_rms_v', 0.0)
     r_squared_binned = results.get('r_squared_binned', 0.0)  # Model confidence
-    include_baseline = results.get('_include_baseline', True)
+    include_base_noise = results.get('_include_base_noise', True)
 
     # Use REDISTRIBUTED coefficients for curve plotting (after overlap absorption)
     # This ensures curves match the legend values (physically interpreted)
     coeffs_plot = results.get('_coeffs_plot', [0.0, 0.0, 0.0])
     am_var_plot = coeffs_plot[0]
     pm_var_plot = coeffs_plot[1]
-    baseline_var_plot = coeffs_plot[2] if len(coeffs_plot) > 2 else 0.0
+    base_noise_var_plot = coeffs_plot[2] if len(coeffs_plot) > 2 else 0.0
 
     # Convert to degrees
     phase_bins_deg = phase_bin_centers_rad * 180 / np.pi
@@ -106,7 +106,7 @@ def plot_rearranged_error_by_phase(results: dict, disp=1, axes=None, ax=None, ti
         labels_ax1.append('Data')
         ax1_left.set_xlim([0, 360])
         s_min, s_max = np.min(fitted_signal), np.max(fitted_signal)
-        margin = (s_max - s_min) * 0.05
+        margin = (s_max - s_min) * 0.10
         ax1_left.set_ylim([s_min - margin, s_max + margin])
         ax1_left.set_ylabel('Data', color='k')
         ax1_left.tick_params(axis='y', labelcolor='k')
@@ -120,7 +120,13 @@ def plot_rearranged_error_by_phase(results: dict, disp=1, axes=None, ax=None, ti
             lines_ax1.append(line_mean)
             labels_ax1.append('Error Mean')
         ax1_right.set_xlim([0, 360])
-        ax1_right.set_ylim([np.min(error), np.max(error)])
+
+        # Smart Y-limits with 10% margin
+        y_min, y_max = np.min(error), np.max(error)
+        y_range = y_max - y_min
+        margin = y_range * 0.1 if y_range != 0 else 1.0
+        ax1_right.set_ylim([y_min - margin, y_max + margin])
+
         ax1_right.set_ylabel('Error', color='r')
         ax1_right.tick_params(axis='y', labelcolor='r')
 
@@ -139,7 +145,7 @@ def plot_rearranged_error_by_phase(results: dict, disp=1, axes=None, ax=None, ti
 
         # Bar plot
         ax2.bar(phase_bins_deg, bin_error_rms_v, width=bin_width*0.8,
-                color='#4472C4', alpha=1.0, edgecolor='darkblue', linewidth=0.5)
+                color='skyblue', alpha=0.8, edgecolor='darkblue', linewidth=0.5)
 
         # Fitted curves: use REDISTRIBUTED coefficients (after overlap absorption)
         # Cosine basis: AM sensitivity = cos², PM sensitivity = sin²
@@ -147,23 +153,23 @@ def plot_rearranged_error_by_phase(results: dict, disp=1, axes=None, ax=None, ti
         pm_sen = np.sin(phase_bin_centers_rad) ** 2
 
         # Curves use redistributed coefficients (physically interpreted values)
-        am_curve = np.sqrt(am_var_plot * am_sen + baseline_var_plot)
-        pm_curve = np.sqrt(pm_var_plot * pm_sen + baseline_var_plot)
-        total_curve = np.sqrt(am_var_plot * am_sen + pm_var_plot * pm_sen + baseline_var_plot)
+        am_curve = np.sqrt(am_var_plot * am_sen + base_noise_var_plot)
+        pm_curve = np.sqrt(pm_var_plot * pm_sen + base_noise_var_plot)
+        total_curve = np.sqrt(am_var_plot * am_sen + pm_var_plot * pm_sen + base_noise_var_plot)
 
         # Legend labels show REDISTRIBUTED physical values (after overlap adjustment)
         am_str = _format_value_with_unit(am_noise_rms_v)
         pm_str = _format_value_with_unit(pm_noise_rms_v)
         pm_rad_str = '0.00 urad' if pm_noise_rms_rad < 1e-12 else f'{pm_noise_rms_rad * 1e6:.2f} urad'
-        baseline_str = _format_value_with_unit(noise_floor_rms_v)
+        base_noise_str = _format_value_with_unit(base_noise_rms_v)
         total_rms = results.get('total_rms_v', 0.0)
         total_str = _format_value_with_unit(total_rms)
 
         ax2.plot(phase_bins_deg, am_curve, 'b-', linewidth=2, label=f'AM = {am_str}')
         ax2.plot(phase_bins_deg, pm_curve, 'r-', linewidth=2, label=f'PM = {pm_str} ({pm_rad_str})')
-        if include_baseline:
-            baseline_curve = np.full_like(phase_bins_deg, np.sqrt(baseline_var_plot))
-            ax2.plot(phase_bins_deg, baseline_curve, 'g-', linewidth=1.5, label=f'Baseline = {baseline_str}')
+        if include_base_noise:
+            base_noise_curve = np.full_like(phase_bins_deg, np.sqrt(base_noise_var_plot))
+            ax2.plot(phase_bins_deg, base_noise_curve, 'g-', linewidth=1.5, label=f'Base Noise = {base_noise_str}')
         ax2.plot(phase_bins_deg, total_curve, 'k--', linewidth=2, label=f'Total = {total_str}')
 
         ax2.set_xlim([0, 360])
