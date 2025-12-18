@@ -24,11 +24,11 @@ print(f"[Sinewave] Fs=[{Fs/1e6:.2f} MHz], Fin=[{Fin/1e6:.2f} MHz] (non-coherent)
 print(f"[Nonideal] Noise RMS=[{noise_rms*1e6:.2f} uVrms], Theoretical SNR=[{snr_ref:.2f} dB], Theoretical NSD=[{nsd_ref:.2f} dBFS/Hz]\n")
 
 WINDOW_CONFIGS = {
-    'rectangular': {'description': 'Rectangular (no window)', 'side_bins': 1},
-    'hann': {'description': 'Hann (raised cosine)', 'side_bins': 2},
-    'hamming': {'description': 'Hamming', 'side_bins': 2},
-    'blackman': {'description': 'Blackman', 'side_bins': 3},
-    'blackmanharris': {'description': 'Blackman-Harris', 'side_bins': 4},
+    'rectangular': {'description': 'Rectangular (no window)', 'side_bins': 2},
+    'hann': {'description': 'Hann (raised cosine)', 'side_bins': 3},
+    'hamming': {'description': 'Hamming', 'side_bins': 3},
+    'blackman': {'description': 'Blackman', 'side_bins': 4},
+    'blackmanharris': {'description': 'Blackman-Harris', 'side_bins': 5},
     'flattop': {'description': 'Flat-top', 'side_bins': 4},
     'kaiser': {'description': 'Kaiser (beta=38)', 'side_bins': 8},
     'chebwin': {'description': 'Chebyshev (100 dB)', 'side_bins': 4}

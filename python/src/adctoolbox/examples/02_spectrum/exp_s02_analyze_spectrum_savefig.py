@@ -46,7 +46,6 @@ for idx, A in enumerate(amplitudes):
 
     # Set title and limits
     axes[idx].set_title(f'A = {A:.3f} Vpeak (SFDR = {result["sfdr_db"]:.2f} dB)')
-    axes[idx].set_ylim([-120, 5])
 
 fig_path = (output_dir / 'exp_s02_analyze_spectrum_savefig.png').resolve()
 print(f"\n[Save fig] -> [{fig_path}]\n")

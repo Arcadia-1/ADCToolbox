@@ -208,9 +208,9 @@ def compute_spectrum(
     bin_idx, bin_r = _find_fundamental(spectrum_power, N, osr, method='power')
     n_search_inband = n_half // osr
 
-    # Use spectrum without normalization to signal peak
-    # dBFS reference is the specified (or auto-detected) max_scale_range
-    # When auto-detected, signal power will naturally be ~0 dB
+    # Use spectrum without normalization - dBFS reference is full scale (FSR = 0 dB)
+    # For FSR=1.0V: Full scale=0 dBFS, Signal(0.5V)=-6 dBFS, etc.
+    # This ensures all markers and values are consistent
 
     results.update({
         'freq': freq,
@@ -370,15 +370,10 @@ def compute_spectrum(
         spectrum_search_copy[bin_idx-side_bin:bin_idx+side_bin+1] = 0
     spur_bin_idx = np.argmax(spectrum_search_copy)
     
-    # Calculate spur_db using summed power (center + side bins) for consistency with SFDR
+    # Get spur_db from center bin only (for plot consistency)
+    # SFDR metric still uses summed power, but plot shows single bin value
     if spur_bin_idx < len(spectrum_power):
-        spur_start = max(spur_bin_idx - side_bin, 0)
-        spur_end = min(spur_bin_idx + side_bin + 1, n_search_inband)
-        if spur_start < spur_end:
-            spur_power_summed = np.sum(spectrum_power[spur_start:spur_end])
-        else:
-            spur_power_summed = 1e-20
-        spur_db = 10 * np.log10(spur_power_summed + 1e-20)
+        spur_db = 10 * np.log10(spectrum_power[spur_bin_idx] + 1e-20)
     else:
         spur_db = -200
 

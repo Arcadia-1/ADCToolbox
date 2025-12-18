@@ -1,128 +1,102 @@
-"""Generate signals with ADC non-idealities and analyze their spectra.
-
-This example demonstrates the ADC_Signal_Generator class by creating signals
-with various non-idealities and plotting their frequency spectra.
+"""
+Experiment G07: Interference Sweep
+Shows the effects of different types of interferences on ADC spectrum.
+Each subplot demonstrates one interference type applied to coherent sampled signal.
 """
 
+import numpy as np
 import matplotlib.pyplot as plt
 from pathlib import Path
-from adctoolbox import find_coherent_frequency, amplitudes_to_snr, snr_to_nsd, analyze_spectrum
+from adctoolbox import find_coherent_frequency, analyze_spectrum
 from adctoolbox.siggen import ADC_Signal_Generator
 
-# Setup output directory
 output_dir = Path(__file__).parent / "output"
 output_dir.mkdir(exist_ok=True)
 
-# Parameters
 N = 2**13
-Fs = 5000e6
-Fin_target = 1000e6
-Fin, J = find_coherent_frequency(Fs, Fin_target, N)
-A, DC = 0.49, 0.5
-base_noise = 50e-6
+Fs = 1000e6
+Fin_target = 80e6
+Fin, _ = find_coherent_frequency(Fs, Fin_target, N)
 
-# Calculate reference SNR and NSD for base noise
-snr_base = amplitudes_to_snr(sig_amplitude=A, noise_amplitude=base_noise)
-nsd_base = snr_to_nsd(snr_base, fs=Fs, osr=1)
+A, DC = 0.5, 0
+base_noise = 10e-6
 
-print(f"[Sinewave] Fs=[{Fs/1e6:.2f} MHz], Fin=[{Fin/1e6:.2f} MHz], Bin/N=[{J}/{N}], A=[{A:.3f} Vpeak]")
-print(f"[Nonideal] Noise RMS=[{base_noise*1e6:.2f} uVrms], Theoretical SNR=[{snr_base:.2f} dB], Theoretical NSD=[{nsd_base:.2f} dBFS/Hz]\n")
-
-# Initialize signal generator
 gen = ADC_Signal_Generator(N=N, Fs=Fs, Fin=Fin, A=A, DC=DC)
 
-# Define all signal configurations
-all_signals = [
+print(f"[Setup] Fs={Fs/1e6:.0f} MHz | N={N} | Fin={Fin/1e6:.2f} MHz (Coherent)")
+print(f"[Setup] A={A:.2f}V | DC={DC:.2f}V | base_noise={base_noise*1e6:.2f}uV\n")
+
+# Generate clean coherent signal baseline
+t = np.arange(N) / Fs
+clean_signal = A * np.sin(2 * np.pi * Fin * t)
+
+# Define 8 Interference Cases using lambdas
+# Each interference is applied to the clean coherent signal
+INTERFERENCES = [
     {
-        'title': 'AM Noise: 1 MHz, 10%',
-        'method': lambda: gen.apply_am_noise(am_noise_freq=1e6, am_noise_depth=0.1),
+        'title': 'Clean Signal (reference)',
+        'method': lambda sig: sig.copy(),
     },
     {
-        'title': 'AM Tone: 500 kHz, 5%',
-        'method': lambda: gen.apply_am_tone(am_tone_freq=500e3, am_tone_depth=0.05),
+        'title': 'Glitch (prob=0.05%, amp=0.1)',
+        'method': lambda sig: gen.apply_glitch(input_signal=sig, glitch_prob=0.0005, glitch_amplitude=0.1),
     },
     {
-        'title': 'Clipping: level=0.2',
-        'method': lambda: gen.apply_clipping(clip_level=0.02),
+        'title': 'AM Tone (500 kHz, 0.05%)',
+        'method': lambda sig: gen.apply_am_tone(input_signal=sig, am_tone_freq=500e3, am_tone_depth=0.0005),
     },
     {
-        'title': 'Clipping: level=0.2',
-        'method': lambda: gen.apply_clipping(clip_level=0.05),
+        'title': 'AM Noise (1 MHz, 0.1%)',
+        'method': lambda sig: gen.apply_am_noise(input_signal=sig, am_noise_freq=1e6, am_noise_depth=0.001),
     },
     {
-        'title': 'Drift: Random Walk',
-        'method': lambda: gen.apply_drift(drift_scale=5e-5),
+        'title': 'Clipping (level=1%)',
+        'method': lambda sig: gen.apply_clipping(input_signal=sig, percentile_clip=1),
     },
     {
-        'title': 'Glitch: Probability 0.015%',
-        'method': lambda: gen.apply_glitch(glitch_prob=0.00015, glitch_amplitude=0.1),
+        'title': 'Clipping (level=2%)',
+        'method': lambda sig: gen.apply_clipping(input_signal=sig, percentile_clip=2),
     },
     {
-        'title': 'Reference Error: 2 MHz, 2%',
-        'method': lambda: gen.apply_reference_error(ref_error_amplitude=0.02, ref_error_freq=2e6),
+        'title': 'Drift (scale=2e-5)',
+        'method': lambda sig: gen.apply_drift(input_signal=sig, drift_scale=2e-5),
+    },
+    {
+        'title': 'Reference Error (50 MHz, 0.1%)',
+        'method': lambda sig: gen.apply_reference_error(input_signal=sig, ref_error_amplitude=0.001, ref_error_freq=50e6),
     },
 ]
 
-# Generate signals and create figures automatically
-print("Generating signals and computing spectra...")
-print("=" * 60)
+# Prepare Figure (2 rows x 4 columns)
+fig, axes = plt.subplots(2, 4, figsize=(24, 10))
+axes = axes.flatten()
 
-# Split signals into groups of 8 (2x4 layout)
-signals_per_fig = 8
-n_figs = (len(all_signals) + signals_per_fig - 1) // signals_per_fig
+print("=" * 100)
+print(f"{'#':<3} | {'Interference Type':<35} | {'SFDR (dB)':<10} | {'THD (dB)':<10} | {'SNR (dB)':<10}")
+print("-" * 100)
 
-for fig_num in range(n_figs):
-    start_idx = fig_num * signals_per_fig
-    end_idx = min(start_idx + signals_per_fig, len(all_signals))
-    signals_group = all_signals[start_idx:end_idx]
+# Run Sweep
+for idx, config in enumerate(INTERFERENCES):
+    
+    # Apply interference to clean coherent signal
+    signal = config['method'](clean_signal)
+    signal = gen.apply_thermal_noise(signal, noise_rms=base_noise)
+    
+    # Spectrum analysis
+    plt.sca(axes[idx])
+    result = analyze_spectrum(signal, fs=Fs)
+    axes[idx].set_title(config['title'], fontsize=11, fontweight='bold')
+    axes[idx].set_ylim([-140, 0])
+    
+    print(f"{idx+1:<3} | {config['title']:<35} | {result['sfdr_db']:<10.2f} | {result['thd_db']:<10.2f} | {result['snr_db']:<10.2f}")
 
-    # Create figure (2x4 subplots)
-    n_cols = 4
-    n_rows = 2
-    fig, axes = plt.subplots(n_rows, n_cols, figsize=(n_cols * 7, n_rows * 6))
-    axes = axes.flatten()
+# Finalize
+plt.suptitle('Interference Effects on Coherent Sampled Signal\n(Each type applied independently to Fin=80MHz)',
+             fontsize=14, fontweight='bold', y=0.98)
+plt.tight_layout()
+plt.subplots_adjust(top=0.9)
 
-    print(f"\nFigure {fig_num + 1}: Signals {start_idx + 1} - {end_idx}")
-    print("-" * 60)
-
-    for local_idx, config in enumerate(signals_group):
-        global_idx = start_idx + local_idx + 1
-        signal = config['method']()
-
-        # Set current axes for analyze_spectrum
-        plt.sca(axes[local_idx])
-
-        # Analyze spectrum and plot on current axes
-        # Function automatically normalizes to signal peak (0 dB)
-        result = analyze_spectrum(signal, fs=Fs, show_plot=True, show_title=False,
-                                 show_label=True, ax=axes[local_idx])
-
-        # Set title with non-ideality info
-        axes[local_idx].set_title(config['title'], fontsize=10, fontweight='bold')
-        axes[local_idx].set_ylim([-140, 0])
-
-        # Print spectrum metrics
-        print(f"{global_idx:2d}. {config['title']:40s} - "
-              f"ENOB=[{result['enob']:6.2f} b], "
-              f"SNDR=[{result['sndr_db']:6.2f} dB], "
-              f"SFDR=[{result['sfdr_db']:6.2f} dB], "
-              f"SNR=[{result['snr_db']:6.2f} dB], "
-              f"NSD=[{result['nsd_dbfs_hz']:6.2f} dBFS/Hz]")
-
-    # Hide unused axes if this is the last figure and it's not full
-    for idx in range(len(signals_group), signals_per_fig):
-        axes[idx].axis('off')
-
-    # Finalize and save figure
-    plt.suptitle(f'ADC Non-Idealities Spectrum Analysis (Part {fig_num + 1})',
-                 fontsize=12, fontweight='bold', y=0.995)
-    plt.tight_layout()
-
-    fig_path = output_dir / f'exp_g02_generate_signals_spectra_{fig_num + 1}.png'
-    plt.savefig(fig_path, dpi=300, bbox_inches='tight')
-    plt.close()
-
-    print(f"[Save figure] -> [{fig_path}]")
-
-print("=" * 60)
-print(f"Done! Generated {n_figs} figures with {len(all_signals)} signals total.")
+fig_path = output_dir / "exp_g07_sweep_interferences.png"
+print(f"\n[Save figure] -> [{fig_path}]\n")
+plt.savefig(fig_path, dpi=300, bbox_inches='tight')
+plt.close()

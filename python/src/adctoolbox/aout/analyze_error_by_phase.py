@@ -1,4 +1,4 @@
-"""Wrapper for phase-based error analysis."""
+"""Wrapper for phase-based error analysis (AM/PM decomposition)."""
 
 from typing import Dict, Any
 import numpy as np
@@ -8,59 +8,58 @@ from adctoolbox.aout.plot_rearranged_error_by_phase import plot_rearranged_error
 
 def analyze_error_by_phase(
     signal: np.ndarray,
-    normalized_freq: float = None,
-    data_mode: str = "binned",
+    norm_freq: float,
+    n_bins: int = 100,
     include_baseline: bool = True,
-    bin_count: int = 100,
     show_plot: bool = True,
-    axes = None,
-    ax = None
+    axes=None,
+    ax=None,
+    title: str = None
 ) -> Dict[str, Any]:
-    """
-    Analyze phase error using raw or binned approach (AM/PM decomposition).
+    """Analyze phase error using AM/PM decomposition.
 
-    Combines core computation and optional plotting. The plotting visualization
-    will automatically match the selected analysis mode.
+    Uses dual-track parallel design:
+    - Path A (Raw): Fit all N samples → highest precision AM/PM values + r_squared_raw
+    - Path B (Binned): Compute binned statistics → visualization
+    - Cross-validation: Path A coeffs predict Path B trend → r_squared_binned
 
     Parameters
     ----------
     signal : np.ndarray
         Input signal (1D array).
-    normalized_freq : float, optional
-        Normalized frequency (f/fs). If None, auto-detected.
-    data_mode : str, default="binned"
-        Analysis and plotting mode:
-        - "raw": Fits to all samples (High precision). Plot shows raw scatter.
-        - "binned": Fits to binned RMS (Robust trend). Plot shows binned bars.
+    norm_freq : float
+        Normalized frequency (f/fs), range (0, 0.5).
+    n_bins : int, default=100
+        Number of phase bins for visualization.
     include_baseline : bool, default=True
-        Whether to include the baseline noise term in the AM/PM fitting model.
-    bin_count : int, default=100
-        Number of phase bins (only used if data_mode="binned").
+        Include baseline noise term in fitting model.
     show_plot : bool, default=True
         Whether to display result plot.
-    axes : tuple or array, optional
-        Tuple of (ax1, ax2) to plot on.
+    axes : tuple, optional
+        Tuple of (ax1, ax2) for top and bottom panels.
     ax : matplotlib.axes.Axes, optional
-        Single axis to plot on (will be split).
+        Single axis to split into 2 panels.
+    title : str, optional
+        Test setup description for title.
 
     Returns
     -------
-    results : dict
-        Dictionary containing analysis results ('am_param', 'pm_param', etc.).
-        Structure depends on the selected 'data_mode'.
+    dict
+        Numerics: am_noise_rms_v, pm_noise_rms_v, pm_noise_rms_rad, noise_floor_rms_v, total_rms_v
+        Validation: r_squared_raw (energy ratio), r_squared_binned (model confidence)
+        Visualization: bin_error_rms_v, bin_error_mean_v, phase_bin_centers_rad
+        Metadata: amplitude, dc_offset, norm_freq, fitted_signal, error, phase
     """
-
     # 1. Compute
     results = rearrange_error_by_phase(
         signal=signal,
-        normalized_freq=normalized_freq,
-        mode=data_mode,  # Pass 'data_mode' to the underlying function's 'mode' argument
-        include_baseline=include_baseline,
-        bin_count=bin_count
+        norm_freq=norm_freq,
+        n_bins=n_bins,
+        include_baseline=include_baseline
     )
 
-    # 2. Plot (Visualization strictly follows the computation mode)
+    # 2. Plot (always uses binned bar plot)
     if show_plot:
-        plot_rearranged_error_by_phase(results, plot_mode=data_mode, axes=axes, ax=ax)
+        plot_rearranged_error_by_phase(results, axes=axes, ax=ax, title=title)
 
     return results
