@@ -15,29 +15,19 @@ Weight Calibration
 Overflow Detection
 ------------------
 
-.. autofunction:: check_overflow
+.. autofunction:: adctoolbox.dout.check_overflow
 
 Bit Activity
 ------------
 
-.. autofunction:: check_bit_activity
+.. autofunction:: adctoolbox.dout.check_bit_activity
 
 ENOB Analysis
 -------------
 
-.. autofunction:: analyze_enob_sweep
+.. autofunction:: adctoolbox.dout.analyze_enob_sweep
 
 Visualization
 -------------
 
-.. autofunction:: plot_weight_radix
-
-Dashboard
----------
-
-.. autofunction:: adctoolbox.dout.generate_dout_dashboard
-
-Toolset
--------
-
-.. autofunction:: adctoolbox.dout.toolset_dout
+.. autofunction:: adctoolbox.dout.plot_weight_radix
