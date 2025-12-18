@@ -54,9 +54,9 @@ EXPERIMENTS = [
         'param': {'memory_strength': -0.005}
     },
     {
-        'title': "RA Static Gain (+0%)",
+        'title': "RA Static Gain (+0.5%)",
         'func': 'apply_ra_gain_error',
-        'param': {'relative_gain': 1}
+        'param': {'relative_gain': 1.005}
     },
     {
         'title': "RA Static Gain (-0.5%)",
@@ -64,9 +64,9 @@ EXPERIMENTS = [
         'param': {'relative_gain': 0.995}
     },
     {
-        'title': "RA Dynamic Gain (+0%)",
+        'title': "RA Dynamic Gain (+0.5%)",
         'func': 'apply_ra_gain_error_dynamic',
-        'param': {'coeff_3': 0}
+        'param': {'coeff_3': 0.005}
     },
     {
         'title': "RA Dynamic Gain (-0.5%)",

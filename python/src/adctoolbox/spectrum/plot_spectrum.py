@@ -63,8 +63,8 @@ def plot_spectrum(analysis_results, show_title=True, show_label=True, plot_harmo
 
     if show_label:
         # Highlight fundamental - always use ax.plot(), axes scale handled by osr
-        ax.plot(freq[sig_bin_start:sig_bin_end], spec_db[sig_bin_start:sig_bin_end], 'r-', linewidth=0.5)
-        ax.plot(freq[bin_idx], spec_db[bin_idx], 'ro', linewidth=0.5, markersize=5)
+        ax.plot(freq[sig_bin_start:sig_bin_end], spec_db[sig_bin_start:sig_bin_end], 'r-', linewidth=2.0)
+        ax.plot(freq[bin_idx], spec_db[bin_idx], 'ro', linewidth=1.0, markersize=8)
 
         # Plot harmonics
         if plot_harmonics_up_to > 0:

@@ -221,12 +221,19 @@ class ADC_Signal_Generator:
         signal_am = signal_ac * am_tone_env
         return signal_am + self.DC
 
-    def apply_clipping(self, input_signal=None, clip_level=0.8):
-        """Apply signal clipping (saturation). Params: input_signal, clip_level (default 0.8)."""
-        signal = self._resolve_signal(input_signal)
-        signal_ac = signal - self.DC
-        signal_clipped = np.clip(signal_ac, -clip_level * self.A, clip_level * self.A)
-        return signal_clipped + self.DC
+    def apply_clipping(self, input_signal=None, percentile_clip=1.0):
+        """Apply hard clipping based on signal's percentile (e.g., 1.0 clips top/bottom 1%)."""
+        
+        signal = self._resolve_signal(input_signal) # Get base signal or input signal
+        
+        # 1. Determine the clipping thresholds dynamically using percentiles.
+        lower_threshold = np.percentile(signal, percentile_clip)
+        upper_threshold = np.percentile(signal, 100.0 - percentile_clip)
+        
+        # 2. Apply clipping: constrain signal values between the determined thresholds.
+        signal_clipped = np.clip(signal, lower_threshold, upper_threshold)
+        
+        return signal_clipped
 
     def apply_drift(self, input_signal=None, drift_scale=5e-5):
         """Apply drift (low-frequency random walk). Params: input_signal, drift_scale (default 5e-5)."""

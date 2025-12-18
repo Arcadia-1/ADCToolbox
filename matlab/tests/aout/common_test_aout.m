@@ -8,6 +8,6 @@ inputDir = "test_dataset";
 outputDir = "test_output";
 figureDir = "test_plots";
 
-filesList ={"sinewave_nonlin_HD2_n80dB_HD3_n73dB"};
+filesList ={};
 filesList = autoSearchFiles(filesList, inputDir, 'sinewave_*.csv');
 if ~isfolder(outputDir), mkdir(outputDir); end

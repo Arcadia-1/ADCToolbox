@@ -11,9 +11,9 @@ if ~exist(subFolder, 'dir'), mkdir(subFolder); end
 %% Signal Parameters
 rng(42);
 
-N = 2^13; % Number of samples (8192)
-Fs = 1e9; % Sampling frequency (1 GHz)
-Fin_want = 300e6; % Input frequency (300 MHz)
+N = 2^13; % Number of samples
+Fs = 2.5e9; % Sampling frequency
+Fin_want = 1e9; % Input frequency
 
 J = findbin(Fs, Fin_want, N);
 Fin = J / N * Fs;
