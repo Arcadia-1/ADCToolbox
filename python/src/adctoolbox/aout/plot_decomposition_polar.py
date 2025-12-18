@@ -1,8 +1,8 @@
-"""Plot polar decomposition for ADC harmonic analysis (LMS mode).
+"""Plot polar decomposition for ADC harmonic analysis.
 
 This module provides a pure visualization utility for creating polar plots
-of LMS-decomposed harmonics, strictly adhering to the Single Responsibility
-Principle. No calculations are performed - only plotting.
+of harmonic decomposition results, strictly adhering to the Single
+Responsibility Principle. No calculations are performed - only plotting.
 """
 
 import numpy as np
@@ -10,40 +10,32 @@ import matplotlib.pyplot as plt
 from typing import Optional
 
 
-def plot_decomposition_polar(plot_data: dict, ax: Optional[plt.Axes] = None) -> plt.Axes:
-    """Create a polar plot of LMS harmonic decomposition results.
+def plot_decomposition_polar(
+    results: dict,
+    harmonic: int = 5,
+    ax: Optional[plt.Axes] = None,
+    title: str = None
+) -> plt.Axes:
+    """Create a polar plot of harmonic decomposition results.
 
     This is a pure visualization function that displays harmonics on a polar
     plot with a noise circle reference.
 
     Parameters
     ----------
-    plot_data : dict
-        Dictionary containing all pre-computed elements required for plotting:
-
-        Required keys:
-        - 'harm_mag': np.ndarray
-            Magnitude of each harmonic
-        - 'harm_phase': np.ndarray
-            Phase of each harmonic in radians (relative to fundamental)
-        - 'harm_dB': np.ndarray
-            Magnitude in dB relative to full scale
-        - 'noise_dB': float
-            Noise floor in dB (for noise circle)
-        - 'harmonic': int
-            Number of harmonics to display
-
-        Optional keys:
-        - 'title': str
-            Custom title (default: 'Signal Component Phase (LMS)')
-        - 'minR_dB': float
-            Manual minimum radius in dB (auto-calculated if not provided)
-        - 'maxR_dB': float
-            Manual maximum radius in dB (auto-calculated if not provided)
-
+    results : dict
+        Dictionary from decompose_harmonic_error() containing:
+        - 'magnitudes': Magnitude of each harmonic
+        - 'phases': Phase of each harmonic in radians (relative to fundamental)
+        - 'magnitudes_db': Magnitude in dB relative to full scale
+        - 'noise_db': Noise floor in dB (for noise circle)
+    harmonic : int, default=5
+        Number of harmonics to display.
     ax : matplotlib.axes.Axes, optional
         Pre-configured Matplotlib Axes object with polar projection.
         If None, a new figure and axes will be created.
+    title : str, optional
+        Custom title for the plot.
 
     Returns
     -------
@@ -52,56 +44,62 @@ def plot_decomposition_polar(plot_data: dict, ax: Optional[plt.Axes] = None) -> 
 
     Notes
     -----
-    - The function performs NO calculations, only visualization
-    - Fundamental shown as filled blue circle
+    - Fundamental shown as filled blue circle at phase 0
     - Harmonics shown as hollow blue squares
     - Noise circle (dashed line) shows residual error level
     - Harmonics outside noise circle indicate significant distortion
-    - Radius in dB with minR at center, maxR at perimeter
+    - Radius in dB with automatic scaling
     - Polar axes: theta zero at top, clockwise direction
     """
 
     # Validate inputs
-    required_keys = ['harm_mag', 'harm_phase', 'harm_dB', 'noise_dB', 'harmonic']
+    required_keys = ['magnitudes', 'phases', 'magnitudes_db', 'noise_db']
     for key in required_keys:
-        if key not in plot_data:
-            raise ValueError(f"plot_data must contain '{key}' key")
+        if key not in results:
+            raise ValueError(f"results must contain '{key}' key")
 
-    # Extract data from plot_data dictionary
-    harm_mag = plot_data['harm_mag']
-    harm_phase = plot_data['harm_phase']
-    harm_dB = plot_data['harm_dB']
-    noise_dB = plot_data['noise_dB']
-    harmonic = plot_data['harmonic']
+    # Extract data from results dictionary
+    magnitudes = results['magnitudes']
+    phases = results['phases']
+    magnitudes_db = results['magnitudes_db']
+    noise_db = results['noise_db']
 
-    # Optional parameters
-    title = plot_data.get('title', 'Signal Component Phase (LMS)')
+    # Limit to requested number of harmonics
+    magnitudes = magnitudes[:harmonic]
+    phases = phases[:harmonic]
+    magnitudes_db = magnitudes_db[:harmonic]
 
-    # Create axes if not provided (must be polar projection)
+    # --- Axes Management ---
+    # Get current axis if not provided
     if ax is None:
-        fig = plt.figure(figsize=(10, 8))
-        ax = fig.add_subplot(111, projection='polar')
-    else:
-        # Verify axes has polar projection
-        if not hasattr(ax, 'set_theta_zero_location'):
-            raise ValueError("Axes must have polar projection")
+        ax = plt.gca()
+
+    # Ensure axis has polar projection
+    if not hasattr(ax, 'set_theta_zero_location'):
+        # Need to replace with polar axes
+        fig = ax.get_figure()
+        if hasattr(ax, 'get_subplotspec') and ax.get_subplotspec():
+            # Use existing subplot position
+            subplotspec = ax.get_subplotspec()
+            ax.remove()
+            ax = fig.add_subplot(subplotspec, projection='polar')
+        else:
+            # Fallback for manual positioning
+            pos = ax.get_position()
+            ax.remove()
+            ax = fig.add_axes([pos.x0, pos.y0, pos.width, pos.height], projection='polar')
 
     # Calculate axis limits
-    if 'maxR_dB' in plot_data and 'minR_dB' in plot_data:
-        maxR_dB = plot_data['maxR_dB']
-        minR_dB = plot_data['minR_dB']
-    else:
-        # Auto-calculate limits
-        # Round maximum harmonic to nearest 10 dB
-        maxR_dB = np.ceil(np.max(harm_dB) / 10) * 10
-        # Set minimum to accommodate noise floor with margin
-        minR_dB = min(np.min(harm_dB), noise_dB) - 10
-        # Round minR to nearest 10 dB
-        minR_dB = np.floor(minR_dB / 10) * 10
+    # Round maximum harmonic to nearest 10 dB
+    maxR_dB = np.ceil(np.max(magnitudes_db) / 10) * 10
+    # Set minimum to accommodate noise floor with margin
+    minR_dB = min(np.min(magnitudes_db), noise_db) - 10
+    # Round minR to nearest 10 dB
+    minR_dB = np.floor(minR_dB / 10) * 10
 
     # Convert to plot scale (radius = dB - minR_dB)
-    harm_radius = harm_dB - minR_dB
-    noise_radius = noise_dB - minR_dB
+    harm_radius = magnitudes_db - minR_dB
+    noise_radius = noise_db - minR_dB
 
     # Configure polar axes
     ax.set_theta_zero_location('N')  # Theta zero at top
@@ -112,32 +110,32 @@ def plot_decomposition_polar(plot_data: dict, ax: Optional[plt.Axes] = None) -> 
     ax.plot(theta_circle, noise_radius * np.ones_like(theta_circle),
             'k--', linewidth=1.5, label='Residual Noise')
 
-    # Add noise circle label
-    ax.text(np.pi * 3 / 4, noise_radius,
-            f'Residue Errors\n{noise_dB:.1f} dB',
-            fontsize=9, color='k', ha='left')
+    # Add noise circle label at bottom
+    ax.text(np.pi, noise_radius*1.1,
+            f'Residue Errors\n{noise_db:.2f} dB',
+            fontsize=11, color='k', ha='center', va='top')
 
     # Plot harmonics
-    for ii in range(harmonic):
-        if ii == 0:
-            # Fundamental: filled blue circle (NOT red, as per user request)
-            ax.plot(harm_phase[ii], harm_radius[ii], 'o',
+    for i in range(harmonic):
+        if i == 0:
+            # Fundamental: filled blue circle
+            ax.plot(phases[i], harm_radius[i], 'o',
                    markersize=12, markeredgecolor='blue', markerfacecolor='blue',
                    markeredgewidth=2, label='1 (Fundamental)', zorder=10)
-            ax.plot([0, harm_phase[ii]], [0, harm_radius[ii]],
+            ax.plot([0, phases[i]], [0, harm_radius[i]],
                    'b-', linewidth=3, zorder=10)
             # Add "1" label for fundamental
-            ax.text(harm_phase[ii] + 0.1, harm_radius[ii], '1',
+            ax.text(phases[i] + 0.1, harm_radius[i], '1',
                    fontname='Arial', fontsize=10, ha='center', fontweight='bold')
         else:
             # Harmonics: hollow blue squares
-            ax.plot(harm_phase[ii], harm_radius[ii], 's',
+            ax.plot(phases[i], harm_radius[i], 's',
                    markersize=6, markeredgecolor='blue', markerfacecolor='none',
                    markeredgewidth=1.5)
-            ax.plot([0, harm_phase[ii]], [0, harm_radius[ii]],
+            ax.plot([0, phases[i]], [0, harm_radius[i]],
                    'b-', linewidth=2)
             # Add harmonic number label
-            ax.text(harm_phase[ii] + 0.1, harm_radius[ii], str(ii + 1),
+            ax.text(phases[i] + 0.1, harm_radius[i], str(i + 1),
                    fontname='Arial', fontsize=10, ha='center')
 
     # Set radial axis limits and ticks
@@ -154,6 +152,9 @@ def plot_decomposition_polar(plot_data: dict, ax: Optional[plt.Axes] = None) -> 
     ax.grid(True, alpha=0.3)
 
     # Set title
-    ax.set_title(title, pad=20, fontsize=12, fontweight='bold')
+    if title:
+        ax.set_title(f'{title}\nSignal Component Phase')
+    else:
+        ax.set_title('Signal Component Phase')
 
     return ax
