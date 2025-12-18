@@ -4,13 +4,24 @@ import numpy as np
 import matplotlib.pyplot as plt
 from matplotlib.gridspec import GridSpecFromSubplotSpec
 
-def plot_rearranged_error_by_value(results: dict, axes=None, ax=None):
+def plot_rearranged_error_by_value(results: dict, axes=None, ax=None, title: str = None):
     """
     Plot Mean Error (INL) and RMS Error (Noise) vs Bin Index.
-    
+
     Creates a comprehensive visualization showing:
     - Top panel: Scatter of raw error vs bin index with mean error overlay
     - Bottom panel: RMS error vs bin index as bar chart
+
+    Parameters
+    ----------
+    results : dict
+        Dictionary from rearrange_error_by_value().
+    axes : tuple or array, optional
+        Tuple of (ax1, ax2) for top and bottom panels.
+    ax : matplotlib.axes.Axes, optional
+        Single axis to split into 2 panels.
+    title : str, optional
+        Test setup description for title.
     """
     
     # --- 1. Extract Data (Using new simplified keys) ---
@@ -70,18 +81,21 @@ def plot_rearranged_error_by_value(results: dict, axes=None, ax=None):
         ax1.set_ylim([y_min - margin, y_max + margin])
 
         ax1.set_ylabel('Error')
-        ax1.set_title(f'Value Error Analysis ({n_bins} bins)', fontsize=10, fontweight='bold')
+        if title:
+            ax1.set_title(f'{title}\nSignal and Error vs Value')
+        else:
+            ax1.set_title('Signal and Error vs Value')
         ax1.grid(True, alpha=0.3)
         ax1.legend(loc='upper right', fontsize=8)
         # Hide x-labels for top plot to avoid clutter
-        ax1.set_xticklabels([]) 
+        ax1.set_xticklabels([])
 
     # ======================================================================
     # Bottom Panel: RMS Error Bar Chart (Noise Profile)
     # ======================================================================
     if len(bin_centers) > 0:
         # Bar chart
-        ax2.bar(bin_centers, error_rms, width=0.9, 
+        ax2.bar(bin_centers, error_rms, width=0.9,
                 color='skyblue', alpha=0.8, edgecolor='darkblue', linewidth=0.3)
 
         # Set axis limits
@@ -90,6 +104,7 @@ def plot_rearranged_error_by_value(results: dict, axes=None, ax=None):
 
         ax2.set_xlabel('Bin Index')
         ax2.set_ylabel('RMS Error')
+        ax2.set_title('RMS Error vs Value')
         ax2.grid(True, alpha=0.3, axis='y')
 
     # Tight layout if we created the figure structure ourselves

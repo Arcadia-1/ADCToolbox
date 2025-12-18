@@ -2,6 +2,11 @@
 Demonstrates `analyze_error_by_value` for distinguishing thermal noise from static nonlinearity.
 This method provides a quick, coarse visualization of the INL shape (error vs. code)
 to identify static nonlinearity errors without running a full histogram test.
+
+3 Figures:
+- Figure 1: Thermal Noise (50 bins)
+- Figure 2: 3rd Order Nonlinearity (50 bins)
+- Figure 3: 3rd Order Nonlinearity (200 bins) - Higher resolution
 """
 
 import time
@@ -43,15 +48,13 @@ print(f"[Timing] Data Generation: {time.time() - t_gen:.4f}s")
 # --- 3. Timing: Analysis & Plotting (InMemory) ---
 t_plot = time.time()
 
-# Analyze and plot results
-fig = plt.figure(figsize=(16, 8))
-fig.suptitle('Value Error Analysis (Coarse INL Check) - Thermal Noise vs 3rd Order Nonlinearity', fontsize=16, fontweight='bold')
+# Analyze and plot results with 3 figures
+fig, axes = plt.subplots(1, 3, figsize=(18, 8))
+fig.suptitle('Value Error Analysis - Thermal Noise vs 3rd Order Nonlinearity', fontsize=14, fontweight='bold')
 
-ax1 = plt.subplot(1, 2, 1)
-analyze_error_by_value(sig_noise, n_bins=50, ax=ax1)
-
-ax2 = plt.subplot(1, 2, 2)
-analyze_error_by_value(sig_nonlin, n_bins=50, ax=ax2)
+analyze_error_by_value(sig_noise, n_bins=16, ax=axes[0], title='Thermal Noise Only')
+analyze_error_by_value(sig_nonlin, n_bins=16, ax=axes[1], title='3rd Order Nonlinearity (16 bins)')
+analyze_error_by_value(sig_nonlin, n_bins=64, ax=axes[2], title='3rd Order Nonlinearity (64 bins)')
 
 plt.tight_layout()
 
@@ -60,7 +63,7 @@ print(f"[Timing] Analysis & Plotting Setup: {time.time() - t_plot:.4f}s")
 # --- 4. Timing: File Saving (Rendering) ---
 t_save = time.time()
 
-fig_path_bins = (output_dir / 'exp_a10_analyze_error_by_value_bins.png').resolve()
+fig_path_bins = (output_dir / 'exp_a02_analyze_error_by_value_bins.png').resolve()
 plt.savefig(fig_path_bins, dpi=150, bbox_inches='tight')
 plt.close(fig)
 
