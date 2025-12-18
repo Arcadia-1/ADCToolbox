@@ -2,7 +2,7 @@
 import numpy as np
 import matplotlib.pyplot as plt
 from pathlib import Path
-from adctoolbox import find_coherent_frequency, compute_harmonic_decomposition, plot_harmonic_decomposition_polar, amplitudes_to_snr, snr_to_nsd
+from adctoolbox import find_coherent_frequency, decompose_harmonic_error, plot_harmonic_decomposition_polar, amplitudes_to_snr, snr_to_nsd
 
 output_dir = Path(__file__).parent / "output"
 output_dir.mkdir(exist_ok=True)
