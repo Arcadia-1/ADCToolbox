@@ -1,51 +1,96 @@
-"""
-Error envelope spectrum analysis using Hilbert transform.
+"""Error spectrum analysis.
 
-Extracts envelope spectrum to reveal amplitude modulation patterns.
-
-MATLAB counterpart: errevspec.m
+Analyzes the spectrum of the fitting error signal directly to reveal
+frequency components and error characteristics.
 """
 
 import numpy as np
 import matplotlib.pyplot as plt
-from scipy.signal import hilbert
+from typing import Optional
 from adctoolbox.spectrum import analyze_spectrum
+from .fit_sine_4param import fit_sine_4param
 
 
-def plot_envelope_spectrum(err_data, fs=1):
+def analyze_error_spectrum(signal, fs=1, frequency=None, show_plot=True,
+                           ax: Optional[plt.Axes] = None, title: str = None):
     """
-    Compute envelope spectrum using Hilbert transform.
+    Compute error spectrum directly from the error signal.
 
-    Parameters:
-        err_data: Error signal (1D array)
-        fs: Sampling frequency (default: 1)
+    This function fits an ideal sine to the signal, computes the error,
+    and analyzes the spectrum of the error signal (not envelope).
 
-    Returns:
-        dict: Dictionary with keys:
-            - enob: Effective Number of Bits
-            - sndr_db: Signal-to-Noise and Distortion Ratio (dB)
-            - sfdr_db: Spurious-Free Dynamic Range (dB)
-            - snr_db: Signal-to-Noise Ratio (dB)
-            - thd_db: Total Harmonic Distortion (dB)
-            - sig_pwr_dbfs: Signal power (dBFS)
-            - noise_floor_db: Noise floor (dB)
+    Parameters
+    ----------
+    signal : np.ndarray
+        ADC output signal (1D array)
+    fs : float, default=1
+        Sampling frequency in Hz
+    frequency : float, optional
+        Normalized frequency (0-0.5). If None, auto-detected
+    show_plot : bool, default=True
+        If True, plot the error spectrum on current axes
+    ax : matplotlib.axes.Axes, optional
+        Axes to plot on. If None, uses current axes (plt.gca())
+    title : str, optional
+        Title for the plot. If None, no title is set
+
+    Returns
+    -------
+    result : dict
+        Dictionary containing spectrum analysis results:
+        - 'enob': Effective Number of Bits
+        - 'sndr_db': Signal-to-Noise and Distortion Ratio (dB)
+        - 'sfdr_db': Spurious-Free Dynamic Range (dB)
+        - 'snr_db': Signal-to-Noise Ratio (dB)
+        - 'thd_db': Total Harmonic Distortion (dB)
+        - 'sig_pwr_dbfs': Signal power (dBFS)
+        - 'noise_floor_dbfs': Noise floor (dBFS)
+        - 'error_signal': Error signal (signal - fitted sine)
+
+    Notes
+    -----
+    - Error = signal - ideal_sine (fitted using fit_sine_4param)
+    - Analyzes spectrum of error directly (no envelope extraction)
+    - Reveals frequency components in the error signal
     """
-    # Ensure column data
-    e = np.asarray(err_data).flatten()
 
-    # Envelope extraction via Hilbert transform
-    env = np.abs(hilbert(e))
+    # Fit ideal sine to extract reference
+    if frequency is None:
+        fit_result = fit_sine_4param(signal)
+    else:
+        fit_result = fit_sine_4param(signal, frequency_estimate=frequency)
 
-    # Use spec_plot for spectrum analysis (spec_plot will handle closing its own figure)
-    # Use n_thd=5 to match MATLAB's default
-    result = analyze_spectrum(env, fs=fs, show_label=False, n_thd=5)
+    sig_ideal = fit_result['fitted_signal']
 
-    # Update labels with larger fonts to match MATLAB
-    plt.grid(True)
-    plt.xlabel("Frequency (Hz)", fontsize=14)
-    plt.ylabel("Envelope Spectrum (dB)", fontsize=14)
-    plt.gca().tick_params(labelsize=14)
+    # Compute error
+    error_signal = signal - sig_ideal
 
-    # Note: spec_plot already closes its figure, so no need to close here
+    # Analyze error spectrum directly (not envelope)
+    if show_plot:
+        # Use provided axes or set current axes
+        if ax is not None:
+            plt.sca(ax)
+
+        result = analyze_spectrum(error_signal, fs=fs, show_label=False, n_thd=5)
+        plt.xlabel("Frequency (Hz)")
+        plt.ylabel("Error Spectrum (dB)")
+        plt.grid(True, alpha=0.3)
+
+        # Set title if provided
+        if title is not None:
+            plt.gca().set_title(title, fontsize=10, fontweight='bold')
+    else:
+        # Analyze without plotting
+        import matplotlib
+        backend_orig = matplotlib.get_backend()
+        matplotlib.use('Agg')  # Non-interactive backend
+
+        result = analyze_spectrum(error_signal, fs=fs, show_label=False, n_thd=5)
+        plt.close()
+
+        matplotlib.use(backend_orig)  # Restore original backend
+
+    # Add error signal to results
+    result['error_signal'] = error_signal
 
     return result

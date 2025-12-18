@@ -8,21 +8,35 @@ MATLAB counterpart: errac.m
 
 import numpy as np
 import matplotlib.pyplot as plt
+from typing import Optional
 
 
-def analyze_error_autocorr(err_data, max_lag=100, normalize=True, plot=False):
+def analyze_error_autocorr(err_data, max_lag=100, normalize=True, show_plot=False,
+                           ax: Optional[plt.Axes] = None, title: str = None):
     """
     Compute and optionally plot autocorrelation function (ACF) of error signal.
 
-    Parameters:
-        err_data: Error signal (1D array)
-        max_lag: Maximum lag in samples (default: 100)
-        normalize: Normalize ACF so ACF[0] = 1 (default: True)
-        plot: If True, plot the autocorrelation on current axes (default: False)
+    Parameters
+    ----------
+    err_data : array_like
+        Error signal (1D array)
+    max_lag : int, default=100
+        Maximum lag in samples
+    normalize : bool, default=True
+        Normalize ACF so ACF[0] = 1
+    show_plot : bool, default=False
+        If True, plot the autocorrelation
+    ax : matplotlib.axes.Axes, optional
+        Axes to plot on. If None, uses current axes (plt.gca())
+    title : str, optional
+        Title for the plot. If None, uses default title
 
-    Returns:
-        acf: Autocorrelation values
-        lags: Lag indices (-max_lag to +max_lag)
+    Returns
+    -------
+    acf : ndarray
+        Autocorrelation values
+    lags : ndarray
+        Lag indices (-max_lag to +max_lag)
     """
     # Ensure column data
     e = np.asarray(err_data).flatten()
@@ -52,12 +66,21 @@ def analyze_error_autocorr(err_data, max_lag=100, normalize=True, plot=False):
         acf = acf / acf[lags == 0]
 
     # Plot if requested
-    if plot:
-        plt.stem(lags, acf, linefmt='b-', markerfmt='bo', basefmt='k-', use_line_collection=True)
-        plt.axhline(0, color='k', linestyle='--', linewidth=0.8, alpha=0.5)
-        plt.xlabel('Lag (samples)', fontsize=11)
-        plt.ylabel('Autocorrelation', fontsize=11)
-        plt.title('Error Autocorrelation Function', fontsize=12, fontweight='bold')
-        plt.grid(True, alpha=0.3)
+    if show_plot:
+        # Use provided axes or get current axes
+        if ax is None:
+            ax = plt.gca()
+
+        ax.stem(lags, acf, linefmt='b-', markerfmt='b.', basefmt='k-')
+        ax.axhline(0, color='k', linestyle='--', linewidth=0.8, alpha=0.5)
+        ax.set_xlabel('Lag (samples)', fontsize=9)
+        ax.set_ylabel('ACF', fontsize=9)
+        ax.grid(True, alpha=0.3)
+        ax.set_xlim([-max_lag, max_lag])
+        ax.set_ylim([-0.3, 1.1])
+
+        # Set title if provided
+        if title is not None:
+            ax.set_title(title, fontsize=10, fontweight='bold')
 
     return acf, lags
