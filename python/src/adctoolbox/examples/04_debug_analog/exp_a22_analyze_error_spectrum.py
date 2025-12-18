@@ -52,7 +52,7 @@ for idx, case in enumerate(CASES):
     signal = case['func']()
 
     # Analyze error spectrum
-    result = analyze_error_spectrum(signal, ax=axes[idx], title=case['title'])
+    result = analyze_error_spectrum(signal, fs=params['Fs'], ax=axes[idx], title=case['title'])
 
 print(f"\n[Timing] Signal Generation & Plotting: {time.time() - t_plot:.4f}s")
 

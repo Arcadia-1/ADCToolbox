@@ -50,8 +50,8 @@ phase_diff = phase_fit - phase_expected
 phase_error = ((phase_diff + 180) % 360) - 180
 freq_error = abs(Fin - freq_fit)
 
-print(f"\n[Expected] [DC={DC:8.4f} V] [Amplitude={A:8.4f} V] [Freq={Fin/1e6:10.7f} MHz] [Phase={phase_expected:8.4f}°]")
-print(f"[Fitted  ] [DC={dc_fit:8.4f} V] [Amplitude={mag_fit:8.4f} V] [Freq={freq_fit/1e6:10.7f} MHz] [Phase={phase_fit:8.4f}°]")
+print(f"\n[Expected] [DC={DC:8.4f} V] [Amplitude={A:8.4f} V] [Freq={Fin/1e6:10.7f} MHz] [Phase={phase_expected:8.4f} deg]")
+print(f"[Fitted  ] [DC={dc_fit:8.4f} V] [Amplitude={mag_fit:8.4f} V] [Freq={freq_fit/1e6:10.7f} MHz] [Phase={phase_fit:8.4f} deg]")
 
 # Assert that fitting error is within acceptable limits
 residual_rms_pct = abs(100 * (residual_rms - noise_rms)) / noise_rms
@@ -65,8 +65,8 @@ print(f"[Frequency error] freq error={freq_error:.4f} Hz, percentage={freq_error
 
 # Check phase error (should be within 5 degrees)
 phase_error_abs = abs(phase_error)
-assert phase_error_abs < 5.0, f"Phase error {phase_error_abs:.4f}° exceeds 5° threshold!"
-print(f"[Phase error    ] phase error={phase_error:.4f}° -> [PASS]")
+assert phase_error_abs < 5.0, f"Phase error {phase_error_abs:.4f} deg exceeds 5 deg threshold!"
+print(f"[Phase error    ] phase error={phase_error:.4f} deg -> [PASS]")
 
 # Check reconstruction error (should be very small)
 assert reconstruction_error < 1e-2, f"reconstruction error {reconstruction_error:.6f} exceeds 0.01 threshold!"
