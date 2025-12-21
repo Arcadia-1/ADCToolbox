@@ -50,26 +50,40 @@ from .fundamentals import (
     estimate_frequency,
     fold_bin_to_nyquist,
     fold_frequency_to_nyquist,
+    bin_to_freq,
+    freq_to_bin,
     amplitudes_to_snr,
     db_to_mag,
     mag_to_db,
+    db_to_power,
+    power_to_db,
     snr_to_enob,
     enob_to_snr,
     snr_to_nsd,
+    nsd_to_snr,
     fit_sine_4param,
+    calculate_walden_fom,
+    calculate_schreier_fom,
 )
 
 _export('find_coherent_frequency', find_coherent_frequency)
 _export('estimate_frequency', estimate_frequency)
 _export('fold_bin_to_nyquist', fold_bin_to_nyquist)
 _export('fold_frequency_to_nyquist', fold_frequency_to_nyquist)
+_export('bin_to_freq', bin_to_freq)
+_export('freq_to_bin', freq_to_bin)
 _export('amplitudes_to_snr', amplitudes_to_snr)
 _export('db_to_mag', db_to_mag)
 _export('mag_to_db', mag_to_db)
+_export('db_to_power', db_to_power)
+_export('power_to_db', power_to_db)
 _export('snr_to_enob', snr_to_enob)
 _export('enob_to_snr', enob_to_snr)
 _export('snr_to_nsd', snr_to_nsd)
+_export('nsd_to_snr', nsd_to_snr)
 _export('fit_sine_4param', fit_sine_4param)
+_export('calculate_walden_fom', calculate_walden_fom)
+_export('calculate_schreier_fom', calculate_schreier_fom)
 
 # ======================================================================
 # Spectrum Analysis Functions
@@ -116,18 +130,31 @@ _export('fit_static_nonlin', fit_static_nonlin)
 
 
 # ======================================================================
+# Calibration Functions
+# ======================================================================
+
+from .calibration import (
+    calibrate_weight_sine,
+)
+
+_export('calibrate_weight_sine', calibrate_weight_sine)
+
+
+# ======================================================================
 # Digital Output (DOUT) Analysis Functions
 # ======================================================================
 
 from .dout import (
-    calibrate_weight_sine,
-    calibrate_weight_sine_osr,
-    calibrate_weight_two_tone,
+    check_bit_activity,
+    check_overflow,
+    plot_weight_radix,
+    analyze_enob_sweep,
 )
 
-_export('calibrate_weight_sine', calibrate_weight_sine)
-_export('calibrate_weight_sine_osr', calibrate_weight_sine_osr)
-_export('calibrate_weight_two_tone', calibrate_weight_two_tone)
+_export('check_bit_activity', check_bit_activity)
+_export('check_overflow', check_overflow)
+_export('plot_weight_radix', plot_weight_radix)
+_export('analyze_enob_sweep', analyze_enob_sweep)
 
 
 # ======================================================================
@@ -147,12 +174,14 @@ _export('ntf_analyzer', ntf_analyzer)
 
 from . import fundamentals
 from . import aout
+from . import calibration
 from . import dout
 from . import oversampling
 from . import spectrum
 
 _export('fundamentals', fundamentals)
 _export('aout', aout)
+_export('calibration', calibration)
 _export('dout', dout)
 _export('oversampling', oversampling)
 _export('spectrum', spectrum)

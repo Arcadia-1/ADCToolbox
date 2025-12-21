@@ -3,8 +3,18 @@ name: CI
 on:
   pull_request:
     branches: [ main ]
+    paths-ignore:
+      - 'python/docs/**'
+      - '**.md'
+      - '**.rst'
+      - '.github/workflows/docs.yml'
   push:
     branches: [ main ]
+    paths-ignore:
+      - 'python/docs/**'
+      - '**.md'
+      - '**.rst'
+      - '.github/workflows/docs.yml'
 
 jobs:
   test-examples:

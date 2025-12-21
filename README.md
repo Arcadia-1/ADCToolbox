@@ -2,9 +2,13 @@
 
 Comprehensive toolbox for ADC characterization, calibration, and performance analysis.
 
-[![Documentation](https://img.shields.io/badge/docs-GitHub%20Pages-blue)](https://arcadia-1.github.io/ADCToolbox/)
+[![CI](https://github.com/Arcadia-1/ADCToolbox/actions/workflows/ci.yml/badge.svg)](https://github.com/Arcadia-1/ADCToolbox/actions/workflows/ci.yml)
+[![Documentation](https://github.com/Arcadia-1/ADCToolbox/actions/workflows/docs.yml/badge.svg)](https://arcadia-1.github.io/ADCToolbox/)
 [![PyPI version](https://badge.fury.io/py/adctoolbox.svg)](https://badge.fury.io/py/adctoolbox)
+[![PyPI - Downloads](https://img.shields.io/pypi/dm/adctoolbox)](https://pypi.org/project/adctoolbox/)
 [![Python 3.8+](https://img.shields.io/badge/python-3.8+-blue.svg)](https://www.python.org/downloads/)
+[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
+[![GitHub stars](https://img.shields.io/github/stars/Arcadia-1/ADCToolbox?style=social)](https://github.com/Arcadia-1/ADCToolbox/stargazers)
 
 ## Documentation
 
