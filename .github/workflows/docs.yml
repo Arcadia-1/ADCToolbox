@@ -4,6 +4,11 @@ on:
   push:
     branches:
       - main
+    paths:
+      - 'python/docs/**'
+      - 'python/src/adctoolbox/**/*.py'  # Docstrings in source code
+      - 'README.md'
+      - '.github/workflows/docs.yml'
     tags:
       - 'v*'
   workflow_dispatch:

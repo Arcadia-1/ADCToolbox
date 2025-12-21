@@ -23,8 +23,10 @@ caps_real = caps_nominal.copy()
 caps_real[0] *= 0.99  # MSB a little bit smaller, you can change these values to test
 voltage_steps = caps_real / np.sum(caps_real)
 
-# Nominal weights for reconstruction (last bit is 0.5, only compares)
-weights_nominal = np.array([1024, 512, 256, 128, 64, 32, 16, 8, 4, 2, 1, 0.5])
+# Nominal weights for reconstruction (normalized to voltage range)
+# For a SAR ADC, weights should sum to ~1.0 (full scale)
+weights_nominal = caps_nominal / np.sum(caps_nominal)
+weights_nominal[-1] = weights_nominal[-1] / 2  # Last bit is comparator, half weight
 
 # SAR quantization
 residue = signal.copy()
@@ -44,30 +46,32 @@ weights_calibrated, offset, analog_after, _, _, _ = calibrate_weight_sine(digita
 # Spectrum comparison
 fig, axes = plt.subplots(1, 2, figsize=(14, 5))
 
-plt.sca(axes[0])
 result_before = analyze_spectrum(analog_before, n_thd=5, show_label=True, ax=axes[0])
 axes[0].set_title('Before Calibration', fontsize=12, fontweight='bold')
 
-plt.sca(axes[1])
 result_after = analyze_spectrum(analog_after, n_thd=5, show_label=True, ax=axes[1])
 axes[1].set_title('After Calibration', fontsize=12, fontweight='bold')
 
 # Normalize weights for comparison
-weights_real = np.append(caps_real[:-1], caps_real[-1] * 0.5)
-weights_nominal_norm = weights_nominal / (np.sum(weights_nominal) +weights_nominal[-1])
-weights_real_norm = weights_real / (np.sum(weights_real)+weights_real[-1])
-weights_calibrated_norm = weights_calibrated / (np.sum(weights_calibrated)+weights_calibrated[-1])
+weights_real = caps_real / np.sum(caps_real)
+weights_real[-1] = weights_real[-1] / 2  # Last bit is comparator
+
+# calibrate_weight_sine returns weights that sum to ~2.0 (differential signal)
+# Normalize to match the single-ended weights (sum ~1.0)
+weights_nominal_norm = weights_nominal
+weights_real_norm = weights_real
+weights_calibrated_norm = weights_calibrated / 2.0  # Convert differential to single-ended
 
 # Print results
 print(f"[Nominal Resolution] {n_bits} bits")
 print(f"[Weight Calibration] [ENoB = {result_before['enob']:5.2f} bit] -> [ENoB = {result_after['enob']:5.2f} bit]")
 
-nominal_str = ', '.join([f'{w:.6f}' for w in weights_nominal_norm])
-weights_str = ', '.join([f'{w:.6f}' for w in weights_real_norm])
-calibrated_str = ', '.join([f'{w:.6f}' for w in weights_calibrated_norm])
-print(f"  [Nominal weights]: [{nominal_str}]")
-print(f"  [Real    weights]: [{weights_str}] <-- Truth")
-print(f"  [Cal     weights]: [{calibrated_str}] <-- Result")
+nominal_str = ', '.join([f'{w:.5f}' for w in weights_nominal_norm])
+weights_str = ', '.join([f'{w:.5f}' for w in weights_real_norm])
+calibrated_str = ', '.join([f'{w:.5f}' for w in weights_calibrated_norm])
+print(f"  [Nominal]: [{nominal_str}]")
+print(f"  [Real   ]: [{weights_str}] <-- Truth")
+print(f"  [Cal    ]: [{calibrated_str}] <-- Result")
 
 
 plt.tight_layout()

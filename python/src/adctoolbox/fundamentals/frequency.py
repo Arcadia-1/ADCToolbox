@@ -168,7 +168,7 @@ def fold_bin_to_nyquist(bin_idx: int, n_fft: int) -> int:
     return bin_idx
 
 
-def estimate_frequency(data, fs=1.0):
+def estimate_frequency(data, frequency_estimate=None, fs=1.0):
     """
     Estimate the physical fundamental frequency (Hz) of a signal.
 
@@ -199,7 +199,7 @@ def estimate_frequency(data, fs=1.0):
     >>> print(f"Estimated frequency: {freq/1e6:.2f} MHz")
     Estimated frequency: 100.00 MHz
     """
-    result = fit_sine_4param(data)
+    result = fit_sine_4param(data, frequency_estimate=frequency_estimate)
 
     freq_norm = result['frequency']
 

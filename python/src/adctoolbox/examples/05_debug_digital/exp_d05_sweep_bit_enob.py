@@ -55,7 +55,7 @@ for idx, (lsb_random, title) in enumerate(test_cases):
     # Run ENOB bit sweep
     plt.sca(axes[idx])
     enob_sweep, n_bits_vec = analyze_enob_sweep(
-        digital_output, freq=fin/fs, order=5, harmonic=5, osr=1, win_type='hamming', plot=True
+        digital_output, freq=fin/fs, order=5, osr=1, win_type='hamming', plot=True
     )
     axes[idx].set_title(title, fontweight='bold')
 

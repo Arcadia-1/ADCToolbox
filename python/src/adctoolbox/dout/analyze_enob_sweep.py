@@ -2,8 +2,8 @@
 
 import numpy as np
 import matplotlib.pyplot as plt
-from .calibrate_weight_sine import calibrate_weight_sine
-from ..spectrum import analyze_spectrum
+from adctoolbox.calibration import calibrate_weight_sine
+from adctoolbox.spectrum import analyze_spectrum
 
 
 def analyze_enob_sweep(bits, freq=0, order=5, osr=1, win_type='hamming', plot=True):
