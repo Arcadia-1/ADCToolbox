@@ -57,9 +57,9 @@ function [enob,sndr,sfdr,snr,thd,sigpwr,noi,nsd,h] = plotspec(sig,varargin)
 %       String: 'normal' (power averaging), 'coherent' (coherent averaging with phase alignment)
 %       Number: 0 (normal), 1 (coherent)
 %       Alias: 'coAvg' (deprecated, use 'averageMode')
-%     'NFMethod' - Noise floor estimation method. Default: 'median'
-%       String: 'median' (median-based), 'mean' (trimmed mean), 'exclude' (exclude harmonics)
-%       Number: 0 (median-based), 1 (trimmed mean), 2 (exclude harmonics)
+%     'NFMethod' - Noise floor estimation method. Default: 'auto'
+%       String: 'auto' (median of all methods), 'median' (median-based), 'mean' (trimmed mean), 'exclude' (exclude harmonics)
+%       Number: 0 (auto), 1 (median-based), 2 (trimmed mean), 3 (exclude harmonics)
 %
 %   Outputs:
 %     enob - Effective Number of Bits
@@ -124,7 +124,7 @@ validScalarPosNum = @(x) isnumeric(x) && isscalar(x) && (x > 0);
 validScalarPosInt = @(x) isnumeric(x) && isscalar(x) && (x > 0) && (mod(x,1) == 0);
 validInteger = @(x) isnumeric(x) && isscalar(x) && (mod(x,1) == 0);
 validWindow = @(x) (ischar(x) && ismember(x, {'hann', 'rect'})) || isa(x, 'function_handle');
-validNFMethod = @(x) (isnumeric(x) && ismember(x, [0, 1, 2])) || (ischar(x) && ismember(x, {'median', 'mean', 'exclude'}));
+validNFMethod = @(x) (isnumeric(x) && ismember(x, [0, 1, 2, 3])) || (ischar(x) && ismember(x, {'auto', 'median', 'mean', 'exclude'}));
 validAvgMode = @(x) (isnumeric(x) && ismember(x, [0, 1])) || (ischar(x) && ismember(x, {'normal', 'coherent'}));
 validLogical = @(x) islogical(x) || (isnumeric(x) && ismember(x, [0, 1]));
 addOptional(p, 'Fs', 1, validScalarPosNum);
@@ -147,7 +147,7 @@ addParameter(p, 'sideBin', 1, @(x) isnumeric(x) && isscalar(x) && (x >= 0));
 addParameter(p, 'label', true, validLogical);
 addParameter(p, 'assumedSignal', NaN);
 addParameter(p, 'nTHD', 5, validScalarPosInt);
-addParameter(p, 'NFMethod', 'median', validNFMethod);
+addParameter(p, 'NFMethod', 'auto', validNFMethod);
 parse(p, varargin{:});
 
 % Extract parsed parameters
@@ -162,12 +162,14 @@ nTHD = p.Results.nTHD;
 % Convert NFMethod from string to numeric if needed
 if ischar(p.Results.NFMethod)
     switch p.Results.NFMethod
-        case 'median'
+        case 'auto'
             nfmethod = 0;
-        case 'mean'
+        case 'median'
             nfmethod = 1;
-        case 'exclude'
+        case 'mean'
             nfmethod = 2;
+        case 'exclude'
+            nfmethod = 3;
     end
 else
     nfmethod = p.Results.NFMethod;
@@ -431,28 +433,37 @@ if(dispPlot && label)
     text((sbin-1)/N_fft*Fs,10*log10(spur+10^(-20))+5,'MaxSpur','fontname','Arial','fontsize',10,'horizontalalignment','center');
 end
 
-% Calculate noise floor using selected method
-if(nfmethod == 0)
-    % Method 0: Median-based estimation (robust to spurs)
-    if(N_run == 1)
-        % Mn = 0.4549364231;
-        Mn = 0.72;      % why??
-    else
-        Mn = (1-2/(9*N_run))^3;
-    end
-    noi = median(spec(1:floor(N_fft/2/OSR)))/Mn *floor(N_fft/2/OSR);
-elseif(nfmethod == 1)
-    % Method 1: Trimmed mean (removes top/bottom 5%)
-    spec_sort = sort(spec(1:floor(N_fft/2/OSR)));
-    noi = mean(spec_sort(floor(N_fft/2/OSR*0.05):floor(N_fft/2/OSR*0.95)))*floor(N_fft/2/OSR);
+% Calculate noise floor using all methods and select per NFMethod
+n_inband = floor(N_fft/2/OSR);
+spec_inband = spec(1:n_inband);
+% Method 1: Median-based estimation (robust to spurs)
+if(N_run == 1)
+    % Mn = 0.4549364231; % theoretical value of the median of chi-squared distribution, but not working well
+    Mn = 0.72;      % this empirical value works well, but why??
 else
-    % Method 2: Exclude harmonics from noise calculation
-    spec_noise = spec;
-    for i = 2:nTHD
-        b = alias(round((bin_r-1)*i),N_fft) +1;
-        spec_noise(b) = 0;
-    end
-    noi = sum(spec_noise(1:floor(N_fft/2/OSR)));
+    Mn = (1-2/(9*N_run))^3;     % Wilson–Hilferty approximation of the median of chi-squared distribution
+end
+noi_median = median(spec_inband)/Mn * n_inband;
+% Method 2: Trimmed mean (removes top/bottom 5%)
+spec_sort = sort(spec_inband);
+noi_mean = mean(spec_sort(floor(n_inband*0.05):floor(n_inband*0.95))) * n_inband;
+% Method 3: Exclude harmonics from noise calculation
+spec_noise = spec;
+for i = 2:nTHD
+    b = alias(round((bin_r-1)*i),N_fft) +1;
+    spec_noise(b) = 0;
+end
+noi_exclude = sum(spec_noise(1:n_inband));
+
+if(nfmethod == 0)
+    % Auto: median of all methods
+    noi = median([noi_median, noi_mean, noi_exclude]);
+elseif(nfmethod == 1)
+    noi = noi_median;
+elseif(nfmethod == 2)
+    noi = noi_mean;
+else
+    noi = noi_exclude;
 end
 
 % Calculate THD by summing harmonic power
