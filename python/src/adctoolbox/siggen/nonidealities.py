@@ -204,15 +204,50 @@ class ADC_Signal_Generator:
             v_residue_out_prev_ac = v_output_ac[n]
 
         return v_output_ac + self.DC
+    
+    def apply_reference_error(self, input_signal=None, settling_tau=2.0, droop_strength=0.01):
+            """
+            Apply Reference Incomplete Settling error (Vref Memory Effect).
+            
+            This simulates the reference voltage dropping due to load current (kick) 
+            and failing to recover fully before the next sample.
+            
+            Params:
+                input_signal: The input signal.
+                settling_tau: Recovery time constant in units of samples (e.g., 2.0). 
+                            Larger = Slower recovery = Worse settling.
+                droop_strength: How much Vref drops proportional to signal amplitude (0.01 = 1%).
+            """
+            signal = self._resolve_signal(input_signal)
+            signal_ac = signal - self.DC
 
-    def apply_am_noise(self, input_signal=None, am_noise_freq=1e6, am_noise_depth=0.1):
-        """Apply AM noise modulation. Params: input_signal, am_noise_freq (default 1MHz), am_noise_depth (default 0.1)."""
-        signal = self._resolve_signal(input_signal)
-        signal_ac = signal - self.DC
-        am_envelope = 1 + am_noise_depth * np.sin(2 * np.pi * am_noise_freq * self.t)
-        signal_am = signal_ac * am_envelope
-        return signal_am + self.DC
+            # Calculate Vref droop using IIR filter to simulate exponential decay         
+            current_kick = droop_strength * np.abs(signal_ac)            
+            decay = np.exp(-1.0 / settling_tau)            
+            from scipy.signal import lfilter
+            vref_droop = lfilter([1], [1, -decay], current_kick)            
+            signal_settled = signal * (1.0 - vref_droop)
+            
+            return signal_settled + self.DC
 
+
+
+    def apply_am_noise(self, input_signal=None, strength=0.01):
+            """
+            Apply random AM noise (Multiplicative Thermal Noise).
+            Params: 
+                input_signal: The signal to modulate.
+                am_noise_depth: The RMS level of the noise relative to signal amplitude (default 0.1).
+            Note:
+                There is NO frequency parameter here because white noise contains ALL frequencies.
+            """
+            signal = self._resolve_signal(input_signal)
+            signal_ac = signal - self.DC            
+            am_envelope = 1 + strength * np.random.normal(loc=0.0, scale=1.0, size=len(self.t))
+            
+            signal_am = signal_ac * am_envelope
+            return signal_am + self.DC
+    
     def apply_am_tone(self, input_signal=None, am_tone_freq=500e3, am_tone_depth=0.05):
         """Apply AM tone (coherent modulation). Params: input_signal, am_tone_freq (default 500kHz), am_tone_depth (default 0.05)."""
         signal = self._resolve_signal(input_signal)
@@ -255,10 +290,3 @@ class ADC_Signal_Generator:
 
     
 
-    def apply_reference_error(self, input_signal=None, ref_error_amplitude=0.02, ref_error_freq=2e6):
-        """Apply reference error (DAC ripple). Params: input_signal, ref_error_amplitude (default 0.02), ref_error_freq (default 2MHz)."""
-        signal = self._resolve_signal(input_signal)
-        signal_ac = signal - self.DC
-        ref_error = ref_error_amplitude * np.sin(2 * np.pi * ref_error_freq * self.t)
-        signal_ref = signal_ac * (1 + ref_error)
-        return signal_ref + self.DC

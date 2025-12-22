@@ -27,7 +27,7 @@ output_dir.mkdir(exist_ok=True)
 t_gen = time.time()
 
 # Setup parameters
-N = 2**16
+N = 2**13
 Fs = 800e6
 Fin = 10.1234567e6
 normalized_freq = Fin / Fs

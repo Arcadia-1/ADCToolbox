@@ -48,7 +48,9 @@ for idx, (caps_nominal, mismatch_factor, title) in enumerate(test_cases):
     analog_before = np.dot(digital_output, weights_nominal)
 
     # Calibration
-    weights_calibrated, offset, analog_after, _, _, _ = calibrate_weight_sine(digital_output, freq=0, order=5)
+    cal_results = calibrate_weight_sine(digital_output, freq=bin / n_samples)
+    analog_after = cal_results["calibrated_signal"][0]
+    weights_calibrated = cal_results["weight"]
 
     # Spectrum comparison
     plt.sca(axes[0, idx])

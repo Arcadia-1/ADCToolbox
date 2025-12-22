@@ -41,16 +41,20 @@ for j in range(n_bits):
 analog_before = np.dot(digital_output, weights_nominal)
 
 # Calibration
-weights_calibrated, offset, analog_after, _, _, _ = calibrate_weight_sine(digital_output, freq=0, order=5)
+results = calibrate_weight_sine(digital_output, freq=bin / n_samples)
+analog_after = results['calibrated_signal'][0]
+weights_calibrated = results['weight']
 
 # Spectrum comparison
 fig, axes = plt.subplots(1, 2, figsize=(14, 5))
 
 result_before = analyze_spectrum(analog_before, n_thd=5, show_label=True, ax=axes[0])
 axes[0].set_title('Before Calibration', fontsize=12, fontweight='bold')
+axes[0].set_ylim(bottom= -140)
 
 result_after = analyze_spectrum(analog_after, n_thd=5, show_label=True, ax=axes[1])
 axes[1].set_title('After Calibration', fontsize=12, fontweight='bold')
+axes[1].set_ylim(bottom= -140)
 
 # Normalize weights for comparison
 weights_real = caps_real / np.sum(caps_real)
