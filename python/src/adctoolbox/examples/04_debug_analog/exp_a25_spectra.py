@@ -74,7 +74,7 @@ fig.suptitle(f'Spectrum Analysis: 15 ADC Non-idealities (Fs={params["Fs"]/1e6:.0
              fontsize=14, fontweight='bold')
 plt.tight_layout()
 
-fig_path = (output_dir / 'exp_a20_spectra.png').resolve()
+fig_path = (output_dir / 'exp_a25_spectra.png').resolve()
 plt.savefig(fig_path, dpi=150, bbox_inches='tight')
 plt.close()
 

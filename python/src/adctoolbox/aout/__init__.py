@@ -20,6 +20,8 @@ from adctoolbox.aout.analyze_error_pdf import analyze_error_pdf
 from adctoolbox.aout.analyze_error_autocorr import analyze_error_autocorr
 from adctoolbox.aout.analyze_error_spectrum import analyze_error_spectrum
 from adctoolbox.aout.analyze_error_envelope_spectrum import analyze_error_envelope_spectrum
+from adctoolbox.aout.analyze_phase_plane import analyze_phase_plane
+from adctoolbox.aout.analyze_error_phase_plane import analyze_error_phase_plane
 
 # ----------------------------------------------------------------------
 # Harmonic decomposition
@@ -60,6 +62,8 @@ __all__ = [
     'analyze_error_pdf',
     'analyze_error_autocorr',
     'analyze_error_spectrum',
+    'analyze_phase_plane',
+    'analyze_error_phase_plane',
     'analyze_error_envelope_spectrum',
 
     # Harmonic decomposition

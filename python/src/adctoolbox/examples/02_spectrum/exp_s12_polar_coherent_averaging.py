@@ -82,7 +82,7 @@ plt.tight_layout(rect=[0, 0, 1, 0.96])
 for ax, ylim in axes_info:
     ax.set_ylim(ylim)
 
-fig_path = output_dir / 'exp_s22_polar_coherent_averaging.png'
+fig_path = output_dir / 'exp_s12_polar_coherent_averaging.png'
 print(f"\n[Save fig] -> [{fig_path}]")
 plt.savefig(fig_path, dpi=150, bbox_inches='tight')
 plt.close()

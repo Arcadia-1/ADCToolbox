@@ -44,7 +44,7 @@ def get_batch_test_setup(hd2_target_dB=-80, hd3_target_dB=-70):
     # Standard signal parameters
     N = 2**16
     Fs = 800e6
-    Fin_target = 60e6
+    Fin_target = 97e6
     Fin, J = find_coherent_frequency(Fs, Fin_target, N)
     A = 0.49
     DC = 0.5
@@ -83,7 +83,7 @@ def get_batch_test_setup(hd2_target_dB=-80, hd3_target_dB=-70):
         {
             'title': 'AM Noise',
             'func': lambda: gen.apply_thermal_noise(
-                gen.apply_am_noise(None, am_noise_freq=1e6, am_noise_depth=0.05),
+                gen.apply_am_noise(None, strength=0.0005),
                 noise_rms=10e-6
             )
         },
@@ -153,7 +153,7 @@ def get_batch_test_setup(hd2_target_dB=-80, hd3_target_dB=-70):
         {
             'title': 'Reference Error',
             'func': lambda: gen.apply_thermal_noise(
-                gen.apply_reference_error(None, ref_error_amplitude=0.02, ref_error_freq=2e6),
+                gen.apply_reference_error(None, settling_tau=0.1, droop_strength=0.002),
                 noise_rms=10e-6
             )
         },
