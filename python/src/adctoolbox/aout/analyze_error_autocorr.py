@@ -102,7 +102,7 @@ def analyze_error_autocorr(signal, frequency=None, max_lag=50, normalize=True, s
         ax.set_ylabel('ACF', fontsize=9)
         ax.grid(True, alpha=0.3)
         ax.set_xlim([-max_lag, max_lag])
-        ax.set_ylim([-0.3, 1.1])
+        # ax.set_ylim([-0.3, 1.1])
 
         # Set title if provided
         if title is not None:

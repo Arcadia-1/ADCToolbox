@@ -8,7 +8,7 @@ output_dir = Path(__file__).parent / "output"
 output_dir.mkdir(exist_ok=True)
 
 # Parameters
-n_bits = 10
+n_bits = 16
 full_scale = 1.0
 fs = 800e6
 fin_target = 80e6
@@ -25,7 +25,7 @@ hd3_amp = 10**(hd3_dB/20)
 k2 = hd2_amp / (A / 2)
 k3 = hd3_amp / (A**2 / 4)
 
-N_list = [2**i for i in range(10, 18, 2)]  # [2^10, 2^12, 2^14, 2^16]
+N_list = [2**i for i in range(10, 24, 4)]  
 n_plots = len(N_list)
 fig, axes = plt.subplots(1, n_plots, figsize=(4 * n_plots, 6))
 

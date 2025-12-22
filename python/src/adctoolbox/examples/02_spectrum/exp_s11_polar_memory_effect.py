@@ -1,8 +1,16 @@
 """
-Polar phase spectrum analysis: MSB-dependent memory effect distortion.
-Demonstrates memory effect effect where MSB transition from previous sample affects current sample,
-creating a characteristic distortion pattern visible in the polar phase plot.
-Shows 4 input frequencies × 2 memory effect strengths to visualize how spur phases vary with Fin/Fs.
+Polar phase spectrum analysis: Static Nonlinearity vs Memory Effect.
+
+This example demonstrates polar spectrum visualization in two scenarios:
+
+Row 1 - Static Nonlinearity (3 cases):
+  - HD3=-66dB, k3 positive
+  - HD3=-66dB, k3 negative
+  - HD2=-80dB + HD3=-66dB combined
+
+Row 2 - Memory Effect (3 frequencies):
+  - MSB-dependent memory effect at different input frequencies
+  - Shows how spur phases vary with Fin/Fs ratio
 """
 import numpy as np
 import matplotlib.pyplot as plt
@@ -12,81 +20,120 @@ from adctoolbox import find_coherent_frequency, amplitudes_to_snr, snr_to_nsd, a
 output_dir = Path(__file__).parent / "output"
 output_dir.mkdir(exist_ok=True)
 
+# Common parameters
 N = 2**13
 Fs = 800e6
 A, DC = 0.49, 0.5
-base_noise = 100e-6
-
-# 4 different input frequencies
-Fin_targets = [40e6, 80e6, 160e6, 280e6]
-# 2 memory effect strengths
-memory_effect_strengths = [0.01, 0.02]
+base_noise = 50e-6
 
 snr_ref = amplitudes_to_snr(sig_amplitude=A, noise_amplitude=base_noise)
 nsd_ref = snr_to_nsd(snr_ref, fs=Fs, osr=1)
 print(f"[Signal] Fs=[{Fs/1e6:.0f} MHz], N=[{N}], A=[{A:.3f} Vpeak]")
 print(f"[Base Noise] RMS=[{base_noise*1e6:.2f} uVrms], Theoretical SNR=[{snr_ref:.2f} dB], Theoretical NSD=[{nsd_ref:.2f} dBFS/Hz]\n")
 
-# Create 2x4 figure (2 rows for memory effect strengths, 4 columns for frequencies)
-fig = plt.figure(figsize=(16, 8))
+# Create 2x3 subplot grid with polar projection
+fig, axes = plt.subplots(2, 3, figsize=(18, 12), subplot_kw={'projection': 'polar'})
 
-# Store axes and their limits for restoration after tight_layout
-axes_info = []
+# ============================================================================
+# Row 1: Static Nonlinearity (3 cases)
+# ============================================================================
+print("=" * 80)
+print("ROW 1: STATIC NONLINEARITY")
+print("=" * 80)
 
-plot_idx = 0
-for row_idx, me_strength in enumerate(memory_effect_strengths):
-    for col_idx, Fin_target in enumerate(Fin_targets):
-        Fin, J = find_coherent_frequency(Fs, Fin_target, N)
+Fin_static = 80e6
+Fin, Fin_bin = find_coherent_frequency(Fs, Fin_static, N)
+t = np.arange(N) / Fs
+sig_ideal = A * np.sin(2*np.pi*Fin*t)
 
-        # Generate clean signal for this frequency
-        t_ext = np.arange(N+1) / Fs
-        sig_clean_ext = A * np.sin(2*np.pi*Fin*t_ext) + DC + np.random.randn(N+1) * base_noise
-        msb_ext = np.floor(sig_clean_ext * 2**4) / 2**4
-        lsb_ext = np.floor((sig_clean_ext - msb_ext) * 2**18) / 2**18
-        msb_shifted = msb_ext[:-1]
-        msb = msb_ext[1:]
-        lsb = lsb_ext[1:]
+print(f"[Fin={Fin/1e6:.2f} MHz], Bin/N=[{Fin_bin}/{N}]\n")
 
-        # Expected phase delay per sample
-        phase_delay_deg = 360 * Fin / Fs
+# Compute nonlinearity coefficients
+hd2_dB = -80
+hd3_dB = -66
+hd2_amp = 10**(hd2_dB/20)
+hd3_amp = 10**(hd3_dB/20)
+k2 = hd2_amp / (A / 2)
+k3 = hd3_amp / (A**2 / 4)
 
-        # Generate memory effect signal
-        signal_me = msb + lsb + me_strength * msb_shifted
+# Case 1: HD3 only, k3 positive
+signal_1 = sig_ideal + k3 * sig_ideal**3 + DC + np.random.randn(N) * base_noise
+plt.sca(axes[0, 0])
+result_1 = analyze_spectrum_polar(signal_1, fs=Fs, fixed_radial_range=120)
+axes[0, 0].set_title(f'HD3={hd3_dB}dB, k3>0\n(Thermal Noise: 500 uVrms)', pad=20, fontsize=12, fontweight='bold')
+print(f"[HD3={hd3_dB}dB, k3>0] SNDR={result_1['sndr_db']:.2f}dB, THD={result_1['thd_db']:.2f}dB, HD3={result_1['hd3_db']:.2f}dB")
 
-        # Create subplot with polar projection
-        ax = fig.add_subplot(2, 4, plot_idx + 1, projection='polar')
-        plot_idx += 1
+# Case 2: HD3 only, k3 negative
+signal_2 = sig_ideal - k3 * sig_ideal**3 + DC + np.random.randn(N) * base_noise
+plt.sca(axes[0, 1])
+result_2 = analyze_spectrum_polar(signal_2, fs=Fs, fixed_radial_range=120)
+axes[0, 1].set_title(f'HD3={hd3_dB}dB, k3<0\n(Thermal Noise: 500 uVrms)', pad=20, fontsize=12, fontweight='bold')
+print(f"[HD3={hd3_dB}dB, k3<0] SNDR={result_2['sndr_db']:.2f}dB, THD={result_2['thd_db']:.2f}dB, HD3={result_2['hd3_db']:.2f}dB")
 
-        # Analyze spectrum with polar phase visualization
-        result = analyze_spectrum_polar(
-            signal_me,
-            fs=Fs,
-            harmonic=5,
-            win_type='boxcar',
-            ax=ax,
-            fixed_radial_range=120
-        )
+# Case 3: HD2 + HD3 combined
+signal_3 = sig_ideal + k2 * sig_ideal**2 - k3 * sig_ideal**3 + DC + np.random.randn(N) * base_noise
+plt.sca(axes[0, 2])
+result_3 = analyze_spectrum_polar(signal_3, fs=Fs, fixed_radial_range=120)
+axes[0, 2].set_title(f'HD2={hd2_dB}dB + HD3={hd3_dB}dB\n(Thermal Noise: 500 uVrms)', pad=20, fontsize=12, fontweight='bold')
+print(f"[HD2+HD3] SNDR={result_3['sndr_db']:.2f}dB, THD={result_3['thd_db']:.2f}dB, HD2={result_3['hd2_db']:.2f}dB, HD3={result_3['hd3_db']:.2f}dB")
 
-        # Calculate theoretical harmonic phases
-        # HD2: follows simple 2φ relationship
-        # HD3: follows 180° - 3φ (phase inverted due to memory effect mechanism)
-        hd2_phase_theory = (2 * phase_delay_deg) % 360
-        hd3_phase_theory = (180 - 3 * phase_delay_deg) % 360
+print()
 
-        # Set title with theoretical phase information
-        title = f'Fin={Fin/1e6:.0f}MHz (φ={phase_delay_deg:.1f}°), ME={me_strength}\nHD2∠{hd2_phase_theory:.1f}°, HD3∠{hd3_phase_theory:.1f}°'
-        ax.set_title(title, pad=20, fontsize=10, fontweight='bold')
+# ============================================================================
+# Row 2: Memory Effect (3 frequencies)
+# ============================================================================
+print("=" * 80)
+print("ROW 2: MEMORY EFFECT")
+print("=" * 80)
 
-        # Store axis and its ylim for later restoration
-        axes_info.append((ax, ax.get_ylim()))
+# 3 different input frequencies
+Fin_targets = [40e6, 80e6, 160e6]
+memory_effect_strength = 0.02
 
-        print(f"[Fin={Fin/1e6:5.0f}MHz, ME={me_strength}] sndr={result['sndr_db']:5.2f}dB, snr={result['snr_db']:5.2f}dB, thd={result['thd_db']:6.2f}dB")
+for col_idx, Fin_target in enumerate(Fin_targets):
+    Fin, J = find_coherent_frequency(Fs, Fin_target, N)
+
+    # Generate clean signal for this frequency
+    t_ext = np.arange(N+1) / Fs
+    sig_clean_ext = A * np.sin(2*np.pi*Fin*t_ext) + DC + np.random.randn(N+1) * base_noise
+    msb_ext = np.floor(sig_clean_ext * 2**4) / 2**4
+    lsb_ext = np.floor((sig_clean_ext - msb_ext) * 2**18) / 2**18
+    msb_shifted = msb_ext[:-1]
+    msb = msb_ext[1:]
+    lsb = lsb_ext[1:]
+
+    # Expected phase delay per sample
+    phase_delay_deg = 360 * Fin / Fs
+
+    # Generate memory effect signal
+    signal_me = msb + lsb + memory_effect_strength * msb_shifted
+
+    # Analyze spectrum with polar phase visualization
+    plt.sca(axes[1, col_idx])
+    result = analyze_spectrum_polar(
+        signal_me,
+        fs=Fs,
+        harmonic=5,
+        win_type='boxcar',
+        fixed_radial_range=120
+    )
+
+    # Calculate theoretical harmonic phases
+    # HD2: follows simple 2φ relationship
+    # HD3: follows 180° - 3φ (phase inverted due to memory effect mechanism)
+    hd2_phase_theory = (2 * phase_delay_deg) % 360
+    hd3_phase_theory = (180 - 3 * phase_delay_deg) % 360
+
+    # Set title with theoretical phase information
+    title = f'Fin={Fin/1e6:.0f}MHz (φ={phase_delay_deg:.1f}°), ME={memory_effect_strength}\nHD2∠{hd2_phase_theory:.1f}°, HD3∠{hd3_phase_theory:.1f}°'
+    axes[1, col_idx].set_title(title, pad=20, fontsize=12, fontweight='bold')
+
+    print(f"[Fin={Fin/1e6:5.0f}MHz, ME={memory_effect_strength}] sndr={result['sndr_db']:5.2f}dB, snr={result['snr_db']:5.2f}dB, thd={result['thd_db']:6.2f}dB")
+
+print()
+print("=" * 80)
 
 plt.tight_layout()
-
-# Restore ylim after tight_layout (which resets polar axis limits)
-for ax, ylim in axes_info:
-    ax.set_ylim(ylim)
 
 fig_path = output_dir / 'exp_s11_polar_memory_effect.png'
 plt.savefig(fig_path, dpi=300, bbox_inches='tight')

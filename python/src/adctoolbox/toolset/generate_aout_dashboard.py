@@ -1,278 +1,138 @@
-"""Run 9 analog analysis tools on calibrated ADC data."""
+"""Generate AOUT analysis dashboard with 12 analysis plots in a 3x4 panel."""
 
 import numpy as np
 import matplotlib.pyplot as plt
 from pathlib import Path
-from adctoolbox.common.validate import validate_aout_data
-from adctoolbox.aout.decompose_harmonics import decompose_harmonics
-from adctoolbox.spectrum import analyze_spectrum, analyze_phase_spectrum
-from adctoolbox.aout.rearrange_error_by_value import rearrange_error_by_value
-from adctoolbox.aout.plot_rearranged_error_by_value import plot_rearranged_error_by_value
-from adctoolbox.aout.plot_error_hist_phase import plot_error_hist_phase
-from adctoolbox.aout.plot_error_pdf import plot_error_pdf
-from adctoolbox.aout.plot_error_autocorr import plot_error_autocorr
-from adctoolbox.aout.plot_envelope_spectrum import plot_envelope_spectrum
-from adctoolbox.aout.fit_sine_4param import fit_sine_4param as fit_sine
-from adctoolbox.common.estimate_frequency import estimate_frequency
+
+from adctoolbox.spectrum import analyze_spectrum
+from adctoolbox.spectrum import analyze_spectrum_polar
+from adctoolbox.aout import analyze_error_by_value
+from adctoolbox.aout import analyze_error_by_phase
+from adctoolbox.aout import analyze_decomposition_time
+from adctoolbox.aout import analyze_decomposition_polar
+from adctoolbox.aout import analyze_error_spectrum
+from adctoolbox.aout import analyze_error_envelope_spectrum
+from adctoolbox.aout import analyze_error_autocorr
+from adctoolbox.aout import analyze_error_pdf
+from adctoolbox.aout import analyze_phase_plane
+from adctoolbox.aout import analyze_error_phase_plane
 
 
-def generate_aout_dashboard(aout_data, output_dir, visible=False, resolution=11, prefix='aout'):
+def generate_aout_dashboard(signal, fs=1.0, freq=None, output_path=None, resolution=12, show=False):
     """
-    Run 9 analog analysis tools on calibrated ADC data.
+    Generate comprehensive analysis dashboard with 12 subplots in a 3x4 panel.
 
     Parameters
     ----------
-    aout_data : array_like
-        Analog output signal (1D vector)
-    output_dir : str or Path
-        Directory to save output figures
-    visible : bool, optional
-        Show figures (default: False)
+    signal : array_like
+        Input signal (ADC output or analog signal)
+    fs : float, optional
+        Sampling frequency (default: 1.0 for normalized frequency)
+    freq : float, optional
+        Signal frequency in Hz (default: None, auto-estimate)
+        Will be converted to normalized frequency where needed
+    output_path : str or Path, optional
+        Path to save figure (default: None, don't save)
     resolution : int, optional
-        ADC resolution in bits (default: 11)
-    prefix : str, optional
-        Filename prefix (default: 'aout')
+        ADC resolution in bits (default: 12)
+    show : bool, optional
+        Whether to display figure (default: False)
 
     Returns
     -------
-    status : dict
-        Dictionary with fields:
-        - success : bool (True if all tools completed)
-        - tools_completed : list of 9 success flags
-        - errors : list of error messages
-        - panel_path : path to panel figure
+    fig : matplotlib.figure.Figure
+        Figure object containing the dashboard
+    axes : ndarray
+        Array of axes objects (3x4 grid, flattened)
     """
-    output_dir = Path(output_dir)
-    output_dir.mkdir(parents=True, exist_ok=True)
 
-    status = {
-        'success': False,
-        'tools_completed': [0] * 9,
-        'errors': [],
-        'panel_path': ''
-    }
+    signal = np.asarray(signal).flatten()
 
-    # Validate input data
-    print('[Validation]', end='')
-    try:
-        validate_aout_data(aout_data)
-        print(' OK')
-    except Exception as e:
-        print(f' FAIL {str(e)}')
-        raise ValueError(f'Input validation failed: {str(e)}')
+    # Calculate normalized frequency if freq is provided
+    norm_freq = freq / fs if freq is not None else None
 
-    # Handle multirun data (take first row if 2D)
-    aout_data = np.asarray(aout_data)
-    if aout_data.ndim > 1:
-        aout_data = aout_data[0, :]
+    # Create 3x4 panel
+    fig, axes = plt.subplots(3, 4, figsize=(32, 18))
+    axes = axes.flatten()
 
-    freq_cal = estimate_frequency(aout_data)
-    full_scale = np.max(aout_data) - np.min(aout_data)
+    # Recreate polar axes for plots that need them (plot 2 and plot 6)
+    fig.delaxes(axes[1])
+    axes[1] = fig.add_subplot(3, 4, 2, projection='polar')
+    fig.delaxes(axes[5])
+    axes[5] = fig.add_subplot(3, 4, 6, projection='polar')
 
-    # Tool 1: Harmonic Decomposition
-    print('[1/9][Harmonic Decomposition]', end='')
-    try:
-        fundamental, total_error, harmonic_error, other_error = decompose_harmonics(aout_data, freq_cal, order=10, show_plot=True)
-        plt.gca().tick_params(labelsize=14)
-        png_path = output_dir / f'{prefix}_1_harmonicDecomp.png'
-        plt.savefig(png_path, dpi=150, bbox_inches='tight')
-        plt.close()
-        status['tools_completed'][0] = 1
-        print(f' OK -> [{png_path}]')
-    except Exception as e:
-        print(f' FAIL {str(e)}')
-        status['errors'].append(f'Tool 1: {str(e)}')
+    # Plot 1: analyze_spectrum
+    plt.sca(axes[0])
+    analyze_spectrum(signal, fs=fs)
+    axes[0].set_title('(1) Spectrum', fontsize=12, fontweight='bold')
 
-    # Tool 2: specPlot
-    print('[2/9][specPlot]', end='')
-    try:
-        fig = plt.figure(figsize=(10, 7.5))
-        result = analyze_spectrum(
-            aout_data, label=1, harmonic=5, osr=1, win_type='boxcar')
-        plt.title('specPlot: Frequency Spectrum')
-        plt.gca().tick_params(labelsize=14)
-        png_path = output_dir / f'{prefix}_2_specPlot.png'
-        plt.savefig(png_path, dpi=150, bbox_inches='tight')
+    # Plot 2: analyze_spectrum_polar
+    plt.sca(axes[1])
+    analyze_spectrum_polar(signal, fs=fs)
+    axes[1].set_title('(2) Spectrum Polar', fontsize=12, fontweight='bold', pad=20)
+
+    # Plot 3: analyze_error_by_value
+    plt.sca(axes[2])
+    analyze_error_by_value(signal)
+    plt.gca().set_title('(3) Error by Value', fontsize=12, fontweight='bold')
+
+    # Plot 4: analyze_error_by_phase
+    plt.sca(axes[3])
+    analyze_error_by_phase(signal)
+    plt.gca().set_title('(4) Error by Phase', fontsize=12, fontweight='bold')
+
+    # Plot 5: analyze_decomposition_time
+    plt.sca(axes[4])
+    analyze_decomposition_time(signal)
+    plt.gca().set_title('(5) Decomposition Time', fontsize=12, fontweight='bold')
+
+    # Plot 6: analyze_decomposition_polar
+    plt.sca(axes[5])
+    analyze_decomposition_polar(signal)
+    axes[5].set_title('(6) Decomposition Polar', fontsize=12, fontweight='bold', pad=20)
+
+    # Plot 7: analyze_error_pdf
+    plt.sca(axes[6])
+    analyze_error_pdf(signal, resolution=resolution)
+    plt.gca().set_title('(7) Error PDF', fontsize=12, fontweight='bold')
+
+    # Plot 8: analyze_error_autocorr
+    plt.sca(axes[7])
+    analyze_error_autocorr(signal, frequency=norm_freq)
+    plt.gca().set_title('(8) Error Autocorrelation', fontsize=12, fontweight='bold')
+
+    # Plot 9: analyze_error_spectrum
+    plt.sca(axes[8])
+    analyze_error_spectrum(signal, fs=fs)
+    plt.gca().set_title('(9) Error Spectrum', fontsize=12, fontweight='bold')
+
+    # Plot 10: analyze_error_envelope_spectrum
+    plt.sca(axes[9])
+    analyze_error_envelope_spectrum(signal, fs=fs)
+    plt.gca().set_title('(10) Error Envelope Spectrum', fontsize=12, fontweight='bold')
+
+    # Plot 11: analyze_phase_plane
+    plt.sca(axes[10])
+    analyze_phase_plane(signal, fs=fs, ax=axes[10], show_plot=False)
+    plt.gca().set_title('(11) Phase Plane', fontsize=12, fontweight='bold')
+
+    # Plot 12: analyze_error_phase_plane
+    plt.sca(axes[11])
+    analyze_error_phase_plane(signal, fs=fs, ax=axes[11], show_plot=False)
+    plt.gca().set_title('(12) Error Phase Plane', fontsize=12, fontweight='bold')
+
+    # Overall title
+    fig.suptitle('Comprehensive ADC Analysis Dashboard (12 Tools)',
+                 fontsize=16, fontweight='bold', y=0.995)
+
+    plt.tight_layout()
+
+    # Save if requested
+    if output_path is not None:
+        output_path = Path(output_path)
+        output_path.parent.mkdir(parents=True, exist_ok=True)
+        fig.savefig(output_path, dpi=150, bbox_inches='tight')
+        print(f"[Dashboard saved] -> {output_path}")
         plt.close(fig)
-        status['tools_completed'][1] = 1
-        print(f' OK -> [{png_path}]')
-    except Exception as e:
-        print(f' FAIL {str(e)}')
-        status['errors'].append(f'Tool 2: {str(e)}')
 
-    # Tool 3: specPlotPhase
-    print('[3/9][specPlotPhase]', end='')
-    try:
-        png_path = output_dir / f'{prefix}_3_specPlotPhase.png'
-        result = analyze_phase_spectrum(aout_data, harmonic=10, show_plot=False, save_path=str(png_path))
-        status['tools_completed'][2] = 1
-        print(f' OK -> [{png_path}]')
-    except Exception as e:
-        print(f' FAIL {str(e)}')
-        status['errors'].append(f'Tool 3: {str(e)}')
-
-    # Compute error data using fit_sine
-    try:
-        data_fit, freq_est, mag, dc, phi = fit_sine(aout_data)
-        err_data = aout_data - data_fit
-    except:
-        err_data = aout_data - np.mean(aout_data)
-
-    # Tool 4: Error Histogram (value mode)
-    print('[4/9][Error Histogram (value)]', end='')
-    try:
-        results = rearrange_error_by_value(aout_data, normalized_freq=freq_cal, num_bits=resolution, num_bins=20)
-        fig = plt.figure(figsize=(12, 8))
-        plot_rearranged_error_by_value(results)
-        png_path = output_dir / f'{prefix}_4_errHistSine_code.png'
-        plt.savefig(png_path, dpi=150, bbox_inches='tight')
-        plt.close(fig)
-        status['tools_completed'][3] = 1
-        print(f' OK -> [{png_path}]')
-    except Exception as e:
-        print(f' FAIL {str(e)}')
-        status['errors'].append(f'Tool 4: {str(e)}')
-
-    # Tool 5: Error Histogram (phase mode)
-    print('[5/9][Error Histogram (phase)]', end='')
-    try:
-        error_mean, error_rms, phase_bins, amplitude_noise, phase_noise, error, phase = plot_error_hist_phase(
-            aout_data, bins=99, freq=freq_cal, disp=1)
-        png_path = output_dir / f'{prefix}_5_errHistSine_phase.png'
-        plt.savefig(png_path, dpi=150, bbox_inches='tight')
-        plt.close()
-        status['tools_completed'][4] = 1
-        print(f' OK -> [{png_path}]')
-    except Exception as e:
-        print(f' FAIL {str(e)}')
-        status['errors'].append(f'Tool 5: {str(e)}')
-
-    # Tool 6: errPDF
-    print('[6/9][errPDF]', end='')
-    try:
-        fig = plt.figure(figsize=(10, 7.5))
-        _, mu, sigma, kl_div, x, fx, gauss_pdf = plot_error_pdf(
-            err_data, resolution=resolution, full_scale=full_scale)
-        plt.title('errPDF: Error PDF')
-        plt.gca().tick_params(labelsize=14)
-        png_path = output_dir / f'{prefix}_6_errPDF.png'
-        plt.savefig(png_path, dpi=150, bbox_inches='tight')
-        plt.close(fig)
-        status['tools_completed'][5] = 1
-        print(f' OK -> [{png_path}]')
-    except Exception as e:
-        print(f' FAIL {str(e)}')
-        status['errors'].append(f'Tool 6: {str(e)}')
-
-    # Tool 7: errAutoCorrelation
-    print('[7/9][errAutoCorrelation]', end='')
-    try:
-        fig = plt.figure(figsize=(10, 7.5))
-        acf, lags = plot_error_autocorr(err_data, max_lag=200, normalize=True)
-        plt.title('errAutoCorrelation: Error Autocorrelation')
-        plt.gca().tick_params(labelsize=14)
-        png_path = output_dir / f'{prefix}_7_errAutoCorrelation.png'
-        plt.savefig(png_path, dpi=150, bbox_inches='tight')
-        plt.close(fig)
-        status['tools_completed'][6] = 1
-        print(f' OK -> [{png_path}]')
-    except Exception as e:
-        print(f' FAIL {str(e)}')
-        status['errors'].append(f'Tool 7: {str(e)}')
-
-    # Tool 8: Error Spectrum
-    print('[8/9][errSpectrum]', end='')
-    try:
-        fig = plt.figure(figsize=(10, 7.5))
-        result = analyze_spectrum(err_data, label=0)
-        plt.title('errSpectrum: Error Spectrum')
-        plt.gca().tick_params(labelsize=14)
-        png_path = output_dir / f'{prefix}_8_errSpectrum.png'
-        plt.savefig(png_path, dpi=150, bbox_inches='tight')
-        plt.close(fig)
-        status['tools_completed'][7] = 1
-        print(f' OK -> [{png_path}]')
-    except Exception as e:
-        print(f' FAIL {str(e)}')
-        status['errors'].append(f'Tool 8: {str(e)}')
-
-    # Tool 9: errEnvelopeSpectrum
-    print('[9/9][errEnvelopeSpectrum]', end='')
-    try:
-        fig = plt.figure(figsize=(10, 7.5))
-        result = plot_envelope_spectrum(err_data, fs=1)
-        plt.title('errEnvelopeSpectrum: Error Envelope Spectrum')
-        plt.gca().tick_params(labelsize=14)
-        png_path = output_dir / f'{prefix}_9_errEnvelopeSpectrum.png'
-        plt.savefig(png_path, dpi=150, bbox_inches='tight')
-        plt.close(fig)
-        status['tools_completed'][8] = 1
-        print(f' OK -> [{png_path}]')
-    except Exception as e:
-        print(f' FAIL {str(e)}')
-        status['errors'].append(f'Tool 9: {str(e)}')
-
-    # Create Panel Overview (3x3 grid)
-    print('[Panel]', end='')
-    try:
-        plot_files = [
-            output_dir / f'{prefix}_1_tomDecomp.png',
-            output_dir / f'{prefix}_2_specPlot.png',
-            output_dir / f'{prefix}_3_specPlotPhase.png',
-            output_dir / f'{prefix}_4_errHistSine_code.png',
-            output_dir / f'{prefix}_5_errHistSine_phase.png',
-            output_dir / f'{prefix}_6_errPDF.png',
-            output_dir / f'{prefix}_7_errAutoCorrelation.png',
-            output_dir / f'{prefix}_8_errSpectrum.png',
-            output_dir / f'{prefix}_9_errEnvelopeSpectrum.png',
-        ]
-
-        plot_labels = [
-            '(1) tomDecomp',
-            '(2) specPlot',
-            '(3) specPlotPhase',
-            '(4) errHistSine (code)',
-            '(5) errHistSine (phase)',
-            '(6) errPDF',
-            '(7) errAutoCorrelation',
-            '(8) errSpectrum',
-            '(9) errEnvelopeSpectrum',
-        ]
-
-        fig, axes = plt.subplots(3, 3, figsize=(18, 18))
-        axes = axes.flatten()
-
-        for p, (img_path, label) in enumerate(zip(plot_files, plot_labels)):
-            ax = axes[p]
-            if img_path.exists():
-                img = plt.imread(img_path)
-                ax.imshow(img)
-                ax.axis('off')
-                ax.set_title(label, fontsize=12)
-            else:
-                ax.text(0.5, 0.5, f'Missing:\n{label}',
-                        ha='center', va='center', fontsize=10, color='red')
-                ax.set_xlim(0, 1)
-                ax.set_ylim(0, 1)
-                ax.axis('off')
-                ax.set_title(label, fontsize=12, color='red')
-
-        fig.suptitle('AOUT Toolset Overview', fontsize=16, fontweight='bold')
-        plt.tight_layout()
-
-        panel_path = output_dir / f'PANEL_{prefix.upper()}.png'
-        plt.savefig(panel_path, dpi=150, bbox_inches='tight')
-        if not visible:
-            plt.close(fig)
-        status['panel_path'] = str(panel_path)
-        print(f' OK -> [{panel_path}]')
-    except Exception as e:
-        print(f' FAIL {str(e)}')
-        status['errors'].append(f'Panel: {str(e)}')
-
-    # Final status
-    n_success = sum(status['tools_completed'])
-    print(f'=== Toolset complete: {n_success}/9 tools succeeded ===\n')
-    status['success'] = (n_success == 9)
-
-    return status
+    return fig, axes

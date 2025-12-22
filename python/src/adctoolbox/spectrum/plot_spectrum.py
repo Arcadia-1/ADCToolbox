@@ -71,7 +71,7 @@ def plot_spectrum(analysis_results, show_title=True, show_label=True, plot_harmo
             for harm in harmonics:
                 if harm['harmonic_num'] <= plot_harmonics_up_to:
                     ax.plot(harm['freq'], harm['power_db'], 'rs', markersize=5)
-                    ax.text(harm['freq'], harm['power_db'] + 5, str(harm['harmonic_num']),
+                    ax.text(harm['freq'], harm['power_db'] + 3, str(harm['harmonic_num']),
                             fontname='Arial', fontsize=12, ha='center')
 
         # Plot max spurious
