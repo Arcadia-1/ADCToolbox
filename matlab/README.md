@@ -89,6 +89,7 @@ Functions for calibrating ADC bit weights and correcting errors.
 
 - **`wcalsine`** - Weight calibration using sine wave input (single or multi-dataset)
 - **`cdacwgt`** - Calculate bit weights for multi-segment capacitive DAC
+- **`plotwgt`** - Visualize bit weights with radix annotations
 
 ### Linearity and Error Analysis
 
@@ -132,14 +133,14 @@ Supporting functions for signal processing and analysis.
 - Supports oversampling ratio (OSR) for noise-shaping ADCs
 - Multiple averaging modes: normal (power averaging) and coherent (phase-aligned)
 - Flexible windowing: built-in Hanning/rectangle or custom window functions
-- Three noise floor estimation methods: median-based, trimmed mean, or exclude harmonics
+- Noise floor estimation modes: auto (median of methods), median-based, trimmed mean, or exclude harmonics
 - Configurable signal bandwidth and flicker noise removal
 
 **Parameters:**
 - `'OSR'` - Oversampling ratio (default: 1)
 - `'window'` - Window function: 'hann', 'rect', or function handle (default: 'hann')
 - `'averageMode'` - 'normal' or 'coherent' averaging (default: 'normal')
-- `'NFMethod'` - Noise floor estimation: 'median', 'mean', or 'exclude' (default: 'median')
+- `'NFMethod'` - Noise floor estimation: 'auto', 'median', 'mean', or 'exclude' (default: 'auto'); numeric: 0=auto, 1=median, 2=mean, 3=exclude
 - `'sideBin'` - Extra bins on each side of signal peak (default: 1)
 - `'cutoff'` - High-pass cutoff frequency for flicker noise removal (default: 0)
 - `'label'` - Enable plot annotations (default: true)
@@ -152,7 +153,7 @@ Supporting functions for signal processing and analysis.
 
 % Multiple measurement runs with custom window
 sig_multi = randn(10, 1024);  % 10 runs of 1024 samples
-[enob, sndr] = plotspec(sig_multi, 'window', @blackman, 'NFMethod', 'mean');
+[enob, sndr] = plotspec(sig_multi, 'window', @blackman);
 ```
 
 ### plotphase
@@ -368,6 +369,45 @@ cb = [0 4 0  8/7 0 0];  % Bridge between segments
 cp = [0 0 0  0 0 1];
 [weight, ctot] = cdacwgt(cd, cb, cp);
 % Returns: weight = [0.5000 0.2500 0.1250 0.0625 0.0312 0.0156]
+```
+
+### plotwgt
+
+**Purpose:** Visualize absolute bit weights with radix annotations to identify ADC architecture and detect calibration errors.
+
+**Syntax:**
+```matlab
+radix = plotwgt(weights)
+```
+
+**Key Features:**
+- Plots absolute bit weights on logarithmic Y-axis
+- Annotates radix (scaling factor) between consecutive bits
+- Negative weights displayed in red to indicate sign errors
+- X-axis labeled with MSB=N on left, LSB=1 on right
+- Returns radix array for further analysis
+
+**Parameters:**
+- `weights` - Bit weights from MSB to LSB, vector (1 x B)
+
+**Outputs:**
+- `radix` - Radix between consecutive bits, vector (1 x B-1)
+  - `radix(i) = |weight(i) / weight(i+1)|`
+  - Binary ADC: radix ≈ 2.00 for all bits
+  - Sub-radix ADC: radix < 2.00 (e.g., 1.5-bit/stage → ~1.90)
+
+**Example:**
+```matlab
+% Visualize ideal 12-bit binary weights
+weights_ideal = 2.^(11:-1:0);
+radix = plotwgt(weights_ideal);
+
+% Visualize CDAC weights (6-bit with 3+3 segments)
+cd = [4 2 1 4 2 1];       % Two 3-bit segments [MSB ... LSB]
+cb = [0 0 0 8/7 0 0];     % Bridge cap between segments
+cp = [0 0 0 0 0 1];       % Parasitic at LSB
+weight = cdacwgt(cd, cb, cp);
+radix = plotwgt(weight);
 ```
 
 ### inlsin
@@ -651,8 +691,7 @@ fprintf('  Phase noise: %.2e rad\n', pnoi);
 OSR = 64;
 [enob, sndr, ~, snr] = plotspec(data, 1e6, 2^16, 'OSR', OSR, ...
                                   'window', @blackman, ...
-                                  'averageMode', 'coherent', ...
-                                  'NFMethod', 'median');
+                                  'averageMode', 'coherent');
 
 % Analyze noise transfer function
 ntf = tf([1 -1], [1 -0.5], 1);  % 1st-order NTF
@@ -786,6 +825,7 @@ The `legacy/` directory contains older function names for backward compatibility
 | `findFin.m` | `findfreq.m` | Frequency finder |
 | `FGCalSine.m` | `wcalsine.m` | Weight calibration |
 | `cap2weight.m` | `cdacwgt.m` | CDAC weight calculator |
+| `weightScaling.m` | `plotwgt.m` | Weight visualization |
 | `INLsine.m` | `inlsin.m` | INL/DNL analysis |
 | `errHistSine.m` | `errsin.m` | Error histogram |
 | `sineFit.m` | `sinfit.m` | Sine fitting |
@@ -816,6 +856,7 @@ matlab/
 ├── src/                     # Source code directory
 │   ├── plotspec.m          # Spectral analysis
 │   ├── plotphase.m         # Phase spectrum analysis
+│   ├── plotwgt.m           # Weight visualization
 │   ├── sinfit.m            # Sine wave fitting
 │   ├── findfreq.m          # Frequency finder
 │   ├── findbin.m           # Coherent bin finder
@@ -835,6 +876,7 @@ matlab/
 │   │   ├── findFin.m
 │   │   ├── FGCalSine.m
 │   │   ├── cap2weight.m
+│   │   ├── weightScaling.m
 │   │   ├── INLsine.m
 │   │   ├── errHistSine.m
 │   │   ├── sineFit.m
