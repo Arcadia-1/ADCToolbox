@@ -309,6 +309,7 @@ fin_actual = b * fs / n;  % = 1006.8 Hz
 - `'reltol'` - Relative error tolerance (default: 1e-12)
 - `'niter'` - Maximum iterations for fine search (default: 100)
 - `'fsearch'` - Force fine frequency search (default: 0)
+- `'verbose'` - Enable verbose output (default: 0)
 - `'nomWeight'` - Nominal weights for rank deficiency handling
 
 **Example:**
@@ -470,7 +471,7 @@ data = round(127.5 + 127.5*sin(t));
 **Noise Estimation (Phase Mode):**
 - Amplitude noise affects all phases equally (cos² pattern)
 - Phase noise creates errors proportional to slope (sin² pattern)
-- Fits: `erms² = anoi²·cos²(θ) + (pnoi·mag)²·sin²(θ) + baseline`
+- Fits: `erms² = anoi²·cos²(θ) + pnoi²·sin²(θ)`
 
 **Parameters:**
 - `'bin'` - Number of histogram bins (default: 100)
