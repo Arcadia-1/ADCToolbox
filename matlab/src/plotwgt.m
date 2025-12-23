@@ -10,7 +10,7 @@ function radix = plotwgt(weights)
 %   Inputs:
 %     weights - Bit weights from MSB to LSB
 %       Vector (1 x B), where B is the number of bits
-%       Typically obtained from calibration functions like wcalsine
+%       Typically obtained from calibration functions like wcalsin
 %
 %   Outputs:
 %     radix - Radix between consecutive bits
@@ -40,7 +40,7 @@ function radix = plotwgt(weights)
 %     - Y-axis uses logarithmic scale for better visualization
 %     - Negative weights are displayed in red color to indicate sign errors
 %
-%   See also: cdacwgt, wcalsine
+%   See also: cdacwgt, wcalsin
 
 % Identify negative weights before taking absolute value
 nBits = length(weights);

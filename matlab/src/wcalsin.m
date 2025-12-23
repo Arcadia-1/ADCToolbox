@@ -1,14 +1,14 @@
-function [weight,offset,postcal,ideal,err,freqcal] = wcalsine(bits,varargin)
-%WCALSINE Weight calibration using a sine wave input
+function [weight,offset,postcal,ideal,err,freqcal] = wcalsin(bits,varargin)
+%WCALSIN Weight calibration using a sine wave input
 %   This function estimates per-bit weights and a DC offset for an ADC by
 %   fitting the weighted sum of raw bit columns to a sine series at a given
 %   (or estimated) normalized frequency. It optionally performs a coarse and
 %   fine frequency search to refine the input tone frequency.
 %
 %   Syntax:
-%     [weight, offset, postcal, ideal, err, freqcal] = WCALSINE(bits)
-%     [weight, offset, postcal, ideal, err, freqcal] = WCALSINE(bits, 'Name', Value)
-%     [weight, offset, postcal, ideal, err, freqcal] = WCALSINE({bits1, bits2, ...}, 'Name', Value)
+%     [weight, offset, postcal, ideal, err, freqcal] = WCALSIN(bits)
+%     [weight, offset, postcal, ideal, err, freqcal] = WCALSIN(bits, 'Name', Value)
+%     [weight, offset, postcal, ideal, err, freqcal] = WCALSIN({bits1, bits2, ...}, 'Name', Value)
 %
 %   Inputs:
 %     bits - Binary ADC output data
@@ -52,16 +52,16 @@ function [weight,offset,postcal,ideal,err,freqcal] = wcalsine(bits,varargin)
 %
 %   Examples:
 %     % Basic calibration with automatic frequency search
-%     [wgt, off] = wcalsine(bits)
+%     [wgt, off] = wcalsin(bits)
 %
 %     % Calibration with known frequency
-%     [wgt, off, cal, ideal, err, freq] = wcalsine(bits, 'freq', 0.123)
+%     [wgt, off, cal, ideal, err, freq] = wcalsin(bits, 'freq', 0.123)
 %
 %     % Multi-dataset calibration with harmonic exclusion
-%     [wgt, off] = wcalsine({bits1, bits2}, 'freq', [0.1, 0.2], 'order', 3)
+%     [wgt, off] = wcalsin({bits1, bits2}, 'freq', [0.1, 0.2], 'order', 3)
 %
 %     % Enable verbose output to see frequency search progress
-%     [wgt, off, cal, ideal, err, freq] = wcalsine(bits, 'verbose', 1)
+%     [wgt, off, cal, ideal, err, freq] = wcalsin(bits, 'verbose', 1)
 %
 %   Notes:
 %     - For multi-dataset calibration, weights and offset are shared across all
@@ -72,7 +72,7 @@ function [weight,offset,postcal,ideal,err,freqcal] = wcalsine(bits,varargin)
 %       using nomWeight to determine appropriate scaling
 %     - Polarity is automatically enforced to be positive (sum(weight) > 0)
 %
-%   See also: inlsine, findFin, alias
+%   See also: inlsin, findfreq, alias
 warning("off")
     % ==========================
     % Multi-dataset (cell) path
@@ -82,7 +82,7 @@ warning("off")
         % Validate shapes and collect per-dataset sizes
         ND = numel(bits);   % Number of datasets
         if ND == 0
-            error('wcalsine:EmptyInput','Empty cell array for bits.');
+            error('wcalsin:EmptyInput','Empty cell array for bits.');
         end
         bits_cell = cell(1,ND);
         Nk = zeros(1,ND);
@@ -90,7 +90,7 @@ warning("off")
         for k = 1:ND
             Bk = bits{k};
             if isempty(Bk)
-                error('wcalsine:EmptyDataset','Dataset %d is empty.',k);
+                error('wcalsin:EmptyDataset','Dataset %d is empty.',k);
             end
             [nTmp,mTmp] = size(Bk);
             if nTmp < mTmp
@@ -102,7 +102,7 @@ warning("off")
             Mk(k) = mTmp;
         end
         if any(Mk ~= Mk(1))
-            error('wcalsine:InconsistentWidth','All datasets must have the same number of columns (bits).');
+            error('wcalsin:InconsistentWidth','All datasets must have the same number of columns (bits).');
         end
         M_orig = Mk(1);
 
@@ -131,13 +131,13 @@ warning("off")
             freq = ones(1,ND) * freq;
         end
         if numel(freq) ~= ND
-            error('wcalsine:FreqLength','Length of freq vector must match number of datasets.');
+            error('wcalsin:FreqLength','Length of freq vector must match number of datasets.');
         end
 
         % Per-dataset frequency search (only for unknown entries)
         for k = 1:ND
             if freq(k) == 0 || fsearch == 1
-                [~,~,~,~,~,fk] = wcalsine(bits_cell{k}, 'freq', freq(k), 'fsearch', 1, ...
+                [~,~,~,~,~,fk] = wcalsin(bits_cell{k}, 'freq', freq(k), 'fsearch', 1, ...
                     'order', order, 'rate', rate, 'reltol', reltol, 'niter', niter, 'nomWeight', nomWeight, 'verbose', verbose);
                 freq(k) = fk;
             end

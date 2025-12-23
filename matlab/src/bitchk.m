@@ -1,5 +1,5 @@
-function [range_min, range_max, ovf_percent_zero, ovf_percent_one] = ovfchk(bits, varargin)
-%OVFCHK Check ADC overflow by analyzing bit segment residue distributions
+function [range_min, range_max, ovf_percent_zero, ovf_percent_one] = bitchk(bits, varargin)
+%BITCHK Check ADC overflow by analyzing bit segment residue distributions
 %   This function analyzes ADC output data to detect overflow conditions in
 %   bit segments. For each bit position, it calculates the normalized residue
 %   (sub-code from that bit to LSB) and visualizes the distribution to identify
@@ -7,12 +7,12 @@ function [range_min, range_max, ovf_percent_zero, ovf_percent_one] = ovfchk(bits
 %   potential overflow.
 %
 %   Syntax:
-%     OVFCHK(bits)
-%     OVFCHK(bits, wgt)
-%     OVFCHK(bits, wgt, chkpos)
-%     [range_min, range_max, ovf_percent_zero, ovf_percent_one] = OVFCHK(...)
+%     BITCHK(bits)
+%     BITCHK(bits, wgt)
+%     BITCHK(bits, wgt, chkpos)
+%     [range_min, range_max, ovf_percent_zero, ovf_percent_one] = BITCHK(...)
 %   or using parameter pairs:
-%     OVFCHK(bits, 'name', value)
+%     BITCHK(bits, 'name', value)
 %
 %   Inputs:
 %     bits - Raw ADC output bit matrix
@@ -49,25 +49,27 @@ function [range_min, range_max, ovf_percent_zero, ovf_percent_one] = ovfchk(bits
 %     - Y-axis: Normalized residue distribution [0, 1]
 %     - Blue dots: Normal samples (no overflow)
 %     - Red dots: Samples with overflow (>= 1)
-%     - Yellow dots: Samples with underflow (<= 0)
+%     - Green dots: Samples with underflow (<= 0)
 %     - Red lines: Min/max range of residue for each bit
+%     - Black horizontal lines: Average value of each bit (with value label)
 %     - Black lines: Boundaries at 0 and 1
 %     - Text: Percentage of samples at 0 (bottom) and 1 (top)
+%     - Legend: Explains all displayed elements
 %
 %   Examples:
 %     % Check overflow for 10-bit ADC with default binary weights
 %     bits = randi([0 1], 10000, 10);
-%     ovfchk(bits)
+%     bitchk(bits)
 %
 %     % Check overflow with custom weights
 %     wgt = 2.^(9:-1:0);
-%     ovfchk(bits, wgt)
+%     bitchk(bits, wgt)
 %
 %     % Check overflow of the segment: from the 8th-bit to LSB
-%     ovfchk(bits, wgt, 8)
+%     bitchk(bits, wgt, 8)
 %
 %     % Get overflow statistics
-%     [range_min, range_max, pct_zero, pct_one] = ovfchk(bits);
+%     [range_min, range_max, pct_zero, pct_one] = bitchk(bits);
 %
 %   Notes:
 %     - A bit segment is the sub-code formed from one bit to the LSB
@@ -117,33 +119,71 @@ non_ovf = ~(ovf_zero | ovf_one);
 % Only plot if no output arguments requested
 if nargout == 0
     hold on;
-    plot([0,M+1],[1,1],'-k');
+    hBoundary = plot([0,M+1],[1,1],'-k');
     plot([0,M+1],[0,0],'-k');
-    plot((1:M),range_min,'-r');
+    hMinMax = plot((1:M),range_min,'-r');
     plot((1:M),range_max,'-r');
+
+    % Calculate and plot average markers for each bit (bit-wise average)
+    avg_bits = mean(bits, 1);
+    lineWidth = 0.2;  % Half-width of horizontal line marker
+    hAvg = plot([1-lineWidth, 1+lineWidth], [avg_bits(1), avg_bits(1)], '-k', 'LineWidth', 2);
+    for ii = 1:M
+        plot([ii-lineWidth, ii+lineWidth], [avg_bits(ii), avg_bits(ii)], '-k', 'LineWidth', 2);
+        text(ii+lineWidth+0.05, avg_bits(ii), num2str(avg_bits(ii),'%.2f'), 'FontSize', 8);
+    end
+
+    % Create dummy scatter points for legend (full opacity, invisible location)
+    hNormal = scatter(NaN, NaN, 'MarkerFaceColor', 'b', 'MarkerEdgeColor', 'b');
+    hOverflow = scatter(NaN, NaN, 'MarkerFaceColor', 'r', 'MarkerEdgeColor', 'r');
+    hUnderflow = scatter(NaN, NaN, 'MarkerFaceColor', [0 0.5 0], 'MarkerEdgeColor', [0 0.5 0]);
+
+    % Plot scatter points (transparent for density visualization)
+    chkpos_idx = M - chkpos + 1;
     for ii = 1:M
 
         h = scatter(ones([1,sum(non_ovf)])*ii, data_decom(non_ovf,ii), 'MarkerFaceColor','b','MarkerEdgeColor','b');
         h.MarkerFaceAlpha = min(max(10/N,0.01),1);
         h.MarkerEdgeAlpha = min(max(10/N,0.01),1);
 
-        h = scatter(ones([1,sum(ovf_one)])*ii-0.2, data_decom(ovf_one,ii), 'MarkerFaceColor','r','MarkerEdgeColor','r');
-        h.MarkerFaceAlpha = min(max(10/N,0.01),1);
-        h.MarkerEdgeAlpha = min(max(10/N,0.01),1);
+        % Only show overflow/underflow points up to chkpos (not after)
+        if ii <= chkpos_idx
+            h = scatter(ones([1,sum(ovf_one)])*ii-0.2, data_decom(ovf_one,ii), 'MarkerFaceColor','r','MarkerEdgeColor','r');
+            h.MarkerFaceAlpha = min(max(10/sum(ovf_one),0.01),1);
+            h.MarkerEdgeAlpha = min(max(10/sum(ovf_one),0.01),1);
 
-        h = scatter(ones([1,sum(ovf_zero)])*ii+0.2, data_decom(ovf_zero,ii), 'MarkerFaceColor','y','MarkerEdgeColor','y');
-        h.MarkerFaceAlpha = min(max(10/N,0.01),1);
-        h.MarkerEdgeAlpha = min(max(10/N,0.01),1);
+            h = scatter(ones([1,sum(ovf_zero)])*ii-0.1, data_decom(ovf_zero,ii), 'MarkerFaceColor',[0 0.5 0],'MarkerEdgeColor',[0 0.5 0]);
+            h.MarkerFaceAlpha = min(max(10/sum(ovf_zero),0.01),1);
+            h.MarkerEdgeAlpha = min(max(10/sum(ovf_zero),0.01),1);
+        end
 
-        text(ii, -0.05, [num2str(ovf_percent_zero(ii),'%.1f'),'%']);
-        text(ii, 1.05, [num2str(ovf_percent_one(ii),'%.1f'),'%']);
+        % Color the chkpos bit's overflow rates if overflow/underflow exists
+        if ii == chkpos_idx && ovf_percent_zero(ii) > 0
+            text(ii, -0.05, [num2str(ovf_percent_zero(ii),'%.1f'),'%'], 'Color', [0 0.5 0], 'FontWeight', 'bold');
+        else
+            text(ii, -0.05, [num2str(ovf_percent_zero(ii),'%.1f'),'%']);
+        end
+        if ii == chkpos_idx && ovf_percent_one(ii) > 0
+            text(ii, 1.05, [num2str(ovf_percent_one(ii),'%.1f'),'%'], 'Color', 'r', 'FontWeight', 'bold');
+        else
+            text(ii, 1.05, [num2str(ovf_percent_one(ii),'%.1f'),'%']);
+        end
     end
+
+    % Add text notes to explain overflow rate meanings
+    text(0, 1.05, 'Overflow rate:', 'FontWeight', 'bold', 'HorizontalAlignment', 'right');
+    text(0, -0.05, 'Underflow rate:', 'FontWeight', 'bold', 'HorizontalAlignment', 'right');
 
     axis([0,M+1,-0.1,1.1]);
     xticks(1:M);
     xticklabels(M:-1:1);
     xlabel('bit');
     ylabel('Residue Distribution');
+
+    % Add legend
+    legend([hBoundary, hMinMax, hAvg, hNormal, hOverflow, hUnderflow], ...
+           {'Boundary (0/1)', 'Min/Max Range', 'Bit Average', 'Normal Samples', 'Overflow (>=1)', 'Underflow (<=0)'}, ...
+           'Location', 'bestoutside');
 end
 
 end

@@ -18,7 +18,7 @@ function radix = weightScaling(weights)
 %       Vector (1 x B-1), where B is the number of bits
 %       radix(i) = |weight(i) / weight(i+1)|
 %
-%   See also: plotwgt, wcalsine
+%   See also: plotwgt, wcalsin
 
     % Call the new plotwgt function with all arguments
     radix = plotwgt(weights);
