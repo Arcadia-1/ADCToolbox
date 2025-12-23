@@ -4,6 +4,10 @@ function [emean, erms, xx, anoi, pnoi, err, errxx] = errsinv(sig, varargin)
 %
 %   See also: errsin
 
-    [emean, erms, xx, anoi, pnoi, err, errxx] = errsin(sig, 'xaxis', 'value', varargin{:});
+    if nargout == 0
+        errsin(sig, 'xaxis', 'value', 'disp', 1, varargin{:});
+    else
+        [emean, erms, xx, anoi, pnoi, err, errxx] = errsin(sig, 'xaxis', 'value', varargin{:});
+    end
 
 end
