@@ -1,10 +1,10 @@
 function [weight,offset,postcal,ideal,err,freqcal] = FGCalSine(bits,varargin)
 %FGCALSINE Foreground calibration using a sine wave input (legacy)
 %   DEPRECATED: This function is maintained for backward compatibility.
-%   Please use wcalsine (lowercase) instead.
+%   Please use wcalsin instead.
 %
-%   This function is a wrapper that calls wcalsine with the same
-%   functionality. All new code should use wcalsine directly.
+%   This function is a wrapper that calls wcalsin with the same
+%   functionality. All new code should use wcalsin directly.
 %
 %   Legacy interface:
 %     [weight, offset, postcal, ideal, err, freqcal] = FGCALSINE(bits)
@@ -44,9 +44,9 @@ function [weight,offset,postcal,ideal,err,freqcal] = FGCalSine(bits,varargin)
 %     freqcal - Fine-tuned normalized frequency
 %       Same meaning in the new function
 %
-%   See also: wcalsine
+%   See also: wcalsin
 
-    % Call the new wcalsine function with all arguments
-    [weight,offset,postcal,ideal,err,freqcal] = wcalsine(bits,varargin{:});
+    % Call the new wcalsin function with all arguments
+    [weight,offset,postcal,ideal,err,freqcal] = wcalsin(bits,varargin{:});
 
 end

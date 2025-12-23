@@ -87,7 +87,7 @@ Functions for extracting signal parameters and frequency information.
 
 Functions for calibrating ADC bit weights and correcting errors.
 
-- **`wcalsine`** - Weight calibration using sine wave input (single or multi-dataset)
+- **`wcalsin`** - Weight calibration using sine wave input (single or multi-dataset)
 - **`cdacwgt`** - Calculate bit weights for multi-segment capacitive DAC
 - **`plotwgt`** - Visualize bit weights with radix annotations
 
@@ -110,7 +110,7 @@ Supporting functions for signal processing and analysis.
 
 - **`alias`** - Calculate aliased frequency after sampling
 - **`ifilter`** - Ideal FFT-based filter to retain specified frequency bands
-- **`ovfchk`** - Check ADC overflow by analyzing bit segment residue distributions
+- **`bitchk`** - Check ADC overflow by analyzing bit segment residue distributions
 
 ## Detailed Function Reference
 
@@ -276,15 +276,15 @@ b = findbin(fs, fin, n);  % Returns 103
 fin_actual = b * fs / n;  % = 1006.8 Hz
 ```
 
-### wcalsine
+### wcalsin
 
 **Purpose:** Estimate per-bit weights and DC offset for ADC calibration using sine wave input.
 
 **Syntax:**
 ```matlab
-[weight, offset, postcal, ideal, err, freqcal] = wcalsine(bits)
-[weight, offset, postcal, ideal, err, freqcal] = wcalsine(bits, 'Name', Value)
-[weight, offset, postcal, ideal, err, freqcal] = wcalsine({bits1, bits2, ...}, 'Name', Value)
+[weight, offset, postcal, ideal, err, freqcal] = wcalsin(bits)
+[weight, offset, postcal, ideal, err, freqcal] = wcalsin(bits, 'Name', Value)
+[weight, offset, postcal, ideal, err, freqcal] = wcalsin({bits1, bits2, ...}, 'Name', Value)
 ```
 
 **Key Features:**
@@ -315,13 +315,13 @@ fin_actual = b * fs / n;  % = 1006.8 Hz
 **Example:**
 ```matlab
 % Basic calibration with automatic frequency search
-[wgt, off] = wcalsine(bits);
+[wgt, off] = wcalsin(bits);
 
 % Known frequency with 3rd harmonic exclusion
-[wgt, off, cal, ideal, err, freq] = wcalsine(bits, 'freq', 0.123, 'order', 3);
+[wgt, off, cal, ideal, err, freq] = wcalsin(bits, 'freq', 0.123, 'order', 3);
 
 % Multi-dataset joint calibration
-[wgt, off] = wcalsine({bits1, bits2}, 'freq', [0.1, 0.2], 'order', 5);
+[wgt, off] = wcalsin({bits1, bits2}, 'freq', [0.1, 0.2], 'order', 5);
 ```
 
 ### cdacwgt
@@ -619,15 +619,15 @@ sigout = ifilter(sigin, [0.1, 0.2]);
 sigout = ifilter(sigin, [0.05, 0.15; 0.25, 0.35]);
 ```
 
-### ovfchk
+### bitchk
 
 **Purpose:** Check ADC overflow by analyzing bit segment residue distributions.
 
 **Syntax:**
 ```matlab
-ovfchk(bits)
-ovfchk(bits, wgt, chkpos)
-ovfchk(bits, 'name', value)
+bitchk(bits)
+bitchk(bits, wgt, chkpos)
+bitchk(bits, 'name', value)
 ```
 
 **Key Features:**
@@ -645,11 +645,11 @@ ovfchk(bits, 'name', value)
 ```matlab
 % Check with default binary weights
 bits = randi([0 1], 10000, 10);
-ovfchk(bits);
+bitchk(bits);
 
 % Custom weights and check position
 wgt = 2.^(9:-1:0);
-ovfchk(bits, wgt, 8);  % Check segment from 8th-bit to LSB
+bitchk(bits, wgt, 8);  % Check segment from 8th-bit to LSB
 ```
 
 ## Usage Examples
@@ -707,10 +707,10 @@ fprintf('NTF provides %.2f dB SNR improvement\n', snr_gain);
 load('sar_bits.mat');  % Contains 'bits' matrix
 
 % 1. Calibrate weights using sine wave
-[weight, offset, postcal] = wcalsine(bits, 'freq', 0.1234, 'order', 3);
+[weight, offset, postcal] = wcalsin(bits, 'freq', 0.1234, 'order', 3);
 
 % 2. Check for overflow in calibrated data
-ovfchk(bits, weight);
+bitchk(bits, weight);
 
 % 3. Calculate theoretical CDAC weights for comparison
 % Assume 12-bit with 6+6 split capacitor array
@@ -824,7 +824,7 @@ The `legacy/` directory contains older function names for backward compatibility
 | `specPlotPhase.m` | `plotphase.m` | Phase spectrum |
 | `findBin.m` | `findbin.m` | Coherent bin finder |
 | `findFin.m` | `findfreq.m` | Frequency finder |
-| `FGCalSine.m` | `wcalsine.m` | Weight calibration |
+| `FGCalSine.m` | `wcalsin.m` | Weight calibration |
 | `cap2weight.m` | `cdacwgt.m` | CDAC weight calculator |
 | `weightScaling.m` | `plotwgt.m` | Weight visualization |
 | `INLsine.m` | `inlsin.m` | INL/DNL analysis |
@@ -832,7 +832,7 @@ The `legacy/` directory contains older function names for backward compatibility
 | `sineFit.m` | `sinfit.m` | Sine fitting |
 | `tomDecomp.m` | `tomdec.m` | Thompson decomposition |
 | `NTFAnalyzer.m` | `ntfperf.m` | NTF performance |
-| `overflowChk.m` | `ovfchk.m` | Overflow checker |
+| `overflowChk.m` | `bitchk.m` | Overflow checker |
 | `bitInBand.m` | N/A | Bits-wise filter (deprecated) |
 
 **Note:** It's recommended to use the new function names in new code. Legacy functions are provided for compatibility only.
@@ -861,7 +861,7 @@ matlab/
 │   ├── sinfit.m            # Sine wave fitting
 │   ├── findfreq.m          # Frequency finder
 │   ├── findbin.m           # Coherent bin finder
-│   ├── wcalsine.m          # Weight calibration
+│   ├── wcalsin.m          # Weight calibration
 │   ├── cdacwgt.m           # CDAC weight calculator
 │   ├── inlsin.m            # INL/DNL analysis
 │   ├── errsin.m            # Error histogram analysis
@@ -869,7 +869,7 @@ matlab/
 │   ├── ntfperf.m           # NTF performance analyzer
 │   ├── alias.m             # Alias calculator
 │   ├── ifilter.m           # Ideal filter
-│   ├── ovfchk.m            # Overflow checker
+│   ├── bitchk.m            # Overflow checker
 │   ├── legacy/             # Legacy function names (for compatibility)
 │   │   ├── specPlot.m
 │   │   ├── specPlotPhase.m
@@ -913,8 +913,8 @@ freq = findfreq(data, fs);
 ### 3. Calibration Workflow
 ```matlab
 % Calibrate SAR ADC
-[weight, offset, postcal] = wcalsine(bits);
-ovfchk(bits, weight);
+[weight, offset, postcal] = wcalsin(bits);
+bitchk(bits, weight);
 [enob_after_cal, ~] = specplot(postcal, 'disp', false);
 ```
 
@@ -935,13 +935,13 @@ plot(test_frequencies, enob);
 3. **Averaging**: Use `'averageMode', 'coherent'` for better noise floor in repeated measurements
 4. **Window Selection**: Hanning window (default) is good for general use; use rectangle for coherent signals
 5. **Endpoint Exclusion**: Increase `excl` parameter in `inlsin` if data has clipping or saturation
-6. **Frequency Accuracy**: For calibration, let `wcalsine` auto-search frequency or use fine search
-7. **Multi-dataset Calibration**: Use cell array input to `wcalsine` for better statistical convergence
-8. **Rank Deficiency**: If `wcalsine` warns about rank, adjust `'nomWeight'` based on expected bit weights
+6. **Frequency Accuracy**: For calibration, let `wcalsin` auto-search frequency or use fine search
+7. **Multi-dataset Calibration**: Use cell array input to `wcalsin` for better statistical convergence
+8. **Rank Deficiency**: If `wcalsin` warns about rank, adjust `'nomWeight'` based on expected bit weights
 
 ## Troubleshooting
 
-### Issue: "Rank deficiency detected" in wcalsine
+### Issue: "Rank deficiency detected" in wcalsin
 **Solution:**
 - Check that bit data has sufficient variation
 - Adjust `'nomWeight'` parameter to match actual bit weights
@@ -950,7 +950,7 @@ plot(test_frequencies, enob);
 ### Issue: Poor ENOB in plotspec
 **Possible causes:**
 - Non-coherent sampling (use `window` and `sideBin` to apply proper windowing)
-- Clipping or saturation (use `errsin` or `ovfchk` to check)
+- Clipping or saturation (use `errsin` or `bitchk` to check)
 
 ### Issue: NaN or Inf results
 **Solution:**
