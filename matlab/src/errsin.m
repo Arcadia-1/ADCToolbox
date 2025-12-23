@@ -63,7 +63,8 @@ function [emean, erms, xx, anoi, pnoi, err, errxx] = errsin(sig, varargin)
 %   Notes:
 %     - Phase mode (xaxis = 'phase'):
 %       * Bins errors by phase angle of the sinewave
-%       * Estimates amplitude and phase noise using least squares fit
+%       * Estimates amplitude and phase noise using least squares fit:
+%         erms^2 = anoi^2*cos^2(theta) + pnoi^2*sin^2(theta)
 %     - Value mode (xaxis = 'value'):
 %       * Bins errors by the signal value
 %       * Useful for analyzing INL
@@ -108,6 +109,9 @@ function [emean, erms, xx, anoi, pnoi, err, errxx] = errsin(sig, varargin)
     % Calculate residual errors
     err = sig_fit-sig;
 
+    % Calculate phase for each sample point (used by both modes)
+    phase = mod(phi/pi*180 + (0:length(sig)-1)'*fin*360, 360);
+
     % Value mode: bin by signal value
     if(strcmp(xaxis,'value'))
         errxx = sig;
@@ -119,14 +123,29 @@ function [emean, erms, xx, anoi, pnoi, err, errxx] = errsin(sig, varargin)
         enum = zeros(1,bin);
         esum = zeros(1,bin);
         erms = zeros(1,bin);
+        % Separate accumulators for rising [0,180) and falling [180,360) phases
+        enum_rise = zeros(1,bin);
+        esum_rise = zeros(1,bin);
+        enum_fall = zeros(1,bin);
+        esum_fall = zeros(1,bin);
 
         % Accumulate errors for each bin
         for ii = 1:length(sig)
             b = min(floor((sig(ii)-dat_min)/bin_wid)+1,bin);
             esum(b) = esum(b) + err(ii);
             enum(b) = enum(b) + 1;
+            % Accumulate separately by phase
+            if phase(ii) < 180
+                esum_rise(b) = esum_rise(b) + err(ii);
+                enum_rise(b) = enum_rise(b) + 1;
+            else
+                esum_fall(b) = esum_fall(b) + err(ii);
+                enum_fall(b) = enum_fall(b) + 1;
+            end
         end
         emean = esum./enum;
+        emean_rise = esum_rise./enum_rise;
+        emean_fall = esum_fall./enum_fall;
 
         % Calculate RMS error for each bin
         for ii = 1:length(sig)
@@ -150,22 +169,30 @@ function [emean, erms, xx, anoi, pnoi, err, errxx] = errsin(sig, varargin)
         if(disp)
             subplot(2,1,1);
 
-            plot(sig,err,'r.');
+            % Plot data points colored by phase (no legend)
+            idx_first = (phase < 180);   % [0, 180) phase
+            idx_second = (phase >= 180); % [180, 360) phase
+            plot(sig(idx_first), err(idx_first), '.', 'Color', [1,0.5,0.5], 'HandleVisibility', 'off');
             hold on;
-            plot(xx,emean,'b-');
-            axis([dat_min,dat_max,min(err),max(err)]);
+            plot(sig(idx_second), err(idx_second), '.', 'Color', [0.5,0.5,1], 'HandleVisibility', 'off');
+
+            % Plot averaged traces
+            plot(xx, emean_rise, 'r-', 'LineWidth', 1.5);
+            plot(xx, emean_fall, 'b-', 'LineWidth', 1.5);
+            plot(xx, emean, 'k-', 'LineWidth', 1.5);
+            axis([dat_min, dat_max, min(err)*1.05-max(err)*0.05, max(err)*1.05-min(err)*0.05]);
             ylabel('error');
             xlabel('value');
 
             if(~isempty(erange))
-                plot(errxx,err,'m.');
+                plot(errxx, err, 'm.', 'HandleVisibility', 'off');
             end
 
-            legend('error','emean');
-            
+            legend('Rising aveg. (0~180 deg)', 'Falling aveg. (180~360 deg)', 'All aveg.');
+
             subplot(2,1,2);
-            bar(xx,erms);
-            axis([dat_min,dat_max,0,max(erms)*1.1]);
+            bar(xx, erms, 'FaceColor', [0.8 0.8 0.8], 'EdgeColor', [0.6 0.6 0.6]);
+            axis([dat_min, dat_max, 0, max(erms)*1.1]);
             xlabel('value');
             ylabel('RMS error');
 
@@ -174,7 +201,7 @@ function [emean, erms, xx, anoi, pnoi, err, errxx] = errsin(sig, varargin)
 
     % Phase mode: bin by phase angle
     else
-        errxx = mod(phi/pi*180 + (0:length(sig)-1)*fin*360,360);
+        errxx = phase';  % Use pre-calculated phase
         xx = (0:bin-1)/bin*360;
 
         enum = zeros(1,bin);
@@ -199,42 +226,24 @@ function [emean, erms, xx, anoi, pnoi, err, errxx] = errsin(sig, varargin)
         % Estimate amplitude and phase noise components
         % Amplitude noise affects all phases equally (cos^2 pattern)
         % Phase noise creates errors proportional to slope (sin^2 pattern)
-        asen = abs(cos(xx/360*2*pi)).^2;    % amplitude noise sensitivity
-        psen = abs(sin(xx/360*2*pi)).^2;    % phase noise sensitivity
+        asen = cos(xx/360*2*pi).^2;    % amplitude noise sensitivity
+        psen = sin(xx/360*2*pi).^2;    % phase noise sensitivity
 
-        % Least squares fit: erms^2 = anoi^2*asen + (pnoi*mag)^2*psen + baseline
-        tmp = linsolve([asen',psen',ones(bin,1)], erms'.^2);
+        % Least squares fit: erms^2 = anoi^2*asen + pnoi^2*psen
+        tmp = linsolve([asen', psen'], erms'.^2);
 
-        anoi = sqrt(tmp(1));
-        pnoi = sqrt(tmp(2))/mag;
-        ermsbl = tmp(3);    % erms baseline
-
-        % Handle negative or complex results (physical constraint violation)
-        if(anoi < 0 || imag(anoi) ~= 0)     % Try phase noise only
-            tmp = linsolve([psen',ones(bin,1)], erms'.^2);
-            anoi = 0;
-            pnoi = sqrt(tmp(1))/mag;
-            ermsbl = tmp(2);
-
-            if(pnoi < 0 || imag(pnoi) ~= 0)  % Neither fit works
-                anoi = 0;
-                pnoi = 0;
-                ermsbl = mean(erms.^2);
-            end
+        % Warn if noise power is negative (unusual, may indicate fitting issues)
+        if tmp(1) < 0
+            warning('errsin:negativeNoise', ...
+                'Amplitude noise power is negative (%.2e), clamped to zero.', tmp(1));
+        end
+        if tmp(2) < 0
+            warning('errsin:negativeNoise', ...
+                'Phase noise power is negative (%.2e), clamped to zero.', tmp(2));
         end
 
-        if(pnoi < 0 || imag(pnoi) ~= 0)     % Try amplitude noise only
-            tmp = linsolve([asen',ones(bin,1)], erms'.^2);
-            pnoi = 0;
-            anoi = sqrt(tmp(1));
-            ermsbl = tmp(2);
-
-            if(anoi < 0 || imag(anoi) ~= 0)  % Neither fit works
-                anoi = 0;
-                pnoi = 0;
-                ermsbl = mean(erms.^2);
-            end
-        end
+        anoi = sqrt(max(tmp(1), 0));  % Clamp to non-negative before sqrt
+        pnoi = sqrt(max(tmp(2), 0));
 
         % Apply error range filter if specified
         if(~isempty(erange))
@@ -249,17 +258,17 @@ function [emean, erms, xx, anoi, pnoi, err, errxx] = errsin(sig, varargin)
 
             yyaxis left;
             plot(errxx,sig,'k.');
-            axis([0,360,min(sig),max(sig)]);
+            axis([0,360,min(sig)*1.05-max(sig)*0.05, max(sig)*1.05-min(sig)*0.05]);
             ylabel('data');
 
             yyaxis right;
             plot(errxx,err,'r.');
             hold on;
-            plot(xx,emean,'b-');
-            axis([0,360,min(err),max(err)]);
+            plot(xx,emean,'b-','LineWidth', 1.5);
+            axis([0,360,min(err)*1.05-max(err)*0.05, max(err)*1.05-min(err)*0.05]);
             ylabel('error');
 
-            legend('data','error');
+            legend('Data','Error','Error aver.');
             xlabel('phase(deg)');
 
             if(~isempty(erange))
@@ -267,13 +276,28 @@ function [emean, erms, xx, anoi, pnoi, err, errxx] = errsin(sig, varargin)
             end
 
             subplot(2,1,2);
-            bar(xx,erms);
+            bar(xx, erms, 'FaceColor', [0.8 0.8 0.8], 'EdgeColor', [0.6 0.6 0.6]);
             hold on;
-            plot(xx, sqrt((anoi.^2)*asen + ermsbl), 'b-', 'LineWidth',2);
-            plot(xx, sqrt((pnoi.^2)*psen*(mag^2) + ermsbl), 'r-', 'LineWidth',2);
-            axis([0,360,0,max(erms)*1.2]);
-            text(10, max(erms)*1.15, sprintf('Normalized Amplitude Noise RMS = %.2d',anoi/mag), 'color', [0,0,1]);
-            text(10, max(erms)*1.05, sprintf('Phase Noise RMS = %.2d rad',pnoi), 'color', [1,0,0]);
+            plot(xx, sqrt((anoi.^2)*asen + (pnoi.^2)*psen), 'k-', 'LineWidth', 2);
+            plot(xx, sqrt((anoi.^2)*asen), 'b-', 'LineWidth', 1.5);
+            plot(xx, sqrt((pnoi.^2)*psen), 'r-', 'LineWidth', 1.5);
+            axis([0,360,0,max(erms)*1.5]);
+            legend('RMS error', 'Fit', 'Amplitude noise', 'Phase noise', 'Location', 'northeast');
+            text(10, max(erms)*1.4, sprintf('Normalized Amplitude Noise RMS = %.2e', anoi/mag), 'color', [0,0,1]);
+            text(10, max(erms)*1.25, sprintf('Phase Noise RMS = %.2e rad', pnoi/mag), 'color', [1,0,0]);
+
+            % Display excessive noise if one component dominates
+            noiseDiff = anoi^2 - pnoi^2;
+            noiseSum = anoi^2 + pnoi^2;
+            if abs(noiseDiff) >= 0.05 * abs(noiseSum)
+                noiseExcessive = sqrt(abs(noiseDiff));
+                if noiseDiff > 0
+                    text(10, max(erms)*1.1, sprintf('Excessive Amplitude Noise = %.2e', noiseExcessive/mag), 'color', [0,0,0.5]);
+                else
+                    text(10, max(erms)*1.1, sprintf('Excessive Phase Noise = %.2e rad', noiseExcessive/mag), 'color', [0.5,0,0]);
+                end
+            end
+
             xlabel('phase(deg)');
             ylabel('RMS error');
         end
