@@ -29,7 +29,15 @@ exp_c01_aliasing_nyquist_zones.py
    [Aliasing] Fs = 1100.0 MHz, Fin_target = 123.0 MHz -> F_aliased = 123.0 MHz
    [Aliasing 500 frequencies] [Input = 0.0 - 3300.0 MHz] [Output = 0.00 - 548.90 MHz]
    
-   [Save fig] -> [D:\ADCToolbox\python\src\adctoolbox\examples\07_conversions\output\exp_c05_aliasing.png]
+   [Save fig] -> [D:\ADCToolbox\python\src\adctoolbox\examples\07_conversions\output\exp_c01_aliasing.png]
+
+.. figure:: figures/exp_c01_aliasing.png
+   :alt: Aliasing within Nyquist zones
+   :align: center
+   :width: 600px
+
+   Frequency aliasing visualization across multiple Nyquist zones
+
 
 ---
 
