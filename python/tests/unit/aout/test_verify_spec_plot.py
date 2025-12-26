@@ -35,7 +35,7 @@ def test_verify_spec_plot_quantization():
         sig_quantized = np.floor(sig * 2**nbits) / 2**nbits
 
         # Measure ENOB
-        result = analyze_spectrum(sig_quantized, show_label=False, n_thd=5, show_plot=False)
+        result = analyze_spectrum(sig_quantized, show_label=False, n_thd=5, create_plot=False)
         enob = result['enob']
         sndr = result['sndr_db']
 
@@ -72,7 +72,7 @@ def test_verify_spec_plot_sweep():
 
     for idx, nbits in enumerate(bit_sweep):
         sig_quantized = np.floor(sig * 2**nbits) / 2**nbits
-        result = analyze_spectrum(sig_quantized, show_label=False, n_thd=5, show_plot=False)
+        result = analyze_spectrum(sig_quantized, show_label=False, n_thd=5, create_plot=False)
         enob = result['enob']
         enob_results[idx] = enob
 

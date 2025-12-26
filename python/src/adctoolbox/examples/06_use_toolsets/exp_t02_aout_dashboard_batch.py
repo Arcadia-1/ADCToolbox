@@ -26,7 +26,6 @@ t_start = time.time()
 import matplotlib
 matplotlib.use('Agg')
 
-import matplotlib.pyplot as plt
 from adctoolbox.toolset import generate_aout_dashboard
 from nonideality_cases import get_batch_test_setup  # type: ignore
 

@@ -39,7 +39,7 @@ for idx, N in enumerate(N_list):
     sinewave = A * np.sin(2 * np.pi * fin * t)
     signal_distorted = sinewave + k2 * sinewave**2 + k3 * sinewave**3 + DC + np.random.randn(N) * base_noise
 
-    result = analyze_spectrum(signal_distorted, fs=fs, show_plot=False)
+    result = analyze_spectrum(signal_distorted, fs=fs, create_plot=False)
 
     # Analyze INL/DNL and plot (quantization handled internally)
     plt.sca(axes[idx])

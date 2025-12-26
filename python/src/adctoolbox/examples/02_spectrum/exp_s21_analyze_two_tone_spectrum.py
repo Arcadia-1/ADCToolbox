@@ -41,7 +41,7 @@ result = analyze_two_tone_spectrum(signal, fs=Fs, ax=ax)
 
 print(f"[two_tone] ENoB=[{result['enob']:5.2f} b], SNDR=[{result['sndr_db']:6.2f} dB], SFDR=[{result['sfdr_db']:6.2f} dB], SNR=[{result['snr_db']:6.2f} dB], IMD2=[{result['imd2_db']:6.2f} dB], IMD3=[{result['imd3_db']:6.2f} dB]")
 
-fig_path = (output_dir / 'exp_s31_analyze_two_tone_spectrum.png').resolve()
+fig_path = (output_dir / 'exp_s21_analyze_two_tone_spectrum.png').resolve()
 print(f"\n[Save fig] -> [{fig_path}]")
 plt.savefig(fig_path, dpi=150)
 plt.close()

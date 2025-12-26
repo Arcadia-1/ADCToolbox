@@ -26,7 +26,6 @@ nsd_ref = snr_to_nsd(snr_ref, fs=Fs, osr=1)
 print(f"[Sinewave] Fs=[{Fs/1e6:.2f} MHz], Fin_arbitrary=[{Fin_arbitrary/1e6:.6f} MHz], Fin_coherent=[{Fin_coherent/1e6:.6f} MHz], Bin/N=[{Fin_bin}/{N_fft}], A=[{A:.3f} Vpeak]")
 print(f"[Nonideal] Noise RMS=[{noise_rms*1e6:.2f} uVrms], Theoretical SNR=[{snr_ref:.2f} dB], Theoretical NSD=[{nsd_ref:.2f} dBFS/Hz]\n")
 
-
 t = np.arange(N_fft) / Fs
 signal_arbitrary = A * np.sin(2*np.pi*Fin_arbitrary*t)  + np.random.randn(N_fft) * noise_rms
 signal_coherent = A * np.sin(2*np.pi*Fin_coherent*t) + np.random.randn(N_fft) * noise_rms

@@ -20,7 +20,6 @@ sig_ideal = A * np.sin(2 * np.pi * Fin * np.arange(N) / Fs)
 print(f"[Sinewave] Fs=[{Fs/1e6:.2f} MHz], Fin=[{Fin/1e6:.2f} MHz], Bin/N=[{Fin_bin}/{N}], A=[{A:.3f} Vpeak]")
 print(f"[Nonideal] Noise RMS=[{base_noise*1e6:.2f} uVrms], Theoretical SNR=[{snr_ref:.2f} dB], Theoretical NSD=[{nsd_ref:.2f} dBFS/Hz]")
 
-
 # Scenarios: (k2_inject, k3_inject)
 scenarios = [
     (0.00, 0.00),

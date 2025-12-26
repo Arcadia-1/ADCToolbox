@@ -2,7 +2,6 @@
 import numpy as np
 from ..fundamentals.frequency import fold_frequency_to_nyquist
 
-
 def extract_freq_components(din, bands):
     """
     Extract signal components within specified frequency bands.

@@ -58,7 +58,7 @@ plt.suptitle('Two-Tone IMD Comparison: Effect of Nonlinearity Strength',
              fontsize=14, fontweight='bold')
 plt.tight_layout(rect=[0, 0, 1, 0.96])
 
-fig_path = (output_dir / 'exp_s32_two_tone_imd_comparison.png').resolve()
+fig_path = (output_dir / 'exp_s22_two_tone_imd_comparison.png').resolve()
 print(f"\n[Save fig] -> [{fig_path}]")
 plt.savefig(fig_path, dpi=150, bbox_inches='tight')
 plt.close()

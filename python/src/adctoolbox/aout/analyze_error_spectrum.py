@@ -5,13 +5,12 @@ frequency components and error characteristics.
 """
 
 import matplotlib.pyplot as plt
-from typing import Optional
+
 from adctoolbox.spectrum import analyze_spectrum
 from adctoolbox.fundamentals.fit_sine_4param import fit_sine_4param
 
-
-def analyze_error_spectrum(signal, fs=1, frequency=None, show_plot=True,
-                           ax: Optional[plt.Axes] = None, title: str = None):
+def analyze_error_spectrum(signal, fs=1, frequency=None, create_plot: bool = True,
+                           ax=None, title: str = None):
     """
     Compute error spectrum directly from the error signal.
 
@@ -26,7 +25,7 @@ def analyze_error_spectrum(signal, fs=1, frequency=None, show_plot=True,
         Sampling frequency in Hz
     frequency : float, optional
         Normalized frequency (0-0.5). If None, auto-detected
-    show_plot : bool, default=True
+    create_plot : bool, default=True
         If True, plot the error spectrum on current axes
     ax : matplotlib.axes.Axes, optional
         Axes to plot on. If None, uses current axes (plt.gca())
@@ -65,7 +64,7 @@ def analyze_error_spectrum(signal, fs=1, frequency=None, show_plot=True,
     error_signal = signal - sig_ideal
 
     # Analyze error spectrum directly (not envelope)
-    if show_plot:
+    if create_plot:
         # Use provided axes or set current axes
         if ax is not None:
             plt.sca(ax)

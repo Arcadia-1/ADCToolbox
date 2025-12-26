@@ -22,7 +22,7 @@ def test_freq_estimation_shuffled():
     print(f"[Shuffled bit indices]: {shuffled_indices}")
 
     for n_samp in n_samples_list:
-        freq_true = np.array([1/n_samp, 2/n_samp, 0.1, 0.15, 0.2, 0.21, 0.25, 0.29, 0.3, 0.35, 0.4, (0.5*n_samp - 2)/n_samp, (0.5*n_samp - 1)/n_samp, 0.5])
+        freq_true = np.array([0, 1/n_samp, 2/n_samp, 0.1, 0.15, 0.2, 0.21, 0.25, 0.29, 0.3, 0.35, 0.4, (0.5*n_samp - 2)/n_samp, (0.5*n_samp - 1)/n_samp, 0.5])
         # freq_true = np.array([0.2,0.5])
 
         # Generate bits_ideal for all frequencies at this n_samp

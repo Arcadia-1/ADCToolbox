@@ -1,9 +1,10 @@
+"""Error phase plane analysis: visualize harmonic distortion by removing fundamental."""
+
 import numpy as np
 import matplotlib.pyplot as plt
 from adctoolbox.fundamentals import fit_sine_4param
 
-
-def analyze_error_phase_plane(data, fs=1.0, ax=None, title=None, show_plot=True,
+def analyze_error_phase_plane(data, fs=1.0, ax=None, title=None, create_plot: bool = True,
                                fit_polynomial_order=3, detect_hysteresis=True):
     """
     Residual Phase Plane: Magnify harmonic distortion by removing the fundamental.
@@ -21,7 +22,7 @@ def analyze_error_phase_plane(data, fs=1.0, ax=None, title=None, show_plot=True,
         Axes to plot on. If None, creates new figure.
     title : str, optional
         Custom title for the plot.
-    show_plot : bool
+    create_plot : bool
         Whether to render the plot immediately.
     fit_polynomial_order : int
         Order of polynomial to fit the residual trend (default 3 for HD2/HD3).
@@ -107,7 +108,7 @@ def analyze_error_phase_plane(data, fs=1.0, ax=None, title=None, show_plot=True,
                 hysteresis_gap = np.mean(np.abs(trend_rise - trend_fall))
 
     # --- 5. Visualization ---
-    if show_plot or ax is not None:
+    if create_plot or ax is not None:
         # Use current axes if available, otherwise use pyplot's implicit axes
         if ax is None:
             ax = plt.gca()

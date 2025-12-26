@@ -8,24 +8,21 @@ MATLAB counterpart: specPlot2Tone.m
 """
 
 import numpy as np
-from typing import Optional
 
 from adctoolbox.spectrum.compute_two_tone_spectrum import compute_two_tone_spectrum
 from adctoolbox.spectrum.plot_two_tone_spectrum import plot_two_tone_spectrum
 
-
 def analyze_two_tone_spectrum(
     data: np.ndarray,
     fs: float = 1.0,
-    max_scale_range: Optional[float] = None,
+    max_scale_range: float | None = None,
     harmonic: int = 3,
     win_type: str = 'hann',
     side_bin: int = 1,
     coherent_averaging: bool = False,
-    show_plot: bool = True,
+    create_plot: bool = True,
     show_title: bool = True,
-    show_labels: bool = True,
-    ax = None
+    show_labels: bool = True, ax=None
 ) -> dict:
     """
     Two-tone spectrum analysis with IMD calculation. (Wrapper function for modular core and plotting)
@@ -40,10 +37,10 @@ def analyze_two_tone_spectrum(
         win_type: Window function type ('hann', 'blackman', 'hamming', 'boxcar')
         side_bin: Number of side bins around fundamental
         coherent_averaging: If True, performs coherent averaging with phase alignment
-        show_plot: Plot the spectrum (True) or not (False)
+        create_plot: Plot the spectrum (True) or not (False)
         show_title: Display title (True) or not (False)
         show_labels: Add labels and annotations (True) or not (False)
-        ax: Optional matplotlib axes object. If None and show_plot=True, a new figure is created.
+        ax: Optional matplotlib axes object. If None and create_plot=True, a new figure is created.
 
     Returns:
         dict: Dictionary with performance metrics:
@@ -71,7 +68,7 @@ def analyze_two_tone_spectrum(
     )
 
     # Step 2: Plot if requested (pure visualization)
-    if show_plot:
+    if create_plot:
         plot_two_tone_spectrum(
             analysis_results=results,
             harmonic=harmonic,

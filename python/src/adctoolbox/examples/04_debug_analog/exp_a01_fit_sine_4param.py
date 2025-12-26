@@ -72,8 +72,6 @@ print(f"[Phase error    ] phase error={phase_error:.4f} deg -> [PASS]")
 assert reconstruction_error < 1e-2, f"reconstruction error {reconstruction_error:.6f} exceeds 0.01 threshold!"
 print(f"[Reconstruction ] reconstruction error (rms) ={reconstruction_error:.2e} V -> [PASS]")
 
-
-
 # Calculate number of samples for 3 cycles
 period_samples = Fs / Fin
 num_cycles = 3

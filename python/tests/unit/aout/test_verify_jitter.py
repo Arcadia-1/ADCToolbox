@@ -104,7 +104,7 @@ def measure_jitter(signal, Fs):
         signal,
         show_label=False,
         n_thd=0,
-        show_plot=False
+        create_plot=False
     )
     SNDR = spectrum_result['sndr_db']
 

@@ -31,7 +31,6 @@ def _prepare_input(
         "nominal_weights": nominal_weights, # Nominal weights array
     }
 
-
 def _reshape_and_stack_input(
     bits_input: np.ndarray | list[np.ndarray],
     verbose: int = 0
@@ -109,7 +108,6 @@ def _reshape_and_stack_input(
     segment_lengths = np.array(segment_lengths_list, dtype=int)
 
     return bits_stacked, segment_lengths, bit_width, bits_segments
-
 
 def _setup_nominal_weights(
     bit_width: int, 

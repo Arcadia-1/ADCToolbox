@@ -77,7 +77,6 @@ print(f"  [Nominal]: [{nominal_str}]")
 print(f"  [Real   ]: [{weights_str}] <-- Truth")
 print(f"  [Cal    ]: [{calibrated_str}] <-- Result")
 
-
 plt.tight_layout()
 fig_path = output_dir / 'exp_d02_cal_weight_sine.png'
 plt.savefig(fig_path, dpi=150)

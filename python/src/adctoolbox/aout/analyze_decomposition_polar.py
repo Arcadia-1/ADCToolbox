@@ -1,18 +1,17 @@
 """Wrapper for harmonic decomposition analysis with polar visualization."""
 
-from typing import Optional, Dict, Any
+from typing import Any
 import numpy as np
 from adctoolbox.aout.decompose_harmonic_error import decompose_harmonic_error
 from adctoolbox.aout.plot_decomposition_polar import plot_decomposition_polar
 
-
 def analyze_decomposition_polar(
     signal: np.ndarray,
     harmonic: int = 5,
-    show_plot: bool = True,
-    ax: Optional[object] = None,
+    create_plot: bool = True,
+    ax=None,
     title: str = None
-) -> Dict[str, Any]:
+) -> dict[str, Any]:
     """
     Analyze harmonic decomposition with polar visualization.
 
@@ -24,7 +23,7 @@ def analyze_decomposition_polar(
         Input signal (1D array).
     harmonic : int, default=5
         Number of harmonics to extract.
-    show_plot : bool, default=True
+    create_plot : bool, default=True
         Whether to display result plot.
     ax : matplotlib.axes.Axes, optional
         Polar axis to plot on.
@@ -44,7 +43,7 @@ def analyze_decomposition_polar(
     )
 
     # 2. Plot
-    if show_plot:
+    if create_plot:
         plot_decomposition_polar(
             results=results,
             harmonic=harmonic,

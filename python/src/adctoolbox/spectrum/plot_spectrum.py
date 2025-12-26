@@ -8,7 +8,6 @@ a pure plotting function that can be used with pre-computed metrics.
 import numpy as np
 import matplotlib.pyplot as plt
 
-
 def plot_spectrum(analysis_results, show_title=True, show_label=True, plot_harmonics_up_to=3, ax=None):
     """
     Pure spectrum plotting using pre-computed analysis results.

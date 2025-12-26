@@ -6,15 +6,14 @@ Single Responsibility Principle. No visualization is performed.
 """
 
 import numpy as np
-from typing import Dict, Any
+from typing import Any
 from adctoolbox.aout._fit_sine_harmonics import _fit_sine_harmonics
 from adctoolbox.fundamentals.fit_sine_4param import fit_sine_4param
-
 
 def decompose_harmonic_error(
     signal: np.ndarray,
     n_harmonics: int = 5
-) -> Dict[str, Any]:
+) -> dict[str, Any]:
     """Decompose ADC error into harmonic distortion and other errors using least-squares fitting.
 
     This is a pure calculation function that extracts harmonic components

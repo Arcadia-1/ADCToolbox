@@ -10,7 +10,6 @@ Ref: Ported from MATLAB cap2weight.m
 
 import numpy as np
 
-
 def convert_cap_to_weight(
     caps_bit: np.ndarray,
     caps_bridge: np.ndarray,

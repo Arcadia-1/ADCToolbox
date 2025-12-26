@@ -1,7 +1,7 @@
 """Core computation for value-binned error analysis."""
 
 import numpy as np
-from typing import Dict, Optional, Tuple, Any
+from typing import Any
 from adctoolbox.fundamentals.fit_sine_4param import fit_sine_4param
 from adctoolbox.aout._infer_signal_range import _infer_signal_range
 
@@ -10,8 +10,8 @@ def rearrange_error_by_value(
     norm_freq: float = None,
     n_bins: int = 100,
     clip_percent: float = 0.01,
-    value_range: Optional[Tuple[float, float]] = None,
-) -> Dict[str, Any]:
+    value_range: tuple[float, float | None] = None,
+) -> dict[str, Any]:
     """
     Compute value-binned error metrics.
     Maps input signal linearly to [0, n_bins-1].
