@@ -124,19 +124,19 @@ for enob in [8, 10, 12, 14, 16]:
     print(f"  [ENOB = {enob:6.2f} bit] -> [SNDR = {sndr:6.2f} dB] -> [ENOB = {enob_back:6.2f} bit]")
 
 # 9a. SNDR -> NSD -> SNDR
-print("\n[9a. SNDR -> NSD -> SNDR (Fs=800MHz, Signal=0dBFS)]")
+print("\n[9a. SNDR -> NSD -> SNDR (Fs=800MHz, OSR=1)]")
 fs = 800e6
-signal_pwr_dbfs = 0
+osr = 1
 for sndr in [60, 70, 80, 90, 100]:
-    nsd = snr_to_nsd(sndr, fs, signal_pwr_dbfs)
-    sndr_back = nsd_to_snr(nsd, fs, signal_pwr_dbfs)
+    nsd = snr_to_nsd(sndr, fs, osr)
+    sndr_back = nsd_to_snr(nsd, fs, osr)
     print(f"  [SNDR = {sndr:5.1f} dB] -> [NSD = {nsd:7.2f} dBFS/Hz] -> [SNDR = {sndr_back:5.2f} dB]")
 
 # 9b. NSD -> SNDR -> NSD
-print("\n[9b. NSD -> SNDR -> NSD (Fs=800MHz, Signal=0dBFS)]")
+print("\n[9b. NSD -> SNDR -> NSD (Fs=800MHz, OSR=1)]")
 for nsd in [-170, -165, -160, -155, -150]:
-    sndr = nsd_to_snr(nsd, fs, signal_pwr_dbfs)
-    nsd_back = snr_to_nsd(sndr, fs, signal_pwr_dbfs)
+    sndr = nsd_to_snr(nsd, fs, osr)
+    nsd_back = snr_to_nsd(sndr, fs, osr)
     print(f"  [NSD = {nsd:4d} dBFS/Hz] -> [SNDR = {sndr:6.2f} dB] -> [NSD = {nsd_back:7.2f} dBFS/Hz]")
 
 print(f"\n[Example complete]")

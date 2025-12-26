@@ -59,9 +59,18 @@ from .fundamentals import (
     enob_to_snr,
     snr_to_nsd,
     nsd_to_snr,
+    lsb_to_volts,
+    volts_to_lsb,
+    dbm_to_vrms,
+    vrms_to_dbm,
+    dbm_to_mw,
+    mw_to_dbm,
+    sine_amplitude_to_power,
     fit_sine_4param,
     calculate_walden_fom,
     calculate_schreier_fom,
+    calculate_thermal_noise_limit,
+    calculate_jitter_limit,
 )
 
 _export('find_coherent_frequency', find_coherent_frequency)
@@ -80,8 +89,17 @@ _export('enob_to_snr', enob_to_snr)
 _export('snr_to_nsd', snr_to_nsd)
 _export('nsd_to_snr', nsd_to_snr)
 _export('fit_sine_4param', fit_sine_4param)
+_export('lsb_to_volts', lsb_to_volts)
+_export('volts_to_lsb', volts_to_lsb)
+_export('dbm_to_vrms', dbm_to_vrms)
+_export('vrms_to_dbm', vrms_to_dbm)
+_export('dbm_to_mw', dbm_to_mw)
+_export('mw_to_dbm', mw_to_dbm)
+_export('sine_amplitude_to_power', sine_amplitude_to_power)
 _export('calculate_walden_fom', calculate_walden_fom)
 _export('calculate_schreier_fom', calculate_schreier_fom)
+_export('calculate_thermal_noise_limit', calculate_thermal_noise_limit)
+_export('calculate_jitter_limit', calculate_jitter_limit)
 
 # ======================================================================
 # Spectrum Analysis Functions
