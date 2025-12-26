@@ -458,6 +458,13 @@ noi_exclude = sum(spec_noise(1:n_inband));
 if(nfmethod == 0)
     % Auto: median of all methods
     noi = median([noi_median, noi_mean, noi_exclude]);
+    % Warn if results differ significantly (>25% or ~1dB)
+    noi_all = [noi_median, noi_mean, noi_exclude];
+    if max(noi_all) / min(noi_all) > 1.25
+        warning('plotspec:irregularNoiseFloor', ...
+            'Noise floor estimation methods differ by >1dB (%.1f dB). The noise floor may be irregular. Consider manually selecting NFMethod (''median'', ''mean'', or ''exclude'').', ...
+            10*log10(max(noi_all) / min(noi_all)));
+    end
 elseif(nfmethod == 1)
     noi = noi_median;
 elseif(nfmethod == 2)
