@@ -19,7 +19,6 @@ All examples in `03_generate_signals` demonstrate various signal generation capa
 **Total Test Cases**: 40 different signal conditions analyzed
 
 
----
 
 exp_g01_generate_signal_demo.py
 -------------------------------
@@ -56,7 +55,6 @@ exp_g01_generate_signal_demo.py
    Impact of thermal noise on spectrum and signal quality
 
 
----
 
 exp_g03_sweep_quant_bits.py
 ---------------------------
@@ -89,7 +87,6 @@ exp_g03_sweep_quant_bits.py
    SNR degradation due to quantization noise (2-16 bit resolution sweep)
 
 
----
 
 exp_g04_sweep_jitter_fin.py
 ---------------------------
@@ -114,7 +111,6 @@ exp_g04_sweep_jitter_fin.py
    
    [Save fig] -> [D:\ADCToolbox\python\src\adctoolbox\examples\03_generate_signals\output\exp_g04_sweep_jitter_fin.png]
 
----
 
 exp_g05_sweep_static_nonlin.py
 ------------------------------
@@ -133,7 +129,6 @@ exp_g05_sweep_static_nonlin.py
    
    [Save figure] -> [D:\ADCToolbox\python\src\adctoolbox\examples\03_generate_signals\output\exp_g05_sweep_nonlinear_sign_fixed.png]
 
----
 
 exp_g06_sweep_dynamic_nonlin.py
 -------------------------------
@@ -158,7 +153,6 @@ exp_g06_sweep_dynamic_nonlin.py
    
    [Save figure] -> D:\ADCToolbox\python\src\adctoolbox\examples\03_generate_signals\output\exp_g06_sweep_dynamic_nonlinearity.png
 
----
 
 exp_g07_sweep_interferences.py
 ------------------------------
@@ -184,7 +178,6 @@ exp_g07_sweep_interferences.py
    
    [Save figure] -> [D:\ADCToolbox\python\src\adctoolbox\examples\03_generate_signals\output\exp_g07_sweep_interferences.png]
 
----
 
 
 ---
