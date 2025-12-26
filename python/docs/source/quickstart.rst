@@ -144,18 +144,21 @@ Download all examples in one command:
 
 .. code-block:: bash
 
-    cd /path/to/your/workspace
+    mkdir adc_workspace # Prepare a workspace directory
+    cd adc_workspace    # Move into the workspace
+
     adctoolbox-get-examples
 
 Run your first examples:
 
 .. code-block:: bash
-    
-    cd adctoolbox_examples
-    python 01_basic/exp_b01_environment_check.py    
-    python 02_spectrum/exp_s01_analyze_spectrum_simplest.py
-    python 02_spectrum/exp_s02_analyze_spectrum_interactive.py
 
+    python adctoolbox_examples/01_basic/exp_b01_environment_check.py
+
+    python adctoolbox_examples/02_spectrum/exp_s01_analyze_spectrum_simplest.py
+
+    python adctoolbox_examples/02_spectrum/exp_s02_analyze_spectrum_interactive.py
+    
 All outputs are saved to the ``output/`` directory within each category.
 
 Please refer to the :doc:`examples/index` for detailed instructions and expected outputs.

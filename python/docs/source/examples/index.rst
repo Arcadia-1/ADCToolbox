@@ -20,6 +20,7 @@ Running Examples
 Navigate to the examples directory and run any example. Examples are organized by category:
 
 .. code-block:: bash
+    
     cd adctoolbox_examples
     python 01_basic/exp_b01_environment_check.py
     python 02_spectrum/exp_s01_analyze_spectrum_simplest.py
