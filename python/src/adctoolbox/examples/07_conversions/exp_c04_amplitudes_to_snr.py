@@ -47,7 +47,7 @@ ax.legend(fontsize=9, loc='upper right')
 ax.set_ylim([30, 120])
 
 plt.tight_layout()
-fig_path = output_dir / 'exp_c05_snr_calculations.png'
+fig_path = output_dir / 'exp_c04_snr_calculations.png'
 plt.savefig(fig_path, dpi=150, bbox_inches='tight')
 print(f"[Figure saved] -> {fig_path.resolve()}")
 plt.close()
