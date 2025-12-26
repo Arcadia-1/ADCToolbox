@@ -21,7 +21,7 @@ hd3_dB = -80
 
 snr_ref = amplitudes_to_snr(sig_amplitude=A, noise_amplitude=noise_rms)
 nsd_ref = snr_to_nsd(snr_ref, fs=Fs, osr=1)
-print(f"[Parameters] Fs=[{Fs/1e6:.2f} MHz], A=[{A:.3f} Vpeak]")
+print(f"[Sinewave] Fs=[{Fs/1e6:.2f} MHz], A=[{A:.3f} Vpeak]")
 print(f"[Nonideal] HD2=[{hd2_dB} dB], HD3=[{hd3_dB} dB], Noise RMS=[{noise_rms*1e6:.2f} uVrms], Theoretical SNR=[{snr_ref:.2f} dB], Theoretical NSD=[{nsd_ref:.2f} dBFS/Hz]\n")
 
 # Compute nonlinearity coefficients to achieve target HD levels

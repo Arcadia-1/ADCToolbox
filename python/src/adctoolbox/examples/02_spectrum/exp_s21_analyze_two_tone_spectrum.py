@@ -30,7 +30,7 @@ nsd_ref = snr_to_nsd(snr_ref, fs=Fs)
 
 print(f"[Sinewave] Fs=[{Fs/1e6:.1f} MHz], F1=[{F1/1e6:.2f} MHz] (Bin/N={bin_F1}/{N_fft}), F2=[{F2/1e6:.2f} MHz] (Bin/N={bin_F2}/{N_fft})")
 print(f"[Sinewave] A1=[{A1:.3f} Vpeak], A2=[{A2:.3f} Vpeak]")
-print(f"[Noise] RMS=[{noise_rms*1e6:.2f} uVrms], Theoretical SNR=[{snr_ref:.2f} dB], Theoretical NSD=[{nsd_ref:.2f} dBFS/Hz]\n")
+print(f"[Nonideal] Noise RMS=[{noise_rms*1e6:.2f} uVrms], Theoretical SNR=[{snr_ref:.2f} dB], Theoretical NSD=[{nsd_ref:.2f} dBFS/Hz]\n")
 
 t = np.arange(N_fft) / Fs
 

@@ -50,7 +50,7 @@ nsd_ref = snr_to_nsd(snr_ref, fs=Fs)
 
 print(f"[Sinewave] Fs=[{Fs/1e6:.1f} MHz], F1=[{F1/1e6:.6f} MHz] (Bin {bin_F1}), F2=[{F2/1e6:.6f} MHz] (Bin {bin_F2}), N=[{N_fft}]")
 print(f"[Sinewave] A1=[{A1:.3f} Vpeak], A2=[{A2:.3f} Vpeak]")
-print(f"[Noise] RMS=[{noise_rms*1e6:.2f} uVrms], Theoretical SNR=[{snr_ref:.2f} dB], Theoretical NSD=[{nsd_ref:.2f} dBFS/Hz]")
+print(f"[Nonideal] Noise RMS=[{noise_rms*1e6:.2f} uVrms], Theoretical SNR=[{snr_ref:.2f} dB], Theoretical NSD=[{nsd_ref:.2f} dBFS/Hz]")
 
 # Add weak nonlinearity to generate IMD products
 k2 = 0.0001
@@ -106,7 +106,6 @@ for idx, N_run in enumerate(N_runs):
     print(f"[{N_run:3d} Run(s)] Coherent Avg: ENoB={result_coh['enob']:5.2f}b, SNR={result_coh['snr_db']:6.2f}dB, IMD2={result_coh['imd2_db']:6.2f}dB, IMD3={result_coh['imd3_db']:6.2f}dB")
 
 print()
-print("=" * 80)
 
 # Add overall title
 fig.suptitle(f'Two-Tone Spectrum Averaging: Power vs Coherent Comparison (N_fft = {N_fft})',

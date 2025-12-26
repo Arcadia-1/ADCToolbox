@@ -28,8 +28,8 @@ base_noise = 50e-6
 
 snr_ref = amplitudes_to_snr(sig_amplitude=A, noise_amplitude=base_noise)
 nsd_ref = snr_to_nsd(snr_ref, fs=Fs, osr=1)
-print(f"[Signal] Fs=[{Fs/1e6:.0f} MHz], N=[{N}], A=[{A:.3f} Vpeak]")
-print(f"[Base Noise] RMS=[{base_noise*1e6:.2f} uVrms], Theoretical SNR=[{snr_ref:.2f} dB], Theoretical NSD=[{nsd_ref:.2f} dBFS/Hz]\n")
+print(f"[Sinewave] Fs=[{Fs/1e6:.0f} MHz], N=[{N}], A=[{A:.3f} Vpeak]")
+print(f"[Nonideal] Noise RMS=[{base_noise*1e6:.2f} uVrms], Theoretical SNR=[{snr_ref:.2f} dB], Theoretical NSD=[{nsd_ref:.2f} dBFS/Hz]\n")
 
 # Create 2x3 subplot grid with polar projection
 fig, axes = plt.subplots(2, 3, figsize=(18, 12), subplot_kw={'projection': 'polar'})
@@ -131,7 +131,6 @@ for col_idx, Fin_target in enumerate(Fin_targets):
     print(f"[Fin={Fin/1e6:5.0f}MHz, ME={memory_effect_strength}] sndr={result['sndr_db']:5.2f}dB, snr={result['snr_db']:5.2f}dB, thd={result['thd_db']:6.2f}dB")
 
 print()
-print("=" * 80)
 
 plt.tight_layout()
 

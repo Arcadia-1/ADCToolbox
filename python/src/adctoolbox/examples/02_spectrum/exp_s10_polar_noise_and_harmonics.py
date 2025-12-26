@@ -83,7 +83,6 @@ axes[1].set_title(f'HD2={hd2_dB}dB, HD3={hd3_dB}dB, k3<0\n(Thermal Noise: 500 uV
 print(f"[HD2={hd2_dB}dB, HD3={hd3_dB}dB, k3<0] SNDR={result_hd['sndr_db']:.2f}dB, THD={result_hd['thd_db']:.2f}dB, HD2={result_hd['hd2_db']:.2f}dB, HD3={result_hd['hd3_db']:.2f}dB")
 
 print()
-print("=" * 80)
 
 plt.tight_layout()
 fig_path = output_dir / 'exp_s10_polar_noise_and_harmonics.png'
