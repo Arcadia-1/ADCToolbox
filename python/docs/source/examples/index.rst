@@ -96,6 +96,20 @@ Each example includes:
 * Output to ``output/`` subdirectory
 * Descriptive plot filenames
 
+Expected Console Outputs
+------------------------
+
+For reference, the expected console output from each example category is documented:
+
+* :doc:`example_print_02_spectrum` - Spectrum analysis examples (14 examples)
+* :doc:`example_print_03_generate_signals` - Signal generation examples (6 examples)
+* :doc:`example_print_04_debug_analog` - Analog output analysis examples (15 examples)
+* :doc:`example_print_05_debug_digital` - Digital output analysis examples (7 examples)
+* :doc:`example_print_06_use_toolsets` - Comprehensive dashboard examples (4 examples)
+* :doc:`example_print_07_calculate_metric` - Metric calculation examples (5 examples)
+
+These documentation files show the exact console output and validation results you should expect when running each example.
+
 Example Template
 ----------------
 
