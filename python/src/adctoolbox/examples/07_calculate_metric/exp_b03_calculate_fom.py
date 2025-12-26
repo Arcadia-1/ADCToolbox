@@ -5,7 +5,7 @@ Shows Walden FOM, Schreier FOM, jitter-limited SNR, and thermal noise-limited SN
 
 import numpy as np
 import matplotlib.pyplot as plt
-from adctoolbox.common import (
+from adctoolbox.fundamentals import (
     calculate_walden_fom, calculate_schreier_fom,
     calculate_thermal_noise_limit, calculate_jitter_limit
 )
