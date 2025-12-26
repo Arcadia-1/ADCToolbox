@@ -6,7 +6,7 @@ Comprehensive toolbox for ADC characterization, calibration, and performance ana
 [![Documentation](https://github.com/Arcadia-1/ADCToolbox/actions/workflows/docs.yml/badge.svg)](https://arcadia-1.github.io/ADCToolbox/)
 [![PyPI version](https://badge.fury.io/py/adctoolbox.svg)](https://badge.fury.io/py/adctoolbox)
 [![PyPI - Downloads](https://img.shields.io/pypi/dm/adctoolbox)](https://pypi.org/project/adctoolbox/)
-[![Python 3.8+](https://img.shields.io/badge/python-3.8+-blue.svg)](https://www.python.org/downloads/)
+[![Python 3.10+](https://img.shields.io/badge/python-3.10+-blue.svg)](https://www.python.org/downloads/)
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
 [![GitHub stars](https://img.shields.io/github/stars/Arcadia-1/ADCToolbox?style=social)](https://github.com/Arcadia-1/ADCToolbox/stargazers)
 
@@ -268,10 +268,10 @@ print(f"Theoretical SNR: {snr_theory:.2f} dB")
 
 ## Requirements
 
-- Python >= 3.8
-- NumPy >= 1.20.0
-- Matplotlib >= 3.3.0
-- SciPy >= 1.6.0
+- Python >= 3.10
+- NumPy >= 1.23.0
+- Matplotlib >= 3.6.0
+- SciPy >= 1.9.0
 
 ## Citation
 
