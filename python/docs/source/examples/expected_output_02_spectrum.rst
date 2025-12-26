@@ -74,13 +74,15 @@ exp_s03_analyze_spectrum_savefig.py
    
    [Save fig] -> [D:\ADCToolbox\python\src\adctoolbox\examples\02_spectrum\output\exp_s03_analyze_spectrum_savefig.png]
 
+
+
+
 .. figure:: figures/exp_s03_analyze_spectrum_savefig.png
    :alt: Basic spectrum analysis
    :align: center
    :width: 600px
 
    Basic FFT spectrum analysis with all key metrics
-
 
 
 exp_s04_sweep_dynamic_range.py
@@ -107,18 +109,20 @@ exp_s04_sweep_dynamic_range.py
    
    [Save fig] -> [D:\ADCToolbox\python\src\adctoolbox\examples\02_spectrum\output\exp_s04_sweep_dynamic_range.png]
 
-.. figure:: figures/exp_s04_sweep_dynamic_range.png
-   :alt: Dynamic range sweep
-   :align: center
-   :width: 600px
-
-   FFT metrics across input signal amplitudes (dynamic range sweep)
 
    
    ================================================================================
    SUMMARY: Dynamic Range Analysis
    ================================================================================
    Dynamic Range: -71.1 dBFS (SNR=0dB) to 0.0 dBFS (max) = 71.1 dB
+
+
+.. figure:: figures/exp_s04_sweep_dynamic_range.png
+   :alt: Dynamic range sweep
+   :align: center
+   :width: 600px
+
+   FFT metrics across input signal amplitudes (dynamic range sweep)
 
 
 exp_s05_annotating_spur.py
@@ -141,13 +145,15 @@ exp_s05_annotating_spur.py
    
    [Save fig] -> [D:\ADCToolbox\python\src\adctoolbox\examples\02_spectrum\output\exp_s05_annotating_spur.png]
 
+
+
+
 .. figure:: figures/exp_s05_annotating_spur.png
    :alt: Spur annotation
    :align: center
    :width: 600px
 
    Spectrum with annotated fundamental, harmonics, and spurs
-
 
 
 exp_s06_sweeping_fft_and_osr.py
@@ -221,12 +227,6 @@ exp_s07_spectrum_averaging.py
    
    [Save fig] -> [D:\ADCToolbox\python\src\adctoolbox\examples\02_spectrum\output\exp_s07_spectrum_averaging.png]
 
-.. figure:: figures/exp_s07_spectrum_averaging.png
-   :alt: Spectrum averaging comparison
-   :align: center
-   :width: 600px
-
-   Power averaging vs coherent averaging for noise reduction
 
    
    ================================================================================
@@ -262,6 +262,14 @@ exp_s07_spectrum_averaging.py
       - With Coherent Averaging: Only need 100 runs (100x more efficient)
 
 
+.. figure:: figures/exp_s07_spectrum_averaging.png
+   :alt: Spectrum averaging comparison
+   :align: center
+   :width: 600px
+
+   Power averaging vs coherent averaging for noise reduction
+
+
 exp_s08_windowing_deep_dive.py
 ------------------------------
 
@@ -288,12 +296,6 @@ exp_s08_windowing_deep_dive.py
    
    [Save fig 1/3] -> [D:\ADCToolbox\python\src\adctoolbox\examples\02_spectrum\output\exp_s08_windowing_1_leakage.png]
 
-.. figure:: figures/exp_s08_windowing_1_leakage.png
-   :alt: Window function comparison - spectral leakage
-   :align: center
-   :width: 600px
-
-   Comparing spectral leakage across different window functions
 
    
    ================================================================================
@@ -346,6 +348,14 @@ exp_s08_windowing_deep_dive.py
 **Note**: Kaiser window shows SNR=150dB in short FFT scenario - this is a known edge case with very short FFT and wide windows.
 
 
+.. figure:: figures/exp_s08_windowing_1_leakage.png
+   :alt: Window function comparison - spectral leakage
+   :align: center
+   :width: 600px
+
+   Comparing spectral leakage across different window functions
+
+
 exp_s10_polar_noise_and_harmonics.py
 ------------------------------------
 
@@ -368,13 +378,15 @@ exp_s10_polar_noise_and_harmonics.py
    
    [Save fig] -> [D:\ADCToolbox\python\src\adctoolbox\examples\02_spectrum\output\exp_s10_polar_noise_and_harmonics.png]
 
+
+
+
 .. figure:: figures/exp_s10_polar_noise_and_harmonics.png
    :alt: Polar spectrum - noise vs harmonics
    :align: center
    :width: 600px
 
    Polar spectrum comparing thermal noise and harmonic distortion
-
 
 
 exp_s11_polar_memory_effect.py
@@ -427,6 +439,16 @@ exp_s12_polar_coherent_averaging.py
    [Save fig] -> [D:\ADCToolbox\python\src\adctoolbox\examples\02_spectrum\output\exp_s12_polar_coherent_averaging.png]
 
 
+
+
+.. figure:: figures/exp_s12_polar_coherent_averaging.png
+   :alt: Polar spectrum - coherent averaging improvement
+   :align: center
+   :width: 600px
+
+   Polar spectrum demonstrating coherent averaging improvement
+
+
 exp_s21_analyze_two_tone_spectrum.py
 ------------------------------------
 
@@ -441,6 +463,16 @@ exp_s21_analyze_two_tone_spectrum.py
    [two_tone] ENoB=[12.00 b], SNDR=[ 73.98 dB], SFDR=[ 96.63 dB], SNR=[ 74.01 dB], IMD2=[103.51 dB], IMD3=[ 98.97 dB]
    
    [Save fig] -> [D:\ADCToolbox\python\src\adctoolbox\examples\02_spectrum\output\exp_s21_analyze_two_tone_spectrum.png]
+
+
+
+
+.. figure:: figures/exp_s21_analyze_two_tone_spectrum.png
+   :alt: Two-tone spectrum analysis with IMD
+   :align: center
+   :width: 600px
+
+   Two-tone spectrum showing fundamental tones and IMD products
 
 
 exp_s22_two_tone_imd_comparison.py
@@ -458,6 +490,16 @@ exp_s22_two_tone_imd_comparison.py
    [Strong Nonlinearity ] IMD2=[ 86.83 dB], IMD3=[ 82.67 dB], SFDR=[ 87.69 dB], SNDR=[ 77.02 dB]
    
    [Save fig] -> [D:\ADCToolbox\python\src\adctoolbox\examples\02_spectrum\output\exp_s22_two_tone_imd_comparison.png]
+
+
+
+
+.. figure:: figures/exp_s22_two_tone_imd_comparison.png
+   :alt: Two-tone IMD comparison
+   :align: center
+   :width: 600px
+
+   Comparing IMD products with weak vs strong nonlinearity
 
 
 exp_s23_two_tone_spectrum_averaging.py
