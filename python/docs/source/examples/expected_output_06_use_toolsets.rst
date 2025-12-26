@@ -1,7 +1,7 @@
-Example Print Outputs: 06_use_toolsets
+Expected Output: 06_use_toolsets
 ======================================
 
-This document records the console output from all examples in `python/src/adctoolbox/examples/06_use_toolsets/`.
+This document shows the expected console output and example figures from all examples in `python/src/adctoolbox/examples/06_use_toolsets/`.
 
 Summary
 -------
