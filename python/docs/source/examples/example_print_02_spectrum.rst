@@ -83,6 +83,14 @@ exp_s03_analyze_spectrum_savefig.py
    
    [Save fig] -> [D:\ADCToolbox\python\src\adctoolbox\examples\02_spectrum\output\exp_s03_analyze_spectrum_savefig.png]
 
+.. figure:: figures/exp_s03_analyze_spectrum_savefig.png
+   :alt: Basic spectrum analysis
+   :align: center
+   :width: 600px
+
+   Basic FFT spectrum analysis with all key metrics
+
+
 ---
 
 exp_s04_sweep_dynamic_range.py
@@ -108,6 +116,14 @@ exp_s04_sweep_dynamic_range.py
    [A=   0.0 dBFS] SNR=[ 70.86 dB] (Theory: 71.0 dB), Noise Floor=[ -70.86 dBFS]
    
    [Save fig] -> [D:\ADCToolbox\python\src\adctoolbox\examples\02_spectrum\output\exp_s04_sweep_dynamic_range.png]
+
+.. figure:: figures/exp_s04_sweep_dynamic_range.png
+   :alt: Dynamic range sweep
+   :align: center
+   :width: 600px
+
+   FFT metrics across input signal amplitudes (dynamic range sweep)
+
    
    ================================================================================
    SUMMARY: Dynamic Range Analysis
@@ -135,6 +151,14 @@ exp_s05_annotating_spur.py
    
    
    [Save fig] -> [D:\ADCToolbox\python\src\adctoolbox\examples\02_spectrum\output\exp_s05_annotating_spur.png]
+
+.. figure:: figures/exp_s05_annotating_spur.png
+   :alt: Spur annotation
+   :align: center
+   :width: 600px
+
+   Spectrum with annotated fundamental, harmonics, and spurs
+
 
 ---
 
@@ -209,6 +233,14 @@ exp_s07_spectrum_averaging.py
    [100 Run(s)] Power Avg: ENoB=[11.49 b], SNR=[ 70.97 dB] | Coherent Avg: ENoB=[14.05 b], SNR=[ 89.21 dB]
    
    [Save fig] -> [D:\ADCToolbox\python\src\adctoolbox\examples\02_spectrum\output\exp_s07_spectrum_averaging.png]
+
+.. figure:: figures/exp_s07_spectrum_averaging.png
+   :alt: Spectrum averaging comparison
+   :align: center
+   :width: 600px
+
+   Power averaging vs coherent averaging for noise reduction
+
    
    ================================================================================
    PERFORMANCE ANALYSIS: Statistical Gain
@@ -269,6 +301,14 @@ exp_s08_windowing_deep_dive.py
    Rectangular (no window)        2.27      15.43      11.18     15.43         -92.11
    
    [Save fig 1/3] -> [D:\ADCToolbox\python\src\adctoolbox\examples\02_spectrum\output\exp_s08_windowing_1_leakage.png]
+
+.. figure:: figures/exp_s08_windowing_1_leakage.png
+   :alt: Window function comparison - spectral leakage
+   :align: center
+   :width: 600px
+
+   Comparing spectral leakage across different window functions
+
    
    ================================================================================
    SCENARIO 2: COHERENT SAMPLING (NO LEAKAGE)
@@ -342,6 +382,14 @@ exp_s10_polar_noise_and_harmonics.py
    
    
    [Save fig] -> [D:\ADCToolbox\python\src\adctoolbox\examples\02_spectrum\output\exp_s10_polar_noise_and_harmonics.png]
+
+.. figure:: figures/exp_s10_polar_noise_and_harmonics.png
+   :alt: Polar spectrum - noise vs harmonics
+   :align: center
+   :width: 600px
+
+   Polar spectrum comparing thermal noise and harmonic distortion
+
 
 ---
 
