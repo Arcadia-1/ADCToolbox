@@ -3,16 +3,10 @@
 Each subplot demonstrates one specific non-ideality type.
 """
 
-import time
-t_start = time.perf_counter()
-
 import matplotlib.pyplot as plt
 from pathlib import Path
 from adctoolbox import find_coherent_frequency, analyze_spectrum
 from adctoolbox.siggen import ADC_Signal_Generator
-
-t_import = time.perf_counter() - t_start
-t_prep_start = time.perf_counter()
 
 output_dir = Path(__file__).parent / "output"
 output_dir.mkdir(exist_ok=True)
@@ -86,10 +80,6 @@ print("=" * 95)
 print(f"{'Exp':<4} | {'Non-Ideality':<35} | {'SFDR (dB)':<10} | {'THD (dB)':<10}")
 print("-" * 95)
 
-t_prep = time.perf_counter() - t_prep_start
-t_loop_start = time.perf_counter()
-
-t_tool_total = 0.0
 # Run Experiments
 for idx, exp in enumerate(EXPERIMENTS):
 
@@ -120,19 +110,13 @@ for idx, exp in enumerate(EXPERIMENTS):
 
     # Spectrum analysis
     plt.sca(axes[idx])
-    
-    t_tool_start = time.perf_counter()
     result = analyze_spectrum(signal, fs=Fs)
-    t_tool_total += time.perf_counter() - t_tool_start
 
     axes[idx].set_title(exp['title'], fontsize=11, fontweight='bold')
     axes[idx].set_ylim([-140, 0])
 
     print(f"{idx+1:<4} | {exp['title']:<35} | "
           f"{result['sfdr_db']:<10.2f} | {result['thd_db']:<10.2f}")
-
-t_loop = time.perf_counter() - t_loop_start
-t_fig_start = time.perf_counter()
 
 # Finalize
 plt.suptitle(
@@ -146,20 +130,6 @@ plt.tight_layout()
 plt.subplots_adjust(top=0.90)
 
 fig_path = output_dir / "exp_g06_sweep_dynamic_nonlinearity.png"
-print(f"\n[Save figure] -> {fig_path}")
+print(f"\n[Save figure] -> {fig_path}\n")
 plt.savefig(fig_path, dpi=300, bbox_inches='tight')
 plt.close()
-
-t_fig = time.perf_counter() - t_fig_start
-t_total = time.perf_counter() - t_start
-
-print(f"\n{'='*60}")
-print(f"Timing Report:")
-print(f"{'='*60}")
-print(f"  Import time:      {t_import*1000:7.2f} ms")
-print(f"  Preparation time: {t_prep*1000:7.2f} ms")
-print(f"  Core tool time:   {t_tool_total*1000:7.2f} ms  (analyze_spectrum x8)")
-print(f"  Main loop time:   {t_loop*1000:7.2f} ms")
-print(f"  Figure time:      {t_fig*1000:7.2f} ms")
-print(f"  Total runtime:    {t_total*1000:7.2f} ms")
-print(f"{'='*60}\n")

@@ -3,16 +3,10 @@
 Demonstrates INL-induced harmonic generation in ADC spectrum.
 """
 
-import time
-t_start = time.perf_counter()
-
 import matplotlib.pyplot as plt
 from pathlib import Path
 from adctoolbox import find_coherent_frequency, analyze_spectrum 
 from adctoolbox.siggen import ADC_Signal_Generator 
-
-t_import = time.perf_counter() - t_start
-t_prep_start = time.perf_counter()
 
 # Setup
 output_dir = Path(__file__).parent / "output"
@@ -59,10 +53,6 @@ print("=" * 80)
 print(f"{'Case Title':<20} | {'SFDR (dB)':<10} | {'THD (dB)':<10} | {'HD2 (Meas)':<12} | {'HD3 (Meas)':<12}")
 print("-" * 80)
 
-t_prep = time.perf_counter() - t_prep_start
-t_loop_start = time.perf_counter()
-
-t_tool_total = 0.0
 # Run Sweep
 for idx, config in enumerate(cases):
     
@@ -75,17 +65,10 @@ for idx, config in enumerate(cases):
     signal = gen.apply_thermal_noise(sig_nonlinear, noise_rms=base_noise)
     
     plt.sca(axes[idx])
-    
-    t_tool_start = time.perf_counter()
     result = analyze_spectrum(signal, fs=Fs)
-    t_tool_total += time.perf_counter() - t_tool_start
-    
     axes[idx].set_title(config['title'], fontsize=11, fontweight='bold')
         
     print(f"{config['title']:<20} | {result['sfdr_db']:<10.2f} | {result['thd_db']:<10.2f} | {result['hd2_db']:<12.2f} | {result['hd3_db']:<12.2f}")
-
-t_loop = time.perf_counter() - t_loop_start
-t_fig_start = time.perf_counter()
 
 # Finalize
 plt.suptitle(f'Static Nonlinearity Sweep: HD2/HD3 Sign Analysis\n|HD2|={HD2_TARGET_DB}dBc, |HD3|={HD3_TARGET_DB}dBc', 
@@ -96,18 +79,4 @@ fig_path = output_dir / "exp_g05_sweep_nonlinear_sign_fixed.png"
 plt.savefig(fig_path, dpi=300, bbox_inches='tight')
 plt.close()
 
-print(f"\n[Save figure] -> [{fig_path}]")
-
-t_fig = time.perf_counter() - t_fig_start
-t_total = time.perf_counter() - t_start
-
-print(f"\n{'='*60}")
-print(f"Timing Report:")
-print(f"{'='*60}")
-print(f"  Import time:      {t_import*1000:7.2f} ms")
-print(f"  Preparation time: {t_prep*1000:7.2f} ms")
-print(f"  Core tool time:   {t_tool_total*1000:7.2f} ms  (analyze_spectrum x4)")
-print(f"  Main loop time:   {t_loop*1000:7.2f} ms")
-print(f"  Figure time:      {t_fig*1000:7.2f} ms")
-print(f"  Total runtime:    {t_total*1000:7.2f} ms")
-print(f"{'='*60}\n")
+print(f"\n[Save figure] -> [{fig_path}]\n")
