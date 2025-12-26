@@ -43,7 +43,6 @@ All examples in `06_use_toolsets` demonstrate comprehensive dashboard generation
 - 7 digital configuration types analyzed
 
 
----
 
 exp_t01_aout_dashboard_single.py
 --------------------------------
@@ -56,7 +55,6 @@ exp_t01_aout_dashboard_single.py
    [Config] Signal: A=0.490 V, DC=0.500 V, Noise RMS=50.00 uVrms
    [Dashboard saved] -> D:\ADCToolbox\python\src\adctoolbox\examples\06_use_toolsets\output\exp_t01_aout_dashboard.png
 
----
 
 exp_t02_aout_dashboard_batch.py
 -------------------------------
@@ -150,7 +148,6 @@ exp_t02_aout_dashboard_batch.py
 
    RA Dynamic Gain: Residue amplifier dynamic gain variation
 
----
 
 exp_t03_dout_dashboard_single.py
 --------------------------------
@@ -163,7 +160,6 @@ exp_t03_dout_dashboard_single.py
    [Config] Signal: A=0.490, DC=0.500
    [Dashboard saved] -> D:\ADCToolbox\python\src\adctoolbox\examples\06_use_toolsets\output\exp_t03_dout_dashboard.png
 
----
 
 exp_t04_dout_dashboard_batch.py
 -------------------------------

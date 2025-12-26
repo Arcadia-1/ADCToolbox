@@ -22,7 +22,6 @@ All examples in `05_debug_digital` demonstrate digital output analysis capabilit
 - Overflow detection
 
 
----
 
 exp_d01_cal_weight_sine_lite.py
 -------------------------------
@@ -52,7 +51,6 @@ exp_d01_cal_weight_sine_lite.py
    
    [Save fig] -> [D:\ADCToolbox\python\src\adctoolbox\examples\05_debug_digital\output\exp_d01_cal_weight_sine_lite.png]
 
----
 
 exp_d02_cal_weight_sine.py
 --------------------------
@@ -70,7 +68,6 @@ exp_d02_cal_weight_sine.py
    [Save fig] -> [D:\ADCToolbox\python\src\adctoolbox\examples\05_debug_digital\output\exp_d02_cal_weight_sine.png]
    [Save fig] -> [D:\ADCToolbox\python\src\adctoolbox\examples\05_debug_digital\output\exp_d02_weight_error_comparison.png]
 
----
 
 exp_d03_redundancy_comparison.py
 --------------------------------
@@ -87,7 +84,6 @@ exp_d03_redundancy_comparison.py
    [Save fig] -> [D:\ADCToolbox\python\src\adctoolbox\examples\05_debug_digital\output\exp_d03_redundancy_comparison.png]
    [Save fig] -> [D:\ADCToolbox\python\src\adctoolbox\examples\05_debug_digital\output\exp_d03_weight_error_comparison.png]
 
----
 
 exp_d11_bit_activity.py
 -----------------------
@@ -103,7 +99,6 @@ exp_d11_bit_activity.py
    
    [Save fig] -> [D:\ADCToolbox\python\src\adctoolbox\examples\05_debug_digital\output\exp_d11_bit_activity.png]
 
----
 
 exp_d12_sweep_bit_enob.py
 -------------------------
@@ -117,7 +112,6 @@ exp_d12_sweep_bit_enob.py
    
    [Save fig] -> [D:\ADCToolbox\python\src\adctoolbox\examples\05_debug_digital\output\exp_d12_sweep_bit_enob.png]
 
----
 
 exp_d13_weight_scaling.py
 -------------------------
@@ -131,7 +125,6 @@ exp_d13_weight_scaling.py
    
    [Save fig] -> [D:\ADCToolbox\python\src\adctoolbox\examples\05_debug_digital\output\exp_d13_weight_scaling.png]
 
----
 
 exp_d14_overflow_check.py
 -------------------------

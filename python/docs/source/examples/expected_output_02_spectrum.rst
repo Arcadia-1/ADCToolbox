@@ -24,7 +24,6 @@ All examples in `02_spectrum` demonstrate spectrum analysis capabilities:
 **Total Examples**: 14
 
 
----
 
 exp_s01_analyze_spectrum_simplest.py
 ------------------------------------
@@ -37,7 +36,6 @@ exp_s01_analyze_spectrum_simplest.py
    
    [analyze_spectrum] ENoB=[14.80 b], SNDR=[90.89 dB], SFDR=[115.33 dB], SNR=[90.90 dB], NSD=[-167.89 dBFS/Hz]
 
----
 
 exp_s02_analyze_spectrum_interactive.py
 ---------------------------------------
@@ -53,7 +51,6 @@ exp_s02_analyze_spectrum_interactive.py
    
    [Figure displayed - close the window to exit]
 
----
 
 exp_s03_analyze_spectrum_savefig.py
 -----------------------------------
@@ -85,7 +82,6 @@ exp_s03_analyze_spectrum_savefig.py
    Basic FFT spectrum analysis with all key metrics
 
 
----
 
 exp_s04_sweep_dynamic_range.py
 ------------------------------
@@ -124,7 +120,6 @@ exp_s04_sweep_dynamic_range.py
    ================================================================================
    Dynamic Range: -71.1 dBFS (SNR=0dB) to 0.0 dBFS (max) = 71.1 dB
 
----
 
 exp_s05_annotating_spur.py
 --------------------------
@@ -154,7 +149,6 @@ exp_s05_annotating_spur.py
    Spectrum with annotated fundamental, harmonics, and spurs
 
 
----
 
 exp_s06_sweeping_fft_and_osr.py
 -------------------------------
@@ -205,7 +199,6 @@ exp_s06_sweeping_fft_and_osr.py
       - For improving SNR: Increase OSR (if signal is narrowband)
       - For best results: Combine both (large N + appropriate OSR)
 
----
 
 exp_s07_spectrum_averaging.py
 -----------------------------
@@ -268,7 +261,6 @@ exp_s07_spectrum_averaging.py
         Would need to increase FFT length by ~66x (impractical!)
       - With Coherent Averaging: Only need 100 runs (100x more efficient)
 
----
 
 exp_s08_windowing_deep_dive.py
 ------------------------------
@@ -353,7 +345,6 @@ exp_s08_windowing_deep_dive.py
 
 **Note**: Kaiser window shows SNR=150dB in short FFT scenario - this is a known edge case with very short FFT and wide windows.
 
----
 
 exp_s10_polar_noise_and_harmonics.py
 ------------------------------------
@@ -385,7 +376,6 @@ exp_s10_polar_noise_and_harmonics.py
    Polar spectrum comparing thermal noise and harmonic distortion
 
 
----
 
 exp_s11_polar_memory_effect.py
 ------------------------------
@@ -416,7 +406,6 @@ exp_s11_polar_memory_effect.py
    
    [Save fig] -> [D:\ADCToolbox\python\src\adctoolbox\examples\02_spectrum\output\exp_s11_polar_memory_effect.png]
 
----
 
 exp_s12_polar_coherent_averaging.py
 -----------------------------------
@@ -437,7 +426,6 @@ exp_s12_polar_coherent_averaging.py
    
    [Save fig] -> [D:\ADCToolbox\python\src\adctoolbox\examples\02_spectrum\output\exp_s12_polar_coherent_averaging.png]
 
----
 
 exp_s21_analyze_two_tone_spectrum.py
 ------------------------------------
@@ -454,7 +442,6 @@ exp_s21_analyze_two_tone_spectrum.py
    
    [Save fig] -> [D:\ADCToolbox\python\src\adctoolbox\examples\02_spectrum\output\exp_s21_analyze_two_tone_spectrum.png]
 
----
 
 exp_s22_two_tone_imd_comparison.py
 ----------------------------------
@@ -472,7 +459,6 @@ exp_s22_two_tone_imd_comparison.py
    
    [Save fig] -> [D:\ADCToolbox\python\src\adctoolbox\examples\02_spectrum\output\exp_s22_two_tone_imd_comparison.png]
 
----
 
 exp_s23_two_tone_spectrum_averaging.py
 --------------------------------------

@@ -19,7 +19,6 @@ All examples in `04_debug_analog` demonstrate analog output analysis capabilitie
 - **Phase Plane**: exp_a41-a42 (standard and error phase plane)
 
 
----
 
 exp_a01_fit_sine_4param.py
 --------------------------
@@ -40,7 +39,6 @@ exp_a01_fit_sine_4param.py
    
    [Save fig] -> [D:\ADCToolbox\python\src\adctoolbox\examples\04_debug_analog\output\exp_a01_fit_sine_4param.png]
 
----
 
 exp_a02_analyze_error_by_value.py
 ---------------------------------
@@ -52,7 +50,6 @@ exp_a02_analyze_error_by_value.py
    [Config] Fs=800 MHz, Fin=10.12 MHz, N=8192
    [Save fig] -> [D:\ADCToolbox\python\src\adctoolbox\examples\04_debug_analog\output\exp_a02_analyze_error_by_value_bins.png]
 
----
 
 exp_a03_analyze_error_by_phase.py
 ---------------------------------
@@ -161,7 +158,6 @@ exp_a03_analyze_error_by_phase.py
    
    [Save fig] -> [D:\ADCToolbox\python\src\adctoolbox\examples\04_debug_analog\output\exp_a03_analyze_error_by_phase_3_no_base_noise.png]
 
----
 
 exp_a04_jitter_calculation.py
 -----------------------------
@@ -196,7 +192,6 @@ exp_a04_jitter_calculation.py
    
    [Save fig] -> [D:\ADCToolbox\python\src\adctoolbox\examples\04_debug_analog\output\exp_a04_jitter_calculation.png]
 
----
 
 exp_a11_decompose_harmonics.py
 ------------------------------
@@ -208,7 +203,6 @@ exp_a11_decompose_harmonics.py
    [Config] Fs=800 MHz, Fin=10.12 MHz, N=8192
    [Save fig] -> [D:\ADCToolbox\python\src\adctoolbox\examples\04_debug_analog\output\exp_a11_decompose_harmonics.png]
 
----
 
 exp_a12_decompose_harmonics_polar.py
 ------------------------------------
@@ -220,7 +214,6 @@ exp_a12_decompose_harmonics_polar.py
    [Config] Fs=800 MHz, Fin=99.902344 MHz, Bin=1023, N=8192
    [Save fig] -> [D:\ADCToolbox\python\src\adctoolbox\examples\04_debug_analog\output\exp_a12_decompose_harmonics_polar.png]
 
----
 
 exp_a21_analyze_error_pdf.py
 ----------------------------
@@ -254,7 +247,6 @@ exp_a21_analyze_error_pdf.py
    
    [Save fig] -> [D:\ADCToolbox\python\src\adctoolbox\examples\04_debug_analog\output\exp_a21_analyze_error_pdf.png]
 
----
 
 exp_a22_analyze_error_spectrum.py
 ---------------------------------
@@ -267,7 +259,6 @@ exp_a22_analyze_error_spectrum.py
    [Config] A=0.490 V, DC=0.500 V
    [Save fig] -> [D:\ADCToolbox\python\src\adctoolbox\examples\04_debug_analog\output\exp_a22_analyze_error_spectrum.png]
 
----
 
 exp_a23_analyze_error_autocorrelation.py
 ----------------------------------------
@@ -301,7 +292,6 @@ exp_a23_analyze_error_autocorrelation.py
    
    [Save fig] -> [D:\ADCToolbox\python\src\adctoolbox\examples\04_debug_analog\output\exp_a23_analyze_error_autocorrelation.png]
 
----
 
 exp_a24_analyze_error_envelope_spectrum.py
 ------------------------------------------
@@ -314,7 +304,6 @@ exp_a24_analyze_error_envelope_spectrum.py
    [Config] A=0.490 V, DC=0.500 V
    [Save fig] -> [D:\ADCToolbox\python\src\adctoolbox\examples\04_debug_analog\output\exp_a24_analyze_error_envelope_spectrum.png]
 
----
 
 exp_a25_spectra.py
 ------------------
@@ -348,7 +337,6 @@ exp_a25_spectra.py
    
    [Save fig] -> [D:\ADCToolbox\python\src\adctoolbox\examples\04_debug_analog\output\exp_a25_spectra.png]
 
----
 
 exp_a31_fit_static_nonlin.py
 ----------------------------
@@ -366,7 +354,6 @@ exp_a31_fit_static_nonlin.py
    
    [Saved] -> D:\ADCToolbox\python\src\adctoolbox\examples\04_debug_analog\output\exp_a31_fit_static_nonlin.png
 
----
 
 exp_a32_inl_from_sine_sweep_length.py
 -------------------------------------
@@ -385,7 +372,6 @@ exp_a32_inl_from_sine_sweep_length.py
    
    [Save fig] -> [D:\ADCToolbox\python\src\adctoolbox\examples\04_debug_analog\output\exp_a33_compute_inl_sweep_length.png]
 
----
 
 exp_a41_analyze_phase_plane.py
 ------------------------------
@@ -419,7 +405,6 @@ exp_a41_analyze_phase_plane.py
    
    [Save fig] -> [D:\ADCToolbox\python\src\adctoolbox\examples\04_debug_analog\output\exp_a41_analyze_phase_plane.png]
 
----
 
 exp_a42_analyze_error_phase_plane.py
 ------------------------------------
