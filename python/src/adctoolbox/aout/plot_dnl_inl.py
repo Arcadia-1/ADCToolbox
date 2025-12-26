@@ -9,7 +9,6 @@ import numpy as np
 import matplotlib.pyplot as plt
 from matplotlib.gridspec import GridSpecFromSubplotSpec
 
-
 def plot_dnl_inl(code, dnl, inl, num_bits=None, show_title=True, col_title=None, axes=None, ax=None, color_dnl='b', color_inl='b'):
     """
     Plot DNL and INL curves in a 2-row subplot layout.
@@ -89,7 +88,6 @@ def plot_dnl_inl(code, dnl, inl, num_bits=None, show_title=True, col_title=None,
         axes[1].set_title(f'INL = [{inl_min:.2f}, {inl_max:.2f}] LSB', fontweight='bold', fontsize=10)
 
     return axes
-
 
 def _plot_single_curve(ax, code, data, num_bits=None, ylabel='Data (LSB)', color='r'):
     """

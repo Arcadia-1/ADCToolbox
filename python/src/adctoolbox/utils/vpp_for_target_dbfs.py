@@ -7,7 +7,6 @@ signal level (dBFS). Useful for automated instrument control loops.
 
 from adctoolbox.common.unit_conversions import db_to_mag
 
-
 def vpp_for_target_dbfs(vpp_current: float, signal_db_measured: float, signal_db_target: float = -0.5) -> float:
     """
     Calculate the required Vpp to achieve a target dBFS level.

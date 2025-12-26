@@ -1,7 +1,7 @@
 import numpy as np
 import matplotlib.pyplot as plt
 from pathlib import Path
-from adctoolbox import find_coherent_frequency, analyze_spectrum, check_bit_activity
+from adctoolbox import find_coherent_frequency, analyze_spectrum, analyze_bit_activity
 
 output_dir = Path(__file__).parent / "output"
 output_dir.mkdir(exist_ok=True)
@@ -42,17 +42,15 @@ for idx, (sig, title, has_glitch) in enumerate(test_cases):
         glitch_mask = np.random.rand(N) < 0.10 # 10% samples affected
         dout[glitch_mask, B-2] = 0 # Force the unfortunate bits to '0'
 
-    plt.sca(axes[0, idx])
-    bit_usage = check_bit_activity(dout)    # Bit activity (use toolbox function)
-    plt.title(f'{title}\nBit Activity', fontsize=11, fontweight='bold')
-
+    bit_usage = analyze_bit_activity(dout, ax=axes[0, idx])    # Bit activity (use toolbox function)
+    axes[0, idx].set_title(f'{title}\nBit Activity', fontsize=11, fontweight='bold')
 
     plt.sca(axes[1, idx])
     result = analyze_spectrum(dout @ ideal_weights, n_thd=5, osr=1, show_label=True, nf_method=0)    # Spectrum
     print(f"[{title:<24s}] [Bits = {B:2d}] [ENoB = {result['enob']:5.2f}] [Activity = {np.min(bit_usage):.1f}% - {np.max(bit_usage):.1f}%]")
 
 plt.tight_layout()
-fig_path = output_dir / f'exp_d01_bit_activity.png'
+fig_path = output_dir / f'exp_d11_bit_activity.png'
 plt.savefig(fig_path, dpi=150)
 print(f"\n[Save fig] -> [{fig_path}]")
 plt.close()

@@ -85,9 +85,6 @@ def _post_process(
     reference_sines = [r * polarity for r in reference_sines]
     residual_errors = [e * polarity for e in residual_errors]
 
-
-
-
     # 5. Format final output dictionary
     return {
         'weight': weights,
@@ -99,7 +96,6 @@ def _post_process(
         'snr_db': snr_list[0] if is_single else snr_list,
         'enob': enob_list[0] if is_single else enob_list,
     }
-
 
 def _reconstruct_sine_k(
     solution_vector: np.ndarray,

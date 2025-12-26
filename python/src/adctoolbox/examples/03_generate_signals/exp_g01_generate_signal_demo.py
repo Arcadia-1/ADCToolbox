@@ -4,10 +4,16 @@ This example shows how thermal noise affects ADC signal quality and spectrum.
 Generates clean signal and three thermal noise levels for comparison.
 """
 
+import time
+t_start = time.perf_counter()
+
 import matplotlib.pyplot as plt
 from pathlib import Path
 from adctoolbox import find_coherent_frequency, amplitudes_to_snr, snr_to_nsd, analyze_spectrum
 from adctoolbox.siggen import ADC_Signal_Generator
+
+t_import = time.perf_counter() - t_start
+t_prep_start = time.perf_counter()
 
 # Setup output directory
 output_dir = Path(__file__).parent / "output"
@@ -52,12 +58,19 @@ print("=" * 80)
 fig, axes = plt.subplots(2, 2, figsize=(14, 10))
 axes = axes.flatten()
 
+t_prep = time.perf_counter() - t_prep_start
+t_loop_start = time.perf_counter()
+
 results = []
+t_tool_total = 0.0
 for idx, (title, signal) in enumerate(signals):
     plt.sca(axes[idx])
 
-    result = analyze_spectrum(signal, fs=Fs, show_plot=True, show_title=False,
+    t_tool_start = time.perf_counter()
+    result = analyze_spectrum(signal, fs=Fs, create_plot=True, show_title=False,
                              show_label=True, ax=axes[idx])
+    t_tool_total += time.perf_counter() - t_tool_start
+    
     results.append(result)
 
     axes[idx].set_title(title, fontsize=11, fontweight='bold')
@@ -70,6 +83,9 @@ for idx, (title, signal) in enumerate(signals):
           f"SNDR={result['sndr_db']:6.2f}dB | "
           f"NSD={result['nsd_dbfs_hz']:7.2f}dBFS/Hz")
 
+t_loop = time.perf_counter() - t_loop_start
+t_fig_start = time.perf_counter()
+
 plt.suptitle('ADC Signal Quality with Thermal Noise', fontsize=13, fontweight='bold', y=0.995)
 plt.tight_layout()
 
@@ -77,4 +93,18 @@ fig_path = output_dir / 'exp_g01_generate_signal_demo_thermal_noise.png'
 plt.savefig(fig_path, dpi=300, bbox_inches='tight')
 plt.close()
 
+t_fig = time.perf_counter() - t_fig_start
+t_total = time.perf_counter() - t_start
+
 print(f"\n[Save figure] -> [{fig_path}]")
+
+print(f"\n{'='*60}")
+print(f"Timing Report:")
+print(f"{'='*60}")
+print(f"  Import time:      {t_import*1000:7.2f} ms")
+print(f"  Preparation time: {t_prep*1000:7.2f} ms")
+print(f"  Core tool time:   {t_tool_total*1000:7.2f} ms  (analyze_spectrum x4)")
+print(f"  Main loop time:   {t_loop*1000:7.2f} ms")
+print(f"  Figure time:      {t_fig*1000:7.2f} ms")
+print(f"  Total runtime:    {t_total*1000:7.2f} ms")
+print(f"{'='*60}\n")

@@ -9,7 +9,6 @@ MATLAB counterpart: fitstaticnl.m
 import numpy as np
 from adctoolbox.fundamentals.fit_sine_4param import fit_sine_4param as fit_sine
 
-
 def fit_static_nonlin(sig_distorted, order):
     """
     Extract static nonlinearity coefficients from distorted sinewave.

@@ -59,9 +59,9 @@ for A, A_dbfs in zip(amplitudes, amplitudes_dbfs):
     # Generate signal with fixed noise
     signal = A * np.sin(2*np.pi*Fin*t) + np.random.randn(N_fft) * noise_rms
 
-    # Analyze spectrum without plotting (show_plot=False)
+    # Analyze spectrum without plotting (create_plot=False)
     # max_scale_range=[-0.5, 0.5] means full scale range is -0.5V to +0.5V
-    result = analyze_spectrum(signal, fs=Fs, max_scale_range=[-0.5, 0.5], show_plot=False)
+    result = analyze_spectrum(signal, fs=Fs, max_scale_range=[-0.5, 0.5], create_plot=False)
 
     # Store results
     snr_list.append(result['snr_db'])

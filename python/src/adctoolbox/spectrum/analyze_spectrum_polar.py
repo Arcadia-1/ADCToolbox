@@ -8,24 +8,22 @@ Matches MATLAB plotphase.m FFT mode functionality.
 """
 
 import numpy as np
-from typing import Optional, Dict, Any
+from typing import Any
 
 from adctoolbox.spectrum.compute_spectrum import compute_spectrum
 from adctoolbox.spectrum.plot_spectrum_polar import plot_spectrum_polar
 
-
 def analyze_spectrum_polar(
     data: np.ndarray,
-    max_code: Optional[float] = None,
+    max_code: float | None = None,
     harmonic: int = 5,
     osr: int = 1,
     cutoff_freq: float = 0,
     fs: float = 1.0,
     win_type: str = 'boxcar',
-    show_plot: bool = True,
-    ax = None,
-    fixed_radial_range: Optional[float] = None
-) -> Dict[str, Any]:
+    create_plot: bool = True, ax=None,
+    fixed_radial_range: float | None = None
+) -> dict[str, Any]:
     """
     Polar phase spectrum analysis and plotting. (Wrapper function for modular core and plotting)
 
@@ -39,8 +37,8 @@ def analyze_spectrum_polar(
         cutoff_freq: High-pass cutoff frequency in Hz
         fs: Sampling frequency in Hz
         win_type: Window function type ('boxcar', 'hann', 'hamming')
-        show_plot: Plot the polar spectrum (True) or not (False)
-        ax: Optional matplotlib polar axes object. If None and show_plot=True, uses current axes.
+        create_plot: Plot the polar spectrum (True) or not (False)
+        ax: Optional matplotlib polar axes object. If None and create_plot=True, uses current axes.
         fixed_radial_range: Fixed radial range in dB. If None, auto-scales.
 
     Returns:
@@ -59,7 +57,7 @@ def analyze_spectrum_polar(
     )
 
     # 2. --- Optional Plotting ---
-    if show_plot:
+    if create_plot:
         plot_spectrum_polar(results, harmonic=harmonic, ax=ax, fixed_radial_range=fixed_radial_range)
 
     return results['metrics']

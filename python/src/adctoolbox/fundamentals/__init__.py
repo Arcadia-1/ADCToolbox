@@ -14,6 +14,9 @@ from .snr_nsd import amplitudes_to_snr, snr_to_nsd, nsd_to_snr
 # Sine fitting
 from .fit_sine_4param import fit_sine_4param
 
+# Circuit calculations
+from .convert_cap_to_weight import convert_cap_to_weight
+
 # Validation utilities
 from .validate import validate_aout_data, validate_dout_data
 
@@ -37,6 +40,8 @@ from .metrics import (
 __all__ = [
     # Sine fitting
     'fit_sine_4param',
+    # Circuit calculations
+    'convert_cap_to_weight',
     # Frequency utilities
     'fold_bin_to_nyquist',
     'fold_frequency_to_nyquist',

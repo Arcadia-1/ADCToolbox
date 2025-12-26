@@ -6,13 +6,11 @@ following the modular architecture pattern with separation of concerns.
 
 import numpy as np
 import matplotlib.pyplot as plt
-from typing import Optional, Dict
-
 
 def plot_two_tone_spectrum(
-    analysis_results: Dict,
+    analysis_results: dict,
     harmonic: int = 7,
-    ax: Optional[plt.Axes] = None,
+    ax=None,
     show_title: bool = True,
     show_labels: bool = True
 ) -> plt.Axes:

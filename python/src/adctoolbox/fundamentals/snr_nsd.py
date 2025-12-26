@@ -6,15 +6,13 @@ and Noise Spectral Density (NSD), as well as calculating SNR from signal and noi
 """
 
 import numpy as np
-from typing import Union, Tuple
-
 
 def amplitudes_to_snr(
-    sig_amplitude: Union[float, np.ndarray],
-    noise_amplitude: Union[float, np.ndarray],
+    sig_amplitude: float | np.ndarray,
+    noise_amplitude: float | np.ndarray,
     osr: float = 1,
     return_power: bool = False
-) -> Union[float, np.ndarray, Tuple[Union[float, np.ndarray], ...]]:
+) -> float | np.ndarray | tuple[float | np.ndarray, ...]:
     """Calculate Signal-to-Noise Ratio (SNR) in dB from sine wave peak amplitude and noise RMS.
 
     This function computes SNR, assuming the signal is a pure sine wave and the noise
@@ -97,13 +95,12 @@ def amplitudes_to_snr(
     else:
         return snr_db
 
-
 def snr_to_nsd(
-    snr_db: Union[float, np.ndarray],
+    snr_db: float | np.ndarray,
     fs: float,
     osr: float = 1.0,
     psignal_dbfs: float = 0.0
-) -> Union[float, np.ndarray]:
+) -> float | np.ndarray:
     """Convert Signal-to-Noise Ratio (SNR) to Noise Spectral Density (NSD).
 
     This function converts SNR in dB to NSD in dBFS/Hz, given the sampling frequency
@@ -180,13 +177,12 @@ def snr_to_nsd(
 
     return nsd_dbfs_hz
 
-
 def nsd_to_snr(
-    nsd_dbfs_hz: Union[float, np.ndarray],
+    nsd_dbfs_hz: float | np.ndarray,
     fs: float,
     osr: float = 1.0,
     psignal_dbfs: float = 0.0
-) -> Union[float, np.ndarray]:
+) -> float | np.ndarray:
     """Convert Noise Spectral Density (NSD) to Signal-to-Noise Ratio (SNR).
 
     This function converts NSD in dBFS/Hz to SNR in dB, given the sampling frequency

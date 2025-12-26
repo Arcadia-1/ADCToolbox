@@ -1,14 +1,19 @@
+"""Sweep different interference types to show effects on ADC spectrum.
+
+Demonstrates harmonic, IMD, spur, and DC offset interference.
 """
-Experiment G07: Interference Sweep
-Shows the effects of different types of interferences on ADC spectrum.
-Each subplot demonstrates one interference type applied to coherent sampled signal.
-"""
+
+import time
+t_start = time.perf_counter()
 
 import numpy as np
 import matplotlib.pyplot as plt
 from pathlib import Path
 from adctoolbox import find_coherent_frequency, analyze_spectrum
 from adctoolbox.siggen import ADC_Signal_Generator
+
+t_import = time.perf_counter() - t_start
+t_prep_start = time.perf_counter()
 
 output_dir = Path(__file__).parent / "output"
 output_dir.mkdir(exist_ok=True)
@@ -31,7 +36,6 @@ t = np.arange(N) / Fs
 clean_signal = A * np.sin(2 * np.pi * Fin * t)
 
 # Define 8 Interference Cases using lambdas
-# Each interference is applied to the clean coherent signal
 INTERFERENCES = [
     {
         'title': 'Clean Signal (reference)',
@@ -75,6 +79,10 @@ print("=" * 100)
 print(f"{'#':<3} | {'Interference Type':<35} | {'SFDR (dB)':<10} | {'THD (dB)':<10} | {'SNR (dB)':<10}")
 print("-" * 100)
 
+t_prep = time.perf_counter() - t_prep_start
+t_loop_start = time.perf_counter()
+
+t_tool_total = 0.0
 # Run Sweep
 for idx, config in enumerate(INTERFERENCES):
     
@@ -84,11 +92,18 @@ for idx, config in enumerate(INTERFERENCES):
     
     # Spectrum analysis
     plt.sca(axes[idx])
+    
+    t_tool_start = time.perf_counter()
     result = analyze_spectrum(signal, fs=Fs)
+    t_tool_total += time.perf_counter() - t_tool_start
+    
     axes[idx].set_title(config['title'], fontsize=11, fontweight='bold')
     axes[idx].set_ylim([-140, 0])
     
     print(f"{idx+1:<3} | {config['title']:<35} | {result['sfdr_db']:<10.2f} | {result['thd_db']:<10.2f} | {result['snr_db']:<10.2f}")
+
+t_loop = time.perf_counter() - t_loop_start
+t_fig_start = time.perf_counter()
 
 # Finalize
 plt.suptitle('Interference Effects on Coherent Sampled Signal\n(Each type applied independently to Fin=80MHz)',
@@ -97,6 +112,20 @@ plt.tight_layout()
 plt.subplots_adjust(top=0.9)
 
 fig_path = output_dir / "exp_g07_sweep_interferences.png"
-print(f"\n[Save figure] -> [{fig_path}]\n")
+print(f"\n[Save figure] -> [{fig_path}]")
 plt.savefig(fig_path, dpi=300, bbox_inches='tight')
 plt.close()
+
+t_fig = time.perf_counter() - t_fig_start
+t_total = time.perf_counter() - t_start
+
+print(f"\n{'='*60}")
+print(f"Timing Report:")
+print(f"{'='*60}")
+print(f"  Import time:      {t_import*1000:7.2f} ms")
+print(f"  Preparation time: {t_prep*1000:7.2f} ms")
+print(f"  Core tool time:   {t_tool_total*1000:7.2f} ms  (analyze_spectrum x8)")
+print(f"  Main loop time:   {t_loop*1000:7.2f} ms")
+print(f"  Figure time:      {t_fig*1000:7.2f} ms")
+print(f"  Total runtime:    {t_total*1000:7.2f} ms")
+print(f"{'='*60}\n")

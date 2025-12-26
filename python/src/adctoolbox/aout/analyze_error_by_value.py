@@ -1,22 +1,20 @@
 """Wrapper for value-based error analysis."""
 
-from typing import Optional, Tuple, Dict, Any
+from typing import Any
 import numpy as np
 from adctoolbox.aout.rearrange_error_by_value import rearrange_error_by_value
 from adctoolbox.aout.plot_rearranged_error_by_value import plot_rearranged_error_by_value
-
 
 def analyze_error_by_value(
     signal: np.ndarray,
     norm_freq: float = None,
     n_bins: int = 100,
     clip_percent: float = 0.01,
-    value_range: Optional[Tuple[float, float]] = None,
-    show_plot: bool = True,
-    axes = None,
-    ax = None,
+    value_range: tuple[float, float | None] = None,
+    create_plot: bool = True,
+    axes=None, ax=None,
     title: str = None
-) -> Dict[str, Any]:
+) -> dict[str, Any]:
     """
     Analyze error binned by value (INL/DNL/Noise).
 
@@ -34,7 +32,7 @@ def analyze_error_by_value(
         Ratio of values to clip from edges.
     value_range : tuple(min, max), optional
         Physical range mapping to bin 0 and bin (N-1).
-    show_plot : bool, default=True
+    create_plot : bool, default=True
         Whether to display result plot.
     axes : tuple or array, optional
         Tuple of (ax1, ax2) to plot on.
@@ -59,7 +57,7 @@ def analyze_error_by_value(
     )
 
     # 2. Plot
-    if show_plot:
+    if create_plot:
         plot_rearranged_error_by_value(results, axes=axes, ax=ax, title=title)
 
     return results

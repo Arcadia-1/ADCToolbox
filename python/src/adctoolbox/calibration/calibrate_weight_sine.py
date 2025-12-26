@@ -25,7 +25,6 @@ from adctoolbox.calibration._lstsq_solver import _solve_weights_searching_freq
 
 from adctoolbox.calibration._post_process import _post_process
 
-
 def calibrate_weight_sine(
     bits: np.ndarray | list[np.ndarray],
     freq: float | np.ndarray | None = None,

@@ -7,17 +7,16 @@ Dual-track parallel design:
 """
 
 import numpy as np
-from typing import Dict
+
 from adctoolbox.fundamentals.fit_sine_4param import fit_sine_4param
 from adctoolbox.aout._fit_error_phase import _fit_error_phase
-
 
 def rearrange_error_by_phase(
     signal: np.ndarray,
     norm_freq: float = None,
     n_bins: int = 100,
     include_base_noise: bool = True
-) -> Dict[str, np.ndarray]:
+) -> dict[str, np.ndarray]:
     """Rearrange error by phase using dual-track AM/PM separation.
 
     Parameters

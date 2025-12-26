@@ -1,21 +1,19 @@
 """Wrapper for phase-based error analysis (AM/PM decomposition)."""
 
-from typing import Dict, Any
+from typing import Any
 import numpy as np
 from adctoolbox.aout.rearrange_error_by_phase import rearrange_error_by_phase
 from adctoolbox.aout.plot_rearranged_error_by_phase import plot_rearranged_error_by_phase
-
 
 def analyze_error_by_phase(
     signal: np.ndarray,
     norm_freq: float = None,
     n_bins: int = 100,
     include_base_noise: bool = True,
-    show_plot: bool = True,
-    axes=None,
-    ax=None,
+    create_plot: bool = True,
+    axes=None, ax=None,
     title: str = None
-) -> Dict[str, Any]:
+) -> dict[str, Any]:
     """Analyze phase error using AM/PM decomposition.
 
     Uses dual-track parallel design:
@@ -33,7 +31,7 @@ def analyze_error_by_phase(
         Number of phase bins for visualization.
     include_base_noise : bool, default=True
         Include base noise term in fitting model.
-    show_plot : bool, default=True
+    create_plot : bool, default=True
         Whether to display result plot.
     axes : tuple, optional
         Tuple of (ax1, ax2) for top and bottom panels.
@@ -59,7 +57,7 @@ def analyze_error_by_phase(
     )
 
     # 2. Plot (always uses binned bar plot)
-    if show_plot:
+    if create_plot:
         plot_rearranged_error_by_phase(results, axes=axes, ax=ax, title=title)
 
     return results

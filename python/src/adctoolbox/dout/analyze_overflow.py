@@ -1,5 +1,4 @@
-"""
-Overflow Check Tool for SAR ADC
+"""Overflow detection for sub-radix SAR ADC via residue distribution analysis.
 
 Analyzes residue distribution at each bit position to detect overflow conditions.
 This is useful for sub-radix-2 SAR ADC calibration and redundancy analysis.
@@ -10,52 +9,48 @@ Ported from MATLAB: overflowChk.m
 import numpy as np
 import matplotlib.pyplot as plt
 
-
-def check_overflow(raw_code, weight, ofb=None, disp=False):
+def analyze_overflow(
+    raw_code: np.ndarray,
+    weight: np.ndarray,
+    ofb: int | None = None,
+    create_plot: bool = True,
+    ax=None,
+    title: str | None = None
+) -> tuple[np.ndarray, np.ndarray, np.ndarray, np.ndarray]:
     """
-    Analyze residue distribution at each bit position (matching MATLAB exactly).
+    Analyze residue distribution at each bit position for overflow detection.
 
-    For each bit position, calculates the normalized residue (remaining bits weighted sum).
-    Detects overflow conditions where residue goes outside [0, 1] range.
+    Calculates normalized residue (remaining bits weighted sum) and detects
+    overflow conditions where residue exceeds [0, 1] range.
 
     Parameters
     ----------
-    raw_code : ndarray
-        Digital codes array, shape (N, M) where N=samples, M=bits.
-        Each row is one sample, each column is one bit (MSB first).
-    weight : ndarray
-        Weight array for each bit, shape (M,).
+    raw_code : np.ndarray
+        Digital codes array, shape (N, M) where N=samples, M=bits (MSB first)
+    weight : np.ndarray
+        Weight array for each bit, shape (M,)
     ofb : int, optional
         Overflow bit position for overflow detection.
-        Default is M (check at MSB, MATLAB convention: 1=LSB, M=MSB).
-    disp : bool, optional
-        Display plot (default: False). Set to True to generate visualization.
+        Default is M (check at MSB, MATLAB convention: 1=LSB, M=MSB)
+    create_plot : bool, default=True
+        If True, generate residue distribution visualization
+    ax : plt.Axes, optional
+        Axes to plot on. If None, uses current axes (plt.gca())
+    title : str, optional
+        Title for the plot. If None, no title is set
 
     Returns
     -------
-    range_min : ndarray
-        Minimum normalized residue for each bit position, shape (M,).
-        Shows how close each bit segment gets to underflow (0).
-    range_max : ndarray
-        Maximum normalized residue for each bit position, shape (M,).
-        Shows how close each bit segment gets to overflow (1).
-    ovf_percent_zero : ndarray
-        Percentage of samples at or below 0 for each bit, shape (M,).
-        Underflow percentage per bit position.
-    ovf_percent_one : ndarray
-        Percentage of samples at or above 1 for each bit, shape (M,).
-        Overflow percentage per bit position.
-
-    Examples
-    --------
-    >>> bits = np.random.randint(0, 2, size=(10000, 12))
-    >>> weight = 2**np.arange(11, -1, -1)
-    >>> range_min, range_max, pct_zero, pct_one = overflow_chk(bits, weight)
+    tuple[np.ndarray, np.ndarray, np.ndarray, np.ndarray]
+        - range_min: Minimum normalized residue per bit (shape M,)
+        - range_max: Maximum normalized residue per bit (shape M,)
+        - ovf_percent_zero: Underflow percentage per bit (shape M,)
+        - ovf_percent_one: Overflow percentage per bit (shape M,)
 
     Notes
     -----
     - A bit segment is the sub-code formed from one bit to the LSB
-    - Residue is normalized by dividing by the sum of weights in the corresponding segment
+    - Residue is normalized by dividing by the sum of weights in the segment
     - Matches MATLAB ovfchk.m behavior exactly
     """
     raw_code = np.asarray(raw_code)
@@ -102,13 +97,9 @@ def check_overflow(raw_code, weight, ofb=None, disp=False):
     non_ovf = ~(ovf_zero | ovf_one)
 
     # Only plot if display requested
-    if disp:
-        # Create plot matching MATLAB style
-        fig = plt.gcf()
-        if fig is None or len(fig.get_axes()) == 0:
-            fig = plt.figure(figsize=(10, 6))
-
-        ax = plt.gca()
+    if create_plot:
+        if ax is None:
+            ax = plt.gca()
 
         # Reference lines at 0 and 1 (matching MATLAB)
         ax.plot([0, M + 1], [1, 1], '-k', linewidth=0.5)
@@ -173,6 +164,8 @@ def check_overflow(raw_code, weight, ofb=None, disp=False):
         ax.set_xlabel('bit')
         ax.set_ylabel('Residue Distribution')
 
-        # Note: Title is set externally in the test script
+        # Set title if provided
+        if title is not None:
+            ax.set_title(title)
 
     return range_min, range_max, ovf_percent_zero, ovf_percent_one

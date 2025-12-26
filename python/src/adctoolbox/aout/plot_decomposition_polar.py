@@ -7,13 +7,11 @@ Responsibility Principle. No calculations are performed - only plotting.
 
 import numpy as np
 import matplotlib.pyplot as plt
-from typing import Optional
-
 
 def plot_decomposition_polar(
     results: dict,
     harmonic: int = 5,
-    ax: Optional[plt.Axes] = None,
+    ax=None,
     title: str = None
 ) -> plt.Axes:
     """Create a polar plot of harmonic decomposition results.

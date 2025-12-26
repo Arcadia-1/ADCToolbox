@@ -8,14 +8,12 @@ This kernel is mode-agnostic: it only solves least-squares on whatever (phi, y) 
 """
 
 import numpy as np
-from typing import Dict
-
 
 def _fit_error_phase(
     y: np.ndarray,
     phi: np.ndarray,
     include_base_noise: bool = True
-) -> Dict[str, float]:
+) -> dict[str, float]:
     """Pure least-squares solver for AM/PM model.
 
     Model (Cosine basis): y = am² * cos²(φ) + pm² * sin²(φ) + base_noise

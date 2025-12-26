@@ -230,8 +230,6 @@ class ADC_Signal_Generator:
             
             return signal_settled + self.DC
 
-
-
     def apply_am_noise(self, input_signal=None, strength=0.01):
             """
             Apply random AM noise (Multiplicative Thermal Noise).
@@ -278,8 +276,6 @@ class ADC_Signal_Generator:
         b, a = scipy_signal.butter(2, 0.001)
         drift = scipy_signal.filtfilt(b, a, drift_walk)
         return signal + drift
-
-
 
     def apply_glitch(self, input_signal=None, glitch_prob=0.00015, glitch_amplitude=0.1):
         """Apply random glitches. Params: input_signal, glitch_prob (default 0.00015 = 0.015%), glitch_amplitude (default 0.1)."""

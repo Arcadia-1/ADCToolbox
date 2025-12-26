@@ -1,13 +1,18 @@
+"""Compare isolated nonlinearity effects on ADC spectrum.
+
+Each subplot demonstrates one specific non-ideality type.
 """
-Experiment G06: Isolated Nonlinearity Comparison
-Each experiment enables exactly ONE non-ideality.
-All metrics are extracted from analyze_spectrum (NO placeholders).
-"""
+
+import time
+t_start = time.perf_counter()
 
 import matplotlib.pyplot as plt
 from pathlib import Path
 from adctoolbox import find_coherent_frequency, analyze_spectrum
 from adctoolbox.siggen import ADC_Signal_Generator
+
+t_import = time.perf_counter() - t_start
+t_prep_start = time.perf_counter()
 
 output_dir = Path(__file__).parent / "output"
 output_dir.mkdir(exist_ok=True)
@@ -29,9 +34,7 @@ k3 = hd3_amp / (A**2 / 4)
 print(f"[Setup] Fs={Fs/1e6:.0f} MHz | N={N} | Fin={Fin/1e6:.2f} MHz")
 print(f"[Setup] Target HD3 = {hd3_dB:.1f} dBc -> k3 = {k3:.4e}")
 
-# -----------------------------------------------------------------------------
-# 5. Define Isolated Experiments
-# -----------------------------------------------------------------------------
+# Define Isolated Experiments
 EXPERIMENTS = [
     {
         'title': f"Static HD3 Only ({hd3_dB} dBc)",
@@ -75,9 +78,7 @@ EXPERIMENTS = [
     },
 ]
 
-# -----------------------------------------------------------------------------
-# 6. Prepare Figure
-# -----------------------------------------------------------------------------
+# Prepare Figure
 fig, axes = plt.subplots(2, 4, figsize=(24, 10))
 axes = axes.flatten()
 
@@ -85,12 +86,14 @@ print("=" * 95)
 print(f"{'Exp':<4} | {'Non-Ideality':<35} | {'SFDR (dB)':<10} | {'THD (dB)':<10}")
 print("-" * 95)
 
-# -----------------------------------------------------------------------------
-# 7. Run Experiments
-# -----------------------------------------------------------------------------
+t_prep = time.perf_counter() - t_prep_start
+t_loop_start = time.perf_counter()
+
+t_tool_total = 0.0
+# Run Experiments
 for idx, exp in enumerate(EXPERIMENTS):
 
-    # 7.1 Apply single non-ideality
+    # Apply single non-ideality
     if exp['func'] == 'apply_static_nonlinearity':
         signal = gen.apply_static_nonlinearity(input_signal=None, **exp['param'])
 
@@ -112,12 +115,15 @@ for idx, exp in enumerate(EXPERIMENTS):
     else:
         signal = getattr(gen, exp['func'])(input_signal=None, **exp['param'])
 
-    # 7.2 Add thermal noise
+    # Add thermal noise
     signal = gen.apply_thermal_noise(signal, noise_rms=base_noise)
 
-    # 7.4 Spectrum analysis
+    # Spectrum analysis
     plt.sca(axes[idx])
+    
+    t_tool_start = time.perf_counter()
     result = analyze_spectrum(signal, fs=Fs)
+    t_tool_total += time.perf_counter() - t_tool_start
 
     axes[idx].set_title(exp['title'], fontsize=11, fontweight='bold')
     axes[idx].set_ylim([-140, 0])
@@ -125,9 +131,10 @@ for idx, exp in enumerate(EXPERIMENTS):
     print(f"{idx+1:<4} | {exp['title']:<35} | "
           f"{result['sfdr_db']:<10.2f} | {result['thd_db']:<10.2f}")
 
-# -----------------------------------------------------------------------------
-# 8. Finalize
-# -----------------------------------------------------------------------------
+t_loop = time.perf_counter() - t_loop_start
+t_fig_start = time.perf_counter()
+
+# Finalize
 plt.suptitle(
     f'Impact of Different Nonlinearities',
     fontsize=14,
@@ -139,6 +146,20 @@ plt.tight_layout()
 plt.subplots_adjust(top=0.90)
 
 fig_path = output_dir / "exp_g06_sweep_dynamic_nonlinearity.png"
-print(f"\n[Save figure] -> {fig_path}\n")
+print(f"\n[Save figure] -> {fig_path}")
 plt.savefig(fig_path, dpi=300, bbox_inches='tight')
 plt.close()
+
+t_fig = time.perf_counter() - t_fig_start
+t_total = time.perf_counter() - t_start
+
+print(f"\n{'='*60}")
+print(f"Timing Report:")
+print(f"{'='*60}")
+print(f"  Import time:      {t_import*1000:7.2f} ms")
+print(f"  Preparation time: {t_prep*1000:7.2f} ms")
+print(f"  Core tool time:   {t_tool_total*1000:7.2f} ms  (analyze_spectrum x8)")
+print(f"  Main loop time:   {t_loop*1000:7.2f} ms")
+print(f"  Figure time:      {t_fig*1000:7.2f} ms")
+print(f"  Total runtime:    {t_total*1000:7.2f} ms")
+print(f"{'='*60}\n")

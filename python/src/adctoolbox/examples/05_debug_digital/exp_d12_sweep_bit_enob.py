@@ -1,5 +1,6 @@
 import numpy as np
 import matplotlib.pyplot as plt
+import time
 from pathlib import Path
 from adctoolbox import freq_to_bin, analyze_enob_sweep
 
@@ -53,20 +54,24 @@ for idx, (lsb_random, title) in enumerate(test_cases):
         digital_output[:, -1] = np.random.randint(0, 2, n_samples)
 
     # Run ENOB bit sweep
-    plt.sca(axes[idx])
+    start_time = time.time()
     enob_sweep, n_bits_vec = analyze_enob_sweep(
-        digital_output, freq=fin/fs, order=5, osr=1, win_type='hamming', plot=True
+        digital_output, freq=fin/fs, harmonic_order=1, osr=1, win_type='hamming', create_plot=True, ax=axes[idx]
     )
+    elapsed_time = time.time() - start_time
     axes[idx].set_title(title, fontweight='bold')
 
     final_enob = enob_sweep[-1]
     max_enob = np.max(enob_sweep)
     optimal_bits = n_bits_vec[np.argmax(enob_sweep)]
 
-    print(f"[{title:45s}] [Nominal = {nominal_resolution:5.2f} bit] [Max ENoB = {max_enob:5.2f} bit @ {optimal_bits} bits] [Final ENoB = {final_enob:5.2f} bit]")
+    print(f"[{title:45s}] Runtime={elapsed_time*1e3:7.2f}ms, "
+          f"Nominal={nominal_resolution:5.2f} bit, "
+          f"Max_ENOB={max_enob:5.2f} bit @ {optimal_bits} bits, "
+          f"Final_ENOB={final_enob:5.2f} bit")
 
 plt.tight_layout()
-fig_path = output_dir / 'exp_d05_sweep_bit_enob.png'
+fig_path = output_dir / 'exp_d12_sweep_bit_enob.png'
 plt.savefig(fig_path, dpi=150)
 print(f"\n[Save fig] -> [{fig_path}]")
 plt.close('all')

@@ -7,7 +7,6 @@ Provides rigorous checks for ADC data integrity (NaN, Inf, dimensions, etc.).
 import numpy as np
 import warnings
 
-
 def _validate_basic_integrity(data, name="Data"):
     """
     Internal helper: Check basic array properties (numeric, real, finite).
@@ -38,7 +37,6 @@ def _validate_basic_integrity(data, name="Data"):
 
     return data
 
-
 def validate_aout_data(aout_data, min_samples=100):
     """
     Validate analog output data format.
@@ -67,7 +65,6 @@ def validate_aout_data(aout_data, min_samples=100):
         
     if data_range < 1e-10:
         warnings.warn(f"Analog signal amplitude is extremely low ({data_range:.2e}). Is the input connected?")
-
 
 def validate_dout_data(bits, min_samples=100):
     """

@@ -5,21 +5,20 @@ following the modular architecture pattern used throughout the spectrum package.
 """
 
 import numpy as np
-from typing import Dict, Optional
+
 from adctoolbox.fundamentals.frequency import fold_bin_to_nyquist
 from adctoolbox.spectrum._prepare_fft_input import _prepare_fft_input
 from adctoolbox.spectrum._align_spectrum_phase import _align_spectrum_phase
 
-
 def compute_two_tone_spectrum(
     data: np.ndarray,
     fs: float = 1.0,
-    max_scale_range: Optional[float] = None,
+    max_scale_range: float | None = None,
     win_type: str = 'hann',
     side_bin: int = 1,
     harmonic: int = 7,
     coherent_averaging: bool = False
-) -> Dict[str, any]:
+) -> dict[str, any]:
     """
     Calculate two-tone spectrum data with IMD analysis.
 

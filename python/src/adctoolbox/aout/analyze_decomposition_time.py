@@ -1,19 +1,18 @@
 """Wrapper for harmonic decomposition analysis with time-domain visualization."""
 
-from typing import Optional, Dict, Any
+from typing import Any
 import numpy as np
 from adctoolbox.aout.decompose_harmonic_error import decompose_harmonic_error
 from adctoolbox.aout.plot_decomposition_time import plot_decomposition_time
-
 
 def analyze_decomposition_time(
     signal: np.ndarray,
     harmonic: int = 5,
     n_cycles: float = 5.0,
-    show_plot: bool = True,
-    ax: Optional[object] = None,
+    create_plot: bool = True,
+    ax=None,
     title: str = None
-) -> Dict[str, Any]:
+) -> dict[str, Any]:
     """
     Analyze harmonic decomposition with time-domain visualization.
 
@@ -27,7 +26,7 @@ def analyze_decomposition_time(
         Number of harmonics to extract.
     n_cycles : float, default=5.0
         Number of cycles to display in the time-domain plot.
-    show_plot : bool, default=True
+    create_plot : bool, default=True
         Whether to display result plot.
     ax : matplotlib.axes.Axes, optional
         Axis to plot on (will be split for multi-panel).
@@ -47,7 +46,7 @@ def analyze_decomposition_time(
     )
 
     # 2. Plot
-    if show_plot:
+    if create_plot:
         plot_decomposition_time(
             results=results,
             signal=signal,

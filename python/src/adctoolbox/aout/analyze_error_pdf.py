@@ -5,12 +5,10 @@ Computes error PDF, fits Gaussian, and calculates KL divergence for goodness-of-
 
 import numpy as np
 import matplotlib.pyplot as plt
-from typing import Optional
 from adctoolbox.fundamentals.fit_sine_4param import fit_sine_4param
 
-
-def analyze_error_pdf(signal, resolution=12, full_scale=None, frequency=None, show_plot=True,
-                       ax: Optional[plt.Axes] = None, title: str = None):
+def analyze_error_pdf(signal, resolution=12, full_scale=None, frequency=None, create_plot: bool = True,
+                       ax=None, title: str | None = None):
     """
     Compute and optionally plot error probability density function using KDE.
 
@@ -27,7 +25,7 @@ def analyze_error_pdf(signal, resolution=12, full_scale=None, frequency=None, sh
         Full-scale range. If None, inferred from signal range (max - min)
     frequency : float, optional
         Normalized frequency (0-0.5). If None, auto-detected
-    show_plot : bool, default=True
+    create_plot : bool, default=True
         If True, plot the PDF on current axes
     ax : matplotlib.axes.Axes, optional
         Axes to plot on. If None, uses current axes (plt.gca())
@@ -99,7 +97,7 @@ def analyze_error_pdf(signal, resolution=12, full_scale=None, frequency=None, sh
     kl_divergence = np.sum(p * np.log(p / q)) * dx
 
     # Plot if requested
-    if show_plot:
+    if create_plot:
         # Use provided axes or get current axes
         if ax is None:
             ax = plt.gca()

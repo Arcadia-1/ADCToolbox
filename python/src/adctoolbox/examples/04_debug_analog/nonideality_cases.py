@@ -7,7 +7,6 @@ This module defines a complete standard test setup including signal parameters a
 from adctoolbox import find_coherent_frequency
 from adctoolbox.siggen import ADC_Signal_Generator
 
-
 def get_batch_test_setup(hd2_target_dB=-80, hd3_target_dB=-70):
     """
     Get batch ADC test configuration with 15 non-ideality cases.

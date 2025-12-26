@@ -66,4 +66,3 @@ for bits in adc_bits:
     print(f"  {bits:2d}-bit: Q-noise={quant_noise_rms*1e6:7.1f} uV, SNR={max_snr:5.2f} dB (Theory={theory_snr:.2f} dB)")
 print("="*70)
 
-

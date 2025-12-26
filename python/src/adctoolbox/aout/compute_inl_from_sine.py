@@ -8,7 +8,12 @@ MATLAB counterpart: inlsin.m
 
 import numpy as np
 
-def compute_inl_from_sine(data, num_bits=None, full_scale=None, clip_percent=0.01):
+def compute_inl_from_sine(
+    data: np.ndarray,
+    num_bits: int | None = None,
+    full_scale: float | None = None,
+    clip_percent: float = 0.01
+) -> tuple[np.ndarray, np.ndarray, np.ndarray]:
     """
     Calculate ADC INL/DNL.
 

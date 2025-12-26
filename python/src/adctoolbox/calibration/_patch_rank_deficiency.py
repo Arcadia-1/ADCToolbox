@@ -107,8 +107,6 @@ def _patch_rank_deficiency(
         "bit_width_effective": bits_effective.shape[1]
     }
 
-
-
 def _recover_rank_deficiency(
     w_effective: np.ndarray, 
     bit_to_col_map: np.ndarray, 

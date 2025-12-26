@@ -8,7 +8,6 @@ that can be used with pre-computed coherent spectrum results.
 import numpy as np
 import matplotlib.pyplot as plt
 
-
 def plot_spectrum_polar(analysis_results, show_metrics=True, harmonic=5, fixed_radial_range=None, ax=None):
     """
     Pure polar spectrum plotting using pre-computed coherent spectrum results.

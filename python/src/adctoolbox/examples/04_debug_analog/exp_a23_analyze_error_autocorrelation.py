@@ -60,7 +60,7 @@ for idx, case in enumerate(CASES):
         frequency=params['Fin']/params['Fs'],
         max_lag=100,
         normalize=True,
-        show_plot=True,
+        create_plot=True,
         ax=axes[idx],
         title=case['title']
     )

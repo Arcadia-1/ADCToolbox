@@ -7,16 +7,15 @@ Responsibility Principle. No calculations are performed - only plotting.
 
 import numpy as np
 import matplotlib.pyplot as plt
-from typing import Optional
-from matplotlib.gridspec import GridSpecFromSubplotSpec
 
+from matplotlib.gridspec import GridSpecFromSubplotSpec
 
 def plot_decomposition_time(
     results: dict,
     signal: np.ndarray,
     n_cycles: float = 1.5,
     axes=None,
-    ax: Optional[plt.Axes] = None,
+    ax=None,
     title: str = None
 ):
     """Create a time-domain plot of harmonic decomposition results.

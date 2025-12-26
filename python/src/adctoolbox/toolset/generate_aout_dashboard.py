@@ -17,7 +17,6 @@ from adctoolbox.aout import analyze_error_pdf
 from adctoolbox.aout import analyze_phase_plane
 from adctoolbox.aout import analyze_error_phase_plane
 
-
 def generate_aout_dashboard(signal, fs=1.0, freq=None, output_path=None, resolution=12, show=False):
     """
     Generate comprehensive analysis dashboard with 12 subplots in a 3x4 panel.
@@ -113,12 +112,12 @@ def generate_aout_dashboard(signal, fs=1.0, freq=None, output_path=None, resolut
 
     # Plot 11: analyze_phase_plane
     plt.sca(axes[10])
-    analyze_phase_plane(signal, fs=fs, ax=axes[10], show_plot=False)
+    analyze_phase_plane(signal, fs=fs, ax=axes[10], create_plot=False)
     plt.gca().set_title('(11) Phase Plane', fontsize=12, fontweight='bold')
 
     # Plot 12: analyze_error_phase_plane
     plt.sca(axes[11])
-    analyze_error_phase_plane(signal, fs=fs, ax=axes[11], show_plot=False)
+    analyze_error_phase_plane(signal, fs=fs, ax=axes[11], create_plot=False)
     plt.gca().set_title('(12) Error Phase Plane', fontsize=12, fontweight='bold')
 
     # Overall title

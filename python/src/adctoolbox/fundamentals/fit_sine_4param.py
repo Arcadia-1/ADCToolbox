@@ -6,7 +6,6 @@ Supports 3-parameter (frequency-fixed) and 4-parameter (frequency-optimized) fit
 
 import numpy as np
 
-
 def fit_sine_4param(data, frequency_estimate=None, max_iterations=1, tolerance=1e-9):
     """
     Fit sine wave: y = A*cos(wt) + B*sin(wt) + C.
@@ -39,7 +38,6 @@ def fit_sine_4param(data, frequency_estimate=None, max_iterations=1, tolerance=1
         return _merge_results(results)
 
     raise ValueError(f"Input must be 1D or 2D, got {data.ndim}D.")
-
 
 def _fit_core(y, freq_init, max_iter, tol):
     """Fit sine wave to 1D signal using least squares."""
@@ -83,7 +81,6 @@ def _fit_core(y, freq_init, max_iter, tol):
         'rmse': np.sqrt(np.mean(residuals**2))
     }
 
-
 def _merge_results(results_list):
     """Merge list of result dicts into single dict with stacked arrays."""
     merged = {}
@@ -94,7 +91,6 @@ def _merge_results(results_list):
         else:  # Array (fitted_signal, residuals)
             merged[key] = np.column_stack(values)
     return merged
-
 
 def _estimate_frequency_fft(y):
     """Estimate frequency using FFT peak with parabolic interpolation."""

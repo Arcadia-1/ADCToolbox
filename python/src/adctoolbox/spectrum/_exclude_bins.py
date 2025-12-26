@@ -1,13 +1,11 @@
 """Helper function to exclude bins from spectrum for noise calculation."""
 
 import numpy as np
-from typing import List
-
 
 def _exclude_bins_from_spectrum(
     spectrum: np.ndarray,
     signal_bin: int,
-    harmonic_bins: List[float],
+    harmonic_bins: list[float],
     side_bin: int,
     max_bin: int
 ) -> np.ndarray:
@@ -22,7 +20,7 @@ def _exclude_bins_from_spectrum(
         Input power spectrum
     signal_bin : int
         Fundamental signal bin index
-    harmonic_bins : List[float]
+    harmonic_bins : list[float]
         List of harmonic bin positions (includes fundamental at index 0)
     side_bin : int
         Number of side bins to exclude around each component

@@ -28,7 +28,6 @@ __version__ = '0.4.0'
 
 __all__ = []
 
-
 def _export(name, obj):
     """
     Register a public API symbol.
@@ -39,7 +38,6 @@ def _export(name, obj):
     """
     globals()[name] = obj
     __all__.append(name)
-
 
 # ======================================================================
 # Core Fundamental Functions (Essential Utilities)
@@ -99,7 +97,6 @@ _export('analyze_spectrum', analyze_spectrum)
 _export('analyze_two_tone_spectrum', analyze_two_tone_spectrum)
 _export('analyze_spectrum_polar', analyze_spectrum_polar)
 
-
 # ======================================================================
 # Analog Output (AOUT) Analysis Functions
 # ======================================================================
@@ -128,7 +125,6 @@ _export('analyze_error_autocorr', analyze_error_autocorr)
 _export('analyze_error_envelope_spectrum', analyze_error_envelope_spectrum)
 _export('fit_static_nonlin', fit_static_nonlin)
 
-
 # ======================================================================
 # Calibration Functions
 # ======================================================================
@@ -139,23 +135,21 @@ from .calibration import (
 
 _export('calibrate_weight_sine', calibrate_weight_sine)
 
-
 # ======================================================================
 # Digital Output (DOUT) Analysis Functions
 # ======================================================================
 
 from .dout import (
-    check_bit_activity,
-    check_overflow,
-    plot_weight_radix,
+    analyze_bit_activity,
+    analyze_overflow,
+    analyze_weight_radix,
     analyze_enob_sweep,
 )
 
-_export('check_bit_activity', check_bit_activity)
-_export('check_overflow', check_overflow)
-_export('plot_weight_radix', plot_weight_radix)
+_export('analyze_bit_activity', analyze_bit_activity)
+_export('analyze_overflow', analyze_overflow)
+_export('analyze_weight_radix', analyze_weight_radix)
 _export('analyze_enob_sweep', analyze_enob_sweep)
-
 
 # ======================================================================
 # Oversampling Analysis Functions
@@ -166,7 +160,6 @@ from .oversampling import (
 )
 
 _export('ntf_analyzer', ntf_analyzer)
-
 
 # ======================================================================
 # Submodules (for explicit imports like: from adctoolbox.aout import ...)

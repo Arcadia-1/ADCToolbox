@@ -8,9 +8,8 @@ for convenient use.
 from adctoolbox.aout.compute_inl_from_sine import compute_inl_from_sine
 from adctoolbox.aout.plot_dnl_inl import plot_dnl_inl
 
-
 def analyze_inl_from_sine(data, num_bits=None, full_scale=None, clip_percent=0.01,
-                          show_plot=True, show_title=True, col_title=None, ax=None):
+                          create_plot: bool = True, show_title=True, col_title=None, ax=None):
     """
     INL/DNL analysis from sine wave excitation with optional plotting.
 
@@ -31,14 +30,14 @@ def analyze_inl_from_sine(data, num_bits=None, full_scale=None, clip_percent=0.0
         If None, assumes normalized input (0-1 range).
     clip_percent : float, default=0.01
         Percentage of codes to clip from edges (0.01 = 1% from each end)
-    show_plot : bool, default=True
+    create_plot : bool, default=True
         Plot the INL/DNL curves (True) or just compute (False)
     show_title : bool, default=True
         Show auto-generated title with min/max ranges
     col_title : str, optional
         Column title to display above DNL plot (e.g., "N = 2^10")
     ax : matplotlib.axes.Axes, optional
-        Single axis to split into 2 rows. If None and show_plot=True,
+        Single axis to split into 2 rows. If None and create_plot=True,
         uses current axis (plt.gca()).
 
     Returns:
@@ -58,7 +57,7 @@ def analyze_inl_from_sine(data, num_bits=None, full_scale=None, clip_percent=0.0
     )
 
     # 2. --- Optional Plotting ---
-    if show_plot:
+    if create_plot:
         plot_dnl_inl(
             code=code,
             dnl=dnl,

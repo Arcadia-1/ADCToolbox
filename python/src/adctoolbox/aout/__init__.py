@@ -47,7 +47,6 @@ from adctoolbox.aout.plot_dnl_inl import plot_dnl_inl
 
 from adctoolbox.aout.fit_static_nonlin import fit_static_nonlin
 
-
 # ----------------------------------------------------------------------
 # Public API of aout subpackage
 # ----------------------------------------------------------------------

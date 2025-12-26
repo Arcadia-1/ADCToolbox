@@ -6,8 +6,6 @@ and harmonic components using least-squares fitting.
 """
 
 import numpy as np
-from typing import Tuple
-
 
 def _fit_sine_harmonics(
     sig: np.ndarray,
@@ -15,7 +13,7 @@ def _fit_sine_harmonics(
     order: int = 1,
     include_dc: bool = True,
     fs: float = None,
-) -> Tuple[np.ndarray, np.ndarray, np.ndarray, np.ndarray]:
+) -> tuple[np.ndarray, np.ndarray, np.ndarray, np.ndarray]:
     """
     Fit sine harmonics using least-squares method.
 

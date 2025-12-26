@@ -6,7 +6,6 @@ This module implements the phase alignment algorithm for FFT coherent mode.
 
 import numpy as np
 
-
 def _align_spectrum_phase(fft_data: np.ndarray, bin_idx: int, bin_r: float, n_fft: int) -> np.ndarray:
     """
     Align the phase of an FFT spectrum to phase 0 at the fundamental frequency.
