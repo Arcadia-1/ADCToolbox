@@ -3,17 +3,11 @@
 Demonstrates harmonic, IMD, spur, and DC offset interference.
 """
 
-import time
-t_start = time.perf_counter()
-
 import numpy as np
 import matplotlib.pyplot as plt
 from pathlib import Path
 from adctoolbox import find_coherent_frequency, analyze_spectrum
 from adctoolbox.siggen import ADC_Signal_Generator
-
-t_import = time.perf_counter() - t_start
-t_prep_start = time.perf_counter()
 
 output_dir = Path(__file__).parent / "output"
 output_dir.mkdir(exist_ok=True)
@@ -50,8 +44,8 @@ INTERFERENCES = [
         'method': lambda sig: gen.apply_am_tone(input_signal=sig, am_tone_freq=500e3, am_tone_depth=0.0005),
     },
     {
-        'title': 'AM Noise (1 MHz, 0.1%)',
-        'method': lambda sig: gen.apply_am_noise(input_signal=sig, am_noise_freq=1e6, am_noise_depth=0.001),
+        'title': 'AM Noise (strength=0.1%)',
+        'method': lambda sig: gen.apply_am_noise(input_signal=sig, strength=0.001),
     },
     {
         'title': 'Clipping (level=1%)',
@@ -66,8 +60,8 @@ INTERFERENCES = [
         'method': lambda sig: gen.apply_drift(input_signal=sig, drift_scale=2e-5),
     },
     {
-        'title': 'Reference Error (50 MHz, 0.1%)',
-        'method': lambda sig: gen.apply_reference_error(input_signal=sig, ref_error_amplitude=0.001, ref_error_freq=50e6),
+        'title': 'Reference Error (tau=2.0, droop=0.01)',
+        'method': lambda sig: gen.apply_reference_error(input_signal=sig, settling_tau=2.0, droop_strength=0.01),
     },
 ]
 
@@ -79,10 +73,6 @@ print("=" * 100)
 print(f"{'#':<3} | {'Interference Type':<35} | {'SFDR (dB)':<10} | {'THD (dB)':<10} | {'SNR (dB)':<10}")
 print("-" * 100)
 
-t_prep = time.perf_counter() - t_prep_start
-t_loop_start = time.perf_counter()
-
-t_tool_total = 0.0
 # Run Sweep
 for idx, config in enumerate(INTERFERENCES):
     
@@ -92,18 +82,12 @@ for idx, config in enumerate(INTERFERENCES):
     
     # Spectrum analysis
     plt.sca(axes[idx])
-    
-    t_tool_start = time.perf_counter()
     result = analyze_spectrum(signal, fs=Fs)
-    t_tool_total += time.perf_counter() - t_tool_start
     
     axes[idx].set_title(config['title'], fontsize=11, fontweight='bold')
     axes[idx].set_ylim([-140, 0])
     
     print(f"{idx+1:<3} | {config['title']:<35} | {result['sfdr_db']:<10.2f} | {result['thd_db']:<10.2f} | {result['snr_db']:<10.2f}")
-
-t_loop = time.perf_counter() - t_loop_start
-t_fig_start = time.perf_counter()
 
 # Finalize
 plt.suptitle('Interference Effects on Coherent Sampled Signal\n(Each type applied independently to Fin=80MHz)',
@@ -112,20 +96,6 @@ plt.tight_layout()
 plt.subplots_adjust(top=0.9)
 
 fig_path = output_dir / "exp_g07_sweep_interferences.png"
-print(f"\n[Save figure] -> [{fig_path}]")
+print(f"\n[Save figure] -> [{fig_path}]\n")
 plt.savefig(fig_path, dpi=300, bbox_inches='tight')
 plt.close()
-
-t_fig = time.perf_counter() - t_fig_start
-t_total = time.perf_counter() - t_start
-
-print(f"\n{'='*60}")
-print(f"Timing Report:")
-print(f"{'='*60}")
-print(f"  Import time:      {t_import*1000:7.2f} ms")
-print(f"  Preparation time: {t_prep*1000:7.2f} ms")
-print(f"  Core tool time:   {t_tool_total*1000:7.2f} ms  (analyze_spectrum x8)")
-print(f"  Main loop time:   {t_loop*1000:7.2f} ms")
-print(f"  Figure time:      {t_fig*1000:7.2f} ms")
-print(f"  Total runtime:    {t_total*1000:7.2f} ms")
-print(f"{'='*60}\n")
