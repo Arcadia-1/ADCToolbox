@@ -48,6 +48,14 @@ exp_g01_generate_signal_demo.py
    
    [Save figure] -> [D:\ADCToolbox\python\src\adctoolbox\examples\03_generate_signals\output\exp_g01_generate_signal_demo_thermal_noise.png]
 
+.. figure:: figures/exp_g01_generate_signal_demo_thermal_noise.png
+   :alt: Thermal noise effect on signal
+   :align: center
+   :width: 600px
+
+   Impact of thermal noise on spectrum and signal quality
+
+
 ---
 
 exp_g03_sweep_quant_bits.py
@@ -72,6 +80,14 @@ exp_g03_sweep_quant_bits.py
    16     | 16.00    | 98.07      | 98.08
    
    [Save fig] -> [D:\ADCToolbox\python\src\adctoolbox\examples\03_generate_signals\output\exp_g03_sweep_quant_bits.png]
+
+.. figure:: figures/exp_g03_sweep_quant_bits.png
+   :alt: Quantization noise vs resolution
+   :align: center
+   :width: 600px
+
+   SNR degradation due to quantization noise (2-16 bit resolution sweep)
+
 
 ---
 

@@ -116,9 +116,39 @@ exp_t02_aout_dashboard_batch.py
      4. Error by Phase             10. Error Envelope Spectrum
      5. Decomposition Time         11. Phase Plane
      6. Decomposition Polar        12. Error Phase Plane
-   
+
    Output directory: D:\ADCToolbox\python\src\adctoolbox\examples\06_use_toolsets\output
    ====================================================================================================
+
+**Example Dashboard Figures:**
+
+.. figure:: figures/exp_t02_dashboard_01_Thermal_Noise.png
+   :alt: Dashboard - Thermal Noise Analysis
+   :align: center
+   :width: 800px
+
+   Thermal Noise: Comprehensive 12-tool analysis dashboard
+
+.. figure:: figures/exp_t02_dashboard_03_Jitter_Noise.png
+   :alt: Dashboard - Jitter Noise Analysis
+   :align: center
+   :width: 800px
+
+   Jitter Noise: Phase noise and timing jitter effects
+
+.. figure:: figures/exp_t02_dashboard_06_Static_HD3_-70_dBc.png
+   :alt: Dashboard - Static HD3 Distortion
+   :align: center
+   :width: 800px
+
+   Static HD3 (-70 dBc): Third harmonic distortion analysis
+
+.. figure:: figures/exp_t02_dashboard_10_RA_Dynamic_Gain.png
+   :alt: Dashboard - RA Dynamic Gain
+   :align: center
+   :width: 800px
+
+   RA Dynamic Gain: Residue amplifier dynamic gain variation
 
 ---
 
