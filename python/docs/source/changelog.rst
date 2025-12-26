@@ -83,7 +83,7 @@ New Features
   - ``03_generate_signals/`` - Non-Ideality Modeling (6 examples)
   - ``04_debug_analog/`` - Error Characterization (13 examples)
   - ``05_debug_digital/`` - Calibration & Redundancy (5 examples)
-  - ``06_calculate_metric/`` - Utility Functions (5 examples)
+  - ``07_conversions/`` - Conversions (5 examples)
 
 * **Enhanced Error Analysis**:
 

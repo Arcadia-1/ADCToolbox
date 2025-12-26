@@ -1,25 +1,25 @@
-Example Print Outputs: 07_calculate_metric
+Example Print Outputs: 07_conversions
 ==========================================
 
-This document records the console output from all examples in `python/src/adctoolbox/examples/07_calculate_metric/`.
+This document records the console output from all examples in `python/src/adctoolbox/examples/07_conversions/`.
 
 Summary
 -------
 
-All examples in `07_calculate_metric` demonstrate metric calculation and unit conversion utilities:
+All examples in `07_conversions` demonstrate unit conversions and metric calculations:
 
-1. **exp_b01**: Aliasing and Nyquist zone calculations
-2. **exp_b02**: Comprehensive unit conversions (9 conversion categories with round-trip validation)
-3. **exp_b03**: ADC figure of merit calculations (Walden FOM, Schreier FOM, performance limits)
-4. **exp_b05**: Signal/noise amplitude to SNR conversions
-5. **exp_b06**: Noise spectral density (NSD) and SNR conversions
+1. **exp_c01**: Aliasing and Nyquist zone calculations
+2. **exp_c02**: Comprehensive unit conversions (9 conversion categories with round-trip validation)
+3. **exp_c03**: ADC figure of merit calculations (Walden FOM, Schreier FOM, performance limits)
+4. **exp_c05**: Signal/noise amplitude to SNR conversions
+5. **exp_c06**: Noise spectral density (NSD) and SNR conversions
 
 **Total Examples**: 5
 
 
 ---
 
-exp_b01_aliasing_nyquist_zones.py
+exp_c01_aliasing_nyquist_zones.py
 ---------------------------------
 
 **Description**: Demonstrate aliasing and Nyquist zone calculations.
@@ -29,11 +29,11 @@ exp_b01_aliasing_nyquist_zones.py
    [Aliasing] Fs = 1100.0 MHz, Fin_target = 123.0 MHz -> F_aliased = 123.0 MHz
    [Aliasing 500 frequencies] [Input = 0.0 - 3300.0 MHz] [Output = 0.00 - 548.90 MHz]
    
-   [Save fig] -> [D:\ADCToolbox\python\src\adctoolbox\examples\07_calculate_metric\output\exp_b05_aliasing.png]
+   [Save fig] -> [D:\ADCToolbox\python\src\adctoolbox\examples\07_conversions\output\exp_c05_aliasing.png]
 
 ---
 
-exp_b02_unit_conversions.py
+exp_c02_unit_conversions.py
 ---------------------------
 
 **Description**: Comprehensive unit conversion utilities for ADC testing.
@@ -165,14 +165,14 @@ exp_b02_unit_conversions.py
 
 ---
 
-exp_b03_calculate_fom.py
+exp_c03_calculate_fom.py
 ------------------------
 
 **Description**: Calculate ADC figures of merit (Walden FOM, Schreier FOM, jitter-limited SNR, thermal noise-limited SNR).
 
 .. code-block:: none
 
-   [Figure saved] -> D:\ADCToolbox\python\src\adctoolbox\examples\07_calculate_metric\output\exp_b03_calculate_fom.png
+   [Figure saved] -> D:\ADCToolbox\python\src\adctoolbox\examples\07_conversions\output\exp_c03_calculate_fom.png
    
    ======================================================================
    ADC Figure of Merit (FOM) Summary
@@ -201,14 +201,14 @@ exp_b03_calculate_fom.py
 
 ---
 
-exp_b05_amplitudes_to_snr.py
+exp_c05_amplitudes_to_snr.py
 ----------------------------
 
 **Description**: Convert signal/noise amplitudes to SNR metrics.
 
 .. code-block:: none
 
-   [Figure saved] -> D:\ADCToolbox\python\src\adctoolbox\examples\07_calculate_metric\output\exp_b05_snr_calculations.png
+   [Figure saved] -> D:\ADCToolbox\python\src\adctoolbox\examples\07_conversions\output\exp_c05_snr_calculations.png
    
    ======================================================================
    Summary: SNR = 20*log10(A_RMS / noise_RMS) = 20*log10(A/sqrt(2) / sigma)
@@ -225,14 +225,14 @@ exp_b05_amplitudes_to_snr.py
 
 ---
 
-exp_b06_convert_nsd_snr.py
+exp_c06_convert_nsd_snr.py
 --------------------------
 
 **Description**: Convert between NSD and SNR metrics.
 
 .. code-block:: none
 
-   [Figure saved] -> D:\ADCToolbox\python\src\adctoolbox\examples\07_calculate_metric\output\exp_b06_nsd_snr_conversions.png
+   [Figure saved] -> D:\ADCToolbox\python\src\adctoolbox\examples\07_conversions\output\exp_c06_nsd_snr_conversions.png
    
    [SNR -> NSD -> SNR Round-trip]
      [SNR = 85.30 dB] -> [NSD = -121.22 dBFS/Hz] -> [SNR = 85.30 dB]
