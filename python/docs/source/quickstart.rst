@@ -151,11 +151,8 @@ Run your first examples:
 
 .. code-block:: bash
     cd adctoolbox_examples
-    python 01_basic/exp_b01_environment_check.py
-
-    
+    python 01_basic/exp_b01_environment_check.py    
     python 02_spectrum/exp_s01_analyze_spectrum_simplest.py
-
     python 02_spectrum/exp_s02_analyze_spectrum_interactive.py
 
 All outputs are saved to the ``output/`` directory within each category.
