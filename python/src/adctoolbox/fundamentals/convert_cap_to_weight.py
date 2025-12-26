@@ -1,7 +1,7 @@
 """
 Capacitor to Weight Converter.
 
-Calculates the effective bit weights of a Capacitor DAC (CDAC) 
+Calculates the effective bit weights of a Capacitor DAC (CDAC)
 based on component values, including parasitic and bridge capacitors.
 
 Topology: Split-Capacitor Array (LSB -> Bridge -> MSB)
@@ -11,23 +11,31 @@ Ref: Ported from MATLAB cap2weight.m
 import numpy as np
 
 
-def convert_cap_to_weight(caps_bit, caps_bridge, caps_parasitic):
+def convert_cap_to_weight(
+    caps_bit: np.ndarray,
+    caps_bridge: np.ndarray,
+    caps_parasitic: np.ndarray
+) -> tuple[np.ndarray, float]:
     """
     Calculate bit weights for a CDAC with bridge capacitors.
 
     The algorithm iterates from LSB to MSB, calculating the equivalent
     load capacitance and scaling previous weights accordingly.
 
-    Args:
-        caps_bit (array_like): DAC bit capacitors [LSB ... MSB]. (Cd)
-        caps_bridge (array_like): Bridge capacitors [LSB ... MSB]. (Cb)
-                                  0 indicates no bridge at that stage.
-        caps_parasitic (array_like): Parasitic capacitors to ground [LSB ... MSB]. (Cp)
+    Parameters
+    ----------
+    caps_bit : np.ndarray
+        DAC bit capacitors [LSB ... MSB] (Cd)
+    caps_bridge : np.ndarray
+        Bridge capacitors [LSB ... MSB] (Cb). 0 indicates no bridge
+    caps_parasitic : np.ndarray
+        Parasitic capacitors to ground [LSB ... MSB] (Cp)
 
-    Returns:
-        tuple:
-            - weights (np.ndarray): Normalized weights [LSB ... MSB].
-            - c_total (float): Total equivalent input capacitance.
+    Returns
+    -------
+    tuple[np.ndarray, float]
+        - weights: Normalized weights [LSB ... MSB]
+        - c_total: Total equivalent input capacitance
     """
     # 1. Input Validation & Standardization
     cd = np.asarray(caps_bit, dtype=float)
