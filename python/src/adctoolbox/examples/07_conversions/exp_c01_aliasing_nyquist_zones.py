@@ -75,7 +75,7 @@ ax.grid(True, alpha=0.3)
 fig.suptitle(f'Frequency Aliasing within {N_ZONES} Nyquist Zones (Fs={Fs/1e6:.0f}MHz)',
              fontsize=12, fontweight='bold')
 plt.tight_layout()
-fig_path = (output_dir / 'exp_b05_aliasing.png').resolve()
+fig_path = (output_dir / 'exp_c01_aliasing.png').resolve()
 print(f"[Save fig] -> [{fig_path}]\n")
 plt.savefig(fig_path, dpi=150)
 plt.close()

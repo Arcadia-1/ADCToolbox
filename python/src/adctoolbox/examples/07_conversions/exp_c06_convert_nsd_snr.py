@@ -34,7 +34,7 @@ ax.legend(fontsize=13, loc='lower left')
 ax.yaxis.set_major_locator(plt.MultipleLocator(10))
 
 plt.tight_layout()
-fig_path = output_dir / 'exp_b06_nsd_snr_conversions.png'
+fig_path = output_dir / 'exp_c06_nsd_snr_conversions.png'
 plt.savefig(fig_path, dpi=150, bbox_inches='tight')
 print(f"[Figure saved] -> {fig_path.resolve()}")
 plt.close()

@@ -151,7 +151,7 @@ ax4.set_xlim([0.01, 100])
 
 # Save figure
 plt.tight_layout()
-fig_path = output_dir / 'exp_b03_calculate_fom.png'
+fig_path = output_dir / 'exp_c03_calculate_fom.png'
 plt.savefig(fig_path, dpi=150, bbox_inches='tight')
 print(f"[Figure saved] -> {fig_path.resolve()}")
 plt.close()

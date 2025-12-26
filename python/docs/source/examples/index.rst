@@ -14,88 +14,16 @@ To copy all examples to your workspace:
 
 This creates an ``adctoolbox_examples/`` directory with all examples organized by category.
 
-Example Categories
-------------------
-
-Spectrum Analysis (14 examples)
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-
-Examples demonstrating spectrum computation, FFT metrics, and visualization:
-
-* **exp_s01-s03**: Basic spectrum analysis (simplest, interactive, save figure)
-* **exp_s04**: Dynamic range sweep
-* **exp_s05**: Harmonic spur annotation
-* **exp_s06**: FFT length and OSR sweep
-* **exp_s07**: Power vs coherent averaging
-* **exp_s08**: Windowing functions comparison
-* **exp_s10-s12**: Polar spectrum visualization (noise, nonlinearity, averaging)
-* **exp_s21-s23**: Two-tone spectrum analysis with IMD products
-
-Signal Generation (6 examples)
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-
-Examples for creating test signals with various non-idealities:
-
-* **exp_g01**: Thermal noise effects on signal quality
-* **exp_g03**: Quantization noise scaling (2-16 bits)
-* **exp_g04**: Jitter-induced SNR degradation
-* **exp_g05**: Static nonlinearity harmonic distortion
-* **exp_g06**: Isolated nonlinearity effects (8 types)
-* **exp_g07**: Interference effects on spectrum (8 types)
-
-Analog Output Analysis (15 examples)
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-
-Comprehensive analog output diagnostic examples:
-
-* **exp_a01**: 4-parameter sine fitting
-* **exp_a02-a04**: Error analysis (by value, by phase, jitter calculation)
-* **exp_a11-a12**: Harmonic decomposition (time domain and polar)
-* **exp_a21-a25**: Statistical analysis (PDF, spectrum, autocorrelation, envelope, comparison)
-* **exp_a31-a32**: Nonlinearity fitting and INL/DNL extraction
-* **exp_a41-a42**: Phase plane analysis (standard and error phase plane)
-
-Digital Output Analysis (7 examples)
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-
-Examples for bit-weighted ADC analysis:
-
-* **exp_d01-d03**: Weight calibration (lite, full, redundancy comparison)
-* **exp_d11**: Bit activity checking
-* **exp_d12**: ENOB bit sweep
-* **exp_d13**: Weight scaling and radix analysis
-* **exp_d14**: Overflow detection
-
-Comprehensive Dashboards (4 examples)
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-
-All-in-one diagnostic dashboard generators:
-
-* **exp_t01**: Single analog output dashboard (12 tools)
-* **exp_t02**: Batch analog output dashboards (15 non-idealities)
-* **exp_t03**: Single digital output dashboard (6 tools)
-* **exp_t04**: Batch digital output dashboards (7 configurations)
-
-Conversions (5 examples)
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-
-Examples for unit conversions and metric calculations:
-
-* **exp_c01**: Aliasing and Nyquist zone calculations
-* **exp_c02**: Comprehensive unit conversions (9 categories)
-* **exp_c03**: ADC figure of merit calculations (Walden FOM, Schreier FOM)
-* **exp_c05**: Signal/noise amplitude to SNR conversions
-* **exp_c06**: Noise spectral density (NSD) conversions
-
 Running Examples
 ----------------
 
 Navigate to the examples directory and run any example. Examples are organized by category:
 
 .. code-block:: bash
-
-    cd adctoolbox_examples/02_spectrum
-    python exp_s01_analyze_spectrum_simplest.py
+    cd adctoolbox_examples
+    python 01_basic/exp_b01_environment_check.py
+    python 02_spectrum/exp_s01_analyze_spectrum_simplest.py
+    python 02_spectrum/exp_s02_analyze_spectrum_interactive.py
 
 All examples save their outputs (plots, data files) to an ``output/`` subdirectory within each category folder.
 
