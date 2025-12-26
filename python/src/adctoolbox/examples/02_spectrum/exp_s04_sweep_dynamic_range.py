@@ -166,5 +166,3 @@ elif snr_array[0] >= 0:
     print(f"Dynamic Range: >{dynamic_range:.1f} dB (minimum SNR = {snr_array[0]:.1f} dB at {amp_at_snr_0:.1f} dBFS)")
 else:
     print("Maximum SNR is below 0 dB - insufficient dynamic range")
-
-print("=" * 80)
