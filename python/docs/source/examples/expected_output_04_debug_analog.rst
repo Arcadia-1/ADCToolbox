@@ -1,7 +1,7 @@
-Example Print Outputs: 04_debug_analog
+Expected Output: 04_debug_analog
 ======================================
 
-This document records the console output from all examples in `python/src/adctoolbox/examples/04_debug_analog/`.
+This document shows the expected console output and example figures from all examples in `python/src/adctoolbox/examples/04_debug_analog/`.
 
 Summary
 -------

@@ -1,7 +1,7 @@
-Example Print Outputs: 05_debug_digital
+Expected Output: 05_debug_digital
 =======================================
 
-This document records the console output from all examples in `python/src/adctoolbox/examples/05_debug_digital/`.
+This document shows the expected console output and example figures from all examples in `python/src/adctoolbox/examples/05_debug_digital/`.
 
 Summary
 -------
