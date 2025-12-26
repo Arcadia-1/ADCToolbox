@@ -76,71 +76,51 @@ All-in-one diagnostic dashboard generators:
 * **exp_t03**: Single digital output dashboard (6 tools)
 * **exp_t04**: Batch digital output dashboards (7 configurations)
 
-Metric Calculation (5 examples)
+Conversions (5 examples)
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-Examples for computing figures of merit and unit conversions:
+Examples for unit conversions and metric calculations:
 
-* **exp_b01**: Aliasing and Nyquist zone calculations
-* **exp_b02**: Comprehensive unit conversions (9 categories)
-* **exp_b03**: ADC figure of merit calculations (Walden FOM, Schreier FOM)
-* **exp_b05**: Signal/noise amplitude to SNR conversions
-* **exp_b06**: Noise spectral density (NSD) conversions
+* **exp_c01**: Aliasing and Nyquist zone calculations
+* **exp_c02**: Comprehensive unit conversions (9 categories)
+* **exp_c03**: ADC figure of merit calculations (Walden FOM, Schreier FOM)
+* **exp_c05**: Signal/noise amplitude to SNR conversions
+* **exp_c06**: Noise spectral density (NSD) conversions
 
 Running Examples
 ----------------
 
-Navigate to the examples directory and run any example:
+Navigate to the examples directory and run any example. Examples are organized by category:
 
 .. code-block:: bash
 
-    cd adctoolbox_examples
+    cd adctoolbox_examples/02_spectrum
     python exp_s01_analyze_spectrum_simplest.py
 
 All examples save their outputs (plots, data files) to an ``output/`` subdirectory within each category folder.
 
+**Category Folders:**
+
+* ``02_spectrum/`` - Spectrum analysis examples
+* ``03_generate_signals/`` - Signal generation examples
+* ``04_debug_analog/`` - Analog output analysis examples
+* ``05_debug_digital/`` - Digital output analysis examples
+* ``06_use_toolsets/`` - Comprehensive dashboard examples
+* ``07_conversions/`` - Conversion and metric calculation examples
+
 Expected Console Outputs
 ------------------------
 
-For reference, the expected console output from each example category is documented:
-
-* :doc:`example_print_02_spectrum` - Spectrum analysis examples (14 examples)
-* :doc:`example_print_03_generate_signals` - Signal generation examples (6 examples)
-* :doc:`example_print_04_debug_analog` - Analog output analysis examples (15 examples)
-* :doc:`example_print_05_debug_digital` - Digital output analysis examples (7 examples)
-* :doc:`example_print_06_use_toolsets` - Comprehensive dashboard examples (4 examples)
-* :doc:`example_print_07_calculate_metric` - Metric calculation examples (5 examples)
-
+For reference, the expected console output from each example category is documented below.
 These documentation files show the exact console output and validation results you should expect when running each example.
 
-Example Template
-----------------
+.. toctree::
+   :maxdepth: 1
+   :caption: Example Outputs by Category
 
-Most examples follow this structure:
-
-.. code-block:: python
-
-    """
-    Example: Description of what this example demonstrates
-    """
-
-    import numpy as np
-    from adctoolbox import function_name
-
-    # Parameters
-    N = 2**13          # Number of samples
-    Fs = 800e6         # Sampling frequency: 800 MHz
-
-    # Generate or load test data
-    data = ...
-
-    # Perform analysis
-    result = function_name(data, ...)
-
-    # Validate results
-    assert condition, "Validation message"
-
-    # Save outputs
-    # (outputs saved to output/ directory)
-
-For more details on specific examples, see the source code in the ``adctoolbox/examples/`` directory.
+   example_print_02_spectrum
+   example_print_03_generate_signals
+   example_print_04_debug_analog
+   example_print_05_debug_digital
+   example_print_06_use_toolsets
+   example_print_07_conversions

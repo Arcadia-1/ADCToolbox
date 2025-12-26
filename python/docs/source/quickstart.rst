@@ -23,7 +23,7 @@ This creates an ``adctoolbox_examples/`` directory with examples organized into 
 * **03_generate_signals/** - Non-Ideality Modeling (6 examples)
 * **04_debug_analog/** - Error Characterization (13 examples)
 * **05_debug_digital/** - Calibration & Redundancy (5 examples)
-* **06_calculate_metric/** - Utility Functions (5 examples)
+* **07_conversions/** - Conversions (5 examples)
 
 Run Your First Examples
 ~~~~~~~~~~~~~~~~~~~~~~~~
@@ -76,7 +76,7 @@ Browse More Examples
     python exp_d02_cal_weight_sine.py
 
     # Metrics & utilities (5 examples)
-    cd ../06_calculate_metric
+    cd ../07_conversions
     python exp_b01_aliasing_nyquist_zones.py
 
 Basic Usage
