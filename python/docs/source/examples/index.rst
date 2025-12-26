@@ -1,7 +1,7 @@
-Examples Gallery
+Examples
 ================
 
-ADCToolbox includes 51 ready-to-run examples organized into 6 categories. This gallery demonstrates common use cases and analysis workflows.
+ADCToolbox includes 51 ready-to-run examples organized into 6 categories. This page demonstrates common use cases and analysis workflows.
 
 Getting the Examples
 --------------------
