@@ -17,7 +17,6 @@ All examples in `07_conversions` demonstrate unit conversions and metric calcula
 **Total Examples**: 5
 
 
----
 
 exp_c01_aliasing_nyquist_zones.py
 ----------------------------------
@@ -38,7 +37,6 @@ exp_c01_aliasing_nyquist_zones.py
 
    Frequency aliasing visualization across multiple Nyquist zones
 
----
 
 exp_c02_unit_conversions.py
 ---------------------------
@@ -170,7 +168,6 @@ exp_c02_unit_conversions.py
 
    [Example complete]
 
----
 
 exp_c03_calculate_fom.py
 ------------------------
@@ -206,7 +203,6 @@ exp_c03_calculate_fom.py
        Max SNR = 74.8 dB (12.13-bit ENOB)
    ======================================================================
 
----
 
 exp_c04_amplitudes_to_snr.py
 ----------------------------
@@ -230,7 +226,6 @@ exp_c04_amplitudes_to_snr.py
      14-bit: Q-noise=   17.6 uV, SNR=86.05 dB (Theory=86.04 dB)
    ======================================================================
 
----
 
 exp_c05_convert_nsd_snr.py
 --------------------------
