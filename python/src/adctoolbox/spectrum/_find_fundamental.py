@@ -7,15 +7,13 @@ This is an internal helper module, not intended for direct use by end users.
 """
 
 import numpy as np
-from typing import Tuple
-
 
 def _find_fundamental(
     spectrum: np.ndarray,
     n_fft: int,
     osr: int = 1,
     method: str = 'magnitude'
-) -> Tuple[int, float]:
+) -> tuple[int, float]:
     """Find the fundamental frequency bin in FFT spectrum.
 
     Locates the fundamental frequency using the specified method and applies

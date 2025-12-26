@@ -3,7 +3,6 @@
 import numpy as np
 from scipy.linalg import lstsq
 
-
 def calibrate_weight_sine_lite(
     bits: np.ndarray,
     freq: float

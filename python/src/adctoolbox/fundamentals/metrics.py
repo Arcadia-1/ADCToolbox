@@ -10,7 +10,6 @@ Provides standard FoM calculations and theoretical performance limits:
 
 import numpy as np
 
-
 # --- Comprehensive Performance Metrics (Figure of Merit) ---
 
 def calculate_walden_fom(power, fs, enob):
@@ -32,7 +31,6 @@ def calculate_walden_fom(power, fs, enob):
     """
     return power / (2**enob * fs)
 
-
 def calculate_schreier_fom(power, sndr_db, bw):
     """
     Calculate Schreier Figure of Merit (FoM_s).
@@ -51,7 +49,6 @@ def calculate_schreier_fom(power, sndr_db, bw):
         FoM_s in dB
     """
     return sndr_db + 10 * np.log10(bw / power)
-
 
 # --- Theoretical Performance Limits ---
 
@@ -85,7 +82,6 @@ def calculate_thermal_noise_limit(cap_pf, v_fs=1.0):
     p_sig = (v_fs**2) / 8
 
     return 10 * np.log10(p_sig / p_noise)
-
 
 def calculate_jitter_limit(freq, jitter_rms_sec):
     """

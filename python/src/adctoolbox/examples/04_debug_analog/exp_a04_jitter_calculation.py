@@ -82,14 +82,14 @@ for row_idx, (noise_level, noise_label) in enumerate(zip(noise_levels, noise_lab
 
             # Measure jitter using analyze_error_by_phase
             results = analyze_error_by_phase(signal, norm_freq=Fin/Fs, n_bins=100,
-                                            include_base_noise=True, show_plot=False)
+                                            include_base_noise=True, create_plot=False)
 
             # Extract PM noise and convert to jitter
             pm_noise_rad = results['pm_noise_rms_rad']
             jitter_calc = pm_noise_rad / (2 * np.pi * Fin)
 
             # Calculate SNR using analyze_spectrum
-            spec_results = analyze_spectrum(signal, fs=Fs, osr=1, show_plot=False)
+            spec_results = analyze_spectrum(signal, fs=Fs, osr=1, create_plot=False)
             snr_db = spec_results['snr_db']
 
             jitter_set.append(jitter_rms)

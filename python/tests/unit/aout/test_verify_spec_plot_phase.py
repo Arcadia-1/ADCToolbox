@@ -83,7 +83,7 @@ def test_verify_spec_plot_phase_fft_mode():
     signal, params = generate_test_signal()
 
     print('\n[Verify spec_plot_phase] [FFT Mode]')
-    coherent_result, plot_data = analyze_spectrum_polar(signal, harmonic=5, show_plot=False)
+    coherent_result, plot_data = analyze_spectrum_polar(signal, harmonic=5, create_plot=False)
 
     # Check that FFT mode returns expected values
     has_complex_spec = 'complex_spec_coherent' in coherent_result
@@ -110,7 +110,7 @@ def test_verify_spec_plot_phase_lms_mode():
     signal, params = generate_test_signal()
 
     print('\n[Verify spec_plot_phase] [LMS Mode]')
-    decomp_result, plot_data = analyze_decomposition_polar(signal, harmonic=5, show_plot=False)
+    decomp_result, plot_data = analyze_decomposition_polar(signal, harmonic=5, create_plot=False)
 
     harm_phase = decomp_result['harm_phase']
     harm_mag = decomp_result['harm_mag']
@@ -155,8 +155,8 @@ def test_verify_spec_plot_phase_comparison():
     print('\n[Verify spec_plot_phase] [FFT vs LMS]')
 
     # Run both modes
-    coherent_result, plot_data_fft = analyze_spectrum_polar(signal, harmonic=5, show_plot=False)
-    decomp_result, plot_data_lms = analyze_decomposition_polar(signal, harmonic=5, show_plot=False)
+    coherent_result, plot_data_fft = analyze_spectrum_polar(signal, harmonic=5, create_plot=False)
+    decomp_result, plot_data_lms = analyze_decomposition_polar(signal, harmonic=5, create_plot=False)
 
     # FFT mode: returns coherent spectrum data
     fft_ok = 'complex_spec_coherent' in coherent_result and 'bin_idx' in coherent_result

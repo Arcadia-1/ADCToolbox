@@ -31,7 +31,6 @@ def _scale_columns_for_conditioning(
 
     return bits_effective, bit_scales
 
-
 def _recover_columns_for_conditioning(
     coeffs: np.ndarray, 
     bit_width_effective: int, 

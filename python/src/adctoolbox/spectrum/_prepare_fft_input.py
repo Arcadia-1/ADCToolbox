@@ -3,12 +3,10 @@
 import numpy as np
 import warnings
 from scipy.signal import windows
-from typing import Optional, Union, Tuple, List
-
 
 def _prepare_fft_input(
     data: np.ndarray,
-    max_scale_range: Optional[Union[float, Tuple[float, float], List[float]]] = None,
+    max_scale_range: float | tuple[float | float | None | list[float]] = None,
     win_type: str = 'boxcar'
 ) -> np.ndarray:
     """Prepare input data for FFT analysis.

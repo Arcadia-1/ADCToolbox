@@ -1,27 +1,26 @@
 """Calculate spectrum data for ADC analysis - unified calculation engine."""
 
 import numpy as np
-from typing import Dict, Optional, Union
+
 from adctoolbox.spectrum._prepare_fft_input import _prepare_fft_input
 from adctoolbox.spectrum._find_fundamental import _find_fundamental
 from adctoolbox.spectrum._find_harmonic_bins import _find_harmonic_bins
 from adctoolbox.spectrum._align_spectrum_phase import _align_spectrum_phase
 from adctoolbox.spectrum._exclude_bins import _exclude_bins_from_spectrum
 
-
 def compute_spectrum(
     data: np.ndarray,
     fs: float = 1.0,
-    max_scale_range: Optional[float] = None,
+    max_scale_range: float | None = None,
     win_type: str = 'hann',
     side_bin: int = 1,
     osr: int = 1,
     n_thd: int = 5,
     nf_method: int = 2,
-    assumed_sig_pwr_dbfs: Optional[float] = None,
+    assumed_sig_pwr_dbfs: float | None = None,
     coherent_averaging: bool = False,
     cutoff_freq: float = 0
-) -> Dict[str, Union[np.ndarray, float, Dict]]:
+) -> dict[str, np.ndarray | float | dict]:
     """Calculate spectrum data for ADC analysis.
 
     Parameters

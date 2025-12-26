@@ -8,12 +8,11 @@ MATLAB counterpart: errac.m
 
 import numpy as np
 import matplotlib.pyplot as plt
-from typing import Optional
+
 from adctoolbox.fundamentals.fit_sine_4param import fit_sine_4param
 
-
-def analyze_error_autocorr(signal, frequency=None, max_lag=50, normalize=True, show_plot=True,
-                           ax: Optional[plt.Axes] = None, title: str = None):
+def analyze_error_autocorr(signal, frequency=None, max_lag=50, normalize=True, create_plot: bool = True,
+                           ax=None, title: str = None):
     """
     Compute and optionally plot autocorrelation function (ACF) of error signal.
 
@@ -30,7 +29,7 @@ def analyze_error_autocorr(signal, frequency=None, max_lag=50, normalize=True, s
         Maximum lag in samples
     normalize : bool, default=True
         Normalize ACF so ACF[0] = 1
-    show_plot : bool, default=True
+    create_plot : bool, default=True
         If True, plot the autocorrelation
     ax : matplotlib.axes.Axes, optional
         Axes to plot on. If None, uses current axes (plt.gca())
@@ -91,7 +90,7 @@ def analyze_error_autocorr(signal, frequency=None, max_lag=50, normalize=True, s
         acf = acf / acf[lags == 0]
 
     # Plot if requested
-    if show_plot:
+    if create_plot:
         # Use provided axes or get current axes
         if ax is None:
             ax = plt.gca()

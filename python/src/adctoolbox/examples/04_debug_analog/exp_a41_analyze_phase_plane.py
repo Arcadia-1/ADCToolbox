@@ -69,7 +69,7 @@ for idx, case in enumerate(CASES):
         threshold=4.0,
         ax=axes[idx],
         title=case['title'],
-        show_plot=False
+        create_plot=False
     )
     
     # Print metrics

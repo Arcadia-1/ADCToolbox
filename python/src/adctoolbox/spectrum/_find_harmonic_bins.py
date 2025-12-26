@@ -9,7 +9,6 @@ This is an internal helper module, not intended for direct use by end users.
 import numpy as np
 from adctoolbox.fundamentals.frequency import fold_frequency_to_nyquist
 
-
 def _find_harmonic_bins(
     fundamental_bin: float,
     harmonic: int,

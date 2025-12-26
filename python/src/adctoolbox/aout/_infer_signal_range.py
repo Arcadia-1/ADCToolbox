@@ -1,10 +1,11 @@
+"""Infer signal range from data or user-provided full-scale range."""
+
 import numpy as np
-from typing import Tuple, Optional
 
 def _infer_signal_range(
     signal: np.ndarray,
-    full_scale_range: Optional[Tuple[float, float]] = None,
-) -> Tuple[float, float]:
+    full_scale_range: tuple[float, float] = None,
+) -> tuple[float, float]:
     """
     Determine the logical boundaries (min, max) of the signal.
     """

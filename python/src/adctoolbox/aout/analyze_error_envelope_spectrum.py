@@ -8,14 +8,13 @@ MATLAB counterpart: errevspec.m
 
 import numpy as np
 import matplotlib.pyplot as plt
-from typing import Optional
+
 from scipy.signal import hilbert
 from adctoolbox.spectrum import analyze_spectrum
 from adctoolbox.fundamentals.fit_sine_4param import fit_sine_4param
 
-
-def analyze_error_envelope_spectrum(signal, fs=1, frequency=None, show_plot=True,
-                                     ax: Optional[plt.Axes] = None, title: str = None):
+def analyze_error_envelope_spectrum(signal, fs=1, frequency=None, create_plot: bool = True,
+                                     ax=None, title: str = None):
     """
     Compute envelope spectrum using Hilbert transform.
 
@@ -31,7 +30,7 @@ def analyze_error_envelope_spectrum(signal, fs=1, frequency=None, show_plot=True
         Sampling frequency in Hz
     frequency : float, optional
         Normalized frequency (0-0.5). If None, auto-detected
-    show_plot : bool, default=True
+    create_plot : bool, default=True
         If True, plot the envelope spectrum on current axes
     ax : matplotlib.axes.Axes, optional
         Axes to plot on. If None, uses current axes (plt.gca())
@@ -76,7 +75,7 @@ def analyze_error_envelope_spectrum(signal, fs=1, frequency=None, show_plot=True
     env = np.abs(hilbert(e))
 
     # Analyze envelope spectrum
-    if show_plot:
+    if create_plot:
         # Use provided axes or set current axes
         if ax is not None:
             plt.sca(ax)

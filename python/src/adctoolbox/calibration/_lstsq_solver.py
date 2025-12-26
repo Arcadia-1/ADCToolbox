@@ -1,7 +1,7 @@
 """Core least-squares solver for calibration at fixed frequency."""
 
 import numpy as np
-from typing import Optional
+
 from scipy.linalg import lstsq
 
 def _build_harmonic_basis(
@@ -49,13 +49,12 @@ def _build_harmonic_basis(
     phase = 2.0 * np.pi * freq * np.outer(t, harmonics)
     return np.cos(phase), np.sin(phase)
 
-
 def _dual_basis_lstsq(
     A_common: np.ndarray,
     cos_basis: np.ndarray,
     sin_basis: np.ndarray,
     offset_matrix: np.ndarray,
-    deriv_matrix: Optional[np.ndarray] = None
+    deriv_matrix: np.ndarray | None = None
 ) -> tuple[np.ndarray, int, float]:
     """
     Core dual-basis solver: tries both cosine=1 and sine=1 assumptions.
@@ -87,7 +86,6 @@ def _dual_basis_lstsq(
         return coeffs1, 0, float(err1)
     else:
         return coeffs2, 1, float(err2)
-
 
     
 def _solve_weights_with_known_freq(
@@ -165,7 +163,6 @@ def _solve_weights_with_known_freq(
     coeffs, basis_choice, _ = _dual_basis_lstsq(bits_effective_stacked, cos_basis, sin_basis, offset_matrix)
 
     return coeffs, basis_choice, cos_basis, sin_basis
-
 
 def _solve_weights_searching_freq(
     bits_list: list[np.ndarray],

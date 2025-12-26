@@ -9,7 +9,6 @@ import math
 import numpy as np
 from adctoolbox.fundamentals.fit_sine_4param import fit_sine_4param
 
-
 def find_coherent_frequency(fs, fin_target, n_fft, force_odd=True, search_radius=200):
     """
     Calculate the precise coherent input frequency and bin index.
@@ -87,7 +86,6 @@ def find_coherent_frequency(fs, fin_target, n_fft, force_odd=True, search_radius
 
     return fin_actual, best_bin
 
-
 def fold_frequency_to_nyquist(fin, fs):
     """
     Calculate the aliased (folded) frequency in the first Nyquist zone.
@@ -129,7 +127,6 @@ def fold_frequency_to_nyquist(fin, fs):
 
     return f_alias
 
-
 def fold_bin_to_nyquist(bin_idx: int, n_fft: int) -> int:
     """
     Calculate the aliased bin index in the first Nyquist zone [0, n_fft/2].
@@ -166,7 +163,6 @@ def fold_bin_to_nyquist(bin_idx: int, n_fft: int) -> int:
         bin_idx = n_fft - bin_idx
 
     return bin_idx
-
 
 def estimate_frequency(data, frequency_estimate=None, fs=1.0):
     """

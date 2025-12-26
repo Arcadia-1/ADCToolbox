@@ -70,7 +70,7 @@ for idx, case in enumerate(CASES):
         fs=params['Fs'],
         ax=axes[idx],
         title=case['title'],
-        show_plot=False,
+        create_plot=False,
         fit_polynomial_order=3
     )
 
