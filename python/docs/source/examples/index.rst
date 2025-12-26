@@ -36,19 +36,19 @@ All examples save their outputs (plots, data files) to an ``output/`` subdirecto
 * ``06_use_toolsets/`` - Comprehensive dashboard examples
 * ``07_conversions/`` - Conversion and metric calculation examples
 
-Expected Console Outputs
-------------------------
+Expected Outputs
+----------------
 
-For reference, the expected console output from each example category is documented below.
-These documentation files show the exact console output and validation results you should expect when running each example.
+For reference, the expected outputs from each example category are documented below.
+These documentation files show the console output, figures, and validation results you should expect when running each example.
 
 .. toctree::
    :maxdepth: 1
-   :caption: Example Outputs by Category
+   :caption: Expected Outputs by Category
 
-   example_print_02_spectrum
-   example_print_03_generate_signals
-   example_print_04_debug_analog
-   example_print_05_debug_digital
-   example_print_06_use_toolsets
-   example_print_07_conversions
+   expected_output_02_spectrum
+   expected_output_03_generate_signals
+   expected_output_04_debug_analog
+   expected_output_05_debug_digital
+   expected_output_06_use_toolsets
+   expected_output_07_conversions

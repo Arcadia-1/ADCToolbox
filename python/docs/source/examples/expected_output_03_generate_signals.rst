@@ -1,7 +1,7 @@
-Example Print Outputs: 03_generate_signals
+Expected Output: 03_generate_signals
 ==========================================
 
-This document records the console output from all examples in `python/src/adctoolbox/examples/03_generate_signals/`.
+This document shows the expected console output and example figures from all examples in `python/src/adctoolbox/examples/03_generate_signals/`.
 
 Summary
 -------

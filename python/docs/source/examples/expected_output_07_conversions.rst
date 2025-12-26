@@ -1,7 +1,7 @@
-Example Print Outputs: 07_conversions
+Expected Output: 07_conversions
 ======================================
 
-This document records the console output from all examples in `python/src/adctoolbox/examples/07_conversions/`.
+This document shows the expected console output and example figures from all examples in `python/src/adctoolbox/examples/07_conversions/`.
 
 Summary
 -------

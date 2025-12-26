@@ -1,7 +1,7 @@
-Example Print Outputs: 02_spectrum
+Expected Output: 02_spectrum
 ==================================
 
-This document records the console output from all examples in `python/src/adctoolbox/examples/02_spectrum/`.
+This document shows the expected console output and example figures from all examples in `python/src/adctoolbox/examples/02_spectrum/`.
 
 Summary
 -------
@@ -22,12 +22,6 @@ All examples in `02_spectrum` demonstrate spectrum analysis capabilities:
 12. **exp_s23**: Two-tone coherent averaging
 
 **Total Examples**: 14
-
-**Categories**:
-- **Basic Analysis**: exp_s01-s03 (fundamental spectrum analysis)
-- **Sweep Studies**: exp_s04, exp_s06, exp_s07, exp_s08 (parameter sweeps and averaging)
-- **Visualization**: exp_s05, exp_s10-s12 (spur annotation and polar plots)
-- **Two-Tone Analysis**: exp_s21-s23 (IMD and intermodulation distortion)
 
 
 ---
