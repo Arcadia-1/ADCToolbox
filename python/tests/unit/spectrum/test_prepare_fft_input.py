@@ -5,12 +5,85 @@ import numpy as np
 from adctoolbox.spectrum._prepare_fft_input import _prepare_fft_input
 
 
-class TestPrepareFftInput:
-    """Test suite for _prepare_fft_input function."""
+# ============================================================================
+# Test Group 1: Transpose Handling
+# ============================================================================
 
-    def test_single_run_1d_input(self):
-        """Test with single run 1D input."""
-        data = np.array([1, 2, 3, 4, 5])
+@pytest.mark.parametrize("input_shape,expected_output_shape,should_warn,test_desc", [
+    # Case 1: 1D input -> (1, N)
+    ((100,), (1, 100), False, "1D to 2D conversion"),
+
+    # Case 2: Scalar -> (1, 1)
+    ((1,), (1, 1), False, "Scalar to 2D"),
+
+    # Case 3: (N, 1) -> (1, N) column vector transpose
+    ((100, 1), (1, 100), False, "Column vector (N,1) -> (1,N)"),
+
+    # Case 4: (1, N) -> (1, N) row vector, no transpose
+    ((1, 100), (1, 100), False, "Row vector (1,N) unchanged"),
+
+    # Case 5: (M, N) normal format, no transpose
+    ((3, 100), (3, 100), False, "Normal (M,N) unchanged"),
+
+    # Case 6: (N, M) where N >> M*2 -> (M, N) with warning
+    # This should trigger auto-transpose with warning
+    ((1024, 8), (8, 1024), True, "Auto-transpose (N,M) -> (M,N)"),
+
+    # Case 7: Similar dimensions, no transpose
+    ((20, 15), (20, 15), False, "Similar dimensions, no transpose"),
+])
+def test_prepare_fft_input_transpose_handling(input_shape, expected_output_shape, should_warn, test_desc):
+    """Test automatic transpose and shape handling using sine wave inputs.
+
+    This parametrized test verifies:
+    - 1D to 2D conversion
+    - (N, 1) column vector transpose
+    - Auto-transpose when N >> M
+    - Preservation of correct (M, N) format
+    - Signal integrity after transpose
+    """
+    print(f"\n[Test Transpose] {test_desc}")
+    print(f"  Input shape: {input_shape}")
+
+    # Generate sine wave test data
+    if len(input_shape) == 1:
+        # 1D: single sine wave
+        N = input_shape[0]
+        if N == 1:
+            # Scalar case
+            data = np.array([512.0])
+        else:
+            t = np.arange(N) / N
+            data = 512.0 + 256.0 * np.sin(2 * np.pi * t)
+    elif input_shape[1] == 1:
+        # Column vector (N, 1)
+        N = input_shape[0]
+        if N == 1:
+            data = np.array([[512.0]])
+        else:
+            t = np.arange(N) / N
+            data = (512.0 + 256.0 * np.sin(2 * np.pi * t)).reshape(-1, 1)
+    elif input_shape[0] == 1:
+        # Row vector (1, N)
+        N = input_shape[1]
+        t = np.arange(N) / N
+        data = (512.0 + 256.0 * np.sin(2 * np.pi * t)).reshape(1, -1)
+    else:
+        # 2D: multiple runs with different frequencies
+        M, N = input_shape
+        data = np.zeros((M, N))
+        for i in range(M):
+            t = np.arange(N) / N
+            freq = (i + 1) * 1.0  # Different frequency for each run
+            data[i, :] = 512.0 + 256.0 * np.sin(2 * np.pi * freq * t)
+
+    print(f"  Input range: [{np.min(data):.1f}, {np.max(data):.1f}]")
+
+    # Process with or without warning expectation
+    if should_warn:
+        with pytest.warns(UserWarning, match="Auto-transpose"):
+            processed = _prepare_fft_input(data)
+    else:
         processed = _prepare_fft_input(data)
 
         assert processed.shape == (1, 5)
