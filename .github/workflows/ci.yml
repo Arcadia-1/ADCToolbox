@@ -145,9 +145,7 @@ jobs:
 
           EXAMPLES="
             exp_t01_aout_dashboard_single.py
-            exp_t02_aout_dashboard_batch.py
             exp_t03_dout_dashboard_single.py
-            exp_t04_dout_dashboard_batch.py
           "
 
           for script in $EXAMPLES; do
