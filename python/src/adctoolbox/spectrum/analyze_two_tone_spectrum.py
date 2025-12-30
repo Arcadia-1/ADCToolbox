@@ -52,8 +52,8 @@ def analyze_two_tone_spectrum(
             - signal_power_1_dbfs: Power of first tone (dBFS)
             - signal_power_2_dbfs: Power of second tone (dBFS)
             - noise_floor_db: Noise floor (dB)
-            - imd2_db: 2nd order intermodulation distortion (dB)
-            - imd3_db: 3rd order intermodulation distortion (dB)
+            - imd2_dbc: 2nd order intermodulation distortion (dBc)
+            - imd3_dbc: 3rd order intermodulation distortion (dBc)
     """
 
     # Step 1: Calculate spectrum data (pure computation)

@@ -68,7 +68,7 @@ for idx, config in enumerate(cases):
     result = analyze_spectrum(signal, fs=Fs)
     axes[idx].set_title(config['title'], fontsize=11, fontweight='bold')
         
-    print(f"{config['title']:<20} | {result['sfdr_db']:<10.2f} | {result['thd_db']:<10.2f} | {result['hd2_db']:<12.2f} | {result['hd3_db']:<12.2f}")
+    print(f"{config['title']:<20} | {result['sfdr_dbc']:<10.2f} | {result['thd_dbc']:<10.2f} | {result['harmonics_dbc'][0]:<12.2f} | {result['harmonics_dbc'][1]:<12.2f}")
 
 # Finalize
 plt.suptitle(f'Static Nonlinearity Sweep: HD2/HD3 Sign Analysis\n|HD2|={HD2_TARGET_DB}dBc, |HD3|={HD3_TARGET_DB}dBc', 

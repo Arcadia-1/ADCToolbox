@@ -61,7 +61,7 @@ for idx, fin_val_ghz in enumerate(fin_sweep_ghz):
     axes[idx].set_ylim([-140, 0])
         
     # Print Metrics
-    print(f"{fin_val_ghz:<10.1f} | {result['snr_db']:<10.2f} | {theory_snr:<12.2f} | {result['enob']:<10.2f}")
+    print(f"{fin_val_ghz:<10.1f} | {result['snr_dbc']:<10.2f} | {theory_snr:<12.2f} | {result['enob']:<10.2f}")
 
 # Finalize and Save
 plt.suptitle(f'Jitter Sensitivity Sweep: Fin 1GHz-8GHz (Jitter=50fs)\n(Theoretical SNR drops ~6dB per octave)', 

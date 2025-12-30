@@ -62,14 +62,14 @@ plt.sca(ax_left)
 result_normal = analyze_spectrum(signal_hd, fs=Fs)
 ax_left.set_title(f'Cartesian Plot\nHD2={hd2_dB}dB, HD3={hd3_dB}dB, k3<0', fontsize=12, fontweight='bold')
 
-print(f"[Cartesian Plot] SNDR={result_normal['sndr_dbc']:.2f}dB, THD={result_normal['thd_db']:.2f}dB, HD2={result_normal['hd2_db']:.2f}dB, HD3={result_normal['hd3_db']:.2f}dB")
+print(f"[Cartesian Plot] SNDR={result_normal['sndr_dbc']:.2f}dB, THD={result_normal['thd_dbc']:.2f}dB, HD2={result_normal['harmonics_dbc'][0]:.2f}dB, HD3={result_normal['harmonics_dbc'][1]:.2f}dB")
 
 # Right Plot: Polar Plot
 plt.sca(ax_right)
 result_polar = analyze_spectrum_polar(signal_hd, fs=Fs, fixed_radial_range=120)
 ax_right.set_title(f'Polar Plot\nHD2={hd2_dB}dB, HD3={hd3_dB}dB, k3<0', pad=20, fontsize=12, fontweight='bold')
 
-print(f"[Polar Plot] SNDR={result_polar['sndr_dbc']:.2f}dB, THD={result_polar['thd_db']:.2f}dB, HD2={result_polar['hd2_db']:.2f}dB, HD3={result_polar['hd3_db']:.2f}dB")
+print(f"[Polar Plot] SNDR={result_polar['sndr_dbc']:.2f}dB, THD={result_polar['thd_dbc']:.2f}dB, HD2={result_polar['harmonics_dbc'][0]:.2f}dB, HD3={result_polar['harmonics_dbc'][1]:.2f}dB")
 
 print()
 
