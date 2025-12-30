@@ -46,7 +46,7 @@ for idx, (sig, title, has_glitch) in enumerate(test_cases):
     axes[0, idx].set_title(f'{title}\nBit Activity', fontsize=11, fontweight='bold')
 
     plt.sca(axes[1, idx])
-    result = analyze_spectrum(dout @ ideal_weights, n_thd=5, osr=1, show_label=True, nf_method=0)    # Spectrum
+    result = analyze_spectrum(dout @ ideal_weights, max_harmonic=5, osr=1, show_label=True, nf_method=0)    # Spectrum
     print(f"[{title:<24s}] [Bits = {B:2d}] [ENoB = {result['enob']:5.2f}] [Activity = {np.min(bit_usage):.1f}% - {np.max(bit_usage):.1f}%]")
 
 plt.tight_layout()

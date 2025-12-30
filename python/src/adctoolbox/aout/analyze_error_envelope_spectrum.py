@@ -80,7 +80,7 @@ def analyze_error_envelope_spectrum(signal, fs=1, frequency=None, create_plot: b
         if ax is not None:
             plt.sca(ax)
 
-        result = analyze_spectrum(env, fs=fs, show_label=False, n_thd=5)
+        result = analyze_spectrum(env, fs=fs, show_label=False, max_harmonic=5)
         plt.xlabel("Frequency (Hz)")
         plt.ylabel("Envelope Spectrum (dB)")
         plt.grid(True, alpha=0.3)
@@ -94,7 +94,7 @@ def analyze_error_envelope_spectrum(signal, fs=1, frequency=None, create_plot: b
         backend_orig = matplotlib.get_backend()
         matplotlib.use('Agg')  # Non-interactive backend
 
-        result = analyze_spectrum(env, fs=fs, show_label=False, n_thd=5)
+        result = analyze_spectrum(env, fs=fs, show_label=False, max_harmonic=5)
         plt.close()
 
         matplotlib.use(backend_orig)  # Restore original backend
