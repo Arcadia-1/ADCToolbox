@@ -106,9 +106,9 @@ result_after = analyze_spectrum(
 )
 
 # Extract SNDR/ENOB from plotting results (reuse instead of recalculating)
-sndr_before = result_before['sndr_db']
+sndr_before = result_before['sndr_dbc']
 enob_before = result_before['enob']
-sndr_after = result_after['sndr_db']
+sndr_after = result_after['sndr_dbc']
 enob_after = result_after['enob']
 
 # Calculate SNDR manually for verification
@@ -116,10 +116,10 @@ sndr_calc = 10 * np.log10(np.mean(ideal_signal**2) / np.mean(error_signal**2))
 enob_calc = (sndr_calc - 1.76) / 6.02
 
 # Print spectrum metrics
-print(f"\n[Spectrum Before] ENOB={result_before['enob']:5.2f} b, SNDR={result_before['sndr_db']:6.2f} dB, SFDR={result_before['sfdr_db']:6.2f} dB, SNR={result_before['snr_db']:6.2f} dB, NSD={result_before['nsd_dbfs_hz']:7.2f} dBFS/Hz")
+print(f"\n[Spectrum Before] ENOB={result_before['enob']:5.2f} b, SNDR={result_before['sndr_dbc']:6.2f} dB, SFDR={result_before['sfdr_dbc']:6.2f} dB, SNR={result_before['snr_dbc']:6.2f} dB, NSD={result_before['nsd_dbfs_hz']:7.2f} dBFS/Hz")
 print(f"[Spectrum Before] Noise Floor={result_before['noise_floor_dbfs']:7.2f} dBFS, Signal Power={result_before['sig_pwr_dbfs']:6.2f} dBFS")
 
-print(f"\n[Spectrum After]  ENOB={result_after['enob']:5.2f} b, SNDR={result_after['sndr_db']:6.2f} dB, SFDR={result_after['sfdr_db']:6.2f} dB, SNR={result_after['snr_db']:6.2f} dB, NSD={result_after['nsd_dbfs_hz']:7.2f} dBFS/Hz")
+print(f"\n[Spectrum After]  ENOB={result_after['enob']:5.2f} b, SNDR={result_after['sndr_dbc']:6.2f} dB, SFDR={result_after['sfdr_dbc']:6.2f} dB, SNR={result_after['snr_dbc']:6.2f} dB, NSD={result_after['nsd_dbfs_hz']:7.2f} dBFS/Hz")
 print(f"[Spectrum After]  Noise Floor={result_after['noise_floor_dbfs']:7.2f} dBFS, Signal Power={result_after['sig_pwr_dbfs']:6.2f} dBFS")
 
 # Print weight comparison

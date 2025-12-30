@@ -61,21 +61,21 @@ signal_1 = sig_ideal + k3 * sig_ideal**3 + DC + np.random.randn(N) * base_noise
 plt.sca(axes[0, 0])
 result_1 = analyze_spectrum_polar(signal_1, fs=Fs, fixed_radial_range=120)
 axes[0, 0].set_title(f'HD3={hd3_dB}dB, k3>0\n(Thermal Noise: 500 uVrms)', pad=20, fontsize=12, fontweight='bold')
-print(f"[HD3={hd3_dB}dB, k3>0] SNDR={result_1['sndr_dbc']:.2f}dB, THD={result_1['thd_db']:.2f}dB, HD3={result_1['hd3_db']:.2f}dB")
+print(f"[HD3={hd3_dB}dB, k3>0] SNDR={result_1['sndr_dbc']:.2f}dB, THD={result_1['thd_dbc']:.2f}dB, HD3={result_1['harmonics_dbc'][1]:.2f}dB")
 
 # Case 2: HD3 only, k3 negative
 signal_2 = sig_ideal - k3 * sig_ideal**3 + DC + np.random.randn(N) * base_noise
 plt.sca(axes[0, 1])
 result_2 = analyze_spectrum_polar(signal_2, fs=Fs, fixed_radial_range=120)
 axes[0, 1].set_title(f'HD3={hd3_dB}dB, k3<0\n(Thermal Noise: 500 uVrms)', pad=20, fontsize=12, fontweight='bold')
-print(f"[HD3={hd3_dB}dB, k3<0] SNDR={result_2['sndr_dbc']:.2f}dB, THD={result_2['thd_db']:.2f}dB, HD3={result_2['hd3_db']:.2f}dB")
+print(f"[HD3={hd3_dB}dB, k3<0] SNDR={result_2['sndr_dbc']:.2f}dB, THD={result_2['thd_dbc']:.2f}dB, HD3={result_2['harmonics_dbc'][1]:.2f}dB")
 
 # Case 3: HD2 + HD3 combined
 signal_3 = sig_ideal + k2 * sig_ideal**2 - k3 * sig_ideal**3 + DC + np.random.randn(N) * base_noise
 plt.sca(axes[0, 2])
 result_3 = analyze_spectrum_polar(signal_3, fs=Fs, fixed_radial_range=120)
 axes[0, 2].set_title(f'HD2={hd2_dB}dB + HD3={hd3_dB}dB\n(Thermal Noise: 500 uVrms)', pad=20, fontsize=12, fontweight='bold')
-print(f"[HD2+HD3] SNDR={result_3['sndr_dbc']:.2f}dB, THD={result_3['thd_db']:.2f}dB, HD2={result_3['hd2_db']:.2f}dB, HD3={result_3['hd3_db']:.2f}dB")
+print(f"[HD2+HD3] SNDR={result_3['sndr_dbc']:.2f}dB, THD={result_3['thd_dbc']:.2f}dB, HD2={result_3['harmonics_dbc'][0]:.2f}dB, HD3={result_3['harmonics_dbc'][1]:.2f}dB")
 
 print()
 
@@ -128,7 +128,7 @@ for col_idx, Fin_target in enumerate(Fin_targets):
     title = f'Fin={Fin/1e6:.0f}MHz (φ={phase_delay_deg:.1f}°), ME={memory_effect_strength}\nHD2∠{hd2_phase_theory:.1f}°, HD3∠{hd3_phase_theory:.1f}°'
     axes[1, col_idx].set_title(title, pad=20, fontsize=12, fontweight='bold')
 
-    print(f"[Fin={Fin/1e6:5.0f}MHz, ME={memory_effect_strength}] sndr={result['sndr_dbc']:5.2f}dB, snr={result['snr_dbc']:5.2f}dB, thd={result['thd_db']:6.2f}dB")
+    print(f"[Fin={Fin/1e6:5.0f}MHz, ME={memory_effect_strength}] sndr={result['sndr_dbc']:5.2f}dB, snr={result['snr_dbc']:5.2f}dB, thd={result['thd_dbc']:6.2f}dB")
 
 print()
 

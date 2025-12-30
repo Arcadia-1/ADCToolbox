@@ -87,7 +87,7 @@ for idx, config in enumerate(INTERFERENCES):
     axes[idx].set_title(config['title'], fontsize=11, fontweight='bold')
     axes[idx].set_ylim([-140, 0])
     
-    print(f"{idx+1:<3} | {config['title']:<35} | {result['sfdr_db']:<10.2f} | {result['thd_db']:<10.2f} | {result['snr_db']:<10.2f}")
+    print(f"{idx+1:<3} | {config['title']:<35} | {result['sfdr_dbc']:<10.2f} | {result['thd_dbc']:<10.2f} | {result['snr_dbc']:<10.2f}")
 
 # Finalize
 plt.suptitle('Interference Effects on Coherent Sampled Signal\n(Each type applied independently to Fin=80MHz)',
