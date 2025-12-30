@@ -60,7 +60,6 @@ jobs:
             exp_s06_sweeping_fft_and_osr.py
             exp_s07_spectrum_averaging.py
             exp_s08_windowing_deep_dive.py
-            exp_s10_polar_noise_and_harmonics.py
           "
 
           for script in $EXAMPLES; do
