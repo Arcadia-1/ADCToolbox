@@ -159,9 +159,9 @@ def plot_two_tone_spectrum(
         metrics_text = [
             fs_str,
             f"ENOB = {metrics['enob']:.2f}",
-            f"SNDR = {metrics['sndr_db']:.2f} dB",
-            f"SFDR = {metrics['sfdr_db']:.2f} dB",
-            f"SNR = {metrics['snr_db']:.2f} dB",
+            f"SNDR = {metrics['sndr_dbc']:.2f} dB",
+            f"SFDR = {metrics['sfdr_dbc']:.2f} dB",
+            f"SNR = {metrics['snr_dbc']:.2f} dB",
             f"Noise Floor = {metrics['noise_floor_db']:.2f} dB",
             f"IMD2 = {metrics['imd2_db']:.2f} dB",
             f"IMD3 = {metrics['imd3_db']:.2f} dB"

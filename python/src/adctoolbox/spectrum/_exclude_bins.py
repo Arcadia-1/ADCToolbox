@@ -5,7 +5,7 @@ import numpy as np
 def _exclude_bins_from_spectrum(
     spectrum: np.ndarray,
     signal_bin: int,
-    harmonic_bins: list[float],
+    harmonic_bins: np.ndarray,
     side_bin: int,
     max_bin: int
 ) -> np.ndarray:
@@ -20,8 +20,8 @@ def _exclude_bins_from_spectrum(
         Input power spectrum
     signal_bin : int
         Fundamental signal bin index
-    harmonic_bins : list[float]
-        List of harmonic bin positions (includes fundamental at index 0)
+    harmonic_bins : np.ndarray
+        Array of harmonic bin positions [H2, H3, H4, ...] (does NOT include fundamental)
     side_bin : int
         Number of side bins to exclude around each component
     max_bin : int
@@ -44,9 +44,10 @@ def _exclude_bins_from_spectrum(
         sig_end = min(signal_bin + side_bin + 1, len(noise_spectrum))
         noise_spectrum[sig_start:sig_end] = 0
 
-    # Exclude all harmonics (skip fundamental at index 0)
-    for h_idx in range(1, len(harmonic_bins)):
-        h_bin = int(round(harmonic_bins[h_idx]))
+    # Exclude all harmonics (H2, H3, H4, ...)
+    # harmonic_bins contains only harmonics [H2, H3, H4, ...], not the fundamental
+    for h_idx in range(len(harmonic_bins)):
+        h_bin = harmonic_bins[h_idx]  # Already int from _locate_harmonic_bins
         if 1 <= h_bin < len(noise_spectrum):
             h_start = max(h_bin - side_bin, 0)
             h_end = min(h_bin + side_bin + 1, len(noise_spectrum))

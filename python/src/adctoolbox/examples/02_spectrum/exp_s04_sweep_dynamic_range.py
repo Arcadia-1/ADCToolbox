@@ -64,7 +64,7 @@ for A, A_dbfs in zip(amplitudes, amplitudes_dbfs):
     result = analyze_spectrum(signal, fs=Fs, max_scale_range=[-0.5, 0.5], create_plot=False)
 
     # Store results
-    snr_list.append(result['snr_db'])
+    snr_list.append(result['snr_dbc'])
     noise_floor_list.append(result['noise_floor_dbfs'])
 
     # Theoretical SNR for this amplitude
@@ -72,7 +72,7 @@ for A, A_dbfs in zip(amplitudes, amplitudes_dbfs):
     snr_theory = amplitudes_to_snr(sig_amplitude=A, noise_amplitude=noise_rms)
     snr_theory_list.append(snr_theory)
 
-    print(f"[A={A_dbfs:6.1f} dBFS] SNR=[{result['snr_db']:6.2f} dB] (Theory: {snr_theory:.1f} dB), Noise Floor=[{result['noise_floor_dbfs']:7.2f} dBFS]")
+    print(f"[A={A_dbfs:6.1f} dBFS] SNR=[{result['snr_dbc']:6.2f} dB] (Theory: {snr_theory:.1f} dB), Noise Floor=[{result['noise_floor_dbfs']:7.2f} dBFS]")
 
 # Convert lists to numpy arrays for plotting
 snr_array = np.array(snr_list)

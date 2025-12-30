@@ -7,6 +7,8 @@ that can be used with pre-computed coherent spectrum results.
 
 import numpy as np
 import matplotlib.pyplot as plt
+from adctoolbox.spectrum._harmonics import _locate_harmonic_bins
+from adctoolbox.spectrum._harmonics import _calculate_harmonic_phases
 
 def plot_spectrum_polar(analysis_results, show_metrics=True, harmonic=5, fixed_radial_range=None, ax=None):
     """
@@ -20,12 +22,23 @@ def plot_spectrum_polar(analysis_results, show_metrics=True, harmonic=5, fixed_r
         ax: Optional matplotlib polar axes object
     """
     # Extract data from compute_spectrum output
-    spec = analysis_results['complex_spec_coherent']
-    minR_dB = analysis_results['minR_dB']
-    bin_idx = analysis_results['bin_idx']
-    N_fft = analysis_results['N']
+    plot_data = analysis_results['plot_data']
     metrics = analysis_results.get('metrics', {})
-    collided_harmonics = analysis_results.get('collided_harmonics', [])
+
+    spec = plot_data['complex_spectrum']
+    bin_idx = plot_data['fundamental_bin']
+    fundamental_bin_fractional = plot_data['fundamental_bin_fractional']
+    harmonic_bins = plot_data['harmonic_bins']
+    collided_harmonics = plot_data.get('collided_harmonics', [])
+    N_fft = analysis_results['N']
+
+    # Calculate noise floor for polar plot (1st percentile)
+    mag_db = 20 * np.log10(np.abs(spec) + 1e-20)
+    minR_dB = np.percentile(mag_db, 1)
+    minR_dB = -100 if np.isinf(minR_dB) else minR_dB
+
+    # Calculate harmonic phases
+    hd2_phase_deg, hd3_phase_deg = _calculate_harmonic_phases(spec, harmonic_bins)
 
     # Setup axes
     if ax is None:
@@ -106,8 +119,13 @@ def plot_spectrum_polar(analysis_results, show_metrics=True, harmonic=5, fixed_r
 
     # Add metrics annotation
     if show_metrics and metrics:
-        hd2_str = f"HD2 = {metrics['hd2_db']:7.2f} dB ∠{analysis_results['hd2_phase_deg']:6.1f}°"
-        hd3_str = f"HD3 = {metrics['hd3_db']:7.2f} dB ∠{analysis_results['hd3_phase_deg']:6.1f}°"
+        # Extract HD2 and HD3 from harmonic_powers array
+        harmonic_powers = metrics.get('harmonic_powers', [])
+        hd2_db = harmonic_powers[0] if len(harmonic_powers) > 0 else -150
+        hd3_db = harmonic_powers[1] if len(harmonic_powers) > 1 else -150
+
+        hd2_str = f"HD2 = {hd2_db:7.2f} dB ∠{hd2_phase_deg:6.1f}°"
+        hd3_str = f"HD3 = {hd3_db:7.2f} dB ∠{hd3_phase_deg:6.1f}°"
 
         # Build collision warning if present
         collision_warning = ""
@@ -116,8 +134,8 @@ def plot_spectrum_polar(analysis_results, show_metrics=True, harmonic=5, fixed_r
             collision_warning = f"\n*Collided: {collision_str}"
 
         metrics_text = (
-            f"SNR = {metrics['snr_db']:7.2f} dB\n"
-            f"THD = {metrics['thd_db']:7.2f} dB\n"
+            f"SNR = {metrics.get('snr_dbc', 0):7.2f} dB\n"
+            f"THD = {metrics.get('thd_dbc', 0):7.2f} dB\n"
             f"{hd2_str}\n"
             f"{hd3_str}"
             f"{collision_warning}"
