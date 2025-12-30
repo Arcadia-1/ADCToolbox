@@ -80,7 +80,7 @@ fig, ax = plt.subplots(figsize=(8, 6))
 result_before = analyze_spectrum(
     quantized_signal,
     fs=fs,
-    n_thd=5,
+    max_harmonic=5,
     show_label=False,
     ax=ax,
     create_plot=True
@@ -99,7 +99,7 @@ ax.set_prop_cycle(None)
 result_after = analyze_spectrum(
     calibrated_signal,
     fs=fs,
-    n_thd=5,
+    max_harmonic=5,
     show_label=True,
     ax=ax,
     create_plot=True
