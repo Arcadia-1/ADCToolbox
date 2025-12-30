@@ -69,7 +69,7 @@ for idx, N_fft in enumerate(N_values):
     bin_width = Fs / N_fft
     axes[0, idx].set_title(f"N = {N_fft} (Bin: {bin_width/1e3:.2f} kHz)", fontsize=12, fontweight='bold')
 
-    print(f"[N={N_fft:8d} (2^{int(np.log2(N_fft)):2d})] [Bin = {bin_width/1e3:8.3f} kHz] ENoB=[{result['enob']:5.2f} b], SNDR=[{result['sndr_db']:6.2f} dB], SNR=[{result['snr_db']:6.2f} dB], NSD=[{result['nsd_dbfs_hz']:7.2f} dBFS/Hz]")
+    print(f"[N={N_fft:8d} (2^{int(np.log2(N_fft)):2d})] [Bin = {bin_width/1e3:8.3f} kHz] ENoB=[{result['enob']:5.2f} b], SNDR=[{result['sndr_dbc']:6.2f} dB], SNR=[{result['snr_dbc']:6.2f} dB], NSD=[{result['nsd_dbfs_hz']:7.2f} dBFS/Hz]")
 
 print()
 
@@ -97,17 +97,17 @@ snr_baseline = None
 for idx, osr in enumerate(osr_values):
     plt.sca(axes[1, idx])
     result = analyze_spectrum(signal_osr, fs=Fs, osr=osr)
+    if idx == 0:
+        snr_baseline = result['snr_dbc']
+
     axes[1, idx].set_ylim([-140, 0])
 
-    if idx == 0:
-        snr_baseline = result['snr_db']
-
-    snr_improvement = result['snr_db'] - snr_baseline
+    snr_improvement = result['snr_dbc'] - snr_baseline
     theory_improvement = 10 * np.log10(osr)
 
     axes[1, idx].set_title(f"OSR = {osr} (SNR +{snr_improvement:.1f} dB)", fontsize=12, fontweight='bold')
 
-    print(f"[OSR={osr:3d}] ENoB=[{result['enob']:5.2f} b], SNDR=[{result['sndr_db']:6.2f} dB], SNR=[{result['snr_db']:6.2f} dB], NSD=[{result['nsd_dbfs_hz']:7.2f} dBFS/Hz], Gain=[+{snr_improvement:.1f} dB] (Theory: +{theory_improvement:.1f} dB)")
+    print(f"[OSR={osr:3d}] ENoB=[{result['enob']:5.2f} b], SNDR=[{result['sndr_dbc']:6.2f} dB], SNR=[{result['snr_dbc']:6.2f} dB], NSD=[{result['nsd_dbfs_hz']:7.2f} dBFS/Hz], Gain=[+{snr_improvement:.1f} dB] (Theory: +{theory_improvement:.1f} dB)")
 
 # Add row labels
 fig.text(0.01, 0.75, 'FFT Length Sweep', va='center', rotation='vertical',

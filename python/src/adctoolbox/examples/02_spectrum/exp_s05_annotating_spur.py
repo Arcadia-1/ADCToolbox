@@ -15,7 +15,7 @@ output_dir.mkdir(exist_ok=True)
 N_fft = 2**19
 Fs = 100e6
 A = 0.5
-noise_rms = 50e-6
+noise_rms = 20e-6
 hd2_dB = -100
 hd3_dB = -80
 
@@ -54,10 +54,10 @@ for idx, freq_config in enumerate(freq_configs):
 
     ax = axes[idx]
     plt.sca(ax)
-    metrics = analyze_spectrum(signal, fs=Fs, n_thd=n_harm, show_title=False, plot_harmonics_up_to=n_harm)
+    metrics = analyze_spectrum(signal, fs=Fs, max_harmonic=n_harm, show_title=False, plot_harmonics_up_to=n_harm)
     ax.set_ylim(bottom=-140)
     ax.set_title(f'{freq_config["name"]}, Harmonics up to {n_harm}', fontsize=12, fontweight='bold')
-    print(f"  [n_thd={n_harm:2d}] ENoB=[{metrics['enob']:5.2f} b], SNDR=[{metrics['sndr_db']:6.2f} dB], THD=[{metrics['thd_db']:7.2f} dB]")
+    print(f"  [max_harmonic={n_harm:2d}] ENoB=[{metrics['enob']:5.2f} b], SNDR=[{metrics['sndr_dbc']:6.2f} dB], THD=[{metrics['thd_dbc']:7.2f} dB]")
     print()
 
 plt.tight_layout()

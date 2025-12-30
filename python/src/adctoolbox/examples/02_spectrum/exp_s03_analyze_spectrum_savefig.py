@@ -30,7 +30,9 @@ amplitudes = [0.5, 0.25]
 
 for idx, A in enumerate(amplitudes):
     snr_ref = amplitudes_to_snr(sig_amplitude=A, noise_amplitude=noise_rms)
-    nsd_ref = snr_to_nsd(snr_ref, fs=Fs, osr=1)
+    # Calculate signal power in dBFS (peak amplitude relative to FSR)
+    sig_pwr_dbfs_theory = 20 * np.log10(A / (fsr_magnitude / 2))
+    nsd_ref = snr_to_nsd(snr_ref, fs=Fs, osr=1, psignal_dbfs=sig_pwr_dbfs_theory)
     print(f"[Sinewave] Fs=[{Fs/1e6:.2f} MHz], Fin=[{Fin/1e6:.2f} MHz], Bin/N=[{Fin_bin}/{N_fft}], A=[{A:.3f} Vpeak]")
     print(f"[Nonideal] Noise RMS=[{noise_rms*1e6:.2f} uVrms], Theoretical SNR=[{snr_ref:.2f} dB], Theoretical NSD=[{nsd_ref:.2f} dBFS/Hz]\n")
 
@@ -40,12 +42,12 @@ for idx, A in enumerate(amplitudes):
     plt.sca(axes[idx])
     result = analyze_spectrum(signal, fs=Fs, max_scale_range=adc_range)
 
-    print(f"[analyze_spectrum] ENoB=[{result['enob']:5.2f} b], SNDR=[{result['sndr_db']:6.2f} dB], SFDR=[{result['sfdr_db']:6.2f} dB], SNR=[{result['snr_db']:6.2f} dB], NSD=[{result['nsd_dbfs_hz']:7.2f} dBFS/Hz]")
+    print(f"[analyze_spectrum] ENoB=[{result['enob']:5.2f} b], SNDR=[{result['sndr_dbc']:6.2f} dB], SFDR=[{result['sfdr_dbc']:6.2f} dB], SNR=[{result['snr_dbc']:6.2f} dB], NSD=[{result['nsd_dbfs_hz']:7.2f} dBFS/Hz]")
     expected_power = 20 * np.log10(2*A / fsr_magnitude)
     print(f"[analyze_spectrum] Noise Floor=[{result['noise_floor_dbfs']:7.2f} dBFS], Signal Power=[{result['sig_pwr_dbfs']:6.2f} dBFS] (expected: {expected_power:.2f} dB for {2*A:.3f}V in {fsr_magnitude:.1f}V FSR), \n")
 
     # Set title and limits
-    axes[idx].set_title(f'A = {A:.3f} Vpeak (SFDR = {result["sfdr_db"]:.2f} dB)')
+    axes[idx].set_title(f'A = {A:.3f} Vpeak (SFDR = {result["sfdr_dbc"]:.2f} dB)')
 
 fig_path = (output_dir / 'exp_s03_analyze_spectrum_savefig.png').resolve()
 print(f"\n[Save fig] -> [{fig_path}]\n")

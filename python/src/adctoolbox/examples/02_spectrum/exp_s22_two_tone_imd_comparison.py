@@ -52,7 +52,7 @@ for idx, config in enumerate(nonlinearity_configs):
     axes[idx].set_title(f"{config['name']} (k2={k2:.5f}, k3={k3:.5f})",
                        fontsize=12, fontweight='bold', pad=10)
 
-    print(f"[{config['name']:20s}] IMD2=[{result['imd2_db']:6.2f} dB], IMD3=[{result['imd3_db']:6.2f} dB], SFDR=[{result['sfdr_db']:6.2f} dB], SNDR=[{result['sndr_db']:6.2f} dB]")
+    print(f"[{config['name']:20s}] IMD2=[{result['imd2_db']:6.2f} dB], IMD3=[{result['imd3_db']:6.2f} dB], SFDR=[{result['sfdr_dbc']:6.2f} dB], SNDR=[{result['sndr_dbc']:6.2f} dB]")
 
 plt.suptitle('Two-Tone IMD Comparison: Effect of Nonlinearity Strength',
              fontsize=14, fontweight='bold')
