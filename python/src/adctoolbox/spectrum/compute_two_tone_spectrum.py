@@ -51,7 +51,7 @@ def compute_two_tone_spectrum(
         - 'imd_bins': IMD product bin locations
     """
     # Preprocessing using shared helper
-    data_processed = _prepare_fft_input(data, max_scale_range, win_type)
+    data_processed = _prepare_fft_input(data, max_scale_range)
     M, N = data_processed.shape
     n_half = N // 2
 
@@ -301,23 +301,23 @@ def compute_two_tone_spectrum(
     noise_power_final = np.sum(spectrum_thd)
 
     # ========== Calculate metrics ==========
-    sndr_db = 10 * np.log10(total_signal_power / (noise_power + 1e-20))
-    sfdr_db = 10 * np.log10(total_signal_power / (spur_power + 1e-20))
-    snr_db = 10 * np.log10(total_signal_power / (noise_power_final + 1e-20))
+    sndr_dbc = 10 * np.log10(total_signal_power / (noise_power + 1e-20))
+    sfdr_dbc = 10 * np.log10(total_signal_power / (spur_power + 1e-20))
+    snr_dbc = 10 * np.log10(total_signal_power / (noise_power_final + 1e-20))
     thd_db = 10 * np.log10(thd_power / (total_signal_power + 1e-20))
-    enob = (sndr_db - 1.76) / 6.02
+    enob = (sndr_dbc - 1.76) / 6.02
     imd2_db = 10 * np.log10(total_signal_power / (imd2_total_power + 1e-20))
     imd3_db = 10 * np.log10(total_signal_power / (imd3_total_power + 1e-20))
     sig_pwr_dbfs = 10 * np.log10(total_signal_power)
-    noise_floor_db = sig_pwr_dbfs - snr_db
+    noise_floor_db = sig_pwr_dbfs - snr_dbc
     nsd_dbfs_hz = noise_floor_db - 10 * np.log10(fs / 2)  # Noise spectral density
 
     # ========== Prepare return data ==========
     metrics = {
         'enob': enob,
-        'sndr_db': sndr_db,
-        'sfdr_db': sfdr_db,
-        'snr_db': snr_db,
+        'sndr_dbc': sndr_dbc,
+        'sfdr_dbc': sfdr_dbc,
+        'snr_dbc': snr_dbc,
         'thd_db': thd_db,
         'signal_power_1_dbfs': pwr1_dbfs,
         'signal_power_2_dbfs': pwr2_dbfs,

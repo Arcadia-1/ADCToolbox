@@ -96,7 +96,7 @@ for idx, N_run in enumerate(N_runs):
     axes[1, idx].set_ylim([-140, 0])
     results_coherent.append(result_coherent)
 
-    print(f"[{N_run:3d} Run(s)] Power Avg: ENoB=[{result_power['enob']:5.2f} b], SNR=[{result_power['snr_db']:6.2f} dB] | Coherent Avg: ENoB=[{result_coherent['enob']:5.2f} b], SNR=[{result_coherent['snr_db']:6.2f} dB]")
+    print(f"[{N_run:3d} Run(s)] Power Avg: ENoB=[{result_power['enob']:5.2f} b], SNR=[{result_power['snr_dbc']:6.2f} dB] | Coherent Avg: ENoB=[{result_coherent['enob']:5.2f} b], SNR=[{result_coherent['snr_dbc']:6.2f} dB]")
 
 fig.suptitle(f'Power Spectrum Averaging vs Complex Spectrum Coherent Averaging (N_fft = {N_fft})',
              fontsize=16, fontweight='bold')
@@ -115,8 +115,8 @@ print("PERFORMANCE ANALYSIS: Statistical Gain")
 print("=" * 80)
 
 # Theoretical coherent gain: 10*log10(N_runs)
-snr_1run_power = results_power[0]['snr_db']
-snr_1run_coherent = results_coherent[0]['snr_db']
+snr_1run_power = results_power[0]['snr_dbc']
+snr_1run_coherent = results_coherent[0]['snr_dbc']
 
 print(f"{'Method':<20} | {'Runs':>5} | {'SNR (dB)':>8} | {'Gain (dB)':>10} | {'Theory (dB)':>11} | {'Status':<20}")
 print("-" * 95)
@@ -124,8 +124,8 @@ print(f"{'Theoretical (1 run)':<20} | {1:>5} | {snr_ref:>8.2f} | {'---':>10} | {
 print(f"{'Power Average':<20} | {1:>5} | {snr_1run_power:>8.2f} | {0.00:>10.2f} | {'---':>11} | {'Baseline':<20}")
 
 for idx, N_run in enumerate(N_runs[1:], start=1):
-    snr_power = results_power[idx]['snr_db']
-    snr_coherent = results_coherent[idx]['snr_db']
+    snr_power = results_power[idx]['snr_dbc']
+    snr_coherent = results_coherent[idx]['snr_dbc']
     gain_power = snr_power - snr_1run_power
     gain_coherent = snr_coherent - snr_1run_coherent
     theory_gain = 10 * np.log10(N_run)
@@ -148,12 +148,12 @@ print("   - Only smoothens the noise floor visually (reduces variance)")
 print("   - Does NOT provide true processing gain")
 print()
 print("2. Coherent Averaging (Phase-aligned):")
-print(f"   - SNR improves by ~{results_coherent[-1]['snr_db'] - snr_1run_coherent:.1f} dB for {N_runs[-1]} runs")
+print(f"   - SNR improves by ~{results_coherent[-1]['snr_dbc'] - snr_1run_coherent:.1f} dB for {N_runs[-1]} runs")
 print(f"   - Theoretical gain: {10 * np.log10(N_runs[-1]):.1f} dB (10*log10({N_runs[-1]}))")
-print(f"   - Achieves {(results_coherent[-1]['snr_db'] - snr_1run_coherent) / (10 * np.log10(N_runs[-1])) * 100:.1f}% of theoretical maximum")
+print(f"   - Achieves {(results_coherent[-1]['snr_dbc'] - snr_1run_coherent) / (10 * np.log10(N_runs[-1])) * 100:.1f}% of theoretical maximum")
 print("   - Provides true processing gain through phase coherence")
 print()
 print("3. Practical Implications:")
-print(f"   - To achieve {results_coherent[-1]['snr_db']:.0f} dB SNR with Power Averaging alone:")
-print(f"     Would need to increase FFT length by ~{10**((results_coherent[-1]['snr_db'] - snr_1run_power)/10):.0f}x (impractical!)")
+print(f"   - To achieve {results_coherent[-1]['snr_dbc']:.0f} dB SNR with Power Averaging alone:")
+print(f"     Would need to increase FFT length by ~{10**((results_coherent[-1]['snr_dbc'] - snr_1run_power)/10):.0f}x (impractical!)")
 print(f"   - With Coherent Averaging: Only need {N_runs[-1]} runs (100x more efficient)")

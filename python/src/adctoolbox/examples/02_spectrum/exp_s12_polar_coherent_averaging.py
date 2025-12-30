@@ -71,7 +71,7 @@ for idx, N_run in enumerate(N_runs):
     # Store axis and its ylim for later restoration
     axes_info.append((axes[idx], axes[idx].get_ylim()))
 
-    print(f"[{N_run:3d} Run(s)] ENoB=[{result['enob']:5.2f} b], SNDR=[{result['sndr_db']:6.2f} dB], SNR=[{result['snr_db']:6.2f} dB]")
+    print(f"[{N_run:3d} Run(s)] ENoB=[{result['enob']:5.2f} b], SNDR=[{result['sndr_dbc']:6.2f} dB], SNR=[{result['snr_dbc']:6.2f} dB]")
 
 plt.suptitle(f'Coherent Spectrum Averaging: Phase Alignment Across Runs (N_fft = {N_fft})',
              fontsize=16, fontweight='bold')

@@ -33,9 +33,9 @@ def test_nf_methods_comparison():
 
     print("\nNoise Floor Method Comparison:")
     print("="*70)
-    print(f"Method 0 (Median):        ENOB={metrics0['enob']:.2f} b, SNDR={metrics0['sndr_db']:.2f} dB, SNR={metrics0['snr_db']:.2f} dB")
-    print(f"Method 1 (Trimmed Mean):  ENOB={metrics1['enob']:.2f} b, SNDR={metrics1['sndr_db']:.2f} dB, SNR={metrics1['snr_db']:.2f} dB")
-    print(f"Method 2 (Exclude Harm):  ENOB={metrics2['enob']:.2f} b, SNDR={metrics2['sndr_db']:.2f} dB, SNR={metrics2['snr_db']:.2f} dB")
+    print(f"Method 0 (Median):        ENOB={metrics0['enob']:.2f} b, SNDR={metrics0['sndr_dbc']:.2f} dB, SNR={metrics0['snr_dbc']:.2f} dB")
+    print(f"Method 1 (Trimmed Mean):  ENOB={metrics1['enob']:.2f} b, SNDR={metrics1['sndr_dbc']:.2f} dB, SNR={metrics1['snr_dbc']:.2f} dB")
+    print(f"Method 2 (Exclude Harm):  ENOB={metrics2['enob']:.2f} b, SNDR={metrics2['sndr_dbc']:.2f} dB, SNR={metrics2['snr_dbc']:.2f} dB")
     print("="*70)
 
     # All methods should produce reasonable ENOB values (within reasonable range)
@@ -49,10 +49,10 @@ def test_nf_methods_comparison():
     theoretical_snr = 20 * np.log10(sig_rms / noise_rms)
 
     print(f"\nTheoretical SNR: {theoretical_snr:.2f} dB")
-    print(f"Method 2 SNR error: {abs(metrics2['snr_db'] - theoretical_snr):.2f} dB")
+    print(f"Method 2 SNR error: {abs(metrics2['snr_dbc'] - theoretical_snr):.2f} dB")
 
     # SNR should be within 2 dB of theoretical
-    assert abs(metrics2['snr_db'] - theoretical_snr) < 2.0, "SNR error too large"
+    assert abs(metrics2['snr_dbc'] - theoretical_snr) < 2.0, "SNR error too large"
 
     print("\n[PASS] All noise floor methods working correctly!")
 

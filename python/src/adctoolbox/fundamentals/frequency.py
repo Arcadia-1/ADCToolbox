@@ -127,7 +127,7 @@ def fold_frequency_to_nyquist(fin, fs):
 
     return f_alias
 
-def fold_bin_to_nyquist(bin_idx: int, n_fft: int) -> int:
+def fold_bin_to_nyquist(bin_idx: float, n_fft: int) -> float:
     """
     Calculate the aliased bin index in the first Nyquist zone [0, n_fft/2].
 
@@ -136,24 +136,26 @@ def fold_bin_to_nyquist(bin_idx: int, n_fft: int) -> int:
 
     Parameters
     ----------
-    bin_idx : int
-        Bin index (can be negative or > n_fft)
+    bin_idx : float
+        Bin index (can be fractional, negative, or > n_fft)
     n_fft : int
         Total number of FFT bins
 
     Returns
     -------
-    int
+    float
         Aliased bin index in range [0, n_fft/2]
 
     Examples
     --------
     >>> fold_bin_to_nyquist(100, 8192)
-    100
+    100.0
+    >>> fold_bin_to_nyquist(100.5, 8192)  # Fractional bins supported
+    100.5
     >>> fold_bin_to_nyquist(5000, 8192)  # Above Nyquist, mirrors back
-    3192
+    3192.0
     >>> fold_bin_to_nyquist(-100, 8192)  # Negative wraps around
-    92
+    92.0
     """
     # First wrap to [0, n_fft) range
     bin_idx = bin_idx % n_fft

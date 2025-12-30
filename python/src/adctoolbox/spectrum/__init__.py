@@ -29,8 +29,8 @@ from .plot_spectrum_polar import plot_spectrum_polar
 # ----------------------------------------------------------------------
 
 from ._prepare_fft_input import _prepare_fft_input
-from ._find_fundamental import _find_fundamental
-from ._find_harmonic_bins import _find_harmonic_bins
+from ._locate_fundamental import _locate_fundamental
+from ._harmonics import _locate_harmonic_bins
 from ._align_spectrum_phase import _align_spectrum_phase
 
 # ----------------------------------------------------------------------

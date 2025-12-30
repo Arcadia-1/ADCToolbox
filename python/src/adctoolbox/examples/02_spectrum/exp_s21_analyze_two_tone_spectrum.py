@@ -39,7 +39,7 @@ signal = A1 * np.sin(2*np.pi*F1*t) + A2 * np.sin(2*np.pi*F2*t) + np.random.randn
 fig, ax = plt.subplots(figsize=(8, 6))
 result = analyze_two_tone_spectrum(signal, fs=Fs, ax=ax)
 
-print(f"[two_tone] ENoB=[{result['enob']:5.2f} b], SNDR=[{result['sndr_db']:6.2f} dB], SFDR=[{result['sfdr_db']:6.2f} dB], SNR=[{result['snr_db']:6.2f} dB], IMD2=[{result['imd2_db']:6.2f} dB], IMD3=[{result['imd3_db']:6.2f} dB]")
+print(f"[two_tone] ENoB=[{result['enob']:5.2f} b], SNDR=[{result['sndr_dbc']:6.2f} dB], SFDR=[{result['sfdr_dbc']:6.2f} dB], SNR=[{result['snr_dbc']:6.2f} dB], IMD2=[{result['imd2_db']:6.2f} dB], IMD3=[{result['imd3_db']:6.2f} dB]")
 
 fig_path = (output_dir / 'exp_s21_analyze_two_tone_spectrum.png').resolve()
 print(f"\n[Save fig] -> [{fig_path}]")

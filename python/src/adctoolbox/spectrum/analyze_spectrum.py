@@ -11,8 +11,8 @@ import numpy as np
 from adctoolbox.spectrum.compute_spectrum import compute_spectrum
 from adctoolbox.spectrum.plot_spectrum import plot_spectrum
 
-def analyze_spectrum(data, fs=1.0, osr=1, max_scale_range=None, win_type='hann', side_bin=1,
-                     n_thd=5, nf_method=2, assumed_sig_pwr_dbfs=np.nan, coherent_averaging=False,
+def analyze_spectrum(data, fs=1.0, osr=1, max_scale_range=None, win_type='hann', side_bin=None,
+                     max_harmonic=5, nf_method=2, assumed_sig_pwr_dbfs=np.nan, coherent_averaging=False,
                      create_plot: bool = True, show_title=True, show_label=True, plot_harmonics_up_to=3, ax=None):
     """
     Spectral analysis and plotting. (Wrapper function for modular core and plotting)
@@ -25,9 +25,9 @@ def analyze_spectrum(data, fs=1.0, osr=1, max_scale_range=None, win_type='hann',
         max_scale_range: Full scale range for normalization.
             Can be: scalar (direct range), tuple/list [min, max], or None (auto-detect)
         win_type: Window function type ('hann', 'hamming', 'boxcar')
-        side_bin: Number of side bins around fundamental
+        side_bin: Number of side bins around fundamental (None for automatic selection)
         osr: Oversampling ratio
-        n_thd: Number of harmonics for THD calculation
+        max_harmonic: Number of harmonics for THD calculation
         nf_method: Noise floor calculation method (0=median, 1=trimmed mean, 2=exclude harmonics)
         assumed_sig_pwr_dbfs: Pre-defined signal level in dBFS
         create_plot: Plot the spectrum (True) or not (False)
@@ -39,10 +39,10 @@ def analyze_spectrum(data, fs=1.0, osr=1, max_scale_range=None, win_type='hann',
     Returns:
         dict: Dictionary with performance metrics:
             - enob: Effective Number of Bits
-            - sndr_db: Signal-to-Noise and Distortion Ratio (dB)
-            - sfdr_db: Spurious-Free Dynamic Range (dB)
-            - snr_db: Signal-to-Noise Ratio (dB)
-            - thd_db: Total Harmonic Distortion (dB)
+            - sndr_dbc: Signal-to-Noise and Distortion Ratio (dBc)
+            - sfdr_dbc: Spurious-Free Dynamic Range (dBc)
+            - snr_dbc: Signal-to-Noise Ratio (dBc)
+            - thd_dbc: Total Harmonic Distortion (dBc)
             - sig_pwr_dbfs: Signal power (dBFS)
             - noise_floor_dbfs: Noise floor (dBFS)
             - nsd_dbfs_hz: Noise Spectral Density (dBFS/Hz)
@@ -57,14 +57,14 @@ def analyze_spectrum(data, fs=1.0, osr=1, max_scale_range=None, win_type='hann',
         win_type=win_type,
         side_bin=side_bin,
         osr=osr,
-        n_thd=n_thd,
+        max_harmonic=max_harmonic,
         nf_method=nf_method,
         coherent_averaging=coherent_averaging,
         assumed_sig_pwr_dbfs=assumed_sig_pwr_dbfs
     )
 
     # Print warning if harmonics collide with fundamental
-    collided = results['metrics'].get('collided_harmonics', [])
+    collided = results['plot_data'].get('collided_harmonics', [])
     if collided and show_label:
         print(f"[Warning from analyze_spectrum]: Harmonics {collided} alias to fundamental (excluded from THD)")
 
@@ -72,7 +72,7 @@ def analyze_spectrum(data, fs=1.0, osr=1, max_scale_range=None, win_type='hann',
     if create_plot:
         # Pass the analysis results to the pure plotting function.
         plot_spectrum(
-            analysis_results=results,
+            compute_results=results,
             show_title=show_title,
             show_label=show_label,
             plot_harmonics_up_to=plot_harmonics_up_to,
