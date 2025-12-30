@@ -304,10 +304,10 @@ def compute_two_tone_spectrum(
     sndr_dbc = 10 * np.log10(total_signal_power / (noise_power + 1e-20))
     sfdr_dbc = 10 * np.log10(total_signal_power / (spur_power + 1e-20))
     snr_dbc = 10 * np.log10(total_signal_power / (noise_power_final + 1e-20))
-    thd_db = 10 * np.log10(thd_power / (total_signal_power + 1e-20))
+    thd_dbc = 10 * np.log10(thd_power / (total_signal_power + 1e-20))
     enob = (sndr_dbc - 1.76) / 6.02
-    imd2_db = 10 * np.log10(total_signal_power / (imd2_total_power + 1e-20))
-    imd3_db = 10 * np.log10(total_signal_power / (imd3_total_power + 1e-20))
+    imd2_dbc = 10 * np.log10(total_signal_power / (imd2_total_power + 1e-20))
+    imd3_dbc = 10 * np.log10(total_signal_power / (imd3_total_power + 1e-20))
     sig_pwr_dbfs = 10 * np.log10(total_signal_power)
     noise_floor_db = sig_pwr_dbfs - snr_dbc
     nsd_dbfs_hz = noise_floor_db - 10 * np.log10(fs / 2)  # Noise spectral density
@@ -318,13 +318,13 @@ def compute_two_tone_spectrum(
         'sndr_dbc': sndr_dbc,
         'sfdr_dbc': sfdr_dbc,
         'snr_dbc': snr_dbc,
-        'thd_db': thd_db,
+        'thd_dbc': thd_dbc,
         'signal_power_1_dbfs': pwr1_dbfs,
         'signal_power_2_dbfs': pwr2_dbfs,
         'noise_floor_db': noise_floor_db,
         'nsd_dbfs_hz': nsd_dbfs_hz,
-        'imd2_db': imd2_db,
-        'imd3_db': imd3_db
+        'imd2_dbc': imd2_dbc,
+        'imd3_dbc': imd3_dbc
     }
 
     plot_data = {

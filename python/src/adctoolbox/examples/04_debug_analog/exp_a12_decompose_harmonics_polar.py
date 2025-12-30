@@ -74,15 +74,15 @@ ax_polar3 = plt.subplot(2, 3, 6, projection='polar')
 # Plot spectrums
 plt.sca(ax_spec1)
 result_noise = analyze_spectrum(sig_noise, fs=Fs, max_scale_range=adc_range)
-ax_spec1.set_title(f'Thermal Noise Only\nSFDR = {result_noise["sfdr_db"]:.2f} dB, SNDR = {result_noise["sndr_db"]:.2f} dB', fontsize=10)
+ax_spec1.set_title(f'Thermal Noise Only\nSFDR = {result_noise["sfdr_dbc"]:.2f} dB, SNDR = {result_noise["sndr_dbc"]:.2f} dB', fontsize=10)
 
 plt.sca(ax_spec2)
 result_nonlin = analyze_spectrum(sig_nonlin, fs=Fs, max_scale_range=adc_range)
-ax_spec2.set_title(f'Nonlinearity (k2={k2:.3f}, k3={k3:.3f})\nSFDR = {result_nonlin["sfdr_db"]:.2f} dB, SNDR = {result_nonlin["sndr_db"]:.2f} dB', fontsize=10)
+ax_spec2.set_title(f'Nonlinearity (k2={k2:.3f}, k3={k3:.3f})\nSFDR = {result_nonlin["sfdr_dbc"]:.2f} dB, SNDR = {result_nonlin["sndr_dbc"]:.2f} dB', fontsize=10)
 
 plt.sca(ax_spec3)
 result_glitch = analyze_spectrum(sig_glitch, fs=Fs, max_scale_range=adc_range)
-ax_spec3.set_title(f'Glitches (prob={glitch_prob*100:.2f}%, amp={glitch_amplitude:.1f})\nSFDR = {result_glitch["sfdr_db"]:.2f} dB, SNDR = {result_glitch["sndr_db"]:.2f} dB', fontsize=10)
+ax_spec3.set_title(f'Glitches (prob={glitch_prob*100:.2f}%, amp={glitch_amplitude:.1f})\nSFDR = {result_glitch["sfdr_dbc"]:.2f} dB, SNDR = {result_glitch["sndr_dbc"]:.2f} dB', fontsize=10)
 
 # Plot polar decompositions
 analyze_decomposition_polar(sig_noise, ax=ax_polar1, title='Thermal Noise Only')

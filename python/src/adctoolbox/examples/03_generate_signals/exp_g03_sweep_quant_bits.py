@@ -53,7 +53,7 @@ for idx, n_bits in enumerate(bits_sweep):
     axes[idx].set_title(title, fontsize=12, fontweight='bold')
             
     # Print Metrics to Console
-    print(f"{n_bits:<6d} | {result['enob']:<8.2f} | {result['snr_db']:<10.2f} | {theory_snr:<10.2f}")
+    print(f"{n_bits:<6d} | {result['enob']:<8.2f} | {result['snr_dbc']:<10.2f} | {theory_snr:<10.2f}")
 
 # Finalize and Save
 plt.suptitle(f'Quantization Noise Sweep: 2-bit to 16-bit\n(Theoretical SNR = 6.02N + 1.76 dB)', 

@@ -102,8 +102,8 @@ for idx, N_run in enumerate(N_runs):
     result_coh = analyze_two_tone_spectrum(signal_data, fs=Fs, coherent_averaging=True)
     axes[1, idx].set_ylim([-140, 0])
 
-    print(f"[{N_run:3d} Run(s)] Power Avg:    ENoB={result_power['enob']:5.2f}b, SNR={result_power['snr_dbc']:6.2f}dB, IMD2={result_power['imd2_db']:6.2f}dB, IMD3={result_power['imd3_db']:6.2f}dB")
-    print(f"[{N_run:3d} Run(s)] Coherent Avg: ENoB={result_coh['enob']:5.2f}b, SNR={result_coh['snr_dbc']:6.2f}dB, IMD2={result_coh['imd2_db']:6.2f}dB, IMD3={result_coh['imd3_db']:6.2f}dB")
+    print(f"[{N_run:3d} Run(s)] Power Avg:    ENoB={result_power['enob']:5.2f}b, SNR={result_power['snr_dbc']:6.2f}dB, IMD2={result_power['imd2_dbc']:6.2f}dB, IMD3={result_power['imd3_dbc']:6.2f}dB")
+    print(f"[{N_run:3d} Run(s)] Coherent Avg: ENoB={result_coh['enob']:5.2f}b, SNR={result_coh['snr_dbc']:6.2f}dB, IMD2={result_coh['imd2_dbc']:6.2f}dB, IMD3={result_coh['imd3_dbc']:6.2f}dB")
 
 print()
 

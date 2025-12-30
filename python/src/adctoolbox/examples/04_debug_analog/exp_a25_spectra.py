@@ -62,7 +62,7 @@ for idx, case in enumerate(CASES):
     axes[idx].set_title(case['title'], fontsize=10, fontweight='bold')
 
     # Print metrics
-    print(f"{idx+1:<4} | {case['title']:<30} | {result['sfdr_db']:>10.2f} | {result['sndr_db']:>10.2f} | {result['thd_db']:>10.2f}")
+    print(f"{idx+1:<4} | {case['title']:<30} | {result['sfdr_dbc']:>10.2f} | {result['sndr_dbc']:>10.2f} | {result['thd_dbc']:>10.2f}")
 
 print("=" * 100)
 print(f"\n[Timing] Signal Generation & Plotting: {time.time() - t_plot:.4f}s")

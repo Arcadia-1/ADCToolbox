@@ -116,7 +116,7 @@ for idx, exp in enumerate(EXPERIMENTS):
     axes[idx].set_ylim([-140, 0])
 
     print(f"{idx+1:<4} | {exp['title']:<35} | "
-          f"{result['sfdr_db']:<10.2f} | {result['thd_db']:<10.2f}")
+          f"{result['sfdr_dbc']:<10.2f} | {result['thd_dbc']:<10.2f}")
 
 # Finalize
 plt.suptitle(

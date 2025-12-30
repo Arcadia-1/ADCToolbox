@@ -163,8 +163,8 @@ def plot_two_tone_spectrum(
             f"SFDR = {metrics['sfdr_dbc']:.2f} dB",
             f"SNR = {metrics['snr_dbc']:.2f} dB",
             f"Noise Floor = {metrics['noise_floor_db']:.2f} dB",
-            f"IMD2 = {metrics['imd2_db']:.2f} dB",
-            f"IMD3 = {metrics['imd3_db']:.2f} dB"
+            f"IMD2 = {metrics['imd2_dbc']:.2f} dB",
+            f"IMD3 = {metrics['imd3_dbc']:.2f} dB"
         ]
 
         # Calculate y position based on plot range

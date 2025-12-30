@@ -90,7 +90,7 @@ for row_idx, (noise_level, noise_label) in enumerate(zip(noise_levels, noise_lab
 
             # Calculate SNR using analyze_spectrum
             spec_results = analyze_spectrum(signal, fs=Fs, osr=1, create_plot=False)
-            snr_db = spec_results['snr_db']
+            snr_db = spec_results['snr_dbc']
 
             jitter_set.append(jitter_rms)
             jitter_measured.append(jitter_calc)
