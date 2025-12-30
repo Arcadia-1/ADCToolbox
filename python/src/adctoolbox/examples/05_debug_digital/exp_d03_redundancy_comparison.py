@@ -54,11 +54,11 @@ for idx, (caps_nominal, mismatch_factor, title) in enumerate(test_cases):
 
     # Spectrum comparison
     plt.sca(axes[0, idx])
-    result_before = analyze_spectrum(analog_before, n_thd=5, show_label=True, ax=axes[0, idx])
+    result_before = analyze_spectrum(analog_before, max_harmonic=5, show_label=True, ax=axes[0, idx])
     axes[0, idx].set_title(f'{title}\nBefore Calibration', fontsize=11, fontweight='bold')
 
     plt.sca(axes[1, idx])
-    result_after = analyze_spectrum(analog_after, n_thd=5, show_label=True, ax=axes[1, idx])
+    result_after = analyze_spectrum(analog_after, max_harmonic=5, show_label=True, ax=axes[1, idx])
     axes[1, idx].set_title(f'After Calibration', fontsize=11, fontweight='bold')
 
     # Normalize weights for error analysis

@@ -50,32 +50,25 @@ jobs:
         env:
           MPLBACKEND: Agg
 
-      # - name: Run Spectrum Examples (02_spectrum)
-      #   run: |
-      #     cd python/src/adctoolbox/examples/02_spectrum
+      - name: Run Spectrum Examples (02_spectrum)
+        run: |
+          cd python/src/adctoolbox/examples/02_spectrum
 
-      #     EXAMPLES="
-      #       exp_s01_analyze_spectrum_simplest.py
-      #       exp_s03_analyze_spectrum_savefig.py
-      #       exp_s04_sweep_dynamic_range.py
-      #       exp_s05_annotating_spur.py
-      #       exp_s06_sweeping_fft_and_osr.py
-      #       exp_s07_spectrum_averaging.py
-      #       exp_s08_windowing_deep_dive.py
-      #       exp_s10_polar_noise_and_harmonics.py
-      #       exp_s11_polar_memory_effect.py
-      #       exp_s12_polar_coherent_averaging.py
-      #       exp_s21_analyze_two_tone_spectrum.py
-      #       exp_s22_two_tone_imd_comparison.py
-      #       exp_s23_two_tone_spectrum_averaging.py
-      #     "
+          EXAMPLES="
+            exp_s01_analyze_spectrum_simplest.py
+            exp_s03_analyze_spectrum_savefig.py
+            exp_s06_sweeping_fft_and_osr.py
+            exp_s07_spectrum_averaging.py
+            exp_s08_windowing_deep_dive.py
+            exp_s10_polar_noise_and_harmonics.py
+          "
 
-      #     for script in $EXAMPLES; do
-      #       echo "Running $script..."
-      #       python "$script" || exit 1
-      #     done
-      #   env:
-      #     MPLBACKEND: Agg
+          for script in $EXAMPLES; do
+            echo "Running $script..."
+            python "$script" || exit 1
+          done
+        env:
+          MPLBACKEND: Agg
 
       - name: Run Signal Generation Examples (03_generate_signals)
         run: |
@@ -147,23 +140,23 @@ jobs:
       #   env:
       #     MPLBACKEND: Agg
 
-      # - name: Run Toolset Examples (06_use_toolsets)
-      #   run: |
-      #     cd python/src/adctoolbox/examples/06_use_toolsets
+      - name: Run Toolset Examples (06_use_toolsets)
+        run: |
+          cd python/src/adctoolbox/examples/06_use_toolsets
 
-      #     EXAMPLES="
-      #       exp_t01_aout_dashboard_single.py
-      #       exp_t02_aout_dashboard_batch.py
-      #       exp_t03_dout_dashboard_single.py
-      #       exp_t04_dout_dashboard_batch.py
-      #     "
+          EXAMPLES="
+            exp_t01_aout_dashboard_single.py
+            exp_t02_aout_dashboard_batch.py
+            exp_t03_dout_dashboard_single.py
+            exp_t04_dout_dashboard_batch.py
+          "
 
-      #     for script in $EXAMPLES; do
-      #       echo "Running $script..."
-      #       python "$script" || exit 1
-      #     done
-      #   env:
-      #     MPLBACKEND: Agg
+          for script in $EXAMPLES; do
+            echo "Running $script..."
+            python "$script" || exit 1
+          done
+        env:
+          MPLBACKEND: Agg
 
       # - name: Run Metric Calculation Examples (07_calculate_metric)
       #   run: |
