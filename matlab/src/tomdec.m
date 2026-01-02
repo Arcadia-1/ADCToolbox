@@ -1,20 +1,20 @@
-function [sine, err, har, oth] = tomdec(sig, varargin)
+function [sine, err, har, oth, freq] = tomdec(sig, varargin)
 %TOMDEC Thompson decomposition of a single-tone signal into sinewave and errors
-%   This function performs Thompson decomposition on a single-tone signal, 
+%   This function performs Thompson decomposition on a single-tone signal,
 %   separating the signal into fundamental sinewave, harmonic distortions, and other
 %   errors. The method uses least-squares fitting to decompose the signal.
 %
 %   Syntax:
-%     [sine, err, har, oth] = TOMDEC(sig)
-%     [sine, err, har, oth] = TOMDEC(sig, freq)
-%     [sine, err, har, oth] = TOMDEC(sig, freq, order)
-%     [sine, err, har, oth] = TOMDEC(sig, freq, order, disp)
+%     [sine, err, har, oth, freq] = TOMDEC(sig)
+%     [sine, err, har, oth, freq] = TOMDEC(sig, freq)
+%     [sine, err, har, oth, freq] = TOMDEC(sig, freq, order)
+%     [sine, err, har, oth, freq] = TOMDEC(sig, freq, order, disp)
 %   or using parameter pairs:
-%     [sine, err, har, oth] = TOMDEC(sig, 'name', value, ...)
+%     [sine, err, har, oth, freq] = TOMDEC(sig, 'name', value, ...)
 %
 %   Inputs:
 %     sig - Signal to be decomposed
-%       Vector 
+%       Vector
 %     freq - Signal frequency (normalized). Optional.
 %       Scalar
 %       Range: [0, 0.5]
@@ -35,16 +35,18 @@ function [sine, err, har, oth] = tomdec(sig, varargin)
 %       Vector
 %     oth - All other errors (sig - all harmonics)
 %       Vector
+%     freq - Signal frequency (normalized)
+%       Scalar
 %
 %   Examples:
 %     % Auto-detect frequency and display results
 %     tomdec(sig)
 %
 %     % Specify frequency, fit 10 harmonics
-%     [sine, err, har, oth] = tomdec(sig, 0.123)
+%     [sine, err, har, oth, freq] = tomdec(sig, 0.123)
 %
 %     % Fit only 5 harmonics without display
-%     [sine, err, har, oth] = tomdec(sig, 0.123, 5, false)
+%     [sine, err, har, oth, freq] = tomdec(sig, 0.123, 5, false)
 %
 %   Notes:
 %     - The decomposition satisfies: sig = sine + err, err = har + oth
