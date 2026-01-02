@@ -197,33 +197,44 @@ plotphase(sig, 10, 'mode', 'FFT', 'OSR', 64);
 **Syntax:**
 ```matlab
 [fitout, freq, mag, dc, phi] = sinfit(sig)
-[fitout, freq, mag, dc, phi] = sinfit(sig, f0, tol, rate)
+[fitout, freq, mag, dc, phi] = sinfit(sig, f0, tol, rate, fsearch, verbose)
+[fitout, freq, mag, dc, phi] = sinfit(sig, 'Name', Value, ...)
 ```
 
 **Key Features:**
 - Iterative least-squares refinement with frequency gradient descent
 - Automatic frequency estimation using FFT with parabolic interpolation
 - Configurable convergence tolerance and learning rate
+- Optional fine frequency search control (`fsearch`)
+- Verbose output for debugging iteration progress
 - Handles both single-channel and multi-channel (averaged) input
 
 **Algorithm:**
 1. Initial 3-parameter fit (cosine, sine, DC) using linear least squares
-2. Iterative frequency refinement by computing frequency gradient
+2. Iterative frequency refinement by computing frequency gradient (if `fsearch=1`)
 3. Convergence when relative error < tolerance (default: 1e-12)
 4. Maximum 100 iterations with convergence warning if exceeded
 
-**Parameters:**
-- `f0` - Initial frequency estimate (normalized, default: auto-detect)
+**Parameters (positional or Name-Value):**
+- `f0` - Initial frequency estimate (normalized, default: 0 for auto-detect)
 - `tol` - Convergence tolerance (default: 1e-12)
 - `rate` - Learning rate for frequency update (default: 0.5)
+- `fsearch` - Force fine frequency search iteration (default: 0, auto-enabled when f0=0)
+- `verbose` - Enable verbose output during iteration (default: 0)
 
 **Example:**
 ```matlab
-% Automatic frequency estimation
+% Automatic frequency estimation (auto-enables fsearch)
 [fitout, freq, mag, dc, phi] = sinfit(sig);
 
-% Known frequency with custom tolerance
+% Known frequency with custom tolerance (positional)
 [fitout, freq] = sinfit(sig, 0.123, 1e-10, 0.7);
+
+% 3-parameter fit only at known frequency (no iteration)
+[fitout, freq] = sinfit(sig, 0.123);
+
+% Force iteration with verbose output (Name-Value)
+[fitout, freq] = sinfit(sig, 'f0', 0.123, 'fsearch', 1, 'verbose', 1);
 ```
 
 ### findfreq
@@ -499,9 +510,9 @@ sig = sin(2*pi*0.12345*(0:999)') + 0.01*randn(1000,1);
 
 **Syntax:**
 ```matlab
-[sine, err, har, oth] = tomdec(sig)
-[sine, err, har, oth] = tomdec(sig, freq, order, disp)
-[sine, err, har, oth] = tomdec(sig, 'name', value)
+[sine, err, har, oth, freq] = tomdec(sig)
+[sine, err, har, oth, freq] = tomdec(sig, freq, order, disp)
+[sine, err, har, oth, freq] = tomdec(sig, 'name', value)
 ```
 
 **Key Features:**
@@ -780,7 +791,7 @@ grid on;
 
 ```matlab
 % Decompose ADC output into components
-[sine, err, har, oth] = tomdec(data, 'order', 10, 'disp', true);
+[sine, err, har, oth, freq] = tomdec(data, 'order', 10, 'disp', true);
 
 % Analyze power of each component
 sig_power = rms(sine)^2;
