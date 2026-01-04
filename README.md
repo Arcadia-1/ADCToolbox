@@ -32,12 +32,6 @@
 - **Calibration Algorithms**: built-in reference implementations for digital calibration, including bit-weight extraction and redundancy management for SAR and Pipeline architectures.
 
 <div align="center">
-  <img src="docs/images/exp_t02_dashboard_01_Thermal_Noise.png" alt="ADCToolbox Dashboard" width="100%">
-</div>
-
-
-
-<div align="center">
   <img src="docs/images/exp_t02_dashboard_10_RA_Dynamic_Gain.png" alt="ADCToolbox Dashboard" width="100%">
 </div>
 
