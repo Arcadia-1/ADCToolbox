@@ -39,7 +39,7 @@ freq_configs = [
 ]
 
 # Create 1x2 grid: left and right
-fig, axes = plt.subplots(1, 2, figsize=(16, 6))
+fig, axes = plt.subplots(1, 2, figsize=(14, 6))
 
 n_harm = 11
 
@@ -55,7 +55,7 @@ for idx, freq_config in enumerate(freq_configs):
     ax = axes[idx]
     plt.sca(ax)
     metrics = analyze_spectrum(signal, fs=Fs, max_harmonic=n_harm, show_title=False, plot_harmonics_up_to=n_harm)
-    ax.set_ylim(bottom=-140)
+
     ax.set_title(f'{freq_config["name"]}, Harmonics up to {n_harm}', fontsize=12, fontweight='bold')
     print(f"  [max_harmonic={n_harm:2d}] ENoB=[{metrics['enob']:5.2f} b], SNDR=[{metrics['sndr_dbc']:6.2f} dB], THD=[{metrics['thd_dbc']:7.2f} dB]")
     print()

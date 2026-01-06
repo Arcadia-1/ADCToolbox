@@ -82,7 +82,7 @@ def plot_rearranged_error_by_value(results: dict, axes=None, ax=None, title: str
 
         ax1.set_ylabel('Error')
         if title:
-            ax1.set_title(f'{title}\nSignal and Error vs Value')
+            ax1.set_title(title)
         else:
             ax1.set_title('Signal and Error vs Value')
         ax1.grid(True, alpha=0.3)

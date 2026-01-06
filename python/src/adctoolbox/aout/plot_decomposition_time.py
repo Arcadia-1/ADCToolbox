@@ -139,7 +139,7 @@ def plot_decomposition_time(
     ax1.set_xlabel('Samples')
     ax1.set_ylabel('Signal')
     if title:
-        ax1.set_title(f'{title}\nSignal and Fitted Sinewave')
+        ax1.set_title(title)
     else:
         ax1.set_title('Signal and Fitted Sinewave')
     ax1.legend(loc='upper right', fontsize=8)
