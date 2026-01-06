@@ -75,7 +75,7 @@ print("=" * 80)
 print("POWER SPECTRUM AVERAGING vs COHERENT SPECTRUM AVERAGING")
 print("=" * 80)
 
-fig, axes = plt.subplots(2, len(N_runs), figsize=(len(N_runs)*7, 9))
+fig, axes = plt.subplots(2, len(N_runs), figsize=(len(N_runs)*6, 9))
 
 # Store results for performance analysis
 results_power = []
@@ -96,7 +96,7 @@ for idx, N_run in enumerate(N_runs):
     axes[1, idx].set_ylim([-140, 0])
     results_coherent.append(result_coherent)
 
-    print(f"[{N_run:3d} Run(s)] Power Avg: ENoB=[{result_power['enob']:5.2f} b], SNR=[{result_power['snr_dbc']:6.2f} dB] | Coherent Avg: ENoB=[{result_coherent['enob']:5.2f} b], SNR=[{result_coherent['snr_dbc']:6.2f} dB]")
+    print(f"[{N_run:3d} Run(s)] Power Avg: ENoB=[{result_power['enob']:5.2f} b], SNR=[{result_power['snr_dbc']:6.2f} dB], sig_pwr=[{result_power['sig_pwr_dbfs']:6.2f} dBFS] | Coherent Avg: ENoB=[{result_coherent['enob']:5.2f} b], SNR=[{result_coherent['snr_dbc']:6.2f} dB], sig_pwr=[{result_coherent['sig_pwr_dbfs']:6.2f} dBFS]")
 
 fig.suptitle(f'Power Spectrum Averaging vs Complex Spectrum Coherent Averaging (N_fft = {N_fft})',
              fontsize=16, fontweight='bold')

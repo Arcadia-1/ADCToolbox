@@ -85,8 +85,11 @@ def compute_spectrum(
         power_spectrum, complex_spectrum = _power_average(data_windowed)
 
     # Apply power correction to spectrum
+    # Note: ENBW correction is NOT applied here - it's only used for noise density calculations
+    # For coherent signals, the power is spread across ~ENBW bins by the window
+    # Summing across bins recovers the correct signal power without ENBW division
     power_correction = _calculate_power_correction(window_gain)
-    power_spectrum *= power_correction / equiv_noise_bw_factor
+    power_spectrum *= power_correction
     if complex_spectrum is not None:
         # Complex spectrum (voltage) correction: sqrt(power_correction)
         # Note: ENBW correction NOT applied to complex_spectrum (it represents signal voltage)
@@ -175,8 +178,10 @@ def compute_spectrum(
     # Calculate noise-related metrics (SNR, noise floor, NSD)
     snr_dbc = 10 * np.log10(signal_power / noise_power)
     noise_floor_dbfs = sig_pwr_dbfs - snr_dbc
-    # NSD: power spectrum already normalized by ENBW at line 89, so don't subtract ENBW again
-    nsd_dbfs_hz = noise_floor_dbfs - 10 * np.log10(fs / (2 * osr))
+    # NSD: Noise Spectral Density = Noise Floor / (Bandwidth × ENBW)
+    # - fs/(2*osr) is the bandwidth
+    # - equiv_noise_bw_factor accounts for window's noise bandwidth normalization
+    nsd_dbfs_hz = noise_floor_dbfs - 10 * np.log10(fs / (2 * osr) * equiv_noise_bw_factor)
 
     
     # Compensate power spectrum for plotting (recover peak amplitude for visualization)

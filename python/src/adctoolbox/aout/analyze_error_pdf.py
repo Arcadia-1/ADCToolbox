@@ -118,7 +118,7 @@ def analyze_error_pdf(signal, resolution=12, full_scale=None, frequency=None, cr
 
         # Set title if provided
         if title is not None:
-            ax.set_title(title, fontsize=10, fontweight='bold')
+            ax.set_title(title, fontsize=12)
 
     return {
         'err_lsb': err_lsb,

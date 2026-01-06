@@ -105,7 +105,7 @@ def analyze_error_autocorr(signal, frequency=None, max_lag=50, normalize=True, c
 
         # Set title if provided
         if title is not None:
-            ax.set_title(title, fontsize=10, fontweight='bold')
+            ax.set_title(title, fontsize=12)
 
     # Return dictionary for consistency with other analyze functions
     return {

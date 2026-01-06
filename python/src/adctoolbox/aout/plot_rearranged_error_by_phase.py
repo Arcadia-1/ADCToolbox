@@ -125,7 +125,7 @@ def plot_rearranged_error_by_phase(results: dict, axes=None, ax=None, title: str
 
     ax1.set_xlabel('Phase (deg)')
     if title:
-        ax1.set_title(f'{title}\nSignal and Error vs Phase')
+        ax1.set_title(title)
     else:
         ax1.set_title('Signal and Error vs Phase')
     ax1.grid(True, alpha=0.3)
@@ -169,8 +169,14 @@ def plot_rearranged_error_by_phase(results: dict, axes=None, ax=None, title: str
         max_rms = np.nanmax(bin_error_rms_v)
         ax2.set_ylim([0, max_rms * 1.5])
         ax2.set_ylabel('RMS Error')
-        ax2.set_title(f'RMS Error vs Phase\nModel Confidence: R²={r_squared_binned:.3f}')
+        ax2.set_title('RMS Error vs Phase')
         ax2.legend(loc='upper left', fontsize=9)
+
+        # Add confidence text box in right upper corner
+        text_str = f'R²={r_squared_binned:.3f}'
+        ax2.text(0.98, 0.98, text_str, transform=ax2.transAxes,
+                fontsize=10, verticalalignment='top', horizontalalignment='right',
+                bbox=dict(boxstyle='round', facecolor='wheat', alpha=0.8))
 
     ax2.set_xlabel('Phase (deg)')
     ax2.grid(True, alpha=0.3)
