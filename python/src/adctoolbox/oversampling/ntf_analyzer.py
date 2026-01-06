@@ -26,9 +26,9 @@ def ntf_analyzer(ntf, flow, fhigh, is_plot=None):
     else:
         tf = ntf
 
-    # Calculate frequency response
+    # Calculate frequency response for discrete-time system
     w_rad = w * 2 * np.pi
-    _, mag = signal.freqresp(tf, w_rad)
+    _, mag = signal.dfreqresp(tf, w_rad)
     mag = np.abs(mag)
 
     # Calculate noise suppression in signal band
@@ -39,7 +39,6 @@ def ntf_analyzer(ntf, flow, fhigh, is_plot=None):
     # Plot if requested
     if is_plot == 1:
         plt.semilogx(w, 20 * np.log10(mag))
-        plt.hold(True)
 
         if flow > 0:
             plt.semilogx([flow, flow], 20 * np.log10([np.min(mag), np.max(mag)]), 'k--')
