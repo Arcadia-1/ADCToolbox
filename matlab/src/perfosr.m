@@ -144,7 +144,7 @@ function [osr, sndr, sfdr, enob] = perfosr(sig, varargin)
     if dispPlot
 
         % Subplot 1: Performance metrics (SNDR, SFDR, ENOB)
-        subplot(2, 1, 1);
+        nexttile;
 
         % Plot SNDR and SFDR on left axis
         if logscale
@@ -215,7 +215,7 @@ function [osr, sndr, sfdr, enob] = perfosr(sig, varargin)
         end
 
         % Subplot 2: SNDR slope (dB/decade)
-        subplot(2, 1, 2);
+        nexttile;
 
         if length(osr) >= 3
             log_osr = log10(osr);
