@@ -29,6 +29,9 @@ function [range_min, range_max, ovf_percent_zero, ovf_percent_one] = bitchk(bits
 %       Overflow detection based on residue at chkpos-th bit (1 for LSB, M for MSB)
 %       Range: [1, M]
 %       Default: M (check at MSB)
+%     disp - Enable figure display. Optional.
+%       Logical
+%       Default: true if nargout == 0, false otherwise
 %
 %   Outputs:
 %     range_min - Minimum normalized residue for each bit position
@@ -44,7 +47,7 @@ function [range_min, range_max, ovf_percent_zero, ovf_percent_one] = bitchk(bits
 %       Vector (1-by-M)
 %       Overflow percentage per bit position
 %
-%   Plot Description (when nargout == 0):
+%   Plot Description (when disp == true):
 %     - X-axis: Bit position (MSB to LSB, labeled M to 1)
 %     - Y-axis: Normalized residue distribution [0, 1]
 %     - Blue dots: Normal samples (no overflow)
@@ -68,15 +71,18 @@ function [range_min, range_max, ovf_percent_zero, ovf_percent_one] = bitchk(bits
 %     % Check overflow of the segment: from the 8th-bit to LSB
 %     bitchk(bits, wgt, 8)
 %
-%     % Get overflow statistics
+%     % Get overflow statistics without display
 %     [range_min, range_max, pct_zero, pct_one] = bitchk(bits);
+%
+%     % Get overflow statistics with forced display
+%     [range_min, range_max, pct_zero, pct_one] = bitchk(bits, 'disp', true);
 %
 %   Notes:
 %     - A bit segment is the sub-code formed from one bit to the LSB
 %     - Residue is normalized by dividing by the sum of weights in the corresponding segment
 %     - Function automatically transposes input if N < M
 %     - Uses transparent markers to visualize density of data points
-%     - Plot is only displayed when nargout == 0 (no output arguments)
+%     - Plot is displayed when disp == true (default: true if no output arguments)
 %
 %   See also: plot, scatter
 
@@ -90,9 +96,11 @@ end
 p = inputParser;
 addOptional(p, 'wgt', 2.^(M-1:-1:0), @(x) isnumeric(x) && isvector(x));
 addOptional(p, 'chkpos', M, @(x) isnumeric(x) && isscalar(x) && (x >= 1) && (x <= M));
+addParameter(p, 'disp', nargout == 0, @(x) islogical(x) || (isnumeric(x) && isscalar(x)));
 parse(p, varargin{:});
 wgt = p.Results.wgt;
 chkpos = p.Results.chkpos;
+dispFlag = logical(p.Results.disp);
 
 data_decom = zeros([N,M]);
 range_min = zeros([1,M]);
@@ -116,8 +124,8 @@ ovf_zero = (data_decom(:,M-chkpos+1) <= 0);
 ovf_one = (data_decom(:,M-chkpos+1) >= 1);
 non_ovf = ~(ovf_zero | ovf_one);
 
-% Only plot if no output arguments requested
-if nargout == 0
+% Plot if display is enabled
+if dispFlag
     hold on;
     hBoundary = plot([0,M+1],[1,1],'-k');
     plot([0,M+1],[0,0],'-k');
