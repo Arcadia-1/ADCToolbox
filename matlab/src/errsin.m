@@ -167,7 +167,8 @@ function [emean, erms, xx, anoi, pnoi, err, errxx] = errsin(sig, varargin)
 
         % Display plots if requested
         if(disp)
-            subplot(2,1,1);
+
+            nexttile;
 
             % Plot data points colored by phase (no legend)
             idx_first = (phase < 180);   % [0, 180) phase
@@ -190,7 +191,7 @@ function [emean, erms, xx, anoi, pnoi, err, errxx] = errsin(sig, varargin)
 
             legend('Rising aveg. (0~180 deg)', 'Falling aveg. (180~360 deg)', 'All aveg.');
 
-            subplot(2,1,2);
+            nexttile;
             bar(xx, erms, 'FaceColor', [0.8 0.8 0.8], 'EdgeColor', [0.6 0.6 0.6]);
             axis([dat_min, dat_max, 0, max(erms)*1.1]);
             xlabel('value');
@@ -254,7 +255,8 @@ function [emean, erms, xx, anoi, pnoi, err, errxx] = errsin(sig, varargin)
 
         % Display plots if requested
         if(disp)
-            subplot(2,1,1);
+            
+            nexttile;
 
             yyaxis left;
             plot(errxx,sig,'k.');
@@ -275,7 +277,7 @@ function [emean, erms, xx, anoi, pnoi, err, errxx] = errsin(sig, varargin)
                 plot(errxx,err,'m.');
             end
 
-            subplot(2,1,2);
+            nexttile;
             bar(xx, erms, 'FaceColor', [0.8 0.8 0.8], 'EdgeColor', [0.6 0.6 0.6]);
             hold on;
             plot(xx, sqrt((anoi.^2)*asen + (pnoi.^2)*psen), 'k-', 'LineWidth', 2);

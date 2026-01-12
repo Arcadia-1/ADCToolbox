@@ -31,8 +31,8 @@ function [weight,offset,postcal,ideal,err,freqcal] = wcalsin(bits,varargin)
 %     fsearch - Force fine frequency search. Default: 0
 %       Logical or {0, 1}
 %     verbose - Enable verbose output during frequency search. Default: 0
-%       Logical or {0, 1}
-%       Set to 1 to print frequency search progress messages
+%       Logical (true/false) or {0, 1}
+%       Set to true or 1 to print frequency search progress messages
 %     nomWeight - Nominal bit weights for rank deficiency handling. Default: [2^(M-1), ..., 2, 1]
 %       Vector [1×M]
 %
@@ -61,7 +61,7 @@ function [weight,offset,postcal,ideal,err,freqcal] = wcalsin(bits,varargin)
 %     [wgt, off] = wcalsin({bits1, bits2}, 'freq', [0.1, 0.2], 'order', 3)
 %
 %     % Enable verbose output to see frequency search progress
-%     [wgt, off, cal, ideal, err, freq] = wcalsin(bits, 'verbose', 1)
+%     [wgt, off, cal, ideal, err, freq] = wcalsin(bits, 'verbose', true)
 %
 %   Notes:
 %     - For multi-dataset calibration, weights and offset are shared across all
@@ -114,7 +114,7 @@ warning("off")
         addOptional(p, 'niter', 100, @(x) isnumeric(x) && isscalar(x) && (x > 0));
         addOptional(p, 'order', 1, @(x) isnumeric(x) && isscalar(x) && (x > 0));
         addOptional(p, 'fsearch', 0, @(x) isnumeric(x) && isscalar(x));
-        addOptional(p, 'verbose', 0, @(x) isnumeric(x) && isscalar(x) && ismember(x, [0, 1]));
+        addOptional(p, 'verbose', 0, @(x) (islogical(x) && isscalar(x)) || (isnumeric(x) && isscalar(x) && ismember(x, [0, 1])));
         addParameter(p, 'nomWeight', 2.^(M_orig-1:-1:0));
         parse(p, varargin{:});
         freq = p.Results.freq;
@@ -303,7 +303,7 @@ warning("off")
     addOptional(p, 'niter', 100, @(x) isnumeric(x) && isscalar(x) && (x > 0));           % max fine-search iterations
     addOptional(p, 'order', 1, @(x) isnumeric(x) && isscalar(x) && (x > 0));             % harmonics exclusion order (1 for no exclusion)
     addOptional(p, 'fsearch', 0, @(x) isnumeric(x) && isscalar(x));                      % force fine search (1) or not (0)
-    addOptional(p, 'verbose', 0, @(x) isnumeric(x) && isscalar(x) && ismember(x, [0, 1])); % enable verbose output (0: off, 1: on)
+    addOptional(p, 'verbose', 0, @(x) (islogical(x) && isscalar(x)) || (isnumeric(x) && isscalar(x) && ismember(x, [0, 1]))); % enable verbose output (0: off, 1: on)
     addParameter(p, 'nomWeight', 2.^(M-1:-1:0));                                         % nominal bit weights (only effective when rank is deficient)
     parse(p, varargin{:});
     freq = p.Results.freq;

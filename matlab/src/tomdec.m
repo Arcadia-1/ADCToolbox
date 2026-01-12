@@ -74,7 +74,7 @@ function [sine, err, har, oth, freq] = tomdec(sig, varargin)
     end
 
     % Auto-detect frequency if not provided
-    if(freq < 0)
+    if(freq <= 0)
        freq = findfreq(sig);
     end
 
