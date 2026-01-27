@@ -37,9 +37,10 @@ function [enob,sndr,sfdr,snr,thd,sigpwr,noi,nsd,h] = plotspec(sig,varargin)
 %     'maxSignal' - Full scale range (max-min). Default: max(sig)-min(sig)
 %       Scalar, positive real number
 %       Alias: 'maxCode' (deprecated, use 'maxSignal')
-%     'sideBin' - Number of extra bins to include on each side of signal peak. Default: 1
-%       Scalar, non-negative integer
+%     'sideBin' - Number of extra bins to include on each side of signal peak. Default: 'auto'
+%       Scalar, non-negative integer or string 'auto'
 %       Total signal bins = 1 + 2*sideBin (center peak + sideBin on each side)
+%       'auto': Automatically finds minimum sideBin where side bins are non-ascending away from fundamental
 %       Convention: sideBin = 1 for Hanning window if signal is coherent
 %     'label' - Enable plot annotations. Default: true
 %       Logical (true/false) or numeric (0/1)
@@ -143,7 +144,7 @@ addParameter(p, 'disp', NaN, validLogical);
 addParameter(p, 'cutoff', 0, validScalarPosNum);
 addParameter(p, 'averageMode', 'normal', validAvgMode);
 % Other parameters
-addParameter(p, 'sideBin', 1, @(x) isnumeric(x) && isscalar(x) && (x >= 0));
+addParameter(p, 'sideBin', 'auto', @(x) (isnumeric(x) && isscalar(x) && (x >= 0)) || (ischar(x) && strcmp(x, 'auto')));
 addParameter(p, 'label', true, validLogical);
 addParameter(p, 'assumedSignal', NaN);
 addParameter(p, 'nTHD', 5, validScalarPosInt);
@@ -360,6 +361,40 @@ sig_r = log10(spec(min(max(bin+1,1),Nd2)));
 bin_r = bin + (sig_r-sig_l)/(2*sig_e-sig_l-sig_r)/2;
 if(isnan(bin_r))
     bin_r = bin;
+end
+
+% Auto-detect sideBin if set to 'auto'
+if ischar(sideBin) && strcmp(sideBin, 'auto')
+    sideBin = 0;
+    max_sidebin = min(bin-1, floor(N_fft/2/OSR)-bin);  % Maximum possible sideBin
+
+    for sb = 0:max_sidebin
+        left_bin = bin - sb - 1;
+        right_bin = bin + sb + 1;
+
+        % Check left side: next bin away should be <= current edge bin (non-ascending)
+        if left_bin >= 1
+            if spec(left_bin) > spec(left_bin+1)
+                sideBin = sb;
+                break;
+            end
+        end
+
+        % Check right side: next bin away should be <= current edge bin (non-ascending)
+        if right_bin <= floor(N_fft/2/OSR)
+            if spec(right_bin) > spec(right_bin-1)
+                sideBin = sb;
+                break;
+            end
+        end
+    end
+
+    % Warn if sideBin is large, indicating likely spectrum leakage
+    if sideBin > 10
+        warning('plotspec:spectrumLeakage', ...
+            'Auto-detected sideBin = %d is large (>10), indicating likely spectrum leakage. Consider using a better window function or ensuring coherent sampling.', ...
+            sideBin);
+    end
 end
 
 % Calculate signal power including side bins
