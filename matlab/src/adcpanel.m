@@ -162,8 +162,8 @@ function [rep] = adcpanel(dat, varargin)
 %        - idx_start = max(1, idx_max - 2.5*spc)
 %        - idx_end = min(N, idx_max + 2.5*spc)
 %        - Plot original signal (left y-axis) and error (right y-axis)
-%     d) Call errsin with xaxis='phase' for phase-binned error analysis
-%     e) Call errsin with xaxis='value' for value-binned error analysis
+%     d) Call errsin with xaxis='phase', osr, window for phase-binned error analysis
+%     e) Call errsin with xaxis='value', osr, window for value-binned error analysis
 %     f) Call inlsin (warn if N < maxCode)
 %     g) Call perfosr with harmonic
 %     h) Call plotphase with mode='FFT' for FFT-based coherent phase
@@ -186,11 +186,11 @@ function [rep] = adcpanel(dat, varargin)
 %   +---------------+----------+--------+--------+---------+-----------+---------+--------+---------+
 %   | adcpanel      | plotspec | errsin | inlsin | perfosr | plotphase | wcalsin | bitchk | tomdec  |
 %   +---------------+----------+--------+--------+---------+-----------+---------+--------+---------+
-%   | OSR           | ✓        |        |        |         | ✓         |         |        |         |
+%   | OSR           | ✓        | ✓      |        |         | ✓         |         |        |         |
 %   | fs/Fs         | ✓        |        |        |         | ✓         |         |        |         |
 %   | maxCode       | ✓        |        |        |         | ✓         |         |        |         |
 %   | harmonic      | ✓        |        |        | ✓       | ✓         | → order |        | → order |
-%   | window        | ✓        |        |        |         |           |         |        |         |
+%   | window        | ✓        | ✓      |        |         | ✓         |         |        |         |
 %   | fin/f0        |          | ✓      |        |         |           | → freq  |        | → freq  |
 %   | disp          | (subplot)| (subp) | (subp) | (subp)  | (subp)    |         |        | false   |
 %   +---------------+----------+--------+--------+---------+-----------+---------+--------+---------+
@@ -533,7 +533,7 @@ function [rep] = adcpanel(dat, varargin)
 
             % A3a: errsin (phase mode) - uses nexttile internally
             try
-                [emean_p, erms_p, xx_p, anoi, pnoi] = errsin(sig, 'fin', fin, 'xaxis', 'phase', 'disp', dispFlag);
+                [emean_p, erms_p, xx_p, anoi, pnoi] = errsin(sig, 'fin', fin, 'xaxis', 'phase', 'osr', OSR, 'window', winType, 'disp', dispFlag);
                 rep.errorPhase = struct('emean', emean_p, 'erms', erms_p, 'xx', xx_p, ...
                     'anoi', anoi, 'pnoi', pnoi);
             catch ME
@@ -568,7 +568,7 @@ function [rep] = adcpanel(dat, varargin)
 
             % A3b: errsin (value mode) - uses nexttile internally
             try
-                [emean_v, erms_v, xx_v] = errsin(sig, 'fin', fin, 'xaxis', 'value', 'disp', dispFlag);
+                [emean_v, erms_v, xx_v] = errsin(sig, 'fin', fin, 'xaxis', 'value', 'osr', OSR, 'window', winType, 'disp', dispFlag);
                 rep.errorValue = struct('emean', emean_v, 'erms', erms_v, 'xx', xx_v);
             catch ME
                 if verbose
@@ -585,7 +585,7 @@ function [rep] = adcpanel(dat, varargin)
                 axes(ax_plotphaseFFT);
             end
             try
-                h_fft = plotphase(sigFull, harmonic, maxCode, 'Fs', fs, 'OSR', OSR, 'mode', 'FFT');
+                h_fft = plotphase(sigFull, harmonic, maxCode, 'Fs', fs, 'OSR', OSR, 'window', winType, 'mode', 'FFT');
                 rep.phaseFFT = struct('handle', h_fft);
                 if dispFlag
                     title('Phase Spectrum (FFT mode)');
@@ -624,7 +624,7 @@ function [rep] = adcpanel(dat, varargin)
                 axes(ax_plotphaseLMS);
             end
             try
-                h_lms = plotphase(sigFull, harmonic, maxCode, 'Fs', fs, 'OSR', OSR, 'mode', 'LMS');
+                h_lms = plotphase(sigFull, harmonic, maxCode, 'Fs', fs, 'OSR', OSR, 'window', winType, 'mode', 'LMS');
                 rep.phaseLMS = struct('handle', h_lms);
                 if dispFlag
                     title('Phase Spectrum (LMS mode)');
