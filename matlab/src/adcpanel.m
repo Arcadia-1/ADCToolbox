@@ -31,7 +31,7 @@ function [rep] = adcpanel(dat, varargin)
 %       Positive scalar (default: 1)
 %
 %     'maxCode' - Full scale range (max - min)
-%       Positive scalar (default: auto from data)
+%       Positive scalar (default: max-min for values, 2^M for bits)
 %
 %     'harmonic' - Number of harmonics to analyze
 %       Positive integer (default: 5)
@@ -56,7 +56,7 @@ function [rep] = adcpanel(dat, varargin)
 %       .decomp      - Thompson decomposition (sine, err, har, oth, freq)
 %       .errorPhase  - Error analysis with phase binning (emean, erms, anoi, pnoi)
 %       .errorValue  - Error analysis with value binning (emean, erms)
-%       .linearity   - INL/DNL results (if N >= 1000)
+%       .linearity   - INL/DNL results
 %       .osr         - OSR sweep results
 %       .phaseFFT    - Phase analysis in FFT mode
 %       .phaseLMS    - Phase analysis in LMS mode (with noise circle)
@@ -69,7 +69,7 @@ function [rep] = adcpanel(dat, varargin)
 %     1. plotspec  - Spectrum analysis (ENOB, SNDR, SFDR, SNR, THD)
 %     2. tomdec    - Thompson decomposition for time-domain error waveform
 %     3. errsin    - Sinewave error analysis (both phase and value modes)
-%     4. inlsin    - INL/DNL calculation (if N >= 1000)
+%     4. inlsin    - INL/DNL calculation
 %     5. perfosr   - Performance vs OSR sweep
 %     6. plotphase - Harmonic phase analysis (both FFT and LMS modes)
 %
@@ -122,7 +122,7 @@ function [rep] = adcpanel(dat, varargin)
 %
 %   Notes:
 %     - INL/DNL analysis requires integer codes; non-integer data is rounded
-%     - Short data (N < 1000) skips inlsin to ensure statistical validity
+%     - A warning is issued when N < maxCode, as INL/DNL may be unreliable
 %
 %   See also: plotspec, tomdec, errsin, inlsin, perfosr, plotphase, bitchk, wcalsin, plotwgt
 
@@ -164,7 +164,7 @@ function [rep] = adcpanel(dat, varargin)
 %        - Plot original signal (left y-axis) and error (right y-axis)
 %     d) Call errsin with xaxis='phase' for phase-binned error analysis
 %     e) Call errsin with xaxis='value' for value-binned error analysis
-%     f) Call inlsin if N >= 1000
+%     f) Call inlsin (warn if N < maxCode)
 %     g) Call perfosr with harmonic
 %     h) Call plotphase with mode='FFT' for FFT-based coherent phase
 %     i) Call plotphase with mode='LMS' for least-squares phase with noise circle
@@ -207,7 +207,7 @@ function [rep] = adcpanel(dat, varargin)
 %   - rep.decomp: outputs from tomdec (sine, err, har, oth, freq)
 %   - rep.errorPhase: outputs from errsin with xaxis='phase' (emean, erms, xx, anoi, pnoi)
 %   - rep.errorValue: outputs from errsin with xaxis='value' (emean, erms, xx)
-%   - rep.linearity: outputs from inlsin (inl, dnl, code) - if N >= 1000
+%   - rep.linearity: outputs from inlsin (inl, dnl, code)
 %   - rep.osr: outputs from perfosr (osr, sndr, sfdr, enob)
 %   - rep.phaseFFT: outputs from plotphase with mode='FFT'
 %   - rep.phaseLMS: outputs from plotphase with mode='LMS'
@@ -247,8 +247,8 @@ function [rep] = adcpanel(dat, varargin)
 % 5. Non-sinewave data
 %    → Only run plotspec, skip errsin/inlsin/perfosr/plotphase
 %
-% 6. Very short data (N < 1000)
-%    → Skip inlsin, note in rep.linearity.skipped = true
+% 6. Few data points (N < maxCode)
+%    → Warn that INL/DNL results may be unreliable, but still run
 %
 % 7. Matrix input for value-waveform
 %    → Use first column as representative for single-vector functions
@@ -337,7 +337,7 @@ function [rep] = adcpanel(dat, varargin)
             maxCode = max(dat(:)) - min(dat(:));
         end
         if dataType == "bits"
-            maxCode = 1;
+            maxCode = 2^M;
         end
     end
 
@@ -598,33 +598,23 @@ function [rep] = adcpanel(dat, varargin)
                 rep.phaseFFT = struct('error', ME.message);
             end
 
-            % A4: inlsin - INL/DNL (only if N >= 1000) - uses nexttile internally
-            if N >= 1000
-                try
-                    % Round to integer codes for histogram method
-                    sig_int = round(sig);
-                    [inl, dnl, code] = inlsin(sig_int, 0.01, dispFlag);
-                    rep.linearity = struct('inl', inl, 'dnl', dnl, 'code', code, ...
-                        'inl_pp', max(inl) - min(inl), 'dnl_pp', max(dnl) - min(dnl), ...
-                        'skipped', false);
-                catch ME
-                    if verbose
-                        warning on;
-                        warning('adcpanel:inlsinFailed', 'inlsin failed: %s', ME.message);
-                    end
-                    rep.linearity = struct('error', ME.message, 'skipped', false);
+            % A4: inlsin - INL/DNL - uses nexttile internally
+            if N < maxCode
+                warning('adcpanel:fewSamples', ...
+                    'N=%d is less than maxCode=%d. INL/DNL results may be unreliable.', N, round(maxCode));
+            end
+            try
+                % Round to integer codes for histogram method
+                sig_int = round(sig);
+                [inl, dnl, code] = inlsin(sig_int, 0.01, dispFlag);
+                rep.linearity = struct('inl', inl, 'dnl', dnl, 'code', code, ...
+                    'inl_pp', max(inl) - min(inl), 'dnl_pp', max(dnl) - min(dnl));
+            catch ME
+                if verbose
+                    warning on;
+                    warning('adcpanel:inlsinFailed', 'inlsin failed: %s', ME.message);
                 end
-            else
-                rep.linearity = struct('skipped', true, 'reason', 'N < 1000');
-                if dispFlag
-                    % Create 2 empty tiles to maintain layout
-                    for ii = 1:2
-                        nexttile(tl);
-                        text(0.5, 0.5, sprintf('INL/DNL skipped (N=%d < 1000)', N), ...
-                            'HorizontalAlignment', 'center');
-                        axis off;
-                    end
-                end
+                rep.linearity = struct('error', ME.message);
             end
 
             % A6b: plotphase (LMS mode) - no subplot, use axes()

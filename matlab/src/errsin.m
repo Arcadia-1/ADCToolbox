@@ -284,7 +284,7 @@ function [emean, erms, xx, anoi, pnoi, err, errxx] = errsin(sig, varargin)
             plot(xx, sqrt((anoi.^2)*asen), 'b-', 'LineWidth', 1.5);
             plot(xx, sqrt((pnoi.^2)*psen), 'r-', 'LineWidth', 1.5);
             axis([0,360,0,max(erms)*1.5]);
-            legend('RMS error', 'Fit', 'Amplitude noise', 'Phase noise', 'Location', 'northeast');
+            legend('RMS error', 'Fit', 'Amplitude noise', 'Phase noise', 'Location', 'southeast');
             text(10, max(erms)*1.4, sprintf('Normalized Amplitude Noise RMS = %.2e', anoi/mag), 'color', [0,0,1]);
             text(10, max(erms)*1.25, sprintf('Phase Noise RMS = %.2e rad', pnoi/mag), 'color', [1,0,0]);
 
