@@ -28,6 +28,16 @@ function [emean, erms, xx, anoi, pnoi, err, errxx] = errsin(sig, varargin)
 %     'erange' - Error range filter for output err and errxx
 %       2-element vector [min, max] to filter x-axis values. If empty, no
 %       filtering is applied (default: [])
+%     'osr' - Oversampling rate
+%       Positive scalar >= 1. When osr > 1, the residual error is filtered
+%       by an ideal low-pass filter (via ifilter) with passband [0, Fs/2/osr]
+%       before analysis. (default: 1, no filtering)
+%     'window' - Window function for error signal before filtering
+%       String: 'hann' (Hanning window) or 'rect' (Rectangle window)
+%       Function handle: e.g., @blackman, @hamming (requires Signal Processing Toolbox)
+%       Only applied when osr > 1. Window reduces edge discontinuities before
+%       FFT-based filtering, then is undone after filtering to restore noise
+%       magnitude. Regularization limits edge amplification. (default: 'hann')
 %
 %   Outputs:
 %     emean - Mean error for each bin
@@ -60,6 +70,9 @@ function [emean, erms, xx, anoi, pnoi, err, errxx] = errsin(sig, varargin)
 %     % Filter errors to specific phase range
 %     [~, ~, ~, ~, ~, err, errxx] = errsin(sig, 'erange', [90, 180]);
 %
+%     % Analyze oversampled signal with OSR=16 and Hann window
+%     [emean, erms, xx] = errsin(sig, 'osr', 16, 'window', 'hann');
+%
 %   Notes:
 %     - Phase mode (xaxis = 'phase'):
 %       * Bins errors by phase angle of the sinewave
@@ -71,8 +84,13 @@ function [emean, erms, xx, anoi, pnoi, err, errxx] = errsin(sig, varargin)
 %       * anoi and pnoi are set to NaN as they cannot be estimated
 %     - The function automatically orients input signal to column vector
 %     - If fin=0, sinfit automatically estimates the frequency
+%     - When osr > 1:
+%       * Window is applied before filtering to reduce edge discontinuities
+%       * Ideal low-pass filter extracts in-band noise (passband [0, Fs/2/osr])
+%       * Window is undone after filtering to restore noise magnitude scale
+%       * Regularization (max(win, 0.01)) prevents excessive edge amplification
 %
-%   See also: sinfit, inlsin
+%   See also: sinfit, inlsin, ifilter
 
     % Input validation
     if ~isreal(sig)
@@ -86,12 +104,16 @@ function [emean, erms, xx, anoi, pnoi, err, errxx] = errsin(sig, varargin)
     addOptional(p, 'disp', nargout == 0, @(x) islogical(x) || (isnumeric(x) && isscalar(x)));
     addParameter(p, 'xaxis', 'phase', @(x) ischar(x) && (strcmpi(x,'phase') || strcmpi(x,'value')));
     addParameter(p, 'erange', []);  % err filter, only the errors in erange are returned to err
+    addParameter(p, 'osr', 1, @(x) isnumeric(x) && isscalar(x) && (x >= 1));
+    addParameter(p, 'window', 'hann', @(x) (ischar(x) && ismember(x, {'hann', 'rect'})) || isa(x, 'function_handle'));
     parse(p, varargin{:});
     bin = round(p.Results.bin);
     fin = p.Results.fin;
     disp = p.Results.disp;
     xaxis = lower(p.Results.xaxis);
     erange = p.Results.erange;
+    osr = p.Results.osr;
+    windowFunc = p.Results.window;
 
     % Ensure column vector orientation
     S = size(sig);
@@ -108,6 +130,43 @@ function [emean, erms, xx, anoi, pnoi, err, errxx] = errsin(sig, varargin)
 
     % Calculate residual errors
     err = sig_fit-sig;
+
+    % Apply low-pass filter if oversampling rate > 1
+    if osr > 1
+        % Generate window function
+        N = length(err);
+        if ischar(windowFunc)
+            % Use embedded window functions
+            if strcmp(windowFunc, 'hann')
+                win = hannwin(N);
+            elseif strcmp(windowFunc, 'rect')
+                win = ones(1, N);
+            else
+                win = ones(1, N);
+                warning('errsin:invalidWindow', 'Unknown window type ''%s'', using rectangular window', windowFunc);
+            end
+        else
+            % Use function handle (requires Signal Processing Toolbox)
+            try
+                win = window(windowFunc, N, 'periodic')';
+            catch
+                try
+                    win = window(windowFunc, N)';
+                catch
+                    win = ones(1, N);
+                    warning('errsin:windowFailed', 'Failed to generate window, using rectangular window');
+                end
+            end
+        end
+
+        % Apply window, filter, then undo window to restore magnitude
+        % Window reduces edge discontinuities before FFT-based filtering
+        err = err .* win';
+        err = ifilter(err, [0, 0.5/osr]);
+        % Undo window with regularization to prevent division by very small values
+        % Use max(win, 0.01) to limit amplification at window edges
+        err = err ./ max(win, 0.01)';
+    end
 
     % Calculate phase for each sample point (used by both modes)
     phase = mod(phi/pi*180 + (0:length(sig)-1)'*fin*360, 360);
@@ -302,6 +361,23 @@ function [emean, erms, xx, anoi, pnoi, err, errxx] = errsin(sig, varargin)
 
             xlabel('phase(deg)');
             ylabel('RMS error');
+        end
+    end
+
+    % Nested function for embedded Hanning window (no toolbox required)
+    function w = hannwin(N)
+        % HANNWIN Embedded Hanning window function
+        %   w = HANNWIN(N) returns an N-point Hanning (raised cosine) window
+        %   in a row vector. This is a simple embedded implementation that
+        %   doesn't require the Signal Processing Toolbox
+        %
+        %   The Hanning window is defined as:
+        %   w(n) = 0.5 * (1 - cos(2*pi*n/(N-1))) for n = 0, 1, ..., N-1
+        if N == 1
+            w = 1;
+        else
+            n = 0:(N-1);
+            w = 0.5 * (1 - cos(2*pi*n/N));
         end
     end
 

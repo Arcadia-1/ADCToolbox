@@ -36,6 +36,12 @@ function [h] = plotphase(sig,varargin)
 %     'cutoff' - High-pass cutoff frequency for low-frequency noise removal in Hz. Default: 0
 %       Scalar, non-negative real number
 %       Removes flicker noise (1/f noise) below the specified frequency
+%     'window' - Window function for spectral processing. Default: 'hann'
+%       String: 'hann' (Hanning window) or 'rect' (Rectangle window)
+%       Function handle: e.g., @blackman, @hamming (requires Signal Processing Toolbox)
+%       Window is normalized to preserve RMS power
+%       FFT mode: Applied before FFT to reduce spectral leakage
+%       LMS mode: Applied before OSR filtering (when OSR > 1) to reduce edge effects
 %
 %   Outputs:
 %     h - Plot handle
@@ -57,8 +63,14 @@ function [h] = plotphase(sig,varargin)
 %     % Use least squares fitting mode with noise circle
 %     h = plotphase(sig, 7, 'mode', 'LMS');
 %
+%     % LMS mode with oversampling (filters residual to signal bandwidth)
+%     h = plotphase(sig, 'mode', 'LMS', 'OSR', 32);
+%
 %     % Combine positional and name-value parameters
 %     h = plotphase(sig, 10, 2^16, 'Fs', 50e6, 'OSR', 64, 'cutoff', 500);
+%
+%     % Use rectangular window in FFT mode
+%     h = plotphase(sig, 'mode', 'FFT', 'window', 'rect');
 %
 %   Notes:
 %     - Signal can be provided as a row vector, column vector, or matrix
@@ -69,12 +81,17 @@ function [h] = plotphase(sig,varargin)
 %     - Uses least squares fitting to extract harmonics (similar to tomdec)
 %     - Fits harmonics up to specified order using sine/cosine basis
 %     - Calculates noise floor from fitting residual
+%     - If OSR > 1, applies window/filter/undo workflow to residual:
+%       * Applies window with RMS normalization to preserve noise power
+%       * Filters residual to signal bandwidth [0, Fs/2/OSR] before noise calculation
 %     - Displays residue error circle on polar plot (radius = residual error in dB)
 %     - Harmonics outside noise circle indicate significant distortion
 %     - Best for clean harmonic analysis with intuitive noise reference
 %
 %     FFT Mode:
 %     - Performs coherent averaging with phase alignment across multiple runs
+%     - Applies window function before FFT to reduce spectral leakage
+%     - Window is normalized to preserve RMS power
 %     - Parabolic interpolation provides sub-bin frequency accuracy
 %     - Shows all frequency bins including noise
 %     - Best for analyzing full spectrum content
@@ -84,18 +101,20 @@ function [h] = plotphase(sig,varargin)
 %     - The polar plot shows phase (angle) and magnitude (radius)
 %     - Radius is displayed in dB with 0 dB at the perimeter
 %
-%   See also: plotspec, alias, fft, polarplot
+%   See also: plotspec, alias, fft, polarplot, window, ifilter
 
 p = inputParser;
 validScalarPosNum = @(x) isnumeric(x) && isscalar(x) && (x > 0);
 validScalarNonNeg = @(x) isnumeric(x) && isscalar(x) && (x >= 0);
 validMode = @(x) ischar(x) && ismember(lower(x), {'fft', 'lms'});
+validWindow = @(x) (ischar(x) && ismember(x, {'hann', 'rect'})) || isa(x, 'function_handle');
 addOptional(p, 'harmonic', 5);
 addOptional(p, 'maxSignal', max(max(sig))-min(min(sig)), validScalarPosNum);
 addParameter(p, 'Fs', 1, validScalarPosNum);
 addParameter(p, 'OSR', 1, validScalarPosNum);
 addParameter(p, 'cutoff', 0, validScalarNonNeg);
 addParameter(p, 'mode', 'LMS', validMode);
+addParameter(p, 'window', 'hann', validWindow);
 parse(p, varargin{:});
 
 %%
@@ -105,6 +124,7 @@ Fs = p.Results.Fs;
 OSR = p.Results.OSR;
 cutoffFreq = p.Results.cutoff;
 mode = lower(p.Results.mode);
+windowFunc = p.Results.window;
 
 %%
 
@@ -122,6 +142,31 @@ if strcmp(mode, 'fft')
     % ========== FFT Mode: Traditional coherent averaging ==========
     Nd2 = floor(N_fft/2/OSR);
 
+    % Generate window function
+    if ischar(windowFunc)
+        % Use embedded window functions (no toolbox required)
+        if strcmp(windowFunc, 'hann')
+            win = hannwin(N_fft);
+        elseif strcmp(windowFunc, 'rect')
+            win = ones(1, N_fft);
+        else
+            win = ones(1, N_fft);
+            warning('plotphase:invalidWindow', 'Unknown window type ''%s'', using rectangular window', windowFunc);
+        end
+    else
+        % Use function handle (requires Signal Processing Toolbox)
+        try
+            win = window(windowFunc, N_fft, 'periodic')';
+        catch
+            try
+                win = window(windowFunc, N_fft)';
+            catch
+                win = ones(1, N_fft);
+                warning('plotphase:windowFailed', 'Failed to generate window, using rectangular window');
+            end
+        end
+    end
+
     spec = zeros([1,N_fft]);
     ME = 0;
     for iter = 1:N_run
@@ -131,6 +176,7 @@ if strcmp(mode, 'fft')
         end
         tdata = tdata./maxSignal;
         tdata = tdata-mean(tdata);
+        tdata = tdata.*win/sqrt(mean(win.^2));
 
     tspec = fft(tdata);
     tspec(1) = 0;
@@ -267,6 +313,43 @@ else
 
     % Calculate residual (noise)
     residual = sig_avg' - signal_all;
+
+    % Filter residual to signal bandwidth if oversampling
+    if OSR > 1
+        % Generate window function for residual
+        N_residual = length(residual);
+        if ischar(windowFunc)
+            % Use embedded window functions (no toolbox required)
+            if strcmp(windowFunc, 'hann')
+                win = hannwin(N_residual);
+            elseif strcmp(windowFunc, 'rect')
+                win = ones(1, N_residual);
+            else
+                win = ones(1, N_residual);
+                warning('plotphase:invalidWindow', 'Unknown window type ''%s'', using rectangular window', windowFunc);
+            end
+        else
+            % Use function handle (requires Signal Processing Toolbox)
+            try
+                win = window(windowFunc, N_residual, 'periodic')';
+            catch
+                try
+                    win = window(windowFunc, N_residual)';
+                catch
+                    win = ones(1, N_residual);
+                    warning('plotphase:windowFailed', 'Failed to generate window, using rectangular window');
+                end
+            end
+        end
+
+        % Apply window with RMS normalization to preserve power
+        residual = residual .* (win / sqrt(mean(win.^2)))';
+
+        % Apply ideal low-pass filter
+        residual = ifilter(residual, [0, 0.5/OSR]);
+
+    end
+
     noise_power = rms(residual)*2*sqrt(2);
     noise_dB = 20*log10(noise_power);
 
@@ -342,4 +425,22 @@ else
     title('Signal Component Phase (LMS)');
 
 end
+
+    % Nested function for embedded Hanning window (no toolbox required)
+    function w = hannwin(N)
+        % HANNWIN Embedded Hanning window function
+        %   w = HANNWIN(N) returns an N-point Hanning (raised cosine) window
+        %   in a row vector. This is a simple embedded implementation that
+        %   doesn't require the Signal Processing Toolbox
+        %
+        %   The Hanning window is defined as:
+        %   w(n) = 0.5 * (1 - cos(2*pi*n/(N-1))) for n = 0, 1, ..., N-1
+        if N == 1
+            w = 1;
+        else
+            n = 0:(N-1);
+            w = 0.5 * (1 - cos(2*pi*n/N));
+        end
+    end
+
 end
