@@ -24,7 +24,7 @@ A comprehensive MATLAB toolbox for ADC (Analog-to-Digital Converter) testing, ch
 ### Option 1: Install Toolbox Package (Recommended)
 
 1. Navigate to the `toolbox/` directory
-2. Double-click `ADCToolbox_0v12.mltbx` to install
+2. Double-click `ADCToolbox_1v2.mltbx` to install
 3. The toolbox will be automatically added to your MATLAB path
 4. You can also download this toolbox from MATLAB Add-Ons
 
@@ -49,6 +49,10 @@ run('setupLib.m')
 % Load ADC output data
 load('adc_data.mat');  % Assume this contains variable 'sig'
 
+% Option 1: Use the comprehensive dashboard (recommended for first-time analysis)
+rep = adcpanel(sig, 'fs', 100e6);  % One-stop analysis with all metrics
+
+% Option 2: Individual function calls for specific analyses or tools, like:
 % Perform comprehensive spectral analysis
 [enob, sndr, sfdr, snr, thd] = plotspec(sig, 'Fs', 100e6);
 
@@ -62,10 +66,16 @@ freq = findfreq(sig, 100e6);
 [inl, dnl, code] = inlsin(sig);
 
 % Analyze phase spectrum
-plotphase(sig, 5, 2^16);
+plotphase(sig);
 ```
 
 ## Function Categories
+
+### Dashboard and Comprehensive Analysis
+
+Unified analysis functions that combine multiple testing methods.
+
+- **`adcpanel`** - Comprehensive ADC analysis dashboard with automatic data format handling
 
 ### Spectral Analysis
 
@@ -113,6 +123,107 @@ Supporting functions for signal processing and analysis.
 - **`bitchk`** - Check ADC overflow by analyzing bit segment residue distributions
 
 ## Detailed Function Reference
+
+### adcpanel
+
+**Purpose:** Comprehensive ADC analysis dashboard that automatically detects input data type and runs appropriate analysis pipelines.
+
+**Syntax:**
+```matlab
+rep = adcpanel(dat)
+rep = adcpanel(dat, 'Name', Value)
+```
+
+**Key Features:**
+- Unified panel displaying multiple ADC analysis results in a single dashboard
+- Automatic data type detection (value-waveform vs. bit-wise data)
+- Three analysis pipelines:
+  - **Pipeline A**: Value-waveform + sinewave (full characterization)
+  - **Pipeline B**: Value-waveform + other signal (basic analysis)
+  - **Pipeline C**: Bit-wise data (calibration + full characterization)
+- Generates organized tiledlayout figures (3×4 grid for sinewave analysis)
+- Returns comprehensive report structure with all metrics and figure handles
+
+**Analysis Pipelines:**
+
+**Pipeline A - Value-Waveform + Sinewave:**
+1. `plotspec` - Spectrum analysis (ENOB, SNDR, SFDR, SNR, THD)
+2. `tomdec` - Thompson decomposition for time-domain error waveform
+3. Time-domain plot - Signal and error waveforms (zoomed to max error region)
+4. `errsin` - Sinewave error analysis (both phase and value modes)
+5. `inlsin` - INL/DNL calculation
+6. `perfosr` - Performance vs OSR sweep
+7. `plotphase` - Harmonic phase analysis (both FFT and LMS modes)
+
+**Pipeline B - Value-Waveform + Other Signal:**
+1. Time-domain waveform plot
+2. `plotspec` - Basic spectrum display
+
+**Pipeline C - Bit-wise Data:**
+1. `bitchk` - Overflow/underflow detection
+2. `wcalsin` - Weight calibration from sinewave
+3. `plotwgt` - Visualize calibrated weights
+4. If calibration successful: run Pipeline A on calibrated values
+
+**Parameters:**
+- `'dataType'` - How to interpret input: 'auto' (default), 'values', or 'bits'
+- `'signalType'` - Type of input signal: 'sinewave' (default) or 'other'
+- `'OSR'` - Oversampling ratio (default: 1)
+- `'fs'` - Sampling frequency in Hz (default: 1)
+- `'maxCode'` - Full scale range (default: auto-detected)
+- `'harmonic'` - Number of harmonics to analyze (default: 5)
+- `'window'` - Window function: 'hann' (default), 'rect', or function handle
+- `'fin'` - Normalized input frequency (default: 0 for auto-detect)
+- `'disp'` - Enable figure display (default: true)
+- `'verbose'` - Enable verbose output (default: false)
+
+**Outputs:**
+- `rep` - Report structure containing:
+  - `.dataType` - 'values' or 'bits'
+  - `.signalType` - 'sinewave' or 'other'
+  - `.spectrum` - Spectral metrics (ENOB, SNDR, SFDR, SNR, THD, etc.)
+  - `.decomp` - Thompson decomposition (sine, err, har, oth, freq)
+  - `.errorPhase` - Error analysis with phase binning (emean, erms, anoi, pnoi)
+  - `.errorValue` - Error analysis with value binning (emean, erms)
+  - `.linearity` - INL/DNL results (inl, dnl, code)
+  - `.osr` - OSR sweep results (osr, sndr, sfdr, enob)
+  - `.phaseFFT` - Phase analysis in FFT mode
+  - `.phaseLMS` - Phase analysis in LMS mode (with noise circle)
+  - `.bits` - Bit-wise analysis (weights, offset, overflow) if bit data
+  - `.figures` - Handles to all generated figures and axes
+
+**Examples:**
+```matlab
+% Basic usage with value-waveform data
+sig = sin(2*pi*0.123*(0:4095)') + 0.01*randn(4096,1);
+rep = adcpanel(sig);
+
+% Bit-wise data analysis (quantize sig to bits)
+bits = dec2bin(round((sig/2.1+0.5)*2^12), 12) - '0';  % Convert to 12-bit representation
+rep = adcpanel(bits);
+
+% Oversampled data with specific parameters
+rep = adcpanel(sig, 'OSR', 4, 'fs', 100e6, 'harmonic', 7);
+
+% Non-sinewave signal (time-domain + spectrum only)
+noise_sig = randn(4096, 1);
+rep = adcpanel(noise_sig, 'signalType', 'other');
+
+% Access specific results from report
+fprintf('ENOB: %.2f bits\n', rep.spectrum.enob);
+fprintf('SNDR: %.2f dB\n', rep.spectrum.sndr);
+fprintf('Max INL: %.3f LSB\n', max(abs(rep.linearity.inl)));
+```
+
+**Notes:**
+- INL/DNL analysis requires integer codes; non-integer data is automatically rounded
+- Warning issued when N < maxCode, as INL/DNL may be unreliable
+- For bit-wise data, a separate figure shows bitchk and plotwgt results
+- Time-domain display zooms to ~3 sine cycles around maximum error point
+
+**See also:** plotspec, tomdec, errsin, inlsin, perfosr, plotphase, bitchk, wcalsin, plotwgt
+
+---
 
 ### plotspec
 
@@ -665,7 +776,29 @@ bitchk(bits, wgt, 8);  % Check segment from 8th-bit to LSB
 
 ## Usage Examples
 
-### Example 1: Complete ADC Characterization
+### Example 1: Quick Dashboard Analysis with adcpanel
+
+```matlab
+% Load ADC data
+load('adc_capture.mat');  % Contains 'data' variable
+
+% Run comprehensive analysis with one function call
+rep = adcpanel(data, 'fs', 100e6);
+
+% Access results from the report structure
+fprintf('=== ADC Performance Summary ===\n');
+fprintf('ENOB: %.2f bits\n', rep.spectrum.enob);
+fprintf('SNDR: %.2f dB\n', rep.spectrum.sndr);
+fprintf('SFDR: %.2f dB\n', rep.spectrum.sfdr);
+fprintf('SNR: %.2f dB\n', rep.spectrum.snr);
+fprintf('THD: %.2f dB\n', rep.spectrum.thd);
+fprintf('Max INL: %.3f LSB\n', max(abs(rep.linearity.inl)));
+fprintf('Max DNL: %.3f LSB\n', max(abs(rep.linearity.dnl)));
+fprintf('Amplitude noise: %.2e\n', rep.errorPhase.anoi);
+fprintf('Phase noise: %.2e rad\n', rep.errorPhase.pnoi);
+```
+
+### Example 2: Complete ADC Characterization
 
 ```matlab
 % Load ADC data (assume 12-bit ADC at 100 MHz sampling)
@@ -696,7 +829,7 @@ fprintf('  Amplitude noise: %.2e\n', anoi);
 fprintf('  Phase noise: %.2e rad\n', pnoi);
 ```
 
-### Example 2: Oversampling ADC Analysis
+### Example 3: Oversampling ADC Analysis
 
 ```matlab
 % Analyze 16-bit Delta-Sigma ADC with 64x oversampling
@@ -711,7 +844,7 @@ snr_gain = ntfperf(ntf, 0, 0.5/OSR, 1);
 fprintf('NTF provides %.2f dB SNR improvement\n', snr_gain);
 ```
 
-### Example 3: SAR ADC Calibration
+### Example 4: SAR ADC Calibration
 
 ```matlab
 % Load raw bit data from SAR ADC
@@ -744,7 +877,7 @@ title('Ideal Weights');
 fprintf('After calibration: ENOB = %.2f, SNDR = %.2f dB\n', enob_cal, sndr_cal);
 ```
 
-### Example 4: Multi-Frequency Testing
+### Example 5: Multi-Frequency Testing
 
 ```matlab
 % Test ADC at multiple input frequencies
@@ -787,7 +920,7 @@ title('ADC Performance vs. Frequency');
 grid on;
 ```
 
-### Example 5: Thompson Decomposition Analysis
+### Example 6: Thompson Decomposition Analysis
 
 ```matlab
 % Decompose ADC output into components
@@ -806,7 +939,7 @@ fprintf('  THD: %.2f dB\n', 10*log10(har_power/sig_power));
 fprintf('  SNR: %.2f dB\n', 10*log10(sig_power/oth_power));
 ```
 
-### Example 6: Bandpass Filtering
+### Example 7: Bandpass Filtering
 
 ```matlab
 % Extract specific frequency bands for noise analysis
@@ -866,6 +999,7 @@ matlab/
 ├── README.md                 # This file
 ├── setupLib.m               # Setup script for adding to path
 ├── src/                     # Source code directory
+│   ├── adcpanel.m          # Comprehensive ADC analysis dashboard
 │   ├── plotspec.m          # Spectral analysis
 │   ├── plotphase.m         # Phase spectrum analysis
 │   ├── plotwgt.m           # Weight visualization
@@ -877,6 +1011,7 @@ matlab/
 │   ├── inlsin.m            # INL/DNL analysis
 │   ├── errsin.m            # Error histogram analysis
 │   ├── tomdec.m            # Thompson decomposition
+│   ├── perfosr.m           # Performance vs OSR sweep
 │   ├── ntfperf.m           # NTF performance analyzer
 │   ├── alias.m             # Alias calculator
 │   ├── ifilter.m           # Ideal filter
@@ -906,30 +1041,39 @@ matlab/
 
 ## Common Workflows
 
-### 1. Quick Performance Check
+### 1. Quick Performance Check (Dashboard Approach)
 ```matlab
-% Perform spectrum analysis
-[enob, sndr, sfdr] = specplot(data);
+% Use adcpanel for one-stop comprehensive analysis
+rep = adcpanel(data, 'fs', fs);
+% All metrics available in rep structure with organized figure panels
 ```
 
-### 2. Detailed Characterization
+### 2. Quick Performance Check (Individual Functions)
 ```matlab
-% Comprehensive analysis workflow
+% Perform spectrum analysis only
+[enob, sndr, sfdr] = plotspec(data);
+```
+
+### 3. Detailed Characterization (Manual Workflow)
+```matlab
+% Comprehensive analysis using individual functions
 freq = findfreq(data, fs);
-[enob, sndr, sfdr, snr, thd] = specplot(data, fs, 2^bits, 5);
+[enob, sndr, sfdr, snr, thd] = plotspec(data, fs, 2^bits, 5);
 [inl, dnl] = inlsin(data);
 [emean, erms, phase, anoi, pnoi] = errsin(data);
 ```
 
-### 3. Calibration Workflow
+### 4. Calibration Workflow (Bit-wise Data)
 ```matlab
-% Calibrate SAR ADC
+% Use adcpanel for automatic calibration and analysis
+rep = adcpanel(bits, 'dataType', 'bits');
+% Or manual calibration workflow:
 [weight, offset, postcal] = wcalsin(bits);
 bitchk(bits, weight);
-[enob_after_cal, ~] = specplot(postcal, 'disp', false);
+[enob_after_cal, ~] = plotspec(postcal, 'disp', false);
 ```
 
-### 4. Frequency Sweep Test
+### 5. Frequency Sweep Test
 ```matlab
 % Test at multiple frequencies
 for fin = test_frequencies
