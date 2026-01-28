@@ -363,37 +363,60 @@ if(isnan(bin_r))
     bin_r = bin;
 end
 
+% Warn if signal is off-bin, indicating likely spectrum leakage
+bin_offset = bin_r - bin;
+if abs(bin_offset) > 0.01
+    warning('plotspec:spectrumLeakage', ...
+        'Main tone is off-bin by %.2f%%, indicating likely spectrum leakage. Consider using a good window function or ensuring coherent sampling.', ...
+            bin_offset * 100);
+end
+
 % Auto-detect sideBin if set to 'auto'
 if ischar(sideBin) && strcmp(sideBin, 'auto')
+    % Step 1: Generate ideal spectrum at bin_r frequency
+    % Create synthetic sinewave with unit amplitude
+    t = 0:(N_fft-1);
+    ideal_signal = sin(2*pi*(bin_r-1)/N_fft * t);
+
+    % Apply same window and normalization as actual data
+    ideal_signal = ideal_signal .* win / sqrt(mean(win.^2));
+
+    % Compute FFT to get ideal spectrum shape
+    ideal_spec = abs(fft(ideal_signal)).^2 / (N_fft^2) * 16;
+    ideal_spec = ideal_spec(1:Nd2);  % Keep positive frequencies only
+
+    % Scale ideal spectrum to match actual signal magnitude at peak
+    % This ensures we compare spectral leakage at the same signal strength
+    scale_factor = spec(bin) / ideal_spec(bin);
+    ideal_spec = ideal_spec * scale_factor;
+
+    % Step 2: Estimate noise floor using median (robust to signal peak outliers)
+    n_inband = floor(N_fft/2/OSR);
+    noise_floor_per_bin = median(spec(1:n_inband));
+
+    % Step 3: Find crossing points where ideal spectrum meets noise floor
     sideBin = 0;
-    max_sidebin = min(bin-1, floor(N_fft/2/OSR)-bin);  % Maximum possible sideBin
+    max_sidebin = min(bin-1, n_inband-bin);
 
-    for sb = 0:max_sidebin
-        left_bin = bin - sb - 1;
-        right_bin = bin + sb + 1;
+    % Search outward from peak until ideal spectrum drops below noise floor
+    for sb = 1:max_sidebin
+        left_bin = bin - sb;
+        right_bin = bin + sb;
 
-        % Check left side: next bin away should be <= current edge bin (non-ascending)
-        if left_bin >= 1
-            if spec(left_bin) > spec(left_bin+1)
-                sideBin = sb;
-                break;
-            end
-        end
+        % Check if both left and right bins are below noise floor in ideal spectrum
+        left_below = (left_bin >= 1) && (ideal_spec(left_bin) <= noise_floor_per_bin);
+        right_below = (right_bin <= n_inband) && (ideal_spec(right_bin) <= noise_floor_per_bin);
 
-        % Check right side: next bin away should be <= current edge bin (non-ascending)
-        if right_bin <= floor(N_fft/2/OSR)
-            if spec(right_bin) > spec(right_bin-1)
-                sideBin = sb;
-                break;
-            end
+        if left_below && right_below
+            % Both sides below noise floor, use previous sb
+            sideBin = sb - 1;
+            break;
         end
     end
 
-    % Warn if sideBin is large, indicating likely spectrum leakage
-    if sideBin > 10
-        warning('plotspec:spectrumLeakage', ...
-            'Auto-detected sideBin = %d is large (>10), indicating likely spectrum leakage. Consider using a better window function or ensuring coherent sampling.', ...
-            sideBin);
+    % If never broke out, use maximum
+    if sideBin == 0
+        sideBin = max_sidebin;
     end
 end
 
@@ -497,7 +520,7 @@ if(nfmethod == 0)
     noi_all = [noi_median, noi_mean, noi_exclude];
     if max(noi_all) / min(noi_all) > 1.25
         warning('plotspec:irregularNoiseFloor', ...
-            'Noise floor estimation methods differ by >1dB (%.1f dB). The noise floor may be irregular. Consider manually selecting NFMethod (''median'', ''mean'', or ''exclude'').', ...
+            'Noise floor estimation methods differ by %.1f dB. The noise floor may be irregular. Consider manually selecting NFMethod (''median'', ''mean'', or ''exclude'').', ...
             10*log10(max(noi_all) / min(noi_all)));
     end
 elseif(nfmethod == 1)
