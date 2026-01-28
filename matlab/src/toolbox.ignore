@@ -31,12 +31,5 @@ resources
 **/.buildtool/**/*
 **/*.asv
 
-toolset*.m
-bitact.m
-bitsweep.m
-errac.m
-errevspec.m
-errHistSine.m
-errpdf.m
-errsin_hp.m
-fitstaticnl.m
+**/doc
+**/dumped

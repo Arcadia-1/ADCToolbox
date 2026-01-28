@@ -1,8 +1,8 @@
 function [rep] = adcpanel(dat, varargin)
 %ADCPANEL Comprehensive ADC analysis dashboard
-%   This function provides a unified panel displaying multiple ADC analysis
-%   results. It automatically detects the input data type and runs the
-%   appropriate analysis pipeline.
+%   Unified panel displaying multiple ADC analysis results in a single
+%   dashboard. Automatically detects input data type and runs appropriate
+%   analysis pipelines.
 %
 %   Syntax:
 %     rep = ADCPANEL(dat)
@@ -56,8 +56,8 @@ function [rep] = adcpanel(dat, varargin)
 %       .decomp      - Thompson decomposition (sine, err, har, oth, freq)
 %       .errorPhase  - Error analysis with phase binning (emean, erms, anoi, pnoi)
 %       .errorValue  - Error analysis with value binning (emean, erms)
-%       .linearity   - INL/DNL results
-%       .osr         - OSR sweep results
+%       .linearity   - INL/DNL results (inl, dnl, code)
+%       .osr         - OSR sweep results (osr, sndr, sfdr, enob)
 %       .phaseFFT    - Phase analysis in FFT mode
 %       .phaseLMS    - Phase analysis in LMS mode (with noise circle)
 %       .bits        - Bit-wise analysis (weights, offset, overflow) - if bit data
@@ -65,28 +65,27 @@ function [rep] = adcpanel(dat, varargin)
 %
 %   Analysis Pipelines:
 %
-%   VALUE-WAVEFORM + SINEWAVE (Pipeline A):
+%   Pipeline A - Value-Waveform + Sinewave:
 %     1. plotspec  - Spectrum analysis (ENOB, SNDR, SFDR, SNR, THD)
 %     2. tomdec    - Thompson decomposition for time-domain error waveform
-%     3. errsin    - Sinewave error analysis (both phase and value modes)
-%     4. inlsin    - INL/DNL calculation
-%     5. perfosr   - Performance vs OSR sweep
-%     6. plotphase - Harmonic phase analysis (both FFT and LMS modes)
+%     3. Time-domain plot - Signal and error waveforms (zoomed to max error region)
+%     4. errsin    - Sinewave error analysis (both phase and value modes)
+%     5. inlsin    - INL/DNL calculation
+%     6. perfosr   - Performance vs OSR sweep
+%     7. plotphase - Harmonic phase analysis (both FFT and LMS modes)
 %
-%   VALUE-WAVEFORM + OTHER SIGNAL (Pipeline B):
-%     1. Time-domain waveform - Simple time-series plot
+%   Pipeline B - Value-Waveform + Other Signal:
+%     1. Time-domain waveform plot
 %     2. plotspec  - Basic spectrum display
 %
-%   BIT-WISE DATA (Pipeline C):
+%   Pipeline C - Bit-wise Data:
 %     1. bitchk    - Overflow/underflow detection
 %     2. wcalsin   - Weight calibration from sinewave
 %     3. plotwgt   - Visualize calibrated weights
-%     4. If calibration successful:
-%        - Convert to calibrated values using weights
-%        - Run full value-waveform + sinewave pipeline (Pipeline A)
+%     4. If calibration successful: run Pipeline A on calibrated values
 %
-%   Panel Layout (implementation):
-%     - Value-waveform + sinewave: 12 panels (3×4)
+%   Panel Layout (3×4 grid for sinewave analysis):
+%     - Value-waveform + sinewave: 12 panels
 %       * time-domain (1)
 %       * plotspec (1)
 %       * plotphase: FFT + LMS (2)
@@ -96,33 +95,35 @@ function [rep] = adcpanel(dat, varargin)
 %     - Value-waveform + other: 2 panels (1×2)
 %       * time-domain waveform (1)
 %       * plotspec (1)
-%     - Bit-wise data: 2 panels + 12-panel value layout
-%       * Separate figure for bitchk + plotwgt (2 panels, 1×2)
+%     - Bit-wise data: separate figure for bitchk + plotwgt (2 panels)
 %       * Main figure: same 3×4 layout as sinewave (if calibration succeeds)
-%
-%   Time-Domain Display Details (implementation):
-%     - Shows the full record (signal + ideal) and the full error waveform
-%     - X-limits are set to ~3 sine cycles centered at the maximum error point
-%       (user can pan/zoom for other regions)
 %
 %   Examples:
 %     % Basic usage with value-waveform data
 %     sig = sin(2*pi*0.123*(0:4095)') + 0.01*randn(4096,1);
 %     rep = adcpanel(sig);
 %
-%     % Bit-wise data analysis
-%     bits = randi([0 1], 4096, 12);  % 12-bit ADC
-%     rep = adcpanel(bits, 'dataType', 'bits');
+%     % Bit-wise data analysis (quantize sig to bits)
+%     bits = dec2bin(round((sig/2.1+0.5)*2^12), 12) - '0';
+%     rep = adcpanel(bits);
 %
 %     % Oversampled data with specific parameters
-%     rep = adcpanel(sig, 'OSR', 32, 'fs', 100e6, 'harmonic', 7);
+%     rep = adcpanel(sig, 'OSR', 4, 'fs', 100e6, 'harmonic', 7);
 %
-%     % Non-sinewave signal (time-domain + spectrum)
+%     % Non-sinewave signal (time-domain + spectrum only)
+%     noise_sig = randn(4096, 1);
 %     rep = adcpanel(noise_sig, 'signalType', 'other');
+%
+%     % Access specific results from report
+%     fprintf('ENOB: %.2f bits\n', rep.spectrum.enob);
+%     fprintf('SNDR: %.2f dB\n', rep.spectrum.sndr);
+%     fprintf('Max INL: %.3f LSB\n', max(abs(rep.linearity.inl)));
 %
 %   Notes:
 %     - INL/DNL analysis requires integer codes; non-integer data is rounded
-%     - A warning is issued when N < maxCode, as INL/DNL may be unreliable
+%     - Warning issued when N < maxCode, as INL/DNL may be unreliable
+%     - For bit-wise data, a separate figure shows bitchk and plotwgt results
+%     - Time-domain display zooms to ~3 sine cycles around maximum error point
 %
 %   See also: plotspec, tomdec, errsin, inlsin, perfosr, plotphase, bitchk, wcalsin, plotwgt
 
