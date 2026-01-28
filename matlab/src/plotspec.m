@@ -40,7 +40,9 @@ function [enob,sndr,sfdr,snr,thd,sigpwr,noi,nsd,h] = plotspec(sig,varargin)
 %     'sideBin' - Number of extra bins to include on each side of signal peak. Default: 'auto'
 %       Scalar, non-negative integer or string 'auto'
 %       Total signal bins = 1 + 2*sideBin (center peak + sideBin on each side)
-%       'auto': Automatically finds minimum sideBin where side bins are non-ascending away from fundamental
+%       'auto': Automatically detects sideBin by simulating ideal spectral leakage with the
+%               same window function and finding where it crosses the noise floor
+%               Adapts to window type (hann, rect, blackman, etc.) and noise characteristics
 %       Convention: sideBin = 1 for Hanning window if signal is coherent
 %     'label' - Enable plot annotations. Default: true
 %       Logical (true/false) or numeric (0/1)
