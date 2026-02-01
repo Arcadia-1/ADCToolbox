@@ -378,10 +378,14 @@ function [rep] = adcpanel(dat, varargin)
 
         % C1: bitchk - Overflow detection
         try
-            ax_bitchk = nexttile(tl_bits);
-            rep.figures.ax_bitchk = ax_bitchk;
-            [range_min, range_max, ovf_pct_zero, ovf_pct_one] = bitchk(bits, 'disp', true);
-            title('Bit Overflow Check');
+            if dispFlag
+                ax_bitchk = nexttile(tl_bits);
+                rep.figures.ax_bitchk = ax_bitchk;
+            end
+            [range_min, range_max, ovf_pct_zero, ovf_pct_one] = bitchk(bits, 'disp', dispFlag);
+            if dispFlag
+                title('Bit Overflow Check');
+            end
             rep.bits.overflow = struct('range_min', range_min, 'range_max', range_max, ...
                 'ovf_percent_zero', ovf_pct_zero, 'ovf_percent_one', ovf_pct_one);
         catch ME
@@ -391,8 +395,10 @@ function [rep] = adcpanel(dat, varargin)
         end
 
         % C2: wcalsin - Weight calibration
-        ax_plotwgt = nexttile(tl_bits);
-        rep.figures.ax_plotwgt = ax_plotwgt;
+        if dispFlag
+            ax_plotwgt = nexttile(tl_bits);
+            rep.figures.ax_plotwgt = ax_plotwgt;
+        end
         try
             [weights, offset, postcal, ideal, err_wcal, freqcal] = wcalsin(bits, ...
                 'freq', fin, 'order', harmonic, 'verbose', verbose);
@@ -561,17 +567,15 @@ function [rep] = adcpanel(dat, varargin)
                 ax_plotphaseFFT = nexttile(tl);
                 rep.figures.ax_plotphaseFFT = ax_plotphaseFFT;
                 axes(ax_plotphaseFFT);
-            end
-            try
-                h_fft = plotphase(sigFull, harmonic, maxCode, 'Fs', fs, 'OSR', OSR, 'window', winType, 'mode', 'FFT');
-                rep.phaseFFT = struct('handle', h_fft);
-                if dispFlag
+                try
+                    h_fft = plotphase(sigFull, harmonic, maxCode, 'Fs', fs, 'OSR', OSR, 'window', winType, 'mode', 'FFT');
+                    rep.phaseFFT = struct('handle', h_fft);
                     title('Phase Spectrum (FFT mode)');
+                catch ME
+                    warning on;
+                    warning('adcpanel:plotphaseFFTFailed', 'plotphase(FFT) failed: %s', ME.message);
+                    rep.phaseFFT = struct('error', ME.message);
                 end
-            catch ME
-                warning on;
-                warning('adcpanel:plotphaseFFTFailed', 'plotphase(FFT) failed: %s', ME.message);
-                rep.phaseFFT = struct('error', ME.message);
             end
 
             % A4: inlsin - INL/DNL - uses nexttile internally
@@ -596,17 +600,15 @@ function [rep] = adcpanel(dat, varargin)
                 ax_plotphaseLMS = nexttile(tl);
                 rep.figures.ax_plotphaseLMS = ax_plotphaseLMS;
                 axes(ax_plotphaseLMS);
-            end
-            try
-                h_lms = plotphase(sigFull, harmonic, maxCode, 'Fs', fs, 'OSR', OSR, 'window', winType, 'mode', 'LMS');
-                rep.phaseLMS = struct('handle', h_lms);
-                if dispFlag
+                try
+                    h_lms = plotphase(sigFull, harmonic, maxCode, 'Fs', fs, 'OSR', OSR, 'window', winType, 'mode', 'LMS');
+                    rep.phaseLMS = struct('handle', h_lms);
                     title('Phase Spectrum (LMS mode)');
+                catch ME
+                    warning on;
+                    warning('adcpanel:plotphaseLMSFailed', 'plotphase(LMS) failed: %s', ME.message);
+                    rep.phaseLMS = struct('error', ME.message);
                 end
-            catch ME
-                warning on;
-                warning('adcpanel:plotphaseLMSFailed', 'plotphase(LMS) failed: %s', ME.message);
-                rep.phaseLMS = struct('error', ME.message);
             end
 
             % A5: perfosr - Performance vs OSR - uses nexttile internally
