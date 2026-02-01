@@ -35,7 +35,7 @@ function [radix, wgtsca, effres] = plotwgt(weights, disp)
 %       refining to align weights with integers
 %
 %     effres - Effective resolution in bits
-%       Estimated from significant weights: log2(sum(absW_sig)/absW_LSB) + 1
+%       Estimated from significant weights: log2(sum(absW_sig)/absW_LSB + 1)
 %       This represents the effective number of bits based on weight ratios
 %
 %   Algorithm for wgtsca and effres:
@@ -44,7 +44,7 @@ function [radix, wgtsca, effres] = plotwgt(weights, disp)
 %        (large jumps indicate transition to noise/redundant bits)
 %     3. Initial wgtsca normalizes the smallest significant weight to 1
 %     4. Refine wgtsca to minimize rounding error across significant weights
-%     5. Compute effres as log2(sum(absW_sig)/absW_LSB) + 1
+%     5. Compute effres as log2(sum(absW_sig)/absW_LSB + 1)
 %
 %   Examples:
 %     % Visualize ideal binary weights
@@ -135,8 +135,7 @@ for WMSB = WMSB_min:WMSB_max
 end
 
 % Step 6: Calculate effective resolution
-% effres = log2(sum(absW_sig)/absW(K+1)) + 1
-effres = log2(sum(absW_sig) / absW(K+1)) + 1;
+effres = log2(sum(absW_sig) / absW_sig(end) + 1);
 
 %% Create plot with markers showing absolute weights
 if disp
