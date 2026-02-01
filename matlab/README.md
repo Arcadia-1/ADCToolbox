@@ -524,7 +524,7 @@ radix = plotwgt(weights, disp)
 2. Find "significant" bits by detecting ratio jumps >= 3 (large jumps indicate noise/redundant bits)
 3. Initial scaling normalizes the smallest significant weight to 1
 4. Refine scaling to minimize rounding error across significant weights
-5. Compute effres as `log2(sum(absW_sig)/absW_LSB) + 1`
+5. Compute effres as `log2(sum(absW_sig)/absW_LSB + 1)`
 
 **Parameters:**
 - `weights` - Bit weights from MSB to LSB, vector (1 x B)
