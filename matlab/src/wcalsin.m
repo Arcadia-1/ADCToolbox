@@ -195,6 +195,10 @@ function [weight,offset,postcal,ideal,err,freqcal] = wcalsin(bits,varargin)
             M_patch = M_orig;
         end
 
+        if M_patch == 0
+            error('Patched bits are empty. No valid columns remain after patching.');
+        end
+
         % Column magnitude scaling (from concatenated patched data)
         MAG = floor(log10(max(abs([max(bits_patch_all);min(bits_patch_all)]))));
         MAG(isinf(MAG)) = 0;

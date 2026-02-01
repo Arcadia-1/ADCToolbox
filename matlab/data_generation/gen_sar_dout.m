@@ -39,7 +39,7 @@ for k = 1:length(CDAC_lists)
     aout = dout * nominal_weight';
 
     figure(Visible="on")
-    [ENoB, SNDR, ~] = specPlot(aout);
+    [ENoB, SNDR, ~] = plotspec(aout);
     % close all;
 
     N_bit = round(resolution);
