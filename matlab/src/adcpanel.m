@@ -217,7 +217,6 @@ function [rep] = adcpanel(dat, varargin)
 %     * .weights: calibrated weights from wcalsin
 %     * .offset: DC offset from wcalsin
 %     * .freqcal: refined frequency from wcalsin
-%     * .calibSuccess: boolean indicating successful calibration
 %   - rep.figures: handles to panel and individual subplots
 %     * .panel: main tiledlayout figure handle
 %     * .ax_plotspec, .ax_timedomain, .ax_errsinPhase, .ax_errsinValue
@@ -242,16 +241,13 @@ function [rep] = adcpanel(dat, varargin)
 % 3. Rank-deficient bit matrix in wcalsin
 %    → Use nomWeight fallback, report in rep.bits.warnings
 %
-% 4. Calibration failure (wcalsin)
-%    → Skip value-waveform analysis, set rep.bits.calibSuccess = false
-%
-% 5. Non-sinewave data
+% 4. Non-sinewave data
 %    → Only run plotspec, skip errsin/inlsin/perfosr/plotphase
 %
-% 6. Few data points (N < maxCode)
+% 5. Few data points (N < maxCode)
 %    → Warn that INL/DNL results may be unreliable, but still run
 %
-% 7. Matrix input for value-waveform
+% 6. Matrix input for value-waveform
 %    → Use first column as representative for single-vector functions
 %    → Pass full matrix to plotspec for coherent/power averaging
 %
@@ -331,16 +327,7 @@ function [rep] = adcpanel(dat, varargin)
         sig = dat(:, 1);
         sigFull = dat;  % Keep full matrix for plotspec averaging
     end
-
-    % Auto-detect maxCode if not specified
-    if isempty(maxCode)
-        if dataType == "values"
-            maxCode = max(dat(:)) - min(dat(:));
-        end
-        if dataType == "bits"
-            maxCode = 2^M;
-        end
-    end
+   
 
     if verbose
         fprintf('adcpanel: dataType=%s, signalType=%s, N=%d, M=%d\n', dataType, signalType, N, M);
@@ -388,7 +375,6 @@ function [rep] = adcpanel(dat, varargin)
         %% Pipeline C: Bit-wise Data Analysis
         bits = dat;
         rep.bits = struct();
-        rep.bits.calibSuccess = false;
 
         % C1: bitchk - Overflow detection
         try
@@ -399,10 +385,8 @@ function [rep] = adcpanel(dat, varargin)
             rep.bits.overflow = struct('range_min', range_min, 'range_max', range_max, ...
                 'ovf_percent_zero', ovf_pct_zero, 'ovf_percent_one', ovf_pct_one);
         catch ME
-            if verbose
-                warning on;
-                warning('adcpanel:bitchkFailed', 'bitchk failed: %s', ME.message);
-            end
+            warning on;
+            warning('adcpanel:bitchkFailed', 'bitchk failed: %s', ME.message);
             rep.bits.overflow = struct('error', ME.message);
         end
 
@@ -413,48 +397,84 @@ function [rep] = adcpanel(dat, varargin)
             [weights, offset, postcal, ideal, err_wcal, freqcal] = wcalsin(bits, ...
                 'freq', fin, 'order', harmonic, 'verbose', verbose);
 
-            wscalling = maxCode / sum(weights);
+            if isempty(maxCode)
+                % Calculate maxCode and wscalling from weights:
+                %
+                % Algorithm:
+                % 1. Sort absolute weights descending to identify bit significance
+                % 2. Find "significant" bits by detecting ratio jumps >= 3
+                %    (large jumps indicate transition to noise/redundant bits)
+                % 3. Initial wscalling normalizes the smallest significant weight to 1
+                % 4. Refine wscalling to minimize rounding error across all weights
+                % 5. Compute maxCode as the full-scale range of significant bits
+                %
+                % This approach handles non-binary and redundant bit architectures
+                % by automatically detecting which bits contribute to the signal.
+
+                % Step 1: Sort absolute weights from large to small
+                absW = sort(abs(weights), 'descend');
+
+                % Step 2: Calculate ratios between adjacent abs(weights)
+                ratios = absW(1:end-1) ./ absW(2:end);
+
+                % Step 3: Find max K such that ratios(i) < 3 for all i = 1 to K
+                % K+1 is the number of "significant" bits
+                idx = find(ratios >= 3, 1, 'first');
+                if isempty(idx)
+                    K = length(ratios);  % all ratios < 3, all bits significant
+                else
+                    K = idx - 1;
+                end
+
+                % Step 4: Initial scaling - normalize smallest significant weight to 1
+                wscalling = 1 / absW(K+1);
+
+                % Step 5: Refine wscalling to minimize rounding error
+                % Search around the initial estimate (0.5x to 1.5x of MSB weight)
+                % to find scaling that makes weights closest to integers
+                absW_sig = absW(1:K+1);  % only use significant weights for refinement
+                w_err = rms(absW_sig * wscalling - round(absW_sig * wscalling));
+                WMSB_init = round(absW(1) * wscalling);
+                WMSB_min = max(1, round(WMSB_init * 0.5));  % ensure >= 1 to avoid zero scaling
+                WMSB_max = max(WMSB_min, round(WMSB_init * 1.5));
+                for WMSB = WMSB_min:WMSB_max
+                    w_refine = WMSB / absW(1);
+                    w_err_ref = rms(absW_sig * w_refine - round(absW_sig * w_refine));
+                    if w_err > w_err_ref
+                        w_err = w_err_ref;
+                        wscalling = w_refine;
+                    end
+                end
+
+                % Step 6: Calculate maxCode as full-scale range of significant bits
+                % maxCode = sum of significant weights after scaling
+                maxCode = sum(absW_sig) * wscalling;
+
+            else
+                wscalling = maxCode / sum(weights);
+            end
+
             weights = weights * wscalling;
             offset = offset * wscalling;
             rep.bits.weights = weights;
             rep.bits.offset = offset;
             rep.bits.freqcal = freqcal;
 
-            rep.bits.calibSuccess = true;
+            sig = bits*weights';
+            sigFull = sig;
+            rep.bits.postcal = sig;
 
-            % Check calibration success: all weights same sign and reasonable residual
-            if all(weights > 0) || all(weights < 0)
-                errRms = rms(err_wcal);
-                sigRms = rms(postcal);
-                if errRms < 0.1 * sigRms
-                    rep.bits.calibSuccess = true;
-                    sig = bits*weights';
-                    sigFull = sig;
-                    rep.bits.postcal = sig;
-
-                    % Use calibrated frequency
-                    fin = freqcal;
-                end
-            end
+            % Use calibrated frequency
+            fin = freqcal;
 
             % C3: plotwgt - Display weights
             plotwgt(weights);
             title('Calibrated Bit Weights');
         catch ME
-            if verbose
-                warning on;
-                warning('adcpanel:wcalsinFailed', 'wcalsin failed: %s', ME.message);
-            end
+            warning on;
+            warning('adcpanel:wcalsinFailed', 'wcalsin failed: %s', ME.message);
             rep.bits.weights = [];
             rep.bits.error = ME.message;
-        end
-
-        % If calibration successful, continue with Pipeline A
-        if ~rep.bits.calibSuccess
-            if verbose
-                warning('adcpanel:calibFailed', 'Weight calibration unsuccessful. Skipping value analysis.');
-            end
-            return;
         end
 
         % Set signal type to sinewave for calibrated data
@@ -462,9 +482,14 @@ function [rep] = adcpanel(dat, varargin)
     end
 
     %% Pipeline A/B: Value-waveform Analysis
-    if dataType == "values" || (dataType == "bits" && rep.bits.calibSuccess)
+    if dataType == "values" || dataType == "bits"
+
+        if isempty(maxCode)
+            maxCode = max(dat(:)) - min(dat(:));
+        end
 
         if signalType == "sinewave"
+            
             %% Pipeline A: Full Sinewave Analysis
 
             % A2: tomdec - Thompson decomposition (no display, just get data)
@@ -477,9 +502,7 @@ function [rep] = adcpanel(dat, varargin)
                     fin = freq_td;
                 end
             catch ME
-                if verbose
-                    warning('adcpanel:tomdecFailed', 'tomdec failed: %s', ME.message);
-                end
+                warning('adcpanel:tomdecFailed', 'tomdec failed: %s', ME.message);
                 rep.decomp = struct('error', ME.message);
                 err_td = [];
                 freq_td = fin;
@@ -495,7 +518,11 @@ function [rep] = adcpanel(dat, varargin)
                     [~, idx_max] = max(abs(err_td));
 
                     % Calculate samples per cycle
-                    spc = round(1 / freq_td);
+                    if freq_td > 0.25
+                        spc = round(1/(0.5-freq_td));
+                    else
+                        spc = round(1 / freq_td);
+                    end
 
                     % Plot ALL data on left axis (signal and ideal)
                     yyaxis left;
@@ -519,8 +546,8 @@ function [rep] = adcpanel(dat, varargin)
                     ylim([err_min - err_range * 0.1, err_max + err_range * 1.1]);
 
                     % Set x-axis to show 3 cycles centered at max error (user can pan)
-                    idx_start = max(1, round(idx_max - 1.5 * spc));
-                    idx_end = min(N, round(idx_max + 1.5 * spc));
+                    idx_start = max(1, round(idx_max - max(1.5 * spc, 50)));
+                    idx_end = min(N, round(idx_max + max(1.5 * spc, 50)));
                     xlim([idx_start, idx_end]);
 
                     xlabel('Sample');
@@ -538,10 +565,8 @@ function [rep] = adcpanel(dat, varargin)
                 rep.errorPhase = struct('emean', emean_p, 'erms', erms_p, 'xx', xx_p, ...
                     'anoi', anoi, 'pnoi', pnoi);
             catch ME
-                if verbose
-                    warning on;
-                    warning('adcpanel:errsinPhaseFailed', 'errsin(phase) failed: %s', ME.message);
-                end
+                warning on;
+                warning('adcpanel:errsinPhaseFailed', 'errsin(phase) failed: %s', ME.message);
                 rep.errorPhase = struct('error', ME.message);
             end
 
@@ -560,10 +585,8 @@ function [rep] = adcpanel(dat, varargin)
                     title('Spectrum');
                 end
             catch ME
-                if verbose
-                    warning on;
-                    warning('adcpanel:plotspecFailed', 'plotspec failed: %s', ME.message);
-                end
+                warning on;
+                warning('adcpanel:plotspecFailed', 'plotspec failed: %s', ME.message);
                 rep.spectrum = struct('error', ME.message);
             end
 
@@ -572,10 +595,8 @@ function [rep] = adcpanel(dat, varargin)
                 [emean_v, erms_v, xx_v] = errsin(sig, 'fin', fin, 'xaxis', 'value', 'osr', OSR, 'window', winType, 'disp', dispFlag);
                 rep.errorValue = struct('emean', emean_v, 'erms', erms_v, 'xx', xx_v);
             catch ME
-                if verbose
-                    warning on;
-                    warning('adcpanel:errsinValueFailed', 'errsin(value) failed: %s', ME.message);
-                end
+                warning on;
+                warning('adcpanel:errsinValueFailed', 'errsin(value) failed: %s', ME.message);
                 rep.errorValue = struct('error', ME.message);
             end
 
@@ -592,10 +613,8 @@ function [rep] = adcpanel(dat, varargin)
                     title('Phase Spectrum (FFT mode)');
                 end
             catch ME
-                if verbose
-                    warning on;
-                    warning('adcpanel:plotphaseFFTFailed', 'plotphase(FFT) failed: %s', ME.message);
-                end
+                warning on;
+                warning('adcpanel:plotphaseFFTFailed', 'plotphase(FFT) failed: %s', ME.message);
                 rep.phaseFFT = struct('error', ME.message);
             end
 
@@ -611,10 +630,8 @@ function [rep] = adcpanel(dat, varargin)
                 rep.linearity = struct('inl', inl, 'dnl', dnl, 'code', code, ...
                     'inl_pp', max(inl) - min(inl), 'dnl_pp', max(dnl) - min(dnl));
             catch ME
-                if verbose
-                    warning on;
-                    warning('adcpanel:inlsinFailed', 'inlsin failed: %s', ME.message);
-                end
+                warning on;
+                warning('adcpanel:inlsinFailed', 'inlsin failed: %s', ME.message);
                 rep.linearity = struct('error', ME.message);
             end
 
@@ -631,10 +648,8 @@ function [rep] = adcpanel(dat, varargin)
                     title('Phase Spectrum (LMS mode)');
                 end
             catch ME
-                if verbose
-                    warning on;
-                    warning('adcpanel:plotphaseLMSFailed', 'plotphase(LMS) failed: %s', ME.message);
-                end
+                warning on;
+                warning('adcpanel:plotphaseLMSFailed', 'plotphase(LMS) failed: %s', ME.message);
                 rep.phaseLMS = struct('error', ME.message);
             end
 
@@ -645,10 +660,8 @@ function [rep] = adcpanel(dat, varargin)
                 rep.osr = struct('osr', osr_vals, 'sndr', sndr_osr, ...
                     'sfdr', sfdr_osr, 'enob', enob_osr);
             catch ME
-                if verbose
-                    warning on;
-                    warning('adcpanel:perfosrFailed', 'perfosr failed: %s', ME.message);
-                end
+                warning on;
+                warning('adcpanel:perfosrFailed', 'perfosr failed: %s', ME.message);
                 rep.osr = struct('error', ME.message);
             end
 
@@ -682,10 +695,8 @@ function [rep] = adcpanel(dat, varargin)
                     title('Spectrum');
                 end
             catch ME
-                if verbose
-                    warning on;
-                    warning('adcpanel:plotspecFailed', 'plotspec failed: %s', ME.message);
-                end
+                warning on;
+                warning('adcpanel:plotspecFailed', 'plotspec failed: %s', ME.message);
                 rep.spectrum = struct('error', ME.message);
             end
 

@@ -73,7 +73,6 @@ function [weight,offset,postcal,ideal,err,freqcal] = wcalsin(bits,varargin)
 %     - Polarity is automatically enforced to be positive (sum(weight) > 0)
 %
 %   See also: inlsin, findfreq, alias
-warning("off")
     % ==========================
     % Multi-dataset (cell) path
     % ==========================
@@ -317,6 +316,7 @@ warning("off")
 
     % Initialize link and scale tables used to map original columns to a potentially merged, rank-sufficient set of columns (bits_patch)
     L = [1:M];              % link from a column to its correlated column
+    LR = [1:M];
     K = ones(1,M);          % weight ratio of a column to its correlated column
 
     % If columns (plus DC) are rank-deficient, try to patch by merging perfectly correlated columns and discarding constant ones.
@@ -364,6 +364,10 @@ warning("off")
         bits_patch = bits;                           % no patching needed
     end
 
+    if M == 0
+        error('Patched bits are empty. No valid columns remain after patching.');
+    end
+
     % Pre-scaling columns to avoid numerical conditioning problems in matrix solver
     MAG = floor(log10(max(abs([max(bits_patch);min(bits_patch)]))));  % column-wise base-10 magnitude
     MAG(isinf(MAG)) = 0;                                              % guard against inf (e.g., zeros)
@@ -378,7 +382,7 @@ warning("off")
                 fprintf('Freq coarse searching (%d/5):',i1);
             end
             % Estimate Fin/Fs using a weighted sum of the top i1 columns
-            freq = [freq, findFin(bits_patch(:,1:i1)*nomWeight(L(1:i1))')];
+            freq = [freq, findFin(bits_patch(:,1:i1)*nomWeight(LR(1:i1))')];
             if verbose
                 fprintf(' freq = %d\n',freq(end));
             end
@@ -500,5 +504,11 @@ warning("off")
     end
 
     freqcal = freq;                     % return refined frequency estimate
+
+    % Check signal-to-noise ratio
+    snr_linear = std(ideal) / std(err);
+    if snr_linear < 10  % 20dB = 20*log10(10)
+        warning('SNR (%.1f dB) is below 20 dB. Calibration may have failed or sinewave may not be correctly extracted.', 20*log10(snr_linear));
+    end
 
 end
