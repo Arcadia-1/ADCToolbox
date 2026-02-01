@@ -397,65 +397,25 @@ function [rep] = adcpanel(dat, varargin)
             [weights, offset, postcal, ideal, err_wcal, freqcal] = wcalsin(bits, ...
                 'freq', fin, 'order', harmonic, 'verbose', verbose);
 
+            % C3: plotwgt - Display weights and get optimal scaling
+            % plotwgt computes wgtsca (optimal weight scaling factor) and
+            % effres (effective resolution from weight analysis)
+            [~, wgtsca, effres] = plotwgt(weights, dispFlag);
+            if dispFlag
+                title('Calibrated Bit Weights');
+            end
+            rep.bits.effres = effres;
+
+            % Apply scaling: use plotwgt's wgtsca if maxCode not specified,
+            % otherwise scale to match user-specified maxCode
             if isempty(maxCode)
-                % Calculate maxCode and wscalling from weights:
-                %
-                % Algorithm:
-                % 1. Sort absolute weights descending to identify bit significance
-                % 2. Find "significant" bits by detecting ratio jumps >= 3
-                %    (large jumps indicate transition to noise/redundant bits)
-                % 3. Initial wscalling normalizes the smallest significant weight to 1
-                % 4. Refine wscalling to minimize rounding error across all weights
-                % 5. Compute maxCode as the full-scale range of significant bits
-                %
-                % This approach handles non-binary and redundant bit architectures
-                % by automatically detecting which bits contribute to the signal.
-
-                % Step 1: Sort absolute weights from large to small
-                absW = sort(abs(weights), 'descend');
-
-                % Step 2: Calculate ratios between adjacent abs(weights)
-                ratios = absW(1:end-1) ./ absW(2:end);
-
-                % Step 3: Find max K such that ratios(i) < 3 for all i = 1 to K
-                % K+1 is the number of "significant" bits
-                idx = find(ratios >= 3, 1, 'first');
-                if isempty(idx)
-                    K = length(ratios);  % all ratios < 3, all bits significant
-                else
-                    K = idx - 1;
-                end
-
-                % Step 4: Initial scaling - normalize smallest significant weight to 1
-                wscalling = 1 / absW(K+1);
-
-                % Step 5: Refine wscalling to minimize rounding error
-                % Search around the initial estimate (0.5x to 1.5x of MSB weight)
-                % to find scaling that makes weights closest to integers
-                absW_sig = absW(1:K+1);  % only use significant weights for refinement
-                w_err = rms(absW_sig * wscalling - round(absW_sig * wscalling));
-                WMSB_init = round(absW(1) * wscalling);
-                WMSB_min = max(1, round(WMSB_init * 0.5));  % ensure >= 1 to avoid zero scaling
-                WMSB_max = max(WMSB_min, round(WMSB_init * 1.5));
-                for WMSB = WMSB_min:WMSB_max
-                    w_refine = WMSB / absW(1);
-                    w_err_ref = rms(absW_sig * w_refine - round(absW_sig * w_refine));
-                    if w_err > w_err_ref
-                        w_err = w_err_ref;
-                        wscalling = w_refine;
-                    end
-                end
-
-                % Step 6: Calculate maxCode as full-scale range of significant bits
-                % maxCode = sum of significant weights after scaling
-                maxCode = sum(absW_sig) * wscalling;
-
+                maxCode = sum(abs(weights)) * wgtsca;
             else
-                wscalling = maxCode / sum(weights);
+                wgtsca = maxCode / sum(weights);
             end
 
-            weights = weights * wscalling;
-            offset = offset * wscalling;
+            weights = weights * wgtsca;
+            offset = offset * wgtsca;
             rep.bits.weights = weights;
             rep.bits.offset = offset;
             rep.bits.freqcal = freqcal;
@@ -466,10 +426,6 @@ function [rep] = adcpanel(dat, varargin)
 
             % Use calibrated frequency
             fin = freqcal;
-
-            % C3: plotwgt - Display weights
-            plotwgt(weights);
-            title('Calibrated Bit Weights');
         catch ME
             warning on;
             warning('adcpanel:wcalsinFailed', 'wcalsin failed: %s', ME.message);

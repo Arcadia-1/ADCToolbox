@@ -99,7 +99,7 @@ Functions for calibrating ADC bit weights and correcting errors.
 
 - **`wcalsin`** - Weight calibration using sine wave input (single or multi-dataset)
 - **`cdacwgt`** - Calculate bit weights for multi-segment capacitive DAC
-- **`plotwgt`** - Visualize bit weights with radix annotations
+- **`plotwgt`** - Visualize bit weights with radix annotations, compute optimal scaling and effective resolution
 
 ### Linearity and Error Analysis
 
@@ -162,15 +162,16 @@ rep = adcpanel(dat, 'Name', Value)
 **Pipeline C - Bit-wise Data:**
 1. `bitchk` - Overflow/underflow detection
 2. `wcalsin` - Weight calibration from sinewave
-3. `plotwgt` - Visualize calibrated weights
-4. If calibration successful: run Pipeline A on calibrated values
+3. `plotwgt` - Visualize calibrated weights, compute optimal scaling and effective resolution
+4. Auto-detect `maxCode` from weight ratios (identifies significant vs noise bits)
+5. If calibration successful: run Pipeline A on calibrated values
 
 **Parameters:**
 - `'dataType'` - How to interpret input: 'auto' (default), 'values', or 'bits'
 - `'signalType'` - Type of input signal: 'sinewave' (default) or 'other'
 - `'OSR'` - Oversampling ratio (default: 1)
 - `'fs'` - Sampling frequency in Hz (default: 1)
-- `'maxCode'` - Full scale range (default: auto-detected)
+- `'maxCode'` - Full scale range (default: auto-detected; for bit data uses weight ratio analysis to identify significant bits)
 - `'harmonic'` - Number of harmonics to analyze (default: 5)
 - `'window'` - Window function: 'hann' (default), 'rect', or function handle
 - `'fin'` - Normalized input frequency (default: 0 for auto-detect)
@@ -189,7 +190,7 @@ rep = adcpanel(dat, 'Name', Value)
   - `.osr` - OSR sweep results (osr, sndr, sfdr, enob)
   - `.phaseFFT` - Phase analysis in FFT mode
   - `.phaseLMS` - Phase analysis in LMS mode (with noise circle)
-  - `.bits` - Bit-wise analysis (weights, offset, overflow) if bit data
+  - `.bits` - Bit-wise analysis (weights, offset, overflow, effres) if bit data
   - `.figures` - Handles to all generated figures and axes
 
 **Examples:**
@@ -415,6 +416,7 @@ fin_actual = b * fs / n;  % = 1006.8 Hz
 - Handles rank-deficient bit matrices by merging correlated columns
 - Harmonic exclusion up to specified order
 - Automatic polarity enforcement
+- SNR check with warning when calibration quality is poor (< 20 dB)
 
 **Algorithm:**
 1. If frequency unknown: coarse search using multiple bit combinations, then fine iterative search
@@ -496,34 +498,51 @@ cp = [0 0 0  0 0 1];
 
 ### plotwgt
 
-**Purpose:** Visualize absolute bit weights with radix annotations to identify ADC architecture and detect calibration errors.
+**Purpose:** Visualize absolute bit weights with radix annotations to identify ADC architecture and detect calibration errors. Also computes optimal weight scaling factor and effective resolution.
 
 **Syntax:**
 ```matlab
 radix = plotwgt(weights)
+radix = plotwgt(weights, disp)
+[radix, wgtsca] = plotwgt(weights)
+[radix, wgtsca, effres] = plotwgt(weights)
 ```
 
 **Key Features:**
 - Plots absolute bit weights on logarithmic Y-axis
 - Annotates radix (scaling factor) between consecutive bits
 - Negative weights displayed in red to indicate sign errors
-- X-axis labeled with MSB=N on left, LSB=1 on right
-- Returns radix array for further analysis
+- MSB (largest weight) marked in red, LSB (smallest significant weight) marked in green
+- Dual x-axis labels: ascending array order (bottom) and descending significance order (top)
+- Displays effective resolution in the plot
+- Computes optimal weight scaling factor (`wgtsca`) that minimizes rounding error
+- Estimates effective resolution (`effres`) from significant bit weights
+- Optional `disp` argument to disable plotting
+
+**Algorithm for wgtsca and effres:**
+1. Sort absolute weights descending to identify bit significance
+2. Find "significant" bits by detecting ratio jumps >= 3 (large jumps indicate noise/redundant bits)
+3. Initial scaling normalizes the smallest significant weight to 1
+4. Refine scaling to minimize rounding error across significant weights
+5. Compute effres as `log2(sum(absW_sig)/absW_LSB) + 1`
 
 **Parameters:**
 - `weights` - Bit weights from MSB to LSB, vector (1 x B)
+- `disp` - Display flag (optional, default: 1). Set to 0 to disable plotting.
 
 **Outputs:**
 - `radix` - Radix between consecutive bits, vector (1 x B-1)
   - `radix(i) = |weight(i) / weight(i+1)|`
   - Binary ADC: radix ≈ 2.00 for all bits
   - Sub-radix ADC: radix < 2.00 (e.g., 1.5-bit/stage → ~1.90)
+- `wgtsca` - Optimal weight scaling factor that normalizes weights to minimize rounding error
+- `effres` - Effective resolution in bits, estimated from significant weight ratios
 
 **Example:**
 ```matlab
 % Visualize ideal 12-bit binary weights
 weights_ideal = 2.^(11:-1:0);
-radix = plotwgt(weights_ideal);
+[radix, wgtsca, effres] = plotwgt(weights_ideal);
 
 % Visualize CDAC weights (6-bit with 3+3 segments)
 cd = [4 2 1 4 2 1];       % Two 3-bit segments [MSB ... LSB]
@@ -531,6 +550,9 @@ cb = [0 0 0 8/7 0 0];     % Bridge cap between segments
 cp = [0 0 0 0 0 1];       % Parasitic at LSB
 weight = cdacwgt(cd, cb, cp);
 radix = plotwgt(weight);
+
+% Compute scaling without displaying plot
+[~, wgtsca, effres] = plotwgt(weights, 0);
 ```
 
 ### inlsin
@@ -1101,6 +1123,13 @@ plot(test_frequencies, enob);
 - Check that bit data has sufficient variation
 - Adjust `'nomWeight'` parameter to match actual bit weights
 - Ensure input data covers full code range
+
+### Issue: "SNR below 20 dB" warning in wcalsin
+**Solution:**
+- Verify that input data contains a clean sine wave signal
+- Check for excessive noise or clipping in the data
+- Ensure signal amplitude is appropriate for the ADC range
+- This warning indicates calibration may have failed to correctly extract the sine wave
 
 ### Issue: Poor ENOB in plotspec
 **Possible causes:**
