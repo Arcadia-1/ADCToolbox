@@ -160,6 +160,9 @@ function [weight,offset,postcal,ideal,err,freqcal] = wcalsin(bits,varargin)
                 if max(bits_all(:,i1))==min(bits_all(:,i1))
                     Lmap(i1) = 0;
                     Kmap(i1) = 0;
+                    if verbose
+                        fprintf('Constant column %d discarded\n', i1);
+                    end
                 elseif(rank([ones(Ntot,1),bits_patch_all,bits_all(:,i1)]) > rank([ones(Ntot,1),bits_patch_all]))
                     bits_patch_all = [bits_patch_all,bits_all(:,i1)];
                     LR = [LR,i1];
@@ -175,6 +178,9 @@ function [weight,offset,postcal,ideal,err,freqcal] = wcalsin(bits,varargin)
                             Lmap(i1) = i2;
                             Kmap(i1) = nomWeight(i1)/nomWeight(LR(i2));
                             bits_patch_all(:,i2) = bits_patch_all(:,i2) + bits_all(:,i1)*Kmap(i1);
+                            if verbose
+                                fprintf('Patched column %d -> column %d (ratio: %.6g)\n', i1, LR(i2), Kmap(i1));
+                            end
                             flag = 1;
                             break;
                         end
@@ -333,6 +339,9 @@ function [weight,offset,postcal,ideal,err,freqcal] = wcalsin(bits,varargin)
             if(max(bits(:,i1))==min(bits(:,i1)))    % constant column -> no information and can be discarded
                 L(i1) = 0;
                 K(i1) = 0;
+                if verbose
+                    fprintf('Constant column %d discarded\n', i1);
+                end
             elseif(rank([ones(N,1),bits_patch,bits(:,i1)]) > rank([ones(N,1),bits_patch]))  % column i1 adds rank -> keep it
                 bits_patch = [bits_patch,bits(:,i1)];
                 LR = [LR,i1];
@@ -349,6 +358,9 @@ function [weight,offset,postcal,ideal,err,freqcal] = wcalsin(bits,varargin)
                         K(i1) = nomWeight(i1)/nomWeight(LR(i2));   % use nominal weight ratio
                         % Merge i1 into i2 to form a single effective column
                         bits_patch(:,i2) = bits_patch(:,i2) + bits(:,i1)*nomWeight(i1)/nomWeight(LR(i2));
+                        if verbose
+                            fprintf('Patched column %d -> column %d (ratio: %.6g)\n', i1, LR(i2), K(i1));
+                        end
                         flag = 1;
                         break;
                     end
