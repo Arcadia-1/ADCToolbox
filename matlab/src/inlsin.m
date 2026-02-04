@@ -126,7 +126,8 @@ function [inl, dnl, code] = inlsin(data, varargin)
 
     % Display results if requested
     if disp_flag
-        subplot(2,1,1);
+
+        nexttile;
         plot(code, dnl, 'k-');
         missing = (dnl <= -1);
         if(sum(missing) > 0)
@@ -140,8 +141,7 @@ function [inl, dnl, code] = inlsin(data, varargin)
         ylabel('DNL (LSB)');
         title('Differential Nonlinearity (DNL)');
 
-
-        subplot(2,1,2);
+        nexttile;
         plot(code, inl, 'k-');
         grid on;
         xlim([min_data_orig, max_data_orig]);

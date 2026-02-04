@@ -74,7 +74,7 @@ total_redundancy = redundancy * (N_STAGES - 1); % Redundancy only applied in sta
 effective_res = total_bits - total_redundancy;
 
 figure
-ovfchk(dout, weights);
+bitchk(dout, weights);
 
 title_str = sprintf('8-stage Pipeline ADC (N_i=%d, G_i=%d, N_8=%d, Resolution=%.1f bits)', ...
     N_BITS_PER_STAGE, GAIN_PER_STAGE, N_LAST_STAGE, effective_res);
