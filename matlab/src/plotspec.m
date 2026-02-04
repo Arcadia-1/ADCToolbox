@@ -506,7 +506,7 @@ end
 noi_median = median(spec_inband)/Mn * n_inband;
 % Method 2: Trimmed mean (removes top/bottom 5%)
 spec_sort = sort(spec_inband);
-noi_mean = mean(spec_sort(floor(n_inband*0.05):floor(n_inband*0.95))) * n_inband;
+noi_mean = mean(spec_sort(max(1,floor(n_inband*0.05)):max(1,floor(n_inband*0.95)))) * n_inband;
 % Method 3: Exclude harmonics from noise calculation
 spec_noise = spec;
 for i = 2:nTHD
