@@ -115,14 +115,16 @@ function [fitout,freq,mag,dc,phi] = sinfit(sig,varargin)
         [~,k0] = max(spec);
 
         % Parabolic interpolation: determine which neighbor is higher
-        if(spec(min(max(k0+1,1),N/2)) > spec(min(max(k0-1,1),N/2)))
+        nspec = floor(N/2);
+        if(spec(min(max(k0+1,1),nspec)) > spec(min(max(k0-1,1),nspec)))
             r = 1;  % Right neighbor is higher
         else
             r = -1;  % Left neighbor is higher
         end
 
         % Refine frequency estimate using parabolic fit
-        f0 = (k0-1 + r*spec(k0+r)/(spec(k0)+spec(k0+r)))/N;
+        k_neighbor = min(max(k0+r, 1), nspec);  % Clamp index to valid range
+        f0 = (k0-1 + r*spec(k_neighbor)/(spec(k0)+spec(k_neighbor)))/N;
 
     end
 
