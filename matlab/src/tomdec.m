@@ -20,8 +20,8 @@ function [sine, err, har, oth, freq] = tomdec(sig, varargin)
 %       Range: [0, 0.5]
 %       Default: auto-detect
 %     order - Order of harmonics to fit. Optional.
-%       Integer Scalar
-%       Default: 10
+%       Integer Scalar (1 means no harmonic separation)
+%       Default: 1
 %     disp - Display switch. Optional.
 %       Logical
 %       Default: nargout == 0 (auto-display when no outputs)
@@ -60,7 +60,7 @@ function [sine, err, har, oth, freq] = tomdec(sig, varargin)
     % Parse input arguments
     p = inputParser;
     addOptional(p, 'freq', -1, @(x) isnumeric(x) && isscalar(x) && (x >= 0) && (x <= 0.5));
-    addOptional(p, 'order', 10, @(x) isnumeric(x) && isscalar(x) && (x > 0));
+    addOptional(p, 'order', 1, @(x) isnumeric(x) && isscalar(x) && (x >= 1));
     addOptional(p, 'disp', nargout == 0, @(x) islogical(x) || (isnumeric(x) && isscalar(x)));
     parse(p, varargin{:});
     freq = p.Results.freq;
@@ -91,16 +91,16 @@ function [sine, err, har, oth, freq] = tomdec(sig, varargin)
     end
 
     % Solve for weights of all harmonics
-    W = linsolve([SI,SQ],sig);
+    W = linsolve([ones(length(sig),1),SI,SQ],sig);
 
     % DC offset
-    DC = mean(sig);
+    DC = W(1);
 
     % Reconstructed fundamental (including DC)
-    sine = DC + SI(:,1)*W(1) + SQ(:,1)*W(1+order);
+    sine = DC + SI(:,1)*W(2) + SQ(:,1)*W(2+order);
 
     % Reconstructed signal with all harmonics
-    signal_all = DC + [SI,SQ] * W;
+    signal_all = DC + [SI,SQ] * W(2:end);
 
     % Compute error components
     err = sig - sine;          % Total error (all non-fundamental)
@@ -111,24 +111,59 @@ function [sine, err, har, oth, freq] = tomdec(sig, varargin)
     
     % Display results if requested
     if(disp)
+        N = length(sig);
+
+        % Find max error location
+        [~, idx_max] = max(abs(err));
+
+        % Calculate samples per cycle (consider aliasing)
+        if freq > 0.25
+            spc = round(1 / (0.5 - freq));
+        else
+            spc = round(1 / freq);
+        end
+
         % Left y-axis: signal and fitted sine
         yyaxis left;
-        plot(sig,'kx');
+        plot(1:N, sig, 'b.', 'MarkerSize', 4);
         hold on;
-        plot(sine,'-','color',[0.5,0.5,0.5]);
-        axis([1,min(max(1.5/freq,50),length(sig)), min(sig)*1.1, max(sig)*1.1]);
+        plot(1:N, sine, 'k-', 'LineWidth', 0.5);
         ylabel('Signal');
+        % Extend ylim downward to push signal to upper half
+        sig_min = min(sig); sig_max = max(sig);
+        sig_range = sig_max - sig_min;
+        ylim([sig_min - sig_range * 1.1, sig_max + sig_range * 0.1]);
+        hold off;
 
         % Right y-axis: error components
         yyaxis right;
-        plot(har,'r-');
-        hold on;
-        plot(oth,'b-');
-        axis([1,min(max(1.5/freq,50),length(sig)), min(err)*1.1, max(err)*1.1]);
+        if order == 1
+            % Only plot total error when no harmonic separation
+            plot(1:N, err, 'r-', 'LineWidth', 1);
+            leg_entries = {'Signal', 'Ideal', 'Error'};
+            err_min = min(err); err_max = max(err);
+        else
+            % Plot har and oth overlapped
+            plot(1:N, har, 'r-', 'LineWidth', 1);
+            hold on;
+            plot(1:N, oth, 'm-', 'LineWidth', 1);
+            hold off;
+            leg_entries = {'Signal', 'Ideal', 'Harmonics', 'Other'};
+            err_min = min(min(har),min(oth)); err_max = max(max(har),max(oth));
+        end
         ylabel('Error');
-        xlabel('Samples');
-        legend('signal','sinewave','harmonics','other errors');
+        % Extend ylim upward to push errors to lower half
+        err_range = err_max - err_min;
+        ylim([err_min - err_range * 0.1, err_max + err_range * 1.1]);
 
+        % Set x-axis to show 3 cycles centered at max error
+        idx_start = max(1, round(idx_max - max(1.5 * spc, 50)));
+        idx_end = min(N, round(idx_max + max(1.5 * spc, 50)));
+        xlim([idx_start, idx_end]);
+
+        xlabel('Sample');
+        title(sprintf('Thompson Decomposition (@ max err, idx=%d)', idx_max));
+        legend(leg_entries, 'Location', 'northeast');
     end
 
 end
