@@ -314,6 +314,37 @@ function [rep] = adcpanel(dat, varargin)
             dat = dat';
             [N, M] = size(dat);
         end
+        % If dat is a vector (M == 1), it contains integer codes
+        % that need to be decomposed into binary bits
+        if M == 1
+            minVal = min(dat);
+            maxVal = max(dat);
+
+            if minVal >= 0
+                % Unsigned: minimum bits to represent 0 to maxVal
+                if maxVal == 0
+                    nBits = 1;
+                else
+                    nBits = ceil(log2(maxVal + 1));
+                end
+            else
+                % Signed (two's complement): minimum bits for minVal to maxVal
+                % n-bit two's complement range: -2^(n-1) to 2^(n-1)-1
+                nBitsForNeg = ceil(log2(-minVal)) + 1;
+                if maxVal > 0
+                    nBitsForPos = ceil(log2(maxVal + 1)) + 1;
+                else
+                    nBitsForPos = 1;
+                end
+                nBits = max(nBitsForNeg, nBitsForPos);
+
+                % Convert negative values to two's complement
+                dat(dat < 0) = 2^nBits + dat(dat < 0);
+            end
+
+            dat = dec2bin(dat, nBits) - '0';
+            [N, M] = size(dat);
+        end
     elseif dataType == "values"
         % Ensure column vector for single signal
         if N == 1 && M > 1
