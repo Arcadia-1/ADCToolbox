@@ -12,6 +12,7 @@ A comprehensive MATLAB toolbox for ADC (Analog-to-Digital Converter) testing, ch
   - [Calibration Functions](#calibration-functions)
   - [Linearity Analysis](#linearity-analysis)
   - [Noise Transfer Function Analysis](#noise-transfer-function-analysis)
+  - [Shortcut Functions](#shortcut-functions)
   - [Utility Functions](#utility-functions)
 - [Detailed Function Reference](#detailed-function-reference)
 - [Usage Examples](#usage-examples)
@@ -100,6 +101,7 @@ Functions for calibrating ADC bit weights and correcting errors.
 - **`wcalsin`** - Weight calibration using sine wave input (single or multi-dataset)
 - **`cdacwgt`** - Calculate bit weights for multi-segment capacitive DAC
 - **`plotwgt`** - Visualize bit weights with radix annotations, compute optimal scaling and effective resolution
+- **`plotres`** - Plot partial-sum residuals of an ADC bit matrix as scatter plots
 
 ### Linearity and Error Analysis
 
@@ -113,6 +115,13 @@ Functions for analyzing ADC linearity performance.
 Functions for analyzing noise-shaping ADCs (Delta-Sigma modulators).
 
 - **`ntfperf`** - Analyze noise transfer function performance and SNR improvement
+
+### Shortcut Functions
+
+Convenience wrappers that combine multiple steps into a single call.
+
+- **`plotressin`** - Plot partial-sum residuals directly from bit matrix (auto-calibrates via `wcalsin`)
+- **`errsinv`** - Shortcut for `errsin` with value-mode binning (`xaxis='value'`)
 
 ### Utility Functions
 
@@ -554,6 +563,133 @@ radix = plotwgt(weight);
 % Compute scaling without displaying plot
 [~, wgtsca, effres] = plotwgt(weights, 0);
 ```
+
+### plotres
+
+**Purpose:** Plot partial-sum residuals of an ADC bit matrix as scatter plots, revealing correlations, nonlinearity patterns, and redundancy between bit stages.
+
+**Syntax:**
+```matlab
+plotres(sig, bits)
+plotres(sig, bits, wgt)
+plotres(sig, bits, wgt, xy)
+plotres(sig, bits, wgt, xy, alpha)
+plotres(sig, bits, 'Name', Value)
+```
+
+**Key Features:**
+- Tiled scatter plots of residuals at different bit stages
+- Residual at stage k = sig - bits(:,1:k) * wgt(1:k)'
+- Translucent markers with automatic or manual alpha control
+- Supports custom bit weights and arbitrary bit-pair selections
+
+**Parameters:**
+- `sig` - Ideal input signal (N x 1 or 1 x N)
+- `bits` - Raw ADC bit matrix (N x M), MSB first
+- `wgt` - Bit weights (optional, default: binary weights `[2^(M-1), ..., 1]`)
+- `xy` - Bit-pair indices to plot (optional, default: `[(0:(M-1))', ones(M,1)*M]`)
+- `alpha` - Marker transparency (optional, default: `'auto'`)
+  - `'auto'`: scales as `clamp(1000/N, 0.1, 1)`
+  - Numeric scalar in (0, 1]: fixed transparency
+
+**Example:**
+```matlab
+% Basic residual plot with binary weights
+N = 1024; M = 6;
+sig = (sin(2*pi*(0:N-1)'/N * 3)/2 + 0.5) * (2^M - 1);
+code = round(sig);
+bits = dec2bin(code, M) - '0';
+plotres(sig, bits);
+
+% Specific bit pairs with custom transparency
+plotres(sig, bits, 2.^(M-1:-1:0), [2 4; 4 6], 0.3);
+```
+
+**See also:** bitchk, plotwgt, plotressin
+
+---
+
+### plotressin
+
+**Purpose:** Convenience wrapper that calibrates bit weights via `wcalsin` and then forwards the results to `plotres`, eliminating the manual calibration step.
+
+**Syntax:**
+```matlab
+plotressin(bits)
+plotressin(bits, xy)
+plotressin(bits, ..., 'Name', Value)
+```
+
+**Key Features:**
+- Internally calls `wcalsin` to recover calibrated weights and ideal signal
+- Forwards the reconstructed reference signal (`ideal + offset`) and weights to `plotres`
+- Accepts the same `xy` format as `plotres`
+- Forwards `freq`, `order`, `verbose` parameters to `wcalsin`
+- Forwards `alpha` parameter to `plotres`
+
+**Parameters:**
+- `bits` - Raw ADC bit matrix (N x M), MSB first
+- `xy` - Bit-pair indices to plot (optional, same format as `plotres`)
+- `'freq'` - Normalized input frequency for `wcalsin` (default: 0 for auto)
+- `'order'` - Number of harmonics in fitting model (default: 1)
+- `'verbose'` - Verbose output flag (default: 0)
+- `'alpha'` - Marker transparency, forwarded to `plotres` (default: `'auto'`)
+
+**Example:**
+```matlab
+% Basic usage (automatic frequency search and calibration)
+N = 1024; M = 6;
+sig = (sin(2*pi*(0:N-1)'/N * 3)/2 + 0.5) * (2^M - 1);
+code = round(sig);
+bits = dec2bin(code, M) - '0';
+plotressin(bits)
+
+% Specific bit pairs with known frequency
+plotressin(bits, [0 6; 3 6], 'freq', 3/1024)
+
+% Forward calibration parameters
+plotressin(bits, 'order', 3)
+```
+
+**See also:** plotres, wcalsin, plotwgt
+
+---
+
+### errsinv
+
+**Purpose:** Shortcut for `errsin` that defaults to value-mode binning (`xaxis='value'`), useful for quick INL-style error visualization without specifying the `xaxis` parameter.
+
+**Syntax:**
+```matlab
+[emean, erms, xx, anoi, pnoi, err, errxx] = errsinv(sig)
+[emean, erms, xx, anoi, pnoi, err, errxx] = errsinv(sig, 'Name', Value)
+```
+
+**Key Features:**
+- Calls `errsin` with `'xaxis', 'value'` pre-set
+- When called with no outputs, automatically enables display (`'disp', 1`)
+- All other `errsin` name-value parameters are forwarded as-is
+
+**Parameters:**
+- `sig` - Input signal (same as `errsin`)
+- All name-value arguments accepted by `errsin` (e.g., `'bin'`, `'fin'`, `'erange'`, `'disp'`)
+
+**Outputs:**
+- Same as `errsin`: `emean`, `erms`, `xx`, `anoi`, `pnoi`, `err`, `errxx`
+
+**Example:**
+```matlab
+% Quick value-mode error plot (auto-display)
+sig = sin(2*pi*0.12345*(0:999)') + 0.01*randn(1000,1);
+errsinv(sig)
+
+% With custom bins
+[emean, erms, xx] = errsinv(sig, 'bin', 50);
+```
+
+**See also:** errsin
+
+---
 
 ### inlsin
 
@@ -1037,7 +1173,11 @@ matlab/
 │   ├── ntfperf.m           # NTF performance analyzer
 │   ├── alias.m             # Alias calculator
 │   ├── ifilter.m           # Ideal filter
+│   ├── plotres.m           # Partial-sum residual scatter plots
 │   ├── bitchk.m            # Overflow checker
+│   ├── shortcut/           # Convenience wrapper functions
+│   │   ├── plotressin.m    # plotres + wcalsin in one call
+│   │   └── errsinv.m       # errsin value-mode shortcut
 │   ├── legacy/             # Legacy function names (for compatibility)
 │   │   ├── specPlot.m
 │   │   ├── specPlotPhase.m
