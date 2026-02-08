@@ -48,7 +48,7 @@ function [range_min, range_max, ovf_percent_zero, ovf_percent_one] = bitchk(bits
 %       Overflow percentage per bit position
 %
 %   Plot Description (when disp == true):
-%     - X-axis: Bit position (MSB to LSB, labeled M to 1)
+%     - X-axis: Bit index (1 to M, array order) with secondary labels (M to 1)
 %     - Y-axis: Normalized residue distribution [0, 1]
 %     - Blue dots: Normal samples (no overflow)
 %     - Red dots: Samples with overflow (>= 1)
@@ -179,13 +179,22 @@ if dispFlag
     end
 
     % Add text notes to explain overflow rate meanings
-    text(0, 1.05, 'Overflow rate:', 'FontWeight', 'bold', 'HorizontalAlignment', 'right');
-    text(0, -0.05, 'Underflow rate:', 'FontWeight', 'bold', 'HorizontalAlignment', 'right');
+    text(0, 1.05, 'Overflow:', 'FontWeight', 'bold', 'HorizontalAlignment', 'right');
+    text(0, -0.05, 'Underflow:', 'FontWeight', 'bold', 'HorizontalAlignment', 'right');
 
-    axis([0,M+1,-0.1,1.1]);
+    axis([0,M+1,-0.2,1.1]);
+
+    % Bottom x-axis: ascending order (1 to M) - array order
     xticks(1:M);
-    xticklabels(M:-1:1);
-    xlabel('bit');
+    xticklabels(arrayfun(@num2str, 1:M, 'UniformOutput', false));
+    xlabel('Bit Index');
+
+    % Add secondary labels (M:-1:1) near the bottom
+    for i = 1:M
+        text(i, -0.1, sprintf('%d', M - i + 1), ...
+            'HorizontalAlignment', 'center', 'VerticalAlignment', 'top', ...
+            'Color', [0.5 0.5 0.5]);
+    end
     ylabel('Residue Distribution');
 
     % Add legend
