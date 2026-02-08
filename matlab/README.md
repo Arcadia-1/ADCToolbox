@@ -25,7 +25,7 @@ A comprehensive MATLAB toolbox for ADC (Analog-to-Digital Converter) testing, ch
 ### Option 1: Install Toolbox Package (Recommended)
 
 1. Navigate to the `toolbox/` directory
-2. Double-click `ADCToolbox_1v2.mltbx` to install
+2. Double-click `ADCToolbox_1v30.mltbx` to install
 3. The toolbox will be automatically added to your MATLAB path
 4. You can also download this toolbox from MATLAB Add-Ons
 
@@ -1195,8 +1195,15 @@ matlab/
 │   │   └── bitInBand.m
 │   └── toolbox.ignore
 ├── toolbox/                 # Packaged toolbox files
-│   ├── ADCToolbox_0v12.mltbx  # Latest toolbox package
-│   ├── ADCToolbox_0v11.mltbx  # Previous versions
+│   ├── ADCToolbox_1v30.mltbx  # Latest toolbox package
+│   ├── ADCToolbox_1v21.mltbx  # Previous versions
+│   ├── ADCToolbox_1v2.mltbx
+│   ├── ADCToolbox_1v1.mltbx
+│   ├── ADCToolbox_1v0.mltbx
+│   ├── ADCToolbox_0v12.mltbx
+│   ├── ADCToolbox_0v11.mltbx
+│   ├── ADCToolbox_0v1.mltbx
+│   ├── deploymentLog.html
 │   └── icon.png
 └── .gitignore
 ```
