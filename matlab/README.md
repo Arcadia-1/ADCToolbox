@@ -262,10 +262,25 @@ fprintf('Max INL: %.3f LSB\n', max(abs(rep.linearity.inl)));
 - `'window'` - Window function: 'hann', 'rect', or function handle (default: 'hann')
 - `'averageMode'` - 'normal' or 'coherent' averaging (default: 'normal')
 - `'NFMethod'` - Noise floor estimation: 'auto', 'median', 'mean', or 'exclude' (default: 'auto'); numeric: 0=auto, 1=median, 2=mean, 3=exclude
-- `'sideBin'` - Extra bins on each side of signal peak (default: 1)
+- `'sideBin'` - Extra bins on each side of signal peak (default: 'auto')
 - `'cutoff'` - High-pass cutoff frequency for flicker noise removal (default: 0)
 - `'label'` - Enable plot annotations (default: true)
 - `'disp'` - Enable plotting (default: true)
+- `'dispItem'` - Display item selector (default: 'sfedutrlyhop', all items)
+  - String where each character (case insensitive) enables a specific annotation:
+  - `'s'` - Signal power text and signal bin marker
+  - `'f'` - Input frequency and sampling frequency (Fin/Fs)
+  - `'e'` - Effective Number of Bits (ENOB)
+  - `'d'` - Signal-to-Noise and Distortion Ratio (SNDR)
+  - `'u'` - Spurious-Free Dynamic Range (SFDR)
+  - `'t'` - Total Harmonic Distortion (THD)
+  - `'r'` - Signal-to-Noise Ratio (SNR)
+  - `'l'` - Noise floor level
+  - `'y'` - Noise Spectral Density (NSD) and horizontal dash line
+  - `'o'` - Oversampling Ratio (OSR) and vertical bandwidth line
+  - `'h'` - Harmonic markers
+  - `'p'` - Maximum spur marker
+  - Example: `'sfe'` shows only signal, frequency, and ENOB annotations
 
 **Example:**
 ```matlab
@@ -275,6 +290,9 @@ fprintf('Max INL: %.3f LSB\n', max(abs(rep.linearity.inl)));
 % Multiple measurement runs with custom window
 sig_multi = randn(10, 1024);  % 10 runs of 1024 samples
 [enob, sndr] = plotspec(sig_multi, 'window', @blackman);
+
+% Customize plot annotations - show only essential metrics
+[enob, sndr] = plotspec(sig, 'dispItem', 'fedu');  % Show Fin/Fs, ENOB, SNDR, SFDR only
 ```
 
 ### plotphase

@@ -63,6 +63,20 @@ function [enob,sndr,sfdr,snr,thd,sigpwr,noi,nsd,h] = plotspec(sig,varargin)
 %     'NFMethod' - Noise floor estimation method. Default: 'auto'
 %       String: 'auto' (median of all methods), 'median' (median-based), 'mean' (trimmed mean), 'exclude' (exclude harmonics)
 %       Number: 0 (auto), 1 (median-based), 2 (trimmed mean), 3 (exclude harmonics)
+%     'dispItem' - Display items selector. Default: 'sfedutrlyhop' (all items)
+%       String or char array where each character (case insensitive) enables a display item:
+%       's' - Signal power text and signal bin marker
+%       'f' - Input frequency and sampling frequency (Fin/Fs)
+%       'e' - Effective Number of Bits (ENOB)
+%       'd' - Signal-to-Noise and Distortion Ratio (SNDR)
+%       'u' - Spurious-Free Dynamic Range (SFDR)
+%       't' - Total Harmonic Distortion (THD)
+%       'r' - Signal-to-Noise Ratio (SNR)
+%       'l' - Noise floor level
+%       'y' - Noise Spectral Density (NSD) and horizontal dash line
+%       'o' - Oversampling Ratio (OSR) and vertical bandwidth line
+%       'h' - Harmonic markers
+%       'p' - Maximum spur marker
 %
 %   Outputs:
 %     enob - Effective Number of Bits
@@ -151,6 +165,7 @@ addParameter(p, 'label', true, validLogical);
 addParameter(p, 'assumedSignal', NaN);
 addParameter(p, 'nTHD', 5, validScalarPosInt);
 addParameter(p, 'NFMethod', 'auto', validNFMethod);
+addParameter(p, 'dispItem', 'sfedutrlyhop', @(x) ischar(x) || isstring(x));
 parse(p, varargin{:});
 
 % Extract parsed parameters
@@ -224,6 +239,21 @@ if p.Results.cutoff > 0
 else
     cutoffFreq = p.Results.noFlicker;  % Fall back to old name
 end
+
+% Parse dispItem flags
+dispItem = lower(char(p.Results.dispItem));
+show_s = any(dispItem == 's');
+show_f = any(dispItem == 'f');
+show_e = any(dispItem == 'e');
+show_d = any(dispItem == 'd');
+show_u = any(dispItem == 'u');
+show_t = any(dispItem == 't');
+show_r = any(dispItem == 'r');
+show_l = any(dispItem == 'l');
+show_y = any(dispItem == 'y');
+show_o = any(dispItem == 'o');
+show_h = any(dispItem == 'h');
+show_p = any(dispItem == 'p');
 
 % Determine data dimensions and FFT length
 % Convert column vector to row vector if needed
@@ -451,7 +481,7 @@ if(dispPlot)
     grid on;
     hold on;
     % Mark signal bins if label enabled
-    if(label)
+    if(label && show_s)
         if (OSR == 1)
             plot(freq(max(bin-sideBin,1):min(bin+sideBin,Nd2)),10*log10(spec(max(bin-sideBin,1):min(bin+sideBin,Nd2))),'r-','linewidth',0.5);
             plot(freq(bin),10*log10(spec(bin)),'ro','linewidth',0.5);
@@ -460,7 +490,7 @@ if(dispPlot)
         end
     end
     % Mark harmonics if requested
-    if(harmonic > 0)
+    if(harmonic > 0 && show_h)
         for i = 2:harmonic
             b = alias(round((bin_r-1)*i),N_fft);
             plot(b/N_fft*Fs,10*log10(spec(b+1)+10^(-20)),'rs');
@@ -488,7 +518,7 @@ SFDR = 10*log10(sigs/spur);
 ENoB = (SNDR-1.76)/6.02;
 
 % Mark maximum spur on plot
-if(dispPlot && label)
+if(dispPlot && label && show_p)
     plot((sbin-1)/N_fft*Fs,10*log10(spur+10^(-20)),'rd');
     text((sbin-1)/N_fft*Fs,10*log10(spur+10^(-20))+5,'MaxSpur','fontname','Arial','fontsize',10,'horizontalalignment','center');
 end
@@ -551,7 +581,9 @@ if(dispPlot)
     axis([Fs/N_fft,Fs/2,minx,0]);
     if(label)
         % Draw signal bandwidth limit
-        plot([1,1]*Fs/2/OSR,[0,-1000],'--');
+        if(show_o)
+            plot([1,1]*Fs/2/OSR,[0,-1000],'--');
+        end
         % Determine text position based on scale and signal location
         if(OSR>1)
             TX = 10^(log10(Fs)*0.01+log10(Fs/N_fft)*0.99);
@@ -593,30 +625,64 @@ if(dispPlot)
         end
 
         % Display performance metrics
-        text(TX,TYD,['Fin/Fs = ',txt_fin,' / ',txt_fs,' Hz']);
-
-        text(TX,TYD*2,['ENoB = ',num2str(ENoB,'%.2f')]);
-        text(TX,TYD*3,['SNDR = ',num2str(SNDR,'%.2f'),' dB']);
-        text(TX,TYD*4,['SFDR = ',num2str(SFDR,'%.2f'),' dB']);
-        text(TX,TYD*5,['THD = ',num2str(THD,'%.2f'),' dB']);
-        text(TX,TYD*6,['SNR = ',num2str(SNR,'%.2f'),' dB']);
-        text(TX,TYD*7,['Noise Floor = ',num2str(NF,'%.2f'),' dB']);
+        TYN = 0;
+        if(show_f)
+            TYN = TYN + 1;
+            text(TX,TYD*TYN,['Fin/Fs = ',txt_fin,' / ',txt_fs,' Hz']);
+        end
+        if(show_e)
+            TYN = TYN + 1;
+            text(TX,TYD*TYN,['ENoB = ',num2str(ENoB,'%.2f')]);
+        end
+        if(show_d)
+            TYN = TYN + 1;
+            text(TX,TYD*TYN,['SNDR = ',num2str(SNDR,'%.2f'),' dB']);
+        end
+        if(show_u)
+            TYN = TYN + 1;
+            text(TX,TYD*TYN,['SFDR = ',num2str(SFDR,'%.2f'),' dB']);
+        end
+        if(show_t)
+            TYN = TYN + 1;
+            text(TX,TYD*TYN,['THD = ',num2str(THD,'%.2f'),' dB']);
+        end
+        if(show_r)
+            TYN = TYN + 1;
+            text(TX,TYD*TYN,['SNR = ',num2str(SNR,'%.2f'),' dB']);
+        end
+        if(show_l)
+            TYN = TYN + 1;
+            text(TX,TYD*TYN,['Noise Floor = ',num2str(NF,'%.2f'),' dB']);
+        end
 
         % Display additional metrics and noise floor line
         if (OSR>1)
-            text(bin/N_fft*Fs,min(pwr,TYD/2),['Sig = ',num2str(pwr,'%.2f'),' dB']);
-            semilogx([Fs/N_fft,Fs/2/OSR],-[1,1]*(NF+10*log10(N_fft/2/OSR)),'r--');
-            text(TX,TYD*8,['NSD = ',num2str(-NF-10*log10(Fs/2/OSR),'%.2f'),' dBFS/Hz']);
-            text(TX,TYD*9,['OSR = ',num2str(OSR,'%.2f')]);
+            if(show_s)
+                text(bin/N_fft*Fs,min(pwr,TYD/2),['Sig = ',num2str(pwr,'%.2f'),' dB']);
+            end
+            if(show_y)
+                semilogx([Fs/N_fft,Fs/2/OSR],-[1,1]*(NF+10*log10(N_fft/2/OSR)),'r--');
+                TYN = TYN + 1;
+                text(TX,TYD*TYN,['NSD = ',num2str(-NF-10*log10(Fs/2/OSR),'%.2f'),' dBFS/Hz']);
+            end
+            if(show_o)
+                TYN = TYN + 1;
+                text(TX,TYD*TYN,['OSR = ',num2str(OSR,'%.2f')]);
+            end
         else
             % Position signal power label to avoid signal peak
-            if(bin/N_fft>0.4)
-                text((bin/N_fft-0.01)*Fs,min(pwr,TYD/2),['Sig = ',num2str(pwr,'%.2f'),' dB'],'horizontalAlignment','right');
-            else
-                text((bin/N_fft+0.01)*Fs,min(pwr,TYD/2),['Sig = ',num2str(pwr,'%.2f'),' dB']);
+            if(show_s)
+                if(bin/N_fft>0.4)
+                    text((bin/N_fft-0.01)*Fs,min(pwr,TYD/2),['Sig = ',num2str(pwr,'%.2f'),' dB'],'horizontalAlignment','right');
+                else
+                    text((bin/N_fft+0.01)*Fs,min(pwr,TYD/2),['Sig = ',num2str(pwr,'%.2f'),' dB']);
+                end
             end
-            plot([0,Fs/2],-[1,1]*(NF+10*log10(N_fft/2/OSR)),'r--');
-            text(TX,TYD*8,['NSD = ',num2str(-NF-10*log10(Fs/2/OSR),'%.2f'),' dBFS/Hz']);
+            if(show_y)
+                plot([0,Fs/2],-[1,1]*(NF+10*log10(N_fft/2/OSR)),'r--');
+                TYN = TYN + 1;
+                text(TX,TYD*TYN,['NSD = ',num2str(-NF-10*log10(Fs/2/OSR),'%.2f'),' dBFS/Hz']);
+            end
         end
     end
     % Set axis labels and title
