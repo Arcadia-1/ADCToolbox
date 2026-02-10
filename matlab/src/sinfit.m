@@ -11,14 +11,13 @@ function [fitout,freq,mag,dc,phi] = sinfit(sig,varargin)
 %     [fitout, freq, mag, dc, phi] = SINFIT(sig, f0, tol)
 %     [fitout, freq, mag, dc, phi] = SINFIT(sig, f0, tol, rate)
 %     [fitout, freq, mag, dc, phi] = SINFIT(sig, f0, tol, rate, fsearch)
-%     [fitout, freq, mag, dc, phi] = SINFIT(sig, f0, tol, rate, fsearch, verbose)
 %     [fitout, freq, mag, dc, phi] = SINFIT(sig, 'Name', Value, ...)
 %
 %   Inputs:
 %     sig - Input signal to be fitted
 %       Vector (row or column) or Matrix (averaged across columns)
 %
-%   Name-Value Arguments (or positional in order: f0, tol, rate, fsearch, verbose):
+%   Name-Value Arguments (or positional in order: f0, tol, rate, fsearch, verbose, niter):
 %     f0 - Initial frequency estimate (normalized by sample count)
 %       Scalar, Range: [0, 0.5]
 %       Default: 0 (triggers automatic estimation from FFT peak)
@@ -36,6 +35,9 @@ function [fitout,freq,mag,dc,phi] = sinfit(sig,varargin)
 %       Scalar, {0, 1}
 %       Default: 0
 %       Set to 1 to print iteration progress messages
+%     niter - Maximum iterations for frequency refinement
+%       Positive integer
+%       Default: 100
 %
 %   Outputs:
 %     fitout - Fitted sine wave signal
@@ -62,12 +64,11 @@ function [fitout,freq,mag,dc,phi] = sinfit(sig,varargin)
 %        with cos/sin basis at estimated frequency
 %     2. Iterative refinement: compute gradient of frequency error,
 %        update frequency, and re-solve least squares
-%     3. Converge when relative frequency error < tol or 100 iterations
+%     3. Converge when relative frequency error < tol or max iterations reached
 %     4. Convert to amplitude-phase form: mag = sqrt(A^2+B^2), phi = atan2(B,A)
 %
 %   Notes:
 %     - For matrix input, signal is averaged across columns first
-%     - Maximum 100 iterations
 %     - Frequency f0 is normalized: f0 = f_Hz / f_sample
 %     - Phase convention: positive phase = signal leads cos(2*pi*freq*t)
 %
@@ -90,19 +91,21 @@ function [fitout,freq,mag,dc,phi] = sinfit(sig,varargin)
     end
     sig = mean(sig,2);
 
-    % Parse optional inputs (order: f0, tol, rate, fsearch, verbose for backward compatibility)
+    % Parse optional inputs (order: f0, tol, rate, fsearch, verbose, niter for backward compatibility)
     p = inputParser;
     addOptional(p, 'f0', 0, @(x) isnumeric(x) && isscalar(x) && (x >= 0) && (x <= 0.5));
     addOptional(p, 'tol', 1e-12, @(x) isnumeric(x) && isscalar(x) && (x > 0));
     addOptional(p, 'rate', 0.5, @(x) isnumeric(x) && isscalar(x) && (x > 0) && (x <= 1));
     addOptional(p, 'fsearch', 0, @(x) isnumeric(x) && isscalar(x));
     addOptional(p, 'verbose', 0, @(x) isnumeric(x) && isscalar(x) && ismember(x, [0, 1]));
+    addOptional(p, 'niter', 100, @(x) isnumeric(x) && isscalar(x) && (x > 0));
     parse(p, varargin{:});
     f0 = p.Results.f0;
     tol = p.Results.tol;
     rate = p.Results.rate;
     fsearch = p.Results.fsearch;
     verbose = p.Results.verbose;
+    niter = p.Results.niter;
 
     % Automatic frequency estimation using FFT with parabolic interpolation
     if(f0 == 0)
@@ -143,7 +146,7 @@ function [fitout,freq,mag,dc,phi] = sinfit(sig,varargin)
     if(fsearch)
         delta_f = 0;
 
-        for ii = 1:100
+        for ii = 1:niter
 
             % Update frequency
             freq = freq+delta_f;
@@ -173,9 +176,9 @@ function [fitout,freq,mag,dc,phi] = sinfit(sig,varargin)
         end
 
         % Warn if not converged
-        if ii == 100 && relerr >= tol
+        if ii == niter && relerr >= tol
             warning('sinfit:noConvergence', ...
-                'Failed to converge in 100 iterations. Relative error = %.2e', relerr);
+                'Failed to converge in %d iterations. Relative error = %.2e', niter, relerr);
         end
     end
 

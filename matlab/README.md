@@ -336,7 +336,7 @@ plotphase(sig, 10, 'mode', 'FFT', 'OSR', 64);
 **Syntax:**
 ```matlab
 [fitout, freq, mag, dc, phi] = sinfit(sig)
-[fitout, freq, mag, dc, phi] = sinfit(sig, f0, tol, rate, fsearch, verbose)
+[fitout, freq, mag, dc, phi] = sinfit(sig, f0, tol, rate, fsearch, verbose, niter)
 [fitout, freq, mag, dc, phi] = sinfit(sig, 'Name', Value, ...)
 ```
 
@@ -352,7 +352,7 @@ plotphase(sig, 10, 'mode', 'FFT', 'OSR', 64);
 1. Initial 3-parameter fit (cosine, sine, DC) using linear least squares
 2. Iterative frequency refinement by computing frequency gradient (if `fsearch=1`)
 3. Convergence when relative error < tolerance (default: 1e-12)
-4. Maximum 100 iterations with convergence warning if exceeded
+4. Convergence warning if maximum iterations reached without meeting tolerance
 
 **Parameters (positional or Name-Value):**
 - `f0` - Initial frequency estimate (normalized, default: 0 for auto-detect)
@@ -360,6 +360,7 @@ plotphase(sig, 10, 'mode', 'FFT', 'OSR', 64);
 - `rate` - Learning rate for frequency update (default: 0.5)
 - `fsearch` - Force fine frequency search iteration (default: 0, auto-enabled when f0=0)
 - `verbose` - Enable verbose output during iteration (default: 0)
+- `niter` - Maximum iterations for frequency refinement (default: 100)
 
 **Example:**
 ```matlab
@@ -374,6 +375,9 @@ plotphase(sig, 10, 'mode', 'FFT', 'OSR', 64);
 
 % Force iteration with verbose output (Name-Value)
 [fitout, freq] = sinfit(sig, 'f0', 0.123, 'fsearch', 1, 'verbose', 1);
+
+% Custom iteration limit and tolerance
+[fitout, freq] = sinfit(sig, 'niter', 200, 'tol', 1e-15);
 ```
 
 ### findfreq
