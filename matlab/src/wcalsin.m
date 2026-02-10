@@ -487,6 +487,12 @@ function [weight,offset,postcal,ideal,err,freqcal] = wcalsin(bits,varargin)
 
         end
 
+        % Warn if not converged
+        if ii == niter && relerr >= reltol
+            warning('wcalsin:noConvergence', ...
+                'Failed to converge in %d iterations. Relative error = %.2e', niter, relerr);
+        end
+
         warning on;
     end
 
