@@ -588,10 +588,10 @@ if(dispPlot)
         if(OSR>1)
             TX = 10^(log10(Fs)*0.01+log10(Fs/N_fft)*0.99);
         else
-            if(bin/N_fft < 0.2)
-                TX = Fs*0.3;
+            if((bin-1)/N_fft < 0.2)
+                TX = Fs*0.3 + Fs/N_fft*0.7;
             else
-                TX = Fs*0.01;
+                TX = Fs*0.01 + Fs/N_fft;
             end
         end
 
