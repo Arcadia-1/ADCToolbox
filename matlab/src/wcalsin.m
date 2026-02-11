@@ -35,6 +35,12 @@ function [weight,offset,postcal,ideal,err,freqcal] = wcalsin(bits,varargin)
 %       Set to true or 1 to print frequency search progress messages
 %     nomWeight - Nominal bit weights for rank deficiency handling. Default: [2^(M-1), ..., 2, 1]
 %       Vector [1×M]
+%     autotrans - Automatically transpose input if rows < columns. Default: 1
+%       Logical or {0, 1}
+%       Set to 0 to skip automatic transposition (input must already be [N×M])
+%     autopatch - Automatically handle rank-deficient bit matrices. Default: 1
+%       Logical or {0, 1}
+%       Set to 0 to skip rank-deficiency detection and patching (use raw columns as-is)
 %
 %   Outputs:
 %     weight - Calibrated bit weights, normalized by sinewave magnitude
@@ -83,6 +89,30 @@ function [weight,offset,postcal,ideal,err,freqcal] = wcalsin(bits,varargin)
         if ND == 0
             error('wcalsin:EmptyInput','Empty cell array for bits.');
         end
+        % Parse options first (autotrans must be known before the dataset validation loop)
+        p = inputParser;
+        addOptional(p, 'freq', 0, @(x) isnumeric(x) && isvector(x) && all(x>=0)); % scalar or vector (>=0)
+        addOptional(p, 'rate', 0.5, @(x) isnumeric(x) && isscalar(x) && (x > 0) && (x < 1));
+        addOptional(p, 'reltol', 1E-12, @(x) isnumeric(x) && isscalar(x) && (x > 0));
+        addOptional(p, 'niter', 100, @(x) isnumeric(x) && isscalar(x) && (x > 0));
+        addOptional(p, 'order', 1, @(x) isnumeric(x) && isscalar(x) && (x > 0));
+        addOptional(p, 'fsearch', 0, @(x) isnumeric(x) && isscalar(x));
+        addOptional(p, 'verbose', 0, @(x) (islogical(x) && isscalar(x)) || (isnumeric(x) && isscalar(x) && ismember(x, [0, 1])));
+        addOptional(p, 'autotrans', 1, @(x) isnumeric(x) && isscalar(x) && ismember(x, [0, 1]));
+        addOptional(p, 'autopatch', 1, @(x) isnumeric(x) && isscalar(x) && ismember(x, [0, 1]));
+        addOptional(p, 'nomWeight', []);  % default set after M_orig is known
+        parse(p, varargin{:});
+        freq = p.Results.freq;
+        order = max(round(p.Results.order),1);
+        nomWeight = p.Results.nomWeight;
+        rate = p.Results.rate;
+        reltol = p.Results.reltol;
+        niter = p.Results.niter;
+        fsearch = p.Results.fsearch;
+        verbose = p.Results.verbose;
+        autotrans = p.Results.autotrans;
+        autopatch = p.Results.autopatch;
+
         bits_cell = cell(1,ND);
         Nk = zeros(1,ND);
         Mk = zeros(1,ND);
@@ -92,7 +122,7 @@ function [weight,offset,postcal,ideal,err,freqcal] = wcalsin(bits,varargin)
                 error('wcalsin:EmptyDataset','Dataset %d is empty.',k);
             end
             [nTmp,mTmp] = size(Bk);
-            if nTmp < mTmp
+            if autotrans && nTmp < mTmp
                 Bk = Bk';
                 [nTmp,mTmp] = size(Bk);
             end
@@ -104,26 +134,9 @@ function [weight,offset,postcal,ideal,err,freqcal] = wcalsin(bits,varargin)
             error('wcalsin:InconsistentWidth','All datasets must have the same number of columns (bits).');
         end
         M_orig = Mk(1);
-
-        % Parse options (allow vector freq); keep names consistent with single-dataset
-        p = inputParser;
-        addOptional(p, 'freq', 0, @(x) isnumeric(x) && isvector(x) && all(x>=0)); % scalar or vector (>=0)
-        addOptional(p, 'rate', 0.5, @(x) isnumeric(x) && isscalar(x) && (x > 0) && (x < 1));
-        addOptional(p, 'reltol', 1E-12, @(x) isnumeric(x) && isscalar(x) && (x > 0));
-        addOptional(p, 'niter', 100, @(x) isnumeric(x) && isscalar(x) && (x > 0));
-        addOptional(p, 'order', 1, @(x) isnumeric(x) && isscalar(x) && (x > 0));
-        addOptional(p, 'fsearch', 0, @(x) isnumeric(x) && isscalar(x));
-        addOptional(p, 'verbose', 0, @(x) (islogical(x) && isscalar(x)) || (isnumeric(x) && isscalar(x) && ismember(x, [0, 1])));
-        addParameter(p, 'nomWeight', 2.^(M_orig-1:-1:0));
-        parse(p, varargin{:});
-        freq = p.Results.freq;
-        order = max(round(p.Results.order),1);
-        nomWeight = p.Results.nomWeight;
-        rate = p.Results.rate;
-        reltol = p.Results.reltol;
-        niter = p.Results.niter;
-        fsearch = p.Results.fsearch;
-        verbose = p.Results.verbose;
+        if isempty(nomWeight)
+            nomWeight = 2.^(M_orig-1:-1:0);
+        end
 
         % Normalize freq to vector length ND
         if isscalar(freq)
@@ -137,7 +150,7 @@ function [weight,offset,postcal,ideal,err,freqcal] = wcalsin(bits,varargin)
         for k = 1:ND
             if freq(k) == 0 || fsearch == 1
                 [~,~,~,~,~,fk] = wcalsin(bits_cell{k}, 'freq', freq(k), 'fsearch', 1, ...
-                    'order', order, 'rate', rate, 'reltol', reltol, 'niter', niter, 'nomWeight', nomWeight, 'verbose', verbose);
+                    'order', order, 'rate', rate, 'reltol', reltol, 'niter', niter, 'nomWeight', nomWeight, 'verbose', verbose, 'autotrans', 0, 'autopatch', autopatch);
                 freq(k) = fk;
             end
         end
@@ -151,7 +164,7 @@ function [weight,offset,postcal,ideal,err,freqcal] = wcalsin(bits,varargin)
         Kmap = ones(1,M_orig);
 
         % Patching routine on concatenated data
-        if(rank([bits_all,ones(Ntot,1)]) < M_orig+1)
+        if autopatch && rank([bits_all,ones(Ntot,1)]) < M_orig+1
             warning('Rank deficiency detected across datasets. Try patching...');
             bits_patch_all = [];
             LR = [];
@@ -298,12 +311,6 @@ function [weight,offset,postcal,ideal,err,freqcal] = wcalsin(bits,varargin)
     % ==================
     % Single-dataset path
     % ==================
-    [N,M] = size(bits);             % N: number of samples (rows), M: number of bit columns
-    if(N < M)
-        bits = bits';                % Ensure rows are samples, columns are bits
-        [N,M] = size(bits);          % Update dimensions after transpose
-    end
-
     % Parse optional inputs controlling frequency search and harmonic exclusion order
     p = inputParser;
     addOptional(p, 'freq', 0, @(x) isnumeric(x) && isscalar(x) && (x >= 0));             % normalized Fin/Fs (0 triggers frequency search)
@@ -313,7 +320,9 @@ function [weight,offset,postcal,ideal,err,freqcal] = wcalsin(bits,varargin)
     addOptional(p, 'order', 1, @(x) isnumeric(x) && isscalar(x) && (x > 0));             % harmonics exclusion order (1 for no exclusion)
     addOptional(p, 'fsearch', 0, @(x) isnumeric(x) && isscalar(x));                      % force fine search (1) or not (0)
     addOptional(p, 'verbose', 0, @(x) (islogical(x) && isscalar(x)) || (isnumeric(x) && isscalar(x) && ismember(x, [0, 1]))); % enable verbose output (0: off, 1: on)
-    addParameter(p, 'nomWeight', 2.^(M-1:-1:0));                                         % nominal bit weights (only effective when rank is deficient)
+    addOptional(p, 'autotrans', 1, @(x) isnumeric(x) && isscalar(x) && ismember(x, [0, 1])); % auto-transpose if rows < cols (0: skip)
+    addOptional(p, 'autopatch', 1, @(x) isnumeric(x) && isscalar(x) && ismember(x, [0, 1])); % auto rank-deficiency patching (0: skip)
+    addOptional(p, 'nomWeight', []);                                                     % nominal bit weights (default set after transpose)
     parse(p, varargin{:});
     freq = p.Results.freq;
     order = max(round(p.Results.order),1);
@@ -323,6 +332,17 @@ function [weight,offset,postcal,ideal,err,freqcal] = wcalsin(bits,varargin)
     niter = p.Results.niter;
     fsearch = p.Results.fsearch;
     verbose = p.Results.verbose;
+    autotrans = p.Results.autotrans;
+    autopatch = p.Results.autopatch;
+
+    [N,M] = size(bits);             % N: number of samples (rows), M: number of bit columns
+    if autotrans && N < M
+        bits = bits';                % Ensure rows are samples, columns are bits
+        [N,M] = size(bits);          % Update dimensions after transpose
+    end
+    if isempty(nomWeight)
+        nomWeight = 2.^(M-1:-1:0);  % nominal bit weights (only effective when rank is deficient)
+    end
 
     % Initialize link and scale tables used to map original columns to a potentially merged, rank-sufficient set of columns (bits_patch)
     L = [1:M];              % link from a column to its correlated column
@@ -330,7 +350,7 @@ function [weight,offset,postcal,ideal,err,freqcal] = wcalsin(bits,varargin)
     K = ones(1,M);          % weight ratio of a column to its correlated column
 
     % If columns (plus DC) are rank-deficient, try to patch by merging perfectly correlated columns and discarding constant ones.
-    if(rank([bits,ones(N,1)]) < M+1)
+    if autopatch && rank([bits,ones(N,1)]) < M+1
         warning('Rank deficiency detected. Try patching...');
         bits_patch = [];      % deduplicated/merged bit columns used for fitting
         LR = [];              % reverse link from bits_patch to original column indices
