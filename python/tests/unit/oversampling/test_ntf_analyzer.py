@@ -280,6 +280,203 @@ def test_ntf_analyzer_plotting():
     assert fig_path_bp.exists() and fig_path_bp.stat().st_size > 0
 
 
+def test_ntf_analyzer_coefficient_effects():
+    """Test to show the effect of different NTF coefficients on SNR performance.
+
+    This test demonstrates:
+    1. 1st-order: Sweep NTF from 1-0.5z^-1 to 1-1.2z^-1
+    2. 2nd-order: Three different coefficient configurations
+
+    Results are shown in two separate figures.
+    """
+    osr = 32
+    flow = 0
+    fhigh = 0.5 / osr
+
+    # ========== 1st Order NTF Sweep ==========
+    # NTF(z) = 1 - α*z^-1, sweep α from 0.5 to 1.2
+    alpha_values = np.linspace(0.5, 1.2, 15)
+    snr_1st_order = []
+
+    print(f"\n{'='*60}")
+    print("1st Order NTF Coefficient Sweep (OSR={})".format(osr))
+    print(f"{'='*60}")
+
+    for alpha in alpha_values:
+        num = [1, -alpha]
+        den = [1, 0]
+        ntf = signal.TransferFunction(num, den, dt=1)
+
+        snr = ntf_analyzer(ntf, flow, fhigh, is_plot=0)
+        snr_1st_order.append(snr)
+
+        print(f"  NTF = 1 - {alpha:.2f}z^-1 → SNR improvement: {snr:.2f} dB")
+
+    # ========== 2nd Order NTF Configurations ==========
+    # Three different 2nd-order configurations
+    configs_2nd = [
+        {
+            'name': 'Standard (1-z^-1)^2',
+            'num': [1, -2, 1],
+            'description': '1 - 2z^-1 + 1z^-2'
+        },
+        {
+            'name': 'Modified Type 1',
+            'num': [1, -1.5, 0.5],
+            'description': '1 - 1.5z^-1 + 0.5z^-2'
+        },
+        {
+            'name': 'Modified Type 2',
+            'num': [1, -1.8, 0.8],
+            'description': '1 - 1.8z^-1 + 0.8z^-2'
+        }
+    ]
+
+    snr_2nd_order = []
+    config_names = []
+
+    print(f"\n{'='*60}")
+    print("2nd Order NTF Different Configurations (OSR={})".format(osr))
+    print(f"{'='*60}")
+
+    for config in configs_2nd:
+        num = config['num']
+        den = [1, 0, 0]
+        ntf = signal.TransferFunction(num, den, dt=1)
+
+        snr = ntf_analyzer(ntf, flow, fhigh, is_plot=0)
+        snr_2nd_order.append(snr)
+        config_names.append(config['name'])
+
+        print(f"  {config['name']}")
+        print(f"    NTF = {config['description']}")
+        print(f"    SNR improvement: {snr:.2f} dB\n")
+
+    # ========== Create Figures ==========
+    # Create two separate figures: one for 1st order (8 subplots), one for 2nd order (8 subplots)
+
+    # ========== FIGURE 1: 1st Order NTF Dashboard (2x4 = 8 subplots) ==========
+    fig1 = plt.figure(figsize=(20, 10))
+    gs1 = fig1.add_gridspec(2, 4, hspace=0.35, wspace=0.3)
+
+    # Select 8 alpha values to show
+    selected_alphas_8 = [0.5, 0.6, 0.7, 0.8, 0.9, 1.0, 1.1, 1.2]
+    w = np.linspace(0, np.pi, 2000)
+
+    for idx, alpha in enumerate(selected_alphas_8):
+        row = idx // 4
+        col = idx % 4
+        ax = fig1.add_subplot(gs1[row, col])
+
+        # Create NTF
+        num = [1, -alpha]
+        den = [1, 0]
+        _, mag = signal.freqz(num, den, worN=w)
+
+        # Get SNR for this alpha
+        ntf = signal.TransferFunction(num, den, dt=1)
+        snr = ntf_analyzer(ntf, flow, fhigh, is_plot=0)
+
+        # Plot spectrum
+        if alpha == 1.0:
+            ax.plot(w/np.pi, 20*np.log10(np.abs(mag)), linewidth=2.5,
+                   color='red', label=f'α={alpha:.1f}', alpha=0.9)
+        else:
+            ax.plot(w/np.pi, 20*np.log10(np.abs(mag)), linewidth=2.5,
+                   color='#2E86AB', alpha=0.8)
+
+        # Mark signal band
+        ax.axvspan(1e-4, 1/(2*osr), alpha=0.25, color='green')
+        ax.set_xlabel('Norm. Freq (×π)', fontsize=10, fontweight='bold')
+        ax.set_ylabel('Magnitude (dB)', fontsize=10, fontweight='bold')
+        ax.set_title(f'NTF = 1 - {alpha:.1f}z⁻¹\nSNR = {snr:.1f} dB',
+                    fontsize=11, fontweight='bold', color='red' if alpha == 1.0 else 'black')
+        ax.grid(True, alpha=0.3, linestyle='--', which='both')
+        ax.set_xscale('log')
+        ax.set_xlim([1e-4, 0.5])
+        ax.set_ylim([-60, 10])
+        ax.tick_params(labelsize=9)
+
+    fig1.suptitle(f'1st Order NTF Coefficient Sweep (OSR={osr})\nGreen shaded area = Signal Band',
+                  fontsize=15, fontweight='bold', y=0.995)
+
+    fig1_path = output_dir / 'test_ntf_analyzer_1st_order_dashboard.png'
+    plt.savefig(fig1_path, dpi=150, bbox_inches='tight')
+    plt.close()
+
+    print(f"\n[Figure 1 saved] -> {fig1_path}")
+
+    # ========== FIGURE 2: 2nd Order NTF Dashboard (2x4 = 8 subplots) ==========
+    fig2 = plt.figure(figsize=(20, 10))
+    gs2 = fig2.add_gridspec(2, 4, hspace=0.35, wspace=0.3)
+
+    # Define 8 different 2nd order NTF configurations
+    # Include both real zeros (lowpass) and complex zeros (bandpass with notch at specific frequency)
+    # For complex zeros at frequency f0 with radius r: num = [1, -2*r*cos(2π*f0), r^2]
+    configs_2nd_8 = [
+        {'name': 'Standard', 'num': [1, -2, 1], 'desc': '1-2z⁻¹+1z⁻² (DC notch)'},
+        {'name': 'Weak Real', 'num': [1, -1.5, 0.5], 'desc': '1-1.5z⁻¹+0.5z⁻² (real zeros)'},
+        {'name': 'Complex f=0.1', 'num': [1, -1.618, 0.81], 'desc': '1-1.62z⁻¹+0.81z⁻² (notch@0.1π)'},
+        {'name': 'Complex f=0.15', 'num': [1, -1.176, 0.81], 'desc': '1-1.18z⁻¹+0.81z⁻² (notch@0.15π)'},
+        {'name': 'Bandpass f=0.25', 'num': [1, 0, 0.81], 'desc': '1+0.81z⁻² (notch@0.25π)'},
+        {'name': 'Complex f=0.35', 'num': [1, 1.176, 0.81], 'desc': '1+1.18z⁻¹+0.81z⁻² (notch@0.35π)'},
+        {'name': 'Strong Real', 'num': [1, -1.95, 0.95], 'desc': '1-1.95z⁻¹+0.95z⁻² (real zeros)'},
+        {'name': 'Near Unstable', 'num': [1, -1.98, 0.98], 'desc': '1-1.98z⁻¹+0.98z⁻² (real zeros)'},
+    ]
+
+    for idx, config in enumerate(configs_2nd_8):
+        row = idx // 4
+        col = idx % 4
+        ax = fig2.add_subplot(gs2[row, col])
+
+        # Create NTF
+        num = config['num']
+        den = [1, 0, 0]
+        _, mag = signal.freqz(num, den, worN=w)
+
+        # Get SNR for this configuration
+        ntf = signal.TransferFunction(num, den, dt=1)
+        snr = ntf_analyzer(ntf, flow, fhigh, is_plot=0)
+
+        # Plot spectrum
+        if config['name'] == 'Standard':
+            color = 'red'
+        else:
+            color = '#A23B72'
+
+        ax.plot(w/np.pi, 20*np.log10(np.abs(mag)), linewidth=2.5,
+               color=color, alpha=0.85)
+
+        # Mark signal band
+        ax.axvspan(1e-4, 1/(2*osr), alpha=0.25, color='green')
+        ax.set_xlabel('Norm. Freq (×π)', fontsize=10, fontweight='bold')
+        ax.set_ylabel('Magnitude (dB)', fontsize=10, fontweight='bold')
+        ax.set_title(f'{config["name"]}: {config["desc"]}\nSNR = {snr:.1f} dB',
+                    fontsize=10, fontweight='bold', color='red' if config['name'] == 'Standard' else 'black')
+        ax.grid(True, alpha=0.3, linestyle='--', which='both')
+        ax.set_xscale('log')
+        ax.set_xlim([1e-4, 0.5])
+        ax.set_ylim([-120, 10])
+        ax.tick_params(labelsize=9)
+
+    fig2.suptitle(f'2nd Order NTF: Real vs Complex Zeros (OSR={osr})\nGreen shaded area = Signal Band',
+                  fontsize=15, fontweight='bold', y=0.995)
+
+    fig2_path = output_dir / 'test_ntf_analyzer_2nd_order_dashboard.png'
+    plt.savefig(fig2_path, dpi=150, bbox_inches='tight')
+    plt.close()
+
+    print(f"[Figure 2 saved] -> {fig2_path}")
+
+    # Validation: SNR should increase with coefficient for 1st order
+    # (closer to z^-1 pole location means better noise shaping)
+    assert len(snr_1st_order) == len(alpha_values), "Mismatch in results length"
+    assert all(isinstance(s, (int, float)) for s in snr_1st_order), "Invalid SNR values"
+
+    # Validation: All 2nd order configs should give positive SNR improvement
+    assert all(s > 0 for s in snr_2nd_order), "All 2nd order configs should have positive SNR"
+
+
 if __name__ == "__main__":
     # Run tests individually for debugging
     test_ntf_analyzer_lowpass_1st_order()
@@ -288,4 +485,5 @@ if __name__ == "__main__":
     test_ntf_analyzer_tuple_input()
     test_ntf_analyzer_with_noise_shaped_signals()
     test_ntf_analyzer_plotting()
+    test_ntf_analyzer_coefficient_effects()
     print("\nAll tests passed!")

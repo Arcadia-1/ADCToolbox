@@ -58,37 +58,33 @@ def generate_dout_dashboard(bits, freq=None, weights=None, output_path=None, sho
     plt.sca(axes[0])
     signal_nominal = bits @ weights
     analyze_spectrum(signal_nominal, create_plot=True)
-    axes[0].set_title('(1) Spectrum: Nominal Weights', fontsize=14, fontweight='bold')
+    axes[0].set_title('(1) Spectrum: Nominal Weights', fontsize=14)
 
     # Plot 2: Spectrum after calibration
     plt.sca(axes[1])
     signal_calibrated = result['calibrated_signal']
     analyze_spectrum(signal_calibrated, create_plot=True)
-    axes[1].set_title('(2) Spectrum: Calibrated Weights', fontsize=14, fontweight='bold')
+    axes[1].set_title('(2) Spectrum: Calibrated Weights', fontsize=14)
 
     # Plot 3: Bit Activity
     plt.sca(axes[2])
     analyze_bit_activity(bits, create_plot=True, ax=axes[2])
-    axes[2].set_title('(3) Bit Activity', fontsize=14, fontweight='bold')
+    axes[2].set_title('(3) Bit Activity', fontsize=14)
 
     # Plot 4: Overflow Check
     plt.sca(axes[3])
     analyze_overflow(bits, weights_calibrated, create_plot=True, ax=axes[3])
-    axes[3].set_title('(4) Overflow Check', fontsize=14, fontweight='bold')
+    axes[3].set_title('(4) Overflow Check', fontsize=14)
 
     # Plot 5: ENOB Sweep
     plt.sca(axes[4])
     analyze_enob_sweep(bits, freq=freq_refined, create_plot=True, ax=axes[4], verbose=False)
-    axes[4].set_title('(5) ENOB Bit Sweep', fontsize=14, fontweight='bold')
+    axes[4].set_title('(5) ENOB Bit Sweep', fontsize=14)
 
     # Plot 6: Weight Radix
     plt.sca(axes[5])
     analyze_weight_radix(weights_calibrated, create_plot=True, ax=axes[5])
-    axes[5].set_title('(6) Weight Radix', fontsize=14, fontweight='bold')
-
-    # Overall title
-    fig.suptitle('Comprehensive Digital ADC Analysis Dashboard (6 Tools)',
-                 fontsize=16, fontweight='bold', y=0.995)
+    axes[5].set_title('(6) Weight Radix', fontsize=14)
 
     plt.tight_layout()
 
