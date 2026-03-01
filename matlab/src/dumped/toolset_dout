@@ -30,7 +30,7 @@ if ~isfolder(outputDir), mkdir(outputDir); end
 nBits = size(bits, 2);
 plot_files = cell(6, 1);
 
-[w_cal, ~, ~, ~, ~, f_cal] = wcalsine(bits, 'freq', 0, 'order', p.Results.Order, 'verbose', 0);
+[w_cal, ~, ~, ~, ~, f_cal] = wcalsin(bits, 'freq', 0, 'order', p.Results.Order, 'verbose', 0);
 
 digitalCodes = bits * (2.^(nBits - 1:-1:0))';
 digitalCodes_cal = bits * w_cal';

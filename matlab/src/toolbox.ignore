@@ -30,3 +30,6 @@ resources
 **/.svn/**/*
 **/.buildtool/**/*
 **/*.asv
+
+**/doc
+**/dumped
