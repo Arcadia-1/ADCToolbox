@@ -1,14 +1,14 @@
-function [weight,offset,postcal,ideal,err,freqcal] = wcalsine(bits,varargin)
-%WCALSINE Weight calibration using a sine wave input
+function [weight,offset,postcal,ideal,err,freqcal] = wcalsin(bits,varargin)
+%WCALSIN Weight calibration using a sine wave input
 %   This function estimates per-bit weights and a DC offset for an ADC by
 %   fitting the weighted sum of raw bit columns to a sine series at a given
 %   (or estimated) normalized frequency. It optionally performs a coarse and
 %   fine frequency search to refine the input tone frequency.
 %
 %   Syntax:
-%     [weight, offset, postcal, ideal, err, freqcal] = WCALSINE(bits)
-%     [weight, offset, postcal, ideal, err, freqcal] = WCALSINE(bits, 'Name', Value)
-%     [weight, offset, postcal, ideal, err, freqcal] = WCALSINE({bits1, bits2, ...}, 'Name', Value)
+%     [weight, offset, postcal, ideal, err, freqcal] = WCALSIN(bits)
+%     [weight, offset, postcal, ideal, err, freqcal] = WCALSIN(bits, 'Name', Value)
+%     [weight, offset, postcal, ideal, err, freqcal] = WCALSIN({bits1, bits2, ...}, 'Name', Value)
 %
 %   Inputs:
 %     bits - Binary ADC output data
@@ -31,8 +31,8 @@ function [weight,offset,postcal,ideal,err,freqcal] = wcalsine(bits,varargin)
 %     fsearch - Force fine frequency search. Default: 0
 %       Logical or {0, 1}
 %     verbose - Enable verbose output during frequency search. Default: 0
-%       Logical or {0, 1}
-%       Set to 1 to print frequency search progress messages
+%       Logical (true/false) or {0, 1}
+%       Set to true or 1 to print frequency search progress messages
 %     nomWeight - Nominal bit weights for rank deficiency handling. Default: [2^(M-1), ..., 2, 1]
 %       Vector [1×M]
 %
@@ -52,16 +52,16 @@ function [weight,offset,postcal,ideal,err,freqcal] = wcalsine(bits,varargin)
 %
 %   Examples:
 %     % Basic calibration with automatic frequency search
-%     [wgt, off] = wcalsine(bits)
+%     [wgt, off] = wcalsin(bits)
 %
 %     % Calibration with known frequency
-%     [wgt, off, cal, ideal, err, freq] = wcalsine(bits, 'freq', 0.123)
+%     [wgt, off, cal, ideal, err, freq] = wcalsin(bits, 'freq', 0.123)
 %
 %     % Multi-dataset calibration with harmonic exclusion
-%     [wgt, off] = wcalsine({bits1, bits2}, 'freq', [0.1, 0.2], 'order', 3)
+%     [wgt, off] = wcalsin({bits1, bits2}, 'freq', [0.1, 0.2], 'order', 3)
 %
 %     % Enable verbose output to see frequency search progress
-%     [wgt, off, cal, ideal, err, freq] = wcalsine(bits, 'verbose', 1)
+%     [wgt, off, cal, ideal, err, freq] = wcalsin(bits, 'verbose', true)
 %
 %   Notes:
 %     - For multi-dataset calibration, weights and offset are shared across all
@@ -72,8 +72,7 @@ function [weight,offset,postcal,ideal,err,freqcal] = wcalsine(bits,varargin)
 %       using nomWeight to determine appropriate scaling
 %     - Polarity is automatically enforced to be positive (sum(weight) > 0)
 %
-%   See also: inlsine, findFin, alias
-warning("off")
+%   See also: inlsin, findfreq, alias
     % ==========================
     % Multi-dataset (cell) path
     % ==========================
@@ -82,7 +81,7 @@ warning("off")
         % Validate shapes and collect per-dataset sizes
         ND = numel(bits);   % Number of datasets
         if ND == 0
-            error('wcalsine:EmptyInput','Empty cell array for bits.');
+            error('wcalsin:EmptyInput','Empty cell array for bits.');
         end
         bits_cell = cell(1,ND);
         Nk = zeros(1,ND);
@@ -90,7 +89,7 @@ warning("off")
         for k = 1:ND
             Bk = bits{k};
             if isempty(Bk)
-                error('wcalsine:EmptyDataset','Dataset %d is empty.',k);
+                error('wcalsin:EmptyDataset','Dataset %d is empty.',k);
             end
             [nTmp,mTmp] = size(Bk);
             if nTmp < mTmp
@@ -102,7 +101,7 @@ warning("off")
             Mk(k) = mTmp;
         end
         if any(Mk ~= Mk(1))
-            error('wcalsine:InconsistentWidth','All datasets must have the same number of columns (bits).');
+            error('wcalsin:InconsistentWidth','All datasets must have the same number of columns (bits).');
         end
         M_orig = Mk(1);
 
@@ -114,7 +113,7 @@ warning("off")
         addOptional(p, 'niter', 100, @(x) isnumeric(x) && isscalar(x) && (x > 0));
         addOptional(p, 'order', 1, @(x) isnumeric(x) && isscalar(x) && (x > 0));
         addOptional(p, 'fsearch', 0, @(x) isnumeric(x) && isscalar(x));
-        addOptional(p, 'verbose', 0, @(x) isnumeric(x) && isscalar(x) && ismember(x, [0, 1]));
+        addOptional(p, 'verbose', 0, @(x) (islogical(x) && isscalar(x)) || (isnumeric(x) && isscalar(x) && ismember(x, [0, 1])));
         addParameter(p, 'nomWeight', 2.^(M_orig-1:-1:0));
         parse(p, varargin{:});
         freq = p.Results.freq;
@@ -131,13 +130,13 @@ warning("off")
             freq = ones(1,ND) * freq;
         end
         if numel(freq) ~= ND
-            error('wcalsine:FreqLength','Length of freq vector must match number of datasets.');
+            error('wcalsin:FreqLength','Length of freq vector must match number of datasets.');
         end
 
         % Per-dataset frequency search (only for unknown entries)
         for k = 1:ND
             if freq(k) == 0 || fsearch == 1
-                [~,~,~,~,~,fk] = wcalsine(bits_cell{k}, 'freq', freq(k), 'fsearch', 1, ...
+                [~,~,~,~,~,fk] = wcalsin(bits_cell{k}, 'freq', freq(k), 'fsearch', 1, ...
                     'order', order, 'rate', rate, 'reltol', reltol, 'niter', niter, 'nomWeight', nomWeight, 'verbose', verbose);
                 freq(k) = fk;
             end
@@ -161,6 +160,9 @@ warning("off")
                 if max(bits_all(:,i1))==min(bits_all(:,i1))
                     Lmap(i1) = 0;
                     Kmap(i1) = 0;
+                    if verbose
+                        fprintf('Constant column %d discarded\n', i1);
+                    end
                 elseif(rank([ones(Ntot,1),bits_patch_all,bits_all(:,i1)]) > rank([ones(Ntot,1),bits_patch_all]))
                     bits_patch_all = [bits_patch_all,bits_all(:,i1)];
                     LR = [LR,i1];
@@ -176,6 +178,9 @@ warning("off")
                             Lmap(i1) = i2;
                             Kmap(i1) = nomWeight(i1)/nomWeight(LR(i2));
                             bits_patch_all(:,i2) = bits_patch_all(:,i2) + bits_all(:,i1)*Kmap(i1);
+                            if verbose
+                                fprintf('Patched column %d -> column %d (ratio: %.6g)\n', i1, LR(i2), Kmap(i1));
+                            end
                             flag = 1;
                             break;
                         end
@@ -194,6 +199,10 @@ warning("off")
         else
             bits_patch_all = bits_all;
             M_patch = M_orig;
+        end
+
+        if M_patch == 0
+            error('Patched bits are empty. No valid columns remain after patching.');
         end
 
         % Column magnitude scaling (from concatenated patched data)
@@ -303,7 +312,7 @@ warning("off")
     addOptional(p, 'niter', 100, @(x) isnumeric(x) && isscalar(x) && (x > 0));           % max fine-search iterations
     addOptional(p, 'order', 1, @(x) isnumeric(x) && isscalar(x) && (x > 0));             % harmonics exclusion order (1 for no exclusion)
     addOptional(p, 'fsearch', 0, @(x) isnumeric(x) && isscalar(x));                      % force fine search (1) or not (0)
-    addOptional(p, 'verbose', 0, @(x) isnumeric(x) && isscalar(x) && ismember(x, [0, 1])); % enable verbose output (0: off, 1: on)
+    addOptional(p, 'verbose', 0, @(x) (islogical(x) && isscalar(x)) || (isnumeric(x) && isscalar(x) && ismember(x, [0, 1]))); % enable verbose output (0: off, 1: on)
     addParameter(p, 'nomWeight', 2.^(M-1:-1:0));                                         % nominal bit weights (only effective when rank is deficient)
     parse(p, varargin{:});
     freq = p.Results.freq;
@@ -317,6 +326,7 @@ warning("off")
 
     % Initialize link and scale tables used to map original columns to a potentially merged, rank-sufficient set of columns (bits_patch)
     L = [1:M];              % link from a column to its correlated column
+    LR = [1:M];
     K = ones(1,M);          % weight ratio of a column to its correlated column
 
     % If columns (plus DC) are rank-deficient, try to patch by merging perfectly correlated columns and discarding constant ones.
@@ -329,6 +339,9 @@ warning("off")
             if(max(bits(:,i1))==min(bits(:,i1)))    % constant column -> no information and can be discarded
                 L(i1) = 0;
                 K(i1) = 0;
+                if verbose
+                    fprintf('Constant column %d discarded\n', i1);
+                end
             elseif(rank([ones(N,1),bits_patch,bits(:,i1)]) > rank([ones(N,1),bits_patch]))  % column i1 adds rank -> keep it
                 bits_patch = [bits_patch,bits(:,i1)];
                 LR = [LR,i1];
@@ -345,6 +358,9 @@ warning("off")
                         K(i1) = nomWeight(i1)/nomWeight(LR(i2));   % use nominal weight ratio
                         % Merge i1 into i2 to form a single effective column
                         bits_patch(:,i2) = bits_patch(:,i2) + bits(:,i1)*nomWeight(i1)/nomWeight(LR(i2));
+                        if verbose
+                            fprintf('Patched column %d -> column %d (ratio: %.6g)\n', i1, LR(i2), K(i1));
+                        end
                         flag = 1;
                         break;
                     end
@@ -364,6 +380,10 @@ warning("off")
         bits_patch = bits;                           % no patching needed
     end
 
+    if M == 0
+        error('Patched bits are empty. No valid columns remain after patching.');
+    end
+
     % Pre-scaling columns to avoid numerical conditioning problems in matrix solver
     MAG = floor(log10(max(abs([max(bits_patch);min(bits_patch)]))));  % column-wise base-10 magnitude
     MAG(isinf(MAG)) = 0;                                              % guard against inf (e.g., zeros)
@@ -378,7 +398,7 @@ warning("off")
                 fprintf('Freq coarse searching (%d/5):',i1);
             end
             % Estimate Fin/Fs using a weighted sum of the top i1 columns
-            freq = [freq, findFin(bits_patch(:,1:i1)*nomWeight(L(1:i1))')];
+            freq = [freq, findFin(bits_patch(:,1:i1)*nomWeight(LR(1:i1))')];
             if verbose
                 fprintf(' freq = %d\n',freq(end));
             end
@@ -500,5 +520,11 @@ warning("off")
     end
 
     freqcal = freq;                     % return refined frequency estimate
+
+    % Check signal-to-noise ratio
+    snr_linear = std(ideal) / std(err);
+    if snr_linear < 10  % 20dB = 20*log10(10)
+        warning('SNR (%.1f dB) is below 20 dB. Calibration may have failed or sinewave may not be correctly extracted.', 20*log10(snr_linear));
+    end
 
 end
