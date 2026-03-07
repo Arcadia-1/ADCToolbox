@@ -34,3 +34,5 @@ resources/
 .MATLABDriveTag
 
 playground/*
+
+resources/* 
