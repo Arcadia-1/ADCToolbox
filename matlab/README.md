@@ -1,3 +1,5 @@
+> **[中文版 (Chinese Version)](README.zh-CN.md)**
+
 # ADCToolbox - MATLAB
 
 A comprehensive MATLAB toolbox for ADC (Analog-to-Digital Converter) testing, characterization, and debugging. This toolbox provides advanced functions for spectral analysis, calibration, linearity testing, signal processing, and performance evaluation of ADCs.
@@ -27,7 +29,7 @@ A comprehensive MATLAB toolbox for ADC (Analog-to-Digital Converter) testing, ch
 1. Navigate to the `toolbox/` directory
 2. Double-click `ADCToolbox_1v30.mltbx` to install
 3. The toolbox will be automatically added to your MATLAB path
-4. You can also download this toolbox from MATLAB Add-Ons
+4. You can also download this toolbox from [MATLAB Add-Ons](https://www.mathworks.com/matlabcentral/fileexchange/181879-adctoolbox)
 
 ### Option 2: Add to Path Manually
 
@@ -76,60 +78,60 @@ plotphase(sig);
 
 Unified analysis functions that combine multiple testing methods.
 
-- **`adcpanel`** - Comprehensive ADC analysis dashboard with automatic data format handling
+- **[`adcpanel`](#adcpanel)** - Comprehensive ADC analysis dashboard with automatic data format handling
 
 ### Spectral Analysis
 
 Functions for analyzing the frequency-domain characteristics of ADC output data.
 
-- **`plotspec`** - Comprehensive spectrum analysis with ENOB, SNDR, SFDR, SNR, and THD calculations
-- **`plotphase`** - Coherent phase spectrum analysis with polar display
+- **[`plotspec`](#plotspec)** - Comprehensive spectrum analysis with ENOB, SNDR, SFDR, SNR, and THD calculations
+- **[`plotphase`](#plotphase)** - Coherent phase spectrum analysis with polar display
 
 ### Signal Fitting and Frequency Analysis
 
 Functions for extracting signal parameters and frequency information.
 
-- **`sinfit`** - Four-parameter iterative sine wave fitting (amplitude, phase, DC, frequency)
-- **`findfreq`** - Find dominant frequency using sine wave fitting
-- **`findbin`** - Find coherent FFT bin for a given signal frequency
-- **`tomdec`** - Thompson decomposition of signal into sinewave, harmonics, and errors
+- **[`sinfit`](#sinfit)** - Four-parameter iterative sine wave fitting (amplitude, phase, DC, frequency)
+- **[`findfreq`](#findfreq)** - Find dominant frequency using sine wave fitting
+- **[`findbin`](#findbin)** - Find coherent FFT bin for a given signal frequency
+- **[`tomdec`](#tomdec)** - Thompson decomposition of signal into sinewave, harmonics, and errors
 
 ### Calibration Functions
 
 Functions for calibrating ADC bit weights and correcting errors.
 
-- **`wcalsin`** - Weight calibration using sine wave input (single or multi-dataset)
-- **`cdacwgt`** - Calculate bit weights for multi-segment capacitive DAC
-- **`plotwgt`** - Visualize bit weights with radix annotations, compute optimal scaling and effective resolution
-- **`plotres`** - Plot partial-sum residuals of an ADC bit matrix as scatter plots
+- **[`wcalsin`](#wcalsin)** - Weight calibration using sine wave input (single or multi-dataset)
+- **[`cdacwgt`](#cdacwgt)** - Calculate bit weights for multi-segment capacitive DAC
+- **[`plotwgt`](#plotwgt)** - Visualize bit weights with radix annotations, compute optimal scaling and effective resolution
+- **[`plotres`](#plotres)** - Plot partial-sum residuals of an ADC bit matrix as scatter plots
 
 ### Linearity and Error Analysis
 
 Functions for analyzing ADC linearity performance.
 
-- **`inlsin`** - Calculate INL and DNL from sine wave data using histogram method
-- **`errsin`** - Analyze sine wave fit errors with histogram binning
+- **[`inlsin`](#inlsin)** - Calculate INL and DNL from sine wave data using histogram method
+- **[`errsin`](#errsin)** - Analyze sine wave fit errors with histogram binning
 
 ### Noise Transfer Function Analysis
 
 Functions for analyzing noise-shaping ADCs (Delta-Sigma modulators).
 
-- **`ntfperf`** - Analyze noise transfer function performance and SNR improvement
+- **[`ntfperf`](#ntfperf)** - Analyze noise transfer function performance and SNR improvement
 
 ### Shortcut Functions
 
 Convenience wrappers that combine multiple steps into a single call.
 
-- **`plotressin`** - Plot partial-sum residuals directly from bit matrix (auto-calibrates via `wcalsin`)
-- **`errsinv`** - Shortcut for `errsin` with value-mode binning (`xaxis='value'`)
+- **[`plotressin`](#plotressin)** - Plot partial-sum residuals directly from bit matrix (auto-calibrates via `wcalsin`)
+- **[`errsinv`](#errsinv)** - Shortcut for `errsin` with value-mode binning (`xaxis='value'`)
 
 ### Utility Functions
 
 Supporting functions for signal processing and analysis.
 
-- **`alias`** - Calculate aliased frequency after sampling
-- **`ifilter`** - Ideal FFT-based filter to retain specified frequency bands
-- **`bitchk`** - Check ADC overflow by analyzing bit segment residue distributions
+- **[`alias`](#alias)** - Calculate aliased frequency after sampling
+- **[`ifilter`](#ifilter)** - Ideal FFT-based filter to retain specified frequency bands
+- **[`bitchk`](#bitchk)** - Check ADC overflow by analyzing bit segment residue distributions
 
 ## Detailed Function Reference
 
@@ -1329,7 +1331,55 @@ Contributions are welcome! Please follow these guidelines:
 
 ## Version History
 
-- **v1.0** (Current) - First formal release
+- **v1.30** (Current, 2026-02-09)
+  - Added `plotres` and `plotressin` functions with translucent scatter plots
+  - Added integer vector to binary decomposition for `bits` dataType in `adcpanel`
+  - Added bounds protection for trimmed mean indexing in `plotspec`
+  - Fixed DC fitting and improved plotting in `tomdec`
+  - Added bounds protection for spectrum indexing in `sinfit`
+  - Added verbose output for patched/constant columns in `wcalsin`
+
+- **v1.21** (2026-02-02)
+  - Enhanced `plotwgt` with weight scaling and effective resolution display
+  - Fixed `effres` formula: moved +1 inside log2()
+  - Improved `maxCode` calculation and weight scaling for bit-wise data
+  - Wrapped all figure operations in `dispFlag` checks in `adcpanel`
+
+- **v1.2** (2026-01-29)
+  - Added `adcpanel` — an integrated ADC analysis panel (initial version)
+  - Updated `sinfit`: added `fsearch` option for iterative frequency refinement, `verbose` option, and `inputParser` for optional inputs
+  - Implemented window-function-aware auto `sideBin` detection for `plotspec`
+  - Updated `adcpanel` to better support oversampling
+  - Renamed `wcalsine` to `wcalsin`; renamed `ovfchk` to `bitchk`; moved `bitact` and `bitsweep` to legacy
+  - Added `errsinv` shortcut for `errsin` in value-xaxis mode
+  - Added auto mode for noise floor estimation in `plotspec`
+
+- **v1.1** (2025-12-23)
+  - Major refactoring: renamed 11 core functions to establish clear naming conventions (`analyze_*`, `plot_*`, `calc_*`)
+  - Completed all 21 examples organized by category (b01–b04, a01–a14, d01–d05)
+  - Fixed SNR calculation in `plotspec`
+  - Optimized analyze-error-by-phase algorithm
+  - Renamed `weightScaling` to `plotwgt` with improved display
+  - Improved `errsin` display
+
+- **v1.0** (2025-12-02)
+  - First formal release
+  - Renamed core functions for consistency: `errHistSine`→`errsin`, `inlsine`→`inlsin`, `sinefit`→`sinfit`, `specPlot`→`plotspec`, `specPlotPhase`→`plotphase`
+  - Added full documentation for all functions
+  - Added legacy wrappers for backward compatibility
+  - Refactored test suite with new runner pattern
+  - Added LMS-based phase plot algorithm
+
+- **v0.12** (2025-11-26)
+  - Function renaming: `cap2weight`→`cdacwgt`, `findBin`→`findbin`, `sineFit`→`sinefit`, `findFin`→`findfreq`, `tomDecomp`→`tomdec`, `NTFAnalyzer`→`ntfperf`, `overflowChk`→`ovfchk`, `FGCalSine`→`wcalsine`, `bitInBand`→`ifilter`, `INLsine`→`inlsine`
+  - Added comprehensive documentation for renamed functions
+  - Added legacy wrappers for all renamed functions
+  - Added `bitActivity` tool and `ENoB_bitsweep` tool
+  - Implemented three-tier data structure
+  - Added Python version with 100% MATLAB–Python parity across 15 tests
+
+- **v0.11** (2025-11-26) — Documentation and testing updates
+- **v0.1** (2025-11-26) — Initial packaged toolbox
 
 ## Contact
 
@@ -1338,7 +1388,7 @@ For questions, issues, or feature requests, please contact jielu@tsinghua.edu.cn
 ## See Also
 
 - Python implementation: `../python/` - Python port of ADC analysis tools
-- Documentation: `../doc/` - Additional documentation and theory
+- Documentation: `../doc/` - Additional documentation and theory (in progress)
 - Test datasets: `../dataset/` - Example ADC captures for testing
 
 ---
