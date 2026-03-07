@@ -12,6 +12,7 @@ A comprehensive MATLAB toolbox for ADC (Analog-to-Digital Converter) testing, ch
   - [Calibration Functions](#calibration-functions)
   - [Linearity Analysis](#linearity-analysis)
   - [Noise Transfer Function Analysis](#noise-transfer-function-analysis)
+  - [Shortcut Functions](#shortcut-functions)
   - [Utility Functions](#utility-functions)
 - [Detailed Function Reference](#detailed-function-reference)
 - [Usage Examples](#usage-examples)
@@ -24,7 +25,7 @@ A comprehensive MATLAB toolbox for ADC (Analog-to-Digital Converter) testing, ch
 ### Option 1: Install Toolbox Package (Recommended)
 
 1. Navigate to the `toolbox/` directory
-2. Double-click `ADCToolbox_1v2.mltbx` to install
+2. Double-click `ADCToolbox_1v30.mltbx` to install
 3. The toolbox will be automatically added to your MATLAB path
 4. You can also download this toolbox from MATLAB Add-Ons
 
@@ -100,6 +101,7 @@ Functions for calibrating ADC bit weights and correcting errors.
 - **`wcalsin`** - Weight calibration using sine wave input (single or multi-dataset)
 - **`cdacwgt`** - Calculate bit weights for multi-segment capacitive DAC
 - **`plotwgt`** - Visualize bit weights with radix annotations, compute optimal scaling and effective resolution
+- **`plotres`** - Plot partial-sum residuals of an ADC bit matrix as scatter plots
 
 ### Linearity and Error Analysis
 
@@ -113,6 +115,13 @@ Functions for analyzing ADC linearity performance.
 Functions for analyzing noise-shaping ADCs (Delta-Sigma modulators).
 
 - **`ntfperf`** - Analyze noise transfer function performance and SNR improvement
+
+### Shortcut Functions
+
+Convenience wrappers that combine multiple steps into a single call.
+
+- **`plotressin`** - Plot partial-sum residuals directly from bit matrix (auto-calibrates via `wcalsin`)
+- **`errsinv`** - Shortcut for `errsin` with value-mode binning (`xaxis='value'`)
 
 ### Utility Functions
 
@@ -253,10 +262,25 @@ fprintf('Max INL: %.3f LSB\n', max(abs(rep.linearity.inl)));
 - `'window'` - Window function: 'hann', 'rect', or function handle (default: 'hann')
 - `'averageMode'` - 'normal' or 'coherent' averaging (default: 'normal')
 - `'NFMethod'` - Noise floor estimation: 'auto', 'median', 'mean', or 'exclude' (default: 'auto'); numeric: 0=auto, 1=median, 2=mean, 3=exclude
-- `'sideBin'` - Extra bins on each side of signal peak (default: 1)
+- `'sideBin'` - Extra bins on each side of signal peak (default: 'auto')
 - `'cutoff'` - High-pass cutoff frequency for flicker noise removal (default: 0)
 - `'label'` - Enable plot annotations (default: true)
 - `'disp'` - Enable plotting (default: true)
+- `'dispItem'` - Display item selector (default: 'sfedutrlyhop', all items)
+  - String where each character (case insensitive) enables a specific annotation:
+  - `'s'` - Signal power text and signal bin marker
+  - `'f'` - Input frequency and sampling frequency (Fin/Fs)
+  - `'e'` - Effective Number of Bits (ENOB)
+  - `'d'` - Signal-to-Noise and Distortion Ratio (SNDR)
+  - `'u'` - Spurious-Free Dynamic Range (SFDR)
+  - `'t'` - Total Harmonic Distortion (THD)
+  - `'r'` - Signal-to-Noise Ratio (SNR)
+  - `'l'` - Noise floor level
+  - `'y'` - Noise Spectral Density (NSD) and horizontal dash line
+  - `'o'` - Oversampling Ratio (OSR) and vertical bandwidth line
+  - `'h'` - Harmonic markers
+  - `'p'` - Maximum spur marker
+  - Example: `'sfe'` shows only signal, frequency, and ENOB annotations
 
 **Example:**
 ```matlab
@@ -266,6 +290,9 @@ fprintf('Max INL: %.3f LSB\n', max(abs(rep.linearity.inl)));
 % Multiple measurement runs with custom window
 sig_multi = randn(10, 1024);  % 10 runs of 1024 samples
 [enob, sndr] = plotspec(sig_multi, 'window', @blackman);
+
+% Customize plot annotations - show only essential metrics
+[enob, sndr] = plotspec(sig, 'dispItem', 'fedu');  % Show Fin/Fs, ENOB, SNDR, SFDR only
 ```
 
 ### plotphase
@@ -309,7 +336,7 @@ plotphase(sig, 10, 'mode', 'FFT', 'OSR', 64);
 **Syntax:**
 ```matlab
 [fitout, freq, mag, dc, phi] = sinfit(sig)
-[fitout, freq, mag, dc, phi] = sinfit(sig, f0, tol, rate, fsearch, verbose)
+[fitout, freq, mag, dc, phi] = sinfit(sig, f0, tol, rate, fsearch, verbose, niter)
 [fitout, freq, mag, dc, phi] = sinfit(sig, 'Name', Value, ...)
 ```
 
@@ -325,7 +352,7 @@ plotphase(sig, 10, 'mode', 'FFT', 'OSR', 64);
 1. Initial 3-parameter fit (cosine, sine, DC) using linear least squares
 2. Iterative frequency refinement by computing frequency gradient (if `fsearch=1`)
 3. Convergence when relative error < tolerance (default: 1e-12)
-4. Maximum 100 iterations with convergence warning if exceeded
+4. Convergence warning if maximum iterations reached without meeting tolerance
 
 **Parameters (positional or Name-Value):**
 - `f0` - Initial frequency estimate (normalized, default: 0 for auto-detect)
@@ -333,6 +360,7 @@ plotphase(sig, 10, 'mode', 'FFT', 'OSR', 64);
 - `rate` - Learning rate for frequency update (default: 0.5)
 - `fsearch` - Force fine frequency search iteration (default: 0, auto-enabled when f0=0)
 - `verbose` - Enable verbose output during iteration (default: 0)
+- `niter` - Maximum iterations for frequency refinement (default: 100)
 
 **Example:**
 ```matlab
@@ -347,6 +375,9 @@ plotphase(sig, 10, 'mode', 'FFT', 'OSR', 64);
 
 % Force iteration with verbose output (Name-Value)
 [fitout, freq] = sinfit(sig, 'f0', 0.123, 'fsearch', 1, 'verbose', 1);
+
+% Custom iteration limit and tolerance
+[fitout, freq] = sinfit(sig, 'niter', 200, 'tol', 1e-15);
 ```
 
 ### findfreq
@@ -554,6 +585,133 @@ radix = plotwgt(weight);
 % Compute scaling without displaying plot
 [~, wgtsca, effres] = plotwgt(weights, 0);
 ```
+
+### plotres
+
+**Purpose:** Plot partial-sum residuals of an ADC bit matrix as scatter plots, revealing correlations, nonlinearity patterns, and redundancy between bit stages.
+
+**Syntax:**
+```matlab
+plotres(sig, bits)
+plotres(sig, bits, wgt)
+plotres(sig, bits, wgt, xy)
+plotres(sig, bits, wgt, xy, alpha)
+plotres(sig, bits, 'Name', Value)
+```
+
+**Key Features:**
+- Tiled scatter plots of residuals at different bit stages
+- Residual at stage k = sig - bits(:,1:k) * wgt(1:k)'
+- Translucent markers with automatic or manual alpha control
+- Supports custom bit weights and arbitrary bit-pair selections
+
+**Parameters:**
+- `sig` - Ideal input signal (N x 1 or 1 x N)
+- `bits` - Raw ADC bit matrix (N x M), MSB first
+- `wgt` - Bit weights (optional, default: binary weights `[2^(M-1), ..., 1]`)
+- `xy` - Bit-pair indices to plot (optional, default: `[(0:(M-1))', ones(M,1)*M]`)
+- `alpha` - Marker transparency (optional, default: `'auto'`)
+  - `'auto'`: scales as `clamp(1000/N, 0.1, 1)`
+  - Numeric scalar in (0, 1]: fixed transparency
+
+**Example:**
+```matlab
+% Basic residual plot with binary weights
+N = 1024; M = 6;
+sig = (sin(2*pi*(0:N-1)'/N * 3)/2 + 0.5) * (2^M - 1);
+code = round(sig);
+bits = dec2bin(code, M) - '0';
+plotres(sig, bits);
+
+% Specific bit pairs with custom transparency
+plotres(sig, bits, 2.^(M-1:-1:0), [2 4; 4 6], 0.3);
+```
+
+**See also:** bitchk, plotwgt, plotressin
+
+---
+
+### plotressin
+
+**Purpose:** Convenience wrapper that calibrates bit weights via `wcalsin` and then forwards the results to `plotres`, eliminating the manual calibration step.
+
+**Syntax:**
+```matlab
+plotressin(bits)
+plotressin(bits, xy)
+plotressin(bits, ..., 'Name', Value)
+```
+
+**Key Features:**
+- Internally calls `wcalsin` to recover calibrated weights and ideal signal
+- Forwards the reconstructed reference signal (`ideal + offset`) and weights to `plotres`
+- Accepts the same `xy` format as `plotres`
+- Forwards `freq`, `order`, `verbose` parameters to `wcalsin`
+- Forwards `alpha` parameter to `plotres`
+
+**Parameters:**
+- `bits` - Raw ADC bit matrix (N x M), MSB first
+- `xy` - Bit-pair indices to plot (optional, same format as `plotres`)
+- `'freq'` - Normalized input frequency for `wcalsin` (default: 0 for auto)
+- `'order'` - Number of harmonics in fitting model (default: 1)
+- `'verbose'` - Verbose output flag (default: 0)
+- `'alpha'` - Marker transparency, forwarded to `plotres` (default: `'auto'`)
+
+**Example:**
+```matlab
+% Basic usage (automatic frequency search and calibration)
+N = 1024; M = 6;
+sig = (sin(2*pi*(0:N-1)'/N * 3)/2 + 0.5) * (2^M - 1);
+code = round(sig);
+bits = dec2bin(code, M) - '0';
+plotressin(bits)
+
+% Specific bit pairs with known frequency
+plotressin(bits, [0 6; 3 6], 'freq', 3/1024)
+
+% Forward calibration parameters
+plotressin(bits, 'order', 3)
+```
+
+**See also:** plotres, wcalsin, plotwgt
+
+---
+
+### errsinv
+
+**Purpose:** Shortcut for `errsin` that defaults to value-mode binning (`xaxis='value'`), useful for quick INL-style error visualization without specifying the `xaxis` parameter.
+
+**Syntax:**
+```matlab
+[emean, erms, xx, anoi, pnoi, err, errxx] = errsinv(sig)
+[emean, erms, xx, anoi, pnoi, err, errxx] = errsinv(sig, 'Name', Value)
+```
+
+**Key Features:**
+- Calls `errsin` with `'xaxis', 'value'` pre-set
+- When called with no outputs, automatically enables display (`'disp', 1`)
+- All other `errsin` name-value parameters are forwarded as-is
+
+**Parameters:**
+- `sig` - Input signal (same as `errsin`)
+- All name-value arguments accepted by `errsin` (e.g., `'bin'`, `'fin'`, `'erange'`, `'disp'`)
+
+**Outputs:**
+- Same as `errsin`: `emean`, `erms`, `xx`, `anoi`, `pnoi`, `err`, `errxx`
+
+**Example:**
+```matlab
+% Quick value-mode error plot (auto-display)
+sig = sin(2*pi*0.12345*(0:999)') + 0.01*randn(1000,1);
+errsinv(sig)
+
+% With custom bins
+[emean, erms, xx] = errsinv(sig, 'bin', 50);
+```
+
+**See also:** errsin
+
+---
 
 ### inlsin
 
@@ -1037,7 +1195,11 @@ matlab/
 │   ├── ntfperf.m           # NTF performance analyzer
 │   ├── alias.m             # Alias calculator
 │   ├── ifilter.m           # Ideal filter
+│   ├── plotres.m           # Partial-sum residual scatter plots
 │   ├── bitchk.m            # Overflow checker
+│   ├── shortcut/           # Convenience wrapper functions
+│   │   ├── plotressin.m    # plotres + wcalsin in one call
+│   │   └── errsinv.m       # errsin value-mode shortcut
 │   ├── legacy/             # Legacy function names (for compatibility)
 │   │   ├── specPlot.m
 │   │   ├── specPlotPhase.m
@@ -1055,8 +1217,15 @@ matlab/
 │   │   └── bitInBand.m
 │   └── toolbox.ignore
 ├── toolbox/                 # Packaged toolbox files
-│   ├── ADCToolbox_0v12.mltbx  # Latest toolbox package
-│   ├── ADCToolbox_0v11.mltbx  # Previous versions
+│   ├── ADCToolbox_1v30.mltbx  # Latest toolbox package
+│   ├── ADCToolbox_1v21.mltbx  # Previous versions
+│   ├── ADCToolbox_1v2.mltbx
+│   ├── ADCToolbox_1v1.mltbx
+│   ├── ADCToolbox_1v0.mltbx
+│   ├── ADCToolbox_0v12.mltbx
+│   ├── ADCToolbox_0v11.mltbx
+│   ├── ADCToolbox_0v1.mltbx
+│   ├── deploymentLog.html
 │   └── icon.png
 └── .gitignore
 ```
