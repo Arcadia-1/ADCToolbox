@@ -1,0 +1,154 @@
+# SOME DESCRIPTIVE TITLE.
+# Copyright (C) 2025, ADCToolbox Contributors
+# This file is distributed under the same license as the ADCToolbox package.
+# FIRST AUTHOR <EMAIL@ADDRESS>, 2026.
+#
+#, fuzzy
+msgid ""
+msgstr ""
+"Project-Id-Version: ADCToolbox 0.5.0\n"
+"Report-Msgid-Bugs-To: \n"
+"POT-Creation-Date: 2026-03-10 20:52+0800\n"
+"PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
+"Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
+"Language: zh_CN\n"
+"Language-Team: zh_CN <LL@li.org>\n"
+"Plural-Forms: nplurals=1; plural=0;\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=utf-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Generated-By: Babel 2.18.0\n"
+
+#: ../../source/examples/expected_output_06_use_toolsets.rst:2
+msgid "Expected Output: 06_use_toolsets"
+msgstr ""
+
+#: ../../source/examples/expected_output_06_use_toolsets.rst:4
+msgid ""
+"This document shows the expected console output and example figures from "
+"all examples in `python/src/adctoolbox/examples/06_use_toolsets/`."
+msgstr ""
+
+#: ../../source/examples/expected_output_06_use_toolsets.rst:7
+msgid "Summary"
+msgstr ""
+
+#: ../../source/examples/expected_output_06_use_toolsets.rst:9
+msgid ""
+"All examples in `06_use_toolsets` demonstrate comprehensive dashboard "
+"generation:"
+msgstr ""
+
+#: ../../source/examples/expected_output_06_use_toolsets.rst:11
+msgid "**Total Examples**: 4"
+msgstr ""
+
+#: ../../source/examples/expected_output_06_use_toolsets.rst:13
+msgid ""
+"**Categories**: - **Analog Output Dashboards**: exp_t01-t02 (single and "
+"batch, 12 tools per dashboard) - **Digital Output Dashboards**: "
+"exp_t03-t04 (single and batch, 6 tools per dashboard)"
+msgstr ""
+
+#: ../../source/examples/expected_output_06_use_toolsets.rst:17
+msgid ""
+"**Analog Dashboard (12 Tools)**: 1. Spectrum 2. Spectrum Polar 3. Error "
+"by Value 4. Error by Phase 5. Decomposition Time 6. Decomposition Polar "
+"7. Error PDF 8. Error Autocorrelation 9. Error Spectrum 10. Error "
+"Envelope Spectrum 11. Phase Plane 12. Error Phase Plane"
+msgstr ""
+
+#: ../../source/examples/expected_output_06_use_toolsets.rst:31
+msgid ""
+"**Digital Dashboard (6 Tools)**: 1. Spectrum: Nominal Weights 2. "
+"Spectrum: Calibrated Weights 3. Bit Activity 4. Overflow Check 5. ENOB "
+"Bit Sweep 6. Weight Radix"
+msgstr ""
+
+#: ../../source/examples/expected_output_06_use_toolsets.rst:39
+msgid ""
+"**Key Features**: - Comprehensive all-in-one debugging dashboards - Batch"
+" processing for multiple test cases - 15 analog non-ideality types "
+"analyzed - 7 digital configuration types analyzed"
+msgstr ""
+
+#: ../../source/examples/expected_output_06_use_toolsets.rst:48
+msgid "exp_t01_aout_dashboard_single.py"
+msgstr ""
+
+#: ../../source/examples/expected_output_06_use_toolsets.rst:50
+msgid ""
+"**Description**: Generate a single comprehensive 12-tool analog output "
+"dashboard."
+msgstr ""
+
+#: ../../source/examples/expected_output_06_use_toolsets.rst:60
+msgid "exp_t02_aout_dashboard_batch.py"
+msgstr ""
+
+#: ../../source/examples/expected_output_06_use_toolsets.rst:62
+msgid ""
+"**Description**: Generate batch of 15 comprehensive dashboards for "
+"different non-idealities."
+msgstr ""
+
+#: ../../source/examples/expected_output_06_use_toolsets.rst:121
+msgid "**Example Dashboard Figures:**"
+msgstr ""
+
+#: ../../source/examples/expected_output_06_use_toolsets.rst:123
+msgid "Dashboard - Thermal Noise Analysis"
+msgstr ""
+
+#: ../../source/examples/expected_output_06_use_toolsets.rst:128
+msgid "Thermal Noise: Comprehensive 12-tool analysis dashboard"
+msgstr ""
+
+#: ../../source/examples/expected_output_06_use_toolsets.rst:130
+msgid "Dashboard - Jitter Noise Analysis"
+msgstr ""
+
+#: ../../source/examples/expected_output_06_use_toolsets.rst:135
+msgid "Jitter Noise: Phase noise and timing jitter effects"
+msgstr ""
+
+#: ../../source/examples/expected_output_06_use_toolsets.rst:137
+msgid "Dashboard - Static HD3 Distortion"
+msgstr ""
+
+#: ../../source/examples/expected_output_06_use_toolsets.rst:142
+msgid "Static HD3 (-70 dBc): Third harmonic distortion analysis"
+msgstr ""
+
+#: ../../source/examples/expected_output_06_use_toolsets.rst:144
+msgid "Dashboard - RA Dynamic Gain"
+msgstr ""
+
+#: ../../source/examples/expected_output_06_use_toolsets.rst:149
+msgid "RA Dynamic Gain: Residue amplifier dynamic gain variation"
+msgstr ""
+
+#: ../../source/examples/expected_output_06_use_toolsets.rst:153
+msgid "exp_t03_dout_dashboard_single.py"
+msgstr ""
+
+#: ../../source/examples/expected_output_06_use_toolsets.rst:155
+msgid ""
+"**Description**: Generate a single comprehensive 6-tool digital output "
+"dashboard."
+msgstr ""
+
+#: ../../source/examples/expected_output_06_use_toolsets.rst:165
+msgid "exp_t04_dout_dashboard_batch.py"
+msgstr ""
+
+#: ../../source/examples/expected_output_06_use_toolsets.rst:167
+msgid ""
+"**Description**: Generate batch of 7 digital output dashboards for "
+"different configurations."
+msgstr ""
+
+#: ../../source/examples/expected_output_06_use_toolsets.rst:210
+msgid "---"
+msgstr ""
+

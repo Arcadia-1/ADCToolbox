@@ -1,0 +1,105 @@
+# SOME DESCRIPTIVE TITLE.
+# Copyright (C) 2025, ADCToolbox Contributors
+# This file is distributed under the same license as the ADCToolbox package.
+# FIRST AUTHOR <EMAIL@ADDRESS>, 2026.
+#
+#, fuzzy
+msgid ""
+msgstr ""
+"Project-Id-Version: ADCToolbox 0.5.0\n"
+"Report-Msgid-Bugs-To: \n"
+"POT-Creation-Date: 2026-03-10 20:52+0800\n"
+"PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
+"Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
+"Language: zh_CN\n"
+"Language-Team: zh_CN <LL@li.org>\n"
+"Plural-Forms: nplurals=1; plural=0;\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=utf-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Generated-By: Babel 2.18.0\n"
+
+#: ../../source/examples/index.rst:46
+msgid "Expected Outputs by Category"
+msgstr ""
+
+#: ../../source/examples/index.rst:2
+msgid "Examples"
+msgstr ""
+
+#: ../../source/examples/index.rst:4
+msgid ""
+"ADCToolbox includes 51 ready-to-run examples organized into 6 categories."
+" This page demonstrates common use cases and analysis workflows."
+msgstr ""
+
+#: ../../source/examples/index.rst:7
+msgid "Getting the Examples"
+msgstr ""
+
+#: ../../source/examples/index.rst:9
+msgid "To copy all examples to your workspace:"
+msgstr ""
+
+#: ../../source/examples/index.rst:15
+msgid ""
+"This creates an ``adctoolbox_examples/`` directory with all examples "
+"organized by category."
+msgstr ""
+
+#: ../../source/examples/index.rst:18
+msgid "Running Examples"
+msgstr ""
+
+#: ../../source/examples/index.rst:20
+msgid ""
+"Navigate to the examples directory and run any example. Examples are "
+"organized by category:"
+msgstr ""
+
+#: ../../source/examples/index.rst:29
+msgid ""
+"All examples save their outputs (plots, data files) to an ``output/`` "
+"subdirectory within each category folder."
+msgstr ""
+
+#: ../../source/examples/index.rst:31
+msgid "**Category Folders:**"
+msgstr ""
+
+#: ../../source/examples/index.rst:33
+msgid "``02_spectrum/`` - Spectrum analysis examples"
+msgstr ""
+
+#: ../../source/examples/index.rst:34
+msgid "``03_generate_signals/`` - Signal generation examples"
+msgstr ""
+
+#: ../../source/examples/index.rst:35
+msgid "``04_debug_analog/`` - Analog output analysis examples"
+msgstr ""
+
+#: ../../source/examples/index.rst:36
+msgid "``05_debug_digital/`` - Digital output analysis examples"
+msgstr ""
+
+#: ../../source/examples/index.rst:37
+msgid "``06_use_toolsets/`` - Comprehensive dashboard examples"
+msgstr ""
+
+#: ../../source/examples/index.rst:38
+msgid "``07_conversions/`` - Conversion and metric calculation examples"
+msgstr ""
+
+#: ../../source/examples/index.rst:41
+msgid "Expected Outputs"
+msgstr ""
+
+#: ../../source/examples/index.rst:43
+msgid ""
+"For reference, the expected outputs from each example category are "
+"documented below. These documentation files show the console output, "
+"figures, and validation results you should expect when running each "
+"example."
+msgstr ""
+

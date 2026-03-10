@@ -1,0 +1,48 @@
+# ADCToolbox 中文翻译
+# Copyright (C) 2025, ADCToolbox Contributors
+# This file is distributed under the same license as the ADCToolbox package.
+#
+msgid ""
+msgstr ""
+"Project-Id-Version: ADCToolbox 0.5.0\n"
+"Report-Msgid-Bugs-To: \n"
+"POT-Creation-Date: 2026-03-10 20:52+0800\n"
+"PO-Revision-Date: 2026-03-10 20:52+0800\n"
+"Last-Translator: ADCToolbox Contributors\n"
+"Language: zh_CN\n"
+"Language-Team: zh_CN\n"
+"Plural-Forms: nplurals=1; plural=0;\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=utf-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Generated-By: Babel 2.18.0\n"
+
+#: ../../source/algorithms/index.rst:2
+msgid "Algorithm Documentation"
+msgstr "算法文档"
+
+#: ../../source/algorithms/index.rst:4
+msgid ""
+"This section provides detailed documentation of the algorithms and theory"
+" behind ADCToolbox."
+msgstr "本节详细介绍 ADCToolbox 中算法的工作原理与理论依据。"
+
+#: ../../source/algorithms/index.rst:12
+msgid "Fundamental Algorithms"
+msgstr "基础算法"
+
+#: ../../source/algorithms/index.rst:20
+msgid "Spectrum Analysis Algorithms"
+msgstr "频谱分析算法"
+
+#: ../../source/algorithms/index.rst:30
+msgid "Analog Error Analysis Algorithms"
+msgstr "模拟误差分析算法"
+
+#: ../../source/algorithms/index.rst:47
+msgid "Digital Calibration Algorithms"
+msgstr "数字校准算法"
+
+#: ../../source/algorithms/index.rst:55
+msgid "Oversampling Algorithms"
+msgstr "过采样算法"

@@ -1,0 +1,291 @@
+# SOME DESCRIPTIVE TITLE.
+# Copyright (C) 2025, ADCToolbox Contributors
+# This file is distributed under the same license as the ADCToolbox package.
+# FIRST AUTHOR <EMAIL@ADDRESS>, 2026.
+#
+#, fuzzy
+msgid ""
+msgstr ""
+"Project-Id-Version: ADCToolbox 0.5.0\n"
+"Report-Msgid-Bugs-To: \n"
+"POT-Creation-Date: 2026-03-10 20:52+0800\n"
+"PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
+"Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
+"Language: zh_CN\n"
+"Language-Team: zh_CN <LL@li.org>\n"
+"Plural-Forms: nplurals=1; plural=0;\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=utf-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Generated-By: Babel 2.18.0\n"
+
+#: ../../source/examples/expected_output_02_spectrum.rst:2
+msgid "Expected Output: 02_spectrum"
+msgstr ""
+
+#: ../../source/examples/expected_output_02_spectrum.rst:4
+msgid ""
+"This document shows the expected console output and example figures from "
+"all examples in `python/src/adctoolbox/examples/02_spectrum/`."
+msgstr ""
+
+#: ../../source/examples/expected_output_02_spectrum.rst:7
+msgid "Summary"
+msgstr ""
+
+#: ../../source/examples/expected_output_02_spectrum.rst:9
+msgid "All examples in `02_spectrum` demonstrate spectrum analysis capabilities:"
+msgstr ""
+
+#: ../../source/examples/expected_output_02_spectrum.rst:11
+msgid ""
+"**exp_s01-s03**: Basic spectrum analysis (simplest, interactive, save "
+"figure)"
+msgstr ""
+
+#: ../../source/examples/expected_output_02_spectrum.rst:12
+msgid "**exp_s04**: Dynamic range sweep"
+msgstr ""
+
+#: ../../source/examples/expected_output_02_spectrum.rst:13
+msgid "**exp_s05**: Harmonic spur annotation"
+msgstr ""
+
+#: ../../source/examples/expected_output_02_spectrum.rst:14
+msgid "**exp_s06**: FFT length and OSR sweep"
+msgstr ""
+
+#: ../../source/examples/expected_output_02_spectrum.rst:15
+msgid "**exp_s07**: Power vs coherent averaging"
+msgstr ""
+
+#: ../../source/examples/expected_output_02_spectrum.rst:16
+msgid ""
+"**exp_s08**: Windowing functions comparison (Kaiser, Blackman-Harris, "
+"Hann, Hamming)"
+msgstr ""
+
+#: ../../source/examples/expected_output_02_spectrum.rst:17
+msgid "**exp_s10**: Polar spectrum - thermal noise vs harmonic distortion"
+msgstr ""
+
+#: ../../source/examples/expected_output_02_spectrum.rst:18
+msgid "**exp_s11**: Polar spectrum - static nonlinearity vs memory effect"
+msgstr ""
+
+#: ../../source/examples/expected_output_02_spectrum.rst:19
+msgid "**exp_s12**: Polar spectrum - coherent averaging improvement"
+msgstr ""
+
+#: ../../source/examples/expected_output_02_spectrum.rst:20
+msgid "**exp_s21**: Two-tone spectrum analysis with IMD products"
+msgstr ""
+
+#: ../../source/examples/expected_output_02_spectrum.rst:21
+msgid "**exp_s22**: Two-tone IMD comparison (weak vs strong nonlinearity)"
+msgstr ""
+
+#: ../../source/examples/expected_output_02_spectrum.rst:22
+msgid "**exp_s23**: Two-tone coherent averaging"
+msgstr ""
+
+#: ../../source/examples/expected_output_02_spectrum.rst:24
+msgid "**Total Examples**: 14"
+msgstr ""
+
+#: ../../source/examples/expected_output_02_spectrum.rst:29
+msgid "exp_s01_analyze_spectrum_simplest.py"
+msgstr ""
+
+#: ../../source/examples/expected_output_02_spectrum.rst:31
+msgid "**Description**: Simplest example - analyze spectrum with minimal code."
+msgstr ""
+
+#: ../../source/examples/expected_output_02_spectrum.rst:41
+msgid "exp_s02_analyze_spectrum_interactive.py"
+msgstr ""
+
+#: ../../source/examples/expected_output_02_spectrum.rst:43
+msgid "**Description**: Interactive example - displays plot window."
+msgstr ""
+
+#: ../../source/examples/expected_output_02_spectrum.rst:56
+msgid "exp_s03_analyze_spectrum_savefig.py"
+msgstr ""
+
+#: ../../source/examples/expected_output_02_spectrum.rst:58
+msgid "**Description**: Save figure to file instead of displaying."
+msgstr ""
+
+#: ../../source/examples/expected_output_02_spectrum.rst:80
+msgid "Basic spectrum analysis"
+msgstr ""
+
+#: ../../source/examples/expected_output_02_spectrum.rst:85
+msgid "Basic FFT spectrum analysis with all key metrics"
+msgstr ""
+
+#: ../../source/examples/expected_output_02_spectrum.rst:89
+msgid "exp_s04_sweep_dynamic_range.py"
+msgstr ""
+
+#: ../../source/examples/expected_output_02_spectrum.rst:91
+msgid "**Description**: Sweep signal amplitude to characterize dynamic range."
+msgstr ""
+
+#: ../../source/examples/expected_output_02_spectrum.rst:120
+msgid "Dynamic range sweep"
+msgstr ""
+
+#: ../../source/examples/expected_output_02_spectrum.rst:125
+msgid "FFT metrics across input signal amplitudes (dynamic range sweep)"
+msgstr ""
+
+#: ../../source/examples/expected_output_02_spectrum.rst:129
+msgid "exp_s05_annotating_spur.py"
+msgstr ""
+
+#: ../../source/examples/expected_output_02_spectrum.rst:131
+msgid ""
+"**Description**: Annotate spur frequencies and demonstrate harmonic "
+"aliasing."
+msgstr ""
+
+#: ../../source/examples/expected_output_02_spectrum.rst:151
+msgid "Spur annotation"
+msgstr ""
+
+#: ../../source/examples/expected_output_02_spectrum.rst:156
+msgid "Spectrum with annotated fundamental, harmonics, and spurs"
+msgstr ""
+
+#: ../../source/examples/expected_output_02_spectrum.rst:160
+msgid "exp_s06_sweeping_fft_and_osr.py"
+msgstr ""
+
+#: ../../source/examples/expected_output_02_spectrum.rst:162
+msgid "**Description**: Compare FFT length vs OSR for improving spectrum quality."
+msgstr ""
+
+#: ../../source/examples/expected_output_02_spectrum.rst:210
+msgid "exp_s07_spectrum_averaging.py"
+msgstr ""
+
+#: ../../source/examples/expected_output_02_spectrum.rst:212
+msgid "**Description**: Compare power averaging vs coherent averaging."
+msgstr ""
+
+#: ../../source/examples/expected_output_02_spectrum.rst:265
+msgid "Spectrum averaging comparison"
+msgstr ""
+
+#: ../../source/examples/expected_output_02_spectrum.rst:270
+msgid "Power averaging vs coherent averaging for noise reduction"
+msgstr ""
+
+#: ../../source/examples/expected_output_02_spectrum.rst:274
+msgid "exp_s08_windowing_deep_dive.py"
+msgstr ""
+
+#: ../../source/examples/expected_output_02_spectrum.rst:276
+msgid "**Description**: Deep dive into window functions for different scenarios."
+msgstr ""
+
+#: ../../source/examples/expected_output_02_spectrum.rst:348
+msgid ""
+"**Note**: Kaiser window shows SNR=150dB in short FFT scenario - this is a"
+" known edge case with very short FFT and wide windows."
+msgstr ""
+
+#: ../../source/examples/expected_output_02_spectrum.rst:351
+msgid "Window function comparison - spectral leakage"
+msgstr ""
+
+#: ../../source/examples/expected_output_02_spectrum.rst:356
+msgid "Comparing spectral leakage across different window functions"
+msgstr ""
+
+#: ../../source/examples/expected_output_02_spectrum.rst:360
+msgid "exp_s10_polar_noise_and_harmonics.py"
+msgstr ""
+
+#: ../../source/examples/expected_output_02_spectrum.rst:362
+msgid ""
+"**Description**: Polar plot comparison of thermal noise vs harmonic "
+"distortion."
+msgstr ""
+
+#: ../../source/examples/expected_output_02_spectrum.rst:384
+msgid "Polar spectrum - noise vs harmonics"
+msgstr ""
+
+#: ../../source/examples/expected_output_02_spectrum.rst:389
+msgid "Polar spectrum comparing thermal noise and harmonic distortion"
+msgstr ""
+
+#: ../../source/examples/expected_output_02_spectrum.rst:393
+msgid "exp_s11_polar_memory_effect.py"
+msgstr ""
+
+#: ../../source/examples/expected_output_02_spectrum.rst:395
+msgid "**Description**: Polar plot showing static vs dynamic nonlinearity."
+msgstr ""
+
+#: ../../source/examples/expected_output_02_spectrum.rst:423
+msgid "exp_s12_polar_coherent_averaging.py"
+msgstr ""
+
+#: ../../source/examples/expected_output_02_spectrum.rst:425
+msgid "**Description**: Polar plot demonstrating coherent averaging improvement."
+msgstr ""
+
+#: ../../source/examples/expected_output_02_spectrum.rst:444
+msgid "Polar spectrum - coherent averaging improvement"
+msgstr ""
+
+#: ../../source/examples/expected_output_02_spectrum.rst:449
+msgid "Polar spectrum demonstrating coherent averaging improvement"
+msgstr ""
+
+#: ../../source/examples/expected_output_02_spectrum.rst:453
+msgid "exp_s21_analyze_two_tone_spectrum.py"
+msgstr ""
+
+#: ../../source/examples/expected_output_02_spectrum.rst:455
+msgid "**Description**: Analyze two-tone spectrum with IMD products."
+msgstr ""
+
+#: ../../source/examples/expected_output_02_spectrum.rst:470
+msgid "Two-tone spectrum analysis with IMD"
+msgstr ""
+
+#: ../../source/examples/expected_output_02_spectrum.rst:475
+msgid "Two-tone spectrum showing fundamental tones and IMD products"
+msgstr ""
+
+#: ../../source/examples/expected_output_02_spectrum.rst:479
+msgid "exp_s22_two_tone_imd_comparison.py"
+msgstr ""
+
+#: ../../source/examples/expected_output_02_spectrum.rst:481
+msgid "**Description**: Compare weak vs strong nonlinearity effects on IMD."
+msgstr ""
+
+#: ../../source/examples/expected_output_02_spectrum.rst:497
+msgid "Two-tone IMD comparison"
+msgstr ""
+
+#: ../../source/examples/expected_output_02_spectrum.rst:502
+msgid "Comparing IMD products with weak vs strong nonlinearity"
+msgstr ""
+
+#: ../../source/examples/expected_output_02_spectrum.rst:506
+msgid "exp_s23_two_tone_spectrum_averaging.py"
+msgstr ""
+
+#: ../../source/examples/expected_output_02_spectrum.rst:508
+msgid ""
+"**Description**: Two-tone coherent averaging (previously had documented "
+"bug, now fixed)."
+msgstr ""
+

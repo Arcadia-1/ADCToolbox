@@ -1,0 +1,475 @@
+# SOME DESCRIPTIVE TITLE.
+# Copyright (C) 2025, ADCToolbox Contributors
+# This file is distributed under the same license as the ADCToolbox package.
+# FIRST AUTHOR <EMAIL@ADDRESS>, 2026.
+#
+#, fuzzy
+msgid ""
+msgstr ""
+"Project-Id-Version: ADCToolbox 0.5.0\n"
+"Report-Msgid-Bugs-To: \n"
+"POT-Creation-Date: 2026-03-10 20:52+0800\n"
+"PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
+"Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
+"Language: zh_CN\n"
+"Language-Team: zh_CN <LL@li.org>\n"
+"Plural-Forms: nplurals=1; plural=0;\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=utf-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Generated-By: Babel 2.18.0\n"
+
+#: ../../source/api/spectrum.rst:2
+msgid "Spectrum Analysis (spectrum)"
+msgstr ""
+
+#: ../../source/api/spectrum.rst:4
+msgid "The ``spectrum`` module provides FFT-based spectrum analysis tools."
+msgstr ""
+
+#: ../../source/api/spectrum.rst:9
+msgid "Single-Tone Spectrum"
+msgstr ""
+
+#: adctoolbox.spectrum.analyze_spectrum.analyze_spectrum:1 of
+msgid ""
+"Spectral analysis and plotting. (Wrapper function for modular core and "
+"plotting)"
+msgstr ""
+
+#: adctoolbox.spectrum.analyze_spectrum.analyze_spectrum:3 of
+msgid ""
+"This function first calculates all metrics and then conditionally plots "
+"the spectrum."
+msgstr ""
+
+#: ../../source/api/spectrum.rst
+msgid "Parameters"
+msgstr ""
+
+#: adctoolbox.spectrum.analyze_spectrum.analyze_spectrum:5 of
+msgid "Input data (N,) or (M, N)"
+msgstr ""
+
+#: adctoolbox.spectrum.analyze_spectrum.analyze_spectrum:6 of
+msgid "Sampling frequency"
+msgstr ""
+
+#: adctoolbox.spectrum.analyze_spectrum.analyze_spectrum:7 of
+msgid ""
+"Full scale range for normalization. Can be: scalar (direct range), "
+"tuple/list [min, max], or None (auto-detect)"
+msgstr ""
+
+#: adctoolbox.spectrum.analyze_spectrum.analyze_spectrum:9 of
+msgid "Window function type ('hann', 'hamming', 'boxcar')"
+msgstr ""
+
+#: adctoolbox.spectrum.analyze_spectrum.analyze_spectrum:10 of
+msgid "Number of side bins around fundamental (None for automatic selection)"
+msgstr ""
+
+#: adctoolbox.spectrum.analyze_spectrum.analyze_spectrum:11
+#: adctoolbox.spectrum.analyze_spectrum_polar.analyze_spectrum_polar:8
+#: adctoolbox.spectrum.compute_spectrum.compute_spectrum:16 of
+msgid "Oversampling ratio"
+msgstr ""
+
+#: adctoolbox.spectrum.analyze_spectrum.analyze_spectrum:12 of
+msgid "Number of harmonics for THD calculation"
+msgstr ""
+
+#: adctoolbox.spectrum.analyze_spectrum.analyze_spectrum:13 of
+msgid ""
+"Noise floor calculation method (0=median, 1=trimmed mean, 2=exclude "
+"harmonics)"
+msgstr ""
+
+#: adctoolbox.spectrum.analyze_spectrum.analyze_spectrum:14 of
+msgid "Pre-defined signal level in dBFS"
+msgstr ""
+
+#: adctoolbox.spectrum.analyze_spectrum.analyze_spectrum:15
+#: adctoolbox.spectrum.analyze_two_tone_spectrum.analyze_two_tone_spectrum:12
+#: of
+msgid "Plot the spectrum (True) or not (False)"
+msgstr ""
+
+#: adctoolbox.spectrum.analyze_spectrum.analyze_spectrum:16
+#: adctoolbox.spectrum.plot_spectrum.plot_spectrum:6 of
+msgid "Display auto-generated title (True) or not (False)"
+msgstr ""
+
+#: adctoolbox.spectrum.analyze_spectrum.analyze_spectrum:17
+#: adctoolbox.spectrum.analyze_two_tone_spectrum.analyze_two_tone_spectrum:14
+#: adctoolbox.spectrum.plot_spectrum.plot_spectrum:4 of
+msgid "Add labels and annotations (True) or not (False)"
+msgstr ""
+
+#: adctoolbox.spectrum.analyze_spectrum.analyze_spectrum:18
+#: adctoolbox.spectrum.plot_spectrum_polar.plot_spectrum_polar:5 of
+msgid "Number of harmonics to mark on the plot"
+msgstr ""
+
+#: adctoolbox.spectrum.analyze_spectrum.analyze_spectrum:19
+#: adctoolbox.spectrum.analyze_two_tone_spectrum.analyze_two_tone_spectrum:15
+#: of
+msgid ""
+"Optional matplotlib axes object. If None and create_plot=True, a new "
+"figure is created."
+msgstr ""
+
+#: ../../source/api/spectrum.rst
+msgid "Returns"
+msgstr ""
+
+#: adctoolbox.spectrum.analyze_spectrum.analyze_spectrum:21 of
+msgid ""
+"Dictionary with performance metrics:     - enob: Effective Number of Bits"
+"     - sndr_dbc: Signal-to-Noise and Distortion Ratio (dBc)     - "
+"sfdr_dbc: Spurious-Free Dynamic Range (dBc)     - snr_dbc: Signal-to-"
+"Noise Ratio (dBc)     - thd_dbc: Total Harmonic Distortion (dBc)     - "
+"sig_pwr_dbfs: Signal power (dBFS)     - noise_floor_dbfs: Noise floor "
+"(dBFS)     - nsd_dbfs_hz: Noise Spectral Density (dBFS/Hz)"
+msgstr ""
+
+#: adctoolbox.spectrum.analyze_spectrum.analyze_spectrum:23
+#: adctoolbox.spectrum.analyze_two_tone_spectrum.analyze_two_tone_spectrum:19
+#: of
+msgid "Dictionary with performance metrics:"
+msgstr ""
+
+#: adctoolbox.spectrum.analyze_spectrum.analyze_spectrum:24
+#: adctoolbox.spectrum.analyze_two_tone_spectrum.analyze_two_tone_spectrum:20
+#: of
+msgid "enob: Effective Number of Bits"
+msgstr ""
+
+#: adctoolbox.spectrum.analyze_spectrum.analyze_spectrum:25 of
+msgid "sndr_dbc: Signal-to-Noise and Distortion Ratio (dBc)"
+msgstr ""
+
+#: adctoolbox.spectrum.analyze_spectrum.analyze_spectrum:26 of
+msgid "sfdr_dbc: Spurious-Free Dynamic Range (dBc)"
+msgstr ""
+
+#: adctoolbox.spectrum.analyze_spectrum.analyze_spectrum:27 of
+msgid "snr_dbc: Signal-to-Noise Ratio (dBc)"
+msgstr ""
+
+#: adctoolbox.spectrum.analyze_spectrum.analyze_spectrum:28 of
+msgid "thd_dbc: Total Harmonic Distortion (dBc)"
+msgstr ""
+
+#: adctoolbox.spectrum.analyze_spectrum.analyze_spectrum:29 of
+msgid "sig_pwr_dbfs: Signal power (dBFS)"
+msgstr ""
+
+#: adctoolbox.spectrum.analyze_spectrum.analyze_spectrum:30 of
+msgid "noise_floor_dbfs: Noise floor (dBFS)"
+msgstr ""
+
+#: adctoolbox.spectrum.analyze_spectrum.analyze_spectrum:31 of
+msgid "nsd_dbfs_hz: Noise Spectral Density (dBFS/Hz)"
+msgstr ""
+
+#: ../../source/api/spectrum.rst
+msgid "Return type"
+msgstr ""
+
+#: adctoolbox.spectrum.compute_spectrum.compute_spectrum:1 of
+msgid "Calculate spectrum data for ADC analysis."
+msgstr ""
+
+#: adctoolbox.spectrum.analyze_spectrum_polar.analyze_spectrum_polar:5
+#: adctoolbox.spectrum.compute_spectrum.compute_spectrum:3 of
+msgid "Input ADC data, shape (N,) or (M, N)"
+msgstr ""
+
+#: adctoolbox.spectrum.analyze_spectrum_polar.analyze_spectrum_polar:10
+#: adctoolbox.spectrum.compute_spectrum.compute_spectrum:5 of
+msgid "Sampling frequency in Hz"
+msgstr ""
+
+#: adctoolbox.spectrum.compute_spectrum.compute_spectrum:7 of
+msgid "Full scale range. If None, uses (max - min)"
+msgstr ""
+
+#: adctoolbox.spectrum.compute_spectrum.compute_spectrum:9 of
+msgid "Window type: 'boxcar', 'hann', 'hamming', etc."
+msgstr ""
+
+#: adctoolbox.spectrum.compute_spectrum.compute_spectrum:11 of
+msgid ""
+"Side bins to exclude around signal. If None, automatically determined "
+"based on: - Coherent signal (error < 0.01): ceil(enbw) - Non-coherent "
+"signal: ceil(2*enbw) + 1 where enbw is the window's equivalent noise "
+"bandwidth factor"
+msgstr ""
+
+#: adctoolbox.spectrum.compute_spectrum.compute_spectrum:18 of
+msgid "Maximum harmonic number for THD (default: 5 means harmonics 2-5)"
+msgstr ""
+
+#: adctoolbox.spectrum.compute_spectrum.compute_spectrum:20 of
+msgid "Noise floor method: 0=median, 1=trimmed mean, 2=exclude harmonics"
+msgstr ""
+
+#: adctoolbox.spectrum.compute_spectrum.compute_spectrum:22 of
+msgid "Override signal power (dBFS)"
+msgstr ""
+
+#: adctoolbox.spectrum.analyze_two_tone_spectrum.analyze_two_tone_spectrum:11
+#: adctoolbox.spectrum.compute_spectrum.compute_spectrum:24 of
+msgid "If True, performs coherent averaging with phase alignment"
+msgstr ""
+
+#: adctoolbox.spectrum.compute_spectrum.compute_spectrum:26 of
+msgid "High-pass cutoff frequency (Hz)"
+msgstr ""
+
+#: adctoolbox.spectrum.compute_spectrum.compute_spectrum:28 of
+msgid "Verbosity level"
+msgstr ""
+
+#: adctoolbox.spectrum.compute_spectrum.compute_spectrum:31 of
+msgid "Contains 'metrics' and 'plot_data' dictionaries"
+msgstr ""
+
+#: adctoolbox.spectrum.plot_spectrum.plot_spectrum:1 of
+msgid "Pure spectrum plotting using pre-computed analysis results."
+msgstr ""
+
+#: adctoolbox.spectrum.plot_spectrum.plot_spectrum:3 of
+msgid "Dictionary containing 'metrics' and 'plot_data' from compute_spectrum"
+msgstr ""
+
+#: adctoolbox.spectrum.plot_spectrum.plot_spectrum:5 of
+msgid "Number of harmonics to highlight"
+msgstr ""
+
+#: adctoolbox.spectrum.plot_spectrum.plot_spectrum:7 of
+msgid "Optional matplotlib axes object"
+msgstr ""
+
+#: ../../source/api/spectrum.rst:16
+msgid "Polar Spectrum Plots"
+msgstr ""
+
+#: adctoolbox.spectrum.analyze_spectrum_polar.analyze_spectrum_polar:1 of
+msgid ""
+"Polar phase spectrum analysis and plotting. (Wrapper function for modular"
+" core and plotting)"
+msgstr ""
+
+#: adctoolbox.spectrum.analyze_spectrum_polar.analyze_spectrum_polar:3 of
+msgid ""
+"This function calculates coherent spectrum with phase alignment and "
+"optionally plots it in polar format."
+msgstr ""
+
+#: adctoolbox.spectrum.analyze_spectrum_polar.analyze_spectrum_polar:6 of
+msgid "Maximum code level for normalization. If None, uses (max - min)"
+msgstr ""
+
+#: adctoolbox.spectrum.analyze_spectrum_polar.analyze_spectrum_polar:7 of
+msgid "Number of harmonics to mark on polar plot"
+msgstr ""
+
+#: adctoolbox.spectrum.analyze_spectrum_polar.analyze_spectrum_polar:9 of
+msgid "High-pass cutoff frequency in Hz"
+msgstr ""
+
+#: adctoolbox.spectrum.analyze_spectrum_polar.analyze_spectrum_polar:11 of
+msgid "Window function type ('boxcar', 'hann', 'hamming')"
+msgstr ""
+
+#: adctoolbox.spectrum.analyze_spectrum_polar.analyze_spectrum_polar:12 of
+msgid "Plot the polar spectrum (True) or not (False)"
+msgstr ""
+
+#: adctoolbox.spectrum.analyze_spectrum_polar.analyze_spectrum_polar:13 of
+msgid ""
+"Optional matplotlib polar axes object. If None and create_plot=True, uses"
+" current axes."
+msgstr ""
+
+#: adctoolbox.spectrum.analyze_spectrum_polar.analyze_spectrum_polar:14
+#: adctoolbox.spectrum.plot_spectrum_polar.plot_spectrum_polar:6 of
+msgid "Fixed radial range in dB. If None, auto-scales."
+msgstr ""
+
+#: adctoolbox.spectrum.analyze_spectrum_polar.analyze_spectrum_polar:16 of
+msgid "Full results dictionary from compute_spectrum with coherent_averaging=True"
+msgstr ""
+
+#: adctoolbox.spectrum.plot_spectrum_polar.plot_spectrum_polar:1 of
+msgid "Pure polar spectrum plotting using pre-computed coherent spectrum results."
+msgstr ""
+
+#: adctoolbox.spectrum.plot_spectrum_polar.plot_spectrum_polar:3 of
+msgid ""
+"Dictionary containing output from "
+"compute_spectrum(coherent_averaging=True)"
+msgstr ""
+
+#: adctoolbox.spectrum.plot_spectrum_polar.plot_spectrum_polar:4 of
+msgid "Display metrics annotations (True) or not (False)"
+msgstr ""
+
+#: adctoolbox.spectrum.plot_spectrum_polar.plot_spectrum_polar:7 of
+msgid "Optional matplotlib polar axes object"
+msgstr ""
+
+#: ../../source/api/spectrum.rst:22
+msgid "Two-Tone Spectrum"
+msgstr ""
+
+#: adctoolbox.spectrum.analyze_two_tone_spectrum.analyze_two_tone_spectrum:1 of
+msgid ""
+"Two-tone spectrum analysis with IMD calculation. (Wrapper function for "
+"modular core and plotting)"
+msgstr ""
+
+#: adctoolbox.spectrum.analyze_two_tone_spectrum.analyze_two_tone_spectrum:3 of
+msgid ""
+"This function calculates IMD metrics and optionally plots the two-tone "
+"spectrum."
+msgstr ""
+
+#: adctoolbox.spectrum.analyze_two_tone_spectrum.analyze_two_tone_spectrum:5
+#: adctoolbox.spectrum.compute_two_tone_spectrum.compute_two_tone_spectrum:6 of
+msgid "ADC output data, shape (M, N) for M runs or (N,) for single run"
+msgstr ""
+
+#: adctoolbox.spectrum.analyze_two_tone_spectrum.analyze_two_tone_spectrum:6 of
+msgid "Sampling frequency (Hz)"
+msgstr ""
+
+#: adctoolbox.spectrum.analyze_two_tone_spectrum.analyze_two_tone_spectrum:7 of
+msgid "Full scale range (max-min) for normalization"
+msgstr ""
+
+#: adctoolbox.spectrum.analyze_two_tone_spectrum.analyze_two_tone_spectrum:8 of
+msgid "Number of harmonics to mark on plot"
+msgstr ""
+
+#: adctoolbox.spectrum.analyze_two_tone_spectrum.analyze_two_tone_spectrum:9 of
+msgid "Window function type ('hann', 'blackman', 'hamming', 'boxcar')"
+msgstr ""
+
+#: adctoolbox.spectrum.analyze_two_tone_spectrum.analyze_two_tone_spectrum:10
+#: of
+msgid "Number of side bins around fundamental"
+msgstr ""
+
+#: adctoolbox.spectrum.analyze_two_tone_spectrum.analyze_two_tone_spectrum:13
+#: of
+msgid "Display title (True) or not (False)"
+msgstr ""
+
+#: adctoolbox.spectrum.analyze_two_tone_spectrum.analyze_two_tone_spectrum:17
+#: of
+msgid ""
+"Dictionary with performance metrics:     - enob: Effective Number of Bits"
+"     - sndr_db: Signal-to-Noise and Distortion Ratio (dB)     - sfdr_db: "
+"Spurious-Free Dynamic Range (dB)     - snr_db: Signal-to-Noise Ratio (dB)"
+"     - thd_db: Total Harmonic Distortion (dB)     - signal_power_1_dbfs: "
+"Power of first tone (dBFS)     - signal_power_2_dbfs: Power of second "
+"tone (dBFS)     - noise_floor_db: Noise floor (dB)     - imd2_dbc: 2nd "
+"order intermodulation distortion (dBc)     - imd3_dbc: 3rd order "
+"intermodulation distortion (dBc)"
+msgstr ""
+
+#: adctoolbox.spectrum.analyze_two_tone_spectrum.analyze_two_tone_spectrum:21
+#: of
+msgid "sndr_db: Signal-to-Noise and Distortion Ratio (dB)"
+msgstr ""
+
+#: adctoolbox.spectrum.analyze_two_tone_spectrum.analyze_two_tone_spectrum:22
+#: of
+msgid "sfdr_db: Spurious-Free Dynamic Range (dB)"
+msgstr ""
+
+#: adctoolbox.spectrum.analyze_two_tone_spectrum.analyze_two_tone_spectrum:23
+#: of
+msgid "snr_db: Signal-to-Noise Ratio (dB)"
+msgstr ""
+
+#: adctoolbox.spectrum.analyze_two_tone_spectrum.analyze_two_tone_spectrum:24
+#: of
+msgid "thd_db: Total Harmonic Distortion (dB)"
+msgstr ""
+
+#: adctoolbox.spectrum.analyze_two_tone_spectrum.analyze_two_tone_spectrum:25
+#: of
+msgid "signal_power_1_dbfs: Power of first tone (dBFS)"
+msgstr ""
+
+#: adctoolbox.spectrum.analyze_two_tone_spectrum.analyze_two_tone_spectrum:26
+#: of
+msgid "signal_power_2_dbfs: Power of second tone (dBFS)"
+msgstr ""
+
+#: adctoolbox.spectrum.analyze_two_tone_spectrum.analyze_two_tone_spectrum:27
+#: of
+msgid "noise_floor_db: Noise floor (dB)"
+msgstr ""
+
+#: adctoolbox.spectrum.analyze_two_tone_spectrum.analyze_two_tone_spectrum:28
+#: of
+msgid "imd2_dbc: 2nd order intermodulation distortion (dBc)"
+msgstr ""
+
+#: adctoolbox.spectrum.analyze_two_tone_spectrum.analyze_two_tone_spectrum:29
+#: of
+msgid "imd3_dbc: 3rd order intermodulation distortion (dBc)"
+msgstr ""
+
+#: adctoolbox.spectrum.compute_two_tone_spectrum.compute_two_tone_spectrum:1 of
+msgid "Calculate two-tone spectrum data with IMD analysis."
+msgstr ""
+
+#: adctoolbox.spectrum.compute_two_tone_spectrum.compute_two_tone_spectrum:3 of
+msgid ""
+"Pure calculation function - no plotting or side effects. Follows the "
+"modular architecture pattern."
+msgstr ""
+
+#: adctoolbox.spectrum.compute_two_tone_spectrum.compute_two_tone_spectrum:8 of
+msgid "Sampling frequency (Hz), default: 1.0"
+msgstr ""
+
+#: adctoolbox.spectrum.compute_two_tone_spectrum.compute_two_tone_spectrum:10
+#: of
+msgid "Maximum code range, default: max-min of data"
+msgstr ""
+
+#: adctoolbox.spectrum.compute_two_tone_spectrum.compute_two_tone_spectrum:12
+#: of
+msgid "Window type: 'hann', 'blackman', 'hamming', 'boxcar', default: 'hann'"
+msgstr ""
+
+#: adctoolbox.spectrum.compute_two_tone_spectrum.compute_two_tone_spectrum:14
+#: of
+msgid "Side bins to include in signal power, default: 1"
+msgstr ""
+
+#: adctoolbox.spectrum.compute_two_tone_spectrum.compute_two_tone_spectrum:16
+#: of
+msgid "Number of harmonic orders to calculate for IMD products, default: 7"
+msgstr ""
+
+#: adctoolbox.spectrum.compute_two_tone_spectrum.compute_two_tone_spectrum:18
+#: of
+msgid "If True, performs coherent averaging with phase alignment, default: False"
+msgstr ""
+
+#: adctoolbox.spectrum.compute_two_tone_spectrum.compute_two_tone_spectrum:21
+#: of
+msgid ""
+"Dictionary containing: - 'metrics': Performance metrics (enob, sndr, "
+"sfdr, snr, thd, etc.) - 'plot_data': Data for plotting (freq, spec_db, "
+"bin1, bin2, etc.) - 'imd_bins': IMD product bin locations"
+msgstr ""
+

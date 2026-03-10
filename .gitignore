@@ -201,7 +201,7 @@ python/docs/source/_autosummary/
 # Claude Playground (temporary test scripts and experiments)
 # =============================================================================
 .claude
-
+CLAUDE.md
 test_dataset/
 agent_playground/
 matlab/debug

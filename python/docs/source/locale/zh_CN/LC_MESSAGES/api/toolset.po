@@ -1,0 +1,135 @@
+# SOME DESCRIPTIVE TITLE.
+# Copyright (C) 2025, ADCToolbox Contributors
+# This file is distributed under the same license as the ADCToolbox package.
+# FIRST AUTHOR <EMAIL@ADDRESS>, 2026.
+#
+#, fuzzy
+msgid ""
+msgstr ""
+"Project-Id-Version: ADCToolbox 0.5.0\n"
+"Report-Msgid-Bugs-To: \n"
+"POT-Creation-Date: 2026-03-10 20:52+0800\n"
+"PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
+"Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
+"Language: zh_CN\n"
+"Language-Team: zh_CN <LL@li.org>\n"
+"Plural-Forms: nplurals=1; plural=0;\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=utf-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Generated-By: Babel 2.18.0\n"
+
+#: ../../source/api/toolset.rst:2
+msgid "Toolsets and Dashboards (toolset)"
+msgstr ""
+
+#: ../../source/api/toolset.rst:4
+msgid ""
+"The ``toolset`` module provides complete analysis toolsets and dashboard "
+"generation capabilities."
+msgstr ""
+
+#: adctoolbox.toolset:1 of
+msgid "Toolset subpackage: Dashboard generation utilities."
+msgstr ""
+
+#: adctoolbox.toolset:3 of
+msgid ""
+"This subpackage provides high-level dashboard functions that combine "
+"multiple analysis tools into comprehensive visualizations."
+msgstr ""
+
+#: adctoolbox.toolset.generate_aout_dashboard.generate_aout_dashboard:1 of
+msgid "Generate comprehensive analysis dashboard with 8 subplots in a 2x4 panel."
+msgstr ""
+
+#: ../../source/api/toolset.rst
+msgid "Parameters"
+msgstr ""
+
+#: adctoolbox.toolset.generate_aout_dashboard.generate_aout_dashboard:3 of
+msgid "Input signal (ADC output or analog signal)"
+msgstr ""
+
+#: adctoolbox.toolset.generate_aout_dashboard.generate_aout_dashboard:5 of
+msgid "Sampling frequency (default: 1.0 for normalized frequency)"
+msgstr ""
+
+#: adctoolbox.toolset.generate_aout_dashboard.generate_aout_dashboard:7 of
+msgid ""
+"Signal frequency in Hz (default: None, auto-estimate) Will be converted "
+"to normalized frequency where needed"
+msgstr ""
+
+#: adctoolbox.toolset.generate_aout_dashboard.generate_aout_dashboard:10
+#: adctoolbox.toolset.generate_dout_dashboard.generate_dout_dashboard:9 of
+msgid "Path to save figure (default: None, don't save)"
+msgstr ""
+
+#: adctoolbox.toolset.generate_aout_dashboard.generate_aout_dashboard:12 of
+msgid "ADC resolution in bits (default: 12)"
+msgstr ""
+
+#: ../../source/api/toolset.rst
+msgid "Returns"
+msgstr ""
+
+#: adctoolbox.toolset.generate_aout_dashboard.generate_aout_dashboard:15 of
+msgid ""
+"* **fig** (*matplotlib.figure.Figure*) -- Figure object containing the "
+"dashboard * **axes** (*ndarray*) -- Array of axes objects (2x4 grid, "
+"flattened)"
+msgstr ""
+
+#: adctoolbox.toolset.generate_aout_dashboard.generate_aout_dashboard:15
+#: adctoolbox.toolset.generate_dout_dashboard.generate_dout_dashboard:14 of
+msgid ""
+"**fig** (*matplotlib.figure.Figure*) -- Figure object containing the "
+"dashboard"
+msgstr ""
+
+#: adctoolbox.toolset.generate_aout_dashboard.generate_aout_dashboard:16 of
+msgid "**axes** (*ndarray*) -- Array of axes objects (2x4 grid, flattened)"
+msgstr ""
+
+#: adctoolbox.toolset.generate_dout_dashboard.generate_dout_dashboard:1 of
+msgid ""
+"Generate comprehensive digital analysis dashboard with 6 subplots in a "
+"2x3 panel."
+msgstr ""
+
+#: adctoolbox.toolset.generate_dout_dashboard.generate_dout_dashboard:3 of
+msgid "Digital bits (N samples x B bits, MSB to LSB order)"
+msgstr ""
+
+#: adctoolbox.toolset.generate_dout_dashboard.generate_dout_dashboard:5 of
+msgid "Normalized frequency (0-0.5). If None, auto-detect from calibration"
+msgstr ""
+
+#: adctoolbox.toolset.generate_dout_dashboard.generate_dout_dashboard:7 of
+msgid "Nominal weights for bits (default: None, uses binary weights)"
+msgstr ""
+
+#: adctoolbox.toolset.generate_dout_dashboard.generate_dout_dashboard:11 of
+msgid "Whether to display figure (default: False)"
+msgstr ""
+
+#: adctoolbox.toolset.generate_dout_dashboard.generate_dout_dashboard:14 of
+msgid ""
+"* **fig** (*matplotlib.figure.Figure*) -- Figure object containing the "
+"dashboard * **axes** (*ndarray*) -- Array of axes objects (2x3 grid, "
+"flattened)"
+msgstr ""
+
+#: adctoolbox.toolset.generate_dout_dashboard.generate_dout_dashboard:15 of
+msgid "**axes** (*ndarray*) -- Array of axes objects (2x3 grid, flattened)"
+msgstr ""
+
+#: ../../source/api/toolset.rst:14
+msgid "Analog Output Toolset"
+msgstr ""
+
+#: ../../source/api/toolset.rst:19
+msgid "Digital Output Toolset"
+msgstr ""
+

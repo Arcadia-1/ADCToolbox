@@ -38,6 +38,9 @@ exclude_patterns = []
 
 language = 'en'
 
+locale_dirs = ['locale']      # where .po files live (relative to source/)
+gettext_compact = False        # one .po file per source file (easier to manage)
+
 # -- Options for HTML output -------------------------------------------------
 # https://www.sphinx-doc.org/en/master/usage/configuration.html#options-for-html-output
 

@@ -1,0 +1,122 @@
+# SOME DESCRIPTIVE TITLE.
+# Copyright (C) 2025, ADCToolbox Contributors
+# This file is distributed under the same license as the ADCToolbox package.
+# FIRST AUTHOR <EMAIL@ADDRESS>, 2026.
+#
+#, fuzzy
+msgid ""
+msgstr ""
+"Project-Id-Version: ADCToolbox 0.5.0\n"
+"Report-Msgid-Bugs-To: \n"
+"POT-Creation-Date: 2026-03-10 20:52+0800\n"
+"PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
+"Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
+"Language: zh_CN\n"
+"Language-Team: zh_CN <LL@li.org>\n"
+"Plural-Forms: nplurals=1; plural=0;\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=utf-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Generated-By: Babel 2.18.0\n"
+
+#: ../../source/algorithms/analyze_error_by_value.md:1
+msgid "analyze_error_by_value"
+msgstr ""
+
+#: ../../source/algorithms/analyze_error_by_value.md:3
+msgid "Overview"
+msgstr ""
+
+#: ../../source/algorithms/analyze_error_by_value.md:5
+msgid ""
+"`analyze_error_by_value` rearranges ADC errors by their corresponding "
+"output codes, revealing code-dependent patterns like DNL-related errors, "
+"missing codes, and systematic nonlinearity."
+msgstr ""
+
+#: ../../source/algorithms/analyze_error_by_value.md:7
+msgid "Syntax"
+msgstr ""
+
+#: ../../source/algorithms/analyze_error_by_value.md:19
+msgid "Parameters"
+msgstr ""
+
+#: ../../source/algorithms/analyze_error_by_value.md:21
+msgid "**`signal`** (array_like) — Input ADC signal (sine wave excitation)"
+msgstr ""
+
+#: ../../source/algorithms/analyze_error_by_value.md:22
+msgid "**`resolution`** (int, optional) — ADC resolution in bits"
+msgstr ""
+
+#: ../../source/algorithms/analyze_error_by_value.md:23
+msgid "**`show_plot`** (bool, default=False) — Display error vs. code plot"
+msgstr ""
+
+#: ../../source/algorithms/analyze_error_by_value.md:24
+msgid "**`ax`** (matplotlib axis, optional) — Axis for plotting"
+msgstr ""
+
+#: ../../source/algorithms/analyze_error_by_value.md:26
+msgid "Returns"
+msgstr ""
+
+#: ../../source/algorithms/analyze_error_by_value.md:28
+msgid "Dictionary containing:"
+msgstr ""
+
+#: ../../source/algorithms/analyze_error_by_value.md:29
+msgid "**`error_by_code`** — Errors grouped by ADC code"
+msgstr ""
+
+#: ../../source/algorithms/analyze_error_by_value.md:30
+msgid "**`codes`** — Unique code values"
+msgstr ""
+
+#: ../../source/algorithms/analyze_error_by_value.md:31
+msgid "**`mean_error`** — Mean error per code"
+msgstr ""
+
+#: ../../source/algorithms/analyze_error_by_value.md:32
+msgid "**`std_error`** — Standard deviation per code"
+msgstr ""
+
+#: ../../source/algorithms/analyze_error_by_value.md:34
+msgid "Use Cases"
+msgstr ""
+
+#: ../../source/algorithms/analyze_error_by_value.md:36
+msgid "Identify code-dependent errors (DNL, missing codes)"
+msgstr ""
+
+#: ../../source/algorithms/analyze_error_by_value.md:37
+msgid "Reveal systematic nonlinearity patterns"
+msgstr ""
+
+#: ../../source/algorithms/analyze_error_by_value.md:38
+msgid "Validate calibration effectiveness"
+msgstr ""
+
+#: ../../source/algorithms/analyze_error_by_value.md:40
+msgid "See Also"
+msgstr ""
+
+#: ../../source/algorithms/analyze_error_by_value.md:42
+msgid "[`analyze_error_by_phase`](../api/aout.rst) — Error vs. signal phase"
+msgstr ""
+
+#: ../../source/algorithms/analyze_error_by_value.md:43
+msgid "[`analyze_inl_from_sine`](analyze_inl_from_sine.md) — INL/DNL analysis"
+msgstr ""
+
+#: ../../source/algorithms/analyze_error_by_value.md:45
+msgid "References"
+msgstr ""
+
+#: ../../source/algorithms/analyze_error_by_value.md:47
+msgid ""
+"IEEE Std 1241-2010, \"IEEE Standard for Terminology and Test Methods for "
+"ADCs\""
+msgstr ""
+
