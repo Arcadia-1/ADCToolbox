@@ -1,0 +1,289 @@
+# SOME DESCRIPTIVE TITLE.
+# Copyright (C) 2025, ADCToolbox Contributors
+# This file is distributed under the same license as the ADCToolbox package.
+# FIRST AUTHOR <EMAIL@ADDRESS>, 2026.
+#
+#, fuzzy
+msgid ""
+msgstr ""
+"Project-Id-Version: ADCToolbox 0.5.0\n"
+"Report-Msgid-Bugs-To: \n"
+"POT-Creation-Date: 2026-03-10 20:52+0800\n"
+"PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
+"Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
+"Language: zh_CN\n"
+"Language-Team: zh_CN <LL@li.org>\n"
+"Plural-Forms: nplurals=1; plural=0;\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=utf-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Generated-By: Babel 2.18.0\n"
+
+#: ../../source/api/dout.rst:2
+msgid "Digital Output Analysis (dout)"
+msgstr ""
+
+#: ../../source/api/dout.rst:4
+msgid ""
+"The ``dout`` module provides tools for analyzing digital ADC outputs and "
+"bit-weighted architectures."
+msgstr ""
+
+#: ../../source/api/dout.rst:9
+msgid "Weight Calibration"
+msgstr ""
+
+#: adctoolbox.calibration.calibrate_weight_sine.calibrate_weight_sine:1 of
+msgid "FGCalSine — Foreground calibration using a sinewave input"
+msgstr ""
+
+#: adctoolbox.calibration.calibrate_weight_sine.calibrate_weight_sine:3 of
+msgid ""
+"This function estimates per-bit weights and a DC offset for an ADC by "
+"fitting the weighted sum of raw bit columns to a sine series at a given "
+"(or estimated) normalized frequency Fin/Fs. It optionally performs a "
+"coarse and fine frequency search to refine the input tone frequency."
+msgstr ""
+
+#: adctoolbox.calibration.calibrate_weight_sine.calibrate_weight_sine:8 of
+msgid ""
+"Implementation uses a unified pipeline where single-dataset calibration "
+"is treated as a special case of multi-dataset calibration (N=1)."
+msgstr ""
+
+#: ../../source/api/dout.rst
+#: adctoolbox.dout.analyze_enob_sweep.analyze_enob_sweep of
+msgid "Parameters"
+msgstr ""
+
+#: adctoolbox.calibration.calibrate_weight_sine.calibrate_weight_sine:11 of
+msgid ""
+"Binary data as matrix (N rows by M cols, N is data points, M is "
+"bitwidth). Each row is one sample; each column is a bit/segment. Can also"
+" be a list of arrays for multi-dataset calibration."
+msgstr ""
+
+#: adctoolbox.calibration.calibrate_weight_sine.calibrate_weight_sine:15 of
+msgid ""
+"Normalized frequency Fin/Fs. Default is None (triggers auto frequency "
+"search). - None: Automatic frequency search - float: Single frequency for"
+" all datasets - array-like: Per-dataset frequencies for multi-dataset "
+"mode"
+msgstr ""
+
+#: adctoolbox.calibration.calibrate_weight_sine.calibrate_weight_sine:20 of
+msgid ""
+"Force fine frequency search even when frequency is provided. Default is "
+"False. Set to True to refine provided frequencies."
+msgstr ""
+
+#: adctoolbox.calibration.calibrate_weight_sine.calibrate_weight_sine:23 of
+msgid ""
+"Nominal bit weights (only effective when rank is deficient). Default is "
+"2^(M-1) down to 2^0."
+msgstr ""
+
+#: adctoolbox.calibration.calibrate_weight_sine.calibrate_weight_sine:26 of
+msgid ""
+"Number of harmonic terms to exclude in calibration. Default is 1 "
+"(fundamental only, no harmonic exclusion). Higher values exclude more "
+"harmonics from the error term."
+msgstr ""
+
+#: adctoolbox.calibration.calibrate_weight_sine.calibrate_weight_sine:30 of
+msgid "Adaptive learning rate for frequency updates (0..1), default is 0.5."
+msgstr ""
+
+#: adctoolbox.calibration.calibrate_weight_sine.calibrate_weight_sine:32 of
+msgid "Relative error tolerance for convergence, default is 1e-12."
+msgstr ""
+
+#: adctoolbox.calibration.calibrate_weight_sine.calibrate_weight_sine:34 of
+msgid "Maximum iterations for fine frequency search, default is 100."
+msgstr ""
+
+#: adctoolbox.calibration.calibrate_weight_sine.calibrate_weight_sine:36 of
+msgid "Print frequency search progress (1) or not (0), default is 0."
+msgstr ""
+
+#: ../../source/api/dout.rst
+#: adctoolbox.dout.analyze_enob_sweep.analyze_enob_sweep of
+msgid "Returns"
+msgstr ""
+
+#: adctoolbox.calibration.calibrate_weight_sine.calibrate_weight_sine:39 of
+msgid ""
+"Dictionary with keys: - weight : ndarray     The calibrated weights, "
+"normalized by the magnitude of sinewave. - offset : float     The "
+"calibrated DC offset, normalized by the magnitude of sinewave. - "
+"calibrated_signal : ndarray or list of ndarrays     The signal after "
+"calibration (single array for single dataset,     list of arrays for "
+"multi-dataset). - ideal : ndarray or list of ndarrays     The best fitted"
+" sinewave (single array for single dataset,     list of arrays for multi-"
+"dataset). - error : ndarray or list of ndarrays     The residue errors "
+"after calibration, excluding distortion     (single array for single "
+"dataset, list of arrays for multi-dataset). - refined_frequency : float "
+"or ndarray     The refined frequency from calibration (float for single "
+"dataset,     array for multi-dataset)."
+msgstr ""
+
+#: adctoolbox.calibration.calibrate_weight_sine.calibrate_weight_sine:39 of
+msgid "Dictionary with keys: - weight : ndarray"
+msgstr ""
+
+#: adctoolbox.calibration.calibrate_weight_sine.calibrate_weight_sine:41 of
+msgid "The calibrated weights, normalized by the magnitude of sinewave."
+msgstr ""
+
+#: adctoolbox.calibration.calibrate_weight_sine.calibrate_weight_sine:42 of
+msgid "offset"
+msgstr ""
+
+#: adctoolbox.calibration.calibrate_weight_sine.calibrate_weight_sine:-1 of
+msgid "float"
+msgstr ""
+
+#: adctoolbox.calibration.calibrate_weight_sine.calibrate_weight_sine:43 of
+msgid "The calibrated DC offset, normalized by the magnitude of sinewave."
+msgstr ""
+
+#: adctoolbox.calibration.calibrate_weight_sine.calibrate_weight_sine:44 of
+msgid "calibrated_signal"
+msgstr ""
+
+#: adctoolbox.calibration.calibrate_weight_sine.calibrate_weight_sine:-1 of
+msgid "ndarray or list of ndarrays"
+msgstr ""
+
+#: adctoolbox.calibration.calibrate_weight_sine.calibrate_weight_sine:45 of
+msgid ""
+"The signal after calibration (single array for single dataset, list of "
+"arrays for multi-dataset)."
+msgstr ""
+
+#: adctoolbox.calibration.calibrate_weight_sine.calibrate_weight_sine:47 of
+msgid "ideal"
+msgstr ""
+
+#: adctoolbox.calibration.calibrate_weight_sine.calibrate_weight_sine:48 of
+msgid ""
+"The best fitted sinewave (single array for single dataset, list of arrays"
+" for multi-dataset)."
+msgstr ""
+
+#: adctoolbox.calibration.calibrate_weight_sine.calibrate_weight_sine:50 of
+msgid "error"
+msgstr ""
+
+#: adctoolbox.calibration.calibrate_weight_sine.calibrate_weight_sine:51 of
+msgid ""
+"The residue errors after calibration, excluding distortion (single array "
+"for single dataset, list of arrays for multi-dataset)."
+msgstr ""
+
+#: adctoolbox.calibration.calibrate_weight_sine.calibrate_weight_sine:53 of
+msgid "refined_frequency"
+msgstr ""
+
+#: adctoolbox.calibration.calibrate_weight_sine.calibrate_weight_sine:-1 of
+msgid "float or ndarray"
+msgstr ""
+
+#: adctoolbox.calibration.calibrate_weight_sine.calibrate_weight_sine:54 of
+msgid ""
+"The refined frequency from calibration (float for single dataset, array "
+"for multi-dataset)."
+msgstr ""
+
+#: ../../source/api/dout.rst
+#: adctoolbox.dout.analyze_enob_sweep.analyze_enob_sweep of
+msgid "Return type"
+msgstr ""
+
+#: ../../source/api/dout.rst:16
+msgid "Overflow Detection"
+msgstr ""
+
+#: ../../source/api/dout.rst:21
+msgid "Bit Activity"
+msgstr ""
+
+#: ../../source/api/dout.rst:26
+msgid "ENOB Analysis"
+msgstr ""
+
+#: adctoolbox.dout.analyze_enob_sweep.analyze_enob_sweep:1 of
+msgid "Sweep ENOB vs number of bits used for calibration."
+msgstr ""
+
+#: adctoolbox.dout.analyze_enob_sweep.analyze_enob_sweep:3 of
+msgid ""
+"Incrementally adds bits (MSB to LSB) and measures ENOB after calibration "
+"to understand diminishing returns and optimal bit count."
+msgstr ""
+
+#: adctoolbox.dout.analyze_enob_sweep.analyze_enob_sweep:6 of
+msgid "Binary matrix (N samples x M bits, MSB to LSB order)"
+msgstr ""
+
+#: adctoolbox.dout.analyze_enob_sweep.analyze_enob_sweep:8 of
+msgid "Normalized frequency (0-0.5). If None, auto-detect from data"
+msgstr ""
+
+#: adctoolbox.dout.analyze_enob_sweep.analyze_enob_sweep:10 of
+msgid "Harmonic order for calibrate_weight_sine"
+msgstr ""
+
+#: adctoolbox.dout.analyze_enob_sweep.analyze_enob_sweep:12 of
+msgid "Oversampling ratio for spectrum analysis"
+msgstr ""
+
+#: adctoolbox.dout.analyze_enob_sweep.analyze_enob_sweep:14 of
+msgid "Window function: 'boxcar', 'hann', 'hamming'"
+msgstr ""
+
+#: adctoolbox.dout.analyze_enob_sweep.analyze_enob_sweep:16 of
+msgid "If True, plot ENOB sweep curve"
+msgstr ""
+
+#: adctoolbox.dout.analyze_enob_sweep.analyze_enob_sweep:18 of
+msgid "Axes to plot on. If None, uses current axes (plt.gca())"
+msgstr ""
+
+#: adctoolbox.dout.analyze_enob_sweep.analyze_enob_sweep:20 of
+msgid "Title for the plot. If None, uses default title"
+msgstr ""
+
+#: adctoolbox.dout.analyze_enob_sweep.analyze_enob_sweep:22 of
+msgid "If True, print progress messages"
+msgstr ""
+
+#: adctoolbox.dout.analyze_enob_sweep.analyze_enob_sweep:25 of
+msgid ""
+"- enob_sweep: ENOB for each bit count (length M) - n_bits_vec: Bit counts"
+" from 1 to M"
+msgstr ""
+
+#: adctoolbox.dout.analyze_enob_sweep.analyze_enob_sweep:27 of
+msgid "enob_sweep: ENOB for each bit count (length M)"
+msgstr ""
+
+#: adctoolbox.dout.analyze_enob_sweep.analyze_enob_sweep:28 of
+msgid "n_bits_vec: Bit counts from 1 to M"
+msgstr ""
+
+#: adctoolbox.dout.analyze_enob_sweep.analyze_enob_sweep:32 of
+msgid "Notes"
+msgstr ""
+
+#: adctoolbox.dout.analyze_enob_sweep.analyze_enob_sweep:33 of
+msgid ""
+"What to look for in the plot: - Increasing trend: More bits improve "
+"resolution - Plateau: Additional bits don't help (noise/distortion "
+"limited) - Decrease: Extra bits add noise/calibration errors"
+msgstr ""
+
+#: ../../source/api/dout.rst:31
+msgid "Visualization"
+msgstr ""
+

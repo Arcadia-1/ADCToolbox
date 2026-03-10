@@ -1,0 +1,499 @@
+# SOME DESCRIPTIVE TITLE.
+# Copyright (C) 2025, ADCToolbox Contributors
+# This file is distributed under the same license as the ADCToolbox package.
+# FIRST AUTHOR <EMAIL@ADDRESS>, 2026.
+#
+#, fuzzy
+msgid ""
+msgstr ""
+"Project-Id-Version: ADCToolbox 0.5.0\n"
+"Report-Msgid-Bugs-To: \n"
+"POT-Creation-Date: 2026-03-10 20:52+0800\n"
+"PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
+"Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
+"Language: zh_CN\n"
+"Language-Team: zh_CN <LL@li.org>\n"
+"Plural-Forms: nplurals=1; plural=0;\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=utf-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Generated-By: Babel 2.18.0\n"
+
+#: ../../source/python_matlab_parity.rst:2
+msgid "Python vs MATLAB Parity"
+msgstr ""
+
+#: ../../source/python_matlab_parity.rst:4
+msgid ""
+"This page tracks the functional parity between the Python ``adctoolbox`` "
+"package and the original MATLAB implementation. The goal is to keep both "
+"versions feature-equivalent."
+msgstr ""
+
+#: ../../source/python_matlab_parity.rst:8
+msgid "Last updated: 2026-03-10"
+msgstr ""
+
+#: ../../source/python_matlab_parity.rst:11
+msgid "Function Mapping"
+msgstr ""
+
+#: ../../source/python_matlab_parity.rst:13
+msgid ""
+"The table below maps every MATLAB core function to its Python equivalent."
+" Legacy/deprecated MATLAB wrappers (e.g., ``sineFit`` → ``sinfit``) are "
+"omitted; only the current MATLAB name is listed."
+msgstr ""
+
+#: ../../source/python_matlab_parity.rst:21
+#: ../../source/python_matlab_parity.rst:169
+msgid "MATLAB"
+msgstr ""
+
+#: ../../source/python_matlab_parity.rst:22
+#: ../../source/python_matlab_parity.rst:170
+msgid "Python"
+msgstr ""
+
+#: ../../source/python_matlab_parity.rst:23
+msgid "Status"
+msgstr ""
+
+#: ../../source/python_matlab_parity.rst:24
+msgid "``plotspec``"
+msgstr ""
+
+#: ../../source/python_matlab_parity.rst:25
+msgid "``analyze_spectrum``"
+msgstr ""
+
+#: ../../source/python_matlab_parity.rst:26
+#: ../../source/python_matlab_parity.rst:29
+#: ../../source/python_matlab_parity.rst:32
+#: ../../source/python_matlab_parity.rst:35
+#: ../../source/python_matlab_parity.rst:38
+#: ../../source/python_matlab_parity.rst:41
+#: ../../source/python_matlab_parity.rst:44
+#: ../../source/python_matlab_parity.rst:47
+#: ../../source/python_matlab_parity.rst:50
+#: ../../source/python_matlab_parity.rst:53
+#: ../../source/python_matlab_parity.rst:56
+#: ../../source/python_matlab_parity.rst:59
+#: ../../source/python_matlab_parity.rst:62
+#: ../../source/python_matlab_parity.rst:65
+msgid "Matched"
+msgstr ""
+
+#: ../../source/python_matlab_parity.rst:27
+msgid "``plotphase``"
+msgstr ""
+
+#: ../../source/python_matlab_parity.rst:28
+msgid "``analyze_spectrum_polar``"
+msgstr ""
+
+#: ../../source/python_matlab_parity.rst:30
+msgid "``sinfit``"
+msgstr ""
+
+#: ../../source/python_matlab_parity.rst:31
+msgid "``fit_sine_4param``"
+msgstr ""
+
+#: ../../source/python_matlab_parity.rst:33
+msgid "``findbin``"
+msgstr ""
+
+#: ../../source/python_matlab_parity.rst:34
+msgid "``find_coherent_frequency``"
+msgstr ""
+
+#: ../../source/python_matlab_parity.rst:36
+msgid "``findfreq``"
+msgstr ""
+
+#: ../../source/python_matlab_parity.rst:37
+msgid "``estimate_frequency``"
+msgstr ""
+
+#: ../../source/python_matlab_parity.rst:39
+msgid "``alias``"
+msgstr ""
+
+#: ../../source/python_matlab_parity.rst:40
+msgid "``fold_frequency_to_nyquist``, ``fold_bin_to_nyquist``"
+msgstr ""
+
+#: ../../source/python_matlab_parity.rst:42
+msgid "``tomdec``"
+msgstr ""
+
+#: ../../source/python_matlab_parity.rst:43
+msgid "``analyze_decomposition_time``, ``analyze_decomposition_polar``"
+msgstr ""
+
+#: ../../source/python_matlab_parity.rst:45
+msgid "``errsin``"
+msgstr ""
+
+#: ../../source/python_matlab_parity.rst:46
+msgid "``analyze_error_by_phase``, ``analyze_error_by_value``"
+msgstr ""
+
+#: ../../source/python_matlab_parity.rst:48
+msgid "``inlsin``"
+msgstr ""
+
+#: ../../source/python_matlab_parity.rst:49
+msgid "``analyze_inl_from_sine``"
+msgstr ""
+
+#: ../../source/python_matlab_parity.rst:51
+msgid "``wcalsin``"
+msgstr ""
+
+#: ../../source/python_matlab_parity.rst:52
+msgid "``calibrate_weight_sine``"
+msgstr ""
+
+#: ../../source/python_matlab_parity.rst:54
+msgid "``bitchk``"
+msgstr ""
+
+#: ../../source/python_matlab_parity.rst:55
+msgid "``analyze_overflow``"
+msgstr ""
+
+#: ../../source/python_matlab_parity.rst:57
+msgid "``plotwgt``"
+msgstr ""
+
+#: ../../source/python_matlab_parity.rst:58
+msgid "``analyze_weight_radix``"
+msgstr ""
+
+#: ../../source/python_matlab_parity.rst:60
+msgid "``ntfperf``"
+msgstr ""
+
+#: ../../source/python_matlab_parity.rst:61
+msgid "``ntf_analyzer``"
+msgstr ""
+
+#: ../../source/python_matlab_parity.rst:63
+msgid "``adcpanel``"
+msgstr ""
+
+#: ../../source/python_matlab_parity.rst:64
+msgid "``toolset/generate_aout_dashboard``, ``toolset/generate_dout_dashboard``"
+msgstr ""
+
+#: ../../source/python_matlab_parity.rst:66
+msgid "``cdacwgt``"
+msgstr ""
+
+#: ../../source/python_matlab_parity.rst:67
+#: ../../source/python_matlab_parity.rst:70
+#: ../../source/python_matlab_parity.rst:73
+#: ../../source/python_matlab_parity.rst:76
+msgid "*not implemented*"
+msgstr ""
+
+#: ../../source/python_matlab_parity.rst:68
+#: ../../source/python_matlab_parity.rst:71
+#: ../../source/python_matlab_parity.rst:74
+#: ../../source/python_matlab_parity.rst:77
+msgid "**MATLAB only**"
+msgstr ""
+
+#: ../../source/python_matlab_parity.rst:69
+msgid "``ifilter``"
+msgstr ""
+
+#: ../../source/python_matlab_parity.rst:72
+msgid "``perfosr``"
+msgstr ""
+
+#: ../../source/python_matlab_parity.rst:75
+msgid "``plotres``"
+msgstr ""
+
+#: ../../source/python_matlab_parity.rst:80
+msgid "MATLAB-Only Functions"
+msgstr ""
+
+#: ../../source/python_matlab_parity.rst:82
+msgid "The following four MATLAB functions have **no Python equivalent** yet:"
+msgstr ""
+
+#: ../../source/python_matlab_parity.rst:84
+msgid "``cdacwgt(cd, cb, cp)``"
+msgstr ""
+
+#: ../../source/python_matlab_parity.rst:85
+msgid ""
+"Calculate bit weights for a multi-segment capacitive DAC (CDAC) with "
+"bridge capacitors and parasitic capacitances. Returns normalized weights "
+"and total capacitance."
+msgstr ""
+
+#: ../../source/python_matlab_parity.rst:89
+msgid "``ifilter(sigin, passband)``"
+msgstr ""
+
+#: ../../source/python_matlab_parity.rst:90
+msgid ""
+"Ideal FFT-based brickwall filter. Retains only the specified frequency "
+"bands from an input signal. Operates column-wise on matrices."
+msgstr ""
+
+#: ../../source/python_matlab_parity.rst:93
+msgid "``perfosr(sig, ...)``"
+msgstr ""
+
+#: ../../source/python_matlab_parity.rst:94
+msgid ""
+"Sweep ADC performance (SNDR, SFDR, ENOB) versus oversampling ratio (OSR)."
+" Separates ideal signal from error via sine fitting, then re-evaluates "
+"metrics at narrowing bandwidths."
+msgstr ""
+
+#: ../../source/python_matlab_parity.rst:98
+msgid "``plotres(sig, bits, ...)``"
+msgstr ""
+
+#: ../../source/python_matlab_parity.rst:99
+msgid ""
+"Plot partial-sum residuals of an ADC bit matrix. Scatter-plots residuals "
+"between bit stages to reveal correlations, nonlinearity patterns, and "
+"redundancy."
+msgstr ""
+
+#: ../../source/python_matlab_parity.rst:104
+msgid "Python-Only Functions"
+msgstr ""
+
+#: ../../source/python_matlab_parity.rst:106
+msgid ""
+"The following functions exist **only in the Python package** and have no "
+"MATLAB counterpart."
+msgstr ""
+
+#: ../../source/python_matlab_parity.rst:110
+msgid "Spectrum"
+msgstr ""
+
+#: ../../source/python_matlab_parity.rst:112
+msgid ""
+"``analyze_two_tone_spectrum`` — Two-tone FFT analysis with IMD2/IMD3 "
+"metrics."
+msgstr ""
+
+#: ../../source/python_matlab_parity.rst:115
+msgid "Analog Error Analysis"
+msgstr ""
+
+#: ../../source/python_matlab_parity.rst:117
+msgid "``analyze_error_pdf`` — Error probability density function via KDE."
+msgstr ""
+
+#: ../../source/python_matlab_parity.rst:118
+msgid ""
+"``analyze_error_spectrum`` — Error spectrum computed from fitting "
+"residual."
+msgstr ""
+
+#: ../../source/python_matlab_parity.rst:119
+msgid ""
+"``analyze_error_autocorr`` — Autocorrelation function (ACF) of error "
+"signal."
+msgstr ""
+
+#: ../../source/python_matlab_parity.rst:120
+msgid ""
+"``analyze_error_envelope_spectrum`` — Envelope spectrum via Hilbert "
+"transform to reveal AM modulation patterns."
+msgstr ""
+
+#: ../../source/python_matlab_parity.rst:122
+msgid ""
+"``fit_static_nonlin`` — Extract static nonlinearity coefficients (k2, k3)"
+" from a distorted sinewave."
+msgstr ""
+
+#: ../../source/python_matlab_parity.rst:126
+msgid "Digital Output Analysis"
+msgstr ""
+
+#: ../../source/python_matlab_parity.rst:128
+msgid ""
+"``analyze_bit_activity`` — Percentage of 1's per bit (DC offset / "
+"clipping detection)."
+msgstr ""
+
+#: ../../source/python_matlab_parity.rst:130
+msgid "``analyze_enob_sweep`` — ENOB vs. number of calibration bits."
+msgstr ""
+
+#: ../../source/python_matlab_parity.rst:133
+msgid "Unit Conversions & Metrics"
+msgstr ""
+
+#: ../../source/python_matlab_parity.rst:135
+msgid "These are small utilities that MATLAB users typically write inline:"
+msgstr ""
+
+#: ../../source/python_matlab_parity.rst:137
+msgid "``db_to_mag``, ``mag_to_db``, ``db_to_power``, ``power_to_db``"
+msgstr ""
+
+#: ../../source/python_matlab_parity.rst:138
+msgid "``snr_to_enob``, ``enob_to_snr``, ``snr_to_nsd``, ``nsd_to_snr``"
+msgstr ""
+
+#: ../../source/python_matlab_parity.rst:139
+msgid "``lsb_to_volts``, ``volts_to_lsb``"
+msgstr ""
+
+#: ../../source/python_matlab_parity.rst:140
+msgid "``dbm_to_vrms``, ``vrms_to_dbm``, ``dbm_to_mw``, ``mw_to_dbm``"
+msgstr ""
+
+#: ../../source/python_matlab_parity.rst:141
+msgid "``sine_amplitude_to_power``, ``amplitudes_to_snr``"
+msgstr ""
+
+#: ../../source/python_matlab_parity.rst:142
+msgid "``bin_to_freq``, ``freq_to_bin``"
+msgstr ""
+
+#: ../../source/python_matlab_parity.rst:143
+msgid "``calculate_walden_fom``, ``calculate_schreier_fom``"
+msgstr ""
+
+#: ../../source/python_matlab_parity.rst:144
+msgid "``calculate_thermal_noise_limit``, ``calculate_jitter_limit``"
+msgstr ""
+
+#: ../../source/python_matlab_parity.rst:147
+msgid "Signal Generation"
+msgstr ""
+
+#: ../../source/python_matlab_parity.rst:149
+msgid ""
+"The Python ``siggen`` module provides a ``Nonidealities`` class for "
+"building realistic ADC test signals with chainable impairments. This has "
+"no MATLAB equivalent:"
+msgstr ""
+
+#: ../../source/python_matlab_parity.rst:153
+msgid "Thermal noise, clock jitter, quantization noise"
+msgstr ""
+
+#: ../../source/python_matlab_parity.rst:154
+msgid "Static nonlinearity (polynomial or harmonic-dB specification)"
+msgstr ""
+
+#: ../../source/python_matlab_parity.rst:155
+msgid "Memory effect, incomplete sampling / settling"
+msgstr ""
+
+#: ../../source/python_matlab_parity.rst:156
+msgid "Residue amplifier gain error (static and dynamic)"
+msgstr ""
+
+#: ../../source/python_matlab_parity.rst:157
+msgid "Reference error (settling + droop)"
+msgstr ""
+
+#: ../../source/python_matlab_parity.rst:158
+msgid "AM noise, AM tone, clipping, drift, glitch injection"
+msgstr ""
+
+#: ../../source/python_matlab_parity.rst:159
+msgid "First-order noise shaping"
+msgstr ""
+
+#: ../../source/python_matlab_parity.rst:162
+msgid "Summary"
+msgstr ""
+
+#: ../../source/python_matlab_parity.rst:168
+msgid "Category"
+msgstr ""
+
+#: ../../source/python_matlab_parity.rst:171
+msgid "Core analysis functions"
+msgstr ""
+
+#: ../../source/python_matlab_parity.rst:172
+msgid "18"
+msgstr ""
+
+#: ../../source/python_matlab_parity.rst:173
+msgid "43"
+msgstr ""
+
+#: ../../source/python_matlab_parity.rst:174
+msgid "Matched across both"
+msgstr ""
+
+#: ../../source/python_matlab_parity.rst:175
+#: ../../source/python_matlab_parity.rst:176
+msgid "14"
+msgstr ""
+
+#: ../../source/python_matlab_parity.rst:177
+msgid "MATLAB-only"
+msgstr ""
+
+#: ../../source/python_matlab_parity.rst:178
+msgid "4"
+msgstr ""
+
+#: ../../source/python_matlab_parity.rst:179
+#: ../../source/python_matlab_parity.rst:181
+msgid "—"
+msgstr ""
+
+#: ../../source/python_matlab_parity.rst:180
+msgid "Python-only"
+msgstr ""
+
+#: ../../source/python_matlab_parity.rst:182
+msgid "29"
+msgstr ""
+
+#: ../../source/python_matlab_parity.rst:183
+msgid "Signal generation module"
+msgstr ""
+
+#: ../../source/python_matlab_parity.rst:184
+#: ../../source/python_matlab_parity.rst:190
+msgid "No"
+msgstr ""
+
+#: ../../source/python_matlab_parity.rst:185
+msgid "Yes (``siggen``)"
+msgstr ""
+
+#: ../../source/python_matlab_parity.rst:186
+msgid "Unit conversion utilities"
+msgstr ""
+
+#: ../../source/python_matlab_parity.rst:187
+msgid "No (inline)"
+msgstr ""
+
+#: ../../source/python_matlab_parity.rst:188
+msgid "Yes (20 functions)"
+msgstr ""
+
+#: ../../source/python_matlab_parity.rst:189
+msgid "Two-tone analysis"
+msgstr ""
+
+#: ../../source/python_matlab_parity.rst:191
+msgid "Yes"
+msgstr ""
+

@@ -1,0 +1,411 @@
+# SOME DESCRIPTIVE TITLE.
+# Copyright (C) 2025, ADCToolbox Contributors
+# This file is distributed under the same license as the ADCToolbox package.
+# FIRST AUTHOR <EMAIL@ADDRESS>, 2026.
+#
+#, fuzzy
+msgid ""
+msgstr ""
+"Project-Id-Version: ADCToolbox 0.5.0\n"
+"Report-Msgid-Bugs-To: \n"
+"POT-Creation-Date: 2026-03-10 20:52+0800\n"
+"PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
+"Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
+"Language: zh_CN\n"
+"Language-Team: zh_CN <LL@li.org>\n"
+"Plural-Forms: nplurals=1; plural=0;\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=utf-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Generated-By: Babel 2.18.0\n"
+
+#: ../../source/algorithms/analyze_inl_from_sine.md:1
+msgid "analyze_inl_from_sine"
+msgstr ""
+
+#: ../../source/algorithms/analyze_inl_from_sine.md:3
+msgid "Overview"
+msgstr ""
+
+#: ../../source/algorithms/analyze_inl_from_sine.md:5
+msgid ""
+"`analyze_inl_from_sine` computes Integral Nonlinearity (INL) and "
+"Differential Nonlinearity (DNL) from sine wave histogram test using the "
+"inverse cosine method. This is the Python implementation following IEEE "
+"Std 1241-2010."
+msgstr ""
+
+#: ../../source/algorithms/analyze_inl_from_sine.md:7
+msgid "Syntax"
+msgstr ""
+
+#: ../../source/algorithms/analyze_inl_from_sine.md:25
+msgid "Parameters"
+msgstr ""
+
+#: ../../source/algorithms/analyze_inl_from_sine.md:27
+msgid "**`data`** (array_like) — ADC output signal"
+msgstr ""
+
+#: ../../source/algorithms/analyze_inl_from_sine.md:28
+msgid "Analog: Float values (normalized 0-1 or full-scale voltage)"
+msgstr ""
+
+#: ../../source/algorithms/analyze_inl_from_sine.md:29
+msgid "Digital: Integer codes or float representation"
+msgstr ""
+
+#: ../../source/algorithms/analyze_inl_from_sine.md:30
+msgid ""
+"**`num_bits`** (int, optional) — ADC resolution in bits. If None, "
+"inferred from data range"
+msgstr ""
+
+#: ../../source/algorithms/analyze_inl_from_sine.md:31
+msgid "**`full_scale`** (float, optional) — Full-scale voltage for quantization"
+msgstr ""
+
+#: ../../source/algorithms/analyze_inl_from_sine.md:32
+msgid "If provided: codes = round(data × 2^num_bits / full_scale)"
+msgstr ""
+
+#: ../../source/algorithms/analyze_inl_from_sine.md:33
+msgid "If None: assumes normalized input (0-1 range)"
+msgstr ""
+
+#: ../../source/algorithms/analyze_inl_from_sine.md:34
+msgid ""
+"**`clip_percent`** (float, default=0.01) — Fraction of code range to "
+"exclude from edges (0.01 = 1%)"
+msgstr ""
+
+#: ../../source/algorithms/analyze_inl_from_sine.md:35
+msgid "Removes unreliable bins near saturation"
+msgstr ""
+
+#: ../../source/algorithms/analyze_inl_from_sine.md:36
+msgid "**`show_plot`** (bool, default=True) — Display INL/DNL plots"
+msgstr ""
+
+#: ../../source/algorithms/analyze_inl_from_sine.md:37
+msgid ""
+"**`show_title`** (bool, default=True) — Show auto-generated title with "
+"min/max ranges"
+msgstr ""
+
+#: ../../source/algorithms/analyze_inl_from_sine.md:38
+msgid ""
+"**`col_title`** (str, optional) — Column title above DNL plot (e.g., \"N "
+"= 2^10\")"
+msgstr ""
+
+#: ../../source/algorithms/analyze_inl_from_sine.md:39
+msgid ""
+"**`ax`** (matplotlib axis, optional) — Axis to plot on. If None, uses "
+"current axis"
+msgstr ""
+
+#: ../../source/algorithms/analyze_inl_from_sine.md:41
+msgid "Returns"
+msgstr ""
+
+#: ../../source/algorithms/analyze_inl_from_sine.md:43
+msgid "Dictionary containing:"
+msgstr ""
+
+#: ../../source/algorithms/analyze_inl_from_sine.md:45
+msgid "**`inl`** — Integral nonlinearity (LSB units)"
+msgstr ""
+
+#: ../../source/algorithms/analyze_inl_from_sine.md:46
+msgid "**`dnl`** — Differential nonlinearity (LSB units)"
+msgstr ""
+
+#: ../../source/algorithms/analyze_inl_from_sine.md:47
+msgid "**`code`** — Corresponding code values (x-axis)"
+msgstr ""
+
+#: ../../source/algorithms/analyze_inl_from_sine.md:49
+msgid "Algorithm"
+msgstr ""
+
+#: ../../source/algorithms/analyze_inl_from_sine.md:51
+msgid "1. Histogram Construction"
+msgstr ""
+
+#: ../../source/algorithms/analyze_inl_from_sine.md:61
+msgid "2. Inverse Cosine Transform"
+msgstr ""
+
+#: ../../source/algorithms/analyze_inl_from_sine.md:63
+msgid "Sine wave PDF is `p(x) ∝ 1/√(1 - x²)`, corresponding CDF:"
+msgstr ""
+
+#: ../../source/algorithms/analyze_inl_from_sine.md:70
+msgid ""
+"This maps the nonlinear sine wave distribution to a linear ideal ADC "
+"response."
+msgstr ""
+
+#: ../../source/algorithms/analyze_inl_from_sine.md:72
+msgid "3. DNL Calculation"
+msgstr ""
+
+#: ../../source/algorithms/analyze_inl_from_sine.md:80
+msgid "**Units**: LSB (Least Significant Bit)"
+msgstr ""
+
+#: ../../source/algorithms/analyze_inl_from_sine.md:81
+msgid "DNL = 0: Ideal step size"
+msgstr ""
+
+#: ../../source/algorithms/analyze_inl_from_sine.md:82
+msgid "DNL = -1: Missing code"
+msgstr ""
+
+#: ../../source/algorithms/analyze_inl_from_sine.md:83
+msgid "DNL > 0: Code width > 1 LSB"
+msgstr ""
+
+#: ../../source/algorithms/analyze_inl_from_sine.md:85
+msgid "4. INL Calculation"
+msgstr ""
+
+#: ../../source/algorithms/analyze_inl_from_sine.md:91
+msgid "**Units**: LSB"
+msgstr ""
+
+#: ../../source/algorithms/analyze_inl_from_sine.md:92
+msgid "INL = 0: Ideal transfer function"
+msgstr ""
+
+#: ../../source/algorithms/analyze_inl_from_sine.md:93
+msgid "INL > 0: Output higher than ideal"
+msgstr ""
+
+#: ../../source/algorithms/analyze_inl_from_sine.md:94
+msgid "INL < 0: Output lower than ideal"
+msgstr ""
+
+#: ../../source/algorithms/analyze_inl_from_sine.md:96
+msgid "Examples"
+msgstr ""
+
+#: ../../source/algorithms/analyze_inl_from_sine.md:98
+msgid "Example 1: Basic Usage"
+msgstr ""
+
+#: ../../source/algorithms/analyze_inl_from_sine.md:112
+msgid "Example 2: Tight Clipping"
+msgstr ""
+
+#: ../../source/algorithms/analyze_inl_from_sine.md:119
+msgid "Example 3: Custom Plotting"
+msgstr ""
+
+#: ../../source/algorithms/analyze_inl_from_sine.md:130
+msgid "Example 4: Batch Analysis"
+msgstr ""
+
+#: ../../source/algorithms/analyze_inl_from_sine.md:141
+msgid "Interpretation"
+msgstr ""
+
+#: ../../source/algorithms/analyze_inl_from_sine.md:143
+msgid "DNL Analysis"
+msgstr ""
+
+#: ../../source/algorithms/analyze_inl_from_sine.md
+msgid "DNL Value"
+msgstr ""
+
+#: ../../source/algorithms/analyze_inl_from_sine.md
+msgid "Meaning"
+msgstr ""
+
+#: ../../source/algorithms/analyze_inl_from_sine.md
+msgid "`DNL ≈ 0`"
+msgstr ""
+
+#: ../../source/algorithms/analyze_inl_from_sine.md
+msgid "Ideal uniform code width"
+msgstr ""
+
+#: ../../source/algorithms/analyze_inl_from_sine.md
+msgid "`DNL < -0.5`"
+msgstr ""
+
+#: ../../source/algorithms/analyze_inl_from_sine.md
+msgid "Code width < 0.5 LSB → potential missing code"
+msgstr ""
+
+#: ../../source/algorithms/analyze_inl_from_sine.md
+msgid "`DNL = -1`"
+msgstr ""
+
+#: ../../source/algorithms/analyze_inl_from_sine.md
+msgid "Missing code (zero histogram hits)"
+msgstr ""
+
+#: ../../source/algorithms/analyze_inl_from_sine.md
+msgid "`DNL > 0.5`"
+msgstr ""
+
+#: ../../source/algorithms/analyze_inl_from_sine.md
+msgid "Code width > 1.5 LSB → significant nonlinearity"
+msgstr ""
+
+#: ../../source/algorithms/analyze_inl_from_sine.md:152
+msgid "INL Analysis"
+msgstr ""
+
+#: ../../source/algorithms/analyze_inl_from_sine.md
+msgid "INL Value"
+msgstr ""
+
+#: ../../source/algorithms/analyze_inl_from_sine.md
+msgid "ADC Quality"
+msgstr ""
+
+#: ../../source/algorithms/analyze_inl_from_sine.md
+msgid "`max(|INL|) < 0.5`"
+msgstr ""
+
+#: ../../source/algorithms/analyze_inl_from_sine.md
+msgid "Excellent (< 0.5 LSB error)"
+msgstr ""
+
+#: ../../source/algorithms/analyze_inl_from_sine.md
+msgid "`max(|INL|) < 1.0`"
+msgstr ""
+
+#: ../../source/algorithms/analyze_inl_from_sine.md
+msgid "Good (< 1 LSB error)"
+msgstr ""
+
+#: ../../source/algorithms/analyze_inl_from_sine.md
+msgid "`max(|INL|) > 2.0`"
+msgstr ""
+
+#: ../../source/algorithms/analyze_inl_from_sine.md
+msgid "Poor, needs calibration"
+msgstr ""
+
+#: ../../source/algorithms/analyze_inl_from_sine.md
+msgid "INL shape: bow"
+msgstr ""
+
+#: ../../source/algorithms/analyze_inl_from_sine.md
+msgid "Gain/offset error"
+msgstr ""
+
+#: ../../source/algorithms/analyze_inl_from_sine.md
+msgid "INL shape: S-curve"
+msgstr ""
+
+#: ../../source/algorithms/analyze_inl_from_sine.md
+msgid "2nd-order nonlinearity"
+msgstr ""
+
+#: ../../source/algorithms/analyze_inl_from_sine.md
+msgid "INL shape: periodic"
+msgstr ""
+
+#: ../../source/algorithms/analyze_inl_from_sine.md
+msgid "Cyclic error (e.g., flash ADC)"
+msgstr ""
+
+#: ../../source/algorithms/analyze_inl_from_sine.md:163
+msgid "Limitations"
+msgstr ""
+
+#: ../../source/algorithms/analyze_inl_from_sine.md:165
+msgid ""
+"**Sine wave input required**: Assumes sine wave histogram PDF `∝ 1/√(1 - "
+"x²)`"
+msgstr ""
+
+#: ../../source/algorithms/analyze_inl_from_sine.md:166
+msgid "Ramp or triangle inputs require different methods"
+msgstr ""
+
+#: ../../source/algorithms/analyze_inl_from_sine.md:167
+msgid ""
+"**Sufficient samples**: Requires `>> 2^N` samples for N-bit ADC "
+"(typically 10× minimum)"
+msgstr ""
+
+#: ../../source/algorithms/analyze_inl_from_sine.md:168
+msgid "For 12-bit ADC: need > 40,000 samples for reliable results"
+msgstr ""
+
+#: ../../source/algorithms/analyze_inl_from_sine.md:169
+msgid ""
+"**Clipping sensitive**: Edge bins unreliable due to saturation → adjust "
+"`clip_percent`"
+msgstr ""
+
+#: ../../source/algorithms/analyze_inl_from_sine.md:170
+msgid ""
+"**Missing codes**: DNL = -1 causes CDF discontinuities, may need special "
+"handling"
+msgstr ""
+
+#: ../../source/algorithms/analyze_inl_from_sine.md:172
+msgid "Common Issues"
+msgstr ""
+
+#: ../../source/algorithms/analyze_inl_from_sine.md:174
+msgid "Low Sample Count"
+msgstr ""
+
+#: ../../source/algorithms/analyze_inl_from_sine.md:183
+msgid "Signal Clipping"
+msgstr ""
+
+#: ../../source/algorithms/analyze_inl_from_sine.md:189
+msgid "See Also"
+msgstr ""
+
+#: ../../source/algorithms/analyze_inl_from_sine.md:191
+msgid "[`fit_sine_4param`](fit_sine_4param.md) — Sine wave parameter extraction"
+msgstr ""
+
+#: ../../source/algorithms/analyze_inl_from_sine.md:192
+msgid ""
+"[`calibrate_weight_sine`](calibrate_weight_sine.md) — Digital weight "
+"calibration to reduce INL/DNL"
+msgstr ""
+
+#: ../../source/algorithms/analyze_inl_from_sine.md:193
+msgid ""
+"[`analyze_spectrum`](analyze_spectrum.md) — Frequency-domain linearity "
+"(SFDR, THD)"
+msgstr ""
+
+#: ../../source/algorithms/analyze_inl_from_sine.md:194
+msgid ""
+"[`compute_inl_from_sine`](../api/aout.rst) — Core computation without "
+"plotting"
+msgstr ""
+
+#: ../../source/algorithms/analyze_inl_from_sine.md:196
+msgid "References"
+msgstr ""
+
+#: ../../source/algorithms/analyze_inl_from_sine.md:198
+msgid "IEEE Std 1241-2010, Section 5.5, \"Histogram Test Method\""
+msgstr ""
+
+#: ../../source/algorithms/analyze_inl_from_sine.md:199
+msgid ""
+"J. Doernberg et al., \"Full-Speed Testing of A/D Converters,\" IEEE JSSC,"
+" 1984"
+msgstr ""
+
+#: ../../source/algorithms/analyze_inl_from_sine.md:200
+msgid ""
+"M. F. Wagdy and W. Ng, \"Validity of Uniform Quantization Error Model for"
+" Sinusoidal Signals Without and With Dither,\" IEEE Trans. IM, 1989"
+msgstr ""
+

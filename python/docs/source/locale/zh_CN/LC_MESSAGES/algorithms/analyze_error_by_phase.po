@@ -1,0 +1,428 @@
+# SOME DESCRIPTIVE TITLE.
+# Copyright (C) 2025, ADCToolbox Contributors
+# This file is distributed under the same license as the ADCToolbox package.
+# FIRST AUTHOR <EMAIL@ADDRESS>, 2026.
+#
+#, fuzzy
+msgid ""
+msgstr ""
+"Project-Id-Version: ADCToolbox 0.5.0\n"
+"Report-Msgid-Bugs-To: \n"
+"POT-Creation-Date: 2026-03-10 20:52+0800\n"
+"PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
+"Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
+"Language: zh_CN\n"
+"Language-Team: zh_CN <LL@li.org>\n"
+"Plural-Forms: nplurals=1; plural=0;\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=utf-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Generated-By: Babel 2.18.0\n"
+
+#: ../../source/algorithms/analyze_error_by_phase.md:1
+msgid "analyze_error_by_phase"
+msgstr ""
+
+#: ../../source/algorithms/analyze_error_by_phase.md:3
+msgid "Overview"
+msgstr ""
+
+#: ../../source/algorithms/analyze_error_by_phase.md:5
+msgid ""
+"`analyze_error_by_phase` performs AM/PM (Amplitude Modulation / Phase "
+"Modulation) decomposition of ADC errors as a function of the input signal"
+" phase. This reveals whether errors are signal-dependent and whether they"
+" modulate the amplitude (AM) or timing/phase (PM) of the signal."
+msgstr ""
+
+#: ../../source/algorithms/analyze_error_by_phase.md:7
+msgid "Syntax"
+msgstr ""
+
+#: ../../source/algorithms/analyze_error_by_phase.md:24
+msgid "Parameters"
+msgstr ""
+
+#: ../../source/algorithms/analyze_error_by_phase.md:26
+msgid "**`signal`** (array_like) — Input ADC signal (sine wave excitation)"
+msgstr ""
+
+#: ../../source/algorithms/analyze_error_by_phase.md:27
+msgid ""
+"**`norm_freq`** (float, optional) — Normalized frequency (f/fs), range "
+"(0, 0.5)"
+msgstr ""
+
+#: ../../source/algorithms/analyze_error_by_phase.md:28
+msgid "If None: auto-detected via FFT"
+msgstr ""
+
+#: ../../source/algorithms/analyze_error_by_phase.md:29
+msgid "**`n_bins`** (int, default=100) — Number of phase bins for visualization"
+msgstr ""
+
+#: ../../source/algorithms/analyze_error_by_phase.md:30
+msgid ""
+"**`include_base_noise`** (bool, default=True) — Include base noise term "
+"in fitting"
+msgstr ""
+
+#: ../../source/algorithms/analyze_error_by_phase.md:31
+msgid "**`show_plot`** (bool, default=True) — Display error vs. phase plot"
+msgstr ""
+
+#: ../../source/algorithms/analyze_error_by_phase.md:32
+msgid ""
+"**`axes`** (tuple, optional) — Tuple of (ax1, ax2) for top and bottom "
+"panels"
+msgstr ""
+
+#: ../../source/algorithms/analyze_error_by_phase.md:33
+msgid "**`ax`** (matplotlib axis, optional) — Single axis to split into 2 panels"
+msgstr ""
+
+#: ../../source/algorithms/analyze_error_by_phase.md:34
+msgid "**`title`** (str, optional) — Test setup description for title"
+msgstr ""
+
+#: ../../source/algorithms/analyze_error_by_phase.md:36
+msgid "Returns"
+msgstr ""
+
+#: ../../source/algorithms/analyze_error_by_phase.md:38
+msgid "Dictionary containing:"
+msgstr ""
+
+#: ../../source/algorithms/analyze_error_by_phase.md:40
+msgid "**Numerical Results:**"
+msgstr ""
+
+#: ../../source/algorithms/analyze_error_by_phase.md:41
+msgid "**`am_noise_rms_v`** — AM noise RMS (amplitude modulation)"
+msgstr ""
+
+#: ../../source/algorithms/analyze_error_by_phase.md:42
+msgid "**`pm_noise_rms_v`** — PM noise RMS in voltage units"
+msgstr ""
+
+#: ../../source/algorithms/analyze_error_by_phase.md:43
+msgid "**`pm_noise_rms_rad`** — PM noise RMS in radians"
+msgstr ""
+
+#: ../../source/algorithms/analyze_error_by_phase.md:44
+msgid "**`base_noise_rms_v`** — Base noise RMS (signal-independent)"
+msgstr ""
+
+#: ../../source/algorithms/analyze_error_by_phase.md:45
+msgid "**`total_rms_v`** — Total error RMS"
+msgstr ""
+
+#: ../../source/algorithms/analyze_error_by_phase.md:47
+msgid "**Validation Metrics:**"
+msgstr ""
+
+#: ../../source/algorithms/analyze_error_by_phase.md:48
+msgid "**`r_squared_raw`** — R² for raw data fit (energy ratio)"
+msgstr ""
+
+#: ../../source/algorithms/analyze_error_by_phase.md:49
+msgid "**`r_squared_binned`** — R² for binned data (model confidence)"
+msgstr ""
+
+#: ../../source/algorithms/analyze_error_by_phase.md:51
+msgid "**Visualization Data:**"
+msgstr ""
+
+#: ../../source/algorithms/analyze_error_by_phase.md:52
+msgid "**`bin_error_rms_v`** — RMS error per phase bin"
+msgstr ""
+
+#: ../../source/algorithms/analyze_error_by_phase.md:53
+msgid "**`bin_error_mean_v`** — Mean error per phase bin"
+msgstr ""
+
+#: ../../source/algorithms/analyze_error_by_phase.md:54
+msgid "**`phase_bin_centers_rad`** — Phase bin centers (radians)"
+msgstr ""
+
+#: ../../source/algorithms/analyze_error_by_phase.md:56
+msgid "**Metadata:**"
+msgstr ""
+
+#: ../../source/algorithms/analyze_error_by_phase.md:57
+msgid ""
+"**`amplitude`**, **`dc_offset`**, **`norm_freq`** — Fitted signal "
+"parameters"
+msgstr ""
+
+#: ../../source/algorithms/analyze_error_by_phase.md:58
+msgid "**`fitted_signal`**, **`error`**, **`phase`** — Signal decomposition"
+msgstr ""
+
+#: ../../source/algorithms/analyze_error_by_phase.md:60
+msgid "Algorithm"
+msgstr ""
+
+#: ../../source/algorithms/analyze_error_by_phase.md:62
+msgid "AM/PM Model"
+msgstr ""
+
+#: ../../source/algorithms/analyze_error_by_phase.md:64
+msgid "Error is decomposed as:"
+msgstr ""
+
+#: ../../source/algorithms/analyze_error_by_phase.md:69
+msgid "where:"
+msgstr ""
+
+#: ../../source/algorithms/analyze_error_by_phase.md:70
+msgid "**AM**: Amplitude modulation error (gain variation with signal level)"
+msgstr ""
+
+#: ../../source/algorithms/analyze_error_by_phase.md:71
+msgid "**PM**: Phase modulation error (timing jitter, settling errors)"
+msgstr ""
+
+#: ../../source/algorithms/analyze_error_by_phase.md:72
+msgid "**base_noise**: Signal-independent noise"
+msgstr ""
+
+#: ../../source/algorithms/analyze_error_by_phase.md:73
+msgid "**φ**: Signal phase"
+msgstr ""
+
+#: ../../source/algorithms/analyze_error_by_phase.md:75
+msgid "Dual-Track Analysis"
+msgstr ""
+
+#: ../../source/algorithms/analyze_error_by_phase.md:77
+msgid ""
+"**Path A (Raw)**: Fit all N samples → highest precision AM/PM values "
+"**Path B (Binned)**: Compute binned statistics → visualization"
+msgstr ""
+
+#: ../../source/algorithms/analyze_error_by_phase.md:80
+msgid "Cross-validation: Path A coefficients predict Path B trend → R² metric"
+msgstr ""
+
+#: ../../source/algorithms/analyze_error_by_phase.md:82
+msgid "Examples"
+msgstr ""
+
+#: ../../source/algorithms/analyze_error_by_phase.md:84
+msgid "Example 1: AM/PM Decomposition"
+msgstr ""
+
+#: ../../source/algorithms/analyze_error_by_phase.md:100
+msgid "Example 2: Identify Dominant Error Mechanism"
+msgstr ""
+
+#: ../../source/algorithms/analyze_error_by_phase.md:119
+msgid "Example 3: Compare Multiple Conditions"
+msgstr ""
+
+#: ../../source/algorithms/analyze_error_by_phase.md
+#: ../../source/algorithms/analyze_error_by_phase.md:142
+msgid "Interpretation"
+msgstr ""
+
+#: ../../source/algorithms/analyze_error_by_phase.md:144
+msgid "Error Type Classification"
+msgstr ""
+
+#: ../../source/algorithms/analyze_error_by_phase.md
+msgid "Dominant Component"
+msgstr ""
+
+#: ../../source/algorithms/analyze_error_by_phase.md
+msgid "Likely Cause"
+msgstr ""
+
+#: ../../source/algorithms/analyze_error_by_phase.md
+msgid "**AM dominant**"
+msgstr ""
+
+#: ../../source/algorithms/analyze_error_by_phase.md
+msgid ""
+"Gain error, amplitude-dependent distortion, residue amplifier gain "
+"variation"
+msgstr ""
+
+#: ../../source/algorithms/analyze_error_by_phase.md
+msgid "**PM dominant**"
+msgstr ""
+
+#: ../../source/algorithms/analyze_error_by_phase.md
+msgid "Clock jitter, timing errors, settling time issues"
+msgstr ""
+
+#: ../../source/algorithms/analyze_error_by_phase.md
+msgid "**Base noise dominant**"
+msgstr ""
+
+#: ../../source/algorithms/analyze_error_by_phase.md
+msgid "Thermal noise, quantization noise (signal-independent)"
+msgstr ""
+
+#: ../../source/algorithms/analyze_error_by_phase.md
+msgid "**AM ≈ PM**"
+msgstr ""
+
+#: ../../source/algorithms/analyze_error_by_phase.md
+msgid "Mixed analog impairments"
+msgstr ""
+
+#: ../../source/algorithms/analyze_error_by_phase.md:153
+msgid "Phase Pattern Analysis"
+msgstr ""
+
+#: ../../source/algorithms/analyze_error_by_phase.md
+msgid "Error vs. Phase Pattern"
+msgstr ""
+
+#: ../../source/algorithms/analyze_error_by_phase.md
+msgid "**Sinusoidal (AM-like)**"
+msgstr ""
+
+#: ../../source/algorithms/analyze_error_by_phase.md
+msgid "Amplitude-dependent error"
+msgstr ""
+
+#: ../../source/algorithms/analyze_error_by_phase.md
+msgid "**Cosinusoidal (PM-like)**"
+msgstr ""
+
+#: ../../source/algorithms/analyze_error_by_phase.md
+msgid "Timing/phase-dependent error"
+msgstr ""
+
+#: ../../source/algorithms/analyze_error_by_phase.md
+msgid "**Flat (uniform)**"
+msgstr ""
+
+#: ../../source/algorithms/analyze_error_by_phase.md
+msgid "Signal-independent noise"
+msgstr ""
+
+#: ../../source/algorithms/analyze_error_by_phase.md
+msgid "**Complex shape**"
+msgstr ""
+
+#: ../../source/algorithms/analyze_error_by_phase.md
+msgid "Multiple error mechanisms"
+msgstr ""
+
+#: ../../source/algorithms/analyze_error_by_phase.md:162
+msgid "R² Interpretation"
+msgstr ""
+
+#: ../../source/algorithms/analyze_error_by_phase.md:164
+msgid "**R² > 0.9**: Model fits well, errors are signal-dependent"
+msgstr ""
+
+#: ../../source/algorithms/analyze_error_by_phase.md:165
+msgid "**0.5 < R² < 0.9**: Moderate signal dependence"
+msgstr ""
+
+#: ../../source/algorithms/analyze_error_by_phase.md:166
+msgid "**R² < 0.5**: Errors mostly signal-independent (random noise)"
+msgstr ""
+
+#: ../../source/algorithms/analyze_error_by_phase.md:168
+msgid "Use Cases"
+msgstr ""
+
+#: ../../source/algorithms/analyze_error_by_phase.md:170
+msgid "**Distinguish jitter from amplitude errors**"
+msgstr ""
+
+#: ../../source/algorithms/analyze_error_by_phase.md:171
+msgid "**Identify memory effects** in pipelined ADCs"
+msgstr ""
+
+#: ../../source/algorithms/analyze_error_by_phase.md:172
+msgid "**Validate settling time** in SAR ADCs"
+msgstr ""
+
+#: ../../source/algorithms/analyze_error_by_phase.md:173
+msgid "**Characterize residue amplifier** gain variations"
+msgstr ""
+
+#: ../../source/algorithms/analyze_error_by_phase.md:174
+msgid "**Debug clock quality** (PM noise indicates jitter)"
+msgstr ""
+
+#: ../../source/algorithms/analyze_error_by_phase.md:176
+msgid "Common Patterns"
+msgstr ""
+
+#: ../../source/algorithms/analyze_error_by_phase.md:178
+msgid "Pipelined ADC"
+msgstr ""
+
+#: ../../source/algorithms/analyze_error_by_phase.md:179
+msgid "High AM → Residue amplifier gain error"
+msgstr ""
+
+#: ../../source/algorithms/analyze_error_by_phase.md:180
+msgid "High PM → Inadequate settling time"
+msgstr ""
+
+#: ../../source/algorithms/analyze_error_by_phase.md:182
+msgid "SAR ADC"
+msgstr ""
+
+#: ../../source/algorithms/analyze_error_by_phase.md:183
+msgid "High AM → DAC mismatch, reference variation"
+msgstr ""
+
+#: ../../source/algorithms/analyze_error_by_phase.md:184
+msgid "High PM → Comparator metastability"
+msgstr ""
+
+#: ../../source/algorithms/analyze_error_by_phase.md:186
+msgid "Flash ADC"
+msgstr ""
+
+#: ../../source/algorithms/analyze_error_by_phase.md:187
+msgid "Low AM, low PM → Good performance"
+msgstr ""
+
+#: ../../source/algorithms/analyze_error_by_phase.md:188
+msgid "High base noise → Comparator noise"
+msgstr ""
+
+#: ../../source/algorithms/analyze_error_by_phase.md:190
+msgid "See Also"
+msgstr ""
+
+#: ../../source/algorithms/analyze_error_by_phase.md:192
+msgid "[`analyze_error_by_value`](analyze_error_by_value.md) — Error vs. ADC code"
+msgstr ""
+
+#: ../../source/algorithms/analyze_error_by_phase.md:193
+msgid "[`analyze_error_pdf`](analyze_error_pdf.md) — Error distribution"
+msgstr ""
+
+#: ../../source/algorithms/analyze_error_by_phase.md:194
+msgid ""
+"[`analyze_error_autocorr`](analyze_error_autocorr.md) — Temporal "
+"correlation"
+msgstr ""
+
+#: ../../source/algorithms/analyze_error_by_phase.md:196
+msgid "References"
+msgstr ""
+
+#: ../../source/algorithms/analyze_error_by_phase.md:198
+msgid ""
+"IEEE Std 1241-2010, \"IEEE Standard for Terminology and Test Methods for "
+"ADCs\""
+msgstr ""
+
+#: ../../source/algorithms/analyze_error_by_phase.md:199
+msgid ""
+"M. Soudan et al., \"A Novel AM-PM-Jitter Decomposition Method for "
+"Characterizing ADC Nonidealities,\" IEEE Trans. IM, 2008"
+msgstr ""
+

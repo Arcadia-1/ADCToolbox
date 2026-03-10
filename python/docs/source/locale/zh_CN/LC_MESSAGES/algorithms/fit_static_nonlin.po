@@ -1,0 +1,448 @@
+# SOME DESCRIPTIVE TITLE.
+# Copyright (C) 2025, ADCToolbox Contributors
+# This file is distributed under the same license as the ADCToolbox package.
+# FIRST AUTHOR <EMAIL@ADDRESS>, 2026.
+#
+#, fuzzy
+msgid ""
+msgstr ""
+"Project-Id-Version: ADCToolbox 0.5.0\n"
+"Report-Msgid-Bugs-To: \n"
+"POT-Creation-Date: 2026-03-10 20:52+0800\n"
+"PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
+"Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
+"Language: zh_CN\n"
+"Language-Team: zh_CN <LL@li.org>\n"
+"Plural-Forms: nplurals=1; plural=0;\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=utf-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Generated-By: Babel 2.18.0\n"
+
+#: ../../source/algorithms/fit_static_nonlin.md:1
+msgid "fit_static_nonlin"
+msgstr ""
+
+#: ../../source/algorithms/fit_static_nonlin.md:3
+msgid "Overview"
+msgstr ""
+
+#: ../../source/algorithms/fit_static_nonlin.md:5
+msgid ""
+"`fit_static_nonlin` extracts static nonlinearity coefficients (k2, k3) "
+"from a distorted sine wave signal. This quantifies the 2nd-order and 3rd-"
+"order nonlinearity of an ADC's transfer function, which are the primary "
+"sources of harmonic distortion."
+msgstr ""
+
+#: ../../source/algorithms/fit_static_nonlin.md:7
+msgid "Syntax"
+msgstr ""
+
+#: ../../source/algorithms/fit_static_nonlin.md:22
+msgid "Parameters"
+msgstr ""
+
+#: ../../source/algorithms/fit_static_nonlin.md:24
+msgid "**`sig_distorted`** (array_like) — Distorted sine wave signal samples"
+msgstr ""
+
+#: ../../source/algorithms/fit_static_nonlin.md:25
+msgid "**`order`** (int) — Polynomial order for fitting (typically 2-3)"
+msgstr ""
+
+#: ../../source/algorithms/fit_static_nonlin.md:26
+msgid "order=2: Quadratic nonlinearity only (k2)"
+msgstr ""
+
+#: ../../source/algorithms/fit_static_nonlin.md:27
+msgid "order=3: Quadratic + cubic nonlinearity (k2, k3)"
+msgstr ""
+
+#: ../../source/algorithms/fit_static_nonlin.md:28
+msgid "order>3: Higher-order terms (advanced use)"
+msgstr ""
+
+#: ../../source/algorithms/fit_static_nonlin.md:30
+msgid "Returns"
+msgstr ""
+
+#: ../../source/algorithms/fit_static_nonlin.md:32
+msgid "Tuple containing:"
+msgstr ""
+
+#: ../../source/algorithms/fit_static_nonlin.md:33
+msgid "**`k2_extracted`** (float) — Quadratic nonlinearity coefficient"
+msgstr ""
+
+#: ../../source/algorithms/fit_static_nonlin.md:34
+msgid "For ideal ADC: k2 = 0"
+msgstr ""
+
+#: ../../source/algorithms/fit_static_nonlin.md:35
+msgid "Represents 2nd-order distortion (HD2)"
+msgstr ""
+
+#: ../../source/algorithms/fit_static_nonlin.md:36
+msgid "Returns NaN if order < 2"
+msgstr ""
+
+#: ../../source/algorithms/fit_static_nonlin.md:38
+msgid "**`k3_extracted`** (float) — Cubic nonlinearity coefficient"
+msgstr ""
+
+#: ../../source/algorithms/fit_static_nonlin.md:39
+msgid "For ideal ADC: k3 = 0"
+msgstr ""
+
+#: ../../source/algorithms/fit_static_nonlin.md:40
+msgid "Represents 3rd-order distortion (HD3)"
+msgstr ""
+
+#: ../../source/algorithms/fit_static_nonlin.md:41
+msgid "Returns NaN if order < 3"
+msgstr ""
+
+#: ../../source/algorithms/fit_static_nonlin.md:43
+msgid ""
+"**`fitted_sine`** (array) — Fitted ideal sine wave input (reference "
+"signal)"
+msgstr ""
+
+#: ../../source/algorithms/fit_static_nonlin.md:44
+msgid "Same length as sig_distorted"
+msgstr ""
+
+#: ../../source/algorithms/fit_static_nonlin.md:45
+msgid "This is the ideal sine extracted from distorted signal"
+msgstr ""
+
+#: ../../source/algorithms/fit_static_nonlin.md:47
+msgid "**`fitted_transfer`** (tuple) — Fitted transfer curve for plotting"
+msgstr ""
+
+#: ../../source/algorithms/fit_static_nonlin.md:48
+msgid "(x, y) where x is 1000 smooth input points, y is output"
+msgstr ""
+
+#: ../../source/algorithms/fit_static_nonlin.md:49
+msgid "For ideal system: y = x (straight line)"
+msgstr ""
+
+#: ../../source/algorithms/fit_static_nonlin.md:51
+msgid "Transfer Function Model"
+msgstr ""
+
+#: ../../source/algorithms/fit_static_nonlin.md:53
+msgid "The ADC transfer function is modeled as:"
+msgstr ""
+
+#: ../../source/algorithms/fit_static_nonlin.md:59
+msgid "where:"
+msgstr ""
+
+#: ../../source/algorithms/fit_static_nonlin.md:60
+msgid "**x** = ideal input (zero-mean sine)"
+msgstr ""
+
+#: ../../source/algorithms/fit_static_nonlin.md:61
+msgid "**y** = actual output (zero-mean)"
+msgstr ""
+
+#: ../../source/algorithms/fit_static_nonlin.md:62
+msgid "**k2** = 2nd-order nonlinearity coefficient"
+msgstr ""
+
+#: ../../source/algorithms/fit_static_nonlin.md:63
+msgid "**k3** = 3rd-order nonlinearity coefficient"
+msgstr ""
+
+#: ../../source/algorithms/fit_static_nonlin.md:65
+msgid "Algorithm"
+msgstr ""
+
+#: ../../source/algorithms/fit_static_nonlin.md:88
+msgid "Examples"
+msgstr ""
+
+#: ../../source/algorithms/fit_static_nonlin.md:90
+msgid "Example 1: Extract Nonlinearity Coefficients"
+msgstr ""
+
+#: ../../source/algorithms/fit_static_nonlin.md:109
+msgid "Example 2: Plot Nonlinearity Curve"
+msgstr ""
+
+#: ../../source/algorithms/fit_static_nonlin.md:141
+msgid "Example 3: Relate Coefficients to Harmonic Distortion"
+msgstr ""
+
+#: ../../source/algorithms/fit_static_nonlin.md:162
+msgid "Example 4: Before/After Calibration"
+msgstr ""
+
+#: ../../source/algorithms/fit_static_nonlin.md
+#: ../../source/algorithms/fit_static_nonlin.md:179
+msgid "Interpretation"
+msgstr ""
+
+#: ../../source/algorithms/fit_static_nonlin.md:181
+msgid "Coefficient Magnitude"
+msgstr ""
+
+#: ../../source/algorithms/fit_static_nonlin.md
+msgid "Coefficient"
+msgstr ""
+
+#: ../../source/algorithms/fit_static_nonlin.md
+msgid "Typical Range"
+msgstr ""
+
+#: ../../source/algorithms/fit_static_nonlin.md
+msgid "**k2**"
+msgstr ""
+
+#: ../../source/algorithms/fit_static_nonlin.md
+msgid "< 0.001"
+msgstr ""
+
+#: ../../source/algorithms/fit_static_nonlin.md
+msgid "Excellent linearity (HD2 < -80 dBc)"
+msgstr ""
+
+#: ../../source/algorithms/fit_static_nonlin.md
+msgid "0.001 - 0.01"
+msgstr ""
+
+#: ../../source/algorithms/fit_static_nonlin.md
+msgid "Good linearity (HD2: -60 to -80 dBc)"
+msgstr ""
+
+#: ../../source/algorithms/fit_static_nonlin.md
+msgid "> 0.01"
+msgstr ""
+
+#: ../../source/algorithms/fit_static_nonlin.md
+msgid "Poor linearity (HD2 > -60 dBc)"
+msgstr ""
+
+#: ../../source/algorithms/fit_static_nonlin.md
+msgid "**k3**"
+msgstr ""
+
+#: ../../source/algorithms/fit_static_nonlin.md
+msgid "< 0.0001"
+msgstr ""
+
+#: ../../source/algorithms/fit_static_nonlin.md
+msgid "Excellent linearity (HD3 < -80 dBc)"
+msgstr ""
+
+#: ../../source/algorithms/fit_static_nonlin.md
+msgid "0.0001 - 0.001"
+msgstr ""
+
+#: ../../source/algorithms/fit_static_nonlin.md
+msgid "Good linearity (HD3: -60 to -80 dBc)"
+msgstr ""
+
+#: ../../source/algorithms/fit_static_nonlin.md
+msgid "> 0.001"
+msgstr ""
+
+#: ../../source/algorithms/fit_static_nonlin.md
+msgid "Poor linearity (HD3 > -60 dBc)"
+msgstr ""
+
+#: ../../source/algorithms/fit_static_nonlin.md:192
+msgid "Coefficient Sign"
+msgstr ""
+
+#: ../../source/algorithms/fit_static_nonlin.md
+msgid "Sign"
+msgstr ""
+
+#: ../../source/algorithms/fit_static_nonlin.md
+msgid "Physical Meaning"
+msgstr ""
+
+#: ../../source/algorithms/fit_static_nonlin.md
+msgid "**k2 > 0**"
+msgstr ""
+
+#: ../../source/algorithms/fit_static_nonlin.md
+msgid "Upward curvature (compression → expansion)"
+msgstr ""
+
+#: ../../source/algorithms/fit_static_nonlin.md
+msgid "**k2 < 0**"
+msgstr ""
+
+#: ../../source/algorithms/fit_static_nonlin.md
+msgid "Downward curvature (expansion → compression)"
+msgstr ""
+
+#: ../../source/algorithms/fit_static_nonlin.md
+msgid "**k3 > 0**"
+msgstr ""
+
+#: ../../source/algorithms/fit_static_nonlin.md
+msgid "Positive cubic term (soft saturation)"
+msgstr ""
+
+#: ../../source/algorithms/fit_static_nonlin.md
+msgid "**k3 < 0**"
+msgstr ""
+
+#: ../../source/algorithms/fit_static_nonlin.md
+msgid "Negative cubic term (hard limiting)"
+msgstr ""
+
+#: ../../source/algorithms/fit_static_nonlin.md:201
+msgid "Dominant Nonlinearity"
+msgstr ""
+
+#: ../../source/algorithms/fit_static_nonlin.md
+msgid "Condition"
+msgstr ""
+
+#: ../../source/algorithms/fit_static_nonlin.md
+msgid "ADC Characteristic"
+msgstr ""
+
+#: ../../source/algorithms/fit_static_nonlin.md
+msgid "**|k2| >> |k3|**"
+msgstr ""
+
+#: ../../source/algorithms/fit_static_nonlin.md
+msgid "Even-order dominant (differential pair mismatch)"
+msgstr ""
+
+#: ../../source/algorithms/fit_static_nonlin.md
+msgid "**|k3| >> |k2|**"
+msgstr ""
+
+#: ../../source/algorithms/fit_static_nonlin.md
+msgid "Odd-order dominant (single-ended nonlinearity)"
+msgstr ""
+
+#: ../../source/algorithms/fit_static_nonlin.md
+msgid "**|k2| ≈ |k3|**"
+msgstr ""
+
+#: ../../source/algorithms/fit_static_nonlin.md
+msgid "Mixed nonlinearity"
+msgstr ""
+
+#: ../../source/algorithms/fit_static_nonlin.md:209
+msgid "Limitations"
+msgstr ""
+
+#: ../../source/algorithms/fit_static_nonlin.md:211
+msgid "**Cannot extract gain error**: Sine fitting absorbs amplitude variations"
+msgstr ""
+
+#: ../../source/algorithms/fit_static_nonlin.md:212
+msgid "Gain calibration requires DC sweep or multi-amplitude testing"
+msgstr ""
+
+#: ../../source/algorithms/fit_static_nonlin.md:213
+msgid ""
+"**Assumes static nonlinearity**: Dynamic effects (memory, settling) not "
+"captured"
+msgstr ""
+
+#: ../../source/algorithms/fit_static_nonlin.md:214
+msgid ""
+"**Single-tone only**: Multi-tone distortion (IMD) requires different "
+"analysis"
+msgstr ""
+
+#: ../../source/algorithms/fit_static_nonlin.md:215
+msgid "**Numerical stability**: Order > 10 may cause ill-conditioning"
+msgstr ""
+
+#: ../../source/algorithms/fit_static_nonlin.md:217
+msgid "Common Issues"
+msgstr ""
+
+#: ../../source/algorithms/fit_static_nonlin.md:219
+msgid "High-Order Fitting (order > 5)"
+msgstr ""
+
+#: ../../source/algorithms/fit_static_nonlin.md:228
+msgid "Interpreting NaN Results"
+msgstr ""
+
+#: ../../source/algorithms/fit_static_nonlin.md:239
+msgid "Use Cases"
+msgstr ""
+
+#: ../../source/algorithms/fit_static_nonlin.md:241
+msgid "**Characterize ADC linearity** quantitatively"
+msgstr ""
+
+#: ../../source/algorithms/fit_static_nonlin.md:242
+msgid "**Compare designs** (architecture, process, layout)"
+msgstr ""
+
+#: ../../source/algorithms/fit_static_nonlin.md:243
+msgid "**Validate calibration** (before/after)"
+msgstr ""
+
+#: ../../source/algorithms/fit_static_nonlin.md:244
+msgid "**Root cause analysis** (k2 vs k3 dominance)"
+msgstr ""
+
+#: ../../source/algorithms/fit_static_nonlin.md:245
+msgid "**Predict harmonic distortion** from coefficients"
+msgstr ""
+
+#: ../../source/algorithms/fit_static_nonlin.md:247
+msgid "See Also"
+msgstr ""
+
+#: ../../source/algorithms/fit_static_nonlin.md:249
+msgid ""
+"[`analyze_spectrum`](analyze_spectrum.md) — Measure HD2, HD3 in frequency"
+" domain"
+msgstr ""
+
+#: ../../source/algorithms/fit_static_nonlin.md:250
+msgid ""
+"[`analyze_decomposition_time`](analyze_decomposition_time.md) — Time-"
+"domain harmonic extraction"
+msgstr ""
+
+#: ../../source/algorithms/fit_static_nonlin.md:251
+msgid ""
+"[`analyze_inl_from_sine`](analyze_inl_from_sine.md) — INL/DNL (code-level"
+" nonlinearity)"
+msgstr ""
+
+#: ../../source/algorithms/fit_static_nonlin.md:252
+msgid ""
+"[`calibrate_weight_sine`](calibrate_weight_sine.md) — Calibrate to reduce"
+" k2/k3"
+msgstr ""
+
+#: ../../source/algorithms/fit_static_nonlin.md:254
+msgid "References"
+msgstr ""
+
+#: ../../source/algorithms/fit_static_nonlin.md:256
+msgid "S. Max, \"Fast Accurate and Complete ADC Testing,\" Proc. IEEE ITC, 1989"
+msgstr ""
+
+#: ../../source/algorithms/fit_static_nonlin.md:257
+msgid ""
+"J. Doernberg et al., \"Full-Speed Testing of A/D Converters,\" IEEE JSSC,"
+" 1984"
+msgstr ""
+
+#: ../../source/algorithms/fit_static_nonlin.md:258
+msgid ""
+"IEEE Std 1241-2010, \"IEEE Standard for Terminology and Test Methods for "
+"ADCs\""
+msgstr ""
+

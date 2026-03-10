@@ -1,0 +1,93 @@
+# SOME DESCRIPTIVE TITLE.
+# Copyright (C) 2025, ADCToolbox Contributors
+# This file is distributed under the same license as the ADCToolbox package.
+# FIRST AUTHOR <EMAIL@ADDRESS>, 2026.
+#
+#, fuzzy
+msgid ""
+msgstr ""
+"Project-Id-Version: ADCToolbox 0.5.0\n"
+"Report-Msgid-Bugs-To: \n"
+"POT-Creation-Date: 2026-03-10 20:52+0800\n"
+"PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
+"Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
+"Language: zh_CN\n"
+"Language-Team: zh_CN <LL@li.org>\n"
+"Plural-Forms: nplurals=1; plural=0;\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=utf-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Generated-By: Babel 2.18.0\n"
+
+#: ../../source/api/index.rst:2
+msgid "API Reference"
+msgstr ""
+
+#: ../../source/api/index.rst:4
+msgid ""
+"This section provides detailed documentation for all ADCToolbox modules "
+"and functions."
+msgstr ""
+
+#: ../../source/api/index.rst:17
+msgid "Module Overview"
+msgstr ""
+
+#: ../../source/api/index.rst:19
+msgid ":doc:`fundamentals`"
+msgstr ""
+
+#: ../../source/api/index.rst:20
+msgid ""
+"Fundamental utilities including sine fitting, frequency calculation, unit"
+" conversion, FOM metrics, and validation"
+msgstr ""
+
+#: ../../source/api/index.rst:22
+msgid ":doc:`spectrum`"
+msgstr ""
+
+#: ../../source/api/index.rst:23
+msgid ""
+"Spectrum analysis tools for FFT-based metrics, polar plots, and two-tone "
+"analysis"
+msgstr ""
+
+#: ../../source/api/index.rst:25
+msgid ":doc:`aout`"
+msgstr ""
+
+#: ../../source/api/index.rst:26
+msgid ""
+"Analog output analysis tools for INL/DNL, harmonic decomposition, and "
+"error characterization"
+msgstr ""
+
+#: ../../source/api/index.rst:28
+msgid ":doc:`dout`"
+msgstr ""
+
+#: ../../source/api/index.rst:29
+msgid ""
+"Digital output analysis tools for bit weight calibration, overflow "
+"detection, and ENOB analysis"
+msgstr ""
+
+#: ../../source/api/index.rst:31
+msgid ":doc:`siggen`"
+msgstr ""
+
+#: ../../source/api/index.rst:32
+msgid ""
+"Signal generation utilities for test signal creation with various non-"
+"idealities"
+msgstr ""
+
+#: ../../source/api/index.rst:34
+msgid ":doc:`oversampling`"
+msgstr ""
+
+#: ../../source/api/index.rst:35
+msgid "Oversampling and Delta-Sigma modulator analysis tools"
+msgstr ""
+

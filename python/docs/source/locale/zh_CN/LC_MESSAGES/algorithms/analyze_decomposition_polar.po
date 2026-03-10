@@ -1,0 +1,321 @@
+# SOME DESCRIPTIVE TITLE.
+# Copyright (C) 2025, ADCToolbox Contributors
+# This file is distributed under the same license as the ADCToolbox package.
+# FIRST AUTHOR <EMAIL@ADDRESS>, 2026.
+#
+#, fuzzy
+msgid ""
+msgstr ""
+"Project-Id-Version: ADCToolbox 0.5.0\n"
+"Report-Msgid-Bugs-To: \n"
+"POT-Creation-Date: 2026-03-10 20:52+0800\n"
+"PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
+"Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
+"Language: zh_CN\n"
+"Language-Team: zh_CN <LL@li.org>\n"
+"Plural-Forms: nplurals=1; plural=0;\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=utf-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Generated-By: Babel 2.18.0\n"
+
+#: ../../source/algorithms/analyze_decomposition_polar.md:1
+msgid "analyze_decomposition_polar"
+msgstr ""
+
+#: ../../source/algorithms/analyze_decomposition_polar.md:3
+msgid "Overview"
+msgstr ""
+
+#: ../../source/algorithms/analyze_decomposition_polar.md:5
+msgid ""
+"`analyze_decomposition_polar` performs time-domain harmonic decomposition"
+" with polar (magnitude-phase) visualization. This provides an intuitive "
+"view of harmonic distortion structure, showing how each harmonic "
+"component relates to the fundamental in both amplitude and phase."
+msgstr ""
+
+#: ../../source/algorithms/analyze_decomposition_polar.md:7
+msgid "Syntax"
+msgstr ""
+
+#: ../../source/algorithms/analyze_decomposition_polar.md:20
+msgid "Parameters"
+msgstr ""
+
+#: ../../source/algorithms/analyze_decomposition_polar.md:22
+msgid "**`signal`** (array_like) — Input ADC signal (sine wave excitation)"
+msgstr ""
+
+#: ../../source/algorithms/analyze_decomposition_polar.md:23
+msgid "**`harmonic`** (int, default=5) — Number of harmonics to decompose"
+msgstr ""
+
+#: ../../source/algorithms/analyze_decomposition_polar.md:24
+msgid "**`show_plot`** (bool, default=True) — Display polar decomposition plot"
+msgstr ""
+
+#: ../../source/algorithms/analyze_decomposition_polar.md:25
+msgid "**`ax`** (matplotlib polar axis, optional) — Polar axis to plot on"
+msgstr ""
+
+#: ../../source/algorithms/analyze_decomposition_polar.md:26
+msgid "**`title`** (str, optional) — Custom title for the plot"
+msgstr ""
+
+#: ../../source/algorithms/analyze_decomposition_polar.md:28
+msgid "Returns"
+msgstr ""
+
+#: ../../source/algorithms/analyze_decomposition_polar.md:30
+msgid "Dictionary containing:"
+msgstr ""
+
+#: ../../source/algorithms/analyze_decomposition_polar.md:31
+msgid "**`fundamental`** — Fundamental component (time domain)"
+msgstr ""
+
+#: ../../source/algorithms/analyze_decomposition_polar.md:32
+msgid "**`harmonics`** — List of harmonic components (time domain)"
+msgstr ""
+
+#: ../../source/algorithms/analyze_decomposition_polar.md:33
+msgid "**`residual`** — Remaining error (noise + higher-order distortion)"
+msgstr ""
+
+#: ../../source/algorithms/analyze_decomposition_polar.md:34
+msgid "**`harmonic_amplitudes`** — Amplitude of each harmonic"
+msgstr ""
+
+#: ../../source/algorithms/analyze_decomposition_polar.md:35
+msgid "**`harmonic_phases`** — Phase of each harmonic (radians)"
+msgstr ""
+
+#: ../../source/algorithms/analyze_decomposition_polar.md:36
+msgid "**`frequency`** — Detected fundamental frequency"
+msgstr ""
+
+#: ../../source/algorithms/analyze_decomposition_polar.md:38
+msgid "Algorithm"
+msgstr ""
+
+#: ../../source/algorithms/analyze_decomposition_polar.md:55
+msgid "Polar Visualization"
+msgstr ""
+
+#: ../../source/algorithms/analyze_decomposition_polar.md:57
+msgid "The polar plot shows:"
+msgstr ""
+
+#: ../../source/algorithms/analyze_decomposition_polar.md:58
+msgid "**Angle**: Phase of each harmonic relative to fundamental"
+msgstr ""
+
+#: ../../source/algorithms/analyze_decomposition_polar.md:59
+msgid "**Radius**: Magnitude of each harmonic (dBFS or linear)"
+msgstr ""
+
+#: ../../source/algorithms/analyze_decomposition_polar.md:60
+msgid "**Markers**: Different harmonics (HD2, HD3, HD4, ...)"
+msgstr ""
+
+#: ../../source/algorithms/analyze_decomposition_polar.md:62
+msgid "**Interpretation:**"
+msgstr ""
+
+#: ../../source/algorithms/analyze_decomposition_polar.md:63
+msgid "**Clustered phases**: Coherent distortion mechanism"
+msgstr ""
+
+#: ../../source/algorithms/analyze_decomposition_polar.md:64
+msgid "**Random phases**: Multiple independent error sources"
+msgstr ""
+
+#: ../../source/algorithms/analyze_decomposition_polar.md:65
+msgid "**Phase = 0° or 180°**: In-phase/anti-phase with fundamental"
+msgstr ""
+
+#: ../../source/algorithms/analyze_decomposition_polar.md:66
+msgid "**Phase = 90° or 270°**: Quadrature distortion"
+msgstr ""
+
+#: ../../source/algorithms/analyze_decomposition_polar.md:68
+msgid "Examples"
+msgstr ""
+
+#: ../../source/algorithms/analyze_decomposition_polar.md:70
+msgid "Example 1: Harmonic Decomposition with Polar Plot"
+msgstr ""
+
+#: ../../source/algorithms/analyze_decomposition_polar.md:87
+msgid "Example 2: Compare Time and Polar Views"
+msgstr ""
+
+#: ../../source/algorithms/analyze_decomposition_polar.md:106
+msgid "Example 3: Memory Effect Detection"
+msgstr ""
+
+#: ../../source/algorithms/analyze_decomposition_polar.md:121
+msgid "Interpretation"
+msgstr ""
+
+#: ../../source/algorithms/analyze_decomposition_polar.md:123
+msgid "Harmonic Phase Patterns"
+msgstr ""
+
+#: ../../source/algorithms/analyze_decomposition_polar.md
+msgid "Phase Pattern"
+msgstr ""
+
+#: ../../source/algorithms/analyze_decomposition_polar.md
+msgid "Likely Cause"
+msgstr ""
+
+#: ../../source/algorithms/analyze_decomposition_polar.md
+msgid "**All harmonics ~0°**"
+msgstr ""
+
+#: ../../source/algorithms/analyze_decomposition_polar.md
+msgid "Symmetric compression/limiting"
+msgstr ""
+
+#: ../../source/algorithms/analyze_decomposition_polar.md
+msgid "**HD2 at 0°, HD3 at 0°**"
+msgstr ""
+
+#: ../../source/algorithms/analyze_decomposition_polar.md
+msgid "Positive nonlinearity (expansion)"
+msgstr ""
+
+#: ../../source/algorithms/analyze_decomposition_polar.md
+msgid "**HD2 at 180°, HD3 at 0°**"
+msgstr ""
+
+#: ../../source/algorithms/analyze_decomposition_polar.md
+msgid "Negative nonlinearity (compression)"
+msgstr ""
+
+#: ../../source/algorithms/analyze_decomposition_polar.md
+msgid "**HD2 at 90°/270°**"
+msgstr ""
+
+#: ../../source/algorithms/analyze_decomposition_polar.md
+msgid "Asymmetric transfer function"
+msgstr ""
+
+#: ../../source/algorithms/analyze_decomposition_polar.md
+msgid "**Even harmonics clustered**"
+msgstr ""
+
+#: ../../source/algorithms/analyze_decomposition_polar.md
+msgid "Differential pair mismatch"
+msgstr ""
+
+#: ../../source/algorithms/analyze_decomposition_polar.md
+msgid "**Odd harmonics clustered**"
+msgstr ""
+
+#: ../../source/algorithms/analyze_decomposition_polar.md
+msgid "Single-ended nonlinearity"
+msgstr ""
+
+#: ../../source/algorithms/analyze_decomposition_polar.md:134
+msgid "Harmonic Magnitude Analysis"
+msgstr ""
+
+#: ../../source/algorithms/analyze_decomposition_polar.md
+msgid "Magnitude Pattern"
+msgstr ""
+
+#: ../../source/algorithms/analyze_decomposition_polar.md
+msgid "**HD2 dominant**"
+msgstr ""
+
+#: ../../source/algorithms/analyze_decomposition_polar.md
+msgid "Even-order nonlinearity (asymmetry)"
+msgstr ""
+
+#: ../../source/algorithms/analyze_decomposition_polar.md
+msgid "**HD3 dominant**"
+msgstr ""
+
+#: ../../source/algorithms/analyze_decomposition_polar.md
+msgid "Odd-order nonlinearity (curvature)"
+msgstr ""
+
+#: ../../source/algorithms/analyze_decomposition_polar.md
+msgid "**HD2 = HD3**"
+msgstr ""
+
+#: ../../source/algorithms/analyze_decomposition_polar.md
+msgid "Mixed nonlinearity"
+msgstr ""
+
+#: ../../source/algorithms/analyze_decomposition_polar.md
+msgid "**High HD2, low HD3**"
+msgstr ""
+
+#: ../../source/algorithms/analyze_decomposition_polar.md
+msgid "**Low HD2, high HD3**"
+msgstr ""
+
+#: ../../source/algorithms/analyze_decomposition_polar.md
+msgid "Well-matched differential design"
+msgstr ""
+
+#: ../../source/algorithms/analyze_decomposition_polar.md:144
+msgid "Use Cases"
+msgstr ""
+
+#: ../../source/algorithms/analyze_decomposition_polar.md:146
+msgid "**Distinguish nonlinearity mechanisms**: Even vs. odd order"
+msgstr ""
+
+#: ../../source/algorithms/analyze_decomposition_polar.md:147
+msgid "**Identify memory effects**: Characteristic phase signatures"
+msgstr ""
+
+#: ../../source/algorithms/analyze_decomposition_polar.md:148
+msgid "**Visualize distortion structure**: More intuitive than time domain"
+msgstr ""
+
+#: ../../source/algorithms/analyze_decomposition_polar.md:149
+msgid "**Debug ADC architectures**: Pipelined, SAR, flash"
+msgstr ""
+
+#: ../../source/algorithms/analyze_decomposition_polar.md:150
+msgid "**Compare before/after calibration**: Phase should remain stable"
+msgstr ""
+
+#: ../../source/algorithms/analyze_decomposition_polar.md:152
+msgid "See Also"
+msgstr ""
+
+#: ../../source/algorithms/analyze_decomposition_polar.md:154
+msgid ""
+"[`analyze_decomposition_time`](analyze_decomposition_time.md) — Time-"
+"domain view"
+msgstr ""
+
+#: ../../source/algorithms/analyze_decomposition_polar.md:155
+msgid "[`analyze_spectrum`](analyze_spectrum.md) — Frequency-domain metrics"
+msgstr ""
+
+#: ../../source/algorithms/analyze_decomposition_polar.md:156
+msgid "[`fit_static_nonlin`](fit_static_nonlin.md) — Extract k2/k3 coefficients"
+msgstr ""
+
+#: ../../source/algorithms/analyze_decomposition_polar.md:158
+msgid "References"
+msgstr ""
+
+#: ../../source/algorithms/analyze_decomposition_polar.md:160
+msgid "IEEE Std 1057-2017, \"IEEE Standard for Digitizing Waveform Recorders\""
+msgstr ""
+
+#: ../../source/algorithms/analyze_decomposition_polar.md:161
+msgid ""
+"R. Schreier and G. C. Temes, \"Understanding Delta-Sigma Data "
+"Converters,\" Wiley-IEEE Press, 2005"
+msgstr ""
+

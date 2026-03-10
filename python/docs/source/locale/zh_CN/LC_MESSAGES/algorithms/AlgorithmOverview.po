@@ -1,0 +1,790 @@
+# ADCToolbox 中文翻译
+# Copyright (C) 2025, ADCToolbox Contributors
+# This file is distributed under the same license as the ADCToolbox package.
+#
+msgid ""
+msgstr ""
+"Project-Id-Version: ADCToolbox 0.5.0\n"
+"Report-Msgid-Bugs-To: \n"
+"POT-Creation-Date: 2026-03-10 20:52+0800\n"
+"PO-Revision-Date: 2026-03-10 20:52+0800\n"
+"Last-Translator: ADCToolbox Contributors\n"
+"Language: zh_CN\n"
+"Language-Team: zh_CN\n"
+"Plural-Forms: nplurals=1; plural=0;\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=utf-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Generated-By: Babel 2.18.0\n"
+
+#: ../../source/algorithms/AlgorithmOverview.md:1
+msgid "ADCToolbox Algorithm Overview"
+msgstr "ADCToolbox 算法概览"
+
+#: ../../source/algorithms/AlgorithmOverview.md:3
+msgid "**Last Updated:** 2025-12-03"
+msgstr "**最后更新：** 2025-12-03"
+
+#: ../../source/algorithms/AlgorithmOverview.md:5
+msgid "Introduction"
+msgstr "简介"
+
+#: ../../source/algorithms/AlgorithmOverview.md:7
+msgid ""
+"This document describes the working principles and architectural design "
+"of the MATLAB algorithms in ADCToolbox. The toolbox has been streamlined "
+"for efficiency, maintainability, and consistent output formatting."
+msgstr ""
+"本文档介绍 ADCToolbox 中 MATLAB 算法的工作原理与架构设计。"
+"工具箱经过优化，注重执行效率、可维护性和统一的输出格式。"
+
+#: ../../source/algorithms/AlgorithmOverview.md:11
+msgid "Toolset Architecture"
+msgstr "工具集架构"
+
+#: ../../source/algorithms/AlgorithmOverview.md:13
+msgid "Design Principles"
+msgstr "设计原则"
+
+#: ../../source/algorithms/AlgorithmOverview.md:15
+msgid ""
+"**Separation of Concerns**: Tool execution and panel generation are "
+"separate functions"
+msgstr "**关注点分离**：工具执行与面板生成为独立函数"
+
+#: ../../source/algorithms/AlgorithmOverview.md:16
+msgid ""
+"**Data-Driven Execution**: Tool lists defined as data structures to "
+"eliminate repetitive code"
+msgstr "**数据驱动执行**：以数据结构定义工具列表，消除重复代码"
+
+#: ../../source/algorithms/AlgorithmOverview.md:17
+msgid ""
+"**Auto-Detection**: Panel functions automatically locate plot files using"
+" naming conventions"
+msgstr "**自动检测**：面板函数根据命名规范自动定位图表文件"
+
+#: ../../source/algorithms/AlgorithmOverview.md:18
+msgid ""
+"**Consistent Formatting**: All tools use standardized figure properties "
+"and output"
+msgstr "**统一格式**：所有工具使用标准化的图形属性和输出"
+
+#: ../../source/algorithms/AlgorithmOverview.md:20
+msgid "File Organization"
+msgstr "文件组织"
+
+#: ../../source/algorithms/AlgorithmOverview.md:33
+msgid "toolset_aout: Analog Output Analysis"
+msgstr "toolset_aout：模拟输出分析"
+
+#: ../../source/algorithms/AlgorithmOverview.md:35
+#: ../../source/algorithms/AlgorithmOverview.md:103
+msgid "**Files:**"
+msgstr "**文件：**"
+
+#: ../../source/algorithms/AlgorithmOverview.md:36
+msgid "MATLAB: `matlab/src/toolset_aout.m`"
+msgstr "MATLAB：`matlab/src/toolset_aout.m`"
+
+#: ../../source/algorithms/AlgorithmOverview.md:37
+msgid "Python: `python/src/adctoolbox/toolset_aout.py`"
+msgstr "Python：`python/src/adctoolbox/toolset_aout.py`"
+
+#: ../../source/algorithms/AlgorithmOverview.md
+#: ../../source/algorithms/AlgorithmOverview.md:39
+#: ../../source/algorithms/AlgorithmOverview.md:107
+msgid "Purpose"
+msgstr "功能说明"
+
+#: ../../source/algorithms/AlgorithmOverview.md:41
+msgid ""
+"Executes 9 diagnostic tools on calibrated ADC analog output data (sine "
+"wave). Covers time-domain, frequency-domain, and statistical error "
+"analysis."
+msgstr ""
+"对校准后的 ADC 模拟输出数据（正弦波）执行 9 个诊断工具，"
+"涵盖时域、频域和统计误差分析。"
+
+#: ../../source/algorithms/AlgorithmOverview.md:43
+#: ../../source/algorithms/AlgorithmOverview.md:111
+msgid "Algorithm Workflow"
+msgstr "算法流程"
+
+#: ../../source/algorithms/AlgorithmOverview.md:62
+msgid "Tool Execution Pattern"
+msgstr "工具执行模式"
+
+#: ../../source/algorithms/AlgorithmOverview.md:64
+msgid "Each tool follows a standardized pattern:"
+msgstr "每个工具遵循标准化执行模式："
+
+#: ../../source/algorithms/AlgorithmOverview.md:78
+#: ../../source/algorithms/AlgorithmOverview.md:167
+msgid "Tools Executed"
+msgstr "执行的工具"
+
+#: ../../source/algorithms/AlgorithmOverview.md
+msgid "#"
+msgstr "#"
+
+#: ../../source/algorithms/AlgorithmOverview.md
+msgid "Tool"
+msgstr "工具"
+
+#: ../../source/algorithms/AlgorithmOverview.md
+msgid "Key Parameters"
+msgstr "关键参数"
+
+#: ../../source/algorithms/AlgorithmOverview.md
+msgid "1"
+msgstr "1"
+
+#: ../../source/algorithms/AlgorithmOverview.md
+msgid "`tomdec`"
+msgstr "`tomdec`"
+
+#: ../../source/algorithms/AlgorithmOverview.md
+msgid "`freqCal`, `10` harmonics, `1` OSR"
+msgstr "`freqCal`，`10` 次谐波，`1` OSR"
+
+#: ../../source/algorithms/AlgorithmOverview.md
+msgid "2"
+msgstr "2"
+
+#: ../../source/algorithms/AlgorithmOverview.md
+msgid "`plotspec`"
+msgstr "`plotspec`"
+
+#: ../../source/algorithms/AlgorithmOverview.md
+msgid "`label=1`, `harmonic=5`, `OSR=1`, `window=@hann`"
+msgstr "`label=1`，`harmonic=5`，`OSR=1`，`window=@hann`"
+
+#: ../../source/algorithms/AlgorithmOverview.md
+msgid "3"
+msgstr "3"
+
+#: ../../source/algorithms/AlgorithmOverview.md
+msgid "`plotphase`"
+msgstr "`plotphase`"
+
+#: ../../source/algorithms/AlgorithmOverview.md
+msgid "`harmonic=10`, `mode='FFT'`"
+msgstr "`harmonic=10`，`mode='FFT'`"
+
+#: ../../source/algorithms/AlgorithmOverview.md
+msgid "4"
+msgstr "4"
+
+#: ../../source/algorithms/AlgorithmOverview.md
+msgid "`errsin` (code)"
+msgstr "`errsin`（码值）"
+
+#: ../../source/algorithms/AlgorithmOverview.md
+msgid "`bin=20`, `fin=freqCal`, `xaxis='value'`"
+msgstr "`bin=20`，`fin=freqCal`，`xaxis='value'`"
+
+#: ../../source/algorithms/AlgorithmOverview.md
+msgid "5"
+msgstr "5"
+
+#: ../../source/algorithms/AlgorithmOverview.md
+msgid "`errsin` (phase)"
+msgstr "`errsin`（相位）"
+
+#: ../../source/algorithms/AlgorithmOverview.md
+msgid "`bin=99`, `fin=freqCal`, `xaxis='phase'`"
+msgstr "`bin=99`，`fin=freqCal`，`xaxis='phase'`"
+
+#: ../../source/algorithms/AlgorithmOverview.md
+msgid "6"
+msgstr "6"
+
+#: ../../source/algorithms/AlgorithmOverview.md
+msgid "`errpdf`"
+msgstr "`errpdf`"
+
+#: ../../source/algorithms/AlgorithmOverview.md
+msgid "`Resolution`, `FullScale`"
+msgstr "`Resolution`，`FullScale`"
+
+#: ../../source/algorithms/AlgorithmOverview.md
+msgid "7"
+msgstr "7"
+
+#: ../../source/algorithms/AlgorithmOverview.md
+msgid "`errac`"
+msgstr "`errac`"
+
+#: ../../source/algorithms/AlgorithmOverview.md
+msgid "`MaxLag=200`, `Normalize=true`"
+msgstr "`MaxLag=200`，`Normalize=true`"
+
+#: ../../source/algorithms/AlgorithmOverview.md
+msgid "8"
+msgstr "8"
+
+#: ../../source/algorithms/AlgorithmOverview.md
+msgid "`plotspec` (error)"
+msgstr "`plotspec`（误差）"
+
+#: ../../source/algorithms/AlgorithmOverview.md
+msgid "`label=0`"
+msgstr "`label=0`"
+
+#: ../../source/algorithms/AlgorithmOverview.md
+msgid "9"
+msgstr "9"
+
+#: ../../source/algorithms/AlgorithmOverview.md
+msgid "`errevspec`"
+msgstr "`errevspec`"
+
+#: ../../source/algorithms/AlgorithmOverview.md
+msgid "`Fs=1`"
+msgstr "`Fs=1`"
+
+#: ../../source/algorithms/AlgorithmOverview.md:92
+#: ../../source/algorithms/AlgorithmOverview.md:243
+msgid "Key Features"
+msgstr "主要特点"
+
+#: ../../source/algorithms/AlgorithmOverview.md:94
+msgid ""
+"**Pre-computation**: Expensive calculations (frequency detection, sine "
+"fit) done once and reused"
+msgstr "**预计算**：耗时运算（频率检测、正弦拟合）只计算一次并复用"
+
+#: ../../source/algorithms/AlgorithmOverview.md:95
+msgid ""
+"**Memory Management**: Figures closed immediately after save to prevent "
+"memory buildup"
+msgstr "**内存管理**：图形保存后立即关闭，防止内存积累"
+
+#: ../../source/algorithms/AlgorithmOverview.md:96
+msgid ""
+"**Fail-Fast**: Execution stops on first error (use `try-catch` for fail-"
+"safe execution)"
+msgstr "**快速失败**：首次出错即停止执行（使用 `try-catch` 实现容错执行）"
+
+#: ../../source/algorithms/AlgorithmOverview.md:97
+msgid "**Standardized Output**: All plots have consistent size and formatting"
+msgstr "**标准化输出**：所有图表具有统一的尺寸和格式"
+
+#: ../../source/algorithms/AlgorithmOverview.md:101
+msgid "toolset_dout: Digital Output Analysis"
+msgstr "toolset_dout：数字输出分析"
+
+#: ../../source/algorithms/AlgorithmOverview.md:104
+msgid "MATLAB: `matlab/src/toolset_dout.m`"
+msgstr "MATLAB：`matlab/src/toolset_dout.m`"
+
+#: ../../source/algorithms/AlgorithmOverview.md:105
+msgid "Python: `python/src/adctoolbox/toolset_dout.py`"
+msgstr "Python：`python/src/adctoolbox/toolset_dout.py`"
+
+#: ../../source/algorithms/AlgorithmOverview.md:109
+msgid ""
+"Executes 6 diagnostic tools on ADC digital bit outputs (for SAR ADCs and "
+"bit-weighted architectures). Performs calibration, weight analysis, and "
+"performance evaluation."
+msgstr ""
+"对 ADC 数字位输出（适用于 SAR ADC 和位权重架构）执行 6 个诊断工具，"
+"包括校准、权重分析和性能评估。"
+
+#: ../../source/algorithms/AlgorithmOverview.md:133
+msgid "Data-Driven Tool Execution"
+msgstr "数据驱动的工具执行"
+
+#: ../../source/algorithms/AlgorithmOverview.md:135
+msgid "Unlike the old repetitive approach, tools are defined as a struct array:"
+msgstr "与旧式重复代码不同，工具定义为结构体数组："
+
+#: ../../source/algorithms/AlgorithmOverview.md:161
+msgid "**Benefits of Data-Driven Approach:**"
+msgstr "**数据驱动方式的优势：**"
+
+#: ../../source/algorithms/AlgorithmOverview.md:162
+#, python-format
+msgid "**Code Reduction**: 109 lines → 66 lines (40% reduction)"
+msgstr "**代码精简**：109 行 → 66 行（减少 40%）"
+
+#: ../../source/algorithms/AlgorithmOverview.md:163
+msgid "**Consistency**: Single point of control for formatting"
+msgstr "**一致性**：格式控制集中于单一位置"
+
+#: ../../source/algorithms/AlgorithmOverview.md:164
+msgid "**Maintainability**: Easy to add/remove/modify tools"
+msgstr "**可维护性**：便于添加、删除或修改工具"
+
+#: ../../source/algorithms/AlgorithmOverview.md:165
+msgid "**Readability**: Tool properties clearly visible in struct definition"
+msgstr "**可读性**：工具属性在结构体定义中一目了然"
+
+#: ../../source/algorithms/AlgorithmOverview.md
+msgid "Figure Size"
+msgstr "图形尺寸"
+
+#: ../../source/algorithms/AlgorithmOverview.md
+msgid "`plotspec` (nominal)"
+msgstr "`plotspec`（标称）"
+
+#: ../../source/algorithms/AlgorithmOverview.md
+msgid "Spectrum before calibration"
+msgstr "校准前频谱"
+
+#: ../../source/algorithms/AlgorithmOverview.md
+msgid "800×600"
+msgstr "800×600"
+
+#: ../../source/algorithms/AlgorithmOverview.md
+msgid "`plotspec` (calibrated)"
+msgstr "`plotspec`（已校准）"
+
+#: ../../source/algorithms/AlgorithmOverview.md
+msgid "Spectrum after `wcalsine` calibration"
+msgstr "`wcalsine` 校准后频谱"
+
+#: ../../source/algorithms/AlgorithmOverview.md
+msgid "`bitact`"
+msgstr "`bitact`"
+
+#: ../../source/algorithms/AlgorithmOverview.md
+msgid "Bit toggle rate analysis"
+msgstr "位翻转率分析"
+
+#: ../../source/algorithms/AlgorithmOverview.md
+msgid "1000×750"
+msgstr "1000×750"
+
+#: ../../source/algorithms/AlgorithmOverview.md
+msgid "`ovfchk`"
+msgstr "`ovfchk`"
+
+#: ../../source/algorithms/AlgorithmOverview.md
+msgid "Overflow/redundancy check"
+msgstr "溢出/冗余检查"
+
+#: ../../source/algorithms/AlgorithmOverview.md
+msgid "1000×600"
+msgstr "1000×600"
+
+#: ../../source/algorithms/AlgorithmOverview.md
+msgid "`weightScaling`"
+msgstr "`weightScaling`"
+
+#: ../../source/algorithms/AlgorithmOverview.md
+msgid "Radix visualization"
+msgstr "基数可视化"
+
+#: ../../source/algorithms/AlgorithmOverview.md
+msgid "`bitsweep`"
+msgstr "`bitsweep`"
+
+#: ../../source/algorithms/AlgorithmOverview.md
+msgid "ENoB vs number of bits"
+msgstr "ENoB 与位数关系"
+
+#: ../../source/algorithms/AlgorithmOverview.md:180
+msgid "Panel Functions"
+msgstr "面板函数"
+
+#: ../../source/algorithms/AlgorithmOverview.md:182
+msgid "toolset_aout_panel"
+msgstr "toolset_aout_panel"
+
+#: ../../source/algorithms/AlgorithmOverview.md:184
+msgid "**File:** `matlab/src/toolset_aout_panel.m`"
+msgstr "**文件：** `matlab/src/toolset_aout_panel.m`"
+
+#: ../../source/algorithms/AlgorithmOverview.md:186
+msgid "Combines 9 individual AOUT plots into a 3×3 panel figure."
+msgstr "将 9 个独立 AOUT 图表组合为 3×3 面板图。"
+
+#: ../../source/algorithms/AlgorithmOverview.md:188
+#: ../../source/algorithms/AlgorithmOverview.md:227
+msgid "Algorithm"
+msgstr "算法"
+
+#: ../../source/algorithms/AlgorithmOverview.md:206
+#: ../../source/algorithms/AlgorithmOverview.md:231
+msgid "File Naming Convention"
+msgstr "文件命名规范"
+
+#: ../../source/algorithms/AlgorithmOverview.md:208
+#: ../../source/algorithms/AlgorithmOverview.md:233
+msgid "Auto-detected files:"
+msgstr "自动检测的文件："
+
+#: ../../source/algorithms/AlgorithmOverview.md:221
+msgid "toolset_dout_panel"
+msgstr "toolset_dout_panel"
+
+#: ../../source/algorithms/AlgorithmOverview.md:223
+msgid "**File:** `matlab/src/toolset_dout_panel.m`"
+msgstr "**文件：** `matlab/src/toolset_dout_panel.m`"
+
+#: ../../source/algorithms/AlgorithmOverview.md:225
+msgid "Combines 6 individual DOUT plots into a 3×2 panel figure."
+msgstr "将 6 个独立 DOUT 图表组合为 3×2 面板图。"
+
+#: ../../source/algorithms/AlgorithmOverview.md:229
+msgid "Same as `toolset_aout_panel` but with 6 plots in 3×2 layout (1200×1000)."
+msgstr "与 `toolset_aout_panel` 相同，但以 3×2 布局排列 6 个图表（1200×1000）。"
+
+#: ../../source/algorithms/AlgorithmOverview.md:245
+msgid ""
+"**Auto-Detection**: Uses prefix to find files - no need to manually "
+"specify paths"
+msgstr "**自动检测**：使用前缀查找文件，无需手动指定路径"
+
+#: ../../source/algorithms/AlgorithmOverview.md:246
+msgid "**Flexible**: Can override with explicit `PlotFiles` parameter"
+msgstr "**灵活性**：可通过显式 `PlotFiles` 参数覆盖"
+
+#: ../../source/algorithms/AlgorithmOverview.md:247
+msgid "**Robust**: Handles missing files gracefully (shows placeholder)"
+msgstr "**鲁棒性**：优雅处理缺失文件（显示占位符）"
+
+#: ../../source/algorithms/AlgorithmOverview.md:248
+msgid "**Reusable**: Can re-generate panels without re-running tools"
+msgstr "**可复用**：无需重新运行工具即可重新生成面板"
+
+#: ../../source/algorithms/AlgorithmOverview.md:252
+msgid "Common Utility Functions"
+msgstr "通用工具函数"
+
+#: ../../source/algorithms/AlgorithmOverview.md:254
+msgid "findfreq"
+msgstr "findfreq"
+
+#: ../../source/algorithms/AlgorithmOverview.md:256
+msgid "**File:** `matlab/src/findfreq.m`"
+msgstr "**文件：** `matlab/src/findfreq.m`"
+
+#: ../../source/algorithms/AlgorithmOverview.md:258
+msgid "Auto-detects sine wave frequency from time-domain signal using FFT."
+msgstr "使用 FFT 从时域信号中自动检测正弦波频率。"
+
+#: ../../source/algorithms/AlgorithmOverview.md:260
+#: ../../source/algorithms/AlgorithmOverview.md:272
+msgid "**Algorithm:**"
+msgstr "**算法：**"
+
+#: ../../source/algorithms/AlgorithmOverview.md:261
+msgid "Compute FFT of input signal"
+msgstr "计算输入信号的 FFT"
+
+#: ../../source/algorithms/AlgorithmOverview.md:262
+msgid "Find peak in magnitude spectrum"
+msgstr "在幅度频谱中查找峰值"
+
+#: ../../source/algorithms/AlgorithmOverview.md:263
+msgid "Convert bin index to normalized frequency"
+msgstr "将频率箱索引转换为归一化频率"
+
+#: ../../source/algorithms/AlgorithmOverview.md:264
+msgid "Return frequency (0 to 0.5, normalized to sampling rate)"
+msgstr "返回频率（0 至 0.5，归一化至采样率）"
+
+#: ../../source/algorithms/AlgorithmOverview.md:266
+msgid "sinfit"
+msgstr "sinfit"
+
+#: ../../source/algorithms/AlgorithmOverview.md:268
+msgid "**File:** `matlab/src/sinfit.m`"
+msgstr "**文件：** `matlab/src/sinfit.m`"
+
+#: ../../source/algorithms/AlgorithmOverview.md:270
+msgid "Fits a 4-parameter sine wave to data: `A*sin(2πft + φ) + DC`"
+msgstr "对数据进行四参数正弦拟合：`A*sin(2πft + φ) + DC`"
+
+#: ../../source/algorithms/AlgorithmOverview.md:273
+msgid "Use `findfreq` to detect frequency"
+msgstr "使用 `findfreq` 检测频率"
+
+#: ../../source/algorithms/AlgorithmOverview.md:274
+msgid "Set up nonlinear least squares problem"
+msgstr "建立非线性最小二乘问题"
+
+#: ../../source/algorithms/AlgorithmOverview.md:275
+msgid "Optimize amplitude, frequency, phase, DC offset"
+msgstr "优化幅度、频率、相位和直流偏置"
+
+#: ../../source/algorithms/AlgorithmOverview.md:276
+msgid "Return fitted sine wave"
+msgstr "返回拟合正弦波"
+
+#: ../../source/algorithms/AlgorithmOverview.md:280
+msgid "Naming Conventions"
+msgstr "命名规范"
+
+#: ../../source/algorithms/AlgorithmOverview.md:282
+msgid "File Naming"
+msgstr "文件命名"
+
+#: ../../source/algorithms/AlgorithmOverview.md:284
+msgid "**Individual tool outputs:**"
+msgstr "**单个工具输出：**"
+
+#: ../../source/algorithms/AlgorithmOverview.md:289
+#: ../../source/algorithms/AlgorithmOverview.md:298
+msgid "Examples:"
+msgstr "示例："
+
+#: ../../source/algorithms/AlgorithmOverview.md:290
+msgid "`aout_1_tomdec.png`"
+msgstr "`aout_1_tomdec.png`"
+
+#: ../../source/algorithms/AlgorithmOverview.md:291
+msgid "`dout_3_bitActivity.png`"
+msgstr "`dout_3_bitActivity.png`"
+
+#: ../../source/algorithms/AlgorithmOverview.md:293
+msgid "**Panel outputs:**"
+msgstr "**面板输出：**"
+
+#: ../../source/algorithms/AlgorithmOverview.md:299
+msgid "`PANEL_AOUT.png`"
+msgstr "`PANEL_AOUT.png`"
+
+#: ../../source/algorithms/AlgorithmOverview.md:300
+msgid "`PANEL_DOUT.png`"
+msgstr "`PANEL_DOUT.png`"
+
+#: ../../source/algorithms/AlgorithmOverview.md:302
+msgid "Variable Naming"
+msgstr "变量命名"
+
+#: ../../source/algorithms/AlgorithmOverview.md:304
+msgid "`plot_files` — Cell array of PNG file paths"
+msgstr "`plot_files` — PNG 文件路径的元胞数组"
+
+#: ../../source/algorithms/AlgorithmOverview.md:305
+msgid "`outputDir` — Directory for output files"
+msgstr "`outputDir` — 输出文件目录"
+
+#: ../../source/algorithms/AlgorithmOverview.md:306
+msgid "`freqCal` — Calibrated/detected frequency"
+msgstr "`freqCal` — 校准/检测频率"
+
+#: ../../source/algorithms/AlgorithmOverview.md:307
+msgid "`w_cal` — Calibrated bit weights"
+msgstr "`w_cal` — 校准后的位权重"
+
+#: ../../source/algorithms/AlgorithmOverview.md:308
+msgid "`digitalCodes` — Digital output codes (nominal weights)"
+msgstr "`digitalCodes` — 数字输出码（标称权重）"
+
+#: ../../source/algorithms/AlgorithmOverview.md:309
+msgid "`digitalCodes_cal` — Digital output codes (calibrated weights)"
+msgstr "`digitalCodes_cal` — 数字输出码（校准权重）"
+
+#: ../../source/algorithms/AlgorithmOverview.md:313
+msgid "Performance Optimizations"
+msgstr "性能优化"
+
+#: ../../source/algorithms/AlgorithmOverview.md:315
+msgid "Memory Management"
+msgstr "内存管理"
+
+#: ../../source/algorithms/AlgorithmOverview.md:317
+msgid "Figures closed immediately after save"
+msgstr "图形保存后立即关闭"
+
+#: ../../source/algorithms/AlgorithmOverview.md:318
+msgid "Use `'Visible', false` for batch processing (faster)"
+msgstr "批处理时使用 `'Visible', false`（速度更快）"
+
+#: ../../source/algorithms/AlgorithmOverview.md:319
+msgid "Pre-allocate cell arrays for file paths"
+msgstr "预分配文件路径的元胞数组"
+
+#: ../../source/algorithms/AlgorithmOverview.md:321
+msgid "Computation Efficiency"
+msgstr "计算效率"
+
+#: ../../source/algorithms/AlgorithmOverview.md:323
+msgid ""
+"**Pre-computation**: Expensive operations (frequency detection, sine fit,"
+" calibration) done once"
+msgstr "**预计算**：耗时操作（频率检测、正弦拟合、校准）只执行一次"
+
+#: ../../source/algorithms/AlgorithmOverview.md:324
+msgid "**Data-driven loops**: Eliminates repetitive code"
+msgstr "**数据驱动循环**：消除重复代码"
+
+#: ../../source/algorithms/AlgorithmOverview.md:325
+msgid "**Minimal disk I/O**: Each plot saved once"
+msgstr "**最小化磁盘 I/O**：每个图表只保存一次"
+
+#: ../../source/algorithms/AlgorithmOverview.md:327
+msgid "Code Efficiency"
+msgstr "代码效率"
+
+#: ../../source/algorithms/AlgorithmOverview.md:329
+msgid "**Before (repetitive):**"
+msgstr "**重构前（重复代码）：**"
+
+#: ../../source/algorithms/AlgorithmOverview.md:346
+msgid "**After (data-driven):**"
+msgstr "**重构后（数据驱动）：**"
+
+#: ../../source/algorithms/AlgorithmOverview.md:358
+#, python-format
+msgid "**Result:** 109 lines → 66 lines (40% reduction)"
+msgstr "**结果：** 109 行 → 66 行（减少 40%）"
+
+#: ../../source/algorithms/AlgorithmOverview.md:362
+msgid "Usage Patterns"
+msgstr "使用模式"
+
+#: ../../source/algorithms/AlgorithmOverview.md:364
+msgid "Pattern 1: Generate plots and panel together"
+msgstr "模式一：同时生成图表和面板"
+
+#: ../../source/algorithms/AlgorithmOverview.md:376
+msgid "Pattern 2: Batch generate plots, then gather panels"
+msgstr "模式二：批量生成图表，然后汇总面板"
+
+#: ../../source/algorithms/AlgorithmOverview.md:390
+msgid "Pattern 3: Re-generate panels only (plots already exist)"
+msgstr "模式三：仅重新生成面板（图表已存在）"
+
+#: ../../source/algorithms/AlgorithmOverview.md:400
+msgid "Error Handling"
+msgstr "错误处理"
+
+#: ../../source/algorithms/AlgorithmOverview.md:402
+msgid "Current Behavior"
+msgstr "当前行为"
+
+#: ../../source/algorithms/AlgorithmOverview.md:404
+msgid "Both toolsets use **fail-fast** error handling:"
+msgstr "两个工具集均采用**快速失败**错误处理策略："
+
+#: ../../source/algorithms/AlgorithmOverview.md:405
+msgid "Execution stops on first error"
+msgstr "首次出错即停止执行"
+
+#: ../../source/algorithms/AlgorithmOverview.md:406
+msgid "MATLAB displays error message"
+msgstr "MATLAB 显示错误信息"
+
+#: ../../source/algorithms/AlgorithmOverview.md:407
+msgid "Partial results may be saved"
+msgstr "可能保存部分结果"
+
+#: ../../source/algorithms/AlgorithmOverview.md:409
+msgid "Implementing Fail-Safe Execution"
+msgstr "实现容错执行"
+
+#: ../../source/algorithms/AlgorithmOverview.md:411
+msgid "To continue execution after errors, wrap tools in `try-catch`:"
+msgstr "若需在出错后继续执行，请将工具包装在 `try-catch` 中："
+
+#: ../../source/algorithms/AlgorithmOverview.md:428
+msgid "Future Enhancements"
+msgstr "未来增强计划"
+
+#: ../../source/algorithms/AlgorithmOverview.md:430
+msgid "Planned Features"
+msgstr "计划功能"
+
+#: ../../source/algorithms/AlgorithmOverview.md:432
+msgid ""
+"**Python panel functions**: Implement `toolset_aout_panel` and "
+"`toolset_dout_panel` in Python"
+msgstr "**Python 面板函数**：用 Python 实现 `toolset_aout_panel` 和 `toolset_dout_panel`"
+
+#: ../../source/algorithms/AlgorithmOverview.md:433
+msgid "**Parallel execution**: Run independent tools in parallel using `parfor`"
+msgstr "**并行执行**：使用 `parfor` 并行运行独立工具"
+
+#: ../../source/algorithms/AlgorithmOverview.md:434
+msgid "**Progress callbacks**: Optional callback function for progress updates"
+msgstr "**进度回调**：可选的进度更新回调函数"
+
+#: ../../source/algorithms/AlgorithmOverview.md:435
+msgid "**Custom tool selection**: Allow users to specify which tools to run"
+msgstr "**自定义工具选择**：允许用户指定要运行的工具"
+
+#: ../../source/algorithms/AlgorithmOverview.md:436
+msgid "**Fail-safe mode**: Option to continue execution after errors"
+msgstr "**容错模式**：出错后继续执行的选项"
+
+#: ../../source/algorithms/AlgorithmOverview.md:438
+msgid "Architectural Improvements"
+msgstr "架构改进"
+
+#: ../../source/algorithms/AlgorithmOverview.md:440
+msgid "**Tool registry**: Central registry of all available tools"
+msgstr "**工具注册表**：所有可用工具的集中注册表"
+
+#: ../../source/algorithms/AlgorithmOverview.md:441
+msgid "**Plugin system**: Easy addition of custom tools"
+msgstr "**插件系统**：便于添加自定义工具"
+
+#: ../../source/algorithms/AlgorithmOverview.md:442
+msgid "**Configuration files**: YAML/JSON config for tool parameters"
+msgstr "**配置文件**：使用 YAML/JSON 配置工具参数"
+
+#: ../../source/algorithms/AlgorithmOverview.md:443
+msgid "**Result caching**: Cache expensive computations for reuse"
+msgstr "**结果缓存**：缓存耗时计算结果以供复用"
+
+#: ../../source/algorithms/AlgorithmOverview.md:447
+msgid "References"
+msgstr "参考文献"
+
+#: ../../source/algorithms/AlgorithmOverview.md:449
+msgid "**IEEE Std 1241-2010**: Standard for ADC Test Methods"
+msgstr "**IEEE Std 1241-2010**：ADC 测试方法标准"
+
+#: ../../source/algorithms/AlgorithmOverview.md:450
+msgid "**IEEE Std 1057-2017**: Standard for Digitizing Waveform Recorders"
+msgstr "**IEEE Std 1057-2017**：数字化波形记录仪标准"
+
+#: ../../source/algorithms/AlgorithmOverview.md:451
+msgid "MATLAB documentation: Function handles, struct arrays, exportgraphics"
+msgstr "MATLAB 文档：函数句柄、结构体数组、exportgraphics"
+
+#: ../../source/algorithms/AlgorithmOverview.md:455
+msgid "Version History"
+msgstr "版本历史"
+
+#: ../../source/algorithms/AlgorithmOverview.md
+msgid "Version"
+msgstr "版本"
+
+#: ../../source/algorithms/AlgorithmOverview.md
+msgid "Date"
+msgstr "日期"
+
+#: ../../source/algorithms/AlgorithmOverview.md
+msgid "Changes"
+msgstr "变更内容"
+
+#: ../../source/algorithms/AlgorithmOverview.md
+msgid "**2.0**"
+msgstr "**2.0**"
+
+#: ../../source/algorithms/AlgorithmOverview.md
+msgid "2025-12-03"
+msgstr "2025-12-03"
+
+#: ../../source/algorithms/AlgorithmOverview.md
+msgid "Streamlined toolsets with data-driven execution, separated panel functions"
+msgstr "精简工具集，采用数据驱动执行，独立面板函数"
+
+#: ../../source/algorithms/AlgorithmOverview.md
+msgid "**1.0**"
+msgstr "**1.0**"
+
+#: ../../source/algorithms/AlgorithmOverview.md
+msgid "2025-01-28"
+msgstr "2025-01-28"
+
+#: ../../source/algorithms/AlgorithmOverview.md
+msgid "Initial implementation"
+msgstr "初始实现"

@@ -1,0 +1,123 @@
+# SOME DESCRIPTIVE TITLE.
+# Copyright (C) 2025, ADCToolbox Contributors
+# This file is distributed under the same license as the ADCToolbox package.
+# FIRST AUTHOR <EMAIL@ADDRESS>, 2026.
+#
+#, fuzzy
+msgid ""
+msgstr ""
+"Project-Id-Version: ADCToolbox 0.5.0\n"
+"Report-Msgid-Bugs-To: \n"
+"POT-Creation-Date: 2026-03-10 20:52+0800\n"
+"PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
+"Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
+"Language: zh_CN\n"
+"Language-Team: zh_CN <LL@li.org>\n"
+"Plural-Forms: nplurals=1; plural=0;\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=utf-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Generated-By: Babel 2.18.0\n"
+
+#: ../../source/examples/expected_output_07_conversions.rst:2
+msgid "Expected Output: 07_conversions"
+msgstr ""
+
+#: ../../source/examples/expected_output_07_conversions.rst:4
+msgid ""
+"This document shows the expected console output and example figures from "
+"all examples in `python/src/adctoolbox/examples/07_conversions/`."
+msgstr ""
+
+#: ../../source/examples/expected_output_07_conversions.rst:7
+msgid "Summary"
+msgstr ""
+
+#: ../../source/examples/expected_output_07_conversions.rst:9
+msgid ""
+"All examples in `07_conversions` demonstrate unit conversions and metric "
+"calculations:"
+msgstr ""
+
+#: ../../source/examples/expected_output_07_conversions.rst:11
+msgid "**exp_c01**: Aliasing and Nyquist zone calculations"
+msgstr ""
+
+#: ../../source/examples/expected_output_07_conversions.rst:12
+msgid ""
+"**exp_c02**: Comprehensive unit conversions (9 conversion categories with"
+" round-trip validation)"
+msgstr ""
+
+#: ../../source/examples/expected_output_07_conversions.rst:13
+msgid ""
+"**exp_c03**: ADC figure of merit calculations (Walden FOM, Schreier FOM, "
+"performance limits)"
+msgstr ""
+
+#: ../../source/examples/expected_output_07_conversions.rst:14
+msgid "**exp_c04**: Signal/noise amplitude to SNR conversions"
+msgstr ""
+
+#: ../../source/examples/expected_output_07_conversions.rst:15
+msgid "**exp_c05**: Noise spectral density (NSD) and SNR conversions"
+msgstr ""
+
+#: ../../source/examples/expected_output_07_conversions.rst:17
+msgid "**Total Examples**: 5"
+msgstr ""
+
+#: ../../source/examples/expected_output_07_conversions.rst:22
+msgid "exp_c01_aliasing_nyquist_zones.py"
+msgstr ""
+
+#: ../../source/examples/expected_output_07_conversions.rst:24
+msgid "**Description**: Demonstrate aliasing and Nyquist zone calculations."
+msgstr ""
+
+#: ../../source/examples/expected_output_07_conversions.rst:33
+msgid "Aliasing within Nyquist zones"
+msgstr ""
+
+#: ../../source/examples/expected_output_07_conversions.rst:38
+msgid "Frequency aliasing visualization across multiple Nyquist zones"
+msgstr ""
+
+#: ../../source/examples/expected_output_07_conversions.rst:42
+msgid "exp_c02_unit_conversions.py"
+msgstr ""
+
+#: ../../source/examples/expected_output_07_conversions.rst:44
+msgid "**Description**: Comprehensive unit conversion utilities for ADC testing."
+msgstr ""
+
+#: ../../source/examples/expected_output_07_conversions.rst:173
+msgid "exp_c03_calculate_fom.py"
+msgstr ""
+
+#: ../../source/examples/expected_output_07_conversions.rst:175
+msgid ""
+"**Description**: Calculate ADC figures of merit (Walden FOM, Schreier "
+"FOM, jitter-limited SNR, thermal noise-limited SNR)."
+msgstr ""
+
+#: ../../source/examples/expected_output_07_conversions.rst:208
+msgid "exp_c04_amplitudes_to_snr.py"
+msgstr ""
+
+#: ../../source/examples/expected_output_07_conversions.rst:210
+msgid "**Description**: Convert signal/noise amplitudes to SNR metrics."
+msgstr ""
+
+#: ../../source/examples/expected_output_07_conversions.rst:231
+msgid "exp_c05_convert_nsd_snr.py"
+msgstr ""
+
+#: ../../source/examples/expected_output_07_conversions.rst:233
+msgid "**Description**: Convert between NSD and SNR metrics."
+msgstr ""
+
+#: ../../source/examples/expected_output_07_conversions.rst:242
+msgid "---"
+msgstr ""
+

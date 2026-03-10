@@ -1,0 +1,139 @@
+# SOME DESCRIPTIVE TITLE.
+# Copyright (C) 2025, ADCToolbox Contributors
+# This file is distributed under the same license as the ADCToolbox package.
+# FIRST AUTHOR <EMAIL@ADDRESS>, 2026.
+#
+#, fuzzy
+msgid ""
+msgstr ""
+"Project-Id-Version: ADCToolbox 0.5.0\n"
+"Report-Msgid-Bugs-To: \n"
+"POT-Creation-Date: 2026-03-10 20:52+0800\n"
+"PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
+"Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
+"Language: zh_CN\n"
+"Language-Team: zh_CN <LL@li.org>\n"
+"Plural-Forms: nplurals=1; plural=0;\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=utf-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Generated-By: Babel 2.18.0\n"
+
+#: ../../source/examples/expected_output_03_generate_signals.rst:2
+msgid "Expected Output: 03_generate_signals"
+msgstr ""
+
+#: ../../source/examples/expected_output_03_generate_signals.rst:4
+msgid ""
+"This document shows the expected console output and example figures from "
+"all examples in `python/src/adctoolbox/examples/03_generate_signals/`."
+msgstr ""
+
+#: ../../source/examples/expected_output_03_generate_signals.rst:7
+msgid "Summary"
+msgstr ""
+
+#: ../../source/examples/expected_output_03_generate_signals.rst:9
+msgid ""
+"All examples in `03_generate_signals` demonstrate various signal "
+"generation capabilities:"
+msgstr ""
+
+#: ../../source/examples/expected_output_03_generate_signals.rst:11
+msgid "**exp_g01**: Thermal noise effects on signal quality (4 test cases)"
+msgstr ""
+
+#: ../../source/examples/expected_output_03_generate_signals.rst:12
+msgid "**exp_g03**: Quantization noise scaling (2-16 bits, 8 test cases)"
+msgstr ""
+
+#: ../../source/examples/expected_output_03_generate_signals.rst:13
+msgid "**exp_g04**: Jitter-induced SNR degradation (0.2-32 GHz, 8 test cases)"
+msgstr ""
+
+#: ../../source/examples/expected_output_03_generate_signals.rst:14
+msgid "**exp_g05**: Static nonlinearity harmonic distortion (4 sign combinations)"
+msgstr ""
+
+#: ../../source/examples/expected_output_03_generate_signals.rst:15
+msgid "**exp_g06**: Isolated nonlinearity effects (8 different types)"
+msgstr ""
+
+#: ../../source/examples/expected_output_03_generate_signals.rst:16
+msgid "**exp_g07**: Interference effects on spectrum (8 interference types)"
+msgstr ""
+
+#: ../../source/examples/expected_output_03_generate_signals.rst:18
+msgid ""
+"**Total Examples**: 6 **Total Test Cases**: 40 different signal "
+"conditions analyzed"
+msgstr ""
+
+#: ../../source/examples/expected_output_03_generate_signals.rst:24
+msgid "exp_g01_generate_signal_demo.py"
+msgstr ""
+
+#: ../../source/examples/expected_output_03_generate_signals.rst:26
+msgid "**Description**: Demonstrate thermal noise effect on signal spectrum."
+msgstr ""
+
+#: ../../source/examples/expected_output_03_generate_signals.rst:54
+msgid "exp_g03_sweep_quant_bits.py"
+msgstr ""
+
+#: ../../source/examples/expected_output_03_generate_signals.rst:56
+msgid ""
+"**Description**: Sweep quantization bits to analyze how noise floor "
+"changes with ADC resolution."
+msgstr ""
+
+#: ../../source/examples/expected_output_03_generate_signals.rst:79
+msgid "Quantization noise vs resolution"
+msgstr ""
+
+#: ../../source/examples/expected_output_03_generate_signals.rst:84
+msgid "SNR degradation due to quantization noise (2-16 bit resolution sweep)"
+msgstr ""
+
+#: ../../source/examples/expected_output_03_generate_signals.rst:88
+msgid "exp_g04_sweep_jitter_fin.py"
+msgstr ""
+
+#: ../../source/examples/expected_output_03_generate_signals.rst:90
+msgid ""
+"**Description**: Sweep input frequency to analyze sampling jitter impact "
+"on SNR."
+msgstr ""
+
+#: ../../source/examples/expected_output_03_generate_signals.rst:112
+msgid "exp_g05_sweep_static_nonlin.py"
+msgstr ""
+
+#: ../../source/examples/expected_output_03_generate_signals.rst:114
+msgid ""
+"**Description**: Sweep static nonlinearity coefficients to analyze "
+"harmonic distortion."
+msgstr ""
+
+#: ../../source/examples/expected_output_03_generate_signals.rst:130
+msgid "exp_g06_sweep_dynamic_nonlin.py"
+msgstr ""
+
+#: ../../source/examples/expected_output_03_generate_signals.rst:132
+msgid "**Description**: Compare isolated nonlinearity effects on ADC spectrum."
+msgstr ""
+
+#: ../../source/examples/expected_output_03_generate_signals.rst:154
+msgid "exp_g07_sweep_interferences.py"
+msgstr ""
+
+#: ../../source/examples/expected_output_03_generate_signals.rst:156
+msgid ""
+"**Description**: Sweep different interference types to show effects on "
+"ADC spectrum."
+msgstr ""
+
+#: ../../source/examples/expected_output_03_generate_signals.rst:179
+msgid "---"
+msgstr ""
+

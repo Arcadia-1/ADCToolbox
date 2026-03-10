@@ -1,0 +1,16 @@
+{% extends "!layout.html" %}
+{% block extrahead %}
+{{ super() }}
+<style>
+  .language-banner { background:#1a1a2e; color:#fff; text-align:center; padding:6px; font-size:0.85em; }
+  .language-banner a { color:#4fc3f7; margin:0 8px; }
+</style>
+{% endblock %}
+{% block content %}
+<div class="language-banner">
+  &#x1F310; Language:
+  <a href="/ADCToolbox/{% if pagename != 'index' %}{{ pagename }}{% endif %}">English</a> |
+  <a href="/ADCToolbox/zh_CN/{% if pagename != 'index' %}{{ pagename }}{% endif %}">中文</a>
+</div>
+{{ super() }}
+{% endblock %}
