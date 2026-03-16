@@ -42,12 +42,16 @@ jobs:
           pip install --upgrade pip
           pip install -e .[docs]
 
-      - name: Build Sphinx documentation
+      - name: Build English docs
         run: |
           cd python/docs
           python -m sphinx -b html source build/html
-          # Create .nojekyll file to allow files starting with underscore
           touch build/html/.nojekyll
+
+      - name: Build Chinese docs
+        run: |
+          cd python/docs
+          python -m sphinx -b html -D language=zh_CN source build/html/zh_CN
 
       - name: Upload artifact
         uses: actions/upload-pages-artifact@v3

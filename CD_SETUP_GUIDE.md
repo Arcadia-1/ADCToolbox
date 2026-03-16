@@ -92,20 +92,17 @@ Create/update `CHANGELOG.md`:
 ## [0.3.0] - 2025-12-10
 
 ### Added
-- Modular spectrum architecture with `compute_spectrum()` and `compute_two_tone_spectrum()`
-- Coherent averaging support for single-tone and two-tone spectrum analysis
+- Modular spectrum architecture with `compute_spectrum()`
+- Coherent averaging support for spectrum analysis
 - Auto-generated titles in `plot_spectrum()` for better usability
 - Theoretical SNR/NSD calculations in analog examples (exp_a01, exp_a02)
 
 ### Changed
 - Renamed `calculate_spectrum_data()` → `compute_spectrum()`
-- Renamed `calculate_two_tone_spectrum_data()` → `compute_two_tone_spectrum()`
 - Removed `analyze_spectrum_coherent_averaging()` (functionality integrated into `compute_spectrum()`)
-- Improved two-tone IMD2/IMD3 calculations with better spur collision detection
 - Standardized print format across all examples ([Setting]/[Theory]/[Measured])
 
 ### Fixed
-- Two-tone amplitude normalization and signal power calculations
 - Spectrum averaging behavior for power vs coherent modes
 ```
 

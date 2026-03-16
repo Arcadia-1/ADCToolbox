@@ -1,0 +1,175 @@
+# SOME DESCRIPTIVE TITLE.
+# Copyright (C) 2025, ADCToolbox Contributors
+# This file is distributed under the same license as the ADCToolbox package.
+# FIRST AUTHOR <EMAIL@ADDRESS>, 2026.
+#
+#, fuzzy
+msgid ""
+msgstr ""
+"Project-Id-Version: ADCToolbox 0.5.0\n"
+"Report-Msgid-Bugs-To: \n"
+"POT-Creation-Date: 2026-03-10 20:52+0800\n"
+"PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
+"Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
+"Language: zh_CN\n"
+"Language-Team: zh_CN <LL@li.org>\n"
+"Plural-Forms: nplurals=1; plural=0;\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=utf-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Generated-By: Babel 2.18.0\n"
+
+#: ../../source/algorithms/analyze_error_autocorr.md:1
+msgid "analyze_error_autocorr"
+msgstr ""
+
+#: ../../source/algorithms/analyze_error_autocorr.md:3
+msgid "Overview"
+msgstr ""
+
+#: ../../source/algorithms/analyze_error_autocorr.md:5
+msgid ""
+"`analyze_error_autocorr` computes the autocorrelation of ADC errors to "
+"reveal temporal patterns. White noise has zero autocorrelation at all "
+"lags; correlated errors indicate memory effects, settling issues, or "
+"periodic disturbances."
+msgstr ""
+
+#: ../../source/algorithms/analyze_error_autocorr.md:7
+msgid "Syntax"
+msgstr ""
+
+#: ../../source/algorithms/analyze_error_autocorr.md:19
+msgid "Parameters"
+msgstr ""
+
+#: ../../source/algorithms/analyze_error_autocorr.md:21
+msgid "**`signal`** (array_like) — Input ADC signal"
+msgstr ""
+
+#: ../../source/algorithms/analyze_error_autocorr.md:22
+msgid "**`max_lag`** (int, default=100) — Maximum lag for autocorrelation"
+msgstr ""
+
+#: ../../source/algorithms/analyze_error_autocorr.md:23
+msgid "**`resolution`** (int, optional) — ADC resolution in bits"
+msgstr ""
+
+#: ../../source/algorithms/analyze_error_autocorr.md:24
+msgid "**`show_plot`** (bool, default=False) — Display autocorrelation plot"
+msgstr ""
+
+#: ../../source/algorithms/analyze_error_autocorr.md:25
+msgid "**`ax`** (matplotlib axis, optional) — Axis for plotting"
+msgstr ""
+
+#: ../../source/algorithms/analyze_error_autocorr.md:27
+msgid "Returns"
+msgstr ""
+
+#: ../../source/algorithms/analyze_error_autocorr.md:29
+msgid "Dictionary containing:"
+msgstr ""
+
+#: ../../source/algorithms/analyze_error_autocorr.md:30
+msgid "**`autocorr`** — Autocorrelation values"
+msgstr ""
+
+#: ../../source/algorithms/analyze_error_autocorr.md:31
+msgid "**`lags`** — Lag values"
+msgstr ""
+
+#: ../../source/algorithms/analyze_error_autocorr.md:32
+msgid "**`error`** — Error signal used"
+msgstr ""
+
+#: ../../source/algorithms/analyze_error_autocorr.md:34
+msgid "Interpretation"
+msgstr ""
+
+#: ../../source/algorithms/analyze_error_autocorr.md
+msgid "Autocorrelation Pattern"
+msgstr ""
+
+#: ../../source/algorithms/analyze_error_autocorr.md
+msgid "Likely Cause"
+msgstr ""
+
+#: ../../source/algorithms/analyze_error_autocorr.md
+msgid "**Peak at lag=0 only**"
+msgstr ""
+
+#: ../../source/algorithms/analyze_error_autocorr.md
+msgid "White noise (ideal)"
+msgstr ""
+
+#: ../../source/algorithms/analyze_error_autocorr.md
+msgid "**Decay over few samples**"
+msgstr ""
+
+#: ../../source/algorithms/analyze_error_autocorr.md
+msgid "Low-pass filtering, bandwidth limit"
+msgstr ""
+
+#: ../../source/algorithms/analyze_error_autocorr.md
+msgid "**Periodic peaks**"
+msgstr ""
+
+#: ../../source/algorithms/analyze_error_autocorr.md
+msgid "Switching artifacts, clock coupling"
+msgstr ""
+
+#: ../../source/algorithms/analyze_error_autocorr.md
+msgid "**Slow decay**"
+msgstr ""
+
+#: ../../source/algorithms/analyze_error_autocorr.md
+msgid "1/f noise, drift"
+msgstr ""
+
+#: ../../source/algorithms/analyze_error_autocorr.md:43
+msgid "Use Cases"
+msgstr ""
+
+#: ../../source/algorithms/analyze_error_autocorr.md:45
+msgid "Distinguish white noise from colored noise"
+msgstr ""
+
+#: ../../source/algorithms/analyze_error_autocorr.md:46
+msgid "Detect memory effects in pipelined ADCs"
+msgstr ""
+
+#: ../../source/algorithms/analyze_error_autocorr.md:47
+msgid "Identify periodic disturbances"
+msgstr ""
+
+#: ../../source/algorithms/analyze_error_autocorr.md:49
+msgid "See Also"
+msgstr ""
+
+#: ../../source/algorithms/analyze_error_autocorr.md:51
+msgid "[`analyze_error_pdf`](analyze_error_pdf.md) — Error distribution"
+msgstr ""
+
+#: ../../source/algorithms/analyze_error_autocorr.md:52
+msgid ""
+"[`analyze_error_spectrum`](analyze_error_spectrum.md) — Frequency domain "
+"view"
+msgstr ""
+
+#: ../../source/algorithms/analyze_error_autocorr.md:53
+msgid ""
+"[`analyze_error_envelope_spectrum`](analyze_error_envelope_spectrum.md) —"
+" AM modulation"
+msgstr ""
+
+#: ../../source/algorithms/analyze_error_autocorr.md:55
+msgid "References"
+msgstr ""
+
+#: ../../source/algorithms/analyze_error_autocorr.md:57
+msgid ""
+"B. Razavi, \"Principles of Data Conversion System Design,\" IEEE Press, "
+"1995"
+msgstr ""
+

@@ -19,7 +19,6 @@
   - **Full Metric Suite**: Extraction of ENOB, SNDR, SNR, SFDR, THD, NSD, and Noise Floor.
   - **Smart labeling**: Automated labeling for harmonics, noise floor, and OSR bandwidth.
   - **Polar Spectrum**: Visualizes phase errors to distinguish static from dynamic nonlinearities.
-  - **Two-Tone Spectrum**: Supports dual-tone testing with IMD calculation.
   - **Validated Signal Processing**: Eight window functions; two averaging modes (power spectrum averaging & complex/coherent spectrum averaging)
 
 - **Advanced Error Visualization**
@@ -90,7 +89,7 @@ Environment verification and coherent sampling basics.
 | `exp_b02_coherent_vs_non_coherent.py` | Demonstrate coherent vs non-coherent sampling impact on ENOB |
 
 ### 02_spectrum - FFT-Based Analysis (14 examples)
-Spectrum analysis with windowing, averaging, polar plots, and two-tone testing.
+Spectrum analysis with windowing, averaging, and polar plots.
 
 | Example | Description |
 |---------|-------------|
@@ -105,9 +104,6 @@ Spectrum analysis with windowing, averaging, polar plots, and two-tone testing.
 | `exp_s10_polar_noise_and_harmonics.py` | Polar phase spectrum: noise vs harmonics |
 | `exp_s11_polar_memory_effect.py` | Memory effect analysis via polar spectrum |
 | `exp_s12_polar_coherent_averaging.py` | Coherent averaging with polar plots |
-| `exp_s21_analyze_two_tone_spectrum.py` | Two-tone spectrum analysis (IMD2/IMD3) |
-| `exp_s22_two_tone_imd_comparison.py` | IMD product comparison across frequencies |
-| `exp_s23_two_tone_spectrum_averaging.py` | Power vs coherent averaging for two-tone |
 
 ### 03_generate_signals - Non-Ideality Modeling (6 examples)
 Generate ADC signals with various impairments for testing and validation.
@@ -168,15 +164,11 @@ Helper functions for unit conversions and metric calculations.
 <summary><b>Spectrum Analysis</b></summary>
 
 ```python
-from adctoolbox import analyze_spectrum, analyze_two_tone_spectrum
+from adctoolbox import analyze_spectrum
 
 # Single-tone analysis
 result = analyze_spectrum(signal, fs=800e6, harmonic=5, show_plot=True)
 print(f"ENOB: {result['enob']:.2f} bits, SNDR: {result['sndr_db']:.2f} dB")
-
-# Two-tone analysis (IMD)
-result = analyze_two_tone_spectrum(signal, fs=1000e6, show_plot=True)
-print(f"IMD2: {result['imd2_db']:.2f} dB, IMD3: {result['imd3_db']:.2f} dB")
 ```
 </details>
 
@@ -237,14 +229,11 @@ print(f"DNL: [{result['dnl'].min():.2f}, {result['dnl'].max():.2f}] LSB")
 <summary><b>Digital Calibration</b></summary>
 
 ```python
-from adctoolbox import calibrate_weight_sine, calibrate_weight_two_tone
+from adctoolbox import calibrate_weight_sine
 
 # Weight calibration
 result = calibrate_weight_sine(digital_codes, order=5)
 print(f"SNR: {result['snr_db']:.2f} dB, THD: {result['thd_db']:.2f} dB")
-
-# Two-tone calibration
-result = calibrate_weight_two_tone(digital_codes, order=5)
 ```
 </details>
 

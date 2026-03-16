@@ -20,7 +20,8 @@ for idx, (caps_nominal, title) in enumerate(test_cases):
     nominal_resolution = np.log2(np.sum(caps_nominal) / caps_nominal[-1] * 2)
 
     # Plot weight scaling
-    radix = analyze_weight_radix(weights_nominal, ax=axes[idx])
+    result = analyze_weight_radix(weights_nominal, ax=axes[idx])
+    radix = result['radix']
     axes[idx].set_title(title, fontsize=12, fontweight='bold')
 
     # Statistics

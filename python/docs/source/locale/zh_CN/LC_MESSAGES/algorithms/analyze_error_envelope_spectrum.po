@@ -1,0 +1,180 @@
+# SOME DESCRIPTIVE TITLE.
+# Copyright (C) 2025, ADCToolbox Contributors
+# This file is distributed under the same license as the ADCToolbox package.
+# FIRST AUTHOR <EMAIL@ADDRESS>, 2026.
+#
+#, fuzzy
+msgid ""
+msgstr ""
+"Project-Id-Version: ADCToolbox 0.5.0\n"
+"Report-Msgid-Bugs-To: \n"
+"POT-Creation-Date: 2026-03-10 20:52+0800\n"
+"PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
+"Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
+"Language: zh_CN\n"
+"Language-Team: zh_CN <LL@li.org>\n"
+"Plural-Forms: nplurals=1; plural=0;\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=utf-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Generated-By: Babel 2.18.0\n"
+
+#: ../../source/algorithms/analyze_error_envelope_spectrum.md:1
+msgid "analyze_error_envelope_spectrum"
+msgstr ""
+
+#: ../../source/algorithms/analyze_error_envelope_spectrum.md:3
+msgid "Overview"
+msgstr ""
+
+#: ../../source/algorithms/analyze_error_envelope_spectrum.md:5
+msgid ""
+"`analyze_error_envelope_spectrum` analyzes the envelope spectrum of ADC "
+"errors to detect amplitude modulation (AM) patterns. This reveals signal-"
+"dependent errors that modulate with the input amplitude."
+msgstr ""
+
+#: ../../source/algorithms/analyze_error_envelope_spectrum.md:7
+msgid "Syntax"
+msgstr ""
+
+#: ../../source/algorithms/analyze_error_envelope_spectrum.md:19
+msgid "Parameters"
+msgstr ""
+
+#: ../../source/algorithms/analyze_error_envelope_spectrum.md:21
+msgid "**`signal`** (array_like) — Input ADC signal"
+msgstr ""
+
+#: ../../source/algorithms/analyze_error_envelope_spectrum.md:22
+msgid "**`fs`** (float) — Sampling frequency in Hz"
+msgstr ""
+
+#: ../../source/algorithms/analyze_error_envelope_spectrum.md:23
+msgid "**`resolution`** (int, optional) — ADC resolution in bits"
+msgstr ""
+
+#: ../../source/algorithms/analyze_error_envelope_spectrum.md:24
+msgid "**`show_plot`** (bool, default=False) — Display envelope spectrum"
+msgstr ""
+
+#: ../../source/algorithms/analyze_error_envelope_spectrum.md:25
+msgid "**`ax`** (matplotlib axis, optional) — Axis for plotting"
+msgstr ""
+
+#: ../../source/algorithms/analyze_error_envelope_spectrum.md:27
+msgid "Returns"
+msgstr ""
+
+#: ../../source/algorithms/analyze_error_envelope_spectrum.md:29
+msgid "Dictionary containing:"
+msgstr ""
+
+#: ../../source/algorithms/analyze_error_envelope_spectrum.md:30
+msgid "**`envelope_spectrum`** — Envelope spectrum magnitude"
+msgstr ""
+
+#: ../../source/algorithms/analyze_error_envelope_spectrum.md:31
+msgid "**`envelope_freq`** — Frequency bins for envelope"
+msgstr ""
+
+#: ../../source/algorithms/analyze_error_envelope_spectrum.md:32
+msgid "**`error`** — Error signal"
+msgstr ""
+
+#: ../../source/algorithms/analyze_error_envelope_spectrum.md:33
+msgid "**`envelope`** — Extracted envelope"
+msgstr ""
+
+#: ../../source/algorithms/analyze_error_envelope_spectrum.md:35
+msgid "Interpretation"
+msgstr ""
+
+#: ../../source/algorithms/analyze_error_envelope_spectrum.md
+msgid "Envelope Spectrum"
+msgstr ""
+
+#: ../../source/algorithms/analyze_error_envelope_spectrum.md
+msgid "Likely Cause"
+msgstr ""
+
+#: ../../source/algorithms/analyze_error_envelope_spectrum.md
+msgid "**DC component only**"
+msgstr ""
+
+#: ../../source/algorithms/analyze_error_envelope_spectrum.md
+msgid "Signal-independent error (no AM)"
+msgstr ""
+
+#: ../../source/algorithms/analyze_error_envelope_spectrum.md
+msgid "**Peak at 2×Fin**"
+msgstr ""
+
+#: ../../source/algorithms/analyze_error_envelope_spectrum.md
+msgid "Memory effect, residue amplifier gain error"
+msgstr ""
+
+#: ../../source/algorithms/analyze_error_envelope_spectrum.md
+msgid "**Peak at Fin**"
+msgstr ""
+
+#: ../../source/algorithms/analyze_error_envelope_spectrum.md
+msgid "Asymmetric nonlinearity"
+msgstr ""
+
+#: ../../source/algorithms/analyze_error_envelope_spectrum.md
+msgid "**Multiple peaks**"
+msgstr ""
+
+#: ../../source/algorithms/analyze_error_envelope_spectrum.md
+msgid "Complex memory effects"
+msgstr ""
+
+#: ../../source/algorithms/analyze_error_envelope_spectrum.md:44
+msgid "Use Cases"
+msgstr ""
+
+#: ../../source/algorithms/analyze_error_envelope_spectrum.md:46
+msgid "Detect memory effects in pipelined/SAR ADCs"
+msgstr ""
+
+#: ../../source/algorithms/analyze_error_envelope_spectrum.md:47
+msgid "Identify signal-dependent settling errors"
+msgstr ""
+
+#: ../../source/algorithms/analyze_error_envelope_spectrum.md:48
+msgid "Reveal gain errors in residue amplifiers"
+msgstr ""
+
+#: ../../source/algorithms/analyze_error_envelope_spectrum.md:50
+msgid "See Also"
+msgstr ""
+
+#: ../../source/algorithms/analyze_error_envelope_spectrum.md:52
+msgid ""
+"[`analyze_error_autocorr`](analyze_error_autocorr.md) — Time-domain "
+"correlation"
+msgstr ""
+
+#: ../../source/algorithms/analyze_error_envelope_spectrum.md:53
+msgid ""
+"[`analyze_error_spectrum`](analyze_error_spectrum.md) — Direct error "
+"spectrum"
+msgstr ""
+
+#: ../../source/algorithms/analyze_error_envelope_spectrum.md:54
+msgid ""
+"[`analyze_decomposition_time`](analyze_decomposition_time.md) — Harmonic "
+"decomposition"
+msgstr ""
+
+#: ../../source/algorithms/analyze_error_envelope_spectrum.md:56
+msgid "References"
+msgstr ""
+
+#: ../../source/algorithms/analyze_error_envelope_spectrum.md:58
+msgid ""
+"M. Mishali et al., \"Automatic Testing of  Pipelined ADCs,\" Proc. IEEE "
+"Int. Test Conf., 2007"
+msgstr ""
+

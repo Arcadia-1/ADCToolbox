@@ -1,0 +1,138 @@
+# SOME DESCRIPTIVE TITLE.
+# Copyright (C) 2025, ADCToolbox Contributors
+# This file is distributed under the same license as the ADCToolbox package.
+# FIRST AUTHOR <EMAIL@ADDRESS>, 2026.
+#
+#, fuzzy
+msgid ""
+msgstr ""
+"Project-Id-Version: ADCToolbox 0.5.0\n"
+"Report-Msgid-Bugs-To: \n"
+"POT-Creation-Date: 2026-03-10 20:52+0800\n"
+"PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
+"Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
+"Language: zh_CN\n"
+"Language-Team: zh_CN <LL@li.org>\n"
+"Plural-Forms: nplurals=1; plural=0;\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=utf-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Generated-By: Babel 2.18.0\n"
+
+#: ../../source/algorithms/analyze_decomposition_time.md:1
+msgid "analyze_decomposition_time"
+msgstr ""
+
+#: ../../source/algorithms/analyze_decomposition_time.md:3
+msgid "Overview"
+msgstr ""
+
+#: ../../source/algorithms/analyze_decomposition_time.md:5
+msgid ""
+"`analyze_decomposition_time` performs time-domain harmonic decomposition "
+"of ADC output, separating the fundamental from harmonic distortion "
+"components. This reveals the temporal structure of nonlinearity."
+msgstr ""
+
+#: ../../source/algorithms/analyze_decomposition_time.md:7
+msgid "Syntax"
+msgstr ""
+
+#: ../../source/algorithms/analyze_decomposition_time.md:20
+msgid "Parameters"
+msgstr ""
+
+#: ../../source/algorithms/analyze_decomposition_time.md:22
+msgid "**`signal`** (array_like) — Input ADC signal"
+msgstr ""
+
+#: ../../source/algorithms/analyze_decomposition_time.md:23
+msgid "**`fs`** (float) — Sampling frequency in Hz"
+msgstr ""
+
+#: ../../source/algorithms/analyze_decomposition_time.md:24
+msgid "**`harmonic`** (int, default=5) — Number of harmonics to decompose"
+msgstr ""
+
+#: ../../source/algorithms/analyze_decomposition_time.md:25
+msgid "**`show_plot`** (bool, default=False) — Display decomposition plot"
+msgstr ""
+
+#: ../../source/algorithms/analyze_decomposition_time.md:26
+msgid "**`ax`** (matplotlib axis, optional) — Axis for plotting"
+msgstr ""
+
+#: ../../source/algorithms/analyze_decomposition_time.md:28
+msgid "Returns"
+msgstr ""
+
+#: ../../source/algorithms/analyze_decomposition_time.md:30
+msgid "Dictionary containing:"
+msgstr ""
+
+#: ../../source/algorithms/analyze_decomposition_time.md:31
+msgid "**`fundamental`** — Fundamental component (time domain)"
+msgstr ""
+
+#: ../../source/algorithms/analyze_decomposition_time.md:32
+msgid "**`harmonics`** — List of harmonic components"
+msgstr ""
+
+#: ../../source/algorithms/analyze_decomposition_time.md:33
+msgid "**`residual`** — Remaining error (noise + distortion)"
+msgstr ""
+
+#: ../../source/algorithms/analyze_decomposition_time.md:34
+msgid "**`harmonic_amplitudes`** — Amplitude of each harmonic"
+msgstr ""
+
+#: ../../source/algorithms/analyze_decomposition_time.md:35
+msgid "**`harmonic_phases`** — Phase of each harmonic"
+msgstr ""
+
+#: ../../source/algorithms/analyze_decomposition_time.md:37
+msgid "Algorithm"
+msgstr ""
+
+#: ../../source/algorithms/analyze_decomposition_time.md:52
+msgid "Use Cases"
+msgstr ""
+
+#: ../../source/algorithms/analyze_decomposition_time.md:54
+msgid "Visualize harmonic distortion in time domain"
+msgstr ""
+
+#: ../../source/algorithms/analyze_decomposition_time.md:55
+msgid "Understand nonlinearity structure (2nd vs. 3rd order)"
+msgstr ""
+
+#: ../../source/algorithms/analyze_decomposition_time.md:56
+msgid "Compare with polar decomposition for phase insights"
+msgstr ""
+
+#: ../../source/algorithms/analyze_decomposition_time.md:58
+msgid "See Also"
+msgstr ""
+
+#: ../../source/algorithms/analyze_decomposition_time.md:60
+msgid ""
+"[`analyze_decomposition_polar`](../api/aout.rst) — Polar visualization of"
+" decomposition"
+msgstr ""
+
+#: ../../source/algorithms/analyze_decomposition_time.md:61
+msgid "[`fit_sine_4param`](fit_sine_4param.md) — Core sine fitting algorithm"
+msgstr ""
+
+#: ../../source/algorithms/analyze_decomposition_time.md:62
+msgid "[`analyze_spectrum`](analyze_spectrum.md) — Frequency-domain view"
+msgstr ""
+
+#: ../../source/algorithms/analyze_decomposition_time.md:64
+msgid "References"
+msgstr ""
+
+#: ../../source/algorithms/analyze_decomposition_time.md:66
+msgid "IEEE Std 1057-2017, \"IEEE Standard for Digitizing Waveform Recorders\""
+msgstr ""
+

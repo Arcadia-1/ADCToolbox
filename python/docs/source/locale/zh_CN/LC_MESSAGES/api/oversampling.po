@@ -1,0 +1,75 @@
+# SOME DESCRIPTIVE TITLE.
+# Copyright (C) 2025, ADCToolbox Contributors
+# This file is distributed under the same license as the ADCToolbox package.
+# FIRST AUTHOR <EMAIL@ADDRESS>, 2026.
+#
+#, fuzzy
+msgid ""
+msgstr ""
+"Project-Id-Version: ADCToolbox 0.5.0\n"
+"Report-Msgid-Bugs-To: \n"
+"POT-Creation-Date: 2026-03-10 20:52+0800\n"
+"PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
+"Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
+"Language: zh_CN\n"
+"Language-Team: zh_CN <LL@li.org>\n"
+"Plural-Forms: nplurals=1; plural=0;\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=utf-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Generated-By: Babel 2.18.0\n"
+
+#: ../../source/api/oversampling.rst:2
+msgid "Oversampling Analysis (oversampling)"
+msgstr ""
+
+#: ../../source/api/oversampling.rst:4
+msgid ""
+"The ``oversampling`` module provides tools for analyzing oversampling and"
+" Delta-Sigma modulators."
+msgstr ""
+
+#: adctoolbox.oversampling:1 of
+msgid "Oversampling and noise transfer function analysis tools."
+msgstr ""
+
+#: adctoolbox.oversampling.ntf_analyzer.ntf_analyzer:1 of
+msgid "Analyze the performance of NTF (Noise Transfer Function)"
+msgstr ""
+
+#: ../../source/api/oversampling.rst
+msgid "Parameters"
+msgstr ""
+
+#: adctoolbox.oversampling.ntf_analyzer.ntf_analyzer:3 of
+msgid ""
+"The noise transfer function (in z domain) - scipy.signal.TransferFunction"
+" or tuple (num, den)"
+msgstr ""
+
+#: adctoolbox.oversampling.ntf_analyzer.ntf_analyzer:4 of
+msgid "Low bound frequency of signal band (relative to Fs)"
+msgstr ""
+
+#: adctoolbox.oversampling.ntf_analyzer.ntf_analyzer:5 of
+msgid "High bound frequency of signal band (relative to Fs)"
+msgstr ""
+
+#: adctoolbox.oversampling.ntf_analyzer.ntf_analyzer:6 of
+msgid "Optional plotting flag (1 to plot, None or 0 to skip)"
+msgstr ""
+
+#: ../../source/api/oversampling.rst
+msgid "Returns"
+msgstr ""
+
+#: adctoolbox.oversampling.ntf_analyzer.ntf_analyzer:8 of
+msgid ""
+"Integrated noise suppression of NTF in signal band in dB (compared to "
+"NTF=1)"
+msgstr ""
+
+#: ../../source/api/oversampling.rst
+msgid "Return type"
+msgstr ""
+

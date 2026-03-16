@@ -1,0 +1,149 @@
+# SOME DESCRIPTIVE TITLE.
+# Copyright (C) 2025, ADCToolbox Contributors
+# This file is distributed under the same license as the ADCToolbox package.
+# FIRST AUTHOR <EMAIL@ADDRESS>, 2026.
+#
+#, fuzzy
+msgid ""
+msgstr ""
+"Project-Id-Version: ADCToolbox 0.5.0\n"
+"Report-Msgid-Bugs-To: \n"
+"POT-Creation-Date: 2026-03-10 20:52+0800\n"
+"PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
+"Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
+"Language: zh_CN\n"
+"Language-Team: zh_CN <LL@li.org>\n"
+"Plural-Forms: nplurals=1; plural=0;\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=utf-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Generated-By: Babel 2.18.0\n"
+
+#: ../../source/algorithms/analyze_spectrum_polar.md:1
+msgid "analyze_spectrum_polar"
+msgstr ""
+
+#: ../../source/algorithms/analyze_spectrum_polar.md:3
+msgid "Overview"
+msgstr ""
+
+#: ../../source/algorithms/analyze_spectrum_polar.md:5
+msgid ""
+"`analyze_spectrum_polar` performs FFT-based spectrum analysis with polar "
+"(phase) visualization. This tool is particularly useful for "
+"distinguishing between noise (random phase) and deterministic distortion "
+"(coherent phase)."
+msgstr ""
+
+#: ../../source/algorithms/analyze_spectrum_polar.md:7
+msgid "Syntax"
+msgstr ""
+
+#: ../../source/algorithms/analyze_spectrum_polar.md:20
+msgid "Parameters"
+msgstr ""
+
+#: ../../source/algorithms/analyze_spectrum_polar.md:22
+msgid "**`signal`** (array_like) — Input ADC signal"
+msgstr ""
+
+#: ../../source/algorithms/analyze_spectrum_polar.md:23
+msgid "**`fs`** (float) — Sampling frequency in Hz"
+msgstr ""
+
+#: ../../source/algorithms/analyze_spectrum_polar.md:24
+msgid "**`harmonic`** (int, default=9) — Number of harmonics to analyze"
+msgstr ""
+
+#: ../../source/algorithms/analyze_spectrum_polar.md:25
+msgid "**`window`** (str, default='blackman') — Window function"
+msgstr ""
+
+#: ../../source/algorithms/analyze_spectrum_polar.md:26
+msgid "**`nfft`** (int, optional) — FFT length"
+msgstr ""
+
+#: ../../source/algorithms/analyze_spectrum_polar.md:27
+msgid "**`show_plot`** (bool, default=False) — Display polar plot"
+msgstr ""
+
+#: ../../source/algorithms/analyze_spectrum_polar.md:28
+msgid "**`ax`** (matplotlib axis, optional) — Axis for plotting"
+msgstr ""
+
+#: ../../source/algorithms/analyze_spectrum_polar.md:30
+msgid "Returns"
+msgstr ""
+
+#: ../../source/algorithms/analyze_spectrum_polar.md:32
+msgid "Dictionary containing spectrum metrics (same as `analyze_spectrum`) plus:"
+msgstr ""
+
+#: ../../source/algorithms/analyze_spectrum_polar.md:33
+msgid "**`phase`** — Phase spectrum in radians"
+msgstr ""
+
+#: ../../source/algorithms/analyze_spectrum_polar.md:34
+msgid "**`phase_unwrapped`** — Unwrapped phase for easier analysis"
+msgstr ""
+
+#: ../../source/algorithms/analyze_spectrum_polar.md:36
+msgid "Key Features"
+msgstr ""
+
+#: ../../source/algorithms/analyze_spectrum_polar.md:38
+msgid ""
+"**Polar visualization**: Magnitude vs. phase plot reveals noise vs. "
+"distortion"
+msgstr ""
+
+#: ../../source/algorithms/analyze_spectrum_polar.md:39
+msgid ""
+"**Phase coherence**: Deterministic signals have fixed phase, noise has "
+"random phase"
+msgstr ""
+
+#: ../../source/algorithms/analyze_spectrum_polar.md:40
+msgid "**Memory effects**: Phase deviations indicate signal-dependent errors"
+msgstr ""
+
+#: ../../source/algorithms/analyze_spectrum_polar.md:42
+msgid "Use Cases"
+msgstr ""
+
+#: ../../source/algorithms/analyze_spectrum_polar.md:44
+msgid "Distinguish thermal noise from harmonic distortion"
+msgstr ""
+
+#: ../../source/algorithms/analyze_spectrum_polar.md:45
+msgid "Identify memory effects in pipelined ADCs"
+msgstr ""
+
+#: ../../source/algorithms/analyze_spectrum_polar.md:46
+msgid "Analyze settling errors and inter-symbol interference"
+msgstr ""
+
+#: ../../source/algorithms/analyze_spectrum_polar.md:48
+msgid "See Also"
+msgstr ""
+
+#: ../../source/algorithms/analyze_spectrum_polar.md:50
+msgid "[`analyze_spectrum`](analyze_spectrum.md) — Standard spectrum analysis"
+msgstr ""
+
+#: ../../source/algorithms/analyze_spectrum_polar.md:51
+msgid ""
+"[`analyze_two_tone_spectrum`](analyze_two_tone_spectrum.md) — Two-tone "
+"testing"
+msgstr ""
+
+#: ../../source/algorithms/analyze_spectrum_polar.md:53
+msgid "References"
+msgstr ""
+
+#: ../../source/algorithms/analyze_spectrum_polar.md:55
+msgid ""
+"IEEE Std 1241-2010, \"IEEE Standard for Terminology and Test Methods for "
+"ADCs\""
+msgstr ""
+

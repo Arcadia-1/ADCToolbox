@@ -1,0 +1,102 @@
+# ADCToolbox 中文翻译
+# Copyright (C) 2025, ADCToolbox Contributors
+# This file is distributed under the same license as the ADCToolbox package.
+#
+msgid ""
+msgstr ""
+"Project-Id-Version: ADCToolbox 0.5.0\n"
+"Report-Msgid-Bugs-To: \n"
+"POT-Creation-Date: 2026-03-10 20:52+0800\n"
+"PO-Revision-Date: 2026-03-10 20:52+0800\n"
+"Last-Translator: ADCToolbox Contributors\n"
+"Language: zh_CN\n"
+"Language-Team: zh_CN\n"
+"Plural-Forms: nplurals=1; plural=0;\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=utf-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Generated-By: Babel 2.18.0\n"
+
+#: ../../source/index.rst:8
+msgid "Contents:"
+msgstr "目录："
+
+#: ../../source/index.rst:2
+msgid "ADCToolbox Documentation"
+msgstr "ADCToolbox 文档"
+
+#: ../../source/index.rst:4
+msgid ""
+"ADCToolbox is a comprehensive toolbox for ADC (Analog-to-Digital "
+"Converter) characterization and analysis, providing advanced tools for "
+"both analog output and digital output analysis."
+msgstr ""
+"ADCToolbox 是一个用于 ADC（模数转换器）表征与分析的综合工具箱，"
+"提供面向模拟输出和数字输出分析的高级工具。"
+
+#: ../../source/index.rst:21
+msgid "Features"
+msgstr "功能特性"
+
+#: ../../source/index.rst:23
+msgid ""
+"**Spectrum Analysis**: FFT-based analysis with ENOB, SNR, SFDR, THD, "
+"windowing, averaging, and polar visualization"
+msgstr ""
+"**频谱分析**：基于 FFT 的分析，支持 ENOB、SNR、SFDR、THD、"
+"加窗、平均和极坐标可视化"
+
+#: ../../source/index.rst:24
+msgid ""
+"**Signal Generation**: Thermal noise, jitter, quantization, "
+"static/dynamic nonlinearity, and interference modeling"
+msgstr ""
+"**信号生成**：热噪声、抖动、量化、静态/动态非线性及干扰建模"
+
+#: ../../source/index.rst:25
+msgid ""
+"**Analog Error Analysis**: Time-domain, frequency-domain, and statistical"
+" error characterization (PDF, autocorrelation, envelope spectrum)"
+msgstr ""
+"**模拟误差分析**：时域、频域和统计误差表征（概率密度函数、自相关、包络频谱）"
+
+#: ../../source/index.rst:26
+msgid ""
+"**Digital Calibration**: Bit-weighted ADC calibration and redundancy "
+"analysis"
+msgstr ""
+"**数字校准**：位权重 ADC 校准与冗余分析"
+
+#: ../../source/index.rst:27
+msgid ""
+"**Fundamental Utilities**: Sine fitting, frequency calculation, unit "
+"conversion, and FOM metrics"
+msgstr ""
+"**基础工具**：正弦拟合、频率计算、单位换算和品质因数指标"
+
+#: ../../source/index.rst:28
+msgid ""
+"**Oversampling Analysis**: Delta-Sigma modulator characterization, NTF "
+"analysis"
+msgstr ""
+"**过采样分析**：Delta-Sigma 调制器表征与噪声传递函数（NTF）分析"
+
+#: ../../source/index.rst:29
+msgid "**Comprehensive Examples**: 45 ready-to-run examples across 6 categories"
+msgstr "**丰富示例**：6 个类别共 45 个即用示例"
+
+#: ../../source/index.rst:32
+msgid "Quick Links"
+msgstr "快速链接"
+
+#: ../../source/index.rst:34
+msgid ":ref:`genindex`"
+msgstr ":ref:`genindex`"
+
+#: ../../source/index.rst:35
+msgid ":ref:`modindex`"
+msgstr ":ref:`modindex`"
+
+#: ../../source/index.rst:36
+msgid ":ref:`search`"
+msgstr ":ref:`search`"

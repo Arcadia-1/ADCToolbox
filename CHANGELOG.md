@@ -7,6 +7,11 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Removed
+- **Two-tone spectrum analysis**: Removed `analyze_two_tone_spectrum`, `compute_two_tone_spectrum`, `plot_two_tone_spectrum` — no MATLAB counterpart exists
+- Removed 3 two-tone example scripts (`exp_s21`, `exp_s22`, `exp_s23`)
+- Removed two-tone algorithm documentation page
+
 ### Work in Progress
 - Additional examples and tutorials
 - Performance optimizations

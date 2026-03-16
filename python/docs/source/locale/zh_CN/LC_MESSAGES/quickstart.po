@@ -1,0 +1,106 @@
+# ADCToolbox 中文翻译
+# Copyright (C) 2025, ADCToolbox Contributors
+# This file is distributed under the same license as the ADCToolbox package.
+#
+msgid ""
+msgstr ""
+"Project-Id-Version: ADCToolbox 0.5.0\n"
+"Report-Msgid-Bugs-To: \n"
+"POT-Creation-Date: 2026-03-10 20:52+0800\n"
+"PO-Revision-Date: 2026-03-10 20:52+0800\n"
+"Last-Translator: ADCToolbox Contributors\n"
+"Language: zh_CN\n"
+"Language-Team: zh_CN\n"
+"Plural-Forms: nplurals=1; plural=0;\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=utf-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Generated-By: Babel 2.18.0\n"
+
+#: ../../source/quickstart.rst:2
+msgid "Quick Start Guide"
+msgstr "快速入门指南"
+
+#: ../../source/quickstart.rst:4
+msgid "This guide will help you get started with ADCToolbox quickly."
+msgstr "本指南帮助您快速上手 ADCToolbox。"
+
+#: ../../source/quickstart.rst:7
+msgid "Spectrum Analysis"
+msgstr "频谱分析"
+
+#: ../../source/quickstart.rst:9
+msgid "Analyze an ADC output spectrum:"
+msgstr "分析 ADC 输出频谱："
+
+#: ../../source/quickstart.rst:42
+msgid "Expected output::"
+msgstr "预期输出：："
+
+#: ../../source/quickstart.rst:54
+msgid "Using Toolsets"
+msgstr "使用工具集"
+
+#: ../../source/quickstart.rst:57
+msgid "Analog Output Dashboard"
+msgstr "模拟输出仪表盘"
+
+#: ../../source/quickstart.rst:59
+msgid ""
+"Generate a comprehensive 12-panel diagnostic dashboard for analog ADC "
+"output:"
+msgstr "为模拟 ADC 输出生成包含 12 个面板的综合诊断仪表盘："
+
+#: ../../source/quickstart.rst:89
+msgid ""
+"This generates a 3x4 panel dashboard with 12 diagnostic plots including "
+"spectrum analysis, error characterization (PDF, autocorrelation, "
+"spectrum), polar plots, and phase plane analysis."
+msgstr ""
+"生成一个 3×4 面板仪表盘，包含 12 个诊断图，涵盖频谱分析、"
+"误差表征（概率密度函数、自相关、频谱）、极坐标图和相平面分析。"
+
+#: ../../source/quickstart.rst:97
+msgid "Digital Output Dashboard"
+msgstr "数字输出仪表盘"
+
+#: ../../source/quickstart.rst:99
+msgid ""
+"Generate a comprehensive 6-panel diagnostic dashboard for digital ADC "
+"bits:"
+msgstr "为数字 ADC 位生成包含 6 个面板的综合诊断仪表盘："
+
+#: ../../source/quickstart.rst:131
+msgid ""
+"This generates a 2x3 panel dashboard with 6 diagnostic plots including "
+"spectrum before/after calibration, bit activity, overflow detection, ENOB"
+" sweep, and weight radix visualization."
+msgstr ""
+"生成一个 2×3 面板仪表盘，包含 6 个诊断图，涵盖校准前后频谱、"
+"位活动、溢出检测、ENOB 扫描和位权重基数可视化。"
+
+#: ../../source/quickstart.rst:139
+msgid "Explore More Examples"
+msgstr "探索更多示例"
+
+#: ../../source/quickstart.rst:141
+msgid "**The best way to learn ADCToolbox is through the ready-to-run examples.**"
+msgstr "**学习 ADCToolbox 的最佳方式是运行即用示例。**"
+
+#: ../../source/quickstart.rst:143
+msgid "Download all examples in one command:"
+msgstr "一条命令下载所有示例："
+
+#: ../../source/quickstart.rst:152
+msgid "Run your first examples:"
+msgstr "运行您的第一个示例："
+
+#: ../../source/quickstart.rst:162
+msgid "All outputs are saved to the ``output/`` directory within each category."
+msgstr "所有输出保存到各类别的 ``output/`` 目录中。"
+
+#: ../../source/quickstart.rst:164
+msgid ""
+"Please refer to the :doc:`examples/index` for detailed instructions and "
+"expected outputs."
+msgstr "详细说明和预期输出请参阅 :doc:`examples/index`。"

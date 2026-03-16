@@ -1,0 +1,421 @@
+# SOME DESCRIPTIVE TITLE.
+# Copyright (C) 2025, ADCToolbox Contributors
+# This file is distributed under the same license as the ADCToolbox package.
+# FIRST AUTHOR <EMAIL@ADDRESS>, 2026.
+#
+#, fuzzy
+msgid ""
+msgstr ""
+"Project-Id-Version: ADCToolbox 0.5.0\n"
+"Report-Msgid-Bugs-To: \n"
+"POT-Creation-Date: 2026-03-10 20:52+0800\n"
+"PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
+"Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
+"Language: zh_CN\n"
+"Language-Team: zh_CN <LL@li.org>\n"
+"Plural-Forms: nplurals=1; plural=0;\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=utf-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Generated-By: Babel 2.18.0\n"
+
+#: ../../source/algorithms/analyze_spectrum.md:1
+msgid "analyze_spectrum"
+msgstr ""
+
+#: ../../source/algorithms/analyze_spectrum.md:3
+msgid "Overview"
+msgstr ""
+
+#: ../../source/algorithms/analyze_spectrum.md:5
+msgid ""
+"`analyze_spectrum` performs FFT-based spectrum analysis for ADC "
+"characterization, computing key metrics including ENOB, SNR, SNDR, SFDR, "
+"THD, and harmonic content. This is the primary tool for frequency-domain "
+"ADC performance evaluation."
+msgstr ""
+
+#: ../../source/algorithms/analyze_spectrum.md:7
+msgid "Syntax"
+msgstr ""
+
+#: ../../source/algorithms/analyze_spectrum.md:28
+msgid "Parameters"
+msgstr ""
+
+#: ../../source/algorithms/analyze_spectrum.md:30
+msgid "**`signal`** (array_like) — Input ADC signal (1D array)"
+msgstr ""
+
+#: ../../source/algorithms/analyze_spectrum.md:31
+msgid "**`fs`** (float) — Sampling frequency in Hz"
+msgstr ""
+
+#: ../../source/algorithms/analyze_spectrum.md:32
+msgid "**`harmonic`** (int, default=9) — Number of harmonics to analyze (2-20)"
+msgstr ""
+
+#: ../../source/algorithms/analyze_spectrum.md:33
+msgid ""
+"**`window`** (str, default='blackman') — Window function: 'rect', 'hann',"
+" 'hamming', 'blackman', 'flattop'"
+msgstr ""
+
+#: ../../source/algorithms/analyze_spectrum.md:34
+msgid "**`nfft`** (int, optional) — FFT length. If None, uses len(signal)"
+msgstr ""
+
+#: ../../source/algorithms/analyze_spectrum.md:35
+msgid "**`num_avg`** (int, default=1) — Number of segments for averaging"
+msgstr ""
+
+#: ../../source/algorithms/analyze_spectrum.md:36
+msgid ""
+"**`mode`** (str, default='coherent') — Averaging mode: 'coherent' or "
+"'power'"
+msgstr ""
+
+#: ../../source/algorithms/analyze_spectrum.md:37
+msgid "**`show_plot`** (bool, default=False) — Display interactive spectrum plot"
+msgstr ""
+
+#: ../../source/algorithms/analyze_spectrum.md:38
+msgid "**`ax`** (matplotlib axis, optional) — Axis for plotting"
+msgstr ""
+
+#: ../../source/algorithms/analyze_spectrum.md:40
+msgid "Returns"
+msgstr ""
+
+#: ../../source/algorithms/analyze_spectrum.md:42
+msgid "Dictionary containing:"
+msgstr ""
+
+#: ../../source/algorithms/analyze_spectrum.md:44
+msgid "**Metrics:**"
+msgstr ""
+
+#: ../../source/algorithms/analyze_spectrum.md:45
+msgid "**`enob`** — Effective Number of Bits"
+msgstr ""
+
+#: ../../source/algorithms/analyze_spectrum.md:46
+msgid "**`snr_db`** — Signal-to-Noise Ratio (dB)"
+msgstr ""
+
+#: ../../source/algorithms/analyze_spectrum.md:47
+msgid "**`sndr_db`** — Signal-to-Noise-and-Distortion Ratio (dB)"
+msgstr ""
+
+#: ../../source/algorithms/analyze_spectrum.md:48
+msgid "**`sfdr_db`** — Spurious-Free Dynamic Range (dB)"
+msgstr ""
+
+#: ../../source/algorithms/analyze_spectrum.md:49
+msgid "**`thd_db`** — Total Harmonic Distortion (dB)"
+msgstr ""
+
+#: ../../source/algorithms/analyze_spectrum.md:50
+msgid ""
+"**`sinad_db`** — Signal-to-Noise-and-Distortion (alternative name for "
+"SNDR)"
+msgstr ""
+
+#: ../../source/algorithms/analyze_spectrum.md:51
+msgid "**`nsd_dbfs_hz`** — Noise Spectral Density (dBFS/Hz)"
+msgstr ""
+
+#: ../../source/algorithms/analyze_spectrum.md:53
+msgid "**Spectrum Data:**"
+msgstr ""
+
+#: ../../source/algorithms/analyze_spectrum.md:54
+msgid "**`freq`** — Frequency bins (Hz)"
+msgstr ""
+
+#: ../../source/algorithms/analyze_spectrum.md:55
+msgid "**`magnitude_db`** — Spectrum magnitude (dBFS)"
+msgstr ""
+
+#: ../../source/algorithms/analyze_spectrum.md:56
+msgid "**`fundamental_bin`** — FFT bin of fundamental frequency"
+msgstr ""
+
+#: ../../source/algorithms/analyze_spectrum.md:57
+msgid "**`fundamental_freq`** — Fundamental frequency (Hz)"
+msgstr ""
+
+#: ../../source/algorithms/analyze_spectrum.md:58
+msgid "**`harmonic_bins`** — FFT bins of harmonics (list)"
+msgstr ""
+
+#: ../../source/algorithms/analyze_spectrum.md:59
+msgid "**`harmonic_powers`** — Power of each harmonic (dB, list)"
+msgstr ""
+
+#: ../../source/algorithms/analyze_spectrum.md:61
+msgid "Algorithm"
+msgstr ""
+
+#: ../../source/algorithms/analyze_spectrum.md:63
+msgid "1. Signal Preprocessing"
+msgstr ""
+
+#: ../../source/algorithms/analyze_spectrum.md:74
+msgid "2. FFT Computation"
+msgstr ""
+
+#: ../../source/algorithms/analyze_spectrum.md:82
+msgid "3. Fundamental Detection"
+msgstr ""
+
+#: ../../source/algorithms/analyze_spectrum.md:90
+msgid "4. Harmonic Identification"
+msgstr ""
+
+#: ../../source/algorithms/analyze_spectrum.md:98
+msgid "5. Metric Calculation"
+msgstr ""
+
+#: ../../source/algorithms/analyze_spectrum.md:118
+msgid "Examples"
+msgstr ""
+
+#: ../../source/algorithms/analyze_spectrum.md:120
+msgid "Example 1: Basic Spectrum Analysis"
+msgstr ""
+
+#: ../../source/algorithms/analyze_spectrum.md:142
+msgid "Example 2: With Interactive Plotting"
+msgstr ""
+
+#: ../../source/algorithms/analyze_spectrum.md:149
+msgid "Example 3: Windowing Comparison"
+msgstr ""
+
+#: ../../source/algorithms/analyze_spectrum.md:160
+msgid "Example 4: Coherent Averaging"
+msgstr ""
+
+#: ../../source/algorithms/analyze_spectrum.md:168
+msgid "Window Function Selection"
+msgstr ""
+
+#: ../../source/algorithms/analyze_spectrum.md
+msgid "Window"
+msgstr ""
+
+#: ../../source/algorithms/analyze_spectrum.md
+msgid "ENBW*"
+msgstr ""
+
+#: ../../source/algorithms/analyze_spectrum.md
+msgid "Peak Side Lobe"
+msgstr ""
+
+#: ../../source/algorithms/analyze_spectrum.md
+msgid "Use Case"
+msgstr ""
+
+#: ../../source/algorithms/analyze_spectrum.md
+msgid "**rect**"
+msgstr ""
+
+#: ../../source/algorithms/analyze_spectrum.md
+msgid "1.0"
+msgstr ""
+
+#: ../../source/algorithms/analyze_spectrum.md
+msgid "-13 dB"
+msgstr ""
+
+#: ../../source/algorithms/analyze_spectrum.md
+msgid "Coherent signals only"
+msgstr ""
+
+#: ../../source/algorithms/analyze_spectrum.md
+msgid "**hann**"
+msgstr ""
+
+#: ../../source/algorithms/analyze_spectrum.md
+msgid "1.5"
+msgstr ""
+
+#: ../../source/algorithms/analyze_spectrum.md
+msgid "-32 dB"
+msgstr ""
+
+#: ../../source/algorithms/analyze_spectrum.md
+msgid "General purpose"
+msgstr ""
+
+#: ../../source/algorithms/analyze_spectrum.md
+msgid "**hamming**"
+msgstr ""
+
+#: ../../source/algorithms/analyze_spectrum.md
+msgid "1.36"
+msgstr ""
+
+#: ../../source/algorithms/analyze_spectrum.md
+msgid "-43 dB"
+msgstr ""
+
+#: ../../source/algorithms/analyze_spectrum.md
+msgid "Better side lobe rejection"
+msgstr ""
+
+#: ../../source/algorithms/analyze_spectrum.md
+msgid "**blackman**"
+msgstr ""
+
+#: ../../source/algorithms/analyze_spectrum.md
+msgid "1.73"
+msgstr ""
+
+#: ../../source/algorithms/analyze_spectrum.md
+msgid "-58 dB"
+msgstr ""
+
+#: ../../source/algorithms/analyze_spectrum.md
+msgid "High dynamic range (default)"
+msgstr ""
+
+#: ../../source/algorithms/analyze_spectrum.md
+msgid "**flattop**"
+msgstr ""
+
+#: ../../source/algorithms/analyze_spectrum.md
+msgid "3.77"
+msgstr ""
+
+#: ../../source/algorithms/analyze_spectrum.md
+msgid "-93 dB"
+msgstr ""
+
+#: ../../source/algorithms/analyze_spectrum.md
+msgid "Accurate amplitude measurement"
+msgstr ""
+
+#: ../../source/algorithms/analyze_spectrum.md:178
+msgid "*ENBW = Equivalent Noise Bandwidth (bins)"
+msgstr ""
+
+#: ../../source/algorithms/analyze_spectrum.md:180
+msgid "Interpretation"
+msgstr ""
+
+#: ../../source/algorithms/analyze_spectrum.md:182
+msgid "ENOB (Effective Number of Bits)"
+msgstr ""
+
+#: ../../source/algorithms/analyze_spectrum.md:183
+msgid "**ENOB ≈ N-bit ADC**: Ideal performance"
+msgstr ""
+
+#: ../../source/algorithms/analyze_spectrum.md:184
+msgid "**ENOB < N - 2**: Poor performance, investigate noise/distortion"
+msgstr ""
+
+#: ../../source/algorithms/analyze_spectrum.md:185
+msgid "**ENOB > N**: Oversampling or dithering improving effective resolution"
+msgstr ""
+
+#: ../../source/algorithms/analyze_spectrum.md:187
+msgid "SFDR (Spurious-Free Dynamic Range)"
+msgstr ""
+
+#: ../../source/algorithms/analyze_spectrum.md:188
+msgid "**SFDR > 80 dB**: Excellent linearity"
+msgstr ""
+
+#: ../../source/algorithms/analyze_spectrum.md:189
+msgid "**60 dB < SFDR < 80 dB**: Good for most applications"
+msgstr ""
+
+#: ../../source/algorithms/analyze_spectrum.md:190
+msgid "**SFDR < 60 dB**: Significant spurs, check for:"
+msgstr ""
+
+#: ../../source/algorithms/analyze_spectrum.md:191
+msgid "Power supply coupling"
+msgstr ""
+
+#: ../../source/algorithms/analyze_spectrum.md:192
+msgid "Clock feedthrough"
+msgstr ""
+
+#: ../../source/algorithms/analyze_spectrum.md:193
+msgid "Intermodulation products"
+msgstr ""
+
+#: ../../source/algorithms/analyze_spectrum.md:195
+msgid "THD (Total Harmonic Distortion)"
+msgstr ""
+
+#: ../../source/algorithms/analyze_spectrum.md:196
+msgid "**THD < -80 dB**: Very linear"
+msgstr ""
+
+#: ../../source/algorithms/analyze_spectrum.md:197
+msgid "**-60 dB < THD < -80 dB**: Acceptable for most uses"
+msgstr ""
+
+#: ../../source/algorithms/analyze_spectrum.md:198
+msgid "**THD > -60 dB**: Nonlinearity issues"
+msgstr ""
+
+#: ../../source/algorithms/analyze_spectrum.md:200
+msgid "Common Issues"
+msgstr ""
+
+#: ../../source/algorithms/analyze_spectrum.md:202
+msgid "Non-Coherent Sampling"
+msgstr ""
+
+#: ../../source/algorithms/analyze_spectrum.md:213
+msgid "Insufficient FFT Length"
+msgstr ""
+
+#: ../../source/algorithms/analyze_spectrum.md:222
+msgid "See Also"
+msgstr ""
+
+#: ../../source/algorithms/analyze_spectrum.md:224
+msgid ""
+"[`analyze_spectrum_polar`](analyze_spectrum_polar.md) — Polar phase "
+"spectrum analysis"
+msgstr ""
+
+#: ../../source/algorithms/analyze_spectrum.md:225
+msgid ""
+"[`analyze_two_tone_spectrum`](analyze_two_tone_spectrum.md) — Two-tone "
+"IMD testing"
+msgstr ""
+
+#: ../../source/algorithms/analyze_spectrum.md:226
+msgid ""
+"[`find_coherent_frequency`](../api/fundamentals.rst) — Calculate coherent"
+" test frequencies"
+msgstr ""
+
+#: ../../source/algorithms/analyze_spectrum.md:228
+msgid "References"
+msgstr ""
+
+#: ../../source/algorithms/analyze_spectrum.md:230
+msgid ""
+"IEEE Std 1241-2010, \"IEEE Standard for Terminology and Test Methods for "
+"ADCs\""
+msgstr ""
+
+#: ../../source/algorithms/analyze_spectrum.md:231
+msgid ""
+"F. J. Harris, \"On the Use of Windows for Harmonic Analysis with the "
+"DFT,\" Proc. IEEE, 1978"
+msgstr ""
+
+#: ../../source/algorithms/analyze_spectrum.md:232
+msgid "Application Note AN-9675, \"Coherent Sampling Calculator,\" Analog Devices"
+msgstr ""
+

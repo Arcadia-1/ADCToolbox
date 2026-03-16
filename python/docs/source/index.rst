@@ -14,6 +14,7 @@ and digital output analysis.
    api/index
    algorithms/index
    examples/index
+   python_matlab_parity
    changelog
 
 Features

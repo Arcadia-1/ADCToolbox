@@ -17,9 +17,3 @@ Polar Spectrum Plots
 
 .. autofunction:: analyze_spectrum_polar
 .. autofunction:: adctoolbox.spectrum.plot_spectrum_polar
-
-Two-Tone Spectrum
------------------
-
-.. autofunction:: analyze_two_tone_spectrum
-.. autofunction:: adctoolbox.spectrum.compute_two_tone_spectrum

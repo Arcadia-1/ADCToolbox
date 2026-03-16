@@ -1,0 +1,651 @@
+# SOME DESCRIPTIVE TITLE.
+# Copyright (C) 2025, ADCToolbox Contributors
+# This file is distributed under the same license as the ADCToolbox package.
+# FIRST AUTHOR <EMAIL@ADDRESS>, 2026.
+#
+#, fuzzy
+msgid ""
+msgstr ""
+"Project-Id-Version: ADCToolbox 0.5.0\n"
+"Report-Msgid-Bugs-To: \n"
+"POT-Creation-Date: 2026-03-10 20:52+0800\n"
+"PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
+"Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
+"Language: zh_CN\n"
+"Language-Team: zh_CN <LL@li.org>\n"
+"Plural-Forms: nplurals=1; plural=0;\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=utf-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Generated-By: Babel 2.18.0\n"
+
+#: ../../source/algorithms/calibrate_weight_sine_lite.md:1
+msgid "calibrate_weight_sine_lite"
+msgstr ""
+
+#: ../../source/algorithms/calibrate_weight_sine_lite.md:3
+msgid "Overview"
+msgstr ""
+
+#: ../../source/algorithms/calibrate_weight_sine_lite.md:5
+msgid ""
+"`calibrate_weight_sine_lite` provides a minimal, fast implementation of "
+"ADC foreground calibration using a known-frequency sinewave input. This "
+"is a simplified version of the full `calibrate_weight_sine` algorithm, "
+"optimized for speed and code simplicity."
+msgstr ""
+
+#: ../../source/algorithms/calibrate_weight_sine_lite.md:7
+msgid "**Key Characteristics:**"
+msgstr ""
+
+#: ../../source/algorithms/calibrate_weight_sine_lite.md:8
+msgid "Single known-frequency calibration only (no frequency search)"
+msgstr ""
+
+#: ../../source/algorithms/calibrate_weight_sine_lite.md:9
+msgid "Cosine-basis assumption (no dual-basis optimization)"
+msgstr ""
+
+#: ../../source/algorithms/calibrate_weight_sine_lite.md:10
+msgid "No rank deficiency handling (binary weights only)"
+msgstr ""
+
+#: ../../source/algorithms/calibrate_weight_sine_lite.md:11
+msgid "No harmonic rejection"
+msgstr ""
+
+#: ../../source/algorithms/calibrate_weight_sine_lite.md:12
+msgid "Returns normalized weights only"
+msgstr ""
+
+#: ../../source/algorithms/calibrate_weight_sine_lite.md:13
+msgid "Minimal dependencies (NumPy + SciPy only)"
+msgstr ""
+
+#: ../../source/algorithms/calibrate_weight_sine_lite.md:15
+msgid "Syntax"
+msgstr ""
+
+#: ../../source/algorithms/calibrate_weight_sine_lite.md:24
+msgid "Parameters"
+msgstr ""
+
+#: ../../source/algorithms/calibrate_weight_sine_lite.md:26
+msgid "**`bits`** (ndarray) — Binary data matrix (N samples × M bits)"
+msgstr ""
+
+#: ../../source/algorithms/calibrate_weight_sine_lite.md:27
+msgid "Each row is one sample"
+msgstr ""
+
+#: ../../source/algorithms/calibrate_weight_sine_lite.md:28
+msgid "Each column is a bit (MSB first)"
+msgstr ""
+
+#: ../../source/algorithms/calibrate_weight_sine_lite.md:29
+msgid "Values must be 0 or 1"
+msgstr ""
+
+#: ../../source/algorithms/calibrate_weight_sine_lite.md:31
+msgid "**`freq`** (float) — Normalized frequency (f_in / f_s)"
+msgstr ""
+
+#: ../../source/algorithms/calibrate_weight_sine_lite.md:32
+msgid "**Must be known precisely**"
+msgstr ""
+
+#: ../../source/algorithms/calibrate_weight_sine_lite.md:33
+msgid "Range: 0 < freq < 0.5"
+msgstr ""
+
+#: ../../source/algorithms/calibrate_weight_sine_lite.md:35
+msgid "Returns"
+msgstr ""
+
+#: ../../source/algorithms/calibrate_weight_sine_lite.md:37
+msgid "**`weights`** (ndarray) — Calibrated bit weights normalized to [0, 1]"
+msgstr ""
+
+#: ../../source/algorithms/calibrate_weight_sine_lite.md:38
+msgid "Length M (bit width)"
+msgstr ""
+
+#: ../../source/algorithms/calibrate_weight_sine_lite.md:39
+msgid "Normalized by sinewave magnitude"
+msgstr ""
+
+#: ../../source/algorithms/calibrate_weight_sine_lite.md:40
+msgid "Largest weight = 1.0"
+msgstr ""
+
+#: ../../source/algorithms/calibrate_weight_sine_lite.md:42
+msgid "To get actual ADC weights:"
+msgstr ""
+
+#: ../../source/algorithms/calibrate_weight_sine_lite.md:48
+msgid "Algorithm"
+msgstr ""
+
+#: ../../source/algorithms/calibrate_weight_sine_lite.md:50
+msgid "Mathematical Model"
+msgstr ""
+
+#: ../../source/algorithms/calibrate_weight_sine_lite.md:52
+msgid "The ADC output can be modeled as:"
+msgstr ""
+
+#: ../../source/algorithms/calibrate_weight_sine_lite.md:57
+msgid "where:"
+msgstr ""
+
+#: ../../source/algorithms/calibrate_weight_sine_lite.md:58
+msgid "`y(n)` = reconstructed analog signal"
+msgstr ""
+
+#: ../../source/algorithms/calibrate_weight_sine_lite.md:59
+msgid "`w_i` = weight of bit i (unknown)"
+msgstr ""
+
+#: ../../source/algorithms/calibrate_weight_sine_lite.md:60
+#, python-brace-format
+msgid "`b_i(n) ∈ {0, 1}` = binary value of bit i at sample n"
+msgstr ""
+
+#: ../../source/algorithms/calibrate_weight_sine_lite.md:61
+msgid "`f` = normalized frequency (f_in/f_s)"
+msgstr ""
+
+#: ../../source/algorithms/calibrate_weight_sine_lite.md:62
+msgid "`A, B` = sinewave amplitude coefficients"
+msgstr ""
+
+#: ../../source/algorithms/calibrate_weight_sine_lite.md:63
+msgid "`C` = DC offset"
+msgstr ""
+
+#: ../../source/algorithms/calibrate_weight_sine_lite.md:65
+msgid "Least Squares Formulation"
+msgstr ""
+
+#: ../../source/algorithms/calibrate_weight_sine_lite.md:67
+msgid "With the **cosine-basis assumption** (A = 1):"
+msgstr ""
+
+#: ../../source/algorithms/calibrate_weight_sine_lite.md:73
+msgid "In matrix form:"
+msgstr ""
+
+#: ../../source/algorithms/calibrate_weight_sine_lite.md:85
+msgid "Algorithm Steps"
+msgstr ""
+
+#: ../../source/algorithms/calibrate_weight_sine_lite.md:87
+msgid "**Build Basis Functions**"
+msgstr ""
+
+#: ../../source/algorithms/calibrate_weight_sine_lite.md:95
+msgid "**Construct Design Matrix**"
+msgstr ""
+
+#: ../../source/algorithms/calibrate_weight_sine_lite.md:102
+msgid "**Solve Least Squares**"
+msgstr ""
+
+#: ../../source/algorithms/calibrate_weight_sine_lite.md:107
+msgid "**Extract and Normalize Weights**"
+msgstr ""
+
+#: ../../source/algorithms/calibrate_weight_sine_lite.md:115
+msgid "The normalization accounts for actual sinewave amplitude:"
+msgstr ""
+
+#: ../../source/algorithms/calibrate_weight_sine_lite.md:120
+msgid "**Polarity Correction**"
+msgstr ""
+
+#: ../../source/algorithms/calibrate_weight_sine_lite.md:126
+msgid "Examples"
+msgstr ""
+
+#: ../../source/algorithms/calibrate_weight_sine_lite.md:128
+msgid "Example 1: Basic Calibration"
+msgstr ""
+
+#: ../../source/algorithms/calibrate_weight_sine_lite.md:158
+msgid "**Expected Output:**"
+msgstr ""
+
+#: ../../source/algorithms/calibrate_weight_sine_lite.md:164
+msgid "Example 2: With SNDR Calculation"
+msgstr ""
+
+#: ../../source/algorithms/calibrate_weight_sine_lite.md:186
+msgid "Limitations"
+msgstr ""
+
+#: ../../source/algorithms/calibrate_weight_sine_lite.md:188
+msgid "1. Known Frequency Required"
+msgstr ""
+
+#: ../../source/algorithms/calibrate_weight_sine_lite.md:190
+msgid ""
+"The function requires the input frequency to be **precisely known**. "
+"Unlike the full `calibrate_weight_sine`, it does not perform frequency "
+"search or refinement."
+msgstr ""
+
+#: ../../source/algorithms/calibrate_weight_sine_lite.md:192
+msgid ""
+"**Workaround**: Use `calibrate_weight_sine` with `force_search=True` if "
+"frequency is unknown."
+msgstr ""
+
+#: ../../source/algorithms/calibrate_weight_sine_lite.md:194
+msgid "2. Binary Weights Only (No Redundancy)"
+msgstr ""
+
+#: ../../source/algorithms/calibrate_weight_sine_lite.md:196
+msgid ""
+"The algorithm **does not handle rank deficiency** or redundant weights. "
+"For ADCs with:"
+msgstr ""
+
+#: ../../source/algorithms/calibrate_weight_sine_lite.md:197
+msgid "Redundant bits (e.g., `[128, 128, 64, 32, ...]`)"
+msgstr ""
+
+#: ../../source/algorithms/calibrate_weight_sine_lite.md:198
+msgid "Identical weights"
+msgstr ""
+
+#: ../../source/algorithms/calibrate_weight_sine_lite.md:199
+msgid "Linear dependencies between bits"
+msgstr ""
+
+#: ../../source/algorithms/calibrate_weight_sine_lite.md:201
+msgid "The least squares solution may:"
+msgstr ""
+
+#: ../../source/algorithms/calibrate_weight_sine_lite.md:202
+msgid "Collapse redundant weights to zero"
+msgstr ""
+
+#: ../../source/algorithms/calibrate_weight_sine_lite.md:203
+msgid "Produce numerically unstable results"
+msgstr ""
+
+#: ../../source/algorithms/calibrate_weight_sine_lite.md:204
+msgid "Fail to recover the full code range"
+msgstr ""
+
+#: ../../source/algorithms/calibrate_weight_sine_lite.md:206
+msgid "**Example Failure:**"
+msgstr ""
+
+#: ../../source/algorithms/calibrate_weight_sine_lite.md:218
+msgid "**Why this is wrong:**"
+msgstr ""
+
+#: ../../source/algorithms/calibrate_weight_sine_lite.md:219
+msgid "Original sum: 4222 (can represent 0-4095 with redundancy)"
+msgstr ""
+
+#: ../../source/algorithms/calibrate_weight_sine_lite.md:220
+msgid "Collapsed sum: 4094 (cannot represent code 4095!)"
+msgstr ""
+
+#: ../../source/algorithms/calibrate_weight_sine_lite.md:221
+msgid "Lost error correction capability"
+msgstr ""
+
+#: ../../source/algorithms/calibrate_weight_sine_lite.md:223
+msgid ""
+"**Workaround**: Use the full `calibrate_weight_sine` which includes "
+"`_patch_rank_deficiency` handling."
+msgstr ""
+
+#: ../../source/algorithms/calibrate_weight_sine_lite.md:225
+msgid "3. Low Signal Amplitude"
+msgstr ""
+
+#: ../../source/algorithms/calibrate_weight_sine_lite.md:227
+msgid ""
+"At very low input amplitudes (< -6 dBFS), MSB bits may have limited "
+"activity, leading to:"
+msgstr ""
+
+#: ../../source/algorithms/calibrate_weight_sine_lite.md:228
+msgid "Ill-conditioned least squares matrix"
+msgstr ""
+
+#: ../../source/algorithms/calibrate_weight_sine_lite.md:229
+msgid "Numerically unstable weights (values in trillions)"
+msgstr ""
+
+#: ../../source/algorithms/calibrate_weight_sine_lite.md:230
+msgid "Poor SNDR estimates"
+msgstr ""
+
+#: ../../source/algorithms/calibrate_weight_sine_lite.md:232
+msgid "**Example:**"
+msgstr ""
+
+#: ../../source/algorithms/calibrate_weight_sine_lite.md:240
+msgid ""
+"**Recommendation**: Use input signals at or near full scale (0 dBFS to -3"
+" dBFS) for best results."
+msgstr ""
+
+#: ../../source/algorithms/calibrate_weight_sine_lite.md:242
+msgid "4. No Harmonic Rejection"
+msgstr ""
+
+#: ../../source/algorithms/calibrate_weight_sine_lite.md:244
+msgid ""
+"The algorithm fits only the **fundamental frequency**, without excluding "
+"harmonics from the error term. This can lead to:"
+msgstr ""
+
+#: ../../source/algorithms/calibrate_weight_sine_lite.md:245
+msgid "Harmonic distortion biasing the weight estimates"
+msgstr ""
+
+#: ../../source/algorithms/calibrate_weight_sine_lite.md:246
+msgid "Reduced accuracy for ADCs with significant INL/DNL"
+msgstr ""
+
+#: ../../source/algorithms/calibrate_weight_sine_lite.md:248
+msgid ""
+"**Workaround**: Use `calibrate_weight_sine` with `harmonic_order > 1` to "
+"exclude harmonics."
+msgstr ""
+
+#: ../../source/algorithms/calibrate_weight_sine_lite.md:250
+msgid "Performance"
+msgstr ""
+
+#: ../../source/algorithms/calibrate_weight_sine_lite.md:252
+msgid "Computational Complexity"
+msgstr ""
+
+#: ../../source/algorithms/calibrate_weight_sine_lite.md:254
+msgid "**Time Complexity**: `O(N·M² + M³)`"
+msgstr ""
+
+#: ../../source/algorithms/calibrate_weight_sine_lite.md:255
+msgid "N = number of samples"
+msgstr ""
+
+#: ../../source/algorithms/calibrate_weight_sine_lite.md:256
+msgid "M = bit width"
+msgstr ""
+
+#: ../../source/algorithms/calibrate_weight_sine_lite.md:257
+msgid "Dominated by least squares solve (SVD decomposition)"
+msgstr ""
+
+#: ../../source/algorithms/calibrate_weight_sine_lite.md:259
+msgid "**Space Complexity**: `O(N·M)`"
+msgstr ""
+
+#: ../../source/algorithms/calibrate_weight_sine_lite.md:260
+msgid "Storage for design matrix"
+msgstr ""
+
+#: ../../source/algorithms/calibrate_weight_sine_lite.md:262
+msgid "**Typical Performance** (12-bit ADC, Intel i7):"
+msgstr ""
+
+#: ../../source/algorithms/calibrate_weight_sine_lite.md:263
+msgid "N = 2¹² (4096 samples): ~3 ms"
+msgstr ""
+
+#: ../../source/algorithms/calibrate_weight_sine_lite.md:264
+msgid "N = 2¹³ (8192 samples): ~5 ms"
+msgstr ""
+
+#: ../../source/algorithms/calibrate_weight_sine_lite.md:265
+msgid "N = 2¹⁶ (65536 samples): ~40 ms"
+msgstr ""
+
+#: ../../source/algorithms/calibrate_weight_sine_lite.md:267
+msgid "Accuracy"
+msgstr ""
+
+#: ../../source/algorithms/calibrate_weight_sine_lite.md:269
+msgid "**Weight Recovery** (ideal conditions):"
+msgstr ""
+
+#: ../../source/algorithms/calibrate_weight_sine_lite.md:270
+msgid "Error < 10⁻⁵ LSB (normalized)"
+msgstr ""
+
+#: ../../source/algorithms/calibrate_weight_sine_lite.md:271
+msgid "Phase-independent performance"
+msgstr ""
+
+#: ../../source/algorithms/calibrate_weight_sine_lite.md:272
+msgid "ENOB: ~11-12 bits (for 12-bit ADC at 0 dBFS)"
+msgstr ""
+
+#: ../../source/algorithms/calibrate_weight_sine_lite.md:274
+msgid "**Amplitude Requirements**:"
+msgstr ""
+
+#: ../../source/algorithms/calibrate_weight_sine_lite.md:284
+msgid "Comparison with Full Version"
+msgstr ""
+
+#: ../../source/algorithms/calibrate_weight_sine_lite.md
+msgid "Feature"
+msgstr ""
+
+#: ../../source/algorithms/calibrate_weight_sine_lite.md
+msgid "Lite Version"
+msgstr ""
+
+#: ../../source/algorithms/calibrate_weight_sine_lite.md
+msgid "Full Version"
+msgstr ""
+
+#: ../../source/algorithms/calibrate_weight_sine_lite.md
+msgid "**Frequency search**"
+msgstr ""
+
+#: ../../source/algorithms/calibrate_weight_sine_lite.md
+msgid "❌ No (requires known freq)"
+msgstr ""
+
+#: ../../source/algorithms/calibrate_weight_sine_lite.md
+msgid "✅ Yes (coarse + fine search)"
+msgstr ""
+
+#: ../../source/algorithms/calibrate_weight_sine_lite.md
+msgid "**Rank deficiency handling**"
+msgstr ""
+
+#: ../../source/algorithms/calibrate_weight_sine_lite.md
+msgid "❌ No"
+msgstr ""
+
+#: ../../source/algorithms/calibrate_weight_sine_lite.md
+msgid "✅ Yes (via nominal weights)"
+msgstr ""
+
+#: ../../source/algorithms/calibrate_weight_sine_lite.md
+msgid "**Redundant weights**"
+msgstr ""
+
+#: ../../source/algorithms/calibrate_weight_sine_lite.md
+msgid "❌ Not supported"
+msgstr ""
+
+#: ../../source/algorithms/calibrate_weight_sine_lite.md
+msgid "✅ Fully supported"
+msgstr ""
+
+#: ../../source/algorithms/calibrate_weight_sine_lite.md
+msgid "**Harmonic rejection**"
+msgstr ""
+
+#: ../../source/algorithms/calibrate_weight_sine_lite.md
+msgid "✅ Yes (configurable order)"
+msgstr ""
+
+#: ../../source/algorithms/calibrate_weight_sine_lite.md
+msgid "**Multi-dataset calibration**"
+msgstr ""
+
+#: ../../source/algorithms/calibrate_weight_sine_lite.md
+msgid "✅ Yes"
+msgstr ""
+
+#: ../../source/algorithms/calibrate_weight_sine_lite.md
+msgid "**Numerical conditioning**"
+msgstr ""
+
+#: ../../source/algorithms/calibrate_weight_sine_lite.md
+msgid "❌ Basic"
+msgstr ""
+
+#: ../../source/algorithms/calibrate_weight_sine_lite.md
+msgid "✅ Column scaling + patching"
+msgstr ""
+
+#: ../../source/algorithms/calibrate_weight_sine_lite.md
+msgid "**Return type**"
+msgstr ""
+
+#: ../../source/algorithms/calibrate_weight_sine_lite.md
+msgid "ndarray (weights only)"
+msgstr ""
+
+#: ../../source/algorithms/calibrate_weight_sine_lite.md
+msgid "dict (weights + diagnostics)"
+msgstr ""
+
+#: ../../source/algorithms/calibrate_weight_sine_lite.md
+msgid "**Code size**"
+msgstr ""
+
+#: ../../source/algorithms/calibrate_weight_sine_lite.md
+msgid "~40 lines"
+msgstr ""
+
+#: ../../source/algorithms/calibrate_weight_sine_lite.md
+msgid "~600+ lines (with helpers)"
+msgstr ""
+
+#: ../../source/algorithms/calibrate_weight_sine_lite.md
+msgid "**Typical runtime** (N=8192)"
+msgstr ""
+
+#: ../../source/algorithms/calibrate_weight_sine_lite.md
+msgid "~5 ms"
+msgstr ""
+
+#: ../../source/algorithms/calibrate_weight_sine_lite.md
+msgid "~20-50 ms"
+msgstr ""
+
+#: ../../source/algorithms/calibrate_weight_sine_lite.md:298
+msgid "When to Use Lite Version"
+msgstr ""
+
+#: ../../source/algorithms/calibrate_weight_sine_lite.md:300
+msgid "✅ **Use lite version when:**"
+msgstr ""
+
+#: ../../source/algorithms/calibrate_weight_sine_lite.md:301
+msgid "Frequency is precisely known"
+msgstr ""
+
+#: ../../source/algorithms/calibrate_weight_sine_lite.md:302
+msgid "Binary weighted ADC (no redundancy)"
+msgstr ""
+
+#: ../../source/algorithms/calibrate_weight_sine_lite.md:303
+msgid "Speed is critical"
+msgstr ""
+
+#: ../../source/algorithms/calibrate_weight_sine_lite.md:304
+msgid "Simple embedded deployment"
+msgstr ""
+
+#: ../../source/algorithms/calibrate_weight_sine_lite.md:305
+msgid "Minimal code footprint needed"
+msgstr ""
+
+#: ../../source/algorithms/calibrate_weight_sine_lite.md:307
+msgid "❌ **Use full version when:**"
+msgstr ""
+
+#: ../../source/algorithms/calibrate_weight_sine_lite.md:308
+msgid "Unknown or imprecise frequency"
+msgstr ""
+
+#: ../../source/algorithms/calibrate_weight_sine_lite.md:309
+msgid "Redundant ADC architecture"
+msgstr ""
+
+#: ../../source/algorithms/calibrate_weight_sine_lite.md:310
+msgid "Need harmonic rejection"
+msgstr ""
+
+#: ../../source/algorithms/calibrate_weight_sine_lite.md:311
+msgid "Multi-dataset calibration"
+msgstr ""
+
+#: ../../source/algorithms/calibrate_weight_sine_lite.md:312
+msgid "Production calibration requiring robustness"
+msgstr ""
+
+#: ../../source/algorithms/calibrate_weight_sine_lite.md:314
+msgid "References"
+msgstr ""
+
+#: ../../source/algorithms/calibrate_weight_sine_lite.md:316
+msgid ""
+"IEEE Standard 1057-2017: \"IEEE Standard for Digitizing Waveform "
+"Recorders\""
+msgstr ""
+
+#: ../../source/algorithms/calibrate_weight_sine_lite.md:318
+msgid ""
+"Vogel, C., & Johansson, H. (2006). \"Time-interleaved analog-to-digital "
+"converters: Status and future directions.\" *IEEE Transactions on "
+"Circuits and Systems I*, 53(11), 2386-2394."
+msgstr ""
+
+#: ../../source/algorithms/calibrate_weight_sine_lite.md:320
+msgid ""
+"Jin, H., & Lee, E. K. F. (1992). \"A digital-background calibration "
+"technique for minimizing timing-error effects in time-interleaved ADCs.\""
+" *IEEE Transactions on Circuits and Systems II*, 47(7), 603-613."
+msgstr ""
+
+#: ../../source/algorithms/calibrate_weight_sine_lite.md:322
+msgid "MATLAB Signal Processing Toolbox: `sinefitweights` documentation"
+msgstr ""
+
+#: ../../source/algorithms/calibrate_weight_sine_lite.md:324
+msgid "See Also"
+msgstr ""
+
+#: ../../source/algorithms/calibrate_weight_sine_lite.md:326
+msgid ""
+"[calibrate_weight_sine](calibrate_weight_sine.md) - Full version with "
+"frequency search and rank handling"
+msgstr ""
+
+#: ../../source/algorithms/calibrate_weight_sine_lite.md:327
+msgid ""
+"[analyze_spectrum](analyze_spectrum.md) - Spectral analysis for SNDR/ENOB"
+" calculation"
+msgstr ""
+
+#: ../../source/algorithms/calibrate_weight_sine_lite.md:328
+msgid "[fit_sine_4param](fit_sine_4param.md) - IEEE 1057 sinewave fitting"
+msgstr ""
+

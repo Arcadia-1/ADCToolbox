@@ -1,0 +1,273 @@
+# SOME DESCRIPTIVE TITLE.
+# Copyright (C) 2025, ADCToolbox Contributors
+# This file is distributed under the same license as the ADCToolbox package.
+# FIRST AUTHOR <EMAIL@ADDRESS>, 2026.
+#
+#, fuzzy
+msgid ""
+msgstr ""
+"Project-Id-Version: ADCToolbox 0.5.0\n"
+"Report-Msgid-Bugs-To: \n"
+"POT-Creation-Date: 2026-03-10 20:52+0800\n"
+"PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
+"Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
+"Language: zh_CN\n"
+"Language-Team: zh_CN <LL@li.org>\n"
+"Plural-Forms: nplurals=1; plural=0;\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=utf-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Generated-By: Babel 2.18.0\n"
+
+#: ../../source/algorithms/analyze_error_pdf.md:1
+msgid "analyze_error_pdf"
+msgstr ""
+
+#: ../../source/algorithms/analyze_error_pdf.md:3
+msgid "Overview"
+msgstr ""
+
+#: ../../source/algorithms/analyze_error_pdf.md:5
+msgid ""
+"`analyze_error_pdf` analyzes the probability distribution (PDF) of ADC "
+"errors by comparing the input signal against a fitted sine wave. This "
+"reveals error characteristics: Gaussian noise, uniform quantization, non-"
+"Gaussian distortion, etc."
+msgstr ""
+
+#: ../../source/algorithms/analyze_error_pdf.md:7
+msgid "Syntax"
+msgstr ""
+
+#: ../../source/algorithms/analyze_error_pdf.md:19
+msgid "Parameters"
+msgstr ""
+
+#: ../../source/algorithms/analyze_error_pdf.md:21
+msgid "**`signal`** (array_like) — Input ADC signal (sine wave excitation)"
+msgstr ""
+
+#: ../../source/algorithms/analyze_error_pdf.md:22
+msgid "**`resolution`** (int, optional) — ADC resolution in bits"
+msgstr ""
+
+#: ../../source/algorithms/analyze_error_pdf.md:23
+msgid "**`bins`** (int, default=auto) — Number of histogram bins"
+msgstr ""
+
+#: ../../source/algorithms/analyze_error_pdf.md:24
+msgid ""
+"**`show_plot`** (bool, default=False) — Display PDF plot with reference "
+"distributions"
+msgstr ""
+
+#: ../../source/algorithms/analyze_error_pdf.md:25
+msgid "**`ax`** (matplotlib axis, optional) — Axis for plotting"
+msgstr ""
+
+#: ../../source/algorithms/analyze_error_pdf.md:27
+msgid "Returns"
+msgstr ""
+
+#: ../../source/algorithms/analyze_error_pdf.md:29
+msgid "Dictionary containing:"
+msgstr ""
+
+#: ../../source/algorithms/analyze_error_pdf.md:30
+msgid "**`error`** — Error signal (data - fitted_sine)"
+msgstr ""
+
+#: ../../source/algorithms/analyze_error_pdf.md:31
+msgid "**`sigma`** — Standard deviation of error (LSB)"
+msgstr ""
+
+#: ../../source/algorithms/analyze_error_pdf.md:32
+msgid "**`histogram_counts`** — PDF histogram counts"
+msgstr ""
+
+#: ../../source/algorithms/analyze_error_pdf.md:33
+msgid "**`histogram_edges`** — PDF bin edges"
+msgstr ""
+
+#: ../../source/algorithms/analyze_error_pdf.md:34
+msgid ""
+"**`kl_divergence`** — KL divergence from Gaussian (measure of non-"
+"Gaussianity)"
+msgstr ""
+
+#: ../../source/algorithms/analyze_error_pdf.md:36
+msgid "Algorithm"
+msgstr ""
+
+#: ../../source/algorithms/analyze_error_pdf.md:38
+msgid "1. Fit Sine Wave"
+msgstr ""
+
+#: ../../source/algorithms/analyze_error_pdf.md:46
+msgid "2. Compute Error"
+msgstr ""
+
+#: ../../source/algorithms/analyze_error_pdf.md:53
+msgid "3. Build Histogram"
+msgstr ""
+
+#: ../../source/algorithms/analyze_error_pdf.md:59
+msgid "4. Compare to References"
+msgstr ""
+
+#: ../../source/algorithms/analyze_error_pdf.md:61
+msgid "Compare measured PDF against:"
+msgstr ""
+
+#: ../../source/algorithms/analyze_error_pdf.md:62
+msgid "**Gaussian**: For thermal noise"
+msgstr ""
+
+#: ../../source/algorithms/analyze_error_pdf.md:63
+msgid "**Uniform**: For quantization noise"
+msgstr ""
+
+#: ../../source/algorithms/analyze_error_pdf.md:64
+msgid "**Other**: For specific distortions"
+msgstr ""
+
+#: ../../source/algorithms/analyze_error_pdf.md:66
+msgid "Examples"
+msgstr ""
+
+#: ../../source/algorithms/analyze_error_pdf.md:68
+msgid "Example 1: Error PDF Analysis"
+msgstr ""
+
+#: ../../source/algorithms/analyze_error_pdf.md:81
+msgid "Example 2: Multiple Non-Idealities"
+msgstr ""
+
+#: ../../source/algorithms/analyze_error_pdf.md:97
+msgid "Interpretation"
+msgstr ""
+
+#: ../../source/algorithms/analyze_error_pdf.md:99
+msgid "Error Distribution Shapes"
+msgstr ""
+
+#: ../../source/algorithms/analyze_error_pdf.md
+msgid "PDF Shape"
+msgstr ""
+
+#: ../../source/algorithms/analyze_error_pdf.md
+msgid "Likely Cause"
+msgstr ""
+
+#: ../../source/algorithms/analyze_error_pdf.md
+msgid "**Gaussian**"
+msgstr ""
+
+#: ../../source/algorithms/analyze_error_pdf.md
+msgid "Thermal noise (random, white)"
+msgstr ""
+
+#: ../../source/algorithms/analyze_error_pdf.md
+msgid "**Uniform**"
+msgstr ""
+
+#: ../../source/algorithms/analyze_error_pdf.md
+msgid "Quantization noise (ideal ADC)"
+msgstr ""
+
+#: ../../source/algorithms/analyze_error_pdf.md
+msgid "**Bimodal**"
+msgstr ""
+
+#: ../../source/algorithms/analyze_error_pdf.md
+msgid "Missing codes, DNL issues"
+msgstr ""
+
+#: ../../source/algorithms/analyze_error_pdf.md
+msgid "**Heavy tails**"
+msgstr ""
+
+#: ../../source/algorithms/analyze_error_pdf.md
+msgid "Impulsive noise, glitches"
+msgstr ""
+
+#: ../../source/algorithms/analyze_error_pdf.md
+msgid "**Asymmetric**"
+msgstr ""
+
+#: ../../source/algorithms/analyze_error_pdf.md
+msgid "Systematic offset, drift"
+msgstr ""
+
+#: ../../source/algorithms/analyze_error_pdf.md:109
+msgid "KL Divergence"
+msgstr ""
+
+#: ../../source/algorithms/analyze_error_pdf.md:111
+msgid "**KL < 0.1**: Very close to Gaussian (thermal noise dominant)"
+msgstr ""
+
+#: ../../source/algorithms/analyze_error_pdf.md:112
+msgid "**0.1 < KL < 0.5**: Moderately Gaussian"
+msgstr ""
+
+#: ../../source/algorithms/analyze_error_pdf.md:113
+msgid "**KL > 0.5**: Non-Gaussian (distortion, deterministic errors)"
+msgstr ""
+
+#: ../../source/algorithms/analyze_error_pdf.md:115
+msgid "Use Cases"
+msgstr ""
+
+#: ../../source/algorithms/analyze_error_pdf.md:117
+msgid "Distinguish thermal noise from quantization noise"
+msgstr ""
+
+#: ../../source/algorithms/analyze_error_pdf.md:118
+msgid "Identify non-Gaussian error sources (glitches, interference)"
+msgstr ""
+
+#: ../../source/algorithms/analyze_error_pdf.md:119
+msgid "Validate ADC noise models"
+msgstr ""
+
+#: ../../source/algorithms/analyze_error_pdf.md:120
+msgid "Compare error characteristics across different non-idealities"
+msgstr ""
+
+#: ../../source/algorithms/analyze_error_pdf.md:122
+msgid "See Also"
+msgstr ""
+
+#: ../../source/algorithms/analyze_error_pdf.md:124
+msgid ""
+"[`analyze_error_autocorr`](analyze_error_autocorr.md) — Temporal "
+"correlation in errors"
+msgstr ""
+
+#: ../../source/algorithms/analyze_error_pdf.md:125
+msgid ""
+"[`analyze_error_spectrum`](analyze_error_spectrum.md) — Frequency content"
+" of errors"
+msgstr ""
+
+#: ../../source/algorithms/analyze_error_pdf.md:126
+msgid "[`fit_sine_4param`](fit_sine_4param.md) — Sine wave fitting"
+msgstr ""
+
+#: ../../source/algorithms/analyze_error_pdf.md:128
+msgid "References"
+msgstr ""
+
+#: ../../source/algorithms/analyze_error_pdf.md:130
+msgid ""
+"IEEE Std 1241-2010, \"IEEE Standard for Terminology and Test Methods for "
+"ADCs\""
+msgstr ""
+
+#: ../../source/algorithms/analyze_error_pdf.md:131
+msgid ""
+"S. Kullback and R. A. Leibler, \"On Information and Sufficiency,\" Annals"
+" of Mathematical Statistics, 1951"
+msgstr ""
+

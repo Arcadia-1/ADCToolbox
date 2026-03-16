@@ -1,0 +1,237 @@
+# SOME DESCRIPTIVE TITLE.
+# Copyright (C) 2025, ADCToolbox Contributors
+# This file is distributed under the same license as the ADCToolbox package.
+# FIRST AUTHOR <EMAIL@ADDRESS>, 2026.
+#
+#, fuzzy
+msgid ""
+msgstr ""
+"Project-Id-Version: ADCToolbox 0.5.0\n"
+"Report-Msgid-Bugs-To: \n"
+"POT-Creation-Date: 2026-03-10 20:52+0800\n"
+"PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
+"Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
+"Language: zh_CN\n"
+"Language-Team: zh_CN <LL@li.org>\n"
+"Plural-Forms: nplurals=1; plural=0;\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=utf-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Generated-By: Babel 2.18.0\n"
+
+#: ../../source/algorithms/analyze_two_tone_spectrum.md:1
+msgid "analyze_two_tone_spectrum"
+msgstr ""
+
+#: ../../source/algorithms/analyze_two_tone_spectrum.md:3
+msgid "Overview"
+msgstr ""
+
+#: ../../source/algorithms/analyze_two_tone_spectrum.md:5
+msgid ""
+"`analyze_two_tone_spectrum` performs two-tone spectrum analysis for ADC "
+"characterization, measuring intermodulation distortion (IMD2, IMD3) and "
+"two-tone SFDR. This is essential for evaluating ADC linearity with multi-"
+"signal inputs."
+msgstr ""
+
+#: ../../source/algorithms/analyze_two_tone_spectrum.md:7
+msgid "Syntax"
+msgstr ""
+
+#: ../../source/algorithms/analyze_two_tone_spectrum.md:19
+msgid "Parameters"
+msgstr ""
+
+#: ../../source/algorithms/analyze_two_tone_spectrum.md:21
+msgid "**`signal`** (array_like) — Input two-tone signal"
+msgstr ""
+
+#: ../../source/algorithms/analyze_two_tone_spectrum.md:22
+msgid "**`fs`** (float) — Sampling frequency in Hz"
+msgstr ""
+
+#: ../../source/algorithms/analyze_two_tone_spectrum.md:23
+msgid "**`window`** (str, default='blackman') — Window function"
+msgstr ""
+
+#: ../../source/algorithms/analyze_two_tone_spectrum.md:24
+msgid "**`nfft`** (int, optional) — FFT length"
+msgstr ""
+
+#: ../../source/algorithms/analyze_two_tone_spectrum.md:25
+msgid "**`show_plot`** (bool, default=False) — Display spectrum plot"
+msgstr ""
+
+#: ../../source/algorithms/analyze_two_tone_spectrum.md:26
+msgid "**`ax`** (matplotlib axis, optional) — Axis for plotting"
+msgstr ""
+
+#: ../../source/algorithms/analyze_two_tone_spectrum.md:28
+msgid "Returns"
+msgstr ""
+
+#: ../../source/algorithms/analyze_two_tone_spectrum.md:30
+msgid "Dictionary containing:"
+msgstr ""
+
+#: ../../source/algorithms/analyze_two_tone_spectrum.md:32
+msgid "**Two-Tone Metrics:**"
+msgstr ""
+
+#: ../../source/algorithms/analyze_two_tone_spectrum.md:33
+msgid "**`imd2_db`** — 2nd-order intermodulation distortion (dB)"
+msgstr ""
+
+#: ../../source/algorithms/analyze_two_tone_spectrum.md:34
+msgid "**`imd3_db`** — 3rd-order intermodulation distortion (dB)"
+msgstr ""
+
+#: ../../source/algorithms/analyze_two_tone_spectrum.md:35
+msgid "**`imd2_freq`** — IMD2 product frequencies (Hz)"
+msgstr ""
+
+#: ../../source/algorithms/analyze_two_tone_spectrum.md:36
+msgid "**`imd3_freq`** — IMD3 product frequencies (Hz)"
+msgstr ""
+
+#: ../../source/algorithms/analyze_two_tone_spectrum.md:37
+msgid "**`sfdr_two_tone_db`** — Spurious-free dynamic range for two-tone"
+msgstr ""
+
+#: ../../source/algorithms/analyze_two_tone_spectrum.md:39
+msgid "**Tone Information:**"
+msgstr ""
+
+#: ../../source/algorithms/analyze_two_tone_spectrum.md:40
+msgid "**`tone1_freq`**, **`tone2_freq`** — Fundamental frequencies"
+msgstr ""
+
+#: ../../source/algorithms/analyze_two_tone_spectrum.md:41
+msgid "**`tone1_power_db`**, **`tone2_power_db`** — Tone powers"
+msgstr ""
+
+#: ../../source/algorithms/analyze_two_tone_spectrum.md:43
+msgid "Algorithm"
+msgstr ""
+
+#: ../../source/algorithms/analyze_two_tone_spectrum.md:45
+msgid "Intermodulation Products"
+msgstr ""
+
+#: ../../source/algorithms/analyze_two_tone_spectrum.md:47
+msgid "For tones at f₁ and f₂:"
+msgstr ""
+
+#: ../../source/algorithms/analyze_two_tone_spectrum.md:49
+msgid "**IMD2**: Products at f₁±f₂"
+msgstr ""
+
+#: ../../source/algorithms/analyze_two_tone_spectrum.md:50
+msgid "**IMD3**: Products at 2f₁-f₂ and 2f₂-f₁"
+msgstr ""
+
+#: ../../source/algorithms/analyze_two_tone_spectrum.md:65
+msgid "Examples"
+msgstr ""
+
+#: ../../source/algorithms/analyze_two_tone_spectrum.md:67
+msgid "Example 1: Two-Tone Analysis"
+msgstr ""
+
+#: ../../source/algorithms/analyze_two_tone_spectrum.md:88
+msgid "Interpretation"
+msgstr ""
+
+#: ../../source/algorithms/analyze_two_tone_spectrum.md:90
+msgid "IMD Performance"
+msgstr ""
+
+#: ../../source/algorithms/analyze_two_tone_spectrum.md
+msgid "IMD Level"
+msgstr ""
+
+#: ../../source/algorithms/analyze_two_tone_spectrum.md
+msgid "ADC Quality"
+msgstr ""
+
+#: ../../source/algorithms/analyze_two_tone_spectrum.md
+msgid "IMD3 < -80 dBc"
+msgstr ""
+
+#: ../../source/algorithms/analyze_two_tone_spectrum.md
+msgid "Excellent linearity"
+msgstr ""
+
+#: ../../source/algorithms/analyze_two_tone_spectrum.md
+msgid "-60 < IMD3 < -80 dBc"
+msgstr ""
+
+#: ../../source/algorithms/analyze_two_tone_spectrum.md
+msgid "Good performance"
+msgstr ""
+
+#: ../../source/algorithms/analyze_two_tone_spectrum.md
+msgid "IMD3 > -60 dBc"
+msgstr ""
+
+#: ../../source/algorithms/analyze_two_tone_spectrum.md
+msgid "Significant nonlinearity"
+msgstr ""
+
+#: ../../source/algorithms/analyze_two_tone_spectrum.md:98
+msgid "Common Issues"
+msgstr ""
+
+#: ../../source/algorithms/analyze_two_tone_spectrum.md:100
+msgid "**IMD2 dominant**: Even-order nonlinearity (differential pair mismatch)"
+msgstr ""
+
+#: ../../source/algorithms/analyze_two_tone_spectrum.md:101
+msgid "**IMD3 dominant**: Odd-order nonlinearity (compression, limiting)"
+msgstr ""
+
+#: ../../source/algorithms/analyze_two_tone_spectrum.md:102
+msgid "**High IMD products**: Check for:"
+msgstr ""
+
+#: ../../source/algorithms/analyze_two_tone_spectrum.md:103
+msgid "Insufficient signal amplitude"
+msgstr ""
+
+#: ../../source/algorithms/analyze_two_tone_spectrum.md:104
+msgid "ADC overload/clipping"
+msgstr ""
+
+#: ../../source/algorithms/analyze_two_tone_spectrum.md:105
+msgid "Poor power supply rejection"
+msgstr ""
+
+#: ../../source/algorithms/analyze_two_tone_spectrum.md:107
+msgid "See Also"
+msgstr ""
+
+#: ../../source/algorithms/analyze_two_tone_spectrum.md:109
+msgid "[`analyze_spectrum`](analyze_spectrum.md) — Single-tone analysis"
+msgstr ""
+
+#: ../../source/algorithms/analyze_two_tone_spectrum.md:110
+msgid "[`fit_static_nonlin`](../api/aout.rst) — Extract nonlinearity coefficients"
+msgstr ""
+
+#: ../../source/algorithms/analyze_two_tone_spectrum.md:112
+msgid "References"
+msgstr ""
+
+#: ../../source/algorithms/analyze_two_tone_spectrum.md:114
+msgid ""
+"IEEE Std 1241-2010, \"IEEE Standard for Terminology and Test Methods for "
+"ADCs\""
+msgstr ""
+
+#: ../../source/algorithms/analyze_two_tone_spectrum.md:115
+msgid ""
+"Application Note AN-742, \"Frequency Domain Response of Switched-"
+"Capacitor ADCs,\" Analog Devices"
+msgstr ""
+

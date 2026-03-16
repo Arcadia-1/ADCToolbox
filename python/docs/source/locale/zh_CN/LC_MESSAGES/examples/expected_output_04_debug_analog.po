@@ -1,0 +1,186 @@
+# SOME DESCRIPTIVE TITLE.
+# Copyright (C) 2025, ADCToolbox Contributors
+# This file is distributed under the same license as the ADCToolbox package.
+# FIRST AUTHOR <EMAIL@ADDRESS>, 2026.
+#
+#, fuzzy
+msgid ""
+msgstr ""
+"Project-Id-Version: ADCToolbox 0.5.0\n"
+"Report-Msgid-Bugs-To: \n"
+"POT-Creation-Date: 2026-03-10 20:52+0800\n"
+"PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
+"Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
+"Language: zh_CN\n"
+"Language-Team: zh_CN <LL@li.org>\n"
+"Plural-Forms: nplurals=1; plural=0;\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=utf-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Generated-By: Babel 2.18.0\n"
+
+#: ../../source/examples/expected_output_04_debug_analog.rst:2
+msgid "Expected Output: 04_debug_analog"
+msgstr ""
+
+#: ../../source/examples/expected_output_04_debug_analog.rst:4
+msgid ""
+"This document shows the expected console output and example figures from "
+"all examples in `python/src/adctoolbox/examples/04_debug_analog/`."
+msgstr ""
+
+#: ../../source/examples/expected_output_04_debug_analog.rst:7
+msgid "Summary"
+msgstr ""
+
+#: ../../source/examples/expected_output_04_debug_analog.rst:9
+msgid ""
+"All examples in `04_debug_analog` demonstrate analog output analysis "
+"capabilities:"
+msgstr ""
+
+#: ../../source/examples/expected_output_04_debug_analog.rst:11
+msgid "**Total Examples**: 15"
+msgstr ""
+
+#: ../../source/examples/expected_output_04_debug_analog.rst:13
+msgid ""
+"**Categories**: - **Sine Fitting**: exp_a01 (4-parameter fitting) - "
+"**Error Analysis**: exp_a02-a04 (by value, by phase, jitter calculation) "
+"- **Harmonic Decomposition**: exp_a11-a12 (time domain and polar) - "
+"**Statistical Analysis**: exp_a21-a25 (PDF, spectrum, autocorrelation, "
+"envelope, comparison) - **Nonlinearity**: exp_a31-a32 (static "
+"nonlinearity fitting, INL/DNL) - **Phase Plane**: exp_a41-a42 (standard "
+"and error phase plane)"
+msgstr ""
+
+#: ../../source/examples/expected_output_04_debug_analog.rst:24
+msgid "exp_a01_fit_sine_4param.py"
+msgstr ""
+
+#: ../../source/examples/expected_output_04_debug_analog.rst:26
+msgid "**Description**: Basic 4-parameter sine fitting with noise."
+msgstr ""
+
+#: ../../source/examples/expected_output_04_debug_analog.rst:44
+msgid "exp_a02_analyze_error_by_value.py"
+msgstr ""
+
+#: ../../source/examples/expected_output_04_debug_analog.rst:46
+msgid "**Description**: Analyze ADC errors binned by input signal level."
+msgstr ""
+
+#: ../../source/examples/expected_output_04_debug_analog.rst:55
+msgid "exp_a03_analyze_error_by_phase.py"
+msgstr ""
+
+#: ../../source/examples/expected_output_04_debug_analog.rst:57
+msgid "**Description**: Decompose noise into AM/PM components vs signal phase."
+msgstr ""
+
+#: ../../source/examples/expected_output_04_debug_analog.rst:163
+msgid "exp_a04_jitter_calculation.py"
+msgstr ""
+
+#: ../../source/examples/expected_output_04_debug_analog.rst:165
+msgid "**Description**: Calculate jitter from spectrum analysis."
+msgstr ""
+
+#: ../../source/examples/expected_output_04_debug_analog.rst:197
+msgid "exp_a11_decompose_harmonics.py"
+msgstr ""
+
+#: ../../source/examples/expected_output_04_debug_analog.rst:199
+msgid "**Description**: Decompose signal into harmonics in time domain."
+msgstr ""
+
+#: ../../source/examples/expected_output_04_debug_analog.rst:208
+msgid "exp_a12_decompose_harmonics_polar.py"
+msgstr ""
+
+#: ../../source/examples/expected_output_04_debug_analog.rst:210
+msgid "**Description**: Decompose harmonics with polar phase visualization."
+msgstr ""
+
+#: ../../source/examples/expected_output_04_debug_analog.rst:219
+msgid "exp_a21_analyze_error_pdf.py"
+msgstr ""
+
+#: ../../source/examples/expected_output_04_debug_analog.rst:221
+msgid ""
+"**Description**: Analyze error probability density functions for various "
+"non-idealities."
+msgstr ""
+
+#: ../../source/examples/expected_output_04_debug_analog.rst:252
+msgid "exp_a22_analyze_error_spectrum.py"
+msgstr ""
+
+#: ../../source/examples/expected_output_04_debug_analog.rst:254
+msgid "**Description**: Analyze error spectrum for various non-idealities."
+msgstr ""
+
+#: ../../source/examples/expected_output_04_debug_analog.rst:264
+msgid "exp_a23_analyze_error_autocorrelation.py"
+msgstr ""
+
+#: ../../source/examples/expected_output_04_debug_analog.rst:266
+msgid "**Description**: Analyze error autocorrelation for various non-idealities."
+msgstr ""
+
+#: ../../source/examples/expected_output_04_debug_analog.rst:297
+msgid "exp_a24_analyze_error_envelope_spectrum.py"
+msgstr ""
+
+#: ../../source/examples/expected_output_04_debug_analog.rst:299
+msgid ""
+"**Description**: Analyze error envelope spectrum for various non-"
+"idealities."
+msgstr ""
+
+#: ../../source/examples/expected_output_04_debug_analog.rst:309
+msgid "exp_a25_spectra.py"
+msgstr ""
+
+#: ../../source/examples/expected_output_04_debug_analog.rst:311
+msgid "**Description**: Compare spectra across various non-idealities."
+msgstr ""
+
+#: ../../source/examples/expected_output_04_debug_analog.rst:342
+msgid "exp_a31_fit_static_nonlin.py"
+msgstr ""
+
+#: ../../source/examples/expected_output_04_debug_analog.rst:344
+msgid "**Description**: Fit static nonlinearity coefficients from sine wave."
+msgstr ""
+
+#: ../../source/examples/expected_output_04_debug_analog.rst:359
+msgid "exp_a32_inl_from_sine_sweep_length.py"
+msgstr ""
+
+#: ../../source/examples/expected_output_04_debug_analog.rst:361
+msgid "**Description**: Sweep data length for INL/DNL extraction from sine wave."
+msgstr ""
+
+#: ../../source/examples/expected_output_04_debug_analog.rst:377
+msgid "exp_a41_analyze_phase_plane.py"
+msgstr ""
+
+#: ../../source/examples/expected_output_04_debug_analog.rst:379
+msgid "**Description**: Analyze phase plane plots for various non-idealities."
+msgstr ""
+
+#: ../../source/examples/expected_output_04_debug_analog.rst:410
+msgid "exp_a42_analyze_error_phase_plane.py"
+msgstr ""
+
+#: ../../source/examples/expected_output_04_debug_analog.rst:412
+msgid ""
+"**Description**: Analyze error phase plane (1000x more sensitive for "
+"detecting harmonics)."
+msgstr ""
+
+#: ../../source/examples/expected_output_04_debug_analog.rst:452
+msgid "---"
+msgstr ""
+

@@ -1,0 +1,309 @@
+# SOME DESCRIPTIVE TITLE.
+# Copyright (C) 2025, ADCToolbox Contributors
+# This file is distributed under the same license as the ADCToolbox package.
+# FIRST AUTHOR <EMAIL@ADDRESS>, 2026.
+#
+#, fuzzy
+msgid ""
+msgstr ""
+"Project-Id-Version: ADCToolbox 0.5.0\n"
+"Report-Msgid-Bugs-To: \n"
+"POT-Creation-Date: 2026-03-10 20:52+0800\n"
+"PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
+"Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
+"Language: zh_CN\n"
+"Language-Team: zh_CN <LL@li.org>\n"
+"Plural-Forms: nplurals=1; plural=0;\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=utf-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Generated-By: Babel 2.18.0\n"
+
+#: ../../source/algorithms/fit_sine_4param.md:1
+msgid "fit_sine_4param"
+msgstr ""
+
+#: ../../source/algorithms/fit_sine_4param.md:3
+msgid "Overview"
+msgstr ""
+
+#: ../../source/algorithms/fit_sine_4param.md:5
+msgid ""
+"`fit_sine_4param` fits a pure sine wave to ADC output using iterative "
+"least-squares with frequency refinement. This implements the IEEE Std "
+"1057/1241 algorithm for precise sinusoidal parameter estimation."
+msgstr ""
+
+#: ../../source/algorithms/fit_sine_4param.md:7
+msgid "Syntax"
+msgstr ""
+
+#: ../../source/algorithms/fit_sine_4param.md:23
+msgid "Parameters"
+msgstr ""
+
+#: ../../source/algorithms/fit_sine_4param.md:25
+msgid "**`data`** (array_like) — ADC output signal (1D or 2D array)"
+msgstr ""
+
+#: ../../source/algorithms/fit_sine_4param.md:26
+msgid ""
+"**`frequency_estimate`** (float, optional) — Initial normalized frequency"
+" (0 to 0.5)"
+msgstr ""
+
+#: ../../source/algorithms/fit_sine_4param.md:27
+msgid "If None: auto-detect using FFT peak with parabolic interpolation"
+msgstr ""
+
+#: ../../source/algorithms/fit_sine_4param.md:28
+msgid ""
+"**`max_iterations`** (int, default=1) — Number of iterations for "
+"frequency refinement"
+msgstr ""
+
+#: ../../source/algorithms/fit_sine_4param.md:29
+msgid ""
+"**`tolerance`** (float, default=1e-9) — Convergence threshold for "
+"frequency updates"
+msgstr ""
+
+#: ../../source/algorithms/fit_sine_4param.md:31
+msgid "Returns"
+msgstr ""
+
+#: ../../source/algorithms/fit_sine_4param.md:33
+msgid "Dictionary containing:"
+msgstr ""
+
+#: ../../source/algorithms/fit_sine_4param.md:35
+msgid "**`fitted_signal`** — Reconstructed sine wave"
+msgstr ""
+
+#: ../../source/algorithms/fit_sine_4param.md:36
+msgid "**`residuals`** — data - fitted_signal"
+msgstr ""
+
+#: ../../source/algorithms/fit_sine_4param.md:37
+msgid "**`frequency`** — Refined normalized frequency (0 to 0.5)"
+msgstr ""
+
+#: ../../source/algorithms/fit_sine_4param.md:38
+msgid "**`amplitude`** — Signal amplitude: sqrt(A² + B²)"
+msgstr ""
+
+#: ../../source/algorithms/fit_sine_4param.md:39
+msgid "**`phase`** — Phase in radians: atan2(-B, A)"
+msgstr ""
+
+#: ../../source/algorithms/fit_sine_4param.md:40
+msgid "**`dc_offset`** — DC component"
+msgstr ""
+
+#: ../../source/algorithms/fit_sine_4param.md:41
+msgid "**`rmse`** — Root mean square error of the fit"
+msgstr ""
+
+#: ../../source/algorithms/fit_sine_4param.md:43
+msgid "For 2D input, all scalar values become 1D arrays (one per column)."
+msgstr ""
+
+#: ../../source/algorithms/fit_sine_4param.md:45
+msgid "Algorithm"
+msgstr ""
+
+#: ../../source/algorithms/fit_sine_4param.md:47
+msgid "1. Frequency Initialization (if not provided)"
+msgstr ""
+
+#: ../../source/algorithms/fit_sine_4param.md:49
+msgid "**FFT-based coarse estimate** with 3-point parabolic interpolation:"
+msgstr ""
+
+#: ../../source/algorithms/fit_sine_4param.md:59
+msgid "2. Iterative Least-Squares Refinement"
+msgstr ""
+
+#: ../../source/algorithms/fit_sine_4param.md:61
+msgid "Model: **y = A·cos(ωt) + B·sin(ωt) + C**"
+msgstr ""
+
+#: ../../source/algorithms/fit_sine_4param.md:63
+msgid "For each iteration:"
+msgstr ""
+
+#: ../../source/algorithms/fit_sine_4param.md:65
+msgid "**Step 1**: Solve augmented least-squares system:"
+msgstr ""
+
+#: ../../source/algorithms/fit_sine_4param.md:69
+msgid "where:"
+msgstr ""
+
+#: ../../source/algorithms/fit_sine_4param.md:70
+msgid "`θ = 2π × freq × (0:N-1)`"
+msgstr ""
+
+#: ../../source/algorithms/fit_sine_4param.md:71
+msgid "`∂/∂freq = derivative of signal w.r.t. frequency`"
+msgstr ""
+
+#: ../../source/algorithms/fit_sine_4param.md:73
+msgid "**Step 2**: Update frequency:"
+msgstr ""
+
+#: ../../source/algorithms/fit_sine_4param.md:78
+msgid "**Step 3**: Check convergence:"
+msgstr ""
+
+#: ../../source/algorithms/fit_sine_4param.md:83
+msgid "3. Parameter Extraction"
+msgstr ""
+
+#: ../../source/algorithms/fit_sine_4param.md:93
+msgid "Examples"
+msgstr ""
+
+#: ../../source/algorithms/fit_sine_4param.md:95
+msgid "Example 1: Auto-Detect Frequency"
+msgstr ""
+
+#: ../../source/algorithms/fit_sine_4param.md:116
+msgid "Example 2: Known Frequency"
+msgstr ""
+
+#: ../../source/algorithms/fit_sine_4param.md:126
+msgid "Example 3: Tight Convergence"
+msgstr ""
+
+#: ../../source/algorithms/fit_sine_4param.md:132
+msgid "Example 4: Visualize Fit Quality"
+msgstr ""
+
+#: ../../source/algorithms/fit_sine_4param.md
+#: ../../source/algorithms/fit_sine_4param.md:162
+msgid "Interpretation"
+msgstr ""
+
+#: ../../source/algorithms/fit_sine_4param.md
+msgid "Output"
+msgstr ""
+
+#: ../../source/algorithms/fit_sine_4param.md
+msgid "`amplitude / max(data)` ≈ 0.5"
+msgstr ""
+
+#: ../../source/algorithms/fit_sine_4param.md
+msgid "Full-scale sine wave input (peak-to-peak = 1)"
+msgstr ""
+
+#: ../../source/algorithms/fit_sine_4param.md
+msgid "`abs(dc_offset) << amplitude`"
+msgstr ""
+
+#: ../../source/algorithms/fit_sine_4param.md
+msgid "Well-centered signal"
+msgstr ""
+
+#: ../../source/algorithms/fit_sine_4param.md
+msgid "`abs(dc_offset) ≈ amplitude`"
+msgstr ""
+
+#: ../../source/algorithms/fit_sine_4param.md
+msgid "Large DC offset, check ADC biasing"
+msgstr ""
+
+#: ../../source/algorithms/fit_sine_4param.md
+msgid "High `rmse`"
+msgstr ""
+
+#: ../../source/algorithms/fit_sine_4param.md
+msgid "Distortion, harmonics, or noise present"
+msgstr ""
+
+#: ../../source/algorithms/fit_sine_4param.md
+msgid "`frequency` stable after 1 iteration"
+msgstr ""
+
+#: ../../source/algorithms/fit_sine_4param.md
+msgid "Good initial estimate"
+msgstr ""
+
+#: ../../source/algorithms/fit_sine_4param.md:172
+msgid "Use Cases"
+msgstr ""
+
+#: ../../source/algorithms/fit_sine_4param.md:174
+msgid "**Error Analysis**: Remove fitted sine to analyze distortion and noise"
+msgstr ""
+
+#: ../../source/algorithms/fit_sine_4param.md:175
+msgid ""
+"**Signal Characterization**: Extract amplitude, frequency, phase for "
+"testing"
+msgstr ""
+
+#: ../../source/algorithms/fit_sine_4param.md:176
+msgid "**Jitter Analysis**: Phase variations indicate timing jitter"
+msgstr ""
+
+#: ../../source/algorithms/fit_sine_4param.md:177
+msgid "**Pre-processing**: For INL/DNL, harmonic decomposition, etc."
+msgstr ""
+
+#: ../../source/algorithms/fit_sine_4param.md:179
+msgid "Limitations"
+msgstr ""
+
+#: ../../source/algorithms/fit_sine_4param.md:181
+msgid "**Single-tone only**: Assumes pure sine wave; fails with multi-tone inputs"
+msgstr ""
+
+#: ../../source/algorithms/fit_sine_4param.md:182
+msgid "**No distortion modeling**: Harmonics treated as noise in residuals"
+msgstr ""
+
+#: ../../source/algorithms/fit_sine_4param.md:183
+msgid ""
+"**Convergence**: May fail if initial estimate is very far from true "
+"frequency"
+msgstr ""
+
+#: ../../source/algorithms/fit_sine_4param.md:184
+msgid "**Wraparound**: Frequency must be < 0.5 (Nyquist limit)"
+msgstr ""
+
+#: ../../source/algorithms/fit_sine_4param.md:186
+msgid "See Also"
+msgstr ""
+
+#: ../../source/algorithms/fit_sine_4param.md:188
+msgid ""
+"[`analyze_decomposition_time`](analyze_decomposition.md) — Time-domain "
+"harmonic decomposition using fitted sine"
+msgstr ""
+
+#: ../../source/algorithms/fit_sine_4param.md:189
+msgid ""
+"[`analyze_inl_from_sine`](analyze_inl_from_sine.md) — INL/DNL extraction "
+"from sine wave"
+msgstr ""
+
+#: ../../source/algorithms/fit_sine_4param.md:190
+msgid "[`analyze_error_pdf`](analyze_error_pdf.md) — Error distribution analysis"
+msgstr ""
+
+#: ../../source/algorithms/fit_sine_4param.md:192
+msgid "References"
+msgstr ""
+
+#: ../../source/algorithms/fit_sine_4param.md:194
+msgid "IEEE Std 1057-2017, \"IEEE Standard for Digitizing Waveform Recorders\""
+msgstr ""
+
+#: ../../source/algorithms/fit_sine_4param.md:195
+msgid ""
+"IEEE Std 1241-2010, \"IEEE Standard for Terminology and Test Methods for "
+"ADCs\""
+msgstr ""
+

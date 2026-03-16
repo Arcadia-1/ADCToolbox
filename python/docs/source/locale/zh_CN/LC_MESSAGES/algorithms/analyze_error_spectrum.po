@@ -1,0 +1,434 @@
+# SOME DESCRIPTIVE TITLE.
+# Copyright (C) 2025, ADCToolbox Contributors
+# This file is distributed under the same license as the ADCToolbox package.
+# FIRST AUTHOR <EMAIL@ADDRESS>, 2026.
+#
+#, fuzzy
+msgid ""
+msgstr ""
+"Project-Id-Version: ADCToolbox 0.5.0\n"
+"Report-Msgid-Bugs-To: \n"
+"POT-Creation-Date: 2026-03-10 20:52+0800\n"
+"PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
+"Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
+"Language: zh_CN\n"
+"Language-Team: zh_CN <LL@li.org>\n"
+"Plural-Forms: nplurals=1; plural=0;\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=utf-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Generated-By: Babel 2.18.0\n"
+
+#: ../../source/algorithms/analyze_error_spectrum.md:1
+msgid "analyze_error_spectrum"
+msgstr ""
+
+#: ../../source/algorithms/analyze_error_spectrum.md:3
+msgid "Overview"
+msgstr ""
+
+#: ../../source/algorithms/analyze_error_spectrum.md:5
+msgid ""
+"`analyze_error_spectrum` computes the FFT spectrum of the ADC error "
+"signal (data - fitted sine) to reveal frequency components in the error. "
+"This is distinct from analyzing the signal spectrum itself—here we "
+"analyze only the residual error after removing the ideal sine wave."
+msgstr ""
+
+#: ../../source/algorithms/analyze_error_spectrum.md:7
+msgid "Syntax"
+msgstr ""
+
+#: ../../source/algorithms/analyze_error_spectrum.md:24
+msgid "Parameters"
+msgstr ""
+
+#: ../../source/algorithms/analyze_error_spectrum.md:26
+msgid "**`signal`** (array_like) — Input ADC signal (sine wave excitation)"
+msgstr ""
+
+#: ../../source/algorithms/analyze_error_spectrum.md:27
+msgid "**`fs`** (float, default=1) — Sampling frequency in Hz"
+msgstr ""
+
+#: ../../source/algorithms/analyze_error_spectrum.md:28
+msgid "**`frequency`** (float, optional) — Normalized frequency (0-0.5)"
+msgstr ""
+
+#: ../../source/algorithms/analyze_error_spectrum.md:29
+msgid "If None: auto-detected via FFT"
+msgstr ""
+
+#: ../../source/algorithms/analyze_error_spectrum.md:30
+msgid "**`show_plot`** (bool, default=True) — Display error spectrum plot"
+msgstr ""
+
+#: ../../source/algorithms/analyze_error_spectrum.md:31
+msgid "**`ax`** (matplotlib axis, optional) — Axis to plot on"
+msgstr ""
+
+#: ../../source/algorithms/analyze_error_spectrum.md:32
+msgid "**`title`** (str, optional) — Title for the plot"
+msgstr ""
+
+#: ../../source/algorithms/analyze_error_spectrum.md:34
+msgid "Returns"
+msgstr ""
+
+#: ../../source/algorithms/analyze_error_spectrum.md:36
+msgid "Dictionary containing:"
+msgstr ""
+
+#: ../../source/algorithms/analyze_error_spectrum.md:38
+msgid "**Metrics (of error signal):**"
+msgstr ""
+
+#: ../../source/algorithms/analyze_error_spectrum.md:39
+msgid "**`enob`** — Effective Number of Bits"
+msgstr ""
+
+#: ../../source/algorithms/analyze_error_spectrum.md:40
+msgid "**`sndr_db`** — Signal-to-Noise and Distortion Ratio (dB)"
+msgstr ""
+
+#: ../../source/algorithms/analyze_error_spectrum.md:41
+msgid "**`sfdr_db`** — Spurious-Free Dynamic Range (dB)"
+msgstr ""
+
+#: ../../source/algorithms/analyze_error_spectrum.md:42
+msgid "**`snr_db`** — Signal-to-Noise Ratio (dB)"
+msgstr ""
+
+#: ../../source/algorithms/analyze_error_spectrum.md:43
+msgid "**`thd_db`** — Total Harmonic Distortion (dB)"
+msgstr ""
+
+#: ../../source/algorithms/analyze_error_spectrum.md:44
+msgid "**`sig_pwr_dbfs`** — Signal power (dBFS)"
+msgstr ""
+
+#: ../../source/algorithms/analyze_error_spectrum.md:45
+msgid "**`noise_floor_dbfs`** — Noise floor (dBFS)"
+msgstr ""
+
+#: ../../source/algorithms/analyze_error_spectrum.md:47
+msgid "**Error Data:**"
+msgstr ""
+
+#: ../../source/algorithms/analyze_error_spectrum.md:48
+msgid "**`error_signal`** — Error signal (data - fitted sine)"
+msgstr ""
+
+#: ../../source/algorithms/analyze_error_spectrum.md:50
+msgid "Algorithm"
+msgstr ""
+
+#: ../../source/algorithms/analyze_error_spectrum.md:68
+msgid "Key Difference from analyze_spectrum"
+msgstr ""
+
+#: ../../source/algorithms/analyze_error_spectrum.md
+msgid "Function"
+msgstr ""
+
+#: ../../source/algorithms/analyze_error_spectrum.md
+msgid "What it Analyzes"
+msgstr ""
+
+#: ../../source/algorithms/analyze_error_spectrum.md
+msgid "Use Case"
+msgstr ""
+
+#: ../../source/algorithms/analyze_error_spectrum.md
+msgid "**`analyze_spectrum`**"
+msgstr ""
+
+#: ../../source/algorithms/analyze_error_spectrum.md
+msgid "Original signal spectrum"
+msgstr ""
+
+#: ../../source/algorithms/analyze_error_spectrum.md
+msgid "Overall ADC performance (ENOB, SNR, harmonics)"
+msgstr ""
+
+#: ../../source/algorithms/analyze_error_spectrum.md
+msgid "**`analyze_error_spectrum`**"
+msgstr ""
+
+#: ../../source/algorithms/analyze_error_spectrum.md
+msgid "Error signal spectrum"
+msgstr ""
+
+#: ../../source/algorithms/analyze_error_spectrum.md
+msgid "Error characteristics, frequency-dependent errors"
+msgstr ""
+
+#: ../../source/algorithms/analyze_error_spectrum.md:75
+msgid "Examples"
+msgstr ""
+
+#: ../../source/algorithms/analyze_error_spectrum.md:77
+msgid "Example 1: Error Spectrum Analysis"
+msgstr ""
+
+#: ../../source/algorithms/analyze_error_spectrum.md:91
+msgid "Example 2: Compare Signal vs. Error Spectra"
+msgstr ""
+
+#: ../../source/algorithms/analyze_error_spectrum.md:113
+msgid "Example 3: Identify Frequency-Dependent Errors"
+msgstr ""
+
+#: ../../source/algorithms/analyze_error_spectrum.md:126
+msgid "Example 4: Batch Analysis"
+msgstr ""
+
+#: ../../source/algorithms/analyze_error_spectrum.md
+#: ../../source/algorithms/analyze_error_spectrum.md:139
+msgid "Interpretation"
+msgstr ""
+
+#: ../../source/algorithms/analyze_error_spectrum.md:141
+msgid "Error Spectrum Shape"
+msgstr ""
+
+#: ../../source/algorithms/analyze_error_spectrum.md
+msgid "Spectrum Shape"
+msgstr ""
+
+#: ../../source/algorithms/analyze_error_spectrum.md
+msgid "**Flat (white)**"
+msgstr ""
+
+#: ../../source/algorithms/analyze_error_spectrum.md
+msgid "Random noise (thermal, quantization)"
+msgstr ""
+
+#: ../../source/algorithms/analyze_error_spectrum.md
+msgid "**1/f shape**"
+msgstr ""
+
+#: ../../source/algorithms/analyze_error_spectrum.md
+msgid "Flicker noise, drift"
+msgstr ""
+
+#: ../../source/algorithms/analyze_error_spectrum.md
+msgid "**Peaks at harmonics**"
+msgstr ""
+
+#: ../../source/algorithms/analyze_error_spectrum.md
+msgid "Nonlinearity (HD2, HD3, etc.)"
+msgstr ""
+
+#: ../../source/algorithms/analyze_error_spectrum.md
+msgid "**Peaks at non-harmonics**"
+msgstr ""
+
+#: ../../source/algorithms/analyze_error_spectrum.md
+msgid "Spurs (power supply, clock coupling)"
+msgstr ""
+
+#: ../../source/algorithms/analyze_error_spectrum.md
+msgid "**High at low freq**"
+msgstr ""
+
+#: ../../source/algorithms/analyze_error_spectrum.md
+msgid "Offset drift, 1/f noise"
+msgstr ""
+
+#: ../../source/algorithms/analyze_error_spectrum.md:151
+msgid "Common Error Signatures"
+msgstr ""
+
+#: ../../source/algorithms/analyze_error_spectrum.md
+msgid "Peak Location"
+msgstr ""
+
+#: ../../source/algorithms/analyze_error_spectrum.md
+msgid "Likely Cause"
+msgstr ""
+
+#: ../../source/algorithms/analyze_error_spectrum.md
+msgid "**DC (0 Hz)**"
+msgstr ""
+
+#: ../../source/algorithms/analyze_error_spectrum.md
+msgid "Offset drift (should be minimal)"
+msgstr ""
+
+#: ../../source/algorithms/analyze_error_spectrum.md
+msgid "**f_clock**"
+msgstr ""
+
+#: ../../source/algorithms/analyze_error_spectrum.md
+msgid "Clock feedthrough"
+msgstr ""
+
+#: ../../source/algorithms/analyze_error_spectrum.md
+msgid "**f_supply**"
+msgstr ""
+
+#: ../../source/algorithms/analyze_error_spectrum.md
+msgid "Power supply ripple"
+msgstr ""
+
+#: ../../source/algorithms/analyze_error_spectrum.md
+msgid "**2×f_in, 3×f_in**"
+msgstr ""
+
+#: ../../source/algorithms/analyze_error_spectrum.md
+msgid "Harmonic distortion"
+msgstr ""
+
+#: ../../source/algorithms/analyze_error_spectrum.md
+msgid "**f_in ± f_clock**"
+msgstr ""
+
+#: ../../source/algorithms/analyze_error_spectrum.md
+msgid "Sampling artifacts"
+msgstr ""
+
+#: ../../source/algorithms/analyze_error_spectrum.md:161
+msgid "SFDR of Error"
+msgstr ""
+
+#: ../../source/algorithms/analyze_error_spectrum.md:163
+msgid "**Error SFDR > 80 dB**: Excellent, noise-limited"
+msgstr ""
+
+#: ../../source/algorithms/analyze_error_spectrum.md:164
+msgid "**60 < Error SFDR < 80 dB**: Good, some distortion"
+msgstr ""
+
+#: ../../source/algorithms/analyze_error_spectrum.md:165
+msgid "**Error SFDR < 60 dB**: Significant spurious content"
+msgstr ""
+
+#: ../../source/algorithms/analyze_error_spectrum.md:167
+msgid "Use Cases"
+msgstr ""
+
+#: ../../source/algorithms/analyze_error_spectrum.md:169
+msgid "**Distinguish noise from distortion** in error"
+msgstr ""
+
+#: ../../source/algorithms/analyze_error_spectrum.md:170
+msgid "**Identify interference sources** (spurs in error spectrum)"
+msgstr ""
+
+#: ../../source/algorithms/analyze_error_spectrum.md:171
+msgid "**Validate fitting quality** (DC component should be near zero)"
+msgstr ""
+
+#: ../../source/algorithms/analyze_error_spectrum.md:172
+msgid "**Debug frequency-dependent errors**"
+msgstr ""
+
+#: ../../source/algorithms/analyze_error_spectrum.md:173
+msgid "**Measure noise floor** excluding signal energy"
+msgstr ""
+
+#: ../../source/algorithms/analyze_error_spectrum.md:175
+msgid "Comparison with Other Error Analysis"
+msgstr ""
+
+#: ../../source/algorithms/analyze_error_spectrum.md
+msgid "Domain"
+msgstr ""
+
+#: ../../source/algorithms/analyze_error_spectrum.md
+msgid "Shows"
+msgstr ""
+
+#: ../../source/algorithms/analyze_error_spectrum.md
+msgid "Frequency"
+msgstr ""
+
+#: ../../source/algorithms/analyze_error_spectrum.md
+msgid "Error frequency components"
+msgstr ""
+
+#: ../../source/algorithms/analyze_error_spectrum.md
+msgid "**`analyze_error_pdf`**"
+msgstr ""
+
+#: ../../source/algorithms/analyze_error_spectrum.md
+msgid "Statistical"
+msgstr ""
+
+#: ../../source/algorithms/analyze_error_spectrum.md
+msgid "Error distribution"
+msgstr ""
+
+#: ../../source/algorithms/analyze_error_spectrum.md
+msgid "**`analyze_error_autocorr`**"
+msgstr ""
+
+#: ../../source/algorithms/analyze_error_spectrum.md
+msgid "Time"
+msgstr ""
+
+#: ../../source/algorithms/analyze_error_spectrum.md
+msgid "Temporal correlation"
+msgstr ""
+
+#: ../../source/algorithms/analyze_error_spectrum.md
+msgid "**`analyze_error_envelope_spectrum`**"
+msgstr ""
+
+#: ../../source/algorithms/analyze_error_spectrum.md
+msgid "AM modulation in error"
+msgstr ""
+
+#: ../../source/algorithms/analyze_error_spectrum.md
+msgid "**`analyze_error_by_phase`**"
+msgstr ""
+
+#: ../../source/algorithms/analyze_error_spectrum.md
+msgid "Phase"
+msgstr ""
+
+#: ../../source/algorithms/analyze_error_spectrum.md
+msgid "AM/PM decomposition"
+msgstr ""
+
+#: ../../source/algorithms/analyze_error_spectrum.md:185
+msgid "See Also"
+msgstr ""
+
+#: ../../source/algorithms/analyze_error_spectrum.md:187
+msgid "[`analyze_spectrum`](analyze_spectrum.md) — Signal spectrum (not error)"
+msgstr ""
+
+#: ../../source/algorithms/analyze_error_spectrum.md:188
+msgid ""
+"[`analyze_error_envelope_spectrum`](analyze_error_envelope_spectrum.md) —"
+" Error envelope (AM detection)"
+msgstr ""
+
+#: ../../source/algorithms/analyze_error_spectrum.md:189
+msgid "[`analyze_error_pdf`](analyze_error_pdf.md) — Error distribution"
+msgstr ""
+
+#: ../../source/algorithms/analyze_error_spectrum.md:190
+msgid ""
+"[`fit_sine_4param`](fit_sine_4param.md) — Sine fitting for error "
+"extraction"
+msgstr ""
+
+#: ../../source/algorithms/analyze_error_spectrum.md:192
+msgid "References"
+msgstr ""
+
+#: ../../source/algorithms/analyze_error_spectrum.md:194
+msgid ""
+"IEEE Std 1241-2010, \"IEEE Standard for Terminology and Test Methods for "
+"ADCs\""
+msgstr ""
+
+#: ../../source/algorithms/analyze_error_spectrum.md:195
+msgid ""
+"B. Razavi, \"Principles of Data Conversion System Design,\" IEEE Press, "
+"1995"
+msgstr ""
+
