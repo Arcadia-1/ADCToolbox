@@ -24,7 +24,6 @@ Spectrum Analysis Algorithms
 
    analyze_spectrum
    analyze_spectrum_polar
-   analyze_two_tone_spectrum
 
 Analog Error Analysis Algorithms
 ---------------------------------

@@ -107,13 +107,13 @@ _export('calculate_jitter_limit', calculate_jitter_limit)
 
 from .spectrum import (
     analyze_spectrum,
-    analyze_two_tone_spectrum,
     analyze_spectrum_polar,
+    sweep_performance_vs_osr,
 )
 
 _export('analyze_spectrum', analyze_spectrum)
-_export('analyze_two_tone_spectrum', analyze_two_tone_spectrum)
 _export('analyze_spectrum_polar', analyze_spectrum_polar)
+_export('sweep_performance_vs_osr', sweep_performance_vs_osr)
 
 # ======================================================================
 # Analog Output (AOUT) Analysis Functions
@@ -162,12 +162,14 @@ from .dout import (
     analyze_overflow,
     analyze_weight_radix,
     analyze_enob_sweep,
+    plot_residual_scatter,
 )
 
 _export('analyze_bit_activity', analyze_bit_activity)
 _export('analyze_overflow', analyze_overflow)
 _export('analyze_weight_radix', analyze_weight_radix)
 _export('analyze_enob_sweep', analyze_enob_sweep)
+_export('plot_residual_scatter', plot_residual_scatter)
 
 # ======================================================================
 # Oversampling Analysis Functions

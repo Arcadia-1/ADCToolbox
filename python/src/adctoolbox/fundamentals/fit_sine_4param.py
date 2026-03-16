@@ -4,9 +4,10 @@ Least Squares Sine Wave Fitting (IEEE Std 1057/1241).
 Supports 3-parameter (frequency-fixed) and 4-parameter (frequency-optimized) fitting modes.
 """
 
+import warnings
 import numpy as np
 
-def fit_sine_4param(data, frequency_estimate=None, max_iterations=1, tolerance=1e-9):
+def fit_sine_4param(data, frequency_estimate=None, max_iterations=1, tolerance=1e-9, verbose=0):
     """
     Fit sine wave: y = A*cos(wt) + B*sin(wt) + C.
 
@@ -15,6 +16,7 @@ def fit_sine_4param(data, frequency_estimate=None, max_iterations=1, tolerance=1
         frequency_estimate: Initial normalized frequency (0 to 0.5). If None, estimated via FFT.
         max_iterations: Iterations for frequency refinement.
         tolerance: Convergence threshold for frequency updates.
+        verbose: Verbosity level (0=silent, >0=print iteration info).
 
     Returns:
         Dictionary with fitted parameters:
@@ -31,20 +33,21 @@ def fit_sine_4param(data, frequency_estimate=None, max_iterations=1, tolerance=1
     data = np.asarray(data)
 
     if data.ndim == 1:
-        return _fit_core(data, frequency_estimate, max_iterations, tolerance)
+        return _fit_core(data, frequency_estimate, max_iterations, tolerance, verbose)
 
     if data.ndim == 2:
-        results = [_fit_core(ch, frequency_estimate, max_iterations, tolerance) for ch in data.T]
+        results = [_fit_core(ch, frequency_estimate, max_iterations, tolerance, verbose) for ch in data.T]
         return _merge_results(results)
 
     raise ValueError(f"Input must be 1D or 2D, got {data.ndim}D.")
 
-def _fit_core(y, freq_init, max_iter, tol):
+def _fit_core(y, freq_init, max_iter, tol, verbose=0):
     """Fit sine wave to 1D signal using least squares."""
     n = len(y)
     t = np.arange(n)
     freq = freq_init if freq_init is not None else _estimate_frequency_fft(y)
     a = b = c = 0.0
+    converged = False
 
     for i in range(max_iter + 1):
         omega = 2 * np.pi * freq
@@ -64,8 +67,24 @@ def _fit_core(y, freq_init, max_iter, tol):
         if len(coeffs) > 3:
             delta_freq = coeffs[3] / (2 * np.pi)
             freq += delta_freq
+            # Clamp frequency to valid range
+            freq = np.clip(freq, 1e-10, 0.5 - 1e-10)
+
+            if verbose > 0:
+                print(f"Freq iterating ({i}): freq = {freq}, "
+                      f"delta_freq = {delta_freq}")
+
             if abs(delta_freq) < tol:
+                converged = True
                 break
+
+    # Warn if max_iterations > 0 and loop did not converge
+    if max_iter > 0 and not converged:
+        warnings.warn(
+            f"fit_sine_4param did not converge in {max_iter} iterations.",
+            RuntimeWarning,
+            stacklevel=3,
+        )
 
     omega = 2 * np.pi * freq
     fitted_sig = a * np.cos(omega * t) + b * np.sin(omega * t) + c

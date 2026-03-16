@@ -222,7 +222,6 @@ result = analyze_spectrum(signal, fs=fs, nfft=8192)
 ## See Also
 
 - [`analyze_spectrum_polar`](analyze_spectrum_polar.md) — Polar phase spectrum analysis
-- [`analyze_two_tone_spectrum`](analyze_two_tone_spectrum.md) — Two-tone IMD testing
 - [`find_coherent_frequency`](../api/fundamentals.rst) — Calculate coherent test frequencies
 
 ## References

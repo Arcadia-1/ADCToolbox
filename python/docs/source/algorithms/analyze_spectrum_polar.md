@@ -48,7 +48,6 @@ Dictionary containing spectrum metrics (same as `analyze_spectrum`) plus:
 ## See Also
 
 - [`analyze_spectrum`](analyze_spectrum.md) — Standard spectrum analysis
-- [`analyze_two_tone_spectrum`](analyze_two_tone_spectrum.md) — Two-tone testing
 
 ## References
 

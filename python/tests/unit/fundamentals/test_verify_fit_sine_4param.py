@@ -4,7 +4,9 @@ Unit Test: Verify fit_sine_4param function with known sine wave fitting
 Purpose: Self-verify that fit_sine_4param correctly fits sine waves
          to noisy/clean signals with known parameters
 """
+import warnings
 import numpy as np
+import pytest
 from adctoolbox import fit_sine_4param
 
 
@@ -313,3 +315,44 @@ if __name__ == '__main__':
     print('\n' + '='*80)
     print('** All fit_sine_4param verification tests passed! **')
     print('='*80)
+
+
+def test_convergence_warning():
+    """Verify RuntimeWarning when max_iterations exhausted without converging."""
+    N = 100
+    t = np.arange(N)
+    # Use a signal where frequency is slightly off to force non-convergence
+    sig = 0.5 * np.sin(2 * np.pi * 0.123456 * t) + 0.1
+    with pytest.warns(RuntimeWarning, match="did not converge"):
+        fit_sine_4param(sig, frequency_estimate=0.2, max_iterations=2, tolerance=1e-30)
+
+
+def test_frequency_bounds():
+    """Verify frequency stays in (0, 0.5) even with adversarial initial estimate."""
+    N = 200
+    t = np.arange(N)
+    sig = 0.5 * np.sin(2 * np.pi * 0.1 * t)
+
+    # Frequency near boundary - should be clipped to valid range
+    with warnings.catch_warnings():
+        warnings.simplefilter("ignore", RuntimeWarning)
+        result = fit_sine_4param(sig, frequency_estimate=0.499, max_iterations=5)
+
+    assert result['frequency'] > 0
+    assert result['frequency'] < 0.5
+
+
+def test_verbose_output(capsys):
+    """Verify verbose mode prints iteration info."""
+    N = 500
+    t = np.arange(N)
+    sig = 0.5 * np.sin(2 * np.pi * 0.1 * t)
+
+    with warnings.catch_warnings():
+        warnings.simplefilter("ignore", RuntimeWarning)
+        fit_sine_4param(sig, max_iterations=3, verbose=1)
+
+    captured = capsys.readouterr()
+    assert "Freq iterating" in captured.out
+    assert "freq =" in captured.out
+    assert "delta_freq =" in captured.out

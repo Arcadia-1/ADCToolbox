@@ -1,10 +1,10 @@
 ---
-name: adctoolbox-guide
+name: adctoolbox-user-guide
 description: >
   Guide for writing correct ADCToolbox (`adctoolbox`) Python code — choosing the right
   functions, parameters, and interpreting dictionary results. Covers ADC testing, spectrum
   analysis, FFT, ENOB, SNDR, SFDR, SNR, THD, NSD, INL/DNL, harmonic decomposition,
-  two-tone IMD, signal generation with jitter/noise, SAR ADC calibration, bit activity,
+  two-tone IMD (future), signal generation with jitter/noise, SAR ADC calibration, bit activity,
   noise transfer functions, coherent sampling, unit conversions, mixed-signal test, and
   data converter evaluation. Use this skill whenever the user asks to write code using
   adctoolbox, analyze ADC data, generate ADC test signals, calibrate an ADC, compute
@@ -166,26 +166,7 @@ Key return dict keys:
 
 All metrics are in **dBc** (relative to carrier/signal), not dBFS.
 
-### 3.2 Two-Tone IMD Analysis
-
-For intermodulation distortion measurement with two closely-spaced tones:
-
-```python
-from adctoolbox import analyze_two_tone_spectrum
-
-result = analyze_two_tone_spectrum(
-    data,              # Two-tone ADC output
-    fs=800e6,
-    harmonic=3,        # Number of harmonic/IMD products to mark
-    win_type='hann',
-    create_plot=True
-)
-```
-
-Key return keys: `imd2_dbc`, `imd3_dbc`, `sndr_db`, `sfdr_db`,
-`signal_power_1_dbfs`, `signal_power_2_dbfs`.
-
-### 3.3 Analog Error Analysis Pipeline
+### 3.2 Analog Error Analysis Pipeline
 
 The typical flow: sine fit → error decomposition → detailed error analysis.
 
@@ -219,7 +200,7 @@ inl_result = analyze_inl_from_sine(data, num_bits=12, create_plot=False)
 # inl_result['inl'], inl_result['dnl'], inl_result['code']
 ```
 
-### 3.4 Digital Analysis & Calibration
+### 3.3 Digital Analysis & Calibration
 
 For SAR ADC bit-level analysis and foreground calibration:
 
@@ -245,7 +226,7 @@ radix = analyze_weight_radix(weights, create_plot=True)
 enob_sweep, n_bits_vec = analyze_enob_sweep(bit_matrix, freq=Fin/Fs)
 ```
 
-### 3.5 Signal Generation
+### 3.4 Signal Generation
 
 `ADC_Signal_Generator` creates test signals with configurable non-idealities
 using the Applier Pattern (method chaining):
@@ -350,9 +331,6 @@ for i, sig in enumerate(signals):
 `sndr_dbc`, `sfdr_dbc`, `snr_dbc`, `thd_dbc`. The noise floor and signal
 power are in **dBFS**: `noise_floor_dbfs`, `sig_pwr_dbfs`. Do not confuse
 these reference levels.
-
-`analyze_two_tone_spectrum` uses `_db` suffix (e.g., `sndr_db`) for similar
-metrics, and `_dbc` for IMD products (`imd2_dbc`, `imd3_dbc`).
 
 ### Normalized Frequency in Calibration
 

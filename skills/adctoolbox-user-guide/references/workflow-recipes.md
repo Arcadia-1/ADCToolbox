@@ -1,6 +1,6 @@
 # ADCToolbox Workflow Recipes
 
-Five self-contained, runnable scripts demonstrating common ADC characterization tasks.
+Four self-contained, runnable scripts demonstrating common ADC characterization tasks.
 Each recipe can be run headless: `MPLBACKEND=Agg python recipe.py`
 
 ---
@@ -194,48 +194,4 @@ print(f"ENOB improvement: {r_before['enob']:.2f} → {r_after['enob']:.2f}")
 # Step 6: Visualize weight radix
 radix = analyze_weight_radix(cal_weights, create_plot=False)
 print(f"Calibrated radix: {radix}")
-```
-
----
-
-## Recipe 5: Two-Tone IMD Test
-
-Generate a two-tone signal and measure intermodulation distortion.
-
-```python
-import numpy as np
-from adctoolbox import find_coherent_frequency, analyze_two_tone_spectrum
-from adctoolbox.siggen import ADC_Signal_Generator
-
-# --- Setup ---
-N = 8192
-Fs = 800e6
-
-# Step 1: Find two coherent frequencies (close together for IMD test)
-Fin1, _ = find_coherent_frequency(Fs, 98e6, N)
-Fin2, _ = find_coherent_frequency(Fs, 102e6, N)
-print(f"Tone 1: {Fin1/1e6:.4f} MHz, Tone 2: {Fin2/1e6:.4f} MHz")
-
-# Step 2: Generate two-tone signal
-t = np.arange(N) / Fs
-amplitude = 0.24  # Each tone at -6 dBFS (half amplitude)
-dc_offset = 0.5
-two_tone = (amplitude * np.sin(2 * np.pi * Fin1 * t)
-          + amplitude * np.sin(2 * np.pi * Fin2 * t)
-          + dc_offset)
-
-# Step 3: Add nonlinearity to create intermodulation products
-gen = ADC_Signal_Generator(N=N, Fs=Fs, Fin=Fin1, A=amplitude, DC=dc_offset)
-two_tone_distorted = gen.apply_static_nonlinearity(
-    input_signal=two_tone, k2=0.01, k3=0.005)
-
-# Step 4: Analyze two-tone spectrum
-result = analyze_two_tone_spectrum(two_tone_distorted, fs=Fs, create_plot=False)
-
-print(f"IMD2   = {result['imd2_dbc']:.1f} dBc")
-print(f"IMD3   = {result['imd3_dbc']:.1f} dBc")
-print(f"SFDR   = {result['sfdr_db']:.1f} dB")
-print(f"SNDR   = {result['sndr_db']:.1f} dB")
-print(f"Tone 1 = {result['signal_power_1_dbfs']:.1f} dBFS")
-print(f"Tone 2 = {result['signal_power_2_dbfs']:.1f} dBFS")
 ```

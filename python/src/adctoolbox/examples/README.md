@@ -36,7 +36,6 @@ python exp_a10_err_auto_correlation.py
 python exp_a11_err_envelope_spectrum.py
 python exp_a12_err_spectrum.py
 python exp_a13_tom_decomp.py
-python exp_a14_spec_plot_2tone.py
 
 # Digital analysis examples
 python exp_d01_bit_activity.py
@@ -84,7 +83,6 @@ Analysis on analog output (vector of recovered signal, e.g., reconstructed sinew
 | `a11_err_envelope_spectrum` | Error envelope spectrum |
 | `a12_err_spectrum` | Error spectrum |
 | `a13_tom_decomp` | TOM decomposition |
-| `a14_spec_plot_2tone` | Two-tone intermodulation |
 
 ### **Digital Output (d01-d05)** - Processing ADC Digital Codes
 Analysis on digital output codes from ADC architectures (pipeline, SAR, etc.).

@@ -106,11 +106,6 @@ Python-Only Functions
 The following functions exist **only in the Python package** and have no
 MATLAB counterpart.
 
-Spectrum
-^^^^^^^^
-
-- ``analyze_two_tone_spectrum`` — Two-tone FFT analysis with IMD2/IMD3 metrics.
-
 Analog Error Analysis
 ^^^^^^^^^^^^^^^^^^^^^
 

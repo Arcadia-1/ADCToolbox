@@ -10,7 +10,6 @@ Weight Calibration
 
 .. autofunction:: calibrate_weight_sine
 .. autofunction:: calibrate_weight_sine_osr
-.. autofunction:: calibrate_weight_two_tone
 
 Overflow Detection
 ------------------

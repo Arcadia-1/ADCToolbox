@@ -21,18 +21,6 @@ result = analyze_spectrum(data, fs=800e6, create_plot=False)
 print(f"ENOB={result['enob']:.2f}, SNDR={result['sndr_dbc']:.1f} dBc")
 ```
 
-### `analyze_two_tone_spectrum`
-```python
-analyze_two_tone_spectrum(data, fs=1.0, max_scale_range=None, harmonic=3,
-                          win_type='hann', side_bin=1, coherent_averaging=False,
-                          create_plot=True, show_title=True, show_labels=True, ax=None)
-```
-**Returns dict:** `enob`, `sndr_db`, `sfdr_db`, `snr_db`, `thd_db`, `signal_power_1_dbfs`, `signal_power_2_dbfs`, `noise_floor_db`, `imd2_dbc`, `imd3_dbc`
-```python
-result = analyze_two_tone_spectrum(data, fs=800e6, create_plot=False)
-print(f"IMD3={result['imd3_dbc']:.1f} dBc")
-```
-
 ### `analyze_spectrum_polar`
 ```python
 analyze_spectrum_polar(data, max_code=None, harmonic=5, osr=1,
