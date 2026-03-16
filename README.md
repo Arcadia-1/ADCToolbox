@@ -35,6 +35,35 @@
 </div>
 
 
+## Claude Code Skills
+
+> **If you are a human:** Install the skills below to get AI-assisted coding, with automatic function suggestions and parameter guidance whenever you work with ADCToolbox.
+>
+> **If you are an AI agent:** Skip ahead to the install commands. Full instructions for each skill are in their respective `SKILL.md`. The `references/` folder inside each skill contains the API quick-reference and workflow recipes.
+
+Two skills are bundled in the `skills/` directory of this repo:
+
+| Skill | Description |
+|-------|-------------|
+| `adctoolbox-user-guide` | Writing correct ADCToolbox Python code — function selection, parameters, interpreting results |
+| `adctoolbox-contributor-guide` | Coding style and naming conventions for contributors (Python + MATLAB) |
+
+### Install (macOS / Linux)
+
+```bash
+cp -r skills/adctoolbox-user-guide skills/adctoolbox-contributor-guide ~/.claude/skills/
+```
+
+### Install (Windows — PowerShell)
+
+```powershell
+Copy-Item -Recurse skills\adctoolbox-user-guide, skills\adctoolbox-contributor-guide $env:USERPROFILE\.claude\skills\
+```
+
+Once installed, Claude Code will automatically apply the right skill when you ask ADC-related questions or write code using `adctoolbox`.
+
+---
+
 ## Installation
 
 ```bash
