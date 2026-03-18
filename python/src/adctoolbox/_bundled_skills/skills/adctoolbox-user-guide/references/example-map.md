@@ -5,6 +5,8 @@ current packaged examples under `python/src/adctoolbox/examples/`.
 
 ## Start Here
 
+- FFT fundamentals and amplitude scaling rules:
+  `02_spectrum/exp_s00_fft_fundamentals.py`
 - Environment / smoke test:
   `01_basic/exp_b01_environment_check.py`
 - Coherent vs non-coherent sampling:
