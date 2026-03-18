@@ -17,6 +17,7 @@ dependencies = [
 
 [project.scripts]
 adctoolbox-get-examples = "adctoolbox.cli:copy_examples"
+adctoolbox-install-skill = "adctoolbox.skill_cli:main"
 
 [project.optional-dependencies]
 docs = [
@@ -36,6 +37,11 @@ where = ["src"]
 [tool.setuptools.package-data]
 "adctoolbox.examples.data" = ["*.csv"]
 "adctoolbox.examples" = ["*.md"]
+"adctoolbox._bundled_skills" = [
+    "skills/*/SKILL.md",
+    "skills/*/LICENSE.txt",
+    "skills/*/references/*.md",
+]
 
 [tool.setuptools.dynamic]
 version = {attr = "adctoolbox.__version__"}
