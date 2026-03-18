@@ -20,7 +20,7 @@ Usage:
 >>> from adctoolbox import find_coherent_frequency, analyze_error_by_phase
 """
 
-__version__ = '0.6.3'
+__version__ = '0.6.4'
 
 # ======================================================================
 # Public API Registry

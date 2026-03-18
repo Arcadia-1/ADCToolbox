@@ -128,13 +128,13 @@ def compute_spectrum(
     sig_bin_end = min(fundamental_bin + side_bin + 1, n_inband)
 
     # Calculate signal power directly using pre-calculated range
-    # ENBW compensation: Signal (coherent tone) should not be divided by ENBW
-    signal_power = np.sum(power_spectrum[sig_bin_start:sig_bin_end])
+    # ENBW compensation: The sum of windowed bins represents TruePower * ENBW. We must divide by ENBW.
+    signal_power = np.sum(power_spectrum[sig_bin_start:sig_bin_end]) / equiv_noise_bw_factor
     sig_pwr_dbfs = 10 * np.log10(signal_power)
 
     # Calculate noise + distortion power
-    # Use total power without ENBW compensation (for correct noise calculation)
-    total_power_raw = np.sum(power_spectrum[:n_inband])
+    # Use total power with ENBW compensation to recover true noise energy
+    total_power_raw = np.sum(power_spectrum[:n_inband]) / equiv_noise_bw_factor
     noise_distortion_power = total_power_raw - signal_power
 
     # Override with assumed signal if provided
@@ -155,6 +155,8 @@ def compute_spectrum(
         side_bin=side_bin,
         max_harmonic=max_harmonic
     )
+    thd_power /= equiv_noise_bw_factor
+    harmonic_powers /= equiv_noise_bw_factor
 
     # THD and harmonic levels (HD2, HD3, ...) in dBc
     harmonics_dbc = 10 * np.log10(harmonic_powers / signal_power)
@@ -162,6 +164,7 @@ def compute_spectrum(
 
     # SFDR (Limited to in-band search when OSR > 1)
     spur_bin_idx, spur_power = _extract_highest_spur(power_spectrum, side_bin, n_inband, sig_bin_start, sig_bin_end)
+    spur_power /= equiv_noise_bw_factor
     sfdr_dbc = 10 * np.log10(signal_power / spur_power)
 
     # Estimate noise power using specified method
@@ -174,14 +177,14 @@ def compute_spectrum(
         harmonic_bins=harmonic_bins,
         side_bin=side_bin
     )
+    noise_power /= equiv_noise_bw_factor
 
     # Calculate noise-related metrics (SNR, noise floor, NSD)
     snr_dbc = 10 * np.log10(signal_power / noise_power)
     noise_floor_dbfs = sig_pwr_dbfs - snr_dbc
-    # NSD: Noise Spectral Density = Noise Floor / (Bandwidth × ENBW)
-    # - fs/(2*osr) is the bandwidth
-    # - equiv_noise_bw_factor accounts for window's noise bandwidth normalization
-    nsd_dbfs_hz = noise_floor_dbfs - 10 * np.log10(fs / (2 * osr) * equiv_noise_bw_factor)
+    # NSD: Noise Spectral Density = Noise Floor / Bandwidth
+    # Note: ENBW is already compensated in noise_floor_dbfs above
+    nsd_dbfs_hz = noise_floor_dbfs - 10 * np.log10(fs / (2 * osr))
 
     
     # Display-normalize the plotted spectrum so different windows align to the
