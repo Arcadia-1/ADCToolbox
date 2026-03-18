@@ -30,7 +30,18 @@ Open references only as needed:
   scratch.
 - The packaged CLI command is `adctoolbox-get-examples [dest]`.
 
-## 2. Python Import Rules
+## 2. Installing AI Skills
+
+To install this skill (or the contributor guide) for the user's local AI assistant, use the bundled CLI:
+```bash
+adctoolbox-install-skill [skills ...] [--dev] [--all] [--dest DEST] [--force]
+```
+- By default, it installs `adctoolbox-user-guide` locally (e.g., to `$CODEX_HOME/skills`).
+- Use `--dev` to also install the `adctoolbox-contributor-guide`.
+- Use `--list` to see available bundled skills.
+- Use `--force` to overwrite existing skills.
+
+## 3. Python Import Rules
 
 Use flat imports only for symbols actually exported by `adctoolbox`:
 
@@ -53,7 +64,7 @@ Important:
 - If a flat import fails, inspect the relevant submodule `__init__.py` before
   assuming the tool does not exist.
 
-## 3. Pick The Right Tool Family
+## 4. Pick The Right Tool Family
 
 **A. Basic Operations (Essential for Testbenches):**
 - **Dynamic FFT & Coherent Sampling**: 
@@ -82,7 +93,7 @@ validate_aout_data(signal)
 validate_dout_data(bits)
 ```
 
-## 4. Critical Conventions
+## 5. Critical Conventions
 
 ### Frequency Units
 
@@ -111,7 +122,7 @@ Also note:
 When docs conflict, trust source exports and packaged examples over old README
 text.
 
-## 5. What To Open Next
+## 6. What To Open Next
 
 - Need a signature or return key: open `references/api-quickref.md`
 - Need a real example file to adapt: open `references/example-map.md`
