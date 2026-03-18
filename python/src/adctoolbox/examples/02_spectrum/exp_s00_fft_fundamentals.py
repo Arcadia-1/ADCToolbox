@@ -24,13 +24,13 @@ t = np.arange(N) / Fs
 
 # 2. Define signal components
 # - DC component: A_dc = 1.0 (Bin 0)
-# - Mid component: A_mid = 2.0 at 3 Hz (Bin 3)
+# - Mid component: A_mid = 2.0 at 2 Hz (Bin 2)
 # - Nyq component: A_nyq = 1.5 at 8 Hz (Bin 8 = N/2)
 A_dc = 1.0
 A_mid = 2.0
 A_nyq = 1.5
 
-k_mid = 3
+k_mid = 2
 k_nyq = N // 2  # 8
 
 # Generate the actual time-domain signal
@@ -105,7 +105,7 @@ freq_all = k_all * (Fs / N)
 markerline, stemlines, baseline = axes[1].stem(freq_all, fft_mag, basefmt=" ")
 plt.setp(stemlines, 'linewidth', 2)
 plt.setp(markerline, 'markersize', 6)
-axes[1].set_title(f"Raw Two-sided FFT Magnitude (0 to Fs)\nNotice Mid({k_mid}Hz) splits into 3Hz and {16-k_mid}Hz. DC and Nyquist ({k_nyq}Hz) do not.")
+axes[1].set_title(f"Raw Two-sided FFT Magnitude (0 to Fs)\nNotice Mid({k_mid}Hz) splits into 2Hz and {16-k_mid}Hz. DC and Nyquist ({k_nyq}Hz) do not.")
 axes[1].set_xlabel('Frequency (Hz)')
 axes[1].set_ylabel('Raw Magnitude')
 axes[1].grid(True)
