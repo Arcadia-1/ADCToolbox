@@ -26,6 +26,7 @@ Open references only as needed:
 ## 1. Start From Examples
 
 - If the user wants working usage code, open `references/example-map.md` first.
+- **Highly Recommended Baseline:** For the simplest and most standard ADC analysis and plotting template, refer directly to `02_spectrum/exp_s03_analyze_spectrum_savefig.py`.
 - Prefer adapting a packaged example over writing an API call pattern from
   scratch.
 - The packaged CLI command is `adctoolbox-get-examples [dest]`.
