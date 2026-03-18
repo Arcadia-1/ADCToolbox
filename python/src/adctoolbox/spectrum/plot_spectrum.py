@@ -39,11 +39,8 @@ def plot_spectrum(compute_results, show_title=True, show_label=True, plot_harmon
     M = compute_results['M']
     fs = compute_results['fs']
     osr = compute_results['osr']
-    v_offset = plot_data['v_offset']
     Nd2_inband = len(freq) // osr
-    # Noise floor line: use NSD (per-Hz) converted to per-bin level, then apply v_offset
-    # NSD stays constant across OSR changes, while integrated noise_floor_dbfs varies
-    # v_offset aligns the spectrum with sig_pwr_dbfs, so noise floor line must be shifted too
+    v_offset = plot_data.get('v_offset', 0.0)
     nf_line_level = metrics['nsd_dbfs_hz'] + 10 * np.log10(fs / N) + v_offset
 
     # Build harmonics list from plot_data and metrics (for plotting)

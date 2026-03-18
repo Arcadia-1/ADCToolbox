@@ -184,7 +184,8 @@ def compute_spectrum(
     nsd_dbfs_hz = noise_floor_dbfs - 10 * np.log10(fs / (2 * osr) * equiv_noise_bw_factor)
 
     
-    # Compensate power spectrum for plotting (recover peak amplitude for visualization)
+    # Display-normalize the plotted spectrum so different windows align to the
+    # same signal-power reference.
     v_offset = sig_pwr_dbfs - power_spectrum_db[fundamental_bin]
     power_spectrum_db_plot = power_spectrum_db + v_offset
 

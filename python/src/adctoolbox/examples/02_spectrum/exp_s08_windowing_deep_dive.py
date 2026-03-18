@@ -77,15 +77,16 @@ for idx, win_type in enumerate(WINDOW_CONFIGS.keys()):
         'sndr_dbc': result['sndr_dbc'],
         'sfdr_dbc': result['sfdr_dbc'],
         'snr_dbc': result['snr_dbc'],
-        'nsd_dbfs_hz': result['nsd_dbfs_hz']
+        'nsd_dbfs_hz': result['nsd_dbfs_hz'],
+        'sig_dbfs': result['sig_pwr_dbfs']
     })
 
 # Sort by ENoB (descending) and print table
 results_1.sort(key=lambda x: x['enob'], reverse=True)
-print(f"{'Window':<25} {'ENoB (b)':>9} {'SNDR (dB)':>10} {'SFDR (dB)':>10} {'SNR (dB)':>9} {'NSD (dBFS/Hz)':>14}")
-print("-" * 78)
+print(f"{'Window':<25} {'Fund (dBFS)':>12} {'ENoB (b)':>9} {'SNDR (dB)':>10} {'SFDR (dB)':>10} {'SNR (dB)':>9} {'NSD (dBFS/Hz)':>14}")
+print("-" * 91)
 for r in results_1:
-    print(f"{r['description']:<25} {r['enob']:>9.2f} {r['sndr_dbc']:>10.2f} {r['sfdr_dbc']:>10.2f} {r['snr_dbc']:>9.2f} {r['nsd_dbfs_hz']:>14.2f}")
+    print(f"{r['description']:<25} {r['sig_dbfs']:>12.2f} {r['enob']:>9.2f} {r['sndr_dbc']:>10.2f} {r['sfdr_dbc']:>10.2f} {r['snr_dbc']:>9.2f} {r['nsd_dbfs_hz']:>14.2f}")
 
 fig1.suptitle(f'Scenario 1: Spectral Leakage - Window Comparison (Fin={Fin_1/1e6:.1f} MHz, N={N_fft_1})',
              fontsize=14, fontweight='bold')
@@ -130,15 +131,16 @@ for idx, win_type in enumerate(WINDOW_CONFIGS.keys()):
         'sndr_dbc': result['sndr_dbc'],
         'sfdr_dbc': result['sfdr_dbc'],
         'snr_dbc': result['snr_dbc'],
-        'nsd_dbfs_hz': result['nsd_dbfs_hz']
+        'nsd_dbfs_hz': result['nsd_dbfs_hz'],
+        'sig_dbfs': result['sig_pwr_dbfs']
     })
 
 # Sort by ENoB (descending) and print table
 results_2.sort(key=lambda x: x['enob'], reverse=True)
-print(f"{'Window':<25} {'ENoB (b)':>9} {'SNDR (dB)':>10} {'SFDR (dB)':>10} {'SNR (dB)':>9} {'NSD (dBFS/Hz)':>14}")
-print("-" * 78)
+print(f"{'Window':<25} {'Fund (dBFS)':>12} {'ENoB (b)':>9} {'SNDR (dB)':>10} {'SFDR (dB)':>10} {'SNR (dB)':>9} {'NSD (dBFS/Hz)':>14}")
+print("-" * 91)
 for r in results_2:
-    print(f"{r['description']:<25} {r['enob']:>9.2f} {r['sndr_dbc']:>10.2f} {r['sfdr_dbc']:>10.2f} {r['snr_dbc']:>9.2f} {r['nsd_dbfs_hz']:>14.2f}")
+    print(f"{r['description']:<25} {r['sig_dbfs']:>12.2f} {r['enob']:>9.2f} {r['sndr_dbc']:>10.2f} {r['sfdr_dbc']:>10.2f} {r['snr_dbc']:>9.2f} {r['nsd_dbfs_hz']:>14.2f}")
 
 fig2.suptitle(f'Scenario 2: Coherent Sampling - Window Comparison (Fin={Fin_2/1e6:.6f} MHz, Bin {Fin_bin_2}, N={N_fft_2})', fontsize=14, fontweight='bold')
 plt.tight_layout()
@@ -183,15 +185,16 @@ for idx, win_type in enumerate(WINDOW_CONFIGS.keys()):
         'sndr_dbc': result['sndr_dbc'],
         'sfdr_dbc': result['sfdr_dbc'],
         'snr_dbc': result['snr_dbc'],
-        'nsd_dbfs_hz': result['nsd_dbfs_hz']
+        'nsd_dbfs_hz': result['nsd_dbfs_hz'],
+        'sig_dbfs': result['sig_pwr_dbfs']
     })
 
 # Sort by ENoB (descending) and print table
 results_3.sort(key=lambda x: x['enob'], reverse=True)
-print(f"{'Window':<25} {'ENoB (b)':>9} {'SNDR (dB)':>10} {'SFDR (dB)':>10} {'SNR (dB)':>9} {'NSD (dBFS/Hz)':>14}")
-print("-" * 78)
+print(f"{'Window':<25} {'Fund (dBFS)':>12} {'ENoB (b)':>9} {'SNDR (dB)':>10} {'SFDR (dB)':>10} {'SNR (dB)':>9} {'NSD (dBFS/Hz)':>14}")
+print("-" * 91)
 for r in results_3:
-    print(f"{r['description']:<25} {r['enob']:>9.2f} {r['sndr_dbc']:>10.2f} {r['sfdr_dbc']:>10.2f} {r['snr_dbc']:>9.2f} {r['nsd_dbfs_hz']:>14.2f}")
+    print(f"{r['description']:<25} {r['sig_dbfs']:>12.2f} {r['enob']:>9.2f} {r['sndr_dbc']:>10.2f} {r['sfdr_dbc']:>10.2f} {r['snr_dbc']:>9.2f} {r['nsd_dbfs_hz']:>14.2f}")
 
 fig3.suptitle(f'Scenario 3: Short FFT - Window Comparison (Fin={Fin_3/1e6:.6f} MHz, Bin {Fin_bin_3}, N={N_fft_3})',
              fontsize=14, fontweight='bold')
