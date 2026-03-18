@@ -29,6 +29,30 @@ uv pip install adctoolbox
 
 **Requirements**: Python >= 3.8, numpy, scipy, matplotlib, pandas
 
+### Install Codex Skills
+
+After installing `adctoolbox`, you can install the bundled Codex skill with one command:
+
+```bash
+adctoolbox-install-skill
+```
+
+This installs:
+
+- `adctoolbox-user-guide`
+
+Install the maintainer-only skill as well:
+
+```bash
+adctoolbox-install-skill --dev
+```
+
+Install into a custom skills directory for testing:
+
+```bash
+adctoolbox-install-skill --dest /tmp/codex-skills
+```
+
 ---
 
 ## Quick Start
