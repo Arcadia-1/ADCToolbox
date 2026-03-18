@@ -55,28 +55,23 @@ Important:
 
 ## 3. Pick The Right Tool Family
 
-**A. Basic Operations & Testbenches:**
-(Basic testbenches typically only need these)
-- Dynamic FFT metrics & Coherent Sampling:
+**A. Basic Operations (Essential for Testbenches):**
+- **Dynamic FFT & Coherent Sampling**: 
   `analyze_spectrum`, `analyze_spectrum_polar`, `find_coherent_frequency`
-- Multi-plot summaries (Dashboards):
-  `adctoolbox.toolset.generate_aout_dashboard`,
-  `adctoolbox.toolset.generate_dout_dashboard`
+- **Dashboard Summaries (Multi-Plot)**: 
+  `adctoolbox.toolset.generate_aout_dashboard`, `adctoolbox.toolset.generate_dout_dashboard`
 
 **B. Advanced Debug & Calibration:**
-- Analog debug:
-  `fit_sine_4param`, error-analysis helpers, decomposition helpers,
-  phase-plane helpers
-- Digital calibration:
-  `calibrate_weight_sine`, `calibrate_weight_sine_lite`,
-  `analyze_bit_activity`, `analyze_overflow`, `analyze_enob_sweep`,
-  `analyze_weight_radix`
+- **Analog Debugging**: 
+  `fit_sine_4param`, error-analysis helpers, decomposition helpers, phase-plane helpers
+- **Digital Calibration**: 
+  `calibrate_weight_sine`, `calibrate_weight_sine_lite`, `analyze_bit_activity`, `analyze_overflow`, `analyze_enob_sweep`, `analyze_weight_radix`
 
 **C. Utilities:**
-- Signal generation:
+- **Signal Generation**: 
   `adctoolbox.siggen.ADC_Signal_Generator`
-- Unit conversions and limits:
-  use the flat-exported helpers in `adctoolbox`
+- **Unit Conversions**: 
+  use the flat-exported helpers directly from `adctoolbox`
 
 Validate external inputs early:
 
