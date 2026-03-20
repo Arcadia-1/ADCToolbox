@@ -34,10 +34,14 @@ def get_batch_test_setup(hd2_target_dB=-80, hd3_target_dB=-70):
 
     Examples
     --------
-    >>> from nonideality_cases import get_batch_test_setup
-    >>> gen, cases, params = get_batch_test_setup()
+    >>> from importlib.util import module_from_spec, spec_from_file_location
+    >>> spec = spec_from_file_location("nonideality_cases", "python/src/adctoolbox/examples/04_debug_analog/nonideality_cases.py")
+    >>> module = module_from_spec(spec)
+    >>> _ = spec.loader.exec_module(module)
+    >>> gen, cases, params = module.get_batch_test_setup()
     >>> signal = cases[0]['func']()  # Generate thermal noise case
     >>> print(f"Using Fs={params['Fs']/1e6:.0f} MHz")
+    Using Fs=800 MHz
     """
 
     # Standard signal parameters

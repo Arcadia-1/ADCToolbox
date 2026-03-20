@@ -69,7 +69,7 @@ def snr_to_nsd(snr_db, fs, signal_pwr_dbfs=0, osr=1):
     >>> # Full-scale signal, 80 dB SNR, 1 MHz sampling, OSR=256
     >>> nsd = snr_to_nsd(80, 1e6, signal_pwr_dbfs=0, osr=256)
     >>> print(f"NSD = {nsd:.2f} dBFS/Hz")
-    NSD = -134.08 dBFS/Hz
+    NSD = -112.91 dBFS/Hz
     """
     # Noise bandwidth: BW = fs / (2 * osr)
     bw = fs / (2 * osr)
@@ -97,10 +97,10 @@ def nsd_to_snr(nsd_dbfs_hz, fs, signal_pwr_dbfs=0, osr=1):
 
     Examples
     --------
-    >>> # NSD = -134 dBFS/Hz, 1 MHz sampling, OSR=256
-    >>> snr = nsd_to_snr(-134, 1e6, signal_pwr_dbfs=0, osr=256)
+    >>> # NSD = -112.91 dBFS/Hz, 1 MHz sampling, OSR=256
+    >>> snr = nsd_to_snr(-112.91, 1e6, signal_pwr_dbfs=0, osr=256)
     >>> print(f"SNR = {snr:.2f} dB")
-    SNR = 79.92 dB
+    SNR = 80.00 dB
     """
     # Noise bandwidth: BW = fs / (2 * osr)
     bw = fs / (2 * osr)

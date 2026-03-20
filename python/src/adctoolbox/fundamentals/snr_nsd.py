@@ -44,11 +44,11 @@ def amplitudes_to_snr(
     --------
     >>> snr = amplitudes_to_snr(sig_amplitude=1.0, noise_amplitude=0.01)
     >>> print(f"SNR = {snr:.2f} dB")
-    SNR = 40.00 dB
+    SNR = 36.99 dB
 
     >>> snr, sig_pwr, noise_pwr = amplitudes_to_snr(1.0, 0.01, return_power=True)
     >>> print(f"SNR = {snr:.2f} dB, Signal Power = {sig_pwr:.4f} V^2")
-    SNR = 40.00 dB, Signal Power = 0.5000 V^2
+    SNR = 36.99 dB, Signal Power = 0.5000 V^2
     """
     # Check if inputs are scalar before converting to arrays
     is_scalar_input = (np.ndim(sig_amplitude) == 0 and np.ndim(noise_amplitude) == 0)
@@ -136,7 +136,7 @@ def snr_to_nsd(
     >>> # For a full-scale signal with 80 dB SNR, fs=1 MHz, OSR=256
     >>> nsd = snr_to_nsd(snr_db=80, fs=1e6, osr=256)
     >>> print(f"NSD = {nsd:.2f} dBFS/Hz")
-    NSD = -134.08 dBFS/Hz
+    NSD = -112.91 dBFS/Hz
 
     >>> # For a -6 dBFS signal with 70 dB SNR, fs=100 kHz, Nyquist sampling
     >>> nsd = snr_to_nsd(snr_db=70, fs=1e5, osr=1, psignal_dbfs=-6)
@@ -215,10 +215,10 @@ def nsd_to_snr(
 
     Examples
     --------
-    >>> # For NSD = -134 dBFS/Hz, fs=1 MHz, OSR=256
-    >>> snr = nsd_to_snr(nsd_dbfs_hz=-134, fs=1e6, osr=256)
+    >>> # For NSD = -112.91 dBFS/Hz, fs=1 MHz, OSR=256
+    >>> snr = nsd_to_snr(nsd_dbfs_hz=-112.91, fs=1e6, osr=256)
     >>> print(f"SNR = {snr:.2f} dB")
-    SNR = 79.92 dB
+    SNR = 80.00 dB
 
     >>> # For NSD = -123 dBFS/Hz, fs=100 kHz, Nyquist sampling, -6 dBFS signal
     >>> snr = nsd_to_snr(nsd_dbfs_hz=-123, fs=1e5, osr=1, psignal_dbfs=-6)

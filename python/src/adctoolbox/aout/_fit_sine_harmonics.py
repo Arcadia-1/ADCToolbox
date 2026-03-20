@@ -61,7 +61,7 @@ def _fit_sine_harmonics(
     Examples
     --------
     >>> sig = np.sin(2*np.pi*0.1*np.arange(1000))  # Normalized freq 0.1
-    >>> W, sig_fit, A, phase = fit_sine_harmonics(sig, freq=0.1, order=1)
+    >>> W, sig_fit, A, phase = _fit_sine_harmonics(sig, freq=0.1, order=1)
     >>> # W[0] ≈ DC offset, W[1] ≈ cos amplitude, W[2] ≈ sin amplitude
     """
     # Prepare input

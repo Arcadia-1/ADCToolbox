@@ -42,6 +42,7 @@ def find_coherent_frequency(fs, fin_target, n_fft, force_odd=True, search_radius
     --------
     >>> fin, bin_idx = find_coherent_frequency(800e6, 100e6, 8192)
     >>> print(f"Coherent frequency: {fin/1e6:.6f} MHz at bin {bin_idx}")
+    Coherent frequency: 99.902344 MHz at bin 1023
     """
     # 1. Calculate the ideal (fractional) total cycles
     target_bin_float = fin_target / fs * n_fft
@@ -155,7 +156,7 @@ def fold_bin_to_nyquist(bin_idx: float, n_fft: int) -> float:
     >>> fold_bin_to_nyquist(5000, 8192)  # Above Nyquist, mirrors back
     3192.0
     >>> fold_bin_to_nyquist(-100, 8192)  # Negative wraps around
-    92.0
+    100.0
     """
     # First wrap to [0, n_fft) range
     bin_idx = bin_idx % n_fft
