@@ -5,19 +5,42 @@ This package provides tools for analyzing both analog and digital aspects of
 Analog-to-Digital Converters, including spectrum analysis, error characterization,
 calibration algorithms, and more.
 
+Quick Start — Spectrum Analysis:
+---------------------------------
+The most commonly used entry point is ``analyze_spectrum``, which performs a
+full single-tone FFT analysis and returns SNR, SNDR, SFDR, ENoB, NSD, and more:
+
+    >>> import numpy as np
+    >>> from adctoolbox import analyze_spectrum, find_coherent_frequency
+    >>>
+    >>> Fs, N = 100e6, 2**13
+    >>> Fin, _ = find_coherent_frequency(fs=Fs, fin_target=12e6, n_fft=N)
+    >>> t = np.arange(N) / Fs
+    >>> signal = 0.5 * np.sin(2 * np.pi * Fin * t) + np.random.randn(N) * 200e-6
+    >>> result = analyze_spectrum(signal, fs=Fs, max_scale_range=[-0.5, 0.5])
+    >>> print(result['snr_dbc'], result['enob'], result['nsd_dbfs_hz'])
+
+``analyze_spectrum`` returns a dict with keys:
+    snr_dbc, sndr_dbc, sfdr_dbc, enob, thd_dbc,
+    nsd_dbfs_hz, sig_pwr_dbfs, noise_floor_dbfs, ...
+
+Runnable example scripts are located in the ``examples/`` folder of this
+package (e.g. ``examples/02_spectrum/exp_s03_analyze_spectrum_savefig.py``).
+Use them as ready-made templates to get started quickly.
+
 Modules:
 --------
 - fundamentals: Core utilities (sine fitting, frequency utils, unit conversions, FOM metrics)
-- spectrum: FFT-based analysis (single-tone, two-tone, polar visualization)
+- spectrum: FFT-based analysis (single-tone, polar visualization)
 - aout: Analog output error analysis (decomposition, PDF, autocorrelation, etc.)
 - dout: Digital output calibration (foreground calibration, weight estimation)
 - siggen: Signal generation with non-idealities
 - oversampling: Noise transfer function analysis
 
-Usage:
-------
->>> from adctoolbox import analyze_spectrum, fit_sine_4param, calibrate_weight_sine
->>> from adctoolbox import find_coherent_frequency, analyze_error_by_phase
+Other Common Functions:
+-----------------------
+>>> from adctoolbox import fit_sine_4param, calibrate_weight_sine
+>>> from adctoolbox import analyze_error_by_phase, compute_spectrum
 """
 
 __version__ = '0.7.0'
