@@ -13,10 +13,9 @@ rng(42);
 
 N = 2^18; % Number of samples (8192)
 Fs = 1e9; % Sampling frequency (1 GHz)
-Fin_want = 490e6; % Input frequency (490 MHz)
+Fin_want = 123e6; % Input frequency (490 MHz)
 
-J = findbin(Fs, Fin_want, N);
-Fin = J / N * Fs;
+Fin = 123.456e6;
 ideal_phase = 2 * pi * Fin * (0:N - 1)' * 1 / Fs;
 
 A = 0.499;

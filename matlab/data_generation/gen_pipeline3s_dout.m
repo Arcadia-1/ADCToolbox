@@ -40,18 +40,10 @@ w3 = 2.^((N3 - 1):-1:0);
 weights = [w1, w2, w3];
 weights = weights / sum(weights);
 
-ENoB1 = specPlot(msb_bits*w1', "isplot", 0);
-ENoB = specPlot(dout*weights', "isplot", 0);
-fprintf("[%s] [ENoB1 = %0.2f bits] [ENoB = %0.2f bits]\n", mfilename, ENoB1, ENoB);
 
-figure('Position', [100, 100, 800, 600]);
-ovfchk(dout, weights);
-title_str = sprintf('3-stage Pipeline (N1=%d, G1=%d, N2=%d, G2=%d, N3=%d)', N1, G1, N2, G2, N3);
-title(title_str);
+figure;
+bitchk(dout, weights);
 
-filename = fullfile(subFolder, sprintf("dout_Pipeline_%dbx%d_%dbx%d_%db.csv", N1, G1, N2, G2, N3));
-fprintf("[Save data into file] -> [%s]\n", filename);
-writematrix(dout, filename);
 
 function bits = binSaturate(x, N)
 % Encode bits: Prevent digital overflow/wrap-around; saturate codes exceeding the maximum.

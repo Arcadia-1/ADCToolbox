@@ -422,9 +422,15 @@ if ischar(sideBin) && strcmp(sideBin, 'auto')
     scale_factor = spec(bin) / ideal_spec(bin);
     ideal_spec = ideal_spec * scale_factor;
 
-    % Step 2: Estimate noise floor using median (robust to signal peak outliers)
+    % Step 2: Estimate noise floor using median (filter out near-zero bins first)
     n_inband = floor(N_fft/2/OSR);
-    noise_floor_per_bin = median(spec(1:n_inband));
+    temp_spec = spec(1:n_inband);
+    temp_spec = temp_spec(temp_spec > 10^(-20));
+    if length(temp_spec) >= 3
+        noise_floor_per_bin = median(temp_spec);
+    else
+        noise_floor_per_bin = median(spec(1:n_inband));
+    end
 
     % Step 3: Find crossing points where ideal spectrum meets noise floor
     sideBin = 0;
