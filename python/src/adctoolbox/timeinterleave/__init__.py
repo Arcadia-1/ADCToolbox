@@ -31,6 +31,7 @@ from adctoolbox.timeinterleave.fractional_delay import (
     fractional_delay_fft,
     fractional_delay_farrow,
 )
+from adctoolbox.timeinterleave.calibrate_foreground import calibrate_foreground
 
 __all__ = [
     "deinterleave",
@@ -39,4 +40,5 @@ __all__ = [
     "predict_spurs",
     "fractional_delay_fft",
     "fractional_delay_farrow",
+    "calibrate_foreground",
 ]

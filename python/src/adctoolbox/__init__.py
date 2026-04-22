@@ -192,6 +192,7 @@ from .timeinterleave import (
     predict_spurs,
     fractional_delay_fft,
     fractional_delay_farrow,
+    calibrate_foreground,
 )
 
 _export('deinterleave', deinterleave)
@@ -200,6 +201,7 @@ _export('extract_mismatch_sine', extract_mismatch_sine)
 _export('predict_spurs', predict_spurs)
 _export('fractional_delay_fft', fractional_delay_fft)
 _export('fractional_delay_farrow', fractional_delay_farrow)
+_export('calibrate_foreground', calibrate_foreground)
 
 # ======================================================================
 # Submodules (for explicit imports like: from adctoolbox.aout import ...)
