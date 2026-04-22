@@ -190,12 +190,16 @@ from .timeinterleave import (
     interleave,
     extract_mismatch_sine,
     predict_spurs,
+    fractional_delay_fft,
+    fractional_delay_farrow,
 )
 
 _export('deinterleave', deinterleave)
 _export('interleave', interleave)
 _export('extract_mismatch_sine', extract_mismatch_sine)
 _export('predict_spurs', predict_spurs)
+_export('fractional_delay_fft', fractional_delay_fft)
+_export('fractional_delay_farrow', fractional_delay_farrow)
 
 # ======================================================================
 # Submodules (for explicit imports like: from adctoolbox.aout import ...)
