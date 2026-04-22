@@ -140,16 +140,41 @@ class TIMultiSampler:
         amp: float,
         n_samples: int,
         noise_rms: float = 0.0,
+        hd3_dbc: float | None = None,
         seed: int | None = None,
+        randomize_phase: bool = True,
     ) -> np.ndarray:
-        """Return one interleaved capture with the current trim codes."""
+        """Return one interleaved capture with the current trim codes.
+
+        ``randomize_phase`` (default True) picks a uniform random starting
+        phase for the sinusoid each call. This is essential for MAD-based
+        calibration driven by a sinusoidal input: without it every capture
+        has the same per-channel phase pattern, which creates a systematic
+        finite-sample bias in the MAD estimate that the calibration algorithm
+        wrongly interprets as skew.
+
+        ``hd3_dbc`` (default None) applies a static cubic non-linearity
+        ``y = x + k3·x³`` sized so the 3rd-harmonic tone sits at
+        ``hd3_dbc`` dBc relative to the fundamental. Models a realistic
+        input source / buffer non-linearity and caps post-calibration SFDR
+        at this level — its phase is coherent with the fundamental (as a
+        real cubic distortion would be), same convention as
+        ``ADC_Signal_Generator.apply_static_nonlinearity`` in the toolbox.
+        """
         T = 1.0 / self.fs
         skew = self.effective_skew()
+        rng = np.random.default_rng(seed)
+        phase0 = rng.uniform(0.0, 2 * np.pi) if randomize_phase else 0.0
         n = np.arange(n_samples)
         m = n % self.M
         t = n * T + skew[m]
-        x = amp * np.cos(2 * np.pi * fin * t)
+        x = amp * np.cos(2 * np.pi * fin * t + phase0)
+        if hd3_dbc is not None:
+            # cos³(θ) = ¾·cos(θ) + ¼·cos(3θ). For target HD3 ratio r vs fund,
+            # k3·amp²/4 = r ⇒ k3 = 4·r/amp².
+            hd3_ratio = 10 ** (hd3_dbc / 20.0)
+            k3 = 4.0 * hd3_ratio / (amp ** 2)
+            x = x + k3 * x ** 3
         if noise_rms > 0:
-            rng = np.random.default_rng(seed)
             x = x + rng.standard_normal(n_samples) * noise_rms
         return x
