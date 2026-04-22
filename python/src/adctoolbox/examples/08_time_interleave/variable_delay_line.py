@@ -1,9 +1,12 @@
-"""Monotonic digital-controlled variable delay line (VDL) and a TI-ADC model.
+"""Monotonic digital-controlled variable delay line (VDL) and a multi-sampler model.
 
-Simulation infrastructure for TI-ADC skew-calibration examples. Each channel
-carries an independent VDL with its own random DNL (while staying monotonic),
-so the algorithm under test has to deal with the same per-code nonlinearity a
-real chip would expose.
+Simulation infrastructure for time-interleaved skew-calibration examples.
+The samplers are modeled in the **analog domain** — each "capture" produces
+continuous-valued (infinite-precision) samples of a cos(·) waveform. There
+is *no ADC quantization* here; the only non-ideality is per-channel sampling-
+instant skew and the VDL's code-to-delay nonlinearity. This is enough to
+reproduce the MAD / autocorrelation behavior that the calibration algorithm
+feeds on.
 
 Classes
 -------
@@ -12,11 +15,11 @@ VariableDelayLine
     built from positive random step sizes. Step sizes share a common mean
     (the "LSB") and a coefficient of variation that controls DNL.
 
-TISARModel
-    M-channel time-interleaved ADC with per-channel intrinsic skew + a
-    per-channel VDL. The calibration algorithm only sees ``capture(...)``
-    output; ``intrinsic_skew`` and ``effective_skew()`` are the "ground truth"
-    the algorithm has to discover / cancel.
+TIMultiSampler
+    M time-interleaved samplers, each with its own intrinsic skew and its
+    own VDL. The calibration algorithm only sees ``capture(...)`` output;
+    ``intrinsic_skew`` and ``effective_skew()`` are the "ground truth" the
+    algorithm has to discover and cancel.
 """
 from __future__ import annotations
 
@@ -88,13 +91,18 @@ class VariableDelayLine:
 
 
 @dataclass
-class TISARModel:
-    """Synthetic TI-ADC with per-channel intrinsic skew and VDL trim.
+class TIMultiSampler:
+    """M time-interleaved analog samplers with per-channel skew and VDL trim.
+
+    This is NOT a quantizing ADC — each ``capture`` returns continuous-valued
+    (``float64``) samples of a pure cos(·) waveform. The only non-idealities
+    are per-sampler intrinsic skew plus whatever delay the VDL adds. That is
+    enough to drive a MAD / autocorrelation-based skew-calibration algorithm.
 
     Parameters
     ----------
     M : int
-        Sub-ADC count.
+        Number of interleaved samplers (they fire round-robin).
     fs : float
         Aggregate sample rate (Hz).
     intrinsic_skew_sec : array-like, shape (M,)

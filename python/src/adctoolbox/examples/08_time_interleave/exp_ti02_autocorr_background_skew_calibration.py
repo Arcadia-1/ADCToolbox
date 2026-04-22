@@ -39,44 +39,49 @@ from adctoolbox import (
     find_coherent_frequency,
 )
 
-from variable_delay_line import TISARModel, VariableDelayLine
+from variable_delay_line import TIMultiSampler, VariableDelayLine
 
 
 # =============================================================================
 # Knobs
 # =============================================================================
-M = 4                            # number of sub-ADCs
-Fs = 1e9                         # aggregate sample rate
+M = 4                            # number of sub-ADCs (round-robin sampling)
+Fs = 1e9                         # aggregate sample rate (1 GS/s — matches paper)
 N_FFT = 2**13                    # samples per capture
 Amp = 0.5                        # sine amplitude
-N_SWEEP = 120                    # calibration iterations
-BATCH = 10                       # captures per iteration
-DIRECTION = -1                   # MATLAB "direction" constant; ±1
+N_SWEEP = 50                     # calibration iterations (matches MATLAB)
+BATCH = 10                       # captures per iteration (matches MATLAB)
+DIRECTION = -1                   # negative feedback; R'(Ts)<0 with MAD'(Ts)>0
+                                 # so direction flips once — matches MATLAB
 
 # =============================================================================
 # Build the TI-ADC model (truth that the algorithm cannot see)
 # =============================================================================
-# Fin close to Nyquist/4 -> strong sensitivity of MAD to timing error.
-# Must still stay below per-channel Nyquist fs/(2M) = 125 MHz.
-Fin, Fin_bin = find_coherent_frequency(Fs, 110e6, N_FFT)
+# Fin placed high on the spectrum to *demonstrate* the paper's main claim:
+# the algorithm works up to fs/2, relaxing the prior-art fs/N = 250 MHz limit.
+# At 450 MHz we're deep in the [fs/4, fs/2] band where older single-channel
+# autocorrelation methods fail.
+Fin, Fin_bin = find_coherent_frequency(Fs, 300e6, N_FFT)
 
-# Intrinsic per-channel skew: small enough to fit inside a ±6 ps VDL trim
-# range comfortably, so every channel has a reachable optimum.
+# Intrinsic per-channel skew: ~2 ps rms, well within the ±25 ps VDL range
+# but big enough to dominate SFDR before calibration.
 rng_truth = np.random.default_rng(7)
 intrinsic_skew = 2.0e-12 * rng_truth.standard_normal(M)
 intrinsic_skew -= intrinsic_skew.mean()    # a common delay is unobservable
 
+# Per-channel VDL: 10-bit (1024 codes), 50 fs LSB mean, 15% per-step DNL.
+# Each channel has its own random DNL realization (monotonicity guaranteed).
 vdls = [
     VariableDelayLine(
-        n_codes=128,
-        lsb_mean_sec=100e-15,      # 100 fs / LSB mean -> ±6.4 ps range
+        n_codes=1024,              # 10-bit
+        lsb_mean_sec=50e-15,       # 50 fs / LSB mean -> ±25.6 ps range
         step_cv=0.15,              # 15% per-step DNL
         seed=1000 + m,
     )
     for m in range(M)
 ]
 
-ti = TISARModel(M=M, fs=Fs, intrinsic_skew_sec=intrinsic_skew, vdls=vdls)
+ti = TIMultiSampler(M=M, fs=Fs, intrinsic_skew_sec=intrinsic_skew, vdls=vdls)
 
 # Save the uncalibrated spectrum (trim codes at their centers)
 x_before = ti.capture(Fin, Amp, N_FFT)
@@ -89,44 +94,35 @@ def _sfdr(x):
     return analyze_spectrum(x, fs=Fs, create_plot=False)["sfdr_dbc"]
 
 
-def _wrap_row_stack(channels_cat: np.ndarray) -> np.ndarray:
-    """
-    Build the (M+1, K-1) row stack that the MATLAB code uses:
-    rows 0..M-1 take samples [0..K-2]; row M is channel 0 samples [1..K-1]
-    (a 1-sample look-ahead for the wrap-around MAD term).
-    """
-    M_ = channels_cat.shape[0]
-    out = np.empty((M_ + 1, channels_cat.shape[1] - 1), dtype=channels_cat.dtype)
-    out[:M_] = channels_cat[:, :-1]
-    out[M_] = channels_cat[0, 1:]
-    return out
-
-
 trim_history = []
 sfdr_history = []
 best_sfdr = -np.inf
 best_trim = ti.trim_codes.copy()
 
 for i_sweep in range(N_SWEEP):
-    # --- collect a batch ---
-    batch_chs = []          # each element: deinterleaved (M, K)
+    # --- Collect a batch. MATLAB-faithful arrangement: MAD is accumulated
+    #     per-capture (rows [:, :-1] for all channels + ch0 shifted by 1
+    #     sample WITHIN the same capture), never across captures.
     batch_sfdrs = []
     trim_used = ti.trim_codes.copy()   # codes in effect for every capture in this batch
+    mad = np.zeros(M, dtype=float)
+
     for _ in range(BATCH):
         x = ti.capture(Fin, Amp, N_FFT)
-        batch_chs.append(deinterleave(x, M))
         sfdr_here = _sfdr(x)
         batch_sfdrs.append(sfdr_here)
-        # Record best inside the batch, matching MATLAB behavior
         if sfdr_here > best_sfdr:
             best_sfdr = sfdr_here
             best_trim = trim_used.copy()
-    # Stack per-channel samples across the whole batch in time order
-    channels = np.concatenate(batch_chs, axis=1)   # shape (M, BATCH * K)
 
-    # --- MAD across adjacent rows, with ch0-shifted wrap ---
-    rows = _wrap_row_stack(channels)
-    mad = np.sum(np.abs(np.diff(rows, axis=0)), axis=1)    # length M
+        ch = deinterleave(x, M)            # (M, K) this capture only
+        # Rows 0..M-1: this capture's channel-m samples [0..K-2]
+        # Row M:       this capture's channel-0 samples [1..K-1]
+        # (matches MATLAB's tmp(1:end-1) and data1_cal(2:end) per capture)
+        rows = np.vstack([ch[:, :-1], ch[0:1, 1:]])     # (M+1, K-1)
+        mad += np.sum(np.abs(np.diff(rows, axis=0)), axis=1)
+
+    # --- MAD cumsum / fair-line decision (paper Eq 15) ---
     madk = np.cumsum(mad)
     mean_mad = mad.mean()
     # k[i] for i in 0..M-2 drives channels 1..M-1 (channel 0 is reference)
@@ -201,13 +197,10 @@ ax_t.set_title("Per-channel trim-code trajectory\n(dotted = ideal code, dashed =
 ax_t.legend(loc="best", fontsize=8)
 ax_t.grid(True, alpha=0.3)
 
-ax_s.plot(sfdr_history, "-o", markersize=4, label="sweep SFDR")
-ax_s.plot(np.maximum.accumulate(sfdr_history), "--s", markersize=4,
-          label="best-so-far")
+ax_s.plot(sfdr_history, "-o", markersize=4)
 ax_s.set_xlabel("sweep")
 ax_s.set_ylabel("SFDR (dBc)")
-ax_s.set_title(f"SFDR trajectory — best = {best_sfdr:.1f} dBc")
-ax_s.legend()
+ax_s.set_title(f"SFDR per sweep (best seen = {best_sfdr:.1f} dBc)")
 ax_s.grid(True, alpha=0.3)
 
 fig1.tight_layout()
