@@ -182,6 +182,28 @@ from .oversampling import (
 _export('ntf_analyzer', ntf_analyzer)
 
 # ======================================================================
+# Time-Interleave (TI-ADC) Analysis Functions
+# ======================================================================
+
+from .timeinterleave import (
+    deinterleave,
+    interleave,
+    extract_mismatch_sine,
+    predict_spurs,
+    fractional_delay_fft,
+    fractional_delay_farrow,
+    calibrate_foreground,
+)
+
+_export('deinterleave', deinterleave)
+_export('interleave', interleave)
+_export('extract_mismatch_sine', extract_mismatch_sine)
+_export('predict_spurs', predict_spurs)
+_export('fractional_delay_fft', fractional_delay_fft)
+_export('fractional_delay_farrow', fractional_delay_farrow)
+_export('calibrate_foreground', calibrate_foreground)
+
+# ======================================================================
 # Submodules (for explicit imports like: from adctoolbox.aout import ...)
 # ======================================================================
 
@@ -191,6 +213,7 @@ from . import calibration
 from . import dout
 from . import oversampling
 from . import spectrum
+from . import timeinterleave
 
 _export('fundamentals', fundamentals)
 _export('aout', aout)
@@ -198,4 +221,5 @@ _export('calibration', calibration)
 _export('dout', dout)
 _export('oversampling', oversampling)
 _export('spectrum', spectrum)
+_export('timeinterleave', timeinterleave)
 
