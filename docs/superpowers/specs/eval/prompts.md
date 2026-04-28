@@ -34,3 +34,4 @@ is captured — any change invalidates the comparison.
 | Iteration | Commit | Basic pass | Advanced pass | Avg length (words) | Artifact |
 |-----------|--------|------------|----------------|--------------------|----------|
 | baseline  | 687dbf1 (pre-change) | 5 / 5 | 0 / 5 | 200.7 | `baseline.json` |
+| iter-1    | (current HEAD) | 4 / 5 | 4 / 5 | 151.6 | `iter-1.json` |
