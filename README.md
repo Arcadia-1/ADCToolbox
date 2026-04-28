@@ -72,8 +72,8 @@ python exp_s01_analyze_spectrum_simplest.py
 from adctoolbox import analyze_spectrum
 
 # Analyze signal spectrum
-result = analyze_spectrum(signal, fs=800e6, show_plot=True)
-print(f"ENOB: {result['enob']:.2f} bits, SNDR: {result['sndr_db']:.2f} dB")
+result = analyze_spectrum(signal, fs=800e6, create_plot=True)
+print(f"ENOB: {result['enob']:.2f} bits, SNDR: {result['sndr_dbc']:.2f} dB")
 ```
 
 See [Usage Examples](#usage-examples) section below for detailed code examples.
@@ -167,8 +167,8 @@ Helper functions for unit conversions and metric calculations.
 from adctoolbox import analyze_spectrum
 
 # Single-tone analysis
-result = analyze_spectrum(signal, fs=800e6, harmonic=5, show_plot=True)
-print(f"ENOB: {result['enob']:.2f} bits, SNDR: {result['sndr_db']:.2f} dB")
+result = analyze_spectrum(signal, fs=800e6, max_harmonic=5, create_plot=True)
+print(f"ENOB: {result['enob']:.2f} bits, SNDR: {result['sndr_dbc']:.2f} dB")
 ```
 </details>
 
@@ -184,17 +184,17 @@ from adctoolbox import (
 )
 
 # Error PDF
-result = analyze_error_pdf(signal, resolution=12, show_plot=True)
+result = analyze_error_pdf(signal, resolution=12, create_plot=True)
 print(f"Std: {result['sigma']:.2f} LSB, KL div: {result['kl_divergence']:.4f}")
 
 # Error autocorrelation
-result = analyze_error_autocorr(signal, max_lag=100, show_plot=True)
+result = analyze_error_autocorr(signal, max_lag=100, create_plot=True)
 
 # Error spectrum
-result = analyze_error_spectrum(signal, fs=800e6, show_plot=True)
+result = analyze_error_spectrum(signal, fs=800e6, create_plot=True)
 
 # Error envelope spectrum (AM detection)
-result = analyze_error_envelope_spectrum(signal, fs=800e6, show_plot=True)
+result = analyze_error_envelope_spectrum(signal, fs=800e6, create_plot=True)
 ```
 </details>
 
@@ -208,8 +208,8 @@ from adctoolbox import fit_sine_4param, analyze_decomposition_time
 result = fit_sine_4param(signal, frequency_estimate=0.1)
 print(f"Freq: {result['frequency']:.6f}, Amp: {result['amplitude']:.4f}")
 
-# Harmonic decomposition
-result = analyze_decomposition_time(signal, fs=800e6, harmonic=5, show_plot=True)
+# Harmonic decomposition (does not take fs)
+result = analyze_decomposition_time(signal, harmonic=5, create_plot=True)
 ```
 </details>
 
@@ -219,7 +219,7 @@ result = analyze_decomposition_time(signal, fs=800e6, harmonic=5, show_plot=True
 ```python
 from adctoolbox import analyze_inl_from_sine
 
-result = analyze_inl_from_sine(signal, resolution=12, show_plot=True)
+result = analyze_inl_from_sine(signal, num_bits=12, create_plot=True)
 print(f"INL: [{result['inl'].min():.2f}, {result['inl'].max():.2f}] LSB")
 print(f"DNL: [{result['dnl'].min():.2f}, {result['dnl'].max():.2f}] LSB")
 ```
@@ -229,11 +229,15 @@ print(f"DNL: [{result['dnl'].min():.2f}, {result['dnl'].max():.2f}] LSB")
 <summary><b>Digital Calibration</b></summary>
 
 ```python
-from adctoolbox import calibrate_weight_sine
+from adctoolbox import calibrate_weight_sine, analyze_spectrum
 
-# Weight calibration
-result = calibrate_weight_sine(digital_codes, order=5)
-print(f"SNR: {result['snr_db']:.2f} dB, THD: {result['thd_db']:.2f} dB")
+# bits: (N_samples, N_bits) of {0, 1}; freq is normalized (Fin / Fs)
+cal = calibrate_weight_sine(bits, freq=Fin / Fs, harmonic_order=5)
+calibrated_signal = cal["calibrated_signal"]   # also: cal["weight"], cal["offset"]
+
+# Verify the calibration by analyzing the corrected waveform
+metrics = analyze_spectrum(calibrated_signal, fs=Fs, create_plot=False)
+print(f"SNR: {metrics['snr_dbc']:.2f} dBc, THD: {metrics['thd_dbc']:.2f} dBc")
 ```
 </details>
 
@@ -254,10 +258,10 @@ A, DC, noise_rms = 0.49, 0.5, 100e-6
 signal = A * np.sin(2*np.pi*Fin*t) + DC + np.random.randn(N) * noise_rms
 
 # Analyze
-result = analyze_spectrum(signal, fs=Fs, harmonic=5, show_plot=True)
+result = analyze_spectrum(signal, fs=Fs, max_harmonic=5, create_plot=True)
 snr_theory = amplitudes_to_snr(sig_amplitude=A, noise_amplitude=noise_rms)
 
-print(f"Measured SNR: {result['snr_db']:.2f} dB")
+print(f"Measured SNR: {result['snr_dbc']:.2f} dBc")
 print(f"Theoretical SNR: {snr_theory:.2f} dB")
 ```
 </details>
