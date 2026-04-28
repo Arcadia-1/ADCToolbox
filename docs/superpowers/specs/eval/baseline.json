@@ -1,0 +1,100 @@
+{
+  "iteration": "baseline",
+  "skill_md_commit": "687dbf1",
+  "skill_md_lines": 129,
+  "method": "10 fresh general-purpose subagents in parallel; each given the full SKILL.md content and one prompt; subagents have read access to references/ files. Per-prompt JSON returned by subagent and aggregated here. (Adapted from skill-creator workflow because that skill's full benchmark loop requires interactive HTML review.)",
+  "summary": {
+    "basic_pass": 5,
+    "basic_total": 5,
+    "advanced_escalation_pass": 0,
+    "advanced_escalation_total": 5,
+    "avg_response_length_words": 200.7
+  },
+  "results": [
+    {
+      "prompt_id": "B1",
+      "prompt": "Help me compute SNDR from this ADC dout array.",
+      "triggered": true,
+      "referenced_apis": ["analyze_spectrum", "find_coherent_frequency", "validate_dout_data", "generate_dout_dashboard"],
+      "escalated_to_advanced": false,
+      "response_length_words": 178,
+      "basic_correct_api": true
+    },
+    {
+      "prompt_id": "B2",
+      "prompt": "Plot a spectrum of the ADC output with coherent sampling.",
+      "triggered": true,
+      "referenced_apis": ["analyze_spectrum", "find_coherent_frequency", "ADC_Signal_Generator", "fit_sine_4param", "generate_aout_dashboard"],
+      "escalated_to_advanced": false,
+      "response_length_words": 245,
+      "basic_correct_api": true
+    },
+    {
+      "prompt_id": "B3",
+      "prompt": "I have a raw dout buffer — give me Python code that gets me ENOB.",
+      "triggered": true,
+      "referenced_apis": ["analyze_spectrum", "find_coherent_frequency", "validate_dout_data", "generate_dout_dashboard"],
+      "escalated_to_advanced": false,
+      "response_length_words": 178,
+      "basic_correct_api": true
+    },
+    {
+      "prompt_id": "B4",
+      "prompt": "Calibrate SAR capacitor weights from a sine test.",
+      "triggered": true,
+      "referenced_apis": ["calibrate_weight_sine", "calibrate_weight_sine_lite", "validate_dout_data", "find_coherent_frequency", "convert_cap_to_weight", "analyze_weight_radix", "analyze_spectrum"],
+      "escalated_to_advanced": false,
+      "response_length_words": 222,
+      "basic_correct_api": true
+    },
+    {
+      "prompt_id": "B5",
+      "prompt": "Generate a synthetic ADC output with a sinusoidal stimulus for testing.",
+      "triggered": true,
+      "referenced_apis": ["ADC_Signal_Generator", "analyze_spectrum", "find_coherent_frequency", "generate_dout_dashboard"],
+      "escalated_to_advanced": false,
+      "response_length_words": 199,
+      "basic_correct_api": true
+    },
+    {
+      "prompt_id": "A1",
+      "prompt": "Plot a phase-plane to diagnose nonlinearity in the ADC aout.",
+      "triggered": true,
+      "referenced_apis": ["analyze_phase_plane", "analyze_error_phase_plane", "fit_sine_4param", "validate_aout_data", "find_coherent_frequency"],
+      "escalated_to_advanced": false,
+      "response_length_words": 297
+    },
+    {
+      "prompt_id": "A2",
+      "prompt": "Show me per-bit activity for an N-bit ADC code stream.",
+      "triggered": true,
+      "referenced_apis": ["analyze_bit_activity", "validate_dout_data", "generate_dout_dashboard", "ADC_Signal_Generator"],
+      "escalated_to_advanced": false,
+      "response_length_words": 192
+    },
+    {
+      "prompt_id": "A3",
+      "prompt": "How do I detect overflow events in dout?",
+      "triggered": true,
+      "referenced_apis": ["analyze_overflow", "validate_dout_data", "analyze_bit_activity", "analyze_weight_radix", "generate_dout_dashboard"],
+      "escalated_to_advanced": false,
+      "response_length_words": 168
+    },
+    {
+      "prompt_id": "A4",
+      "prompt": "Give me a one-shot dashboard of all aout diagnostics.",
+      "triggered": true,
+      "referenced_apis": ["generate_aout_dashboard", "ADC_Signal_Generator", "validate_aout_data", "find_coherent_frequency"],
+      "escalated_to_advanced": false,
+      "response_length_words": 130
+    },
+    {
+      "prompt_id": "A5",
+      "prompt": "Convert a binary-weighted cap array to normalized weights.",
+      "triggered": true,
+      "referenced_apis": ["convert_cap_to_weight", "calibrate_weight_sine", "analyze_weight_radix"],
+      "escalated_to_advanced": false,
+      "response_length_words": 198
+    }
+  ]
+}

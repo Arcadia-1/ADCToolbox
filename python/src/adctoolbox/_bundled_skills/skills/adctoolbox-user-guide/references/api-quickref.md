@@ -3,7 +3,12 @@
 Use this file for import routing and return-shape reminders. If you need a
 runnable pattern, open `example-map.md` instead.
 
-## Flat Imports
+## Basic
+
+Spectrum / coherent-sampling / SAR-weight-cal / synthetic-stim /
+buffer-validation tier — what `SKILL.md` builds the basic workflow on.
+
+### Flat Imports
 
 ```python
 from adctoolbox import (
@@ -11,6 +16,40 @@ from adctoolbox import (
     analyze_spectrum_polar,
     find_coherent_frequency,
     fit_sine_4param,
+    calibrate_weight_sine,
+)
+```
+
+### Submodule Imports
+
+```python
+from adctoolbox.siggen import ADC_Signal_Generator
+from adctoolbox.calibration import calibrate_weight_sine_lite
+from adctoolbox.fundamentals import validate_aout_data, validate_dout_data
+from adctoolbox.spectrum import compute_spectrum
+```
+
+### Default Entry Points
+
+- Dynamic FFT metrics:
+  `analyze_spectrum`, `analyze_spectrum_polar`, `compute_spectrum`
+- Digital calibration:
+  `calibrate_weight_sine`, `calibrate_weight_sine_lite`
+- Synthetic signals:
+  `ADC_Signal_Generator`
+- Pre-flight checks / coherent setup:
+  `validate_aout_data`, `validate_dout_data`, `find_coherent_frequency`,
+  `fit_sine_4param`
+
+## Advanced
+
+Open `advanced-debug.md` first when working on these — it has
+worked snippets organized by question.
+
+### Flat Imports
+
+```python
+from adctoolbox import (
     analyze_error_by_value,
     analyze_error_by_phase,
     analyze_error_pdf,
@@ -21,7 +60,6 @@ from adctoolbox import (
     analyze_decomposition_time,
     analyze_decomposition_polar,
     fit_static_nonlin,
-    calibrate_weight_sine,
     analyze_bit_activity,
     analyze_overflow,
     analyze_weight_radix,
@@ -46,16 +84,29 @@ from adctoolbox import (
 )
 ```
 
-## Submodule Imports
+### Submodule Imports
 
 ```python
-from adctoolbox.siggen import ADC_Signal_Generator
 from adctoolbox.toolset import generate_aout_dashboard, generate_dout_dashboard
-from adctoolbox.calibration import calibrate_weight_sine_lite
-from adctoolbox.fundamentals import validate_aout_data, validate_dout_data, convert_cap_to_weight
+from adctoolbox.fundamentals import convert_cap_to_weight
 from adctoolbox.aout import analyze_phase_plane, analyze_error_phase_plane
-from adctoolbox.spectrum import compute_spectrum
 ```
+
+### Default Entry Points
+
+- Analog error debug:
+  `analyze_error_*` helpers, `decompose_harmonic_error`
+- Dashboards:
+  `generate_aout_dashboard`, `generate_dout_dashboard`
+- Phase-plane:
+  `analyze_phase_plane`, `analyze_error_phase_plane`
+- Bit-level / per-code:
+  `analyze_bit_activity`, `analyze_overflow`, `analyze_weight_radix`,
+  `analyze_enob_sweep`
+- Static nonlinearity:
+  `fit_static_nonlin`
+- Cap-to-weight:
+  `convert_cap_to_weight`
 
 ## CLI
 
@@ -79,18 +130,5 @@ adctoolbox-install-skill --dev
 - `calibrate_weight_sine_lite(...)` returns weights only.
 - `analyze_weight_radix(...)` returns a dict.
 - `compute_spectrum(...)` returns both `metrics` and `plot_data`.
-
-## Default Entry Points
-
-- Dynamic FFT metrics:
-  `analyze_spectrum`, `analyze_spectrum_polar`
-- Analog debug:
-  `fit_sine_4param` and the `analyze_error_*` helpers
-- Digital calibration:
-  `calibrate_weight_sine`, `calibrate_weight_sine_lite`
-- Dashboards:
-  `generate_aout_dashboard`, `generate_dout_dashboard`
-- Synthetic signals:
-  `ADC_Signal_Generator`
 
 If unsure which file to copy from, open `example-map.md`.
