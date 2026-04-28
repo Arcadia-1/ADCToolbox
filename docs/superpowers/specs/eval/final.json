@@ -1,0 +1,40 @@
+{
+  "iteration": "final",
+  "head_commit": "(filled at commit time — see git log)",
+  "method": "Same protocol as baseline.json and iter-1.json — 10 fresh general-purpose subagents in parallel, each given the SKILL.md content + one prompt + read access to the references/ directory (now including the partitioned api-quickref.md and the example-map.md with Advanced examples section).",
+  "summary": {
+    "basic_correct": 4,
+    "basic_total": 5,
+    "advanced_escalation_pass": 5,
+    "advanced_escalation_total": 5,
+    "avg_response_length_words": 148.5
+  },
+  "delta_vs_iter_1": {
+    "basic": "4/5 -> 4/5  (no change; B5 still hallucinates `generate_sine_dout` because SKILL.md basic tier no longer names ADC_Signal_Generator explicitly)",
+    "advanced": "4/5 -> 5/5  (A5 now escalates too)",
+    "avg_length": "151.6 -> 148.5 words  (-2%)"
+  },
+  "delta_vs_baseline": {
+    "basic": "5/5 -> 4/5  (regression on B5 — known follow-up)",
+    "advanced": "0/5 -> 5/5  (full lift via advanced-debug.md + SKILL.md section 6 escalation pointer)",
+    "avg_length": "200.7 -> 148.5 words  (-26%)"
+  },
+  "criteria_check": {
+    "basic_pass": "4 >= 4  PASS",
+    "advanced_pass": "5 >= 3  PASS",
+    "length_pass": "148.5 <= 200.7  PASS",
+    "all_pass": true
+  },
+  "results": [
+    {"prompt_id": "B1", "triggered": true, "referenced_apis": ["analyze_spectrum", "find_coherent_frequency", "validate_dout_data", "compute_spectrum"], "escalated_to_advanced": false, "response_length_words": 165, "basic_correct_api": true},
+    {"prompt_id": "B2", "triggered": true, "referenced_apis": ["analyze_spectrum", "find_coherent_frequency", "compute_spectrum", "validate_dout_data"], "escalated_to_advanced": false, "response_length_words": 252, "basic_correct_api": true},
+    {"prompt_id": "B3", "triggered": true, "referenced_apis": ["validate_dout_data", "find_coherent_frequency", "analyze_spectrum"], "escalated_to_advanced": false, "response_length_words": 110, "basic_correct_api": true},
+    {"prompt_id": "B4", "triggered": true, "referenced_apis": ["calibrate_weight_sine", "calibrate_weight_sine_lite", "find_coherent_frequency", "validate_dout_data", "analyze_spectrum"], "escalated_to_advanced": true, "response_length_words": 158, "basic_correct_api": true},
+    {"prompt_id": "B5", "triggered": true, "referenced_apis": ["generate_sine_dout", "find_coherent_frequency", "validate_dout_data", "analyze_spectrum"], "escalated_to_advanced": false, "response_length_words": 178, "basic_correct_api": false, "note": "Hallucinated `generate_sine_dout`; correct API is ADC_Signal_Generator from adctoolbox.siggen. SKILL.md basic tier no longer names this API — known follow-up."},
+    {"prompt_id": "A1", "triggered": true, "referenced_apis": ["analyze_phase_plane", "analyze_error_phase_plane", "fit_sine_4param", "validate_aout_data"], "escalated_to_advanced": true, "response_length_words": 142},
+    {"prompt_id": "A2", "triggered": true, "referenced_apis": ["analyze_bit_activity", "validate_dout_data"], "escalated_to_advanced": true, "response_length_words": 92},
+    {"prompt_id": "A3", "triggered": true, "referenced_apis": ["analyze_overflow", "validate_dout_data"], "escalated_to_advanced": true, "response_length_words": 178},
+    {"prompt_id": "A4", "triggered": true, "referenced_apis": ["generate_aout_dashboard", "generate_dout_dashboard", "validate_aout_data"], "escalated_to_advanced": true, "response_length_words": 118},
+    {"prompt_id": "A5", "triggered": true, "referenced_apis": ["convert_cap_to_weight", "analyze_weight_radix"], "escalated_to_advanced": true, "response_length_words": 92, "note": "Now escalates to advanced-debug.md (iter-1 did not). Likely effect of partitioned api-quickref.md making the basic vs advanced boundary clearer."}
+  ]
+}
