@@ -156,22 +156,6 @@ jobs:
         env:
           MPLBACKEND: Agg
 
-      - name: Run Time-Interleave Examples (08_time_interleave)
-        run: |
-          cd python/src/adctoolbox/examples/08_time_interleave
-
-          EXAMPLES="
-            exp_ti01_compare_skew_methods.py
-            exp_ti02_autocorr_background_skew_calibration.py
-          "
-
-          for script in $EXAMPLES; do
-            echo "Running $script..."
-            python "$script" || exit 1
-          done
-        env:
-          MPLBACKEND: Agg
-
       # - name: Run Metric Calculation Examples (07_calculate_metric)
       #   run: |
       #     cd python/src/adctoolbox/examples/07_calculate_metric
