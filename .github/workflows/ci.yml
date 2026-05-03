@@ -140,6 +140,21 @@ jobs:
       #   env:
       #     MPLBACKEND: Agg
 
+      - name: Run Downsample Examples (09_downsample)
+        run: |
+          cd python/src/adctoolbox/examples/09_downsample
+
+          EXAMPLES="
+            exp_d00_subsample_aliasing.py
+          "
+
+          for script in $EXAMPLES; do
+            echo "Running $script..."
+            python "$script" || exit 1
+          done
+        env:
+          MPLBACKEND: Agg
+
       - name: Run Toolset Examples (06_use_toolsets)
         run: |
           cd python/src/adctoolbox/examples/06_use_toolsets
