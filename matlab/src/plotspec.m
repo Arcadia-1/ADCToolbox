@@ -427,8 +427,8 @@ if ischar(sideBin) && strcmp(sideBin, 'auto')
     noise_floor_per_bin = median(spec(1:n_inband));
 
     % Step 3: Find crossing points where ideal spectrum meets noise floor
-    sideBin = 0;
     max_sidebin = min(bin-1, n_inband-bin);
+    sideBin = max_sidebin;  % Default: use maximum if loop never finds crossing
 
     % Search outward from peak until ideal spectrum drops below noise floor
     for sb = 1:max_sidebin
@@ -444,11 +444,6 @@ if ischar(sideBin) && strcmp(sideBin, 'auto')
             sideBin = sb - 1;
             break;
         end
-    end
-
-    % If never broke out, use maximum
-    if sideBin == 0
-        sideBin = max_sidebin;
     end
 end
 
