@@ -190,10 +190,14 @@ def _extract_highest_spur(
     # Find maximum spur within in-band range
     spur_bin_idx = np.argmax(spectrum_copy)
 
-    # Calculate spur's summed power (including side bins) for SFDR metric
+    # Calculate spur's summed power (including side bins) for SFDR metric.
+    # Use `spectrum_copy` (signal main lobe already zeroed at line 188)
+    # rather than `spectrum_power` so the ±side_bin sum cannot bleed into
+    # the fundamental's main lobe when the spur bin is adjacent to it.
+    # See test_sfdr_no_signal_bleed_for_hann_adjacent_spur.
     spur_start = max(spur_bin_idx - side_bin, 0)
     spur_end = min(spur_bin_idx + side_bin + 1, n_search_inband)
-    spur_power = np.sum(spectrum_power[spur_start:spur_end])
+    spur_power = np.sum(spectrum_copy[spur_start:spur_end])
 
     return spur_bin_idx, spur_power
 
