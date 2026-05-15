@@ -28,6 +28,12 @@ Use for:
 - Picking the right spectrum / calibration helper
 - Getting from a raw `dout` / `aout` buffer to SNDR / SFDR / ENOB
 - Generating synthetic ADC stimulus for a testbench
+- **Forward-modeling an ADC architecture in Python** — for SAR, use
+  `adctoolbox.models.sar_encode` / `sar_reconstruct` / `sar_ideal_weights`
+  / `sar_apply_mismatch` (binary or sub-radix-2, with optional cap mismatch
+  + comparator noise; vectorized). Convention: `vin ∈ [0, 1]` normalized
+  unipolar, weights sum to 1. See module docstring for the differential-SAR
+  mapping `vin = (VIP − VIN + VDD) / (2·VDD)`.
 
 Do NOT use for:
 - Analog topology / transistor design → `analog-design`, `analog-explore`
