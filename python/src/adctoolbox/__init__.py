@@ -231,6 +231,22 @@ _export('fractional_delay_farrow', fractional_delay_farrow)
 _export('calibrate_foreground', calibrate_foreground)
 
 # ======================================================================
+# ADC Behavioral Models (vin -> codes forward operators)
+# ======================================================================
+
+from .models import (
+    sar_encode,
+    sar_reconstruct,
+    sar_ideal_weights,
+    sar_apply_mismatch,
+)
+
+_export('sar_encode', sar_encode)
+_export('sar_reconstruct', sar_reconstruct)
+_export('sar_ideal_weights', sar_ideal_weights)
+_export('sar_apply_mismatch', sar_apply_mismatch)
+
+# ======================================================================
 # Submodules (for explicit imports like: from adctoolbox.aout import ...)
 # ======================================================================
 
@@ -238,6 +254,7 @@ from . import fundamentals
 from . import aout
 from . import calibration
 from . import dout
+from . import models
 from . import oversampling
 from . import spectrum
 from . import timeinterleave
@@ -246,6 +263,7 @@ _export('fundamentals', fundamentals)
 _export('aout', aout)
 _export('calibration', calibration)
 _export('dout', dout)
+_export('models', models)
 _export('oversampling', oversampling)
 _export('spectrum', spectrum)
 _export('timeinterleave', timeinterleave)
