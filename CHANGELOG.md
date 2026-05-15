@@ -7,6 +7,16 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Added
+- **ADC behavioral models submodule** (`adctoolbox.models`):
+  - `sar_encode`, `sar_reconstruct`, `sar_ideal_weights`, `sar_apply_mismatch`:
+    binary / sub-radix-2 SAR forward model with optional cap mismatch and
+    comparator noise. Function-based, vectorized over samples.
+  - Convention: normalized unipolar (`vin ∈ [0, 1]`, weights sum to 1),
+    matches the Arcadia-1/SpecMind reference.
+  - 13 pytest cases including ENoB=N validation at 4, 8, 12, 16, 20 bit
+    (passes to within FFT-noise-floor tolerance, ±0.05 b for N ≥ 12).
+
 ### Work in Progress
 - Additional examples and tutorials
 - Performance optimizations

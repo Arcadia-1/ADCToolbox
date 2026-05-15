@@ -1,0 +1,28 @@
+"""ADC behavioral models — forward operators (vin → codes).
+
+Distinct from ``siggen`` (which generates analog test signals **before**
+the ADC) and from ``dout``/``spectrum`` (which **analyze** code streams).
+These are the discrete-time conversion models themselves.
+
+Currently includes:
+    - SAR (binary or sub-radix-2, optional cap mismatch + comparator noise)
+
+Convention (matches Arcadia-1/SpecMind reference):
+    vin     ∈ [0, 1]   normalized unipolar input (mid-rail = 0.5)
+    weights normalized so Σ = 1
+    codes   ∈ {0, 1}^B, MSB at index 0
+    recon   = codes @ weights ∈ [0, 1]
+"""
+from adctoolbox.models.sar import (
+    sar_encode,
+    sar_reconstruct,
+    sar_ideal_weights,
+    sar_apply_mismatch,
+)
+
+__all__ = [
+    "sar_encode",
+    "sar_reconstruct",
+    "sar_ideal_weights",
+    "sar_apply_mismatch",
+]
