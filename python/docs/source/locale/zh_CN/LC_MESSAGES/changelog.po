@@ -6,7 +6,7 @@
 #, fuzzy
 msgid ""
 msgstr ""
-"Project-Id-Version: ADCToolbox 0.5.0\n"
+"Project-Id-Version: ADCToolbox 0.8.0\n"
 "Report-Msgid-Bugs-To: \n"
 "POT-Creation-Date: 2026-03-10 20:52+0800\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
@@ -32,7 +32,7 @@ msgid ""
 msgstr ""
 
 #: ../../source/changelog.rst:7
-msgid "Version 0.4.0 (Latest)"
+msgid "Version 0.8.0 (Latest)"
 msgstr ""
 
 #: ../../source/changelog.rst:9 ../../source/changelog.rst:49
