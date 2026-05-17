@@ -9,10 +9,18 @@ import numpy as np
 import matplotlib.pyplot as plt
 
 
-def _noise_floor_axis_min(nf_line_level, step_db=20, margin_steps=1, floor_db=-200):
+def _noise_floor_axis_min(
+    nf_line_level,
+    step_db=20,
+    margin_steps=1,
+    floor_db=-200,
+    fallback_level=None,
+):
     """Choose a readable y-axis floor from the plotted NSD/bin line."""
     if not np.isfinite(nf_line_level):
-        return -100
+        if fallback_level is None or not np.isfinite(fallback_level):
+            return -100
+        nf_line_level = fallback_level
 
     axis_min = step_db * np.floor(nf_line_level / step_db)
     axis_min -= margin_steps * step_db
@@ -129,8 +137,11 @@ def plot_spectrum(compute_results, show_title=True, show_label=True, plot_harmon
 
     # --- Set axis limits ---
     # Put the lower limit one 20 dB tick below the plotted NSD/bin line.
-    minx = _noise_floor_axis_min(nf_line_level)
-    ax.set_xlim(fs/N, fs/2)
+    sndr_floor_level = sig_pwr_dbfs - sndr_dbc
+    minx = _noise_floor_axis_min(nf_line_level, fallback_level=sndr_floor_level)
+    x_min = fs / N
+    x_max = fs / 2
+    ax.set_xlim(x_min, x_max)
     ax.set_ylim(minx, 0)
 
     # --- Add annotations ---
@@ -146,6 +157,9 @@ def plot_spectrum(compute_results, show_title=True, show_label=True, plot_harmon
                 TX = fs * 0.3
             else:
                 TX = fs * 0.01
+        if x_max > x_min:
+            tx_margin = 0.02 * (x_max - x_min)
+            TX = np.clip(TX, x_min + tx_margin, x_max - tx_margin)
         TYD = minx * 0.06
 
         # Format helpers
@@ -164,18 +178,24 @@ def plot_spectrum(compute_results, show_title=True, show_label=True, plot_harmon
         elif Fin >= 1: txt_fin = f'{Fin/1e3:.1f}'  # Matches original logic
         else: txt_fin = f'{Fin:.3f}'
 
+        snr_text = f'{snr_dbc:.2f} dB' if np.isfinite(snr_dbc) else 'N/A'
+        noise_floor_text = f'{noise_floor_dbfs:.2f} dB' if np.isfinite(noise_floor_dbfs) else 'N/A'
+        nsd_text = f'{nsd_dbfs_hz:.2f} dBFS/Hz' if np.isfinite(nsd_dbfs_hz) else 'N/A'
+
         # Annotation block
         ax.text(TX, TYD, f'Fin/fs = {txt_fin} / {txt_fs} Hz', fontsize=10)
         ax.text(TX, TYD*2, f'ENoB = {enob:.2f}', fontsize=10)
         ax.text(TX, TYD*3, f'SNDR = {sndr_dbc:.2f} dB', fontsize=10)
         ax.text(TX, TYD*4, f'SFDR = {sfdr_dbc:.2f} dB', fontsize=10)
         ax.text(TX, TYD*5, f'THD = {thd_dbc:.2f} dB', fontsize=10)
-        ax.text(TX, TYD*6, f'SNR = {snr_dbc:.2f} dB', fontsize=10)
-        ax.text(TX, TYD*7, f'Noise Floor = {noise_floor_dbfs:.2f} dB', fontsize=10)
-        ax.text(TX, TYD*8, f'NSD = {nsd_dbfs_hz:.2f} dBFS/Hz', fontsize=10)
+        ax.text(TX, TYD*6, f'SNR = {snr_text}', fontsize=10)
+        ax.text(TX, TYD*7, f'Noise Floor = {noise_floor_text}', fontsize=10)
+        ax.text(TX, TYD*8, f'NSD = {nsd_text}', fontsize=10)
 
         # Noise floor baseline
-        if osr > 1:
+        if not np.isfinite(nf_line_level):
+            pass
+        elif osr > 1:
             ax.semilogx([fs/N, fs/2/osr], [nf_line_level, nf_line_level], 'r--', linewidth=1)
             ax.text(TX, TYD*9, f'OSR = {osr:.2f}', fontsize=10)
         else:

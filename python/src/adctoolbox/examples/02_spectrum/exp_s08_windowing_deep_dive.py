@@ -1,6 +1,6 @@
 """Window function comparison across three scenarios: non-coherent sampling (spectral leakage),
-coherent sampling (no leakage), and short FFT (coarse resolution). Demonstrates automatic
-side_bin selection and window performance trade-offs.
+coherent sampling (no leakage), and short FFT (coarse resolution). Demonstrates
+default coherent-main-lobe side_bin values and window performance trade-offs.
 """
 import numpy as np
 import matplotlib.pyplot as plt
@@ -25,7 +25,7 @@ hd3_amp = 10**(hd3_dB/20)
 k2 = hd2_amp / (A / 2)
 k3 = -hd3_amp / (A**2 / 4)  # Negative k3
 
-# Window configurations (side_bin automatically selected based on window type and coherence)
+# Window configurations (side_bin defaults to each window's coherent main lobe)
 WINDOW_CONFIGS = {
     'rectangular': {'description': 'Rectangular (no window)'},
     'hann': {'description': 'Hann (raised cosine)'},

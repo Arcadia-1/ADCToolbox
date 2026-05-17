@@ -13,49 +13,41 @@ import numpy as np
 from scipy.signal import windows
 
 
-# Default side_bin values for window functions based on signal coherence
-# Coherent: Empirically tuned to maintain ENOB > 13b
-# Non-coherent: Empirically tuned to maintain ENOB > 12b
+# Default side_bin values for each window's coherent main lobe.
+# Non-coherent captures must pass a larger side_bin explicitly; inferring
+# coherence from a distorted or quantized spectrum is too brittle.
 _SIDE_BIN_DEFAULTS = {
     'rectangular': {
         'enbw': 1.00,
         'coherent': 0,
-        'non_coherent': 10
     },
     'hann': {
         'enbw': 1.50,
         'coherent': 1,
-        'non_coherent': 10
     },
     'hamming': {
         'enbw': 1.36,
         'coherent': 1,
-        'non_coherent': 10
     },
     'blackman': {
         'enbw': 1.73,
         'coherent': 2,
-        'non_coherent': 10
     },
     'blackmanharris': {
         'enbw': 2.00,
         'coherent': 3,
-        'non_coherent': 5
     },
     'flattop': {
         'enbw': 3.77,
         'coherent': 4,
-        'non_coherent': 5
     },
     'kaiser': {
         'enbw': 3.51,
         'coherent': 8,
-        'non_coherent': 15
     },
     'chebwin': {
         'enbw': 1.94,
         'coherent': 4,
-        'non_coherent': 5
     }
 }
 
@@ -107,20 +99,21 @@ def _create_window(win_type: str, N: int) -> tuple[np.ndarray, float, float]:
     return window_vector, window_gain, equiv_noise_bw_factor
 
 
-def _get_default_side_bin(win_type: str, is_coherent: bool) -> int:
-    """Get default side_bin value for a window type based on coherence.
+def _get_default_side_bin(win_type: str, is_coherent: bool | None = None) -> int:
+    """Get the default coherent side_bin value for a window type.
 
     Parameters
     ----------
     win_type : str
         Window type name
-    is_coherent : bool
-        True if signal is coherent (coherence_error < 0.01), False otherwise
+    is_coherent : bool, optional
+        Ignored. Kept only for internal backward compatibility with older
+        callers. Non-coherent captures must pass ``side_bin`` explicitly.
 
     Returns
     -------
     int
-        Default side_bin value for the window type and coherence state
+        Default coherent side_bin value for the window type.
     """
     # Normalize window type (handle aliases)
     win_key = win_type.lower()
@@ -131,9 +124,7 @@ def _get_default_side_bin(win_type: str, is_coherent: bool) -> int:
     if win_key not in _SIDE_BIN_DEFAULTS:
         win_key = 'hann'
 
-    # Return appropriate side_bin value
-    key = 'coherent' if is_coherent else 'non_coherent'
-    return _SIDE_BIN_DEFAULTS[win_key][key]
+    return _SIDE_BIN_DEFAULTS[win_key]['coherent']
 
 
 def _calculate_power_correction(window_gain: float) -> float:

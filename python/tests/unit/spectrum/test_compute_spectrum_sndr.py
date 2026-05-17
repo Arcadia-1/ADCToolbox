@@ -12,8 +12,58 @@ Test methodology:
 
 import pytest
 import numpy as np
+from adctoolbox.models import sar_convert, sar_ideal_weights, sar_reconstruct
 from adctoolbox.spectrum.compute_spectrum import compute_spectrum
 from adctoolbox.fundamentals.snr_nsd import amplitudes_to_snr
+
+
+def test_compute_spectrum_returns_nan_noise_metrics_when_no_noise_bins():
+    n_fft = 8
+    fs = 100e6
+    fundamental_bin = 1
+    n = np.arange(n_fft)
+    signal = 0.4 * np.sin(2 * np.pi * fundamental_bin * n / n_fft)
+
+    with pytest.warns(RuntimeWarning, match="No noise bins remain"):
+        result = compute_spectrum(
+            signal,
+            fs=fs,
+            max_scale_range=[-0.5, 0.5],
+            win_type='rectangular',
+            side_bin=0,
+            max_harmonic=5,
+        )
+
+    metrics = result['metrics']
+    assert np.isnan(metrics['snr_dbc'])
+    assert np.isnan(metrics['noise_floor_dbfs'])
+    assert np.isnan(metrics['nsd_dbfs_hz'])
+    assert np.isfinite(metrics['sndr_dbc'])
+    assert np.isfinite(metrics['sfdr_dbc'])
+    assert np.isfinite(metrics['enob'])
+
+
+@pytest.mark.parametrize(
+    "n_fft, fundamental_bin",
+    [(33, 5), (65, 11), (64, 31), (65, 32)],
+)
+def test_rectangular_auto_side_bin_uses_coherent_main_lobe_for_quantized_sar(n_fft, fundamental_bin):
+    fs = 100e6
+    weights = sar_ideal_weights(4)
+    n = np.arange(n_fft)
+    vin = 0.5 + 0.49 * np.sin(2 * np.pi * fundamental_bin * n / n_fft)
+    codes = sar_convert(vin, weights, quant_range=(0.0, 1.0), rng=np.random.default_rng(1234))
+    aout = sar_reconstruct(codes, weights, quant_range=(0.0, 1.0))
+
+    result = compute_spectrum(aout, fs=fs, win_type='rectangular', side_bin=None, nf_method=2)
+
+    plot_data = result['plot_data']
+    metrics = result['metrics']
+    detected_bin = plot_data['fundamental_bin']
+    assert detected_bin == fundamental_bin
+    assert plot_data['sig_bin_start'] == detected_bin
+    assert plot_data['sig_bin_end'] == detected_bin + 1
+    assert 3.5 < metrics['enob'] < 4.5
 
 
 @pytest.mark.parametrize("signal_amplitude", [0.1, 1.0])
@@ -195,4 +245,3 @@ def test_compute_spectrum_window_sweep_no_max_scale_range(win_type, side_bin):
 
     assert sig_pwr_dbfs_computed == pytest.approx(sig_pwr_dbfs_expected, abs=0.5)
     assert sndr_computed == pytest.approx(sndr_expected, abs=0.5)
-

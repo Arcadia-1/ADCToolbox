@@ -39,8 +39,9 @@ def quick_sndr(data, fs=1.0, win_type='hann', side_bin=None):
         Default 'hann' matches `analyze_spectrum`.
     side_bin : int, optional
         Number of bins on each side of the fundamental to count as
-        signal.  Default None → auto: 1 for Hann/coherent, 0 for
-        rectangular/coherent, etc. (see `_get_default_side_bin`).
+        signal.  Default None → the coherent main-lobe width for the
+        selected window.  Non-coherent captures should pass a larger
+        ``side_bin`` explicitly.
 
     Returns
     -------
@@ -54,10 +55,9 @@ def quick_sndr(data, fs=1.0, win_type='hann', side_bin=None):
     Xw = np.fft.fft(x * w)
     P = np.abs(Xw[:N // 2]) ** 2
 
-    fund_bin, fund_bin_frac = _locate_fundamental(P, len(P))
+    fund_bin, _ = _locate_fundamental(P, len(P))
     if side_bin is None:
-        is_coherent = abs(fund_bin_frac - fund_bin) < 0.01
-        side_bin = _get_default_side_bin(win_type, is_coherent)
+        side_bin = _get_default_side_bin(win_type)
 
     sig_start = max(fund_bin - side_bin, 0)
     sig_end = min(fund_bin + side_bin + 1, len(P))

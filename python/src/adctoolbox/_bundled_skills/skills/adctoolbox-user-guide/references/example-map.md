@@ -17,6 +17,8 @@ current packaged examples under `python/src/adctoolbox/examples/`.
   `02_spectrum/exp_s02_analyze_spectrum_interactive.py`
 - Save or reuse figures:
   `02_spectrum/exp_s03_analyze_spectrum_savefig.py`
+- SAR FFT-length sweep near Nyquist:
+  `02_spectrum/exp_s09_sar_fft_length_near_nyquist.py`
 
 ## Example Families
 

@@ -112,6 +112,10 @@ for ax, trace in zip(axes, traces):
     metrics = analyze_spectrum(trace, fs=fs, create_plot=True, ax=ax)
 ```
 
+When `side_bin=None`, spectrum tools use the selected window's coherent
+main-lobe width. If the capture is intentionally non-coherent, pass a larger
+`side_bin` explicitly; the analyzer does not infer that from the waveform.
+
 To set up a coherent capture *upstream* (where you control the stimulus
 frequency), snap `Fin` to an FFT bin first:
 

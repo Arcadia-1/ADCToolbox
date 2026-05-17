@@ -46,10 +46,9 @@ def compute_spectrum(
     win_type : str
         Window type: 'boxcar', 'hann', 'hamming', etc.
     side_bin : int, optional
-        Side bins to exclude around signal. If None, automatically determined based on:
-        - Coherent signal (error < 0.01): ceil(enbw)
-        - Non-coherent signal: ceil(2*enbw) + 1
-        where enbw is the window's equivalent noise bandwidth factor
+        Side bins to exclude around signal. If None, use the coherent
+        main-lobe width for the selected window. Non-coherent captures should
+        pass a larger value explicitly.
     osr : int
         Oversampling ratio
     max_harmonic : int
@@ -115,14 +114,11 @@ def compute_spectrum(
     # Find fundamental (integer bin and refined fractional bin)
     fundamental_bin, fundamental_bin_fractional = _locate_fundamental(power_spectrum, n_inband)
 
-    # Automatically determine side_bin based on coherence if not specified
+    # Automatically determine side_bin from the coherent main-lobe width for
+    # the selected window. Non-coherent captures need an explicit larger
+    # side_bin; inferring that from distorted spectra is brittle.
     if side_bin is None:
-        # Check if signal is strictly coherent (fractional bin very close to integer bin)
-        coherence_error = abs(fundamental_bin_fractional - fundamental_bin)
-        is_coherent = coherence_error < 0.01
-
-        # Get default side_bin from mapping based on window type and coherence
-        side_bin = _get_default_side_bin(win_type, is_coherent)
+        side_bin = _get_default_side_bin(win_type)
 
     # Calculate fundamental bin range ONCE (to be reused by multiple functions)
     sig_bin_start = max(fundamental_bin - side_bin, 0)

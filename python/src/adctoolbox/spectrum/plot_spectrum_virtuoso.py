@@ -94,7 +94,8 @@ def plot_spectrum_virtuoso(compute_results, show_title=True, show_label=True,
     ax.title.set_color('white')
 
     # ---- Axis floor + stem bars --------------------------------------
-    minx = _noise_floor_axis_min(nf_line_level)
+    sndr_floor_level = metrics['sig_pwr_dbfs'] - metrics['sndr_dbc']
+    minx = _noise_floor_axis_min(nf_line_level, fallback_level=sndr_floor_level)
     if baseline_db is None:
         baseline_db = minx
     else:
@@ -107,7 +108,9 @@ def plot_spectrum_virtuoso(compute_results, show_title=True, show_label=True,
     ax.grid(True, which='minor', linestyle=':', color='white', alpha=0.15, linewidth=0.4)
 
     # ---- Y-axis follows the plotted NSD/bin line ---------------------
-    ax.set_xlim(fs / N, fs / 2)
+    x_min = fs / N
+    x_max = fs / 2
+    ax.set_xlim(x_min, x_max)
     ax.set_ylim(minx, 0)
 
     # ---- Labels ------------------------------------------------------
@@ -148,6 +151,9 @@ def plot_spectrum_virtuoso(compute_results, show_title=True, show_label=True,
         TX = 10 ** (np.log10(fs) * 0.01 + np.log10(fs / N) * 0.99)
     else:
         TX = fs * 0.3 if fundamental_bin / N < 0.2 else fs * 0.01
+    if x_max > x_min:
+        tx_margin = 0.02 * (x_max - x_min)
+        TX = np.clip(TX, x_min + tx_margin, x_max - tx_margin)
     TYD = minx * 0.06
 
     def _fmt_freq(f):
@@ -162,21 +168,35 @@ def plot_spectrum_virtuoso(compute_results, show_title=True, show_label=True,
             f'Sig = {metrics["sig_pwr_dbfs"]:.2f} dB',
             color=_C_FUND, fontsize=10)
 
+    snr_text = f'{metrics["snr_dbc"]:.2f} dB' if np.isfinite(metrics["snr_dbc"]) else 'N/A'
+    noise_floor_text = (
+        f'{metrics["noise_floor_dbfs"]:.2f} dB'
+        if np.isfinite(metrics["noise_floor_dbfs"])
+        else 'N/A'
+    )
+    nsd_text = (
+        f'{metrics["nsd_dbfs_hz"]:.2f} dBFS/Hz'
+        if np.isfinite(metrics["nsd_dbfs_hz"])
+        else 'N/A'
+    )
+
     metric_lines = [
         f'Fin/fs = {_fmt_freq(Fin)} / {_fmt_freq(fs)} Hz',
         f'ENoB = {metrics["enob"]:.2f}',
         f'SNDR = {metrics["sndr_dbc"]:.2f} dB',
         f'SFDR = {metrics["sfdr_dbc"]:.2f} dB',
         f'THD = {metrics["thd_dbc"]:.2f} dB',
-        f'SNR = {metrics["snr_dbc"]:.2f} dB',
-        f'Noise Floor = {metrics["noise_floor_dbfs"]:.2f} dB',
-        f'NSD = {metrics["nsd_dbfs_hz"]:.2f} dBFS/Hz',
+        f'SNR = {snr_text}',
+        f'Noise Floor = {noise_floor_text}',
+        f'NSD = {nsd_text}',
     ]
     for i, line in enumerate(metric_lines, start=1):
         ax.text(TX, TYD * i, line, color=_C_METRIC, fontsize=10)
 
     # ---- NSD baseline line -------------------------------------------
-    if osr > 1:
+    if not np.isfinite(nf_line_level):
+        pass
+    elif osr > 1:
         ax.semilogx([fs / N, fs / 2 / osr],
                     [nf_line_level, nf_line_level],
                     '--', color=_C_NSD, linewidth=1)

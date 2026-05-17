@@ -6,7 +6,10 @@ using different methods (median, trimmed mean, or harmonic exclusion).
 This is an internal helper module, not intended for direct use by end users.
 """
 
+import warnings
+
 import numpy as np
+
 from adctoolbox.spectrum._exclude_bins import _exclude_bins_from_spectrum
 
 
@@ -68,9 +71,31 @@ def _estimate_noise_power(
         noise_spectrum = _exclude_bins_from_spectrum(
             spectrum_power, bin_idx, harmonic_bins, side_bin, n_inband
         )
+        candidate_bins = set(range(n_inband))
+        candidate_bins.difference_update(range(0, min(side_bin + 1, n_inband)))
+        if 1 <= bin_idx < n_inband:
+            candidate_bins.difference_update(
+                range(max(bin_idx - side_bin, 0), min(bin_idx + side_bin + 1, n_inband))
+            )
+        for h_bin in harmonic_bins:
+            if 1 <= h_bin < n_inband:
+                candidate_bins.difference_update(
+                    range(max(h_bin - side_bin, 0), min(h_bin + side_bin + 1, n_inband))
+                )
+
+        if not candidate_bins:
+            warnings.warn(
+                "No noise bins remain after excluding DC, fundamental, and harmonics; "
+                "SNR, noise_floor_dbfs, and nsd_dbfs_hz are undefined.",
+                RuntimeWarning,
+                stacklevel=2,
+            )
+            return np.nan
         noise_power = np.sum(noise_spectrum)
 
     # Ensure minimum value to avoid log(0)
+    if not np.isfinite(noise_power):
+        return np.nan
     noise_power = max(noise_power, 1e-15)
 
     return noise_power

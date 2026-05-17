@@ -31,6 +31,38 @@ def test_noise_floor_axis_min_uses_20db_tick_below_nsd_line(nf_line_level, expec
     assert _noise_floor_axis_min(nf_line_level) == expected
 
 
+def test_noise_floor_axis_min_falls_back_to_sndr_level_when_nsd_is_nan():
+    assert _noise_floor_axis_min(np.nan, fallback_level=-26.5) == -60
+
+
+def test_plot_spectrum_uses_sndr_fallback_ylim_when_noise_metrics_are_nan():
+    n_fft = 8
+    fs = 100e6
+    n = np.arange(n_fft)
+    signal = (
+        0.4 * np.sin(2 * np.pi * n / n_fft)
+        + 0.4 * 10**(-30 / 20) * np.sin(2 * 2 * np.pi * n / n_fft)
+    )
+
+    with pytest.warns(RuntimeWarning, match="No noise bins remain"):
+        result = compute_spectrum(
+            signal,
+            fs=fs,
+            max_scale_range=[-0.5, 0.5],
+            win_type='rectangular',
+            side_bin=0,
+            max_harmonic=5,
+        )
+
+    fig, ax = plt.subplots()
+    plot_spectrum(result, show_title=False, show_label=False, ax=ax)
+    ymin, ymax = ax.get_ylim()
+    plt.close(fig)
+
+    assert ymin == -60
+    assert ymax == 0
+
+
 @pytest.mark.parametrize(
     "harmonic_power_db,nf_line_level,expected",
     [

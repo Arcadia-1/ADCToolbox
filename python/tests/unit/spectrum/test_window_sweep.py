@@ -1,7 +1,8 @@
 """Unit tests for window sweep with coherent and non-coherent signals.
 
 This test sweeps through 8 window types and records SNDR and ENOB metrics
-for both coherent and non-coherent signals to verify automatic side_bin selection.
+for both coherent and non-coherent signals using each window's default
+coherent-main-lobe side_bin.
 """
 
 import pytest
@@ -33,7 +34,7 @@ WINDOW_TYPES = [
 
 
 def test_window_sweep_coherent():
-    """Test all window types with COHERENT signal (automatic side_bin selection)."""
+    """Test all window types with COHERENT signal using default side_bin."""
     # Signal parameters
     N_fft = 2**16
     Fs = 100e6
@@ -58,7 +59,7 @@ def test_window_sweep_coherent():
     signal = sig_ideal + k2 * sig_ideal**2 + k3 * sig_ideal**3 + np.random.randn(N_fft) * noise_rms
 
     print('\n' + '='*80)
-    print('COHERENT SIGNAL - WINDOW SWEEP (Automatic side_bin)')
+    print('COHERENT SIGNAL - WINDOW SWEEP (Default side_bin)')
     print('='*80)
     print(f'Fs={Fs/1e6:.2f} MHz, Fin={Fin/1e6:.6f} MHz (bin {Fin_bin}), N={N_fft}, A={A:.3f} Vpeak')
     print(f'Noise RMS={noise_rms*1e6:.2f} uVrms, HD2={hd2_dB} dB, HD3={hd3_dB} dB')
@@ -71,7 +72,7 @@ def test_window_sweep_coherent():
 
     results = []
     for idx, win_type in enumerate(WINDOW_TYPES):
-        # Use analyze_spectrum with automatic side_bin selection
+        # Use analyze_spectrum with the default coherent-main-lobe side_bin
         plt.sca(axes[idx])
         metrics = analyze_spectrum(signal, fs=Fs, win_type=win_type)
 
@@ -127,7 +128,7 @@ def test_window_sweep_coherent():
 
 
 def test_window_sweep_noncoherent():
-    """Test all window types with NON-COHERENT signal (automatic side_bin selection)."""
+    """Test all window types with NON-COHERENT signal using default side_bin."""
     # Signal parameters
     N_fft = 2**13
     Fs = 100e6
@@ -149,7 +150,7 @@ def test_window_sweep_noncoherent():
     signal = sig_ideal + k2 * sig_ideal**2 + k3 * sig_ideal**3 + np.random.randn(N_fft) * noise_rms
 
     print('\n' + '='*80)
-    print('NON-COHERENT SIGNAL - WINDOW SWEEP (Automatic side_bin)')
+    print('NON-COHERENT SIGNAL - WINDOW SWEEP (Default side_bin)')
     print('='*80)
     print(f'Fs={Fs/1e6:.2f} MHz, Fin={Fin/1e6:.2f} MHz (non-coherent), N={N_fft}, A={A:.3f} Vpeak')
     print(f'Noise RMS={noise_rms*1e6:.2f} uVrms, HD2={hd2_dB} dB, HD3={hd3_dB} dB')
@@ -162,7 +163,7 @@ def test_window_sweep_noncoherent():
 
     results = []
     for idx, win_type in enumerate(WINDOW_TYPES):
-        # Use analyze_spectrum with automatic side_bin selection
+        # Use analyze_spectrum with the default coherent-main-lobe side_bin
         plt.sca(axes[idx])
         metrics = analyze_spectrum(
             signal,
@@ -233,7 +234,7 @@ def test_window_sweep_noncoherent():
 
 @pytest.mark.parametrize("win_type", ['rectangular', 'hann', 'blackman', 'blackmanharris', 'kaiser'])
 def test_noise_accuracy_with_windows(win_type):
-    """Test noise floor, SNR, and NSD accuracy across window types with automatic side_bin.
+    """Test noise floor, SNR, and NSD accuracy across window types with default side_bin.
 
     Verifies that SNR, noise floor, and NSD match theoretical values within tolerance.
     NSD should be window-independent after ENBW normalization fix.
@@ -257,7 +258,7 @@ def test_noise_accuracy_with_windows(win_type):
     noise_floor_theory = sig_pwr_theory - snr_theory
     nsd_theory = snr_to_nsd(snr_theory, fs=Fs, osr=1, psignal_dbfs=sig_pwr_theory)
 
-    # Compute spectrum with automatic side_bin selection
+    # Compute spectrum with default side_bin selection
     result = compute_spectrum(signal, fs=Fs, win_type=win_type, side_bin=None, verbose=0)
 
     # Extract metrics
