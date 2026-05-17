@@ -68,6 +68,9 @@ def synth_capture():
 # ----------------------------------------------------------------------
 
 def test_skill_md_section_3_spectrum_workflow(synth_capture):
+    import matplotlib
+    matplotlib.use("Agg")
+    import matplotlib.pyplot as plt
     from adctoolbox import (
         analyze_spectrum,
         analyze_spectrum_polar,
@@ -92,6 +95,13 @@ def test_skill_md_section_3_spectrum_workflow(synth_capture):
     metrics = analyze_spectrum(aout, fs=fs, create_plot=False)
     assert {"sndr_dbc", "sfdr_dbc", "enob"} <= set(metrics.keys())
     assert metrics["enob"] > 0
+
+    fig, axes = plt.subplots(3, 1)
+    traces = [aout, aout, aout]
+    for ax, trace in zip(axes, traces):
+        m_ax = analyze_spectrum(trace, fs=fs, create_plot=True, ax=ax)
+        assert {"sndr_dbc", "sfdr_dbc", "enob"} <= set(m_ax.keys())
+    plt.close(fig)
 
     polar = analyze_spectrum_polar(aout, fs=fs, create_plot=False)
     assert "sndr_dbc" in polar

@@ -32,8 +32,12 @@ Use for:
   `adctoolbox.models.sar_encode` / `sar_reconstruct` / `sar_ideal_weights`
   / `sar_apply_mismatch` (binary or sub-radix-2, with optional cap mismatch
   + comparator noise; vectorized). Convention: `vin ∈ [0, 1]` normalized
-  unipolar, weights sum to 1. See module docstring for the differential-SAR
-  mapping `vin = (VIP − VIN + VDD) / (2·VDD)`.
+  unipolar; weights are normalized by `sum(bit_weights) + 1 LSB` (for
+  example `[8, 4, 2, 1] / 16`, or redundant `[8, 4, 4, 2, 1] / 20`). See
+  module docstring for the differential-SAR mapping
+  `vin = (VIP − VIN + VDD) / (2·VDD)`. Keep analog CDAC weights and digital
+  reconstruction weights explicit; they match unless modeling mismatch or
+  calibration.
 
 Do NOT use for:
 - Analog topology / transistor design → `analog-design`, `analog-explore`
@@ -97,6 +101,15 @@ from adctoolbox.fundamentals import validate_aout_data
 validate_aout_data(aout)
 metrics = analyze_spectrum(aout, fs=fs, create_plot=False)
 print(metrics["sndr_dbc"], metrics["sfdr_dbc"], metrics["enob"])
+```
+
+For subplot layouts, pass the target Matplotlib axes directly. Do this before
+falling back to custom FFT plotting:
+
+```python
+fig, axes = plt.subplots(3, 1)
+for ax, trace in zip(axes, traces):
+    metrics = analyze_spectrum(trace, fs=fs, create_plot=True, ax=ax)
 ```
 
 To set up a coherent capture *upstream* (where you control the stimulus

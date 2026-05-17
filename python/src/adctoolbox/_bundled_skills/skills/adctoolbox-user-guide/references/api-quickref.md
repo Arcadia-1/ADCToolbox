@@ -115,8 +115,9 @@ from adctoolbox.aout import (
 ```bash
 adctoolbox-get-examples
 adctoolbox-get-examples my_examples_dir
-adctoolbox-install-skill
-adctoolbox-install-skill --dev
+adctoolbox-install-skill --dest ~/.codex/skills
+adctoolbox-install-skill --status --dest ~/.codex/skills
+adctoolbox-install-skill --dev --editable --force --dest ~/.codex/skills
 ```
 
 ## Key Conventions
@@ -136,6 +137,9 @@ adctoolbox-install-skill --dev
   `(fin_actual_hz, best_bin)`. Argument order matters: `fs` first, then
   `fin_target`, then `n_fft`.
 - `analyze_spectrum` does NOT take `Fin` — the fundamental is auto-detected.
+- `analyze_spectrum(..., create_plot=True, ax=ax)` plots directly onto a
+  Matplotlib subplot. Use `compute_spectrum` only when you need raw plot data
+  for custom rendering.
 
 ### Return shapes
 

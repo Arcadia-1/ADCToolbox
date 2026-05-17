@@ -115,6 +115,10 @@ If you add or modify a CLI:
 
 For Codex skill installation specifically:
 
-- default install target should be `$CODEX_HOME/skills` or `~/.codex/skills`
-- default install should only install `adctoolbox-user-guide`
+- installers must require an explicit `--dest`; do not write to
+  `$CODEX_HOME/skills` or `~/.codex/skills` implicitly
+- status checks should use `adctoolbox-install-skill --status --dest <skills-dir>`
+- normal installs should only install `adctoolbox-user-guide`
 - dev-only skill installation should require explicit `--dev` or `--all`
+- editable skill installation should require explicit `--editable` and use
+  symlinks only for local development
