@@ -25,7 +25,7 @@ def _exclude_bins_from_spectrum(
     side_bin : int
         Number of side bins to exclude around each component
     max_bin : int
-        Maximum bin index to consider (typically n_fft // 2 // osr)
+        Exclusive upper bin bound to consider.
 
     Returns
     -------

@@ -23,7 +23,7 @@ def _locate_fundamental(
     spectrum : np.ndarray
         Power spectrum (|FFT|^2)
     n_inband : int
-        In-band search limit (typically N//2//osr)
+        Exclusive upper bin bound for the in-band search region
 
     Returns
     -------
@@ -60,12 +60,16 @@ def _locate_fundamental(
         y_0 = np.log10(max(spectrum_search[fundamental_bin], 1e-20))
         y_p1 = np.log10(max(spectrum_search[fundamental_bin + 1], 1e-20))
 
-        # Parabolic interpolation formula
-        delta = (y_p1 - y_m1) / (2 * (2 * y_0 - y_m1 - y_p1))
-        fundamental_bin_frantional = fundamental_bin + delta
+        # For coherent integer-bin tones, neighboring bins can be floor-level
+        # or independent spurs/harmonics rather than FFT leakage. Interpolating
+        # those points shifts the fundamental and misplaces harmonics.
+        if min(y_m1, y_p1) >= y_0 - 4.0:
+            # Parabolic interpolation formula
+            delta = (y_p1 - y_m1) / (2 * (2 * y_0 - y_m1 - y_p1))
+            fundamental_bin_frantional = fundamental_bin + delta
 
-        # Check for invalid result
-        if np.isnan(fundamental_bin_frantional) or np.isinf(fundamental_bin_frantional):
-            fundamental_bin_frantional = float(fundamental_bin)
+            # Check for invalid result
+            if np.isnan(fundamental_bin_frantional) or np.isinf(fundamental_bin_frantional):
+                fundamental_bin_frantional = float(fundamental_bin)
 
     return fundamental_bin, fundamental_bin_frantional

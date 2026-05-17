@@ -6,6 +6,7 @@ matplotlib.use('Agg')
 import matplotlib.pyplot as plt
 
 from adctoolbox import sweep_performance_vs_osr
+from adctoolbox.spectrum._bin_ranges import rfft_inband_bin_count
 
 
 def test_clean_sine_high_sndr():
@@ -61,6 +62,28 @@ def test_default_osr():
     result = sweep_performance_vs_osr(sig, create_plot=False)
     assert len(result['osr']) == N // 2
     assert len(result['sndr']) == N // 2
+    plt.close('all')
+
+
+def test_default_osr_maps_to_each_positive_rfft_bin_count():
+    """Default OSR should sweep every possible non-DC in-band upper edge."""
+    N = 33
+    t = np.arange(N)
+    sig = 0.5 * np.sin(2 * np.pi * 3 * t / N)
+
+    result = sweep_performance_vs_osr(sig, create_plot=False)
+
+    expected_n_bins = N // 2
+    expected_osr = (N / 2) / np.arange(expected_n_bins, 0, -1)
+    expected_counts = np.arange(expected_n_bins + 1, 1, -1)
+    actual_counts = np.array([
+        rfft_inband_bin_count(N, osr)
+        for osr in result['osr']
+    ])
+
+    assert len(result['osr']) == expected_n_bins
+    np.testing.assert_allclose(result['osr'], expected_osr)
+    np.testing.assert_array_equal(actual_counts, expected_counts)
     plt.close('all')
 
 

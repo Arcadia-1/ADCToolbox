@@ -2,6 +2,7 @@
 
 import pytest
 import numpy as np
+from adctoolbox.spectrum._bin_ranges import rfft_inband_bin_count
 from adctoolbox.spectrum.compute_spectrum import compute_spectrum
 from adctoolbox.fundamentals.frequency import fold_bin_to_nyquist
 
@@ -30,7 +31,7 @@ def test_locate_bins(bin_target, side_bin, max_harmonic):
     sig_bin_start = result['plot_data']['sig_bin_start']
     sig_bin_end = result['plot_data']['sig_bin_end']
     expected_start = max(fundamental_bin - side_bin, 0)
-    expected_end = min(fundamental_bin + side_bin + 1, n_fft // 2 // osr)
+    expected_end = min(fundamental_bin + side_bin + 1, rfft_inband_bin_count(n_fft, osr))
 
     # Test harmonic bins
     harmonic_bins = result['plot_data']['harmonic_bins']

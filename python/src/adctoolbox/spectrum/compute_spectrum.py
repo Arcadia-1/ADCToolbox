@@ -2,6 +2,7 @@
 
 import numpy as np
 
+from adctoolbox.spectrum._bin_ranges import rfft_inband_bin_count
 from adctoolbox.spectrum._prepare_fft_input import _prepare_fft_input
 from adctoolbox.spectrum._locate_fundamental import _locate_fundamental
 
@@ -72,7 +73,7 @@ def compute_spectrum(
     # Preprocessing: data validation, DC removal, normalization
     data_normalized = _prepare_fft_input(data, max_scale_range)
     M, N = data_normalized.shape
-    n_inband = N // 2 // osr
+    n_inband = rfft_inband_bin_count(N, osr)
 
     # Window function handling
     window_vector, window_gain, equiv_noise_bw_factor = _create_window(win_type, N)
@@ -165,7 +166,7 @@ def compute_spectrum(
     # SFDR (Limited to in-band search when OSR > 1)
     spur_bin_idx, spur_power = _extract_highest_spur(power_spectrum, side_bin, n_inband, sig_bin_start, sig_bin_end)
     spur_power /= equiv_noise_bw_factor
-    sfdr_dbc = 10 * np.log10(signal_power / spur_power)
+    sfdr_dbc = np.inf if spur_power <= 0 else 10 * np.log10(signal_power / spur_power)
 
     # Estimate noise power using specified method
     noise_power = _estimate_noise_power(
