@@ -235,13 +235,13 @@ _export('calibrate_foreground', calibrate_foreground)
 # ======================================================================
 
 from .models import (
-    sar_encode,
+    sar_convert,
     sar_reconstruct,
     sar_ideal_weights,
     sar_apply_mismatch,
 )
 
-_export('sar_encode', sar_encode)
+_export('sar_convert', sar_convert)
 _export('sar_reconstruct', sar_reconstruct)
 _export('sar_ideal_weights', sar_ideal_weights)
 _export('sar_apply_mismatch', sar_apply_mismatch)
@@ -267,4 +267,3 @@ _export('models', models)
 _export('oversampling', oversampling)
 _export('spectrum', spectrum)
 _export('timeinterleave', timeinterleave)
-

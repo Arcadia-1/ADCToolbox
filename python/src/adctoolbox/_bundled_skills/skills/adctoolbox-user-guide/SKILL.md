@@ -29,15 +29,15 @@ Use for:
 - Getting from a raw `dout` / `aout` buffer to SNDR / SFDR / ENOB
 - Generating synthetic ADC stimulus for a testbench
 - **Forward-modeling an ADC architecture in Python** — for SAR, use
-  `adctoolbox.models.sar_encode` / `sar_reconstruct` / `sar_ideal_weights`
+  `adctoolbox.models.sar_convert` / `sar_reconstruct` / `sar_ideal_weights`
   / `sar_apply_mismatch` (binary or sub-radix-2, with optional cap mismatch
-  + comparator noise; vectorized). Convention: `vin ∈ [0, 1]` normalized
-  unipolar; weights are normalized by `sum(bit_weights) + 1 LSB` (for
-  example `[8, 4, 2, 1] / 16`, or redundant `[8, 4, 4, 2, 1] / 20`). See
-  module docstring for the differential-SAR mapping
-  `vin = (VIP − VIN + VDD) / (2·VDD)`. Keep analog CDAC weights and digital
-  reconstruction weights explicit; they match unless modeling mismatch or
-  calibration.
+  + sampling noise + comparator noise; vectorized). Convention: `vin` is
+  interpreted relative to `quant_range=(v_min, v_max)`, default `(0, 1)`.
+  SAR weights are still explicit and normalized by `sum(bit_weights) + 1 LSB`
+  (for example `[8, 4, 2, 1] / 16`, or redundant `[8, 4, 4, 2, 1] / 20`).
+  For differential SAR, pass `VIP - VIN` with a differential `quant_range`
+  such as `(-VDD, VDD)`. Keep analog CDAC weights and digital reconstruction
+  weights explicit; they match unless modeling mismatch or calibration.
 
 Do NOT use for:
 - Analog topology / transistor design → `analog-design`, `analog-explore`
