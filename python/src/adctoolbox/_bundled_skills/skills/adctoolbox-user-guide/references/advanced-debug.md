@@ -71,6 +71,10 @@ Notes on shapes:
   `calibrate_weight_sine` once internally.
 - `analyze_weight_radix(weights)` returns a `dict` (was an ndarray in
   pre-`v0.6` versions).
+- `analyze_weight_radix(weights)["effres"]` is a theoretical weight-list span:
+  `log2(sum(abs_w_sig) / min(abs_w_sig) + 1)`, using sorted absolute
+  significant weights and excluding the tail after the first adjacent ratio
+  `>= 3`. It does not prove missing-code, DNL/INL, or SAR decision reachability.
 
 ## "I have a distorted sine and want to extract HD2/HD3 coefficients"
 

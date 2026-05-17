@@ -82,9 +82,14 @@ Most analysis functions return `dict`. Notable exceptions and dict-key gotchas:
 | `analyze_bit_activity` | `ndarray` (% of 1's per bit, length = N_bits) |
 | `analyze_overflow` | `tuple` of 4 ndarrays `(range_min, range_max, ovf_pct_zero, ovf_pct_one)` |
 | `analyze_enob_sweep` | `tuple (enob_sweep, n_bits_vec)` |
-| `analyze_weight_radix` | `dict` — `radix`, `wgtsca`, `effres` |
+| `analyze_weight_radix` | `dict` — `radix`, `wgtsca`, `effres` (weight-list resolution estimate) |
 | `fit_static_nonlin` | `tuple (k2, k3, fitted_sine, fitted_transfer)` |
 | `convert_cap_to_weight` | `tuple (weights, c_total)` |
+
+`analyze_weight_radix(weights)["effres"]` is computed from significant
+absolute weights as `log2(sum(abs_w_sig) / min(abs_w_sig) + 1)`. It estimates
+the theoretical span of the supplied SAR/DAC weight list; it is not a
+missing-code, DNL/INL, or SAR-reachability check.
 
 When docs conflict, trust the current `__init__.py` exports + the
 `tests/integration/test_user_guide_skill_examples.py` smoke tests.

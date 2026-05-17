@@ -1,7 +1,7 @@
-"""Bit weight and radix visualization for ADC calibration analysis.
+"""Bit-weight radix and effective-resolution analysis.
 
-Visualizes absolute bit weights with radix annotations to identify scaling patterns.
-Computes weight scaling factor (wgtsca) and effective resolution (effres).
+Visualizes absolute ADC bit weights with radix annotations, and reports a
+weight-list effective resolution from the significant reconstructed weights.
 """
 
 import numpy as np
@@ -14,14 +14,18 @@ def analyze_weight_radix(
     title: str | None = None
 ) -> dict:
     """
-    Visualize absolute bit weights with radix annotations.
+    Analyze absolute bit weights, radix ratios, and weight-list resolution.
 
     Pure binary: radix = 2.00. Sub-radix/redundancy: radix < 2.00.
+    ``effres`` is a theoretical resolution estimate from the supplied weight
+    dynamic range, not a missing-code/DNL proof.
 
     Parameters
     ----------
     weights : np.ndarray
-        Bit weights (1D array), from MSB to LSB
+        Bit weights (1D array), nominally from MSB to LSB for radix plotting.
+        Effective-resolution analysis uses sorted absolute magnitudes, so
+        negative trim weights count by magnitude.
     create_plot : bool, default=True
         If True, create line plot with radix annotations
     ax : plt.Axes, optional
@@ -32,12 +36,26 @@ def analyze_weight_radix(
     Returns
     -------
     dict
-        'radix': Radix between consecutive bits (weight[i-1]/weight[i])
-        'wgtsca': Optimal weight scaling factor
-        'effres': Effective resolution in bits
+        ``radix``:
+            Radix between consecutive input-order weights,
+            ``abs(weight[i-1]) / abs(weight[i])``. The first entry is ``NaN``.
+        ``wgtsca``:
+            Scale factor that maps the significant absolute weights closest to
+            integer LSB units.
+        ``effres``:
+            Effective resolution in bits,
+            ``log2(sum(abs_w_sig) / min(abs_w_sig) + 1)``.
 
     Notes
     -----
+    The significant set ``abs_w_sig`` is formed by sorting ``abs(weights)`` in
+    descending order, then dropping the tail after the first adjacent ratio
+    ``>= 3``. This excludes very small trim/noise weights from ``effres``.
+
+    ``effres`` is useful for questions like "how many bits does this SAR
+    weight list span?" It does not verify SAR decision reachability, code
+    monotonicity, missing codes, DNL/INL, comparator noise, or sampling noise.
+
     What to look for in radix values:
     - Radix = 2.00: Binary scaling (SAR, pure binary)
     - Radix < 2.00: Redundancy or sub-radix (e.g., 1.5-bit/stage → ~1.90)

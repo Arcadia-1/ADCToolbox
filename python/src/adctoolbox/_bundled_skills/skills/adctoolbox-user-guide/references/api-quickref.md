@@ -160,6 +160,11 @@ adctoolbox-install-skill --dev --editable --force --dest ~/.codex/skills
   is the calibrated weights vector — not optional.
 - `analyze_enob_sweep(bits, freq=...)` returns `(enob_sweep, n_bits_vec)`.
 - `analyze_weight_radix(weights)` returns a dict (`radix`, `wgtsca`, `effres`).
+  `effres` is the significant-weight span:
+  `log2(sum(abs_w_sig) / min(abs_w_sig) + 1)`, with the sorted absolute-weight
+  tail dropped after the first adjacent ratio `>= 3`. Treat it as a theoretical
+  SAR/DAC weight-list resolution estimate, not a missing-code, DNL/INL, or
+  SAR-reachability check.
 - `fit_static_nonlin(sig_distorted, order)` returns
   `(k2, k3, fitted_sine, fitted_transfer)`. Input is a distorted signal,
   not INL/DNL data; `order >= 2`.

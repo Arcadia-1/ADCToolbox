@@ -15,20 +15,25 @@ test_cases = [
 fig, axes = plt.subplots(1, 2, figsize=(14, 5))
 
 for idx, (caps_nominal, title) in enumerate(test_cases):
-    n_bits = len(caps_nominal)
     weights_nominal = np.append(caps_nominal[:-1], caps_nominal[-1] * 0.5)
     nominal_resolution = np.log2(np.sum(caps_nominal) / caps_nominal[-1] * 2)
 
-    # Plot weight scaling
+    # Plot weight scaling and compute radix / effective-resolution metrics.
     result = analyze_weight_radix(weights_nominal, ax=axes[idx])
     radix = result['radix']
+    effres = result['effres']
     axes[idx].set_title(title, fontsize=12, fontweight='bold')
 
     # Statistics
     radix_valid = radix[~np.isnan(radix)]
     mean_radix = np.mean(radix_valid)
 
-    print(f"[{title:22s}] [Resolution = {nominal_resolution:5.2f} bit] [Average Radix = {mean_radix:.4f}]")
+    print(
+        f"[{title:22s}] "
+        f"[EffRes = {effres:5.2f} bit] "
+        f"[Cap span = {nominal_resolution:5.2f} bit] "
+        f"[Average Radix = {mean_radix:.4f}]"
+    )
 
 plt.tight_layout()
 fig_path = output_dir / 'exp_d13_weight_scaling.png'

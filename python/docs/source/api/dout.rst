@@ -9,24 +9,26 @@ Weight Calibration
 ------------------
 
 .. autofunction:: calibrate_weight_sine
-.. autofunction:: calibrate_weight_sine_osr
+.. autofunction:: adctoolbox.calibration.calibrate_weight_sine_lite
 
-Overflow Detection
-------------------
+Bit And Weight Analysis
+-----------------------
 
-.. autofunction:: adctoolbox.dout.check_overflow
+``analyze_weight_radix`` returns ``radix``, ``wgtsca``, and ``effres``.
+``effres`` is computed from the significant absolute weights as
+``log2(sum(abs_w_sig) / min(abs_w_sig) + 1)``. It is a theoretical
+weight-list span, not a missing-code, DNL, INL, or SAR reachability proof.
 
-Bit Activity
-------------
-
-.. autofunction:: adctoolbox.dout.check_bit_activity
+.. autofunction:: analyze_bit_activity
+.. autofunction:: analyze_overflow
+.. autofunction:: analyze_weight_radix
 
 ENOB Analysis
 -------------
 
-.. autofunction:: adctoolbox.dout.analyze_enob_sweep
+.. autofunction:: analyze_enob_sweep
 
 Visualization
 -------------
 
-.. autofunction:: adctoolbox.dout.plot_weight_radix
+.. autofunction:: plot_residual_scatter
