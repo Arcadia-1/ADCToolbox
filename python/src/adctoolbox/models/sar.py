@@ -7,9 +7,11 @@ verification.
 Convention
 ----------
 ``vin``     : normalized unipolar input, ``vin ∈ [0, 1]`` (mid-rail = 0.5)
-``weights`` : normalized so ``sum(weights) = 1``
+``weights`` : normalized by ``sum(bit_weights) + 1 LSB``. For a non-redundant
+              4-bit ADC this is ``[8, 4, 2, 1] / (8+4+2+1+1)``.
 ``codes``   : array of {0, 1}, MSB at column 0
-``recon``   : ``codes @ weights ∈ [0, 1]``
+``recon``   : ``codes @ digital_weights``. The maximum all-ones code
+              reconstructs to ``sum(digital_weights)``.
 
 For a fully-differential SAR with physical inputs VIP/VIN ∈ [0, VDD], map
 into the normalized model with ``vin = (VIP - VIN + VDD) / (2 * VDD)``.
@@ -30,6 +32,12 @@ import numpy as np
 def sar_ideal_weights(num_bits: int, redundant_bit: Optional[int] = None) -> np.ndarray:
     """Generate ideal binary CDAC weights, optionally with one duplicated bit.
 
+    The normalization base is the sum of all bit weights plus one LSB:
+    ``denom = sum(raw_bit_weights) + raw_lsb``. In other words, a 4-bit
+    ideal ADC uses ``[8, 4, 2, 1] / (8+4+2+1+1) = /16``, not
+    endpoint-normalized ``/ 15`` weights. With one duplicated redundant bit,
+    ``[8, 4, 4, 2, 1]`` normalizes by ``20``.
+
     Parameters
     ----------
     num_bits : int
@@ -43,23 +51,26 @@ def sar_ideal_weights(num_bits: int, redundant_bit: Optional[int] = None) -> np.
     Returns
     -------
     weights : ndarray of shape (B,)
-        Cap weights, MSB at index 0, normalized so ``sum(weights) = 1``.
+        Cap weights, MSB at index 0. The denominator is
+        ``sum(raw_bit_weights) + raw_lsb``. If ``redundant_bit`` is used, the
+        duplicated cap participates in both the sum and the resulting
+        overrange / correction margin.
 
     Examples
     --------
     >>> import numpy as np
     >>> w = sar_ideal_weights(4)
-    >>> np.allclose(w * 16, [8, 4, 2, 1])
+    >>> np.allclose(w, [8/16, 4/16, 2/16, 1/16])
     True
     >>> w = sar_ideal_weights(4, redundant_bit=1)
-    >>> len(w) == 5 and np.allclose(w * 20, [8, 4, 4, 2, 1])
+    >>> len(w) == 5 and np.allclose(w, [8/20, 4/20, 4/20, 2/20, 1/20])
     True
     """
     w = [2 ** (num_bits - 1 - i) for i in range(num_bits)]
     if redundant_bit is not None:
         w.insert(redundant_bit + 1, w[redundant_bit])
     w = np.asarray(w, dtype=float)
-    return w / w.sum()
+    return w / (w.sum() + w[-1])
 
 
 def sar_apply_mismatch(
@@ -70,14 +81,17 @@ def sar_apply_mismatch(
     """Realize one chip's per-cap mismatch as gaussian perturbation.
 
     Each cap is perturbed independently by ``N(1, sigma)``. Result is NOT
-    re-normalized — pass the same perturbed array to ``sar_encode`` for
-    the conversion, and separately decide whether the digital
-    reconstruction weights should be the nominal or perturbed set.
+    re-normalized. Use the perturbed array as the analog CDAC weights passed
+    to ``sar_encode``. For reconstruction, pass the digital weights actually
+    used by the backend: nominal weights for an uncalibrated path, calibrated
+    weights after estimation, or the same actual weights for an ideal
+    observer.
 
     Parameters
     ----------
     weights : ndarray of shape (B,)
-        Nominal weights (typically from :func:`sar_ideal_weights`).
+        Nominal analog CDAC weights (typically from
+        :func:`sar_ideal_weights`).
     sigma : float
         RMS relative mismatch per cap. e.g. ``0.01`` = 1% σ. Typical values
         in 28 nm small-cap matrix: 0.01-0.08 depending on cap area.
@@ -121,8 +135,9 @@ def sar_encode(
         Values outside this range produce saturated (all-1 or all-0) codes
         without hard-clipping artifacts.
     weights : array-like of shape (B,)
-        Cap weights (MSB first). Should be normalized to sum to 1 for the
-        ``[0, 1]`` convention to hold, but not enforced.
+        Actual analog CDAC weights (MSB first). For ideal weights from
+        :func:`sar_ideal_weights`, the normalization base is
+        ``sum(raw_bit_weights) + raw_lsb``.
     noise_rms : float, default 0.0
         Comparator input-referred noise RMS, normalized to the same scale
         as ``vin``. Typical realistic value for a strongARM comparator in
@@ -163,20 +178,23 @@ def sar_encode(
 
 
 def sar_reconstruct(codes: np.ndarray, weights: np.ndarray) -> np.ndarray:
-    """Linear weighted-sum reconstruction: ``codes @ weights``.
+    """Linear weighted-sum reconstruction: ``codes @ digital_weights``.
 
-    The output occupies ``[0, sum(weights)]`` (= ``[0, 1]`` for normalized
-    weights). Subtract the sample mean before spectrum analysis to remove
-    the DC offset introduced by the unipolar encoding.
+    ``weights`` are the digital reconstruction weights, which usually match
+    the analog CDAC weights in an ideal model. With mismatch, keep the two
+    roles explicit: encode with actual analog weights, then reconstruct with
+    the nominal, calibrated, or actual digital weights you want to evaluate.
+    Subtract the sample mean before spectrum analysis to remove the DC offset
+    introduced by the unipolar encoding.
 
     Parameters
     ----------
     codes : ndarray of shape (N, B)
         Raw bit decisions from :func:`sar_encode`.
     weights : ndarray of shape (B,)
-        Reconstruction weights. Use the nominal weights for an
-        "uncalibrated" output; use cal-estimated weights to assess cal
-        quality.
+        Digital reconstruction weights. Use the nominal weights for an
+        "uncalibrated" output; use cal-estimated or actual weights to assess
+        calibration quality.
 
     Returns
     -------

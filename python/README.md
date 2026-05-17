@@ -31,10 +31,11 @@ uv pip install adctoolbox
 
 ### Install Codex Skills
 
-After installing `adctoolbox`, you can install the bundled Codex skill with one command:
+After installing `adctoolbox`, install the bundled Codex skill into an
+explicit Codex skills directory:
 
 ```bash
-adctoolbox-install-skill
+adctoolbox-install-skill --dest ~/.codex/skills
 ```
 
 This installs:
@@ -44,13 +45,20 @@ This installs:
 Install the maintainer-only skill as well:
 
 ```bash
-adctoolbox-install-skill --dev
+adctoolbox-install-skill --dev --dest ~/.codex/skills
 ```
 
-Install into a custom skills directory for testing:
+Check install status:
 
 ```bash
-adctoolbox-install-skill --dest /tmp/codex-skills
+adctoolbox-install-skill --status --dest ~/.codex/skills
+```
+
+For local ADCToolbox development, symlink the installed skills to the working
+tree so skill edits are visible without reinstalling:
+
+```bash
+adctoolbox-install-skill --dev --editable --force --dest ~/.codex/skills
 ```
 
 ---

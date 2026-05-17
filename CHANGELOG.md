@@ -12,10 +12,20 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   - `sar_encode`, `sar_reconstruct`, `sar_ideal_weights`, `sar_apply_mismatch`:
     binary / sub-radix-2 SAR forward model with optional cap mismatch and
     comparator noise. Function-based, vectorized over samples.
-  - Convention: normalized unipolar (`vin ∈ [0, 1]`, weights sum to 1),
-    matches the Arcadia-1/SpecMind reference.
-  - 13 pytest cases including ENoB=N validation at 4, 8, 12, 16, 20 bit
+  - Convention: normalized unipolar (`vin ∈ [0, 1]`), with SAR weights
+    normalized by `sum(bit_weights) + 1 LSB`. A non-redundant 4-bit ADC uses
+    `[8, 4, 2, 1] / 16`; a redundant `[8, 4, 4, 2, 1]` array uses `/20`.
+  - 14 pytest cases including ENoB=N validation at 4, 8, 12, 16, 20 bit
     (passes to within FFT-noise-floor tolerance, ±0.05 b for N ≥ 12).
+- **Codex skill installer status / editable modes**:
+  - `adctoolbox-install-skill --status --dest <skills-dir>` reports whether
+    bundled skills are missing, copied, symlinked, and in sync.
+  - `adctoolbox-install-skill --editable --dest <skills-dir>` installs
+    symlinks for local skill development.
+
+### Changed
+- `adctoolbox-install-skill` now requires an explicit `--dest`; it no longer
+  writes to `~/.codex/skills` or `$CODEX_HOME/skills` implicitly.
 
 ### Work in Progress
 - Additional examples and tutorials

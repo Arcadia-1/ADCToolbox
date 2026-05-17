@@ -20,26 +20,31 @@ from adctoolbox import (
 
 # ──────────────────────────── basic structure ────────────────────────────
 
-def test_ideal_weights_sum_to_one():
+def test_ideal_weights_use_adc_lsb_convention():
     for n in [4, 8, 12, 16, 20]:
         w = sar_ideal_weights(n)
         assert w.shape == (n,)
-        assert np.isclose(w.sum(), 1.0)
+        assert np.isclose(w[-1], 1.0 / 2**n)
+        assert np.isclose(w.sum(), 1.0 - 1.0 / 2**n)
         # MSB at index 0
         assert w[0] > w[-1]
 
 
 def test_ideal_weights_binary_progression():
     w = sar_ideal_weights(4)
-    expected = np.array([8, 4, 2, 1]) / 15.0
+    expected = np.array([8, 4, 2, 1]) / 16.0
     assert np.allclose(w, expected)
 
 
 def test_ideal_weights_with_redundancy():
     w = sar_ideal_weights(4, redundant_bit=1)
-    # Should be [8, 4, 4, 2, 1] / 19
+    # Redundancy is normalized by sum(bit weights) + one LSB: 8+4+4+2+1+1.
+    expected = np.array([8, 4, 4, 2, 1]) / 20.0
     assert w.shape == (5,)
+    assert np.allclose(w, expected)
     assert np.isclose(w[1], w[2])
+    assert w.sum() > (1.0 - 1.0 / 16.0)
+    assert np.isclose(w.sum(), 19.0 / 20.0)
 
 
 def test_apply_mismatch_preserves_shape_and_changes_values():
@@ -53,12 +58,41 @@ def test_apply_mismatch_preserves_shape_and_changes_values():
 # ────────────────────────── encode + reconstruct ─────────────────────────
 
 def test_encode_dc_extremes():
-    """vin = 0 → all zeros; vin = 1 → all ones (modulo last-cap tie)."""
+    """vin = 0 → all zeros; vin = 1 → all ones."""
     w = sar_ideal_weights(8)
     rng = np.random.default_rng(0)
     codes = sar_encode(np.array([0.0, 1.0]), w, noise_rms=0.0, rng=rng)
     assert codes[0].sum() == 0          # vin=0 → no bits set
     assert codes[1].sum() == 8          # vin=1 → all bits set
+
+
+def test_ideal_transfer_thresholds_and_full_scale_code():
+    """A 4-bit ideal ADC has 1/16 LSBs and max reconstruction 15/16."""
+    w = sar_ideal_weights(4)
+    vin = np.array([
+        0.0,
+        np.nextafter(1 / 16, 0.0),
+        1 / 16,
+        np.nextafter(15 / 16, 0.0),
+        15 / 16,
+        1.0,
+    ])
+    codes = sar_encode(vin, w, noise_rms=0.0, rng=np.random.default_rng(0))
+    aout = sar_reconstruct(codes, w)
+
+    assert np.array_equal(
+        codes,
+        [
+            [0, 0, 0, 0],
+            [0, 0, 0, 0],
+            [0, 0, 0, 1],
+            [1, 1, 1, 0],
+            [1, 1, 1, 1],
+            [1, 1, 1, 1],
+        ],
+    )
+    assert np.allclose(aout, [0, 0, 1/16, 14/16, 15/16, 15/16])
+    assert np.isclose(aout[-1], 15 / 16)
 
 
 def test_reconstruct_is_codes_at_weights():

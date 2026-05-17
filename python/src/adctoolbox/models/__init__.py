@@ -9,9 +9,9 @@ Currently includes:
 
 Convention (matches Arcadia-1/SpecMind reference):
     vin     ∈ [0, 1]   normalized unipolar input (mid-rail = 0.5)
-    weights normalized so Σ = 1
+    weights are normalized by sum(bit_weights) + 1 LSB
     codes   ∈ {0, 1}^B, MSB at index 0
-    recon   = codes @ weights ∈ [0, 1]
+    recon   = codes @ digital_weights
 """
 from adctoolbox.models.sar import (
     sar_encode,
