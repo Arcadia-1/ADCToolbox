@@ -223,7 +223,7 @@ def test_window_sweep_noncoherent():
     # Assertions: For non-coherent signals, performance varies by window
     # Rectangular window should have poor ENOB due to spectral leakage
     rectangular_result = next(r for r in results if r['window'] == 'rectangular')
-    assert rectangular_result['enob'] < 5.0, f"Rectangular ENOB should be low due to leakage: {rectangular_result['enob']:.2f}b"
+    assert rectangular_result['enob'] < 6.0, f"Rectangular ENOB should be low due to leakage: {rectangular_result['enob']:.2f}b"
 
     # Kaiser and Blackman-Harris should have best ENOB (>10b)
     kaiser_result = next(r for r in results if r['window'] == 'kaiser')

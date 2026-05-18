@@ -52,6 +52,7 @@ def test_plot_spectrum_uses_sndr_fallback_ylim_when_noise_metrics_are_nan():
             win_type='rectangular',
             side_bin=0,
             max_harmonic=5,
+            nf_method=4,
         )
 
     fig, ax = plt.subplots()

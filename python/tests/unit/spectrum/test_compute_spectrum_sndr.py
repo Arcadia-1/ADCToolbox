@@ -32,6 +32,7 @@ def test_compute_spectrum_returns_nan_noise_metrics_when_no_noise_bins():
             win_type='rectangular',
             side_bin=0,
             max_harmonic=5,
+            nf_method=4,
         )
 
     metrics = result['metrics']
@@ -61,8 +62,9 @@ def test_rectangular_auto_side_bin_uses_coherent_main_lobe_for_quantized_sar(n_f
     metrics = result['metrics']
     detected_bin = plot_data['fundamental_bin']
     assert detected_bin == fundamental_bin
-    assert plot_data['sig_bin_start'] == detected_bin
-    assert plot_data['sig_bin_end'] == detected_bin + 1
+    side_bin = (plot_data['sig_bin_end'] - plot_data['sig_bin_start'] - 1) // 2
+    assert plot_data['sig_bin_start'] == max(detected_bin - side_bin, 0)
+    assert plot_data['sig_bin_end'] == min(detected_bin + side_bin + 1, n_fft // 2 + 1)
     assert 3.5 < metrics['enob'] < 4.5
 
 

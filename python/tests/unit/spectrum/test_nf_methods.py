@@ -43,16 +43,16 @@ def test_nf_methods_comparison():
     assert 9 < metrics1['enob'] < 12, f"Method 1 ENOB {metrics1['enob']} out of range"
     assert 9 < metrics2['enob'] < 12, f"Method 2 ENOB {metrics2['enob']} out of range"
 
-    # Method 2 should be most accurate (closest to theoretical SNR)
-    # Theoretical SNR for 200uV noise and 0.5V amplitude
+    # Method 3 (auto, default) should track theoretical SNR; method 2 matches MATLAB exclude
+    results_method3 = compute_spectrum(signal, fs=Fs, nf_method=3)
+    metrics3 = results_method3['metrics']
     sig_rms = A / np.sqrt(2)
     theoretical_snr = 20 * np.log10(sig_rms / noise_rms)
 
     print(f"\nTheoretical SNR: {theoretical_snr:.2f} dB")
-    print(f"Method 2 SNR error: {abs(metrics2['snr_dbc'] - theoretical_snr):.2f} dB")
+    print(f"Method 3 (auto) SNR error: {abs(metrics3['snr_dbc'] - theoretical_snr):.2f} dB")
 
-    # SNR should be within 2 dB of theoretical
-    assert abs(metrics2['snr_dbc'] - theoretical_snr) < 2.0, "SNR error too large"
+    assert abs(metrics3['snr_dbc'] - theoretical_snr) < 2.0, "Auto SNR error too large"
 
     print("\n[PASS] All noise floor methods working correctly!")
 
