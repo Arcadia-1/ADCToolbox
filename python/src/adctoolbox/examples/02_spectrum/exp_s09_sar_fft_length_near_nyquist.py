@@ -59,7 +59,7 @@ for ax, n_fft in zip(axes, FFT_LENGTHS):
         aout,
         fs=Fs,
         win_type="rectangular",
-        nf_method=2,
+        nf_method=3,
         create_plot=True,
         show_title=False,
         show_label=True,

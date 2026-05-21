@@ -149,6 +149,33 @@ def _calculate_harmonic_power(
     return thd_power, harmonic_powers, collided_harmonics
 
 
+def _calculate_harmonic_power_plotspec(
+    power_spectrum: np.ndarray,
+    harmonic_bins: np.ndarray,
+    fundamental_bin: int,
+    side_bin: int,
+    max_harmonic: int,
+) -> tuple[float, np.ndarray, list]:
+    """THD/HD like MATLAB plotspec: single FFT bin per harmonic, sum for THD."""
+    collided_harmonics: list[int] = []
+    harmonic_powers = np.full(max_harmonic - 1, 1e-15)
+    thd_power = 0.0
+
+    for harmonic_index in range(max_harmonic - 1):
+        harmonic_order = harmonic_index + 2
+        h_bin = int(harmonic_bins[harmonic_index])
+        if abs(h_bin - fundamental_bin) <= 2 * side_bin:
+            collided_harmonics.append(harmonic_order)
+            continue
+        if h_bin <= side_bin:
+            continue
+        p = float(power_spectrum[h_bin])
+        harmonic_powers[harmonic_index] = max(p, 1e-15)
+        thd_power += p
+
+    return max(thd_power, 1e-15), harmonic_powers, collided_harmonics
+
+
 def _extract_highest_spur(
     spectrum_power: np.ndarray,
     side_bin: int,
@@ -180,24 +207,15 @@ def _extract_highest_spur(
     spur_db : float
         Spur power in dB (single bin, for plotting)
     """
-    # Copy in-band spectrum for search
+    # Copy in-band spectrum for search (MATLAB plotspec: zero DC..sideBin, then signal lobe)
     spectrum_copy = spectrum_power[:n_search_inband].copy()
-
-    # Exclude signal using pre-calculated range
+    spectrum_copy[: min(side_bin + 1, n_search_inband)] = 0
     if sig_bin_start < sig_bin_end:
         spectrum_copy[sig_bin_start:sig_bin_end] = 0
 
-    # Find maximum spur within in-band range
-    spur_bin_idx = np.argmax(spectrum_copy)
-
-    # Calculate spur's summed power (including side bins) for SFDR metric.
-    # Use `spectrum_copy` (signal main lobe already zeroed at line 188)
-    # rather than `spectrum_power` so the ±side_bin sum cannot bleed into
-    # the fundamental's main lobe when the spur bin is adjacent to it.
-    # See test_sfdr_no_signal_bleed_for_hann_adjacent_spur.
-    spur_start = max(spur_bin_idx - side_bin, 0)
-    spur_end = min(spur_bin_idx + side_bin + 1, n_search_inband)
-    spur_power = np.sum(spectrum_copy[spur_start:spur_end])
+    spur_bin_idx = int(np.argmax(spectrum_copy))
+    # MATLAB SFDR: peak spur is a single FFT bin (spec(bin) / max(spec_inband))
+    spur_power = float(spectrum_copy[spur_bin_idx])
 
     return spur_bin_idx, spur_power
 

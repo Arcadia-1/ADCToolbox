@@ -362,15 +362,16 @@ def test_verify_compute_spectrum_noise_floor_methods():
     Verify compute_spectrum handles different noise floor methods.
 
     Test strategy:
-    1. Test nf_method=0 (median)
-    2. Test nf_method=1 (trimmed mean)
-    3. Test nf_method=2 (exclude harmonics)
+    1. Test nf_method=0 (auto)
+    2. Test nf_method=1 (median)
+    3. Test nf_method=2 (trimmed mean)
+    4. Test nf_method=3 (exclude harmonics)
     4. Assert: All produce valid results
     """
     N = 1024
     sig = 0.4 * np.sin(2*np.pi*0.1*np.arange(N))
 
-    methods = [0, 1, 2]
+    methods = [0, 1, 2, 3]
     print(f'\n[Verify Noise Floor Methods]')
 
     for method in methods:

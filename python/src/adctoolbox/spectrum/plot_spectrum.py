@@ -8,6 +8,8 @@ a pure plotting function that can be used with pre-computed metrics.
 import numpy as np
 import matplotlib.pyplot as plt
 
+from adctoolbox.spectrum._bin_ranges import rfft_inband_bin_count
+
 
 def _noise_floor_axis_min(
     nf_line_level,
@@ -52,7 +54,7 @@ def plot_spectrum(compute_results, show_title=True, show_label=True, plot_harmon
     plot_data = compute_results['plot_data']
     collided_harmonics = plot_data.get('collided_harmonics', [])
 
-    # Extract plot data
+    # power_spectrum_db_plot is raw 10*log10(spec) (plotspec.m, no display normalization)
     spec_db = plot_data['power_spectrum_db_plot']
     freq = plot_data['freq']
     fundamental_bin = plot_data['fundamental_bin']
@@ -67,8 +69,9 @@ def plot_spectrum(compute_results, show_title=True, show_label=True, plot_harmon
     M = compute_results['M']
     fs = compute_results['fs']
     osr = compute_results['osr']
-    v_offset = plot_data.get('v_offset', 0.0)
-    nf_line_level = metrics['nsd_dbfs_hz'] + 10 * np.log10(fs / N) + v_offset
+    n_inband = rfft_inband_bin_count(N, osr)
+    # Per-bin noise floor on plot (plotspec.m: noise_floor_dbfs - 10*log10(N_fft/2/OSR))
+    nf_line_level = metrics['noise_floor_dbfs'] - 10 * np.log10(N / (2 * osr))
 
     # Build harmonics list from plot_data and metrics (for plotting)
     harmonic_bins = plot_data.get('harmonic_bins', [])
@@ -116,8 +119,8 @@ def plot_spectrum(compute_results, show_title=True, show_label=True, plot_harmon
 
     if show_label:
         # Highlight fundamental - always use ax.plot(), axes scale handled by osr
-        ax.plot(freq[sig_bin_start:sig_bin_end], spec_db[sig_bin_start:sig_bin_end], 'r-', linewidth=2.0)
-        ax.plot(freq[fundamental_bin], spec_db[fundamental_bin], 'ro', linewidth=1.0, markersize=8)
+        ax.plot(freq[sig_bin_start:sig_bin_end], spec_db[sig_bin_start:sig_bin_end], 'r-', linewidth=0.5)
+        ax.plot(freq[fundamental_bin], spec_db[fundamental_bin], 'ro', linewidth=0.5, markersize=4)
 
         # Plot harmonics
         if plot_harmonics_up_to > 0:
@@ -135,10 +138,12 @@ def plot_spectrum(compute_results, show_title=True, show_label=True, plot_harmon
         ax.text(spur_bin_idx / N * fs, spur_db + 10, 'MaxSpur',
                 fontname='Arial', fontsize=10, ha='center')
 
-    # --- Set axis limits ---
-    # Put the lower limit one 20 dB tick below the plotted NSD/bin line.
-    sndr_floor_level = sig_pwr_dbfs - sndr_dbc
-    minx = _noise_floor_axis_min(nf_line_level, fallback_level=sndr_floor_level)
+    # --- Set axis limits (plotspec.m: median(in-band)-20, clamped) ---
+    median_inband = float(np.median(spec_db[:n_inband]))
+    if np.isfinite(nf_line_level):
+        minx = min(max(median_inband - 20, -200), -40)
+    else:
+        minx = _noise_floor_axis_min(nf_line_level, fallback_level=sig_pwr_dbfs - sndr_dbc)
     x_min = fs / N
     x_max = fs / 2
     ax.set_xlim(x_min, x_max)
@@ -215,8 +220,8 @@ def plot_spectrum(compute_results, show_title=True, show_label=True, plot_harmon
             text_y_offset = TYD*11 if (is_coherent and M > 1 and osr > 1) else (TYD*10 if (is_coherent and M > 1) or osr > 1 else TYD*9)
             ax.text(TX, text_y_offset, f'*Collided with fundamental: {collision_str}', fontsize=10, color='orange')
 
-        # Signal annotation
-        sig_y_pos = min(sig_pwr_dbfs, TYD/2)
+        # Signal annotation (MATLAB: text height uses metric pwr, not shifted spectrum)
+        sig_y_pos = min(spec_db[fundamental_bin], TYD / 2)
         if osr > 1:
             ax.text(freq[fundamental_bin], sig_y_pos, f'Sig = {sig_pwr_dbfs:.2f} dB', fontsize=10)
         else:

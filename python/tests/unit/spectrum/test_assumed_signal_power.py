@@ -29,9 +29,6 @@ def test_assumed_signal_power(assumed_sig_pwr_dbfs):
     # Extract computed metrics
     sig_pwr_computed = result['metrics']['sig_pwr_dbfs']
     sndr_computed = result['metrics']['sndr_dbc']
-    bin_int_n = result['plot_data']['fundamental_bin']
-    spectrum_peak_after = result['plot_data']['power_spectrum_db_plot'][bin_int_n]
-
     # Calculate theoretical SNR (based on actual signal and noise amplitudes)
     snr_theoretical = amplitudes_to_snr(sig_amplitude=signal_amplitude, noise_amplitude=noise_rms)
 
@@ -44,8 +41,7 @@ def test_assumed_signal_power(assumed_sig_pwr_dbfs):
 
     print(f"\n[Assumed Power Test] assumed_sig_pwr_dbfs={assumed_sig_pwr_dbfs:6.2f} dBFS")    
     print(f"SNDR        : Expected=[{sndr_expected:7.2f} dBc ], Computed=[{sndr_computed:7.2f} dBc ], Error=[{sndr_error:5.2f} dB]")
-    print(f"Signal Power: Expected=[{assumed_sig_pwr_dbfs:7.2f} dBFS], Computed=[{sig_pwr_computed:7.2f} dBFS], plot_peak=[{spectrum_peak_after:7.2f} dBFS]")
+    print(f"Signal Power: Expected=[{assumed_sig_pwr_dbfs:7.2f} dBFS], Computed=[{sig_pwr_computed:7.2f} dBFS]")
 
     assert sig_pwr_computed == pytest.approx(assumed_sig_pwr_dbfs, abs=0.01)
     assert sndr_computed == pytest.approx(sndr_expected, abs=0.5)
-    assert spectrum_peak_after == pytest.approx(assumed_sig_pwr_dbfs, abs=0.5)
