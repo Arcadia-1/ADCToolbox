@@ -22,7 +22,7 @@ def compute_spectrum(
     side_bin: int | None = None,
     osr: int = 1,
     max_harmonic: int = 5,
-    nf_method: int = 3,
+    nf_method: int = 0,
     assumed_sig_pwr_dbfs: float | None = None,
     coherent_averaging: bool = False,
     cutoff_freq: float = 0,
@@ -47,7 +47,7 @@ def compute_spectrum(
     max_harmonic
         Maximum harmonic order for THD (5 => H2..H5)
     nf_method
-        0=median, 1=trimmed mean, 2=exclude harmonics, 3=auto (default),
+        0=auto (default), 1=median, 2=trimmed mean, 3=exclude harmonics,
         4=legacy wide harmonic exclusion
     assumed_sig_pwr_dbfs
         Override signal power in dBFS

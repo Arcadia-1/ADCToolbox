@@ -56,7 +56,7 @@ def test_rectangular_auto_side_bin_uses_coherent_main_lobe_for_quantized_sar(n_f
     codes = sar_convert(vin, weights, quant_range=(0.0, 1.0), rng=np.random.default_rng(1234))
     aout = sar_reconstruct(codes, weights, quant_range=(0.0, 1.0))
 
-    result = compute_spectrum(aout, fs=fs, win_type='rectangular', side_bin=None, nf_method=2)
+    result = compute_spectrum(aout, fs=fs, win_type='rectangular', side_bin=None, nf_method=3)
 
     plot_data = result['plot_data']
     metrics = result['metrics']

@@ -1,11 +1,11 @@
-"""Test noise floor calculation methods."""
+"""Test noise floor calculation methods (MATLAB plotspec NFMethod numbering)."""
 
 import numpy as np
 from adctoolbox.spectrum.compute_spectrum import compute_spectrum
 
 
 def test_nf_methods_comparison():
-    """Test that all three noise floor methods produce reasonable results."""
+    """Test that all noise floor methods produce reasonable results."""
 
     # Generate test signal
     N_fft = 8192
@@ -21,38 +21,40 @@ def test_nf_methods_comparison():
     t = np.arange(N_fft) / Fs
     signal = A * np.sin(2*np.pi*Fin_coherent*t) + np.random.randn(N_fft) * noise_rms
 
-    # Test all three methods
-    results_method0 = compute_spectrum(signal, fs=Fs, nf_method=0)
-    results_method1 = compute_spectrum(signal, fs=Fs, nf_method=1)
-    results_method2 = compute_spectrum(signal, fs=Fs, nf_method=2)
+    # MATLAB numbering: 0=auto, 1=median, 2=trimmed, 3=exclude
+    results_auto = compute_spectrum(signal, fs=Fs, nf_method=0)
+    results_median = compute_spectrum(signal, fs=Fs, nf_method=1)
+    results_trimmed = compute_spectrum(signal, fs=Fs, nf_method=2)
+    results_exclude = compute_spectrum(signal, fs=Fs, nf_method=3)
 
-    # Extract metrics
-    metrics0 = results_method0['metrics']
-    metrics1 = results_method1['metrics']
-    metrics2 = results_method2['metrics']
+    metrics_auto = results_auto['metrics']
+    metrics_median = results_median['metrics']
+    metrics_trimmed = results_trimmed['metrics']
+    metrics_exclude = results_exclude['metrics']
 
     print("\nNoise Floor Method Comparison:")
     print("="*70)
-    print(f"Method 0 (Median):        ENOB={metrics0['enob']:.2f} b, SNDR={metrics0['sndr_dbc']:.2f} dB, SNR={metrics0['snr_dbc']:.2f} dB")
-    print(f"Method 1 (Trimmed Mean):  ENOB={metrics1['enob']:.2f} b, SNDR={metrics1['sndr_dbc']:.2f} dB, SNR={metrics1['snr_dbc']:.2f} dB")
-    print(f"Method 2 (Exclude Harm):  ENOB={metrics2['enob']:.2f} b, SNDR={metrics2['sndr_dbc']:.2f} dB, SNR={metrics2['snr_dbc']:.2f} dB")
+    print(f"Method 0 (Auto):          ENOB={metrics_auto['enob']:.2f} b, SNDR={metrics_auto['sndr_dbc']:.2f} dB, SNR={metrics_auto['snr_dbc']:.2f} dB")
+    print(f"Method 1 (Median):        ENOB={metrics_median['enob']:.2f} b, SNDR={metrics_median['sndr_dbc']:.2f} dB, SNR={metrics_median['snr_dbc']:.2f} dB")
+    print(f"Method 2 (Trimmed Mean):    ENOB={metrics_trimmed['enob']:.2f} b, SNDR={metrics_trimmed['sndr_dbc']:.2f} dB, SNR={metrics_trimmed['snr_dbc']:.2f} dB")
+    print(f"Method 3 (Exclude Harm):  ENOB={metrics_exclude['enob']:.2f} b, SNDR={metrics_exclude['sndr_dbc']:.2f} dB, SNR={metrics_exclude['snr_dbc']:.2f} dB")
     print("="*70)
 
-    # All methods should produce reasonable ENOB values (within reasonable range)
-    assert 9 < metrics0['enob'] < 12, f"Method 0 ENOB {metrics0['enob']} out of range"
-    assert 9 < metrics1['enob'] < 12, f"Method 1 ENOB {metrics1['enob']} out of range"
-    assert 9 < metrics2['enob'] < 12, f"Method 2 ENOB {metrics2['enob']} out of range"
+    for label, metrics in [
+        ("auto", metrics_auto),
+        ("median", metrics_median),
+        ("trimmed", metrics_trimmed),
+        ("exclude", metrics_exclude),
+    ]:
+        assert 9 < metrics['enob'] < 12, f"Method {label} ENOB {metrics['enob']} out of range"
 
-    # Method 3 (auto, default) should track theoretical SNR; method 2 matches MATLAB exclude
-    results_method3 = compute_spectrum(signal, fs=Fs, nf_method=3)
-    metrics3 = results_method3['metrics']
     sig_rms = A / np.sqrt(2)
     theoretical_snr = 20 * np.log10(sig_rms / noise_rms)
 
     print(f"\nTheoretical SNR: {theoretical_snr:.2f} dB")
-    print(f"Method 3 (auto) SNR error: {abs(metrics3['snr_dbc'] - theoretical_snr):.2f} dB")
+    print(f"Method 0 (auto) SNR error: {abs(metrics_auto['snr_dbc'] - theoretical_snr):.2f} dB")
 
-    assert abs(metrics3['snr_dbc'] - theoretical_snr) < 2.0, "Auto SNR error too large"
+    assert abs(metrics_auto['snr_dbc'] - theoretical_snr) < 2.0, "Auto SNR error too large"
 
     print("\n[PASS] All noise floor methods working correctly!")
 

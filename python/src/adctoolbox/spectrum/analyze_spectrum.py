@@ -13,7 +13,7 @@ from adctoolbox.spectrum.plot_spectrum import plot_spectrum
 
 
 def analyze_spectrum(data, fs=1.0, osr=1, max_scale_range=None, win_type='hann', side_bin=None,
-                     max_harmonic=5, nf_method=3, assumed_sig_pwr_dbfs=np.nan, coherent_averaging=False,
+                     max_harmonic=5, nf_method=0, assumed_sig_pwr_dbfs=np.nan, coherent_averaging=False,
                      create_plot: bool = True, show_title=True, show_label=True, plot_harmonics_up_to=3, ax=None):
     """
     Spectral analysis and plotting. (Wrapper function for modular core and plotting)
@@ -35,7 +35,7 @@ def analyze_spectrum(data, fs=1.0, osr=1, max_scale_range=None, win_type='hann',
                   larger value explicitly for non-coherent captures.
         osr: Oversampling ratio
         max_harmonic: Number of harmonics for THD calculation
-        nf_method: Noise floor method (0=median, 1=trimmed mean, 2=exclude, 3=auto default, 4=legacy wide exclude)
+        nf_method: Noise floor method (0=auto default, 1=median, 2=trimmed mean, 3=exclude, 4=legacy wide exclude)
         assumed_sig_pwr_dbfs: Pre-defined signal level in dBFS
         create_plot: Plot the spectrum (True) or not (False)
         show_title: Display auto-generated title (True) or not (False)
@@ -90,7 +90,7 @@ def analyze_spectrum(data, fs=1.0, osr=1, max_scale_range=None, win_type='hann',
 
 
 def analyze_spectrum_virtuoso(data, fs=1.0, osr=1, max_scale_range=None, win_type='rectangular',
-                              side_bin=None, max_harmonic=5, nf_method=3,
+                              side_bin=None, max_harmonic=5, nf_method=0,
                               assumed_sig_pwr_dbfs=np.nan, coherent_averaging=False,
                               create_plot: bool = True, show_title=True, show_label=True,
                               plot_harmonics_up_to=3, ax=None):

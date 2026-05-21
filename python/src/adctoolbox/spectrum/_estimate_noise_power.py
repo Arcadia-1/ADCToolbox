@@ -43,7 +43,10 @@ def _estimate_noise_power(
     *,
     return_parts: bool = False,
 ) -> float | tuple[float, dict[str, float]]:
-    """Estimate noise power (linear). Methods 0-3 match MATLAB plotspec NFMethod."""
+    """Estimate noise power (linear). Methods 0-3 match MATLAB plotspec NFMethod.
+
+    0=auto, 1=median, 2=trimmed mean, 3=exclude harmonics; 4=legacy wide exclude.
+    """
     if nf_method == 4:
         noise_spectrum = _exclude_bins_from_spectrum(
             spectrum_power, bin_idx, harmonic_bins, side_bin, n_inband
@@ -102,12 +105,6 @@ def _estimate_noise_power(
     }
 
     if nf_method == 0:
-        noise_power = parts["median"]
-    elif nf_method == 1:
-        noise_power = parts["trimmed"]
-    elif nf_method == 2:
-        noise_power = parts["exclude"]
-    elif nf_method == 3:
         vals = [parts["median"], parts["trimmed"], parts["exclude"]]
         min_val = min(vals)
         if min_val > 0 and max(vals) / min_val > 1.25:
@@ -118,6 +115,12 @@ def _estimate_noise_power(
                 stacklevel=2,
             )
         noise_power = float(np.median(vals))
+    elif nf_method == 1:
+        noise_power = parts["median"]
+    elif nf_method == 2:
+        noise_power = parts["trimmed"]
+    elif nf_method == 3:
+        noise_power = parts["exclude"]
     else:
         raise ValueError(f"nf_method must be 0-4, got {nf_method}")
 

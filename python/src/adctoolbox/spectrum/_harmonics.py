@@ -166,6 +166,9 @@ def _calculate_harmonic_power_plotspec(
         h_bin = int(harmonic_bins[harmonic_index])
         if abs(h_bin - fundamental_bin) <= 2 * side_bin:
             collided_harmonics.append(harmonic_order)
+            continue
+        if h_bin <= side_bin:
+            continue
         p = float(power_spectrum[h_bin])
         harmonic_powers[harmonic_index] = max(p, 1e-15)
         thd_power += p
