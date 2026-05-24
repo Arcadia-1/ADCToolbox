@@ -17,8 +17,7 @@ def _detect_side_bin_auto(
     """Match ``plotspec.m`` sideBin auto: ideal leakage vs median noise floor."""
     t = np.arange(n_fft, dtype=float)
     ideal = np.sin(2 * np.pi * fundamental_bin_fractional * t / n_fft)
-    win_norm = window_vector / np.sqrt(np.mean(window_vector**2))
-    ideal_spec, _ = _power_average((ideal * win_norm).reshape(1, -1))
+    ideal_spec, _ = _power_average((ideal * window_vector).reshape(1, -1))
     ideal_spec *= power_correction
 
     peak = max(power_spectrum[fundamental_bin], 1e-30)

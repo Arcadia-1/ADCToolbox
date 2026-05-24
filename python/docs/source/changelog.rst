@@ -3,8 +3,22 @@ Changelog
 
 For the complete changelog with detailed version history, see the `CHANGELOG.md <https://github.com/Arcadia-1/ADCToolbox/blob/main/CHANGELOG.md>`_ file in the repository.
 
-Version 0.8.0 (Latest)
+Version 0.8.1 (Latest)
 ----------------------
+
+**Release Date**: 2026-05-24
+
+**Spectrum Plot Calibration Patch** - aligns Python windowed spectrum bin heights with MATLAB ``plotspec.m``.
+
+Fixed
+~~~~~
+
+* Python spectrum plotting now uses MATLAB-style RMS window power scaling, so coherent Hann full-scale tones report the center bin below 0 dBFS while the full main-lobe sum remains 0 dBFS.
+* ``compute_spectrum`` no longer applies an extra ENBW division to integrated signal power after window RMS scaling.
+* Virtuoso-style spectrum plots use the same raw dBFS noise-line convention as the standard plotter.
+
+Version 0.8.0
+-------------
 
 **Release Date**: 2026-05-18
 

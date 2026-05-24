@@ -7,6 +7,20 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.8.1] - 2026-05-24
+
+**Spectrum Plot Calibration Patch** — aligns Python windowed spectrum bin
+heights with MATLAB `plotspec.m`.
+
+### Fixed
+- Python spectrum plotting now uses MATLAB-style RMS window power scaling, so
+  coherent Hann full-scale tones report the center bin below 0 dBFS while the
+  full main-lobe sum remains 0 dBFS.
+- `compute_spectrum` no longer applies an extra ENBW division to the integrated
+  signal power after window RMS scaling.
+- Virtuoso-style spectrum plots use the same raw dBFS noise-line convention as
+  the standard plotter.
+
 ## [0.8.0] - 2026-05-18
 
 **SAR + Spectrum Robustness Release** — behavior-model API cleanup, stronger FFT side-bin handling, and MATLAB data-generation parity updates.

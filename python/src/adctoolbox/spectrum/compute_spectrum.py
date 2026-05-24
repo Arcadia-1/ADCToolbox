@@ -70,7 +70,7 @@ def compute_spectrum(
     else:
         power_spectrum, complex_spectrum = _power_average(data_windowed)
 
-    power_correction = _calculate_power_correction(window_gain)
+    power_correction = _calculate_power_correction(window_gain, equiv_noise_bw_factor)
     power_spectrum = power_spectrum * power_correction
     if complex_spectrum is not None:
         complex_spectrum = complex_spectrum * np.sqrt(power_correction)
@@ -108,14 +108,14 @@ def compute_spectrum(
     sig_bin_end = min(fundamental_bin + side_bin + 1, n_inband)
 
     sig_linear = float(np.sum(power_spectrum[sig_bin_start:sig_bin_end]))
-    sig_pwr_linear = sig_linear / equiv_noise_bw_factor
+    sig_pwr_linear = sig_linear
     sig_pwr_dbfs = 10 * np.log10(max(sig_pwr_linear, 1e-30))
     sig_peak = float(power_spectrum[fundamental_bin])
 
     if assumed_sig_pwr_dbfs is not None and not np.isnan(assumed_sig_pwr_dbfs):
         sig_pwr_linear = 10 ** (assumed_sig_pwr_dbfs / 10)
         sig_pwr_dbfs = assumed_sig_pwr_dbfs
-        sig_linear = sig_pwr_linear * equiv_noise_bw_factor
+        sig_linear = sig_pwr_linear
         sig_peak = sig_pwr_linear
 
     harmonic_bins = _locate_harmonic_bins(fundamental_bin_fractional, max_harmonic, N)

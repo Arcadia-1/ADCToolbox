@@ -127,24 +127,28 @@ def _get_default_side_bin(win_type: str, is_coherent: bool | None = None) -> int
     return _SIDE_BIN_DEFAULTS[win_key]['coherent']
 
 
-def _calculate_power_correction(window_gain: float) -> float:
-    """Calculate power correction factor for dBFS scaling.
+def _calculate_power_correction(window_gain: float, equiv_noise_bw_factor: float) -> float:
+    """Calculate MATLAB plotspec-style power correction for dBFS scaling.
 
-    The factor 4 comes from:
-    - 2x for single-sided spectrum (positive frequencies only)
-    - 2x for peak-to-RMS conversion for power scaling
+    The correction is equivalent to applying the window with RMS
+    normalization and then multiplying the one-sided FFT power by 4. For a
+    coherent Hann-windowed full-scale sine, this leaves the main tone split
+    across the center bin and adjacent side bins; the main-lobe sum is 0 dBFS,
+    while the center bin alone is below 0 dBFS.
 
-    Division by window_gain² accounts for window power normalization.
-    This ensures a full-scale sine (peak=1) normalizes to 0 dBFS.
+    Since ``ENBW = mean(window²) / window_gain²``, the raw-window correction is
+    ``4 / mean(window²) = 4 / (window_gain² * ENBW)``.
 
     Parameters
     ----------
     window_gain
         Window gain from _create_window
+    equiv_noise_bw_factor
+        Equivalent noise bandwidth factor from _create_window
 
     Returns
     -------
     float
-        Power correction factor: ``4 / window_gain²``
+        Power correction factor: ``4 / (window_gain² * ENBW)``
     """
-    return 4 / window_gain**2
+    return 4 / (window_gain**2 * equiv_noise_bw_factor)

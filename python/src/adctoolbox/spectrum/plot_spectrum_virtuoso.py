@@ -76,8 +76,7 @@ def plot_spectrum_virtuoso(compute_results, show_title=True, show_label=True,
     M    = compute_results['M']
     fs   = compute_results['fs']
     osr  = compute_results['osr']
-    v_offset = plot_data.get('v_offset', 0.0)
-    nf_line_level = metrics['nsd_dbfs_hz'] + 10 * np.log10(fs / N) + v_offset
+    nf_line_level = metrics['noise_floor_dbfs'] - 10 * np.log10(N / (2 * osr))
 
     if ax is None:
         ax = plt.gca()
