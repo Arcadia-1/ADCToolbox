@@ -176,6 +176,11 @@ weights_fast = calibrate_weight_sine_lite(bits, freq_norm)   # ndarray, no dict
 `calibrate_weight_sine` returns a dict with `weight`, `offset`,
 `calibrated_signal`, `ideal`, `error`, `refined_frequency`. The `_lite` variant
 returns just the weights ndarray and is positional (no `freq=` kw).
+If `freq` is omitted, `calibrate_weight_sine` estimates the tone frequency and
+then fine-searches it against the calibration residual. If the coherent
+training frequency is already known, pass `freq=k/N` to keep that exact
+frequency fixed; use `force_search=True` only when you deliberately want to
+refine a provided frequency.
 
 ## 5. Import rules (compressed)
 

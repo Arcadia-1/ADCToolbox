@@ -258,6 +258,26 @@ def main() -> None:
     ax.set_ylim(10.0, 16.35)
     ax.set_xticks(np.arange(0, 10.1, 1.0))
     ax.grid(True, color="#d9d9d9", linewidth=0.75, linestyle="--", alpha=0.75)
+    ax.text(
+        0.06,
+        0.84,
+        "After cal.",
+        transform=ax.transAxes,
+        fontsize=22,
+        fontweight="bold",
+        color="#222222",
+        alpha=0.78,
+    )
+    ax.text(
+        0.56,
+        0.13,
+        "Before cal.",
+        transform=ax.transAxes,
+        fontsize=22,
+        fontweight="bold",
+        color="#222222",
+        alpha=0.78,
+    )
     ax.legend(loc="lower left", ncol=2, fontsize=8.8, frameon=True)
 
     fig_path = output_dir / "exp_d16_sar_unit_cap_mismatch_mc.png"

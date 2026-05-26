@@ -129,6 +129,9 @@ adctoolbox-install-skill --dev --editable --force --dest ~/.codex/skills
 - `calibrate_weight_sine(bits, freq=...)` and `calibrate_weight_sine_lite(bits,
   freq)` expect normalized `freq = Fin/Fs`. The `_lite` variant takes `freq`
   positionally (not as a keyword) and is required (no auto-search).
+- If `freq` is omitted, `calibrate_weight_sine` estimates the tone frequency
+  and fine-searches it against the calibration residual. A provided `freq`
+  remains fixed unless `force_search=True`.
 - `analyze_enob_sweep(bits, freq=...)` and `generate_dout_dashboard(bits,
   freq=...)` also expect normalized `freq`.
 - `generate_aout_dashboard(aout, fs=..., freq=...)` takes `freq` in Hz (it
