@@ -6,9 +6,9 @@
 #, fuzzy
 msgid ""
 msgstr ""
-"Project-Id-Version: ADCToolbox 0.5.0\n"
+"Project-Id-Version: ADCToolbox 0.8.0\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2026-03-10 20:52+0800\n"
+"POT-Creation-Date: 2026-05-26 22:15+0800\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language: zh_CN\n"
@@ -29,9 +29,9 @@ msgstr ""
 
 #: ../../source/algorithms/fit_sine_4param.md:5
 msgid ""
-"`fit_sine_4param` fits a pure sine wave to ADC output using iterative "
-"least-squares with frequency refinement. This implements the IEEE Std "
-"1057/1241 algorithm for precise sinusoidal parameter estimation."
+"`fit_sine_4param` fits a pure sine wave to ADC output using iterative least-"
+"squares with frequency refinement. This implements the IEEE Std 1057/1241 "
+"algorithm for precise sinusoidal parameter estimation."
 msgstr ""
 
 #: ../../source/algorithms/fit_sine_4param.md:7
@@ -48,8 +48,8 @@ msgstr ""
 
 #: ../../source/algorithms/fit_sine_4param.md:26
 msgid ""
-"**`frequency_estimate`** (float, optional) — Initial normalized frequency"
-" (0 to 0.5)"
+"**`frequency_estimate`** (float, optional) — Initial normalized frequency (0 "
+"to 0.5)"
 msgstr ""
 
 #: ../../source/algorithms/fit_sine_4param.md:27
@@ -58,14 +58,14 @@ msgstr ""
 
 #: ../../source/algorithms/fit_sine_4param.md:28
 msgid ""
-"**`max_iterations`** (int, default=1) — Number of iterations for "
-"frequency refinement"
+"**`max_iterations`** (int, default=1) — Number of iterations for frequency "
+"refinement"
 msgstr ""
 
 #: ../../source/algorithms/fit_sine_4param.md:29
 msgid ""
-"**`tolerance`** (float, default=1e-9) — Convergence threshold for "
-"frequency updates"
+"**`tolerance`** (float, default=1e-9) — Convergence threshold for frequency "
+"updates"
 msgstr ""
 
 #: ../../source/algorithms/fit_sine_4param.md:31
@@ -239,8 +239,7 @@ msgstr ""
 
 #: ../../source/algorithms/fit_sine_4param.md:175
 msgid ""
-"**Signal Characterization**: Extract amplitude, frequency, phase for "
-"testing"
+"**Signal Characterization**: Extract amplitude, frequency, phase for testing"
 msgstr ""
 
 #: ../../source/algorithms/fit_sine_4param.md:176
@@ -256,7 +255,8 @@ msgid "Limitations"
 msgstr ""
 
 #: ../../source/algorithms/fit_sine_4param.md:181
-msgid "**Single-tone only**: Assumes pure sine wave; fails with multi-tone inputs"
+msgid ""
+"**Single-tone only**: Assumes pure sine wave; fails with multi-tone inputs"
 msgstr ""
 
 #: ../../source/algorithms/fit_sine_4param.md:182
@@ -265,8 +265,7 @@ msgstr ""
 
 #: ../../source/algorithms/fit_sine_4param.md:183
 msgid ""
-"**Convergence**: May fail if initial estimate is very far from true "
-"frequency"
+"**Convergence**: May fail if initial estimate is very far from true frequency"
 msgstr ""
 
 #: ../../source/algorithms/fit_sine_4param.md:184
@@ -279,7 +278,7 @@ msgstr ""
 
 #: ../../source/algorithms/fit_sine_4param.md:188
 msgid ""
-"[`analyze_decomposition_time`](analyze_decomposition.md) — Time-domain "
+"[`analyze_decomposition_time`](analyze_decomposition_time.md) — Time-domain "
 "harmonic decomposition using fitted sine"
 msgstr ""
 
@@ -290,7 +289,8 @@ msgid ""
 msgstr ""
 
 #: ../../source/algorithms/fit_sine_4param.md:190
-msgid "[`analyze_error_pdf`](analyze_error_pdf.md) — Error distribution analysis"
+msgid ""
+"[`analyze_error_pdf`](analyze_error_pdf.md) — Error distribution analysis"
 msgstr ""
 
 #: ../../source/algorithms/fit_sine_4param.md:192
@@ -306,4 +306,3 @@ msgid ""
 "IEEE Std 1241-2010, \"IEEE Standard for Terminology and Test Methods for "
 "ADCs\""
 msgstr ""
-

@@ -6,7 +6,7 @@
 #, fuzzy
 msgid ""
 msgstr ""
-"Project-Id-Version: ADCToolbox 0.5.0\n"
+"Project-Id-Version: ADCToolbox 0.8.0\n"
 "Report-Msgid-Bugs-To: \n"
 "POT-Creation-Date: 2026-03-10 20:52+0800\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
@@ -25,8 +25,8 @@ msgstr ""
 
 #: ../../source/examples/expected_output_04_debug_analog.rst:4
 msgid ""
-"This document shows the expected console output and example figures from "
-"all examples in `python/src/adctoolbox/examples/04_debug_analog/`."
+"This document shows the expected console output and example figures from all "
+"examples in `python/src/adctoolbox/examples/04_debug_analog/`."
 msgstr ""
 
 #: ../../source/examples/expected_output_04_debug_analog.rst:7
@@ -45,13 +45,13 @@ msgstr ""
 
 #: ../../source/examples/expected_output_04_debug_analog.rst:13
 msgid ""
-"**Categories**: - **Sine Fitting**: exp_a01 (4-parameter fitting) - "
-"**Error Analysis**: exp_a02-a04 (by value, by phase, jitter calculation) "
-"- **Harmonic Decomposition**: exp_a11-a12 (time domain and polar) - "
+"**Categories**: - **Sine Fitting**: exp_a01 (4-parameter fitting) - **Error "
+"Analysis**: exp_a02-a04 (by value, by phase, jitter calculation) - "
+"**Harmonic Decomposition**: exp_a11-a12 (time domain and polar) - "
 "**Statistical Analysis**: exp_a21-a25 (PDF, spectrum, autocorrelation, "
-"envelope, comparison) - **Nonlinearity**: exp_a31-a32 (static "
-"nonlinearity fitting, INL/DNL) - **Phase Plane**: exp_a41-a42 (standard "
-"and error phase plane)"
+"envelope, comparison) - **Nonlinearity**: exp_a31-a32 (static nonlinearity "
+"fitting, INL/DNL) - **Phase Plane**: exp_a41-a42 (standard and error phase "
+"plane)"
 msgstr ""
 
 #: ../../source/examples/expected_output_04_debug_analog.rst:24
@@ -108,8 +108,8 @@ msgstr ""
 
 #: ../../source/examples/expected_output_04_debug_analog.rst:221
 msgid ""
-"**Description**: Analyze error probability density functions for various "
-"non-idealities."
+"**Description**: Analyze error probability density functions for various non-"
+"idealities."
 msgstr ""
 
 #: ../../source/examples/expected_output_04_debug_analog.rst:252
@@ -125,7 +125,8 @@ msgid "exp_a23_analyze_error_autocorrelation.py"
 msgstr ""
 
 #: ../../source/examples/expected_output_04_debug_analog.rst:266
-msgid "**Description**: Analyze error autocorrelation for various non-idealities."
+msgid ""
+"**Description**: Analyze error autocorrelation for various non-idealities."
 msgstr ""
 
 #: ../../source/examples/expected_output_04_debug_analog.rst:297
@@ -134,8 +135,7 @@ msgstr ""
 
 #: ../../source/examples/expected_output_04_debug_analog.rst:299
 msgid ""
-"**Description**: Analyze error envelope spectrum for various non-"
-"idealities."
+"**Description**: Analyze error envelope spectrum for various non-idealities."
 msgstr ""
 
 #: ../../source/examples/expected_output_04_debug_analog.rst:309
@@ -159,7 +159,8 @@ msgid "exp_a32_inl_from_sine_sweep_length.py"
 msgstr ""
 
 #: ../../source/examples/expected_output_04_debug_analog.rst:361
-msgid "**Description**: Sweep data length for INL/DNL extraction from sine wave."
+msgid ""
+"**Description**: Sweep data length for INL/DNL extraction from sine wave."
 msgstr ""
 
 #: ../../source/examples/expected_output_04_debug_analog.rst:377
@@ -183,4 +184,3 @@ msgstr ""
 #: ../../source/examples/expected_output_04_debug_analog.rst:452
 msgid "---"
 msgstr ""
-

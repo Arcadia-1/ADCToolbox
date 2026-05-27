@@ -1,7 +1,8 @@
 Examples
 ================
 
-ADCToolbox includes 51 ready-to-run examples organized into 6 categories. This page demonstrates common use cases and analysis workflows.
+ADCToolbox includes 59 ready-to-run examples organized into 9 categories. This
+page demonstrates common use cases and analysis workflows.
 
 Getting the Examples
 --------------------
@@ -26,7 +27,8 @@ Navigate to the examples directory and run any example. Examples are organized b
     python 02_spectrum/exp_s01_analyze_spectrum_simplest.py
     python 02_spectrum/exp_s02_analyze_spectrum_interactive.py
 
-All examples save their outputs (plots, data files) to an ``output/`` subdirectory within each category folder.
+Examples that generate figures save PNG outputs to an ``output/`` subdirectory
+within each category folder.
 
 **Category Folders:**
 
@@ -36,12 +38,15 @@ All examples save their outputs (plots, data files) to an ``output/`` subdirecto
 * ``05_debug_digital/`` - Digital output analysis examples
 * ``06_use_toolsets/`` - Comprehensive dashboard examples
 * ``07_conversions/`` - Conversion and metric calculation examples
+* ``08_time_interleave/`` - Time-interleaved ADC analysis examples
+* ``09_downsample/`` - Subsample and aliasing examples
 
 Expected Outputs
 ----------------
 
-For reference, the expected outputs from each example category are documented below.
-These documentation files show the console output, figures, and validation results you should expect when running each example.
+For reference, selected expected outputs are documented below. These pages show
+representative console output, figures, and validation results for the main
+example groups.
 
 .. toctree::
    :maxdepth: 1

@@ -185,7 +185,7 @@ plt.show()
 
 ## See Also
 
-- [`analyze_decomposition_time`](analyze_decomposition.md) — Time-domain harmonic decomposition using fitted sine
+- [`analyze_decomposition_time`](analyze_decomposition_time.md) — Time-domain harmonic decomposition using fitted sine
 - [`analyze_inl_from_sine`](analyze_inl_from_sine.md) — INL/DNL extraction from sine wave
 - [`analyze_error_pdf`](analyze_error_pdf.md) — Error distribution analysis
 

@@ -2,6 +2,7 @@
 
 import numpy as np
 from adctoolbox.spectrum._align_spectrum_phase import _align_spectrum_phase
+from adctoolbox.spectrum._bin_ranges import rfft_inband_bin_count
 from adctoolbox.spectrum._locate_fundamental import _locate_fundamental
 
 
@@ -81,7 +82,7 @@ def _coherent_average(
 
         # Get power spectrum for fundamental search
         fft_power = np.abs(fft_data[:N//2+1])**2
-        n_inband = N // 2 // osr
+        n_inband = rfft_inband_bin_count(N, osr)
 
         fundamental_bin, fundamental_bin_frantional = _locate_fundamental(fft_power, n_inband)
 

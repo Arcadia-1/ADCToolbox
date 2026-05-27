@@ -6,9 +6,9 @@
 #, fuzzy
 msgid ""
 msgstr ""
-"Project-Id-Version: ADCToolbox 0.5.0\n"
+"Project-Id-Version: ADCToolbox 0.8.0\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2026-03-10 20:52+0800\n"
+"POT-Creation-Date: 2026-05-26 22:15+0800\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language: zh_CN\n"
@@ -26,400 +26,564 @@ msgstr ""
 #: ../../source/changelog.rst:4
 msgid ""
 "For the complete changelog with detailed version history, see the "
-"`CHANGELOG.md "
-"<https://github.com/Arcadia-1/ADCToolbox/blob/main/CHANGELOG.md>`_ file "
-"in the repository."
+"`CHANGELOG.md <https://github.com/Arcadia-1/ADCToolbox/blob/main/"
+"CHANGELOG.md>`_ file in the repository."
 msgstr ""
 
 #: ../../source/changelog.rst:7
-msgid "Version 0.4.0 (Latest)"
+msgid "Version 0.8.3 (Latest)"
 msgstr ""
 
-#: ../../source/changelog.rst:9 ../../source/changelog.rst:49
-msgid "**Release Date**: 2025-12-18"
+#: ../../source/changelog.rst:9
+msgid "**Release Date**: 2026-05-26"
 msgstr ""
 
 #: ../../source/changelog.rst:11
+msgid ""
+"**Example Output Cleanup Release** - keeps SAR calibration examples focused "
+"on figures and avoids writing CSV side artifacts."
+msgstr ""
+
+#: ../../source/changelog.rst:15 ../../source/changelog.rst:38
+#: ../../source/changelog.rst:89 ../../source/changelog.rst:112
+msgid "Changed"
+msgstr ""
+
+#: ../../source/changelog.rst:17
+msgid ""
+"SAR digital-debug examples now save PNG figures only; intermediate Monte "
+"Carlo and sweep statistics remain in memory for plotting instead of being "
+"written to CSV files."
+msgstr ""
+
+#: ../../source/changelog.rst:20
+msgid "Example console messages no longer advertise CSV side outputs."
+msgstr ""
+
+#: ../../source/changelog.rst:23
+msgid "Version 0.8.2"
+msgstr ""
+
+#: ../../source/changelog.rst:25
+msgid "**Release Date**: 2026-05-25"
+msgstr ""
+
+#: ../../source/changelog.rst:27
+msgid ""
+"**SAR Calibration Examples Release** - adds focused SAR mismatch and "
+"foreground-calibration examples, and refines SAR mismatch modeling."
+msgstr ""
+
+#: ../../source/changelog.rst:31 ../../source/changelog.rst:73
+#: ../../source/changelog.rst:102
+msgid "Added"
+msgstr ""
+
+#: ../../source/changelog.rst:33
+msgid "New SAR digital-debug examples: ``exp_d15`` through ``exp_d18``."
+msgstr ""
+
+#: ../../source/changelog.rst:34
+msgid ""
+"``sar_apply_cap_mismatch``, a Pelgrom/unit-cap-scaled SAR CDAC mismatch "
+"helper with optional explicit capacitor unit counts."
+msgstr ""
+
+#: ../../source/changelog.rst:40
+msgid ""
+"SAR examples and bundled skill docs now use the explicit "
+"``sar_apply_cap_mismatch`` name."
+msgstr ""
+
+#: ../../source/changelog.rst:42
+msgid ""
+"Spectrum plot annotations stay fixed in axes coordinates after subplot and "
+"post-plot y-limit changes."
+msgstr ""
+
+#: ../../source/changelog.rst:46 ../../source/changelog.rst:59
+#: ../../source/changelog.rst:128
+msgid "Fixed"
+msgstr ""
+
+#: ../../source/changelog.rst:48
+msgid ""
+"``sar_apply_mismatch`` remains available with its legacy per-weight gaussian "
+"perturbation semantics for backward compatibility."
+msgstr ""
+
+#: ../../source/changelog.rst:52
+msgid "Version 0.8.1"
+msgstr ""
+
+#: ../../source/changelog.rst:54
+msgid "**Release Date**: 2026-05-24"
+msgstr ""
+
+#: ../../source/changelog.rst:56
+msgid ""
+"**Spectrum Plot Calibration Patch** - aligns Python windowed spectrum bin "
+"heights with MATLAB ``plotspec.m``."
+msgstr ""
+
+#: ../../source/changelog.rst:61
+msgid ""
+"Python spectrum plotting now uses MATLAB-style RMS window power scaling, so "
+"coherent Hann full-scale tones report the center bin below 0 dBFS while the "
+"full main-lobe sum remains 0 dBFS."
+msgstr ""
+
+#: ../../source/changelog.rst:62
+msgid ""
+"``compute_spectrum`` no longer applies an extra ENBW division to integrated "
+"signal power after window RMS scaling."
+msgstr ""
+
+#: ../../source/changelog.rst:63
+msgid ""
+"Virtuoso-style spectrum plots use the same raw dBFS noise-line convention as "
+"the standard plotter."
+msgstr ""
+
+#: ../../source/changelog.rst:66
+msgid "Version 0.8.0"
+msgstr ""
+
+#: ../../source/changelog.rst:68
+msgid "**Release Date**: 2026-05-18"
+msgstr ""
+
+#: ../../source/changelog.rst:70
+msgid ""
+"**SAR + Spectrum Robustness Release** - behavior-model API cleanup, stronger "
+"FFT side-bin handling, and MATLAB data-generation parity updates."
+msgstr ""
+
+#: ../../source/changelog.rst:75
+msgid "**ADC behavioral models submodule**:"
+msgstr ""
+
+#: ../../source/changelog.rst:77
+msgid ""
+"``sar_convert`` / ``sar_reconstruct`` / ``sar_ideal_weights`` / "
+"``sar_apply_mismatch``"
+msgstr ""
+
+#: ../../source/changelog.rst:78
+msgid ""
+"Explicit CDAC weights, ``quant_range=(v_min, v_max)``, sampling noise, "
+"comparator noise, and cap mismatch support"
+msgstr ""
+
+#: ../../source/changelog.rst:79
+msgid ""
+"Unit coverage for ideal SAR ENoB, quant-range scaling, sampling noise, "
+"comparator noise, and cap mismatch"
+msgstr ""
+
+#: ../../source/changelog.rst:81
+msgid "**Spectrum side-bin regression coverage**:"
+msgstr ""
+
+#: ../../source/changelog.rst:83
+msgid "Added near-Nyquist SAR FFT-length example"
+msgstr ""
+
+#: ../../source/changelog.rst:84
+msgid "Added tests for finite axis handling and side-bin defaults"
+msgstr ""
+
+#: ../../source/changelog.rst:86
+msgid ""
+"**MATLAB data generation scripts** for sinewave non-idealities, SAR dout, "
+"pipeline dout, jitter sweeps, and batch generation"
+msgstr ""
+
+#: ../../source/changelog.rst:91
+msgid ""
+"Spectrum helpers now use safer automatic side-bin defaults and more robust "
+"noise-floor display handling near edge cases"
+msgstr ""
+
+#: ../../source/changelog.rst:92
+msgid "``matlab/src/plotspec.m`` now handles Nyquist-bin cases more robustly"
+msgstr ""
+
+#: ../../source/changelog.rst:95
+msgid "Version 0.4.0"
+msgstr ""
+
+#: ../../source/changelog.rst:97 ../../source/changelog.rst:137
+msgid "**Release Date**: 2025-12-18"
+msgstr ""
+
+#: ../../source/changelog.rst:99
 msgid ""
 "**Documentation Release** - Complete Sphinx documentation overhaul with "
 "algorithm guides."
 msgstr ""
 
-#: ../../source/changelog.rst:14
-msgid "Added"
-msgstr ""
-
-#: ../../source/changelog.rst:16 ../../source/changelog.rst:110
+#: ../../source/changelog.rst:104 ../../source/changelog.rst:198
 msgid "**Complete Documentation Overhaul**:"
 msgstr ""
 
-#: ../../source/changelog.rst:18
+#: ../../source/changelog.rst:106
 msgid "15 detailed algorithm documentation pages with Python API"
 msgstr ""
 
-#: ../../source/changelog.rst:19
+#: ../../source/changelog.rst:107
 msgid "Updated installation guide emphasizing ``adctoolbox-get-examples``"
 msgstr ""
 
-#: ../../source/changelog.rst:20 ../../source/changelog.rst:116
+#: ../../source/changelog.rst:108 ../../source/changelog.rst:204
 msgid "Enhanced quickstart guide with learning path"
 msgstr ""
 
-#: ../../source/changelog.rst:21
+#: ../../source/changelog.rst:109
 msgid "All API reference docs updated to Python snake_case naming"
 msgstr ""
 
-#: ../../source/changelog.rst:24
-msgid "Changed"
-msgstr ""
-
-#: ../../source/changelog.rst:26
+#: ../../source/changelog.rst:114
 msgid "**Documentation Structure**:"
 msgstr ""
 
-#: ../../source/changelog.rst:28
+#: ../../source/changelog.rst:116
 msgid "Installation guide shortened, git clone moved to bottom"
 msgstr ""
 
-#: ../../source/changelog.rst:29
+#: ../../source/changelog.rst:117
 msgid ""
-"Quickstart restructured to start with basic examples (exp_b01, exp_b02, "
-"then exp_s01)"
+"Quickstart restructured to start with basic examples (exp_b01, exp_b02, then "
+"exp_s01)"
 msgstr ""
 
-#: ../../source/changelog.rst:30
+#: ../../source/changelog.rst:118
 msgid "Used actual code from examples instead of synthetic snippets"
 msgstr ""
 
-#: ../../source/changelog.rst:31
+#: ../../source/changelog.rst:119
 msgid "Emphasized \"Learning with Examples\" throughout documentation"
 msgstr ""
 
-#: ../../source/changelog.rst:34
+#: ../../source/changelog.rst:122
 msgid "Removed"
 msgstr ""
 
-#: ../../source/changelog.rst:36
+#: ../../source/changelog.rst:124
 msgid "Deleted 13 obsolete MATLAB-named algorithm documentation files"
 msgstr ""
 
-#: ../../source/changelog.rst:37
+#: ../../source/changelog.rst:125
 msgid "Removed obsolete ``src/__init__.py`` file"
 msgstr ""
 
-#: ../../source/changelog.rst:40
-msgid "Fixed"
-msgstr ""
-
-#: ../../source/changelog.rst:42
+#: ../../source/changelog.rst:130
 msgid "Version number synchronization across all files"
 msgstr ""
 
-#: ../../source/changelog.rst:43
+#: ../../source/changelog.rst:131
 msgid "Dynamic versioning in ``pyproject.toml``"
 msgstr ""
 
-#: ../../source/changelog.rst:44
+#: ../../source/changelog.rst:132
 msgid "Documentation links and references updated to v0.4.0"
 msgstr ""
 
-#: ../../source/changelog.rst:47
+#: ../../source/changelog.rst:135
 msgid "Version 0.3.0"
 msgstr ""
 
-#: ../../source/changelog.rst:51
+#: ../../source/changelog.rst:139
 msgid ""
-"**Major Refactoring Release** - Complete Python architecture "
-"modernization with 45 examples."
+"**Major Refactoring Release** - Complete Python architecture modernization "
+"with 45 examples."
 msgstr ""
 
-#: ../../source/changelog.rst:54
+#: ../../source/changelog.rst:142
 msgid "Breaking Changes"
 msgstr ""
 
-#: ../../source/changelog.rst:56
+#: ../../source/changelog.rst:144
 msgid ""
 "**API Naming**: All functions converted from MATLAB camelCase to Python "
 "snake_case"
 msgstr ""
 
-#: ../../source/changelog.rst:58
+#: ../../source/changelog.rst:146
 msgid "``sineFit`` → ``fit_sine_4param``"
 msgstr ""
 
-#: ../../source/changelog.rst:59
+#: ../../source/changelog.rst:147
 msgid "``INLsine`` → ``analyze_inl_from_sine``"
 msgstr ""
 
-#: ../../source/changelog.rst:60
+#: ../../source/changelog.rst:148
 msgid "``specPlot`` → ``analyze_spectrum``"
 msgstr ""
 
-#: ../../source/changelog.rst:61
+#: ../../source/changelog.rst:149
 msgid "``errPDF`` → ``analyze_error_pdf``"
 msgstr ""
 
-#: ../../source/changelog.rst:62
+#: ../../source/changelog.rst:150
 msgid "``FGCalSine`` → ``calibrate_weight_sine``"
 msgstr ""
 
-#: ../../source/changelog.rst:63
+#: ../../source/changelog.rst:151
 msgid "And many more..."
 msgstr ""
 
-#: ../../source/changelog.rst:65
+#: ../../source/changelog.rst:153
 msgid ""
-"**Module Structure**: Consolidated and reorganized for better "
-"maintainability"
+"**Module Structure**: Consolidated and reorganized for better maintainability"
 msgstr ""
 
-#: ../../source/changelog.rst:67
+#: ../../source/changelog.rst:155
 msgid ""
 "``fundamentals``: Sine fitting, frequency utils, unit conversions, FOM "
 "metrics"
 msgstr ""
 
-#: ../../source/changelog.rst:68
+#: ../../source/changelog.rst:156
 msgid "``spectrum``: Single-tone, two-tone, polar analysis"
 msgstr ""
 
-#: ../../source/changelog.rst:69
+#: ../../source/changelog.rst:157
 msgid "``aout``: Analog error analysis (10 functions)"
 msgstr ""
 
-#: ../../source/changelog.rst:70
+#: ../../source/changelog.rst:158
 msgid "``dout``: Digital calibration (3 functions)"
 msgstr ""
 
-#: ../../source/changelog.rst:71
+#: ../../source/changelog.rst:159
 msgid "``siggen``: Signal generator with non-idealities"
 msgstr ""
 
-#: ../../source/changelog.rst:72
+#: ../../source/changelog.rst:160
 msgid "``oversampling``: NTF analysis"
 msgstr ""
 
-#: ../../source/changelog.rst:74
+#: ../../source/changelog.rst:162
 msgid ""
-"**Return Values**: All functions now return dictionaries instead of "
-"tuples for clarity"
+"**Return Values**: All functions now return dictionaries instead of tuples "
+"for clarity"
 msgstr ""
 
-#: ../../source/changelog.rst:77
+#: ../../source/changelog.rst:165
 msgid "New Features"
 msgstr ""
 
-#: ../../source/changelog.rst:79
+#: ../../source/changelog.rst:167
 msgid "**45 Ready-to-Run Examples** (up from 21) across 6 categories:"
 msgstr ""
 
-#: ../../source/changelog.rst:81
+#: ../../source/changelog.rst:169
 msgid "``01_basic/`` - Fundamentals (2 examples)"
 msgstr ""
 
-#: ../../source/changelog.rst:82
+#: ../../source/changelog.rst:170
 msgid "``02_spectrum/`` - FFT-Based Analysis (14 examples)"
 msgstr ""
 
-#: ../../source/changelog.rst:83
+#: ../../source/changelog.rst:171
 msgid "``03_generate_signals/`` - Non-Ideality Modeling (6 examples)"
 msgstr ""
 
-#: ../../source/changelog.rst:84
+#: ../../source/changelog.rst:172
 msgid "``04_debug_analog/`` - Error Characterization (13 examples)"
 msgstr ""
 
-#: ../../source/changelog.rst:85
+#: ../../source/changelog.rst:173
 msgid "``05_debug_digital/`` - Calibration & Redundancy (5 examples)"
 msgstr ""
 
-#: ../../source/changelog.rst:86
+#: ../../source/changelog.rst:174
 msgid "``07_conversions/`` - Conversions (5 examples)"
 msgstr ""
 
-#: ../../source/changelog.rst:88
+#: ../../source/changelog.rst:176
 msgid "**Enhanced Error Analysis**:"
 msgstr ""
 
-#: ../../source/changelog.rst:90
+#: ../../source/changelog.rst:178
 msgid "``analyze_error_by_phase``: AM/PM decomposition"
 msgstr ""
 
-#: ../../source/changelog.rst:91
+#: ../../source/changelog.rst:179
 msgid "``analyze_error_spectrum``: Error frequency analysis"
 msgstr ""
 
-#: ../../source/changelog.rst:92
+#: ../../source/changelog.rst:180
 msgid "``analyze_decomposition_polar``: Polar harmonic visualization"
 msgstr ""
 
-#: ../../source/changelog.rst:93
+#: ../../source/changelog.rst:181
 msgid "``fit_static_nonlin``: Extract k2/k3 coefficients"
 msgstr ""
 
-#: ../../source/changelog.rst:95
+#: ../../source/changelog.rst:183
 msgid "**Expanded Fundamentals Module**:"
 msgstr ""
 
-#: ../../source/changelog.rst:97
+#: ../../source/changelog.rst:185
 msgid "Comprehensive unit conversions (dB, power, voltage, frequency, NSD)"
 msgstr ""
 
-#: ../../source/changelog.rst:98
+#: ../../source/changelog.rst:186
 msgid "FOM calculations (Walden, Schreier)"
 msgstr ""
 
-#: ../../source/changelog.rst:99
+#: ../../source/changelog.rst:187
 msgid "Noise/jitter limit calculations"
 msgstr ""
 
-#: ../../source/changelog.rst:100
+#: ../../source/changelog.rst:188
 msgid "Data validation utilities"
 msgstr ""
 
-#: ../../source/changelog.rst:102
+#: ../../source/changelog.rst:190
 msgid "**CLI Improvements**:"
 msgstr ""
 
-#: ../../source/changelog.rst:104
+#: ../../source/changelog.rst:192
 msgid "``adctoolbox-get-examples``: One-command example deployment"
 msgstr ""
 
-#: ../../source/changelog.rst:105
+#: ../../source/changelog.rst:193
 msgid "Organized output directory structure"
 msgstr ""
 
-#: ../../source/changelog.rst:108
+#: ../../source/changelog.rst:196
 msgid "Documentation"
 msgstr ""
 
-#: ../../source/changelog.rst:112
+#: ../../source/changelog.rst:200
 msgid "All algorithm docs updated to Python API"
 msgstr ""
 
-#: ../../source/changelog.rst:113
+#: ../../source/changelog.rst:201
 msgid "15 detailed algorithm documentation pages"
 msgstr ""
 
-#: ../../source/changelog.rst:114
+#: ../../source/changelog.rst:202
 msgid "Removed 13 obsolete MATLAB-named docs"
 msgstr ""
 
-#: ../../source/changelog.rst:115
+#: ../../source/changelog.rst:203
 msgid "Updated installation guide with emphasis on examples"
 msgstr ""
 
-#: ../../source/changelog.rst:118
+#: ../../source/changelog.rst:206
 msgid "**New Algorithm Documentation**:"
 msgstr ""
 
-#: ../../source/changelog.rst:120
+#: ../../source/changelog.rst:208
 msgid "``fit_sine_4param``: IEEE Std 1057/1241 sine fitting"
 msgstr ""
 
-#: ../../source/changelog.rst:121
+#: ../../source/changelog.rst:209
 msgid "``analyze_inl_from_sine``: INL/DNL from histogram method"
 msgstr ""
 
-#: ../../source/changelog.rst:122
+#: ../../source/changelog.rst:210
 msgid "``analyze_spectrum``: Comprehensive FFT analysis"
 msgstr ""
 
-#: ../../source/changelog.rst:123
+#: ../../source/changelog.rst:211
 msgid "``analyze_error_by_phase``: AM/PM error decomposition"
 msgstr ""
 
-#: ../../source/changelog.rst:124
+#: ../../source/changelog.rst:212
 msgid "``fit_static_nonlin``: Nonlinearity coefficient extraction"
 msgstr ""
 
-#: ../../source/changelog.rst:125
+#: ../../source/changelog.rst:213
 msgid "And 10 more detailed guides"
 msgstr ""
 
-#: ../../source/changelog.rst:128
+#: ../../source/changelog.rst:216
 msgid "Improvements"
 msgstr ""
 
-#: ../../source/changelog.rst:130
+#: ../../source/changelog.rst:218
 msgid ""
 "**Better API Consistency**: All analyze functions follow pattern: "
 "``analyze_*(..., show_plot=True)``"
 msgstr ""
 
-#: ../../source/changelog.rst:131
+#: ../../source/changelog.rst:219
 msgid "**Clearer Returns**: Dictionary returns with self-documenting keys"
 msgstr ""
 
-#: ../../source/changelog.rst:132
+#: ../../source/changelog.rst:220
 msgid ""
 "**Enhanced Plotting**: Optional plotting with ``show_plot`` parameter, "
 "custom axes support"
 msgstr ""
 
-#: ../../source/changelog.rst:133
+#: ../../source/changelog.rst:221
 msgid "**Validation**: Input validation with clear error messages"
 msgstr ""
 
-#: ../../source/changelog.rst:134
+#: ../../source/changelog.rst:222
 msgid "**Type Hints**: Added to core functions for better IDE support"
 msgstr ""
 
-#: ../../source/changelog.rst:137
+#: ../../source/changelog.rst:225
 msgid "Bug Fixes"
 msgstr ""
 
-#: ../../source/changelog.rst:139
+#: ../../source/changelog.rst:227
 msgid "Fixed frequency estimation edge cases in ``fit_sine_4param``"
 msgstr ""
 
-#: ../../source/changelog.rst:140
+#: ../../source/changelog.rst:228
 msgid "Corrected INL/DNL clipping behavior in ``analyze_inl_from_sine``"
 msgstr ""
 
-#: ../../source/changelog.rst:141
+#: ../../source/changelog.rst:229
 msgid "Improved numerical stability in weight calibration"
 msgstr ""
 
-#: ../../source/changelog.rst:144
+#: ../../source/changelog.rst:232
 msgid "Version 0.2.4"
 msgstr ""
 
-#: ../../source/changelog.rst:146
+#: ../../source/changelog.rst:234
 msgid "Legacy release with MATLAB-style naming conventions."
 msgstr ""
 
-#: ../../source/changelog.rst:149
+#: ../../source/changelog.rst:237
 msgid "Features"
 msgstr ""
 
-#: ../../source/changelog.rst:151
+#: ../../source/changelog.rst:239
 msgid "21 ready-to-run examples"
 msgstr ""
 
-#: ../../source/changelog.rst:152
+#: ../../source/changelog.rst:240
 msgid "Analog output analysis (9 diagnostic tools)"
 msgstr ""
 
-#: ../../source/changelog.rst:153
+#: ../../source/changelog.rst:241
 msgid "Digital output analysis (6 tools)"
 msgstr ""
 
-#: ../../source/changelog.rst:154
+#: ../../source/changelog.rst:242
 msgid "Dual MATLAB and Python implementations"
 msgstr ""
 
-#: ../../source/changelog.rst:155
+#: ../../source/changelog.rst:243
 msgid "Full documentation"
 msgstr ""
 
-#: ../../source/changelog.rst:158
+#: ../../source/changelog.rst:246
 msgid "Previous Versions"
 msgstr ""
 
-#: ../../source/changelog.rst:160
+#: ../../source/changelog.rst:248
 msgid ""
 "For historical version information, please refer to the `CHANGELOG.md "
 "<https://github.com/Arcadia-1/ADCToolbox/blob/main/CHANGELOG.md>`_ file."
 msgstr ""
-

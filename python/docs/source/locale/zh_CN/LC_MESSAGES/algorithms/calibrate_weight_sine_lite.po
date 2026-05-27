@@ -6,7 +6,7 @@
 #, fuzzy
 msgid ""
 msgstr ""
-"Project-Id-Version: ADCToolbox 0.5.0\n"
+"Project-Id-Version: ADCToolbox 0.8.0\n"
 "Report-Msgid-Bugs-To: \n"
 "POT-Creation-Date: 2026-03-10 20:52+0800\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
@@ -29,10 +29,10 @@ msgstr ""
 
 #: ../../source/algorithms/calibrate_weight_sine_lite.md:5
 msgid ""
-"`calibrate_weight_sine_lite` provides a minimal, fast implementation of "
-"ADC foreground calibration using a known-frequency sinewave input. This "
-"is a simplified version of the full `calibrate_weight_sine` algorithm, "
-"optimized for speed and code simplicity."
+"`calibrate_weight_sine_lite` provides a minimal, fast implementation of ADC "
+"foreground calibration using a known-frequency sinewave input. This is a "
+"simplified version of the full `calibrate_weight_sine` algorithm, optimized "
+"for speed and code simplicity."
 msgstr ""
 
 #: ../../source/algorithms/calibrate_weight_sine_lite.md:7
@@ -230,9 +230,9 @@ msgstr ""
 
 #: ../../source/algorithms/calibrate_weight_sine_lite.md:190
 msgid ""
-"The function requires the input frequency to be **precisely known**. "
-"Unlike the full `calibrate_weight_sine`, it does not perform frequency "
-"search or refinement."
+"The function requires the input frequency to be **precisely known**. Unlike "
+"the full `calibrate_weight_sine`, it does not perform frequency search or "
+"refinement."
 msgstr ""
 
 #: ../../source/algorithms/calibrate_weight_sine_lite.md:192
@@ -247,8 +247,8 @@ msgstr ""
 
 #: ../../source/algorithms/calibrate_weight_sine_lite.md:196
 msgid ""
-"The algorithm **does not handle rank deficiency** or redundant weights. "
-"For ADCs with:"
+"The algorithm **does not handle rank deficiency** or redundant weights. For "
+"ADCs with:"
 msgstr ""
 
 #: ../../source/algorithms/calibrate_weight_sine_lite.md:197
@@ -333,8 +333,8 @@ msgstr ""
 
 #: ../../source/algorithms/calibrate_weight_sine_lite.md:240
 msgid ""
-"**Recommendation**: Use input signals at or near full scale (0 dBFS to -3"
-" dBFS) for best results."
+"**Recommendation**: Use input signals at or near full scale (0 dBFS to -3 "
+"dBFS) for best results."
 msgstr ""
 
 #: ../../source/algorithms/calibrate_weight_sine_lite.md:242
@@ -607,22 +607,21 @@ msgstr ""
 
 #: ../../source/algorithms/calibrate_weight_sine_lite.md:316
 msgid ""
-"IEEE Standard 1057-2017: \"IEEE Standard for Digitizing Waveform "
-"Recorders\""
+"IEEE Standard 1057-2017: \"IEEE Standard for Digitizing Waveform Recorders\""
 msgstr ""
 
 #: ../../source/algorithms/calibrate_weight_sine_lite.md:318
 msgid ""
 "Vogel, C., & Johansson, H. (2006). \"Time-interleaved analog-to-digital "
-"converters: Status and future directions.\" *IEEE Transactions on "
-"Circuits and Systems I*, 53(11), 2386-2394."
+"converters: Status and future directions.\" *IEEE Transactions on Circuits "
+"and Systems I*, 53(11), 2386-2394."
 msgstr ""
 
 #: ../../source/algorithms/calibrate_weight_sine_lite.md:320
 msgid ""
 "Jin, H., & Lee, E. K. F. (1992). \"A digital-background calibration "
-"technique for minimizing timing-error effects in time-interleaved ADCs.\""
-" *IEEE Transactions on Circuits and Systems II*, 47(7), 603-613."
+"technique for minimizing timing-error effects in time-interleaved ADCs.\" "
+"*IEEE Transactions on Circuits and Systems II*, 47(7), 603-613."
 msgstr ""
 
 #: ../../source/algorithms/calibrate_weight_sine_lite.md:322
@@ -641,11 +640,10 @@ msgstr ""
 
 #: ../../source/algorithms/calibrate_weight_sine_lite.md:327
 msgid ""
-"[analyze_spectrum](analyze_spectrum.md) - Spectral analysis for SNDR/ENOB"
-" calculation"
+"[analyze_spectrum](analyze_spectrum.md) - Spectral analysis for SNDR/ENOB "
+"calculation"
 msgstr ""
 
 #: ../../source/algorithms/calibrate_weight_sine_lite.md:328
 msgid "[fit_sine_4param](fit_sine_4param.md) - IEEE 1057 sinewave fitting"
 msgstr ""
-

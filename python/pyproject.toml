@@ -7,7 +7,7 @@ name = "adctoolbox"
 dynamic = ["version"]
 description = "ADC Testing and Analysis Toolkit"
 readme = "README.md"
-license = {text = "MIT"}
+license = "MIT"
 requires-python = ">=3.10"
 dependencies = [
     "numpy>=1.23.0",
@@ -22,8 +22,10 @@ adctoolbox-install-skill = "adctoolbox.skill_cli:main"
 [project.optional-dependencies]
 docs = [
     "sphinx>=7.0.0",
-    "sphinx-rtd-theme>=2.0.0",
     "sphinx-autodoc-typehints>=1.24.0",
+    "pydata-sphinx-theme>=0.16.0",
+    "sphinx-copybutton>=0.5.2",
+    "sphinx-design>=0.6.0",
     "myst-parser>=2.0.0",
     "sphinx-intl",
 ]
@@ -35,7 +37,6 @@ package-dir = {"" = "src"}
 where = ["src"]
 
 [tool.setuptools.package-data]
-"adctoolbox.examples.data" = ["*.csv"]
 "adctoolbox.examples" = ["*.md"]
 "adctoolbox._bundled_skills" = [
     "skills/*/SKILL.md",

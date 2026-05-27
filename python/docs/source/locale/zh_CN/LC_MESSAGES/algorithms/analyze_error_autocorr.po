@@ -6,7 +6,7 @@
 #, fuzzy
 msgid ""
 msgstr ""
-"Project-Id-Version: ADCToolbox 0.5.0\n"
+"Project-Id-Version: ADCToolbox 0.8.0\n"
 "Report-Msgid-Bugs-To: \n"
 "POT-Creation-Date: 2026-03-10 20:52+0800\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
@@ -30,9 +30,9 @@ msgstr ""
 #: ../../source/algorithms/analyze_error_autocorr.md:5
 msgid ""
 "`analyze_error_autocorr` computes the autocorrelation of ADC errors to "
-"reveal temporal patterns. White noise has zero autocorrelation at all "
-"lags; correlated errors indicate memory effects, settling issues, or "
-"periodic disturbances."
+"reveal temporal patterns. White noise has zero autocorrelation at all lags; "
+"correlated errors indicate memory effects, settling issues, or periodic "
+"disturbances."
 msgstr ""
 
 #: ../../source/algorithms/analyze_error_autocorr.md:7
@@ -153,14 +153,13 @@ msgstr ""
 
 #: ../../source/algorithms/analyze_error_autocorr.md:52
 msgid ""
-"[`analyze_error_spectrum`](analyze_error_spectrum.md) — Frequency domain "
-"view"
+"[`analyze_error_spectrum`](analyze_error_spectrum.md) — Frequency domain view"
 msgstr ""
 
 #: ../../source/algorithms/analyze_error_autocorr.md:53
 msgid ""
-"[`analyze_error_envelope_spectrum`](analyze_error_envelope_spectrum.md) —"
-" AM modulation"
+"[`analyze_error_envelope_spectrum`](analyze_error_envelope_spectrum.md) — AM "
+"modulation"
 msgstr ""
 
 #: ../../source/algorithms/analyze_error_autocorr.md:55
@@ -169,7 +168,5 @@ msgstr ""
 
 #: ../../source/algorithms/analyze_error_autocorr.md:57
 msgid ""
-"B. Razavi, \"Principles of Data Conversion System Design,\" IEEE Press, "
-"1995"
+"B. Razavi, \"Principles of Data Conversion System Design,\" IEEE Press, 1995"
 msgstr ""
-

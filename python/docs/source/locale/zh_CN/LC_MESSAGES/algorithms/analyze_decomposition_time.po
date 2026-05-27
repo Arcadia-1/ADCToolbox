@@ -6,7 +6,7 @@
 #, fuzzy
 msgid ""
 msgstr ""
-"Project-Id-Version: ADCToolbox 0.5.0\n"
+"Project-Id-Version: ADCToolbox 0.8.0\n"
 "Report-Msgid-Bugs-To: \n"
 "POT-Creation-Date: 2026-03-10 20:52+0800\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
@@ -29,9 +29,9 @@ msgstr ""
 
 #: ../../source/algorithms/analyze_decomposition_time.md:5
 msgid ""
-"`analyze_decomposition_time` performs time-domain harmonic decomposition "
-"of ADC output, separating the fundamental from harmonic distortion "
-"components. This reveals the temporal structure of nonlinearity."
+"`analyze_decomposition_time` performs time-domain harmonic decomposition of "
+"ADC output, separating the fundamental from harmonic distortion components. "
+"This reveals the temporal structure of nonlinearity."
 msgstr ""
 
 #: ../../source/algorithms/analyze_decomposition_time.md:7
@@ -116,8 +116,8 @@ msgstr ""
 
 #: ../../source/algorithms/analyze_decomposition_time.md:60
 msgid ""
-"[`analyze_decomposition_polar`](../api/aout.rst) — Polar visualization of"
-" decomposition"
+"[`analyze_decomposition_polar`](../api/aout.rst) — Polar visualization of "
+"decomposition"
 msgstr ""
 
 #: ../../source/algorithms/analyze_decomposition_time.md:61
@@ -135,4 +135,3 @@ msgstr ""
 #: ../../source/algorithms/analyze_decomposition_time.md:66
 msgid "IEEE Std 1057-2017, \"IEEE Standard for Digitizing Waveform Recorders\""
 msgstr ""
-

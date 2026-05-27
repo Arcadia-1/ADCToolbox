@@ -6,9 +6,9 @@
 #, fuzzy
 msgid ""
 msgstr ""
-"Project-Id-Version: ADCToolbox 0.5.0\n"
+"Project-Id-Version: ADCToolbox 0.8.0\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2026-03-10 20:52+0800\n"
+"POT-Creation-Date: 2026-05-26 22:15+0800\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language: zh_CN\n"
@@ -25,95 +25,97 @@ msgstr ""
 
 #: ../../source/examples/expected_output_05_debug_digital.rst:4
 msgid ""
-"This document shows the expected console output and example figures from "
-"all examples in `python/src/adctoolbox/examples/05_debug_digital/`."
+"This document shows selected expected console output and example figures "
+"from `python/src/adctoolbox/examples/05_debug_digital/`."
 msgstr ""
 
-#: ../../source/examples/expected_output_05_debug_digital.rst:7
+#: ../../source/examples/expected_output_05_debug_digital.rst:8
 msgid "Summary"
 msgstr ""
 
-#: ../../source/examples/expected_output_05_debug_digital.rst:9
+#: ../../source/examples/expected_output_05_debug_digital.rst:10
 msgid ""
 "All examples in `05_debug_digital` demonstrate digital output analysis "
 "capabilities:"
 msgstr ""
 
-#: ../../source/examples/expected_output_05_debug_digital.rst:11
-msgid "**Total Examples**: 7"
+#: ../../source/examples/expected_output_05_debug_digital.rst:12
+msgid "**Total Examples**: 11"
 msgstr ""
 
-#: ../../source/examples/expected_output_05_debug_digital.rst:13
+#: ../../source/examples/expected_output_05_debug_digital.rst:14
 msgid ""
 "**Categories**: - **Weight Calibration**: exp_d01-d03 (lite, full, "
-"redundancy comparison) - **Digital Debugging**: exp_d11-d14 (bit "
-"activity, ENOB sweep, weight scaling, overflow check)"
+"redundancy comparison) - **Digital Debugging**: exp_d11-d14 (bit activity, "
+"ENOB sweep, weight scaling, overflow check) - **SAR Calibration**: exp_d15-"
+"d18 (unit-cap mismatch, Monte Carlo spread, repeated calibration, training-"
+"length sweep)"
 msgstr ""
 
-#: ../../source/examples/expected_output_05_debug_digital.rst:17
+#: ../../source/examples/expected_output_05_debug_digital.rst:19
 msgid ""
 "**Key Features**: - Foreground calibration using sine waves - Redundancy "
 "analysis for pipeline ADCs - Bit-level activity monitoring - Weight and "
-"radix calculations - Overflow detection"
+"radix calculations - Overflow detection - SAR capacitor-mismatch modeling "
+"and foreground calibration"
 msgstr ""
 
-#: ../../source/examples/expected_output_05_debug_digital.rst:27
+#: ../../source/examples/expected_output_05_debug_digital.rst:30
 msgid "exp_d01_cal_weight_sine_lite.py"
 msgstr ""
 
-#: ../../source/examples/expected_output_05_debug_digital.rst:29
+#: ../../source/examples/expected_output_05_debug_digital.rst:32
 msgid "**Description**: Lightweight weight calibration using sine wave."
 msgstr ""
 
-#: ../../source/examples/expected_output_05_debug_digital.rst:56
+#: ../../source/examples/expected_output_05_debug_digital.rst:59
 msgid "exp_d02_cal_weight_sine.py"
 msgstr ""
 
-#: ../../source/examples/expected_output_05_debug_digital.rst:58
+#: ../../source/examples/expected_output_05_debug_digital.rst:61
 msgid "**Description**: Full weight calibration with detailed analysis."
 msgstr ""
 
-#: ../../source/examples/expected_output_05_debug_digital.rst:73
+#: ../../source/examples/expected_output_05_debug_digital.rst:76
 msgid "exp_d03_redundancy_comparison.py"
 msgstr ""
 
-#: ../../source/examples/expected_output_05_debug_digital.rst:75
+#: ../../source/examples/expected_output_05_debug_digital.rst:78
 msgid "**Description**: Compare calibration with and without redundancy."
 msgstr ""
 
-#: ../../source/examples/expected_output_05_debug_digital.rst:89
+#: ../../source/examples/expected_output_05_debug_digital.rst:92
 msgid "exp_d11_bit_activity.py"
 msgstr ""
 
-#: ../../source/examples/expected_output_05_debug_digital.rst:91
+#: ../../source/examples/expected_output_05_debug_digital.rst:94
 msgid "**Description**: Check bit activity for digital debugging."
 msgstr ""
 
-#: ../../source/examples/expected_output_05_debug_digital.rst:104
+#: ../../source/examples/expected_output_05_debug_digital.rst:107
 msgid "exp_d12_sweep_bit_enob.py"
 msgstr ""
 
-#: ../../source/examples/expected_output_05_debug_digital.rst:106
+#: ../../source/examples/expected_output_05_debug_digital.rst:109
 msgid "**Description**: Sweep bit count to find optimal ENOB."
 msgstr ""
 
-#: ../../source/examples/expected_output_05_debug_digital.rst:117
+#: ../../source/examples/expected_output_05_debug_digital.rst:120
 msgid "exp_d13_weight_scaling.py"
 msgstr ""
 
-#: ../../source/examples/expected_output_05_debug_digital.rst:119
+#: ../../source/examples/expected_output_05_debug_digital.rst:122
 msgid "**Description**: Analyze weight scaling and radix calculations."
 msgstr ""
 
-#: ../../source/examples/expected_output_05_debug_digital.rst:130
+#: ../../source/examples/expected_output_05_debug_digital.rst:133
 msgid "exp_d14_overflow_check.py"
 msgstr ""
 
-#: ../../source/examples/expected_output_05_debug_digital.rst:132
+#: ../../source/examples/expected_output_05_debug_digital.rst:135
 msgid "**Description**: Check for overflow in digital output codes."
 msgstr ""
 
-#: ../../source/examples/expected_output_05_debug_digital.rst:143
+#: ../../source/examples/expected_output_05_debug_digital.rst:146
 msgid "---"
 msgstr ""
-

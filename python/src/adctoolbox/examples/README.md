@@ -1,130 +1,126 @@
 # ADCToolbox Examples
 
-## Quick Start
+This directory contains 59 runnable ADCToolbox examples. They are copied to a
+user workspace by:
 
-**Step 1: Install ADCToolbox**
-```bash
-pip install adctoolbox
-```
-
-**Step 2: Copy examples to your workspace**
 ```bash
 adctoolbox-get-examples
 ```
 
-**Step 3: Run examples**
+Most examples save figures into a local `output/` directory and avoid blocking
+on GUI display.
+
+## Quick Start
+
 ```bash
 cd adctoolbox_examples
-
-# Basic examples
-python exp_b01_plot_sine.py
-python exp_b02_spectrum.py
-python exp_b03_sine_fit.py
-python exp_b04_aliasing.py
-
-# Analog analysis examples
-python exp_a01_spec_plot_nonidealities.py
-python exp_a02_spec_plot_jitter_fin.py
-python exp_a03_err_pdf.py
-python exp_a04_err_hist_sine_phase.py
-python exp_a05_jitter_calculation.py
-python exp_a06_err_hist_sine_code.py
-python exp_a07_extract_static_nonlin.py
-python exp_a08_inl_dnl_sweep.py
-python exp_a09_spec_plot_phase.py
-python exp_a10_err_auto_correlation.py
-python exp_a11_err_envelope_spectrum.py
-python exp_a12_err_spectrum.py
-python exp_a13_tom_decomp.py
-
-# Digital analysis examples
-python exp_d01_bit_activity.py
-python exp_d02_fg_cal_sine.py
-python exp_d03_redundancy_comparison.py
-python exp_d04_weight_scaling.py
-python exp_d05_enob_bit_sweep.py
-
-# Toolset examples (complete workflows)
-python exp_toolset_aout.py
-python exp_toolset_dout.py
+python 01_basic/exp_b01_environment_check.py
+python 02_spectrum/exp_s01_analyze_spectrum_simplest.py
+python 05_debug_digital/exp_d02_cal_weight_sine.py
 ```
 
-**Note**: All examples save figures to `./output/` directory **without displaying them** (non-blocking mode). This allows you to run multiple examples in sequence without manual intervention. If you want to see figures pop up, add `plt.show()` at the end of any example script.
+## Example Map
 
----
+### `01_basic/` - fundamentals
 
-## Categories
+| File | Topic |
+|---|---|
+| `exp_b01_environment_check.py` | Verify the install and save a test figure |
+| `exp_b02_coherent_vs_non_coherent.py` | Coherent versus non-coherent sampling behavior |
 
-### **Basic (b01-b04)** - Basic Functions
-Foundation tools for signal generation, visualization, and analysis.
+### `02_spectrum/` - FFT and spectrum analysis
 
-| Example | Description |
-|---------|-------------|
-| `b01_plot_sine` | Plot ideal sinewave |
-| `b02_spectrum` | FFT spectrum analysis |
-| `b03_sine_fit` | Fit sine to noisy data |
-| `b04_aliasing` | Nyquist zones demonstration |
+| File | Topic |
+|---|---|
+| `exp_s00_fft_fundamentals.py` | FFT-bin fundamentals |
+| `exp_s01_analyze_spectrum_simplest.py` | Minimal single-tone spectrum analysis |
+| `exp_s02_analyze_spectrum_interactive.py` | Interactive spectrum plotting |
+| `exp_s03_analyze_spectrum_savefig.py` | Save spectrum figures |
+| `exp_s04_sweep_dynamic_range.py` | Dynamic-range sweep |
+| `exp_s05_annotating_spur.py` | Spur annotation |
+| `exp_s06_sweeping_fft_and_osr.py` | FFT length and OSR sweep |
+| `exp_s07_spectrum_averaging.py` | Spectrum averaging |
+| `exp_s08_windowing_deep_dive.py` | Windowing comparison |
+| `exp_s09_sar_fft_length_near_nyquist.py` | SAR spectrum near Nyquist |
+| `exp_s10_cartesian_and_polar_plot.py` | Cartesian and polar spectrum views |
+| `exp_s11_polar_memory_effect.py` | Memory-effect visualization in polar spectrum |
+| `exp_s12_polar_coherent_averaging.py` | Coherent averaging with polar plots |
 
-### **Analog Output (a01-a14)** - Processing Recovered Signal
-Analysis on analog output (vector of recovered signal, e.g., reconstructed sinewave).
+### `03_generate_signals/` - synthetic ADC stimulus
 
-| Example | Description |
-|---------|-------------|
-| `a01_spec_plot_nonidealities` | 4 non-idealities comparison (noise, jitter, HD, kickback) |
-| `a02_spec_plot_jitter_fin` | Jitter across Nyquist zones |
-| `a03_err_pdf` | Error PDF comparison (4 non-idealities) |
-| `a04_err_hist_sine_phase` | Error histogram by phase (8 bins) |
-| `a05_jitter_calculation` | Jitter: time vs frequency domain |
-| `a06_err_hist_sine_code` | Error histogram by code |
-| `a07_extract_static_nonlin` | Extract k2, k3 nonlinearity coefficients |
-| `a08_inl_dnl_sweep` | INL/DNL vs record length (N = 2^10 to 2^16) |
-| `a09_spec_plot_phase` | Spectrum with phase (4 frequencies) |
-| `a10_err_auto_correlation` | Autocorrelation (12 non-ideality patterns) |
-| `a11_err_envelope_spectrum` | Error envelope spectrum |
-| `a12_err_spectrum` | Error spectrum |
-| `a13_tom_decomp` | TOM decomposition |
+| File | Topic |
+|---|---|
+| `exp_g01_generate_signal_demo.py` | Basic generated signal with thermal noise |
+| `exp_g03_sweep_quant_bits.py` | Quantization-noise sweep |
+| `exp_g04_sweep_jitter_fin.py` | Jitter versus input frequency |
+| `exp_g05_sweep_static_nonlin.py` | Static HD2/HD3 nonlinearity cases |
+| `exp_g06_sweep_dynamic_nonlin.py` | Dynamic nonlinear effects |
+| `exp_g07_sweep_interferences.py` | Interference and clipping cases |
 
-### **Digital Output (d01-d05)** - Processing ADC Digital Codes
-Analysis on digital output codes from ADC architectures (pipeline, SAR, etc.).
+### `04_debug_analog/` - analog-output diagnostics
 
-| Example | Description |
-|---------|-------------|
-| `d01_bit_activity` | Pipeline stage bit activity |
-| `d02_fg_cal_sine` | Foreground gain calibration |
-| `d03_redundancy_comparison` | Pipeline architecture comparison |
-| `d04_weight_scaling` | Digital weight scaling |
-| `d05_enob_bit_sweep` | ENOB vs bit sweep |
+| File | Topic |
+|---|---|
+| `exp_a01_fit_sine_4param.py` | Four-parameter sine fitting |
+| `exp_a02_analyze_error_by_value.py` | Error versus value/code |
+| `exp_a03_analyze_error_by_phase.py` | Error versus sine phase |
+| `exp_a04_jitter_calculation.py` | Jitter calculation |
+| `exp_a11_decompose_harmonics.py` | Time-domain harmonic decomposition |
+| `exp_a12_decompose_harmonics_polar.py` | Polar harmonic decomposition |
+| `exp_a21_analyze_error_pdf.py` | Error PDF comparison |
+| `exp_a22_analyze_error_spectrum.py` | Error spectrum |
+| `exp_a23_analyze_error_autocorrelation.py` | Error autocorrelation |
+| `exp_a24_analyze_error_envelope_spectrum.py` | Error-envelope spectrum |
+| `exp_a25_spectra.py` | Multi-case spectrum comparison |
+| `exp_a31_fit_static_nonlin.py` | Static nonlinearity fitting |
+| `exp_a32_inl_from_sine_sweep_length.py` | INL/DNL versus record length |
+| `exp_a41_analyze_phase_plane.py` | Phase-plane analysis |
+| `exp_a42_analyze_error_phase_plane.py` | Error phase-plane analysis |
 
-### **Toolset** - Complete Analysis Workflows
-Comprehensive analysis suites that run multiple tools automatically.
+### `05_debug_digital/` - digital-code diagnostics and calibration
 
-| Example | Description |
-|---------|-------------|
-| `toolset_aout` | Run all 9 analog output analysis tools (spec_plot, err_pdf, INL/DNL, etc.) |
-| `toolset_dout` | Run all 6 digital output analysis tools (bit_activity, weight_scaling, enob_sweep, etc.) |
+| File | Topic |
+|---|---|
+| `exp_d01_cal_weight_sine_lite.py` | Lightweight sine-weight calibration |
+| `exp_d02_cal_weight_sine.py` | Full sine-weight calibration |
+| `exp_d03_redundancy_comparison.py` | Pipeline redundancy comparison |
+| `exp_d11_bit_activity.py` | Bit activity |
+| `exp_d12_sweep_bit_enob.py` | ENOB versus active bit count |
+| `exp_d13_weight_scaling.py` | Weight scaling |
+| `exp_d14_overflow_check.py` | Overflow checking |
+| `exp_d15_sar_unit_cap_mismatch_uncal_spectra.py` | SAR unit-cap mismatch without calibration |
+| `exp_d16_sar_unit_cap_mismatch_mc.py` | SAR unit-cap mismatch Monte Carlo calibration |
+| `exp_d17_sar_msb_error_binary_vs_repeat_calibration.py` | MSB error: binary versus redundant SAR |
+| `exp_d18_sar_redundant_mismatch_training_length_sweep.py` | SAR calibration versus training length |
 
----
+### `06_use_toolsets/` - dashboard workflows
 
-## Standard Parameters
+| File | Topic |
+|---|---|
+| `exp_t01_aout_dashboard_single.py` | Single AOUT dashboard |
+| `exp_t02_aout_dashboard_batch.py` | Batch AOUT dashboard |
+| `exp_t03_dout_dashboard_single.py` | Single DOUT dashboard |
+| `exp_t04_dout_dashboard_batch.py` | Batch DOUT dashboard |
 
-```python
-N = 2**13              # 8192 samples
-Fs = 800e6             # 800 MHz
-Fin = 80e6             # 80 MHz (coherent)
-A = 0.49               # Amplitude
-DC = 0.5               # DC offset
-base_noise = 50e-6     # 50 uV
+### `07_conversions/` - conversions and metrics
 
-# Distortion
-hd2_dB = -80           # -80 dB HD2
-hd3_dB = -66 or -73    # -66/-73 dB HD3
-jitter_rms = 2e-12     # 2 ps
-```
+| File | Topic |
+|---|---|
+| `exp_c01_aliasing_nyquist_zones.py` | Aliasing and Nyquist zones |
+| `exp_c02_unit_conversions.py` | Unit conversions |
+| `exp_c03_calculate_fom.py` | ADC FoM calculations |
+| `exp_c04_amplitudes_to_snr.py` | Amplitude-to-SNR conversion |
+| `exp_c05_convert_nsd_snr.py` | NSD/SNR conversion |
 
-## Key Functions
+### `08_time_interleave/` - TI-ADC analysis
 
-- **Spectrum**: `spec_plot(signal, fs=Fs)`
-- **Error PDF**: `err_pdf(signal, resolution=12, plot=True)`
-- **INL/DNL**: `inl_dnl_from_sine(codes, num_bits=10, clip_percent=0.01)`
-- **Autocorrelation**: `err_auto_correlation(error, max_lag=100)`
-- **Sine Fit**: `sine_fit(signal, freq=None)`
+| File | Topic |
+|---|---|
+| `exp_ti01_compare_skew_methods.py` | Timing-skew extraction methods |
+| `exp_ti02_autocorr_background_skew_calibration.py` | Autocorrelation-based background skew calibration |
+
+### `09_downsample/` - subsample debug output
+
+| File | Topic |
+|---|---|
+| `exp_d00_subsample_aliasing.py` | Subsample-only debug output and aliasing behavior |

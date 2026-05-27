@@ -6,9 +6,9 @@
 #, fuzzy
 msgid ""
 msgstr ""
-"Project-Id-Version: ADCToolbox 0.5.0\n"
+"Project-Id-Version: ADCToolbox 0.8.0\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2026-03-10 20:52+0800\n"
+"POT-Creation-Date: 2026-05-26 22:15+0800\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language: zh_CN\n"
@@ -25,69 +25,98 @@ msgstr ""
 
 #: ../../source/api/index.rst:4
 msgid ""
-"This section provides detailed documentation for all ADCToolbox modules "
-"and functions."
-msgstr ""
-
-#: ../../source/api/index.rst:17
-msgid "Module Overview"
-msgstr ""
-
-#: ../../source/api/index.rst:19
-msgid ":doc:`fundamentals`"
+"This section provides detailed documentation for all ADCToolbox modules and "
+"functions."
 msgstr ""
 
 #: ../../source/api/index.rst:20
-msgid ""
-"Fundamental utilities including sine fitting, frequency calculation, unit"
-" conversion, FOM metrics, and validation"
+msgid "Module Overview"
 msgstr ""
 
 #: ../../source/api/index.rst:22
-msgid ":doc:`spectrum`"
+msgid ":doc:`fundamentals`"
 msgstr ""
 
 #: ../../source/api/index.rst:23
 msgid ""
-"Spectrum analysis tools for FFT-based metrics, polar plots, and two-tone "
-"analysis"
+"Fundamental utilities including sine fitting, frequency calculation, unit "
+"conversion, FOM metrics, and validation"
 msgstr ""
 
 #: ../../source/api/index.rst:25
-msgid ":doc:`aout`"
+msgid ":doc:`spectrum`"
 msgstr ""
 
 #: ../../source/api/index.rst:26
 msgid ""
-"Analog output analysis tools for INL/DNL, harmonic decomposition, and "
-"error characterization"
+"Spectrum analysis tools for FFT-based single-tone metrics, polar plots, and "
+"OSR sweeps"
 msgstr ""
 
 #: ../../source/api/index.rst:28
-msgid ":doc:`dout`"
+msgid ":doc:`aout`"
 msgstr ""
 
 #: ../../source/api/index.rst:29
+msgid ""
+"Analog output analysis tools for INL/DNL, harmonic decomposition, and error "
+"characterization"
+msgstr ""
+
+#: ../../source/api/index.rst:31
+msgid ":doc:`dout`"
+msgstr ""
+
+#: ../../source/api/index.rst:32
 msgid ""
 "Digital output analysis tools for bit weight calibration, overflow "
 "detection, and ENOB analysis"
 msgstr ""
 
-#: ../../source/api/index.rst:31
+#: ../../source/api/index.rst:34
+msgid ":doc:`models`"
+msgstr ""
+
+#: ../../source/api/index.rst:35
+msgid ""
+"ADC behavioral models, including SAR conversion, reconstruction, ideal "
+"weights, and capacitor mismatch"
+msgstr ""
+
+#: ../../source/api/index.rst:37
 msgid ":doc:`siggen`"
 msgstr ""
 
-#: ../../source/api/index.rst:32
+#: ../../source/api/index.rst:38
 msgid ""
 "Signal generation utilities for test signal creation with various non-"
 "idealities"
 msgstr ""
 
-#: ../../source/api/index.rst:34
+#: ../../source/api/index.rst:40
+msgid ":doc:`timeinterleave`"
+msgstr ""
+
+#: ../../source/api/index.rst:41
+msgid ""
+"Time-interleaved ADC deinterleaving, mismatch extraction, spur prediction, "
+"and foreground calibration"
+msgstr ""
+
+#: ../../source/api/index.rst:43
 msgid ":doc:`oversampling`"
 msgstr ""
 
-#: ../../source/api/index.rst:35
+#: ../../source/api/index.rst:44
 msgid "Oversampling and Delta-Sigma modulator analysis tools"
 msgstr ""
 
+#: ../../source/api/index.rst:46
+msgid ":doc:`toolset`"
+msgstr ""
+
+#: ../../source/api/index.rst:47
+msgid ""
+"Dashboard generation utilities for complete analog and digital analysis "
+"workflows"
+msgstr ""

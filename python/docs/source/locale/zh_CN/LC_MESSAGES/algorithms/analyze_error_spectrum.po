@@ -6,7 +6,7 @@
 #, fuzzy
 msgid ""
 msgstr ""
-"Project-Id-Version: ADCToolbox 0.5.0\n"
+"Project-Id-Version: ADCToolbox 0.8.0\n"
 "Report-Msgid-Bugs-To: \n"
 "POT-Creation-Date: 2026-03-10 20:52+0800\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
@@ -29,10 +29,10 @@ msgstr ""
 
 #: ../../source/algorithms/analyze_error_spectrum.md:5
 msgid ""
-"`analyze_error_spectrum` computes the FFT spectrum of the ADC error "
-"signal (data - fitted sine) to reveal frequency components in the error. "
-"This is distinct from analyzing the signal spectrum itself—here we "
-"analyze only the residual error after removing the ideal sine wave."
+"`analyze_error_spectrum` computes the FFT spectrum of the ADC error signal "
+"(data - fitted sine) to reveal frequency components in the error. This is "
+"distinct from analyzing the signal spectrum itself—here we analyze only the "
+"residual error after removing the ideal sine wave."
 msgstr ""
 
 #: ../../source/algorithms/analyze_error_spectrum.md:7
@@ -402,8 +402,8 @@ msgstr ""
 
 #: ../../source/algorithms/analyze_error_spectrum.md:188
 msgid ""
-"[`analyze_error_envelope_spectrum`](analyze_error_envelope_spectrum.md) —"
-" Error envelope (AM detection)"
+"[`analyze_error_envelope_spectrum`](analyze_error_envelope_spectrum.md) — "
+"Error envelope (AM detection)"
 msgstr ""
 
 #: ../../source/algorithms/analyze_error_spectrum.md:189
@@ -412,8 +412,7 @@ msgstr ""
 
 #: ../../source/algorithms/analyze_error_spectrum.md:190
 msgid ""
-"[`fit_sine_4param`](fit_sine_4param.md) — Sine fitting for error "
-"extraction"
+"[`fit_sine_4param`](fit_sine_4param.md) — Sine fitting for error extraction"
 msgstr ""
 
 #: ../../source/algorithms/analyze_error_spectrum.md:192
@@ -428,7 +427,5 @@ msgstr ""
 
 #: ../../source/algorithms/analyze_error_spectrum.md:195
 msgid ""
-"B. Razavi, \"Principles of Data Conversion System Design,\" IEEE Press, "
-"1995"
+"B. Razavi, \"Principles of Data Conversion System Design,\" IEEE Press, 1995"
 msgstr ""
-

@@ -49,11 +49,11 @@ Digital Calibration Algorithms
    :maxdepth: 1
 
    calibrate_weight_sine
+   calibrate_weight_sine_lite
 
 Oversampling Algorithms
 -----------------------
 
-.. toctree::
-   :maxdepth: 1
-
-   NTFAnalyzer
+:doc:`../api/oversampling`
+    Oversampling and Delta-Sigma utility reference, including
+    ``ntf_analyzer``.

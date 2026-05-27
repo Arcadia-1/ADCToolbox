@@ -17,46 +17,38 @@ def fit_static_nonlin(sig_distorted, order):
     coefficients from a distorted single-tone signal. It CANNOT extract gain error
     since the sine fitting absorbs amplitude into the reference.
 
-    Args:
-        sig_distorted: Distorted sinewave signal samples, array_like
-        order: Polynomial order for fitting (positive integer, typically 2-3)
-               order=2: Quadratic nonlinearity only (k2)
-               order=3: Quadratic + cubic nonlinearity (k2, k3)
+    Parameters
+    ----------
+    sig_distorted : array_like
+        Distorted sinewave signal samples.
+    order : int
+        Polynomial order for fitting. Use 2 for quadratic nonlinearity only
+        or 3 for quadratic plus cubic nonlinearity.
 
-    Returns:
-        k2_extracted: Quadratic nonlinearity coefficient (scalar)
-                      For ideal ADC: k2 = 0
-                      Represents 2nd-order distortion
-                      Returns NaN if order < 2
-        k3_extracted: Cubic nonlinearity coefficient (scalar)
-                      For ideal ADC: k3 = 0
-                      Represents 3rd-order distortion
-                      Returns NaN if order < 3
-        fitted_sine: Fitted ideal sinewave input (reference signal)
-                     Vector (N×1), same length as sig_distorted, in time order
-                     This is the ideal sine wave extracted from the distorted signal
-        fitted_transfer: Fitted transfer curve for plotting, tuple (x, y)
-                         x: 1000 smooth input points from min to max (sorted)
-                         y: polynomial-evaluated output at those points
-                         For ideal system: y=x (straight line)
+    Returns
+    -------
+    tuple
+        ``(k2_extracted, k3_extracted, fitted_sine, fitted_transfer)``.
+        The first two entries are scalar nonlinearity coefficients,
+        ``fitted_sine`` is the fitted ideal reference signal, and
+        ``fitted_transfer`` is a ``(x, y)`` tuple for plotting.
 
-    Transfer Function Model:
-        y = x + k2*x^2 + k3*x^3
-        where:
-          x = ideal input (zero-mean sine)
-          y = actual output (zero-mean)
-          k2, k3 = nonlinearity coefficients
+    Transfer Function Model
+    -----------------------
+    ``y = x + k2*x^2 + k3*x^3``, where ``x`` is the zero-mean ideal input,
+    ``y`` is the zero-mean actual output, and ``k2`` / ``k3`` are the
+    nonlinearity coefficients.
 
-    Usage Examples:
-        # Extract coefficients only
+    Examples
+    --------
+    Extract coefficients only::
+
         sig = 0.5*np.sin(2*np.pi*0.123*np.arange(1000)) + distortion
-        k2, k3 = extract_static_nonlin(sig, 3)[:2]
+        k2, k3 = fit_static_nonlin(sig, 3)[:2]
 
-        # Full extraction with plotting
-        k2, k3, fitted_sine, fitted_transfer = extract_static_nonlin(sig, 3)
-        import matplotlib.pyplot as plt
+    Plot the fitted nonlinearity curve::
 
-        # Plot nonlinearity curve
+        k2, k3, fitted_sine, fitted_transfer = fit_static_nonlin(sig, 3)
         transfer_x, transfer_y = fitted_transfer
         plt.plot(transfer_x, transfer_y - transfer_x, 'r-', linewidth=2)
         plt.xlabel('Input (V)')

@@ -3,8 +3,96 @@ Changelog
 
 For the complete changelog with detailed version history, see the `CHANGELOG.md <https://github.com/Arcadia-1/ADCToolbox/blob/main/CHANGELOG.md>`_ file in the repository.
 
-Version 0.4.0 (Latest)
+Version 0.8.3 (Latest)
 ----------------------
+
+**Release Date**: 2026-05-26
+
+**Example Output Cleanup Release** - keeps SAR calibration examples focused on
+figures and avoids writing CSV side artifacts.
+
+Changed
+~~~~~~~
+
+* SAR digital-debug examples now save PNG figures only; intermediate Monte
+  Carlo and sweep statistics remain in memory for plotting instead of being
+  written to CSV files.
+* Example console messages no longer advertise CSV side outputs.
+
+Version 0.8.2
+-------------
+
+**Release Date**: 2026-05-25
+
+**SAR Calibration Examples Release** - adds focused SAR mismatch and
+foreground-calibration examples, and refines SAR mismatch modeling.
+
+Added
+~~~~~
+
+* New SAR digital-debug examples: ``exp_d15`` through ``exp_d18``.
+* ``sar_apply_cap_mismatch``, a Pelgrom/unit-cap-scaled SAR CDAC mismatch
+  helper with optional explicit capacitor unit counts.
+
+Changed
+~~~~~~~
+
+* SAR examples and bundled skill docs now use the explicit
+  ``sar_apply_cap_mismatch`` name.
+* Spectrum plot annotations stay fixed in axes coordinates after subplot and
+  post-plot y-limit changes.
+
+Fixed
+~~~~~
+
+* ``sar_apply_mismatch`` remains available with its legacy per-weight gaussian
+  perturbation semantics for backward compatibility.
+
+Version 0.8.1
+-------------
+
+**Release Date**: 2026-05-24
+
+**Spectrum Plot Calibration Patch** - aligns Python windowed spectrum bin heights with MATLAB ``plotspec.m``.
+
+Fixed
+~~~~~
+
+* Python spectrum plotting now uses MATLAB-style RMS window power scaling, so coherent Hann full-scale tones report the center bin below 0 dBFS while the full main-lobe sum remains 0 dBFS.
+* ``compute_spectrum`` no longer applies an extra ENBW division to integrated signal power after window RMS scaling.
+* Virtuoso-style spectrum plots use the same raw dBFS noise-line convention as the standard plotter.
+
+Version 0.8.0
+-------------
+
+**Release Date**: 2026-05-18
+
+**SAR + Spectrum Robustness Release** - behavior-model API cleanup, stronger FFT side-bin handling, and MATLAB data-generation parity updates.
+
+Added
+~~~~~
+
+* **ADC behavioral models submodule**:
+
+  - ``sar_convert`` / ``sar_reconstruct`` / ``sar_ideal_weights`` / ``sar_apply_mismatch``
+  - Explicit CDAC weights, ``quant_range=(v_min, v_max)``, sampling noise, comparator noise, and cap mismatch support
+  - Unit coverage for ideal SAR ENoB, quant-range scaling, sampling noise, comparator noise, and cap mismatch
+
+* **Spectrum side-bin regression coverage**:
+
+  - Added near-Nyquist SAR FFT-length example
+  - Added tests for finite axis handling and side-bin defaults
+
+* **MATLAB data generation scripts** for sinewave non-idealities, SAR dout, pipeline dout, jitter sweeps, and batch generation
+
+Changed
+~~~~~~~
+
+* Spectrum helpers now use safer automatic side-bin defaults and more robust noise-floor display handling near edge cases
+* ``matlab/src/plotspec.m`` now handles Nyquist-bin cases more robustly
+
+Version 0.4.0
+-------------
 
 **Release Date**: 2025-12-18
 

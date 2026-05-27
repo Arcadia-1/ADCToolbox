@@ -28,7 +28,7 @@ from adctoolbox.calibration._post_process import _post_process
 def calibrate_weight_sine(
     bits: np.ndarray | list[np.ndarray],
     freq: float | np.ndarray | None = None,
-    force_search: bool = False,
+    force_search: bool | None = None,
     nominal_weights: np.ndarray | None = None,
     harmonic_order: int = 1,
     learning_rate: float = 0.5,
@@ -55,12 +55,15 @@ def calibrate_weight_sine(
         Can also be a list of arrays for multi-dataset calibration.
     freq : float, array-like, or None, optional
         Normalized frequency Fin/Fs. Default is None (triggers auto frequency search).
-        - None: Automatic frequency search
-        - float: Single frequency for all datasets
-        - array-like: Per-dataset frequencies for multi-dataset mode
-    force_search : bool, optional
-        Force fine frequency search even when frequency is provided.
-        Default is False. Set to True to refine provided frequencies.
+        Use None for automatic frequency search, a float for one frequency
+        shared by all datasets, or an array-like value for per-dataset
+        frequencies in multi-dataset mode.
+    force_search : bool or None, optional
+        Frequency fine-search policy. Default is None, which refines
+        automatically estimated frequencies while keeping explicitly provided
+        frequencies fixed. Set True to refine provided frequencies too, or
+        False to disable fine search unless a zero frequency placeholder
+        remains.
     nominal_weights : array-like, optional
         Nominal bit weights (only effective when rank is deficient).
         Default is 2^(M-1) down to 2^0.
@@ -80,23 +83,11 @@ def calibrate_weight_sine(
     Returns
     -------
     dict
-        Dictionary with keys:
-        - weight : ndarray
-            The calibrated weights, normalized by the magnitude of sinewave.
-        - offset : float
-            The calibrated DC offset, normalized by the magnitude of sinewave.
-        - calibrated_signal : ndarray or list of ndarrays
-            The signal after calibration (single array for single dataset,
-            list of arrays for multi-dataset).
-        - ideal : ndarray or list of ndarrays
-            The best fitted sinewave (single array for single dataset,
-            list of arrays for multi-dataset).
-        - error : ndarray or list of ndarrays
-            The residue errors after calibration, excluding distortion
-            (single array for single dataset, list of arrays for multi-dataset).
-        - refined_frequency : float or ndarray
-            The refined frequency from calibration (float for single dataset,
-            array for multi-dataset).
+        Calibration result containing ``weight``, ``offset``,
+        ``calibrated_signal``, ``ideal``, ``error``, and
+        ``refined_frequency``. Array-valued entries are returned as a single
+        array for single-dataset input or as a list of arrays for
+        multi-dataset input.
     """
 
     # 1. Normalize input to unified format
@@ -117,6 +108,8 @@ def calibrate_weight_sine(
     # Scale columns for numerical conditioning
     bits_stacked_effective_scaled, bit_scales = _scale_columns_for_conditioning(bits_stacked_effective, verbose)
 
+    auto_frequency_requested = freq is None or np.all(np.asarray(freq) == 0)
+
     # Estimate or validate frequencies
     freq_array = _estimate_frequencies(bits_stacked, segment_lengths, freq, verbose)
 
@@ -126,7 +119,12 @@ def calibrate_weight_sine(
         bits_segments_scaled.append(bits_stacked_effective_scaled[curr : curr + length])
         curr += length
 
-    if force_search or np.any(freq_array == 0):
+    run_frequency_search = (
+        (auto_frequency_requested if force_search is None else force_search)
+        or np.any(freq_array == 0)
+    )
+
+    if run_frequency_search:
         # Iterative frequency search (unified for single and multi-dataset)
         freq_array, coeffs, basis_choice, cos_basis, sin_basis = _solve_weights_searching_freq(
             bits_segments_scaled, freq_array, harmonic_order,
@@ -135,7 +133,7 @@ def calibrate_weight_sine(
     else:
         # Static solve at known frequencies (unified for single and multi-dataset)
         coeffs, basis_choice, cos_basis, sin_basis = _solve_weights_with_known_freq(
-            bits_segments_scaled, freq_array, harmonic_order
+            bits_segments_scaled, freq_array, harmonic_order, verbose=verbose
         )
 
     num_datasets = len(bits_segments)

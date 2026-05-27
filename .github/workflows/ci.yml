@@ -41,6 +41,13 @@ jobs:
         env:
           MPLBACKEND: Agg
 
+      - name: Run Unit Tests — Spectrum (pytest)
+        run: |
+          cd python
+          pytest tests/unit/spectrum/ -v
+        env:
+          MPLBACKEND: Agg
+
       - name: Run Basic Examples (01_basic)
         run: |
           cd python/src/adctoolbox/examples/01_basic

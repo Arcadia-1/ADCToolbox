@@ -6,7 +6,7 @@
 #, fuzzy
 msgid ""
 msgstr ""
-"Project-Id-Version: ADCToolbox 0.5.0\n"
+"Project-Id-Version: ADCToolbox 0.8.0\n"
 "Report-Msgid-Bugs-To: \n"
 "POT-Creation-Date: 2026-03-10 20:52+0800\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
@@ -25,8 +25,8 @@ msgstr ""
 
 #: ../../source/examples/expected_output_06_use_toolsets.rst:4
 msgid ""
-"This document shows the expected console output and example figures from "
-"all examples in `python/src/adctoolbox/examples/06_use_toolsets/`."
+"This document shows the expected console output and example figures from all "
+"examples in `python/src/adctoolbox/examples/06_use_toolsets/`."
 msgstr ""
 
 #: ../../source/examples/expected_output_06_use_toolsets.rst:7
@@ -46,30 +46,30 @@ msgstr ""
 #: ../../source/examples/expected_output_06_use_toolsets.rst:13
 msgid ""
 "**Categories**: - **Analog Output Dashboards**: exp_t01-t02 (single and "
-"batch, 12 tools per dashboard) - **Digital Output Dashboards**: "
-"exp_t03-t04 (single and batch, 6 tools per dashboard)"
+"batch, 12 tools per dashboard) - **Digital Output Dashboards**: exp_t03-t04 "
+"(single and batch, 6 tools per dashboard)"
 msgstr ""
 
 #: ../../source/examples/expected_output_06_use_toolsets.rst:17
 msgid ""
-"**Analog Dashboard (12 Tools)**: 1. Spectrum 2. Spectrum Polar 3. Error "
-"by Value 4. Error by Phase 5. Decomposition Time 6. Decomposition Polar "
-"7. Error PDF 8. Error Autocorrelation 9. Error Spectrum 10. Error "
-"Envelope Spectrum 11. Phase Plane 12. Error Phase Plane"
+"**Analog Dashboard (12 Tools)**: 1. Spectrum 2. Spectrum Polar 3. Error by "
+"Value 4. Error by Phase 5. Decomposition Time 6. Decomposition Polar 7. "
+"Error PDF 8. Error Autocorrelation 9. Error Spectrum 10. Error Envelope "
+"Spectrum 11. Phase Plane 12. Error Phase Plane"
 msgstr ""
 
 #: ../../source/examples/expected_output_06_use_toolsets.rst:31
 msgid ""
-"**Digital Dashboard (6 Tools)**: 1. Spectrum: Nominal Weights 2. "
-"Spectrum: Calibrated Weights 3. Bit Activity 4. Overflow Check 5. ENOB "
-"Bit Sweep 6. Weight Radix"
+"**Digital Dashboard (6 Tools)**: 1. Spectrum: Nominal Weights 2. Spectrum: "
+"Calibrated Weights 3. Bit Activity 4. Overflow Check 5. ENOB Bit Sweep 6. "
+"Weight Radix"
 msgstr ""
 
 #: ../../source/examples/expected_output_06_use_toolsets.rst:39
 msgid ""
-"**Key Features**: - Comprehensive all-in-one debugging dashboards - Batch"
-" processing for multiple test cases - 15 analog non-ideality types "
-"analyzed - 7 digital configuration types analyzed"
+"**Key Features**: - Comprehensive all-in-one debugging dashboards - Batch "
+"processing for multiple test cases - 15 analog non-ideality types analyzed - "
+"7 digital configuration types analyzed"
 msgstr ""
 
 #: ../../source/examples/expected_output_06_use_toolsets.rst:48
@@ -88,8 +88,8 @@ msgstr ""
 
 #: ../../source/examples/expected_output_06_use_toolsets.rst:62
 msgid ""
-"**Description**: Generate batch of 15 comprehensive dashboards for "
-"different non-idealities."
+"**Description**: Generate batch of 15 comprehensive dashboards for different "
+"non-idealities."
 msgstr ""
 
 #: ../../source/examples/expected_output_06_use_toolsets.rst:121
@@ -144,11 +144,10 @@ msgstr ""
 
 #: ../../source/examples/expected_output_06_use_toolsets.rst:167
 msgid ""
-"**Description**: Generate batch of 7 digital output dashboards for "
-"different configurations."
+"**Description**: Generate batch of 7 digital output dashboards for different "
+"configurations."
 msgstr ""
 
 #: ../../source/examples/expected_output_06_use_toolsets.rst:210
 msgid "---"
 msgstr ""
-

@@ -31,8 +31,8 @@ Your CD workflow will automatically publish ADCToolbox to PyPI whenever you crea
 ```
 ┌─────────────────────────────────────────────────────────┐
 │  Developer Action: Create and Push Version Tag         │
-│  $ git tag v0.5.0                                       │
-│  $ git push origin v0.5.0                               │
+│  $ git tag v0.8.0                                       │
+│  $ git push origin v0.8.0                               │
 └─────────────────────────────────────────────────────────┘
                          ↓
 ┌─────────────────────────────────────────────────────────┐
@@ -67,7 +67,7 @@ Your CD workflow will automatically publish ADCToolbox to PyPI whenever you crea
 ┌─────────────────────────────────────────────────────────┐
 │  Users can install:                                     │
 │  $ pip install adctoolbox                               │
-│  $ pip install adctoolbox==0.3.0                        │
+│  $ pip install adctoolbox==0.8.0                        │
 │  $ pip install --upgrade adctoolbox                     │
 └─────────────────────────────────────────────────────────┘
 ```
@@ -76,12 +76,13 @@ Your CD workflow will automatically publish ADCToolbox to PyPI whenever you crea
 
 ### Step 1: Update Version Number
 
-Edit `python/pyproject.toml`:
-```toml
-[project]
-name = "adctoolbox"
-version = "0.3.0"  # ← Update this
+Edit `python/src/adctoolbox/__init__.py`:
+```python
+__version__ = "0.8.0"  # ← Update this
 ```
+
+`python/pyproject.toml` reads this value dynamically via
+`version = {attr = "adctoolbox.__version__"}`.
 
 ### Step 2: Update CHANGELOG (optional but recommended)
 
@@ -89,28 +90,25 @@ Create/update `CHANGELOG.md`:
 ```markdown
 # Changelog
 
-## [0.3.0] - 2025-12-10
+## [0.8.0] - 2026-05-18
 
 ### Added
-- Modular spectrum architecture with `compute_spectrum()`
-- Coherent averaging support for spectrum analysis
-- Auto-generated titles in `plot_spectrum()` for better usability
-- Theoretical SNR/NSD calculations in analog examples (exp_a01, exp_a02)
+- SAR behavioral model helpers with `sar_convert()`
+- Release metadata synchronized to 0.8.0
+- MATLAB data generation scripts
 
 ### Changed
-- Renamed `calculate_spectrum_data()` → `compute_spectrum()`
-- Removed `analyze_spectrum_coherent_averaging()` (functionality integrated into `compute_spectrum()`)
-- Standardized print format across all examples ([Setting]/[Theory]/[Measured])
+- Refined spectrum side-bin defaults and near-Nyquist handling
 
 ### Fixed
-- Spectrum averaging behavior for power vs coherent modes
+- MATLAB `plotspec.m` Nyquist-bin handling
 ```
 
 ### Step 3: Commit Changes
 
 ```bash
-git add python/pyproject.toml CHANGELOG.md
-git commit -m "Bump version to 0.3.0"
+git add python/src/adctoolbox/__init__.py CHANGELOG.md
+git commit -m "Bump version to 0.8.0"
 git push origin main
 ```
 
@@ -118,13 +116,13 @@ git push origin main
 
 ```bash
 # Create annotated tag (recommended)
-git tag -a v0.5.0 -m "Release v0.5.0 - Updated spectrum tools"
+git tag -a v0.8.0 -m "Release v0.8.0"
 
 # Or simple tag
-git tag v0.5.0
+git tag v0.8.0
 
 # Push the tag (this triggers CD!)
-git push origin v0.5.0
+git push origin v0.8.0
 ```
 
 ### Step 5: Monitor Deployment
@@ -149,10 +147,10 @@ python -m build
 twine check dist/*
 
 # Install locally to test
-pip install dist/adctoolbox-0.3.0-py3-none-any.whl
+pip install dist/adctoolbox-0.8.0-py3-none-any.whl
 
 # Test it works
-python -c "from adctoolbox import spec_plot; print('Success!')"
+python -c "from adctoolbox import analyze_spectrum, sar_convert; print('Success!')"
 adctoolbox-get-examples
 ```
 
@@ -174,13 +172,12 @@ adctoolbox-get-examples
 Use semantic versioning: `MAJOR.MINOR.PATCH`
 
 - **MAJOR** (1.0.0): Breaking API changes
-- **MINOR** (0.3.0): New features, backwards compatible
+- **MINOR** (0.8.0): New features, backwards compatible
 - **PATCH** (0.2.2): Bug fixes, backwards compatible
 
 Examples:
-- `v0.2.5` → `v0.2.6`: Bug fix (spec_plot return values)
-- `v0.2.6` → `v0.5.0`: New features (updated spectrum tools)
-- `v0.5.0` → `v1.0.0`: Major release (API redesign)
+- `v0.7.0` → `v0.8.0`: New features (updated SAR and spectrum tools)
+- `v0.8.0` → `v1.0.0`: Major release (API redesign)
 
 ## Troubleshooting
 
@@ -209,10 +206,10 @@ Examples:
 ### Delete a Tag (if you made a mistake)
 ```bash
 # Delete local tag
-git tag -d v0.5.0
+git tag -d v0.8.0
 
 # Delete remote tag
-git push origin :refs/tags/v0.5.0
+git push origin :refs/tags/v0.8.0
 ```
 
 **Note**: Can't delete from PyPI once published! Only option is to "yank" the release.
@@ -228,7 +225,7 @@ Then on PyPI website → Manage → Options → "Yank this release"
 
 ## First-Time Checklist
 
-Before publishing v0.5.0 for the first time:
+Before publishing v0.8.0 for the first time:
 
 - [ ] PyPI account created and verified
 - [ ] PyPI API token created
@@ -238,11 +235,11 @@ Before publishing v0.5.0 for the first time:
 - [ ] Test install works: `pip install dist/*.whl`
 - [ ] Test examples work: `adctoolbox-get-examples`
 - [ ] README.md looks good (will be PyPI description)
-- [ ] Version number updated in `pyproject.toml`
+- [ ] Version number updated in `python/src/adctoolbox/__init__.py`
 - [ ] CHANGELOG.md updated (optional)
 - [ ] All changes committed to main branch
-- [ ] Tag created: `git tag v0.5.0`
-- [ ] Tag pushed: `git push origin v0.5.0`
+- [ ] Tag created: `git tag v0.8.0`
+- [ ] Tag pushed: `git push origin v0.8.0`
 
 ## After Publishing
 
@@ -255,7 +252,7 @@ pip uninstall adctoolbox
 pip install adctoolbox
 
 # Test it works
-python -c "from adctoolbox import spec_plot, find_bin; print('Success!')"
+python -c "from adctoolbox import analyze_spectrum, find_coherent_frequency; print('Success!')"
 adctoolbox-get-examples
 ```
 
@@ -270,13 +267,13 @@ Add installation badge to README.md:
 
 For beta/alpha releases:
 ```bash
-# Update version in pyproject.toml
-version = "0.3.0b1"  # Beta 1
-version = "0.3.0rc1" # Release candidate 1
+# Update version in python/src/adctoolbox/__init__.py
+__version__ = "0.8.0b1"  # Beta 1
+__version__ = "0.8.0rc1" # Release candidate 1
 
 # Tag and publish
-git tag v0.5.0b1
-git push origin v0.5.0b1
+git tag v0.8.0b1
+git push origin v0.8.0b1
 
 # Users install with
 pip install --pre adctoolbox
@@ -286,7 +283,7 @@ pip install --pre adctoolbox
 
 Your complete CI/CD pipeline:
 
-1. **CI (on every commit)**: Tests basic examples automatically
+1. **CI (on every commit)**: Tests unit coverage and example smoke tests automatically
 2. **CD (on version tag)**: Builds and publishes to PyPI automatically
 
 This is production-grade automation used by major Python projects!
@@ -295,7 +292,7 @@ This is production-grade automation used by major Python projects!
 
 ```bash
 # Release workflow
-vim python/pyproject.toml    # Update version
+vim python/src/adctoolbox/__init__.py    # Update version
 git commit -am "Bump version to X.Y.Z"
 git push
 git tag vX.Y.Z

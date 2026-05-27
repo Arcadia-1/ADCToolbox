@@ -53,6 +53,9 @@ jobs:
           cd python/docs
           python -m sphinx -b html -D language=zh_CN source build/html/zh_CN
 
+      - name: Write CNAME for custom domain
+        run: echo "adctoolbox.tokenzhang.com" > python/docs/build/html/CNAME
+
       - name: Upload artifact
         uses: actions/upload-pages-artifact@v5
         with:

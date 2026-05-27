@@ -6,7 +6,7 @@
 #, fuzzy
 msgid ""
 msgstr ""
-"Project-Id-Version: ADCToolbox 0.5.0\n"
+"Project-Id-Version: ADCToolbox 0.8.0\n"
 "Report-Msgid-Bugs-To: \n"
 "POT-Creation-Date: 2026-03-10 20:52+0800\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
@@ -241,14 +241,14 @@ msgstr ""
 
 #: ../../source/algorithms/analyze_error_pdf.md:124
 msgid ""
-"[`analyze_error_autocorr`](analyze_error_autocorr.md) — Temporal "
-"correlation in errors"
+"[`analyze_error_autocorr`](analyze_error_autocorr.md) — Temporal correlation "
+"in errors"
 msgstr ""
 
 #: ../../source/algorithms/analyze_error_pdf.md:125
 msgid ""
-"[`analyze_error_spectrum`](analyze_error_spectrum.md) — Frequency content"
-" of errors"
+"[`analyze_error_spectrum`](analyze_error_spectrum.md) — Frequency content of "
+"errors"
 msgstr ""
 
 #: ../../source/algorithms/analyze_error_pdf.md:126
@@ -267,7 +267,6 @@ msgstr ""
 
 #: ../../source/algorithms/analyze_error_pdf.md:131
 msgid ""
-"S. Kullback and R. A. Leibler, \"On Information and Sufficiency,\" Annals"
-" of Mathematical Statistics, 1951"
+"S. Kullback and R. A. Leibler, \"On Information and Sufficiency,\" Annals of "
+"Mathematical Statistics, 1951"
 msgstr ""
-

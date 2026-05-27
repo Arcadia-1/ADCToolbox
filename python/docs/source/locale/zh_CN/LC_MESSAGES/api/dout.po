@@ -6,9 +6,9 @@
 #, fuzzy
 msgid ""
 msgstr ""
-"Project-Id-Version: ADCToolbox 0.5.0\n"
+"Project-Id-Version: ADCToolbox 0.8.0\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2026-03-10 20:52+0800\n"
+"POT-Creation-Date: 2026-05-26 22:15+0800\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language: zh_CN\n"
@@ -25,8 +25,8 @@ msgstr ""
 
 #: ../../source/api/dout.rst:4
 msgid ""
-"The ``dout`` module provides tools for analyzing digital ADC outputs and "
-"bit-weighted architectures."
+"The ``dout`` module provides tools for analyzing digital ADC outputs and bit-"
+"weighted architectures."
 msgstr ""
 
 #: ../../source/api/dout.rst:9
@@ -40,175 +40,308 @@ msgstr ""
 #: adctoolbox.calibration.calibrate_weight_sine.calibrate_weight_sine:3 of
 msgid ""
 "This function estimates per-bit weights and a DC offset for an ADC by "
-"fitting the weighted sum of raw bit columns to a sine series at a given "
-"(or estimated) normalized frequency Fin/Fs. It optionally performs a "
-"coarse and fine frequency search to refine the input tone frequency."
+"fitting the weighted sum of raw bit columns to a sine series at a given (or "
+"estimated) normalized frequency Fin/Fs. It optionally performs a coarse and "
+"fine frequency search to refine the input tone frequency."
 msgstr ""
 
 #: adctoolbox.calibration.calibrate_weight_sine.calibrate_weight_sine:8 of
 msgid ""
-"Implementation uses a unified pipeline where single-dataset calibration "
-"is treated as a special case of multi-dataset calibration (N=1)."
+"Implementation uses a unified pipeline where single-dataset calibration is "
+"treated as a special case of multi-dataset calibration (N=1)."
 msgstr ""
 
 #: ../../source/api/dout.rst
-#: adctoolbox.dout.analyze_enob_sweep.analyze_enob_sweep of
+#: adctoolbox.dout.analyze_enob_sweep.analyze_enob_sweep
+#: adctoolbox.dout.analyze_weight_radix.analyze_weight_radix of
 msgid "Parameters"
 msgstr ""
 
 #: adctoolbox.calibration.calibrate_weight_sine.calibrate_weight_sine:11 of
 msgid ""
-"Binary data as matrix (N rows by M cols, N is data points, M is "
-"bitwidth). Each row is one sample; each column is a bit/segment. Can also"
-" be a list of arrays for multi-dataset calibration."
+"Binary data as matrix (N rows by M cols, N is data points, M is bitwidth). "
+"Each row is one sample; each column is a bit/segment. Can also be a list of "
+"arrays for multi-dataset calibration."
 msgstr ""
 
 #: adctoolbox.calibration.calibrate_weight_sine.calibrate_weight_sine:15 of
 msgid ""
 "Normalized frequency Fin/Fs. Default is None (triggers auto frequency "
-"search). - None: Automatic frequency search - float: Single frequency for"
-" all datasets - array-like: Per-dataset frequencies for multi-dataset "
-"mode"
+"search). Use None for automatic frequency search, a float for one frequency "
+"shared by all datasets, or an array-like value for per-dataset frequencies "
+"in multi-dataset mode."
 msgstr ""
 
 #: adctoolbox.calibration.calibrate_weight_sine.calibrate_weight_sine:20 of
 msgid ""
-"Force fine frequency search even when frequency is provided. Default is "
-"False. Set to True to refine provided frequencies."
+"Frequency fine-search policy. Default is None, which refines automatically "
+"estimated frequencies while keeping explicitly provided frequencies fixed. "
+"Set True to refine provided frequencies too, or False to disable fine search "
+"unless a zero frequency placeholder remains."
 msgstr ""
 
-#: adctoolbox.calibration.calibrate_weight_sine.calibrate_weight_sine:23 of
+#: adctoolbox.calibration.calibrate_weight_sine.calibrate_weight_sine:26 of
 msgid ""
 "Nominal bit weights (only effective when rank is deficient). Default is "
 "2^(M-1) down to 2^0."
 msgstr ""
 
-#: adctoolbox.calibration.calibrate_weight_sine.calibrate_weight_sine:26 of
+#: adctoolbox.calibration.calibrate_weight_sine.calibrate_weight_sine:29 of
 msgid ""
 "Number of harmonic terms to exclude in calibration. Default is 1 "
 "(fundamental only, no harmonic exclusion). Higher values exclude more "
 "harmonics from the error term."
 msgstr ""
 
-#: adctoolbox.calibration.calibrate_weight_sine.calibrate_weight_sine:30 of
+#: adctoolbox.calibration.calibrate_weight_sine.calibrate_weight_sine:33 of
 msgid "Adaptive learning rate for frequency updates (0..1), default is 0.5."
 msgstr ""
 
-#: adctoolbox.calibration.calibrate_weight_sine.calibrate_weight_sine:32 of
+#: adctoolbox.calibration.calibrate_weight_sine.calibrate_weight_sine:35 of
 msgid "Relative error tolerance for convergence, default is 1e-12."
 msgstr ""
 
-#: adctoolbox.calibration.calibrate_weight_sine.calibrate_weight_sine:34 of
+#: adctoolbox.calibration.calibrate_weight_sine.calibrate_weight_sine:37 of
 msgid "Maximum iterations for fine frequency search, default is 100."
 msgstr ""
 
-#: adctoolbox.calibration.calibrate_weight_sine.calibrate_weight_sine:36 of
+#: adctoolbox.calibration.calibrate_weight_sine.calibrate_weight_sine:39 of
 msgid "Print frequency search progress (1) or not (0), default is 0."
 msgstr ""
 
 #: ../../source/api/dout.rst
-#: adctoolbox.dout.analyze_enob_sweep.analyze_enob_sweep of
+#: adctoolbox.dout.analyze_enob_sweep.analyze_enob_sweep
+#: adctoolbox.dout.analyze_weight_radix.analyze_weight_radix of
 msgid "Returns"
 msgstr ""
 
-#: adctoolbox.calibration.calibrate_weight_sine.calibrate_weight_sine:39 of
-msgid ""
-"Dictionary with keys: - weight : ndarray     The calibrated weights, "
-"normalized by the magnitude of sinewave. - offset : float     The "
-"calibrated DC offset, normalized by the magnitude of sinewave. - "
-"calibrated_signal : ndarray or list of ndarrays     The signal after "
-"calibration (single array for single dataset,     list of arrays for "
-"multi-dataset). - ideal : ndarray or list of ndarrays     The best fitted"
-" sinewave (single array for single dataset,     list of arrays for multi-"
-"dataset). - error : ndarray or list of ndarrays     The residue errors "
-"after calibration, excluding distortion     (single array for single "
-"dataset, list of arrays for multi-dataset). - refined_frequency : float "
-"or ndarray     The refined frequency from calibration (float for single "
-"dataset,     array for multi-dataset)."
-msgstr ""
-
-#: adctoolbox.calibration.calibrate_weight_sine.calibrate_weight_sine:39 of
-msgid "Dictionary with keys: - weight : ndarray"
-msgstr ""
-
-#: adctoolbox.calibration.calibrate_weight_sine.calibrate_weight_sine:41 of
-msgid "The calibrated weights, normalized by the magnitude of sinewave."
-msgstr ""
-
 #: adctoolbox.calibration.calibrate_weight_sine.calibrate_weight_sine:42 of
-msgid "offset"
-msgstr ""
-
-#: adctoolbox.calibration.calibrate_weight_sine.calibrate_weight_sine:-1 of
-msgid "float"
-msgstr ""
-
-#: adctoolbox.calibration.calibrate_weight_sine.calibrate_weight_sine:43 of
-msgid "The calibrated DC offset, normalized by the magnitude of sinewave."
-msgstr ""
-
-#: adctoolbox.calibration.calibrate_weight_sine.calibrate_weight_sine:44 of
-msgid "calibrated_signal"
-msgstr ""
-
-#: adctoolbox.calibration.calibrate_weight_sine.calibrate_weight_sine:-1 of
-msgid "ndarray or list of ndarrays"
-msgstr ""
-
-#: adctoolbox.calibration.calibrate_weight_sine.calibrate_weight_sine:45 of
 msgid ""
-"The signal after calibration (single array for single dataset, list of "
-"arrays for multi-dataset)."
-msgstr ""
-
-#: adctoolbox.calibration.calibrate_weight_sine.calibrate_weight_sine:47 of
-msgid "ideal"
-msgstr ""
-
-#: adctoolbox.calibration.calibrate_weight_sine.calibrate_weight_sine:48 of
-msgid ""
-"The best fitted sinewave (single array for single dataset, list of arrays"
-" for multi-dataset)."
-msgstr ""
-
-#: adctoolbox.calibration.calibrate_weight_sine.calibrate_weight_sine:50 of
-msgid "error"
-msgstr ""
-
-#: adctoolbox.calibration.calibrate_weight_sine.calibrate_weight_sine:51 of
-msgid ""
-"The residue errors after calibration, excluding distortion (single array "
-"for single dataset, list of arrays for multi-dataset)."
-msgstr ""
-
-#: adctoolbox.calibration.calibrate_weight_sine.calibrate_weight_sine:53 of
-msgid "refined_frequency"
-msgstr ""
-
-#: adctoolbox.calibration.calibrate_weight_sine.calibrate_weight_sine:-1 of
-msgid "float or ndarray"
-msgstr ""
-
-#: adctoolbox.calibration.calibrate_weight_sine.calibrate_weight_sine:54 of
-msgid ""
-"The refined frequency from calibration (float for single dataset, array "
-"for multi-dataset)."
+"Calibration result containing ``weight``, ``offset``, ``calibrated_signal``, "
+"``ideal``, ``error``, and ``refined_frequency``. Array-valued entries are "
+"returned as a single array for single-dataset input or as a list of arrays "
+"for multi-dataset input."
 msgstr ""
 
 #: ../../source/api/dout.rst
-#: adctoolbox.dout.analyze_enob_sweep.analyze_enob_sweep of
+#: adctoolbox.dout.analyze_enob_sweep.analyze_enob_sweep
+#: adctoolbox.dout.analyze_weight_radix.analyze_weight_radix of
 msgid "Return type"
 msgstr ""
 
-#: ../../source/api/dout.rst:16
-msgid "Overflow Detection"
+#: adctoolbox.calibration.calibrate_weight_sine_lite.calibrate_weight_sine_lite:1
+#: of
+msgid ""
+"Minimal calibration at known frequency. Returns normalized weights. Expects "
+"well-conditioned binary data (N samples x M bits)."
 msgstr ""
 
-#: ../../source/api/dout.rst:21
-msgid "Bit Activity"
+#: ../../source/api/dout.rst:15
+msgid "Bit And Weight Analysis"
 msgstr ""
 
-#: ../../source/api/dout.rst:26
+#: ../../source/api/dout.rst:17
+msgid ""
+"``analyze_weight_radix`` returns ``radix``, ``wgtsca``, and ``effres``. "
+"``effres`` is computed from the significant absolute weights as "
+"``log2(sum(abs_w_sig) / min(abs_w_sig) + 1)``. It is a theoretical weight-"
+"list span, not a missing-code, DNL, INL, or SAR reachability proof."
+msgstr ""
+
+#: adctoolbox.dout.analyze_bit_activity.analyze_bit_activity:1 of
+msgid "Analyze and plot the percentage of 1's in each bit."
+msgstr ""
+
+#: adctoolbox.dout.analyze_bit_activity.analyze_bit_activity:3 of
+msgid ""
+"Ideal SAR ADC should have 50% activity for all bits. Deviations indicate "
+"input signal DC offset or amplitude clipping."
+msgstr ""
+
+#: adctoolbox.dout.analyze_bit_activity.analyze_bit_activity:6 of
+msgid "Binary matrix (N x B), N=samples, B=bits (MSB to LSB)"
+msgstr ""
+
+#: adctoolbox.dout.analyze_bit_activity.analyze_bit_activity:8 of
+msgid "If True, create bar chart visualization"
+msgstr ""
+
+#: adctoolbox.dout.analyze_bit_activity.analyze_bit_activity:10
+#: adctoolbox.dout.analyze_enob_sweep.analyze_enob_sweep:18
+#: adctoolbox.dout.analyze_overflow.analyze_overflow:15
+#: adctoolbox.dout.analyze_weight_radix.analyze_weight_radix:13 of
+msgid "Axes to plot on. If None, uses current axes (plt.gca())"
+msgstr ""
+
+#: adctoolbox.dout.analyze_bit_activity.analyze_bit_activity:12
+#: adctoolbox.dout.analyze_enob_sweep.analyze_enob_sweep:20
+#: adctoolbox.dout.analyze_weight_radix.analyze_weight_radix:15 of
+msgid "Title for the plot. If None, uses default title"
+msgstr ""
+
+#: adctoolbox.dout.analyze_bit_activity.analyze_bit_activity:15 of
+msgid "Percentage of 1's for each bit (1D array of length B)"
+msgstr ""
+
+#: adctoolbox.dout.analyze_overflow.analyze_overflow:1 of
+msgid ""
+"Analyze residue distribution at each bit position for overflow detection."
+msgstr ""
+
+#: adctoolbox.dout.analyze_overflow.analyze_overflow:3 of
+msgid ""
+"Calculates normalized residue (remaining bits weighted sum) and detects "
+"overflow conditions where residue exceeds [0, 1] range."
+msgstr ""
+
+#: adctoolbox.dout.analyze_overflow.analyze_overflow:6 of
+msgid "Digital codes array, shape (N, M) where N=samples, M=bits (MSB first)"
+msgstr ""
+
+#: adctoolbox.dout.analyze_overflow.analyze_overflow:8 of
+msgid "Weight array for each bit, shape (M,)"
+msgstr ""
+
+#: adctoolbox.dout.analyze_overflow.analyze_overflow:10 of
+msgid ""
+"Overflow bit position for overflow detection. Default is M (check at MSB, "
+"MATLAB convention: 1=LSB, M=MSB)"
+msgstr ""
+
+#: adctoolbox.dout.analyze_overflow.analyze_overflow:13 of
+msgid "If True, generate residue distribution visualization"
+msgstr ""
+
+#: adctoolbox.dout.analyze_overflow.analyze_overflow:17 of
+msgid "Title for the plot. If None, no title is set"
+msgstr ""
+
+#: adctoolbox.dout.analyze_overflow.analyze_overflow:20 of
+msgid ""
+"- range_min: Minimum normalized residue per bit (shape M,) - range_max: "
+"Maximum normalized residue per bit (shape M,) - ovf_percent_zero: Underflow "
+"percentage per bit (shape M,) - ovf_percent_one: Overflow percentage per bit "
+"(shape M,)"
+msgstr ""
+
+#: adctoolbox.dout.analyze_overflow.analyze_overflow:22 of
+msgid "range_min: Minimum normalized residue per bit (shape M,)"
+msgstr ""
+
+#: adctoolbox.dout.analyze_overflow.analyze_overflow:23 of
+msgid "range_max: Maximum normalized residue per bit (shape M,)"
+msgstr ""
+
+#: adctoolbox.dout.analyze_overflow.analyze_overflow:24 of
+msgid "ovf_percent_zero: Underflow percentage per bit (shape M,)"
+msgstr ""
+
+#: adctoolbox.dout.analyze_overflow.analyze_overflow:25 of
+msgid "ovf_percent_one: Overflow percentage per bit (shape M,)"
+msgstr ""
+
+#: adctoolbox.dout.analyze_enob_sweep.analyze_enob_sweep:32
+#: adctoolbox.dout.analyze_overflow.analyze_overflow:29
+#: adctoolbox.dout.analyze_weight_radix.analyze_weight_radix:32 of
+msgid "Notes"
+msgstr ""
+
+#: adctoolbox.dout.analyze_overflow.analyze_overflow:30 of
+msgid "A bit segment is the sub-code formed from one bit to the LSB"
+msgstr ""
+
+#: adctoolbox.dout.analyze_overflow.analyze_overflow:31 of
+msgid "Residue is normalized by dividing by the sum of weights in the segment"
+msgstr ""
+
+#: adctoolbox.dout.analyze_overflow.analyze_overflow:32 of
+msgid "Matches MATLAB ovfchk.m behavior exactly"
+msgstr ""
+
+#: adctoolbox.dout.analyze_weight_radix.analyze_weight_radix:1 of
+msgid "Analyze absolute bit weights, radix ratios, and weight-list resolution."
+msgstr ""
+
+#: adctoolbox.dout.analyze_weight_radix.analyze_weight_radix:3 of
+msgid ""
+"Pure binary: radix = 2.00. Sub-radix/redundancy: radix < 2.00. ``effres`` is "
+"a theoretical resolution estimate from the supplied weight dynamic range, "
+"not a missing-code/DNL proof."
+msgstr ""
+
+#: adctoolbox.dout.analyze_weight_radix.analyze_weight_radix:7 of
+msgid ""
+"Bit weights (1D array), nominally from MSB to LSB for radix plotting. "
+"Effective-resolution analysis uses sorted absolute magnitudes, so negative "
+"trim weights count by magnitude."
+msgstr ""
+
+#: adctoolbox.dout.analyze_weight_radix.analyze_weight_radix:11 of
+msgid "If True, create line plot with radix annotations"
+msgstr ""
+
+#: adctoolbox.dout.analyze_weight_radix.analyze_weight_radix:18 of
+msgid ""
+"``radix``:     Radix between consecutive input-order weights,     "
+"``abs(weight[i-1]) / abs(weight[i])``. The first entry is ``NaN``. "
+"``wgtsca``:     Scale factor that maps the significant absolute weights "
+"closest to     integer LSB units. ``effres``:     Effective resolution in "
+"bits,     ``log2(sum(abs_w_sig) / min(abs_w_sig) + 1)``."
+msgstr ""
+
+#: adctoolbox.dout.analyze_weight_radix.analyze_weight_radix:20 of
+msgid "``radix``:"
+msgstr ""
+
+#: adctoolbox.dout.analyze_weight_radix.analyze_weight_radix:21 of
+msgid ""
+"Radix between consecutive input-order weights, ``abs(weight[i-1]) / "
+"abs(weight[i])``. The first entry is ``NaN``."
+msgstr ""
+
+#: adctoolbox.dout.analyze_weight_radix.analyze_weight_radix:23 of
+msgid "``wgtsca``:"
+msgstr ""
+
+#: adctoolbox.dout.analyze_weight_radix.analyze_weight_radix:24 of
+msgid ""
+"Scale factor that maps the significant absolute weights closest to integer "
+"LSB units."
+msgstr ""
+
+#: adctoolbox.dout.analyze_weight_radix.analyze_weight_radix:26 of
+msgid "``effres``:"
+msgstr ""
+
+#: adctoolbox.dout.analyze_weight_radix.analyze_weight_radix:27 of
+msgid ""
+"Effective resolution in bits, ``log2(sum(abs_w_sig) / min(abs_w_sig) + 1)``."
+msgstr ""
+
+#: adctoolbox.dout.analyze_weight_radix.analyze_weight_radix:33 of
+msgid ""
+"The significant set ``abs_w_sig`` is formed by sorting ``abs(weights)`` in "
+"descending order, then dropping the tail after the first adjacent ratio ``>= "
+"3``. This excludes very small trim/noise weights from ``effres``."
+msgstr ""
+
+#: adctoolbox.dout.analyze_weight_radix.analyze_weight_radix:37 of
+msgid ""
+"``effres`` is useful for questions like \"how many bits does this SAR weight "
+"list span?\" It does not verify SAR decision reachability, code "
+"monotonicity, missing codes, DNL/INL, comparator noise, or sampling noise."
+msgstr ""
+
+#: adctoolbox.dout.analyze_weight_radix.analyze_weight_radix:41 of
+msgid ""
+"What to look for in radix values: - Radix = 2.00: Binary scaling (SAR, pure "
+"binary) - Radix < 2.00: Redundancy or sub-radix (e.g., 1.5-bit/stage → "
+"~1.90) - Radix > 2.00: Unusual, may indicate calibration error - Consistent "
+"pattern: Expected architecture behavior - Random jumps: Calibration errors "
+"or bit mismatch"
+msgstr ""
+
+#: ../../source/api/dout.rst:27
 msgid "ENOB Analysis"
 msgstr ""
 
@@ -218,8 +351,8 @@ msgstr ""
 
 #: adctoolbox.dout.analyze_enob_sweep.analyze_enob_sweep:3 of
 msgid ""
-"Incrementally adds bits (MSB to LSB) and measures ENOB after calibration "
-"to understand diminishing returns and optimal bit count."
+"Incrementally adds bits (MSB to LSB) and measures ENOB after calibration to "
+"understand diminishing returns and optimal bit count."
 msgstr ""
 
 #: adctoolbox.dout.analyze_enob_sweep.analyze_enob_sweep:6 of
@@ -246,22 +379,14 @@ msgstr ""
 msgid "If True, plot ENOB sweep curve"
 msgstr ""
 
-#: adctoolbox.dout.analyze_enob_sweep.analyze_enob_sweep:18 of
-msgid "Axes to plot on. If None, uses current axes (plt.gca())"
-msgstr ""
-
-#: adctoolbox.dout.analyze_enob_sweep.analyze_enob_sweep:20 of
-msgid "Title for the plot. If None, uses default title"
-msgstr ""
-
 #: adctoolbox.dout.analyze_enob_sweep.analyze_enob_sweep:22 of
 msgid "If True, print progress messages"
 msgstr ""
 
 #: adctoolbox.dout.analyze_enob_sweep.analyze_enob_sweep:25 of
 msgid ""
-"- enob_sweep: ENOB for each bit count (length M) - n_bits_vec: Bit counts"
-" from 1 to M"
+"- enob_sweep: ENOB for each bit count (length M) - n_bits_vec: Bit counts "
+"from 1 to M"
 msgstr ""
 
 #: adctoolbox.dout.analyze_enob_sweep.analyze_enob_sweep:27 of
@@ -272,18 +397,56 @@ msgstr ""
 msgid "n_bits_vec: Bit counts from 1 to M"
 msgstr ""
 
-#: adctoolbox.dout.analyze_enob_sweep.analyze_enob_sweep:32 of
-msgid "Notes"
-msgstr ""
-
 #: adctoolbox.dout.analyze_enob_sweep.analyze_enob_sweep:33 of
 msgid ""
 "What to look for in the plot: - Increasing trend: More bits improve "
-"resolution - Plateau: Additional bits don't help (noise/distortion "
-"limited) - Decrease: Extra bits add noise/calibration errors"
+"resolution - Plateau: Additional bits don't help (noise/distortion limited) "
+"- Decrease: Extra bits add noise/calibration errors"
 msgstr ""
 
-#: ../../source/api/dout.rst:31
+#: ../../source/api/dout.rst:32
 msgid "Visualization"
 msgstr ""
 
+#: adctoolbox.dout.plot_residual_scatter.plot_residual_scatter:1 of
+msgid "Plot partial-sum residuals of an ADC bit matrix."
+msgstr ""
+
+#: adctoolbox.dout.plot_residual_scatter.plot_residual_scatter:3 of
+msgid ""
+"For each pair (x_bit, y_bit), computes the residual after subtracting the "
+"first x_bit (or y_bit) weighted bits from the input signal, then plots y-"
+"residual vs x-residual as a scatter plot."
+msgstr ""
+
+#: adctoolbox.dout.plot_residual_scatter.plot_residual_scatter:7 of
+msgid "Ideal input signal to the ADC (1D, length N)."
+msgstr ""
+
+#: adctoolbox.dout.plot_residual_scatter.plot_residual_scatter:9 of
+msgid "Raw ADC output bit matrix (N x M), MSB-first columns."
+msgstr ""
+
+#: adctoolbox.dout.plot_residual_scatter.plot_residual_scatter:11 of
+msgid "Bit weights (length M). Default: binary [2^(M-1), ..., 1]."
+msgstr ""
+
+#: adctoolbox.dout.plot_residual_scatter.plot_residual_scatter:13 of
+msgid ""
+"Pairs of bit indices whose residuals are plotted. Range: 0 (raw signal) to M "
+"(residual after all bits). Default: [(0, M), (1, M), ..., (M-1, M)]."
+msgstr ""
+
+#: adctoolbox.dout.plot_residual_scatter.plot_residual_scatter:17 of
+msgid "Marker transparency. 'auto' scales as clamp(1000/N, 0.1, 1.0)."
+msgstr ""
+
+#: adctoolbox.dout.plot_residual_scatter.plot_residual_scatter:19 of
+msgid "If True, create scatter subplots."
+msgstr ""
+
+#: adctoolbox.dout.plot_residual_scatter.plot_residual_scatter:22 of
+msgid ""
+"'pairs': list of (x_bit, y_bit) tuples used 'residuals_x': list of 1D "
+"arrays, one per pair 'residuals_y': list of 1D arrays, one per pair"
+msgstr ""

@@ -54,7 +54,7 @@ def analyze_error_envelope_spectrum(signal, fs=1, frequency=None, create_plot: b
     Notes
     -----
     - Error = signal - ideal_sine (fitted using fit_sine_4param)
-    - Envelope = |Hilbert(error)|
+    - Envelope = ``abs(Hilbert(error))``
     - Analyzes spectrum of envelope to reveal AM patterns
     """
     # Fit ideal sine to extract reference

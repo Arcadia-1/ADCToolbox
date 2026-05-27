@@ -7,16 +7,76 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.8.3] - 2026-05-26
+
+**Example Output Cleanup Release** — keeps SAR calibration examples focused on
+figures and avoids writing CSV side artifacts.
+
+### Changed
+- SAR digital-debug examples now save PNG figures only; intermediate Monte
+  Carlo and sweep statistics remain in memory for plotting instead of being
+  written to CSV files.
+- Example console messages no longer advertise CSV side outputs.
+
+## [0.8.2] - 2026-05-25
+
+**SAR Calibration Examples Release** — adds focused SAR mismatch and
+foreground-calibration examples, and refines SAR mismatch modeling.
+
+### Added
+- New SAR digital-debug examples:
+  - `exp_d15_sar_unit_cap_mismatch_uncal_spectra.py`
+  - `exp_d16_sar_unit_cap_mismatch_mc.py`
+  - `exp_d17_sar_msb_error_binary_vs_repeat_calibration.py`
+  - `exp_d18_sar_redundant_mismatch_training_length_sweep.py`
+- `sar_apply_cap_mismatch`, a Pelgrom/unit-cap-scaled SAR CDAC mismatch helper
+  with optional explicit capacitor unit counts.
+- Spectrum plot regression coverage for stable annotation placement after
+  caller-side axis-limit changes.
+
+### Changed
+- SAR examples and bundled skill docs now use the explicit
+  `sar_apply_cap_mismatch` name.
+- Standard and Virtuoso spectrum plots keep metric annotations fixed in axes
+  coordinates, making subplot and post-plot y-limit changes more robust.
+
+### Fixed
+- `sar_apply_mismatch` remains available with its legacy per-weight gaussian
+  perturbation semantics for backward compatibility.
+
+## [0.8.1] - 2026-05-24
+
+**Spectrum Plot Calibration Patch** — aligns Python windowed spectrum bin
+heights with MATLAB `plotspec.m`.
+
+### Fixed
+- Python spectrum plotting now uses MATLAB-style RMS window power scaling, so
+  coherent Hann full-scale tones report the center bin below 0 dBFS while the
+  full main-lobe sum remains 0 dBFS.
+- `compute_spectrum` no longer applies an extra ENBW division to the integrated
+  signal power after window RMS scaling.
+- Virtuoso-style spectrum plots use the same raw dBFS noise-line convention as
+  the standard plotter.
+
+## [0.8.0] - 2026-05-18
+
+**SAR + Spectrum Robustness Release** — behavior-model API cleanup, stronger FFT side-bin handling, and MATLAB data-generation parity updates.
+
 ### Added
 - **ADC behavioral models submodule** (`adctoolbox.models`):
-  - `sar_encode`, `sar_reconstruct`, `sar_ideal_weights`, `sar_apply_mismatch`:
-    binary / sub-radix-2 SAR forward model with optional cap mismatch and
-    comparator noise. Function-based, vectorized over samples.
-  - Convention: normalized unipolar (`vin ∈ [0, 1]`), with SAR weights
+  - `sar_convert`, `sar_reconstruct`, `sar_ideal_weights`, `sar_apply_mismatch`:
+    binary / sub-radix-2 SAR forward model with explicit CDAC weights,
+    `quant_range=(v_min, v_max)`, sampling noise, comparator noise, and cap mismatch support.
+  - Convention: input is interpreted relative to `quant_range`; SAR weights are
     normalized by `sum(bit_weights) + 1 LSB`. A non-redundant 4-bit ADC uses
     `[8, 4, 2, 1] / 16`; a redundant `[8, 4, 4, 2, 1]` array uses `/20`.
-  - 14 pytest cases including ENoB=N validation at 4, 8, 12, 16, 20 bit
+  - 16 pytest cases including ENoB=N validation at 4, 8, 12, 16, 20 bit
     (passes to within FFT-noise-floor tolerance, ±0.05 b for N ≥ 12).
+- **Spectrum side-bin regression coverage**:
+  - Added near-Nyquist SAR FFT-length example.
+  - Added tests for finite axis handling and side-bin defaults.
+- **MATLAB data generation scripts**:
+  - Added data-generation scripts for sinewave non-idealities, SAR dout, pipeline dout, jitter sweeps, and batch generation.
 - **Codex skill installer status / editable modes**:
   - `adctoolbox-install-skill --status --dest <skills-dir>` reports whether
     bundled skills are missing, copied, symlinked, and in sync.
@@ -24,12 +84,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
     symlinks for local skill development.
 
 ### Changed
+- Spectrum helpers now use safer automatic side-bin defaults and more robust noise-floor display handling near edge cases.
+- `matlab/src/plotspec.m` now handles Nyquist-bin cases more robustly.
 - `adctoolbox-install-skill` now requires an explicit `--dest`; it no longer
   writes to `~/.codex/skills` or `$CODEX_HOME/skills` implicitly.
-
-### Work in Progress
-- Additional examples and tutorials
-- Performance optimizations
 
 ## [0.7.0] - 2026-04-29
 

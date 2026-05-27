@@ -4,9 +4,9 @@
 #
 msgid ""
 msgstr ""
-"Project-Id-Version: ADCToolbox 0.5.0\n"
+"Project-Id-Version: ADCToolbox 0.8.0\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2026-03-10 20:52+0800\n"
+"POT-Creation-Date: 2026-05-26 22:15+0800\n"
 "PO-Revision-Date: 2026-03-10 20:52+0800\n"
 "Last-Translator: ADCToolbox Contributors\n"
 "Language: zh_CN\n"
@@ -17,86 +17,149 @@ msgstr ""
 "Content-Transfer-Encoding: 8bit\n"
 "Generated-By: Babel 2.18.0\n"
 
-#: ../../source/index.rst:8
-msgid "Contents:"
-msgstr "目录："
-
-#: ../../source/index.rst:2
-msgid "ADCToolbox Documentation"
-msgstr "ADCToolbox 文档"
+#: ../../source/index.rst:29
+msgid "Browse the Sphinx docs"
+msgstr "浏览 Sphinx 文档"
 
 #: ../../source/index.rst:4
-msgid ""
-"ADCToolbox is a comprehensive toolbox for ADC (Analog-to-Digital "
-"Converter) characterization and analysis, providing advanced tools for "
-"both analog output and digital output analysis."
+msgid "ADCToolbox"
 msgstr ""
-"ADCToolbox 是一个用于 ADC（模数转换器）表征与分析的综合工具箱，"
-"提供面向模拟输出和数字输出分析的高级工具。"
-
-#: ../../source/index.rst:21
-msgid "Features"
-msgstr "功能特性"
-
-#: ../../source/index.rst:23
-msgid ""
-"**Spectrum Analysis**: FFT-based analysis with ENOB, SNR, SFDR, THD, "
-"windowing, averaging, and polar visualization"
-msgstr ""
-"**频谱分析**：基于 FFT 的分析，支持 ENOB、SNR、SFDR、THD、"
-"加窗、平均和极坐标可视化"
-
-#: ../../source/index.rst:24
-msgid ""
-"**Signal Generation**: Thermal noise, jitter, quantization, "
-"static/dynamic nonlinearity, and interference modeling"
-msgstr ""
-"**信号生成**：热噪声、抖动、量化、静态/动态非线性及干扰建模"
-
-#: ../../source/index.rst:25
-msgid ""
-"**Analog Error Analysis**: Time-domain, frequency-domain, and statistical"
-" error characterization (PDF, autocorrelation, envelope spectrum)"
-msgstr ""
-"**模拟误差分析**：时域、频域和统计误差表征（概率密度函数、自相关、包络频谱）"
-
-#: ../../source/index.rst:26
-msgid ""
-"**Digital Calibration**: Bit-weighted ADC calibration and redundancy "
-"analysis"
-msgstr ""
-"**数字校准**：位权重 ADC 校准与冗余分析"
 
 #: ../../source/index.rst:27
-msgid ""
-"**Fundamental Utilities**: Sine fitting, frequency calculation, unit "
-"conversion, and FOM metrics"
+msgid "Complete Documentation"
+msgstr "完整文档"
+
+#: ../../source/index.rst:42
+msgid "Common Starting Points"
+msgstr "常用入口"
+
+#: ../../source/index.rst:48
+msgid "Install"
 msgstr ""
-"**基础工具**：正弦拟合、频率计算、单位换算和品质因数指标"
 
-#: ../../source/index.rst:28
+#: ../../source/index.rst:52
 msgid ""
-"**Oversampling Analysis**: Delta-Sigma modulator characterization, NTF "
-"analysis"
+"Set up the package, upgrade an existing install, and verify your local "
+"Python environment."
 msgstr ""
-"**过采样分析**：Delta-Sigma 调制器表征与噪声传递函数（NTF）分析"
 
-#: ../../source/index.rst:29
-msgid "**Comprehensive Examples**: 45 ready-to-run examples across 6 categories"
-msgstr "**丰富示例**：6 个类别共 45 个即用示例"
+#: ../../source/index.rst:59
+msgid ""
+"Run the first spectrum analysis and generate analog and digital debug "
+"dashboards."
+msgstr ""
 
-#: ../../source/index.rst:32
-msgid "Quick Links"
-msgstr "快速链接"
+#: ../../source/index.rst:62
+msgid "Examples"
+msgstr ""
 
-#: ../../source/index.rst:34
+#: ../../source/index.rst:66
+msgid ""
+"Use ready-to-run scripts for spectrum, signal generation, calibration, "
+"debug, conversions, and time interleaving."
+msgstr ""
+
+#: ../../source/index.rst:73
+msgid "Browse public functions by module with signatures and docstrings."
+msgstr ""
+
+#: ../../source/index.rst:76
+msgid "Analysis Areas"
+msgstr "分析领域"
+
+#: ../../source/index.rst:82
+msgid "Spectrum"
+msgstr ""
+
+#: ../../source/index.rst:89
+msgid "SAR Modeling"
+msgstr ""
+
+#: ../../source/index.rst:93
+msgid ""
+"Vectorized SAR conversion, digital reconstruction, ideal weights, and "
+"mismatch-aware behavioral modeling."
+msgstr ""
+
+#: ../../source/index.rst:96
+msgid "Calibration"
+msgstr ""
+
+#: ../../source/index.rst:100
+msgid ""
+"Foreground bit-weight calibration from sine-wave decisions, plus lightweight "
+"and example-driven workflows."
+msgstr ""
+
+#: ../../source/index.rst:103
+msgid "Analog Debug"
+msgstr ""
+
+#: ../../source/index.rst:107
+msgid ""
+"Error decomposition, phase-plane views, residual statistics, static "
+"nonlinearity fitting, and INL from sine tests."
+msgstr ""
+
+#: ../../source/index.rst:110
+msgid "Digital Debug"
+msgstr ""
+
+#: ../../source/index.rst:114
+msgid ""
+"Bit activity, overflow checks, ENOB sweeps, residual scatter plots, and "
+"weight radix analysis."
+msgstr ""
+
+#: ../../source/index.rst:117
+msgid "Oversampling"
+msgstr ""
+
+#: ../../source/index.rst:121
+msgid ""
+"Delta-sigma and oversampling analysis utilities, including NTF visualization."
+msgstr ""
+
+#: ../../source/index.rst:125
+msgid "Outputs"
+msgstr "输出示例"
+
+#: ../../source/index.rst:133
+msgid "ADCToolbox spectrum analysis output"
+msgstr ""
+
+#: ../../source/index.rst:137
+msgid "Spectrum metrics"
+msgstr ""
+
+#: ../../source/index.rst:141
+msgid "ADCToolbox analog output dashboard"
+msgstr ""
+
+#: ../../source/index.rst:145
+msgid "Analog dashboard"
+msgstr ""
+
+#: ../../source/index.rst:149
+msgid "ADCToolbox digital output dashboard"
+msgstr ""
+
+#: ../../source/index.rst:153
+msgid "Digital dashboard"
+msgstr ""
+
+#: ../../source/index.rst:156
+msgid "Reference"
+msgstr "参考"
+
+#: ../../source/index.rst:158
 msgid ":ref:`genindex`"
 msgstr ":ref:`genindex`"
 
-#: ../../source/index.rst:35
+#: ../../source/index.rst:159
 msgid ":ref:`modindex`"
 msgstr ":ref:`modindex`"
 
-#: ../../source/index.rst:36
+#: ../../source/index.rst:160
 msgid ":ref:`search`"
 msgstr ":ref:`search`"

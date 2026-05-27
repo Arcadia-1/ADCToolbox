@@ -6,9 +6,9 @@
 #, fuzzy
 msgid ""
 msgstr ""
-"Project-Id-Version: ADCToolbox 0.5.0\n"
+"Project-Id-Version: ADCToolbox 0.8.0\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2026-03-10 20:52+0800\n"
+"POT-Creation-Date: 2026-05-26 22:15+0800\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language: zh_CN\n"
@@ -64,6 +64,10 @@ msgstr ""
 msgid "Convergence threshold for frequency updates."
 msgstr ""
 
+#: adctoolbox.fundamentals.fit_sine_4param.fit_sine_4param:7 of
+msgid "Verbosity level (0=silent, >0=print iteration info)."
+msgstr ""
+
 #: ../../source/api/fundamentals.rst
 #: adctoolbox.fundamentals.frequency.estimate_frequency
 #: adctoolbox.fundamentals.frequency.find_coherent_frequency
@@ -75,45 +79,46 @@ msgstr ""
 msgid "Returns"
 msgstr ""
 
-#: adctoolbox.fundamentals.fit_sine_4param.fit_sine_4param:8 of
+#: adctoolbox.fundamentals.fit_sine_4param.fit_sine_4param:9 of
 msgid ""
 "- fitted_signal: Reconstructed sine wave     - residuals: Data - "
 "fitted_signal     - frequency: Normalized frequency (0 to 0.5)     - "
 "amplitude: sqrt(A² + B²)     - phase: atan2(-B, A) in radians     - "
-"dc_offset: DC component     - rmse: Root mean square error  For 2D input,"
-" all values (except fitted_signal, residuals) are 1D arrays."
-msgstr ""
-
-#: adctoolbox.fundamentals.fit_sine_4param.fit_sine_4param:8 of
-msgid "fitted_signal: Reconstructed sine wave"
+"dc_offset: DC component     - rmse: Root mean square error  For 2D input, "
+"all values (except fitted_signal, residuals) are 1D arrays."
 msgstr ""
 
 #: adctoolbox.fundamentals.fit_sine_4param.fit_sine_4param:9 of
-msgid "residuals: Data - fitted_signal"
+msgid "fitted_signal: Reconstructed sine wave"
 msgstr ""
 
 #: adctoolbox.fundamentals.fit_sine_4param.fit_sine_4param:10 of
-msgid "frequency: Normalized frequency (0 to 0.5)"
+msgid "residuals: Data - fitted_signal"
 msgstr ""
 
 #: adctoolbox.fundamentals.fit_sine_4param.fit_sine_4param:11 of
-msgid "amplitude: sqrt(A² + B²)"
+msgid "frequency: Normalized frequency (0 to 0.5)"
 msgstr ""
 
 #: adctoolbox.fundamentals.fit_sine_4param.fit_sine_4param:12 of
-msgid "phase: atan2(-B, A) in radians"
+msgid "amplitude: sqrt(A² + B²)"
 msgstr ""
 
 #: adctoolbox.fundamentals.fit_sine_4param.fit_sine_4param:13 of
-msgid "dc_offset: DC component"
+msgid "phase: atan2(-B, A) in radians"
 msgstr ""
 
 #: adctoolbox.fundamentals.fit_sine_4param.fit_sine_4param:14 of
+msgid "dc_offset: DC component"
+msgstr ""
+
+#: adctoolbox.fundamentals.fit_sine_4param.fit_sine_4param:15 of
 msgid "rmse: Root mean square error"
 msgstr ""
 
-#: adctoolbox.fundamentals.fit_sine_4param.fit_sine_4param:16 of
-msgid "For 2D input, all values (except fitted_signal, residuals) are 1D arrays."
+#: adctoolbox.fundamentals.fit_sine_4param.fit_sine_4param:17 of
+msgid ""
+"For 2D input, all values (except fitted_signal, residuals) are 1D arrays."
 msgstr ""
 
 #: ../../source/api/fundamentals.rst
@@ -188,9 +193,9 @@ msgstr ""
 
 #: adctoolbox.fundamentals.frequency.estimate_frequency:3 of
 msgid ""
-"This is a wrapper around the robust `fit_sine_4param` algorithm. It "
-"converts the normalized frequency (0 ~ 0.5) returned by fit_sine into "
-"physical frequency (Hz) based on the sampling rate."
+"This is a wrapper around the robust `fit_sine_4param` algorithm. It converts "
+"the normalized frequency (0 ~ 0.5) returned by fit_sine into physical "
+"frequency (Hz) based on the sampling rate."
 msgstr ""
 
 #: adctoolbox.fundamentals.frequency.estimate_frequency:7 of
@@ -202,7 +207,8 @@ msgid "Sampling frequency in Hz (default: 1.0)"
 msgstr ""
 
 #: adctoolbox.fundamentals.frequency.estimate_frequency:12 of
-msgid "Estimated frequency in Hz. (Scalar if input is 1D, Array if input is 2D)"
+msgid ""
+"Estimated frequency in Hz. (Scalar if input is 1D, Array if input is 2D)"
 msgstr ""
 
 #: adctoolbox.fundamentals.frequency.fold_frequency_to_nyquist:1 of
@@ -211,8 +217,8 @@ msgstr ""
 
 #: adctoolbox.fundamentals.frequency.fold_frequency_to_nyquist:3 of
 msgid ""
-"The aliased frequency is the absolute difference between the input "
-"frequency and the nearest integer multiple of the sampling rate."
+"The aliased frequency is the absolute difference between the input frequency "
+"and the nearest integer multiple of the sampling rate."
 msgstr ""
 
 #: adctoolbox.fundamentals.frequency.fold_frequency_to_nyquist:6 of
@@ -229,8 +235,8 @@ msgstr ""
 
 #: adctoolbox.fundamentals.frequency.fold_bin_to_nyquist:3 of
 msgid ""
-"For real signals, FFT bins above n_fft/2 are mirrored to the first "
-"Nyquist zone. This function handles the wrapping and mirroring."
+"For real signals, FFT bins above n_fft/2 are mirrored to the first Nyquist "
+"zone. This function handles the wrapping and mirroring."
 msgstr ""
 
 #: adctoolbox.fundamentals.frequency.fold_bin_to_nyquist:6 of
@@ -319,20 +325,20 @@ msgstr ""
 
 #: adctoolbox.fundamentals.snr_nsd.amplitudes_to_snr:1 of
 msgid ""
-"Calculate Signal-to-Noise Ratio (SNR) in dB from sine wave peak amplitude"
-" and noise RMS."
+"Calculate Signal-to-Noise Ratio (SNR) in dB from sine wave peak amplitude "
+"and noise RMS."
 msgstr ""
 
 #: adctoolbox.fundamentals.snr_nsd.amplitudes_to_snr:3 of
 msgid ""
-"This function computes SNR, assuming the signal is a pure sine wave and "
-"the noise is Gaussian (White Noise)."
+"This function computes SNR, assuming the signal is a pure sine wave and the "
+"noise is Gaussian (White Noise)."
 msgstr ""
 
 #: adctoolbox.fundamentals.snr_nsd.amplitudes_to_snr:6 of
 msgid ""
-"SNR is calculated based on the power ratio: SNR (dB) = 10 * log10(P_sig /"
-" P_noise). When oversampling is used, SNR improves by 10*log10(OSR)."
+"SNR is calculated based on the power ratio: SNR (dB) = 10 * log10(P_sig / "
+"P_noise). When oversampling is used, SNR improves by 10*log10(OSR)."
 msgstr ""
 
 #: adctoolbox.fundamentals.snr_nsd.amplitudes_to_snr:9 of
@@ -358,21 +364,21 @@ msgstr ""
 #: adctoolbox.fundamentals.snr_nsd.amplitudes_to_snr:19 of
 msgid ""
 "* **snr_db** (*float or ndarray*) -- The calculated SNR in dB. Returns "
-"np.inf if noise_amplitude is zero. * **(snr_db, sig_power, noise_power)**"
-" (*tuple (if return_power=True)*) -- The SNR in dB, Signal Power (V^2), "
-"and Noise Power (V^2), respectively."
+"np.inf if noise_amplitude is zero. * **(snr_db, sig_power, noise_power)** "
+"(*tuple (if return_power=True)*) -- The SNR in dB, Signal Power (V^2), and "
+"Noise Power (V^2), respectively."
 msgstr ""
 
 #: adctoolbox.fundamentals.snr_nsd.amplitudes_to_snr:19 of
 msgid ""
-"**snr_db** (*float or ndarray*) -- The calculated SNR in dB. Returns "
-"np.inf if noise_amplitude is zero."
+"**snr_db** (*float or ndarray*) -- The calculated SNR in dB. Returns np.inf "
+"if noise_amplitude is zero."
 msgstr ""
 
 #: adctoolbox.fundamentals.snr_nsd.amplitudes_to_snr:20 of
 msgid ""
-"**(snr_db, sig_power, noise_power)** (*tuple (if return_power=True)*) -- "
-"The SNR in dB, Signal Power (V^2), and Noise Power (V^2), respectively."
+"**(snr_db, sig_power, noise_power)** (*tuple (if return_power=True)*) -- The "
+"SNR in dB, Signal Power (V^2), and Noise Power (V^2), respectively."
 msgstr ""
 
 #: adctoolbox.fundamentals.snr_nsd.snr_to_nsd:1 of
@@ -382,16 +388,16 @@ msgstr ""
 #: adctoolbox.fundamentals.snr_nsd.snr_to_nsd:3 of
 msgid ""
 "This function converts SNR in dB to NSD in dBFS/Hz, given the sampling "
-"frequency and oversampling ratio. It assumes a full-scale sine wave "
-"signal (0 dBFS) unless specified otherwise."
+"frequency and oversampling ratio. It assumes a full-scale sine wave signal "
+"(0 dBFS) unless specified otherwise."
 msgstr ""
 
 #: adctoolbox.fundamentals.snr_nsd.snr_to_nsd:7 of
 msgid ""
 "The relationship is derived from: - Signal power: P_signal = "
-"10^(Psignal_dBFS / 10) - Noise power: P_noise = P_signal / 10^(SNR_dB / "
-"10) - Noise bandwidth: BW = fs / (2 * OSR) - NSD = P_noise / BW (linear "
-"scale) - NSD_dBFS/Hz = 10 * log10(NSD)"
+"10^(Psignal_dBFS / 10) - Noise power: P_noise = P_signal / 10^(SNR_dB / 10) "
+"- Noise bandwidth: BW = fs / (2 * OSR) - NSD = P_noise / BW (linear scale) - "
+"NSD_dBFS/Hz = 10 * log10(NSD)"
 msgstr ""
 
 #: adctoolbox.fundamentals.snr_nsd.snr_to_nsd:14 of
@@ -406,8 +412,8 @@ msgstr ""
 #: adctoolbox.fundamentals.snr_nsd.nsd_to_snr:18
 #: adctoolbox.fundamentals.snr_nsd.snr_to_nsd:18 of
 msgid ""
-"Oversampling ratio. Default is 1.0 (Nyquist sampling). The noise "
-"bandwidth is fs / (2 * OSR)."
+"Oversampling ratio. Default is 1.0 (Nyquist sampling). The noise bandwidth "
+"is fs / (2 * OSR)."
 msgstr ""
 
 #: adctoolbox.fundamentals.snr_nsd.nsd_to_snr:21
@@ -426,16 +432,16 @@ msgstr ""
 #: adctoolbox.fundamentals.snr_nsd.nsd_to_snr:3 of
 msgid ""
 "This function converts NSD in dBFS/Hz to SNR in dB, given the sampling "
-"frequency and oversampling ratio. It assumes a full-scale sine wave "
-"signal (0 dBFS) unless specified otherwise."
+"frequency and oversampling ratio. It assumes a full-scale sine wave signal "
+"(0 dBFS) unless specified otherwise."
 msgstr ""
 
 #: adctoolbox.fundamentals.snr_nsd.nsd_to_snr:7 of
 msgid ""
 "The relationship is derived from: - NSD in linear scale: NSD_linear = "
-"10^(NSD_dBFS/Hz / 10) - Noise bandwidth: BW = fs / (2 * OSR) - Noise "
-"power: P_noise = NSD_linear * BW - Signal power: P_signal = "
-"10^(Psignal_dBFS / 10) - SNR = 10 * log10(P_signal / P_noise)"
+"10^(NSD_dBFS/Hz / 10) - Noise bandwidth: BW = fs / (2 * OSR) - Noise power: "
+"P_noise = NSD_linear * BW - Signal power: P_signal = 10^(Psignal_dBFS / 10) "
+"- SNR = 10 * log10(P_signal / P_noise)"
 msgstr ""
 
 #: adctoolbox.fundamentals.snr_nsd.nsd_to_snr:14 of
@@ -464,8 +470,8 @@ msgstr ""
 
 #: adctoolbox.fundamentals.validate.validate_dout_data:3 of
 msgid ""
-"Checks: Binary (0/1), Dimensions, Stuck Bits. Expects: (N_samples, "
-"N_bits) matrix."
+"Checks: Binary (0/1), Dimensions, Stuck Bits. Expects: (N_samples, N_bits) "
+"matrix."
 msgstr ""
 
 #: ../../source/api/fundamentals.rst:54
@@ -502,7 +508,8 @@ msgid "Calculate Schreier Figure of Merit (FoM_s)."
 msgstr ""
 
 #: adctoolbox.fundamentals.metrics.calculate_schreier_fom:3 of
-msgid "Standard metric for high-resolution / Sigma-Delta ADCs. Higher is better."
+msgid ""
+"Standard metric for high-resolution / Sigma-Delta ADCs. Higher is better."
 msgstr ""
 
 #: adctoolbox.fundamentals.metrics.calculate_schreier_fom:6 of
@@ -527,8 +534,8 @@ msgstr ""
 
 #: adctoolbox.fundamentals.metrics.calculate_thermal_noise_limit:3 of
 msgid ""
-"Thermal noise sets the fundamental limit for switched-capacitor circuits "
-"and sample-and-hold amplifiers."
+"Thermal noise sets the fundamental limit for switched-capacitor circuits and "
+"sample-and-hold amplifiers."
 msgstr ""
 
 #: adctoolbox.fundamentals.metrics.calculate_thermal_noise_limit:6 of
@@ -581,4 +588,3 @@ msgstr ""
 #: adctoolbox.fundamentals.metrics.calculate_jitter_limit:9 of
 msgid "RMS jitter in seconds"
 msgstr ""
-

@@ -17,19 +17,17 @@ def compute_inl_from_sine(
     """
     Calculate ADC INL/DNL.
 
-    Auto-detection logic:
-    1. If input is Integer type -> Treated as ADC Codes.
-    2. If input is Float type:
-       - Range > 2.0  -> Treated as ADC Codes (floating point representation of codes).
-       - Range <= 2.0 -> Treated as Normalized Voltage (auto-quantized to num_bits).
+    Auto-detection treats integer input as ADC codes. Floating-point input
+    with range greater than 2.0 is treated as code-like data, otherwise it is
+    treated as normalized voltage and quantized to ``num_bits``.
 
     Parameters
     ----------
     data : array_like
         Input signal (Codes or Voltage).
     num_bits : int, optional
-        - If Input is Voltage: Target quantization resolution (default 10 if None).
-        - If Input is Codes: ADC resolution (inferred from data range if None).
+        Target quantization resolution for voltage input. For code input,
+        the resolution is inferred from the data range when omitted.
     full_scale : float, optional
         Full scale voltage range for quantization. If provided with float input,
         used for quantization: codes = round(data * 2^num_bits / full_scale).

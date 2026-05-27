@@ -3,6 +3,7 @@
 import numpy as np
 import pytest
 
+from adctoolbox.spectrum._bin_ranges import rfft_inband_bin_count
 from adctoolbox.spectrum.compute_spectrum import compute_spectrum
 
 
@@ -14,8 +15,7 @@ def _ordinary_bin_cases():
     """All integer sine bins currently inside the default in-band search."""
     cases = []
     for n_fft in range(4, 33):
-        # For even N, exclude Nyquist. For odd N, the highest positive bin is
-        # intentionally excluded here and covered by an xfail below.
+        # Boundary bins are covered by dedicated cases below.
         for fundamental_bin in range(1, n_fft // 2):
             cases.append((n_fft, fundamental_bin))
     return cases
@@ -92,6 +92,34 @@ def _expected_nyquist_harmonic_dbc(harmonic_peak_amp_db):
     return harmonic_peak_amp_db + 10 * np.log10(2.0)
 
 
+@pytest.mark.parametrize(
+    "n_fft,expected_count",
+    [
+        (4, 3),    # bins 0..2, including Nyquist
+        (5, 3),    # bins 0..2, no Nyquist
+        (15, 8),   # bins 0..7, highest positive bin included
+        (16, 9),   # bins 0..8, including Nyquist
+    ],
+)
+def test_rfft_inband_bin_count_includes_valid_upper_edge(n_fft, expected_count):
+    assert rfft_inband_bin_count(n_fft, osr=1) == expected_count
+
+
+@pytest.mark.parametrize(
+    "n_fft,osr,expected_count",
+    [
+        (16, 2, 5),   # bins 0..4
+        (16, 3, 3),   # bins 0..2
+        (17, 2, 5),   # bins 0..4
+        (17, 3, 3),   # bins 0..2
+        (32, 4, 5),   # bins 0..4
+        (33, 4, 5),   # bins 0..4
+    ],
+)
+def test_rfft_inband_bin_count_includes_osr_band_edge(n_fft, osr, expected_count):
+    assert rfft_inband_bin_count(n_fft, osr=osr) == expected_count
+
+
 @pytest.mark.parametrize("n_fft,fundamental_bin", _ordinary_bin_cases())
 def test_integer_sine_bins_from_n4_to_n32_are_located_and_scaled(
     n_fft,
@@ -109,13 +137,37 @@ def test_integer_sine_bins_from_n4_to_n32_are_located_and_scaled(
     )
 
 
-@pytest.mark.xfail(
-    strict=True,
-    reason=(
-        "Issue #17: odd-N highest positive bin is below Nyquist, but the "
-        "current in-band search excludes it."
-    ),
+@pytest.mark.parametrize(
+    "n_fft,osr,band_edge_bin",
+    [
+        (16, 2, 4),
+        (16, 3, 2),
+        (17, 2, 4),
+        (17, 3, 2),
+        (32, 4, 4),
+        (33, 4, 4),
+    ],
 )
+def test_osr_gt_one_band_edge_tone_is_included(n_fft, osr, band_edge_bin):
+    n = np.arange(n_fft)
+    signal = _TONE_AMPLITUDE * np.sin(2 * np.pi * band_edge_bin * n / n_fft)
+
+    result = compute_spectrum(
+        signal,
+        fs=1.0,
+        osr=osr,
+        max_scale_range=_MAX_SCALE_RANGE,
+        win_type="rectangular",
+        side_bin=0,
+    )
+
+    assert result["plot_data"]["fundamental_bin"] == band_edge_bin
+    assert result["metrics"]["sig_pwr_dbfs"] == pytest.approx(
+        _expected_sine_sig_pwr_dbfs(),
+        abs=1e-9,
+    )
+
+
 @pytest.mark.parametrize("n_fft,fundamental_bin", _odd_highest_positive_bin_cases())
 def test_odd_n_highest_positive_bin_from_n4_to_n32_is_in_band(
     n_fft,
@@ -133,13 +185,43 @@ def test_odd_n_highest_positive_bin_from_n4_to_n32_is_in_band(
     )
 
 
-@pytest.mark.xfail(
-    strict=True,
-    reason=(
-        "Issue #17: exact Nyquist input is a boundary-bin tone and the "
-        "current analyzer does not identify/report it correctly."
-    ),
+@pytest.mark.parametrize(
+    "n_fft,fundamental_bin,expected_sig_pwr_dbfs",
+    [
+        (16, 8, _expected_nyquist_sig_pwr_dbfs()),
+        (17, 8, _expected_sine_sig_pwr_dbfs()),
+        (32, 16, _expected_nyquist_sig_pwr_dbfs()),
+        (33, 16, _expected_sine_sig_pwr_dbfs()),
+    ],
 )
+def test_coherent_averaging_reports_boundary_tones(
+    n_fft,
+    fundamental_bin,
+    expected_sig_pwr_dbfs,
+):
+    n = np.arange(n_fft)
+    if fundamental_bin == n_fft // 2 and n_fft % 2 == 0:
+        signal = _TONE_AMPLITUDE * np.cos(np.pi * n)
+    else:
+        signal = _TONE_AMPLITUDE * np.sin(2 * np.pi * fundamental_bin * n / n_fft)
+    data = np.vstack([signal, signal])
+
+    result = compute_spectrum(
+        data,
+        fs=1.0,
+        max_scale_range=_MAX_SCALE_RANGE,
+        win_type="rectangular",
+        side_bin=0,
+        coherent_averaging=True,
+    )
+
+    assert result["plot_data"]["fundamental_bin"] == fundamental_bin
+    assert result["metrics"]["sig_pwr_dbfs"] == pytest.approx(
+        expected_sig_pwr_dbfs,
+        abs=1e-9,
+    )
+
+
 @pytest.mark.parametrize("n_fft,nyquist_bin", _even_nyquist_bin_cases())
 def test_even_n_nyquist_input_from_n4_to_n32_is_reported_as_boundary_tone(
     n_fft,
@@ -161,12 +243,13 @@ def test_even_n_nyquist_input_from_n4_to_n32_is_reported_as_boundary_tone(
     "n_fft,fundamental_bin,harmonic_order",
     _small_nyquist_harmonic_cases(),
 )
+@pytest.mark.parametrize("harmonic_peak_amp_db", [-60.0, -20.0])
 def test_n4_to_n32_harmonics_landing_on_nyquist_have_boundary_power(
     n_fft,
     fundamental_bin,
     harmonic_order,
+    harmonic_peak_amp_db,
 ):
-    harmonic_peak_amp_db = -60.0
     signal = _tone_with_nyquist_harmonic(
         n_fft,
         fundamental_bin,
@@ -237,13 +320,6 @@ def test_interior_harmonic_does_not_have_nyquist_boundary_gain():
     )
 
 
-@pytest.mark.xfail(
-    strict=True,
-    reason=(
-        "Issue #17: SNDR currently excludes Nyquist-bin distortion even when "
-        "THD includes the same harmonic."
-    ),
-)
 def test_sndr_includes_nyquist_bin_distortion_when_harmonic_is_included():
     harmonic_peak_amp_db = -60.0
     signal = _tone_with_nyquist_harmonic(

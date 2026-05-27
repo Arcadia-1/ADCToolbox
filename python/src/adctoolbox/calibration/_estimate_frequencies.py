@@ -80,7 +80,7 @@ def _estimate_frequencies(
         if verbose == 2:
             print(f"  - Bit {iter_bit}: Most common bin: {most_common_bin}, Anchor freq: {f_anchor:.6f}")
 
-        if result_A['metrics']["sndr_db"] >= result_B['metrics']["sndr_db"]:
+        if result_A['metrics']["sndr_dbc"] >= result_B['metrics']["sndr_dbc"]:
             winner_sig = sig_A
             mode_str = "A"
         else:
@@ -91,8 +91,8 @@ def _estimate_frequencies(
 
         freq_array[k] = f_est
         if verbose == 2:
-            SNDR_A = result_A['metrics']["sndr_db"]
-            SNDR_B = result_B['metrics']["sndr_db"]
+            SNDR_A = result_A['metrics']["sndr_dbc"]
+            SNDR_B = result_B['metrics']["sndr_dbc"]
             Sig_power_A = result_A['metrics']["sig_pwr_dbfs"]
             Sig_power_B = result_B['metrics']["sig_pwr_dbfs"]
 

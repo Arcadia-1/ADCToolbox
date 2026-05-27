@@ -6,7 +6,7 @@
 #, fuzzy
 msgid ""
 msgstr ""
-"Project-Id-Version: ADCToolbox 0.5.0\n"
+"Project-Id-Version: ADCToolbox 0.8.0\n"
 "Report-Msgid-Bugs-To: \n"
 "POT-Creation-Date: 2026-03-10 20:52+0800\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
@@ -29,10 +29,10 @@ msgstr ""
 
 #: ../../source/algorithms/fit_static_nonlin.md:5
 msgid ""
-"`fit_static_nonlin` extracts static nonlinearity coefficients (k2, k3) "
-"from a distorted sine wave signal. This quantifies the 2nd-order and 3rd-"
-"order nonlinearity of an ADC's transfer function, which are the primary "
-"sources of harmonic distortion."
+"`fit_static_nonlin` extracts static nonlinearity coefficients (k2, k3) from "
+"a distorted sine wave signal. This quantifies the 2nd-order and 3rd-order "
+"nonlinearity of an ADC's transfer function, which are the primary sources of "
+"harmonic distortion."
 msgstr ""
 
 #: ../../source/algorithms/fit_static_nonlin.md:7
@@ -105,8 +105,7 @@ msgstr ""
 
 #: ../../source/algorithms/fit_static_nonlin.md:43
 msgid ""
-"**`fitted_sine`** (array) — Fitted ideal sine wave input (reference "
-"signal)"
+"**`fitted_sine`** (array) — Fitted ideal sine wave input (reference signal)"
 msgstr ""
 
 #: ../../source/algorithms/fit_static_nonlin.md:44
@@ -339,7 +338,8 @@ msgid "Limitations"
 msgstr ""
 
 #: ../../source/algorithms/fit_static_nonlin.md:211
-msgid "**Cannot extract gain error**: Sine fitting absorbs amplitude variations"
+msgid ""
+"**Cannot extract gain error**: Sine fitting absorbs amplitude variations"
 msgstr ""
 
 #: ../../source/algorithms/fit_static_nonlin.md:212
@@ -354,8 +354,7 @@ msgstr ""
 
 #: ../../source/algorithms/fit_static_nonlin.md:214
 msgid ""
-"**Single-tone only**: Multi-tone distortion (IMD) requires different "
-"analysis"
+"**Single-tone only**: Multi-tone distortion (IMD) requires different analysis"
 msgstr ""
 
 #: ../../source/algorithms/fit_static_nonlin.md:215
@@ -404,26 +403,26 @@ msgstr ""
 
 #: ../../source/algorithms/fit_static_nonlin.md:249
 msgid ""
-"[`analyze_spectrum`](analyze_spectrum.md) — Measure HD2, HD3 in frequency"
-" domain"
+"[`analyze_spectrum`](analyze_spectrum.md) — Measure HD2, HD3 in frequency "
+"domain"
 msgstr ""
 
 #: ../../source/algorithms/fit_static_nonlin.md:250
 msgid ""
-"[`analyze_decomposition_time`](analyze_decomposition_time.md) — Time-"
-"domain harmonic extraction"
+"[`analyze_decomposition_time`](analyze_decomposition_time.md) — Time-domain "
+"harmonic extraction"
 msgstr ""
 
 #: ../../source/algorithms/fit_static_nonlin.md:251
 msgid ""
-"[`analyze_inl_from_sine`](analyze_inl_from_sine.md) — INL/DNL (code-level"
-" nonlinearity)"
+"[`analyze_inl_from_sine`](analyze_inl_from_sine.md) — INL/DNL (code-level "
+"nonlinearity)"
 msgstr ""
 
 #: ../../source/algorithms/fit_static_nonlin.md:252
 msgid ""
-"[`calibrate_weight_sine`](calibrate_weight_sine.md) — Calibrate to reduce"
-" k2/k3"
+"[`calibrate_weight_sine`](calibrate_weight_sine.md) — Calibrate to reduce k2/"
+"k3"
 msgstr ""
 
 #: ../../source/algorithms/fit_static_nonlin.md:254
@@ -431,13 +430,14 @@ msgid "References"
 msgstr ""
 
 #: ../../source/algorithms/fit_static_nonlin.md:256
-msgid "S. Max, \"Fast Accurate and Complete ADC Testing,\" Proc. IEEE ITC, 1989"
+msgid ""
+"S. Max, \"Fast Accurate and Complete ADC Testing,\" Proc. IEEE ITC, 1989"
 msgstr ""
 
 #: ../../source/algorithms/fit_static_nonlin.md:257
 msgid ""
-"J. Doernberg et al., \"Full-Speed Testing of A/D Converters,\" IEEE JSSC,"
-" 1984"
+"J. Doernberg et al., \"Full-Speed Testing of A/D Converters,\" IEEE JSSC, "
+"1984"
 msgstr ""
 
 #: ../../source/algorithms/fit_static_nonlin.md:258
@@ -445,4 +445,3 @@ msgid ""
 "IEEE Std 1241-2010, \"IEEE Standard for Terminology and Test Methods for "
 "ADCs\""
 msgstr ""
-

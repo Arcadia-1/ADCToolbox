@@ -6,9 +6,9 @@
 #, fuzzy
 msgid ""
 msgstr ""
-"Project-Id-Version: ADCToolbox 0.5.0\n"
+"Project-Id-Version: ADCToolbox 0.8.0\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2026-03-10 20:52+0800\n"
+"POT-Creation-Date: 2026-05-26 22:15+0800\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language: zh_CN\n"
@@ -33,8 +33,8 @@ msgstr ""
 
 #: adctoolbox.siggen:3 of
 msgid ""
-"Provides signal generators and non-ideality appliers for simulating "
-"various ADC imperfections and effects."
+"Provides signal generators and non-ideality appliers for simulating various "
+"ADC imperfections and effects."
 msgstr ""
 
 #: adctoolbox.siggen.nonidealities.ADC_Signal_Generator:1 of
@@ -79,7 +79,8 @@ msgid "Initialize ADC_Signal_Generator with signal parameters."
 msgstr ""
 
 #: adctoolbox.siggen.nonidealities.ADC_Signal_Generator.get_clean_signal:1 of
-msgid "Return clean sine wave: A*sin(2π*Fin*t) + DC (explicit public interface)."
+msgid ""
+"Return clean sine wave: A*sin(2π*Fin*t) + DC (explicit public interface)."
 msgstr ""
 
 #: adctoolbox.siggen.nonidealities.ADC_Signal_Generator.apply_thermal_noise:1
@@ -92,8 +93,8 @@ msgstr ""
 #: adctoolbox.siggen.nonidealities.ADC_Signal_Generator.apply_quantization_noise:1
 #: of
 msgid ""
-"Apply quantization noise. Params: quant_range: tuple (v_min, v_max), "
-"e.g., (0, 1) or (-0.5, 0.5)."
+"Apply quantization noise. Params: quant_range: tuple (v_min, v_max), e.g., "
+"(0, 1) or (-0.5, 0.5)."
 msgstr ""
 
 #: adctoolbox.siggen.nonidealities.ADC_Signal_Generator.apply_jitter:1 of
@@ -102,16 +103,16 @@ msgstr ""
 
 #: adctoolbox.siggen.nonidealities.ADC_Signal_Generator.apply_jitter:3 of
 msgid ""
-"Logic: - Case 1 (Source Generation): If input_signal is None, regenerates"
-" from scratch (Perfect Precision). - Case 2 (Chain Processing): If input "
-"is provided, uses Cubic Spline interpolation (Preserves previous errors)."
+"Logic: - Case 1 (Source Generation): If input_signal is None, regenerates "
+"from scratch (Perfect Precision). - Case 2 (Chain Processing): If input is "
+"provided, uses Cubic Spline interpolation (Preserves previous errors)."
 msgstr ""
 
 #: adctoolbox.siggen.nonidealities.ADC_Signal_Generator.apply_static_nonlinearity:1
 #: of
 msgid ""
-"Applies static nonlinear distortion to the signal using direct polynomial"
-" coefficients (k2 to k5)."
+"Applies static nonlinear distortion to the signal using direct polynomial "
+"coefficients (k2 to k5)."
 msgstr ""
 
 #: adctoolbox.siggen.nonidealities.ADC_Signal_Generator.apply_static_nonlinearity_hd:1
@@ -124,32 +125,32 @@ msgstr ""
 #: adctoolbox.siggen.nonidealities.ADC_Signal_Generator.apply_memory_effect:1
 #: of
 msgid ""
-"Apply memory effect (charge injection). The previous MSB decision leaks "
-"back to the input. Params: input_signal, memory_strength (default 0.009)."
+"Apply memory effect (charge injection). The previous MSB decision leaks back "
+"to the input. Params: input_signal, memory_strength (default 0.009)."
 msgstr ""
 
 #: adctoolbox.siggen.nonidealities.ADC_Signal_Generator.apply_incomplete_sampling:1
 #: of
 msgid ""
-"Apply dynamic nonlinearity (tracking/settling). Models slew-rate and "
-"signal-dependent settling errors. Params: input_signal, T_track, tau_nom "
-"(default 40ps), coeff_k (default 0.15)."
+"Apply dynamic nonlinearity (tracking/settling). Models slew-rate and signal-"
+"dependent settling errors. Params: input_signal, T_track, tau_nom (default "
+"40ps), coeff_k (default 0.15)."
 msgstr ""
 
 #: adctoolbox.siggen.nonidealities.ADC_Signal_Generator.apply_ra_gain_error:1
 #: of
 #, python-format
 msgid ""
-"Apply interstage gain error (2-stage pipeline ADC). Params: input_signal,"
-" relative_gain (default 0.99 = 1% error)."
+"Apply interstage gain error (2-stage pipeline ADC). Params: input_signal, "
+"relative_gain (default 0.99 = 1% error)."
 msgstr ""
 
 #: adctoolbox.siggen.nonidealities.ADC_Signal_Generator.apply_ra_gain_error_dynamic:1
 #: of
 msgid ""
-"Applies dynamic gain error to the interstage residue amplifier in a "
-"pipeline ADC. G[n] is non-linearly dependent on the previous residue "
-"output magnitude (V_prev_ac^3), modeling HD3 memory effects."
+"Applies dynamic gain error to the interstage residue amplifier in a pipeline "
+"ADC. G[n] is non-linearly dependent on the previous residue output magnitude "
+"(V_prev_ac^3), modeling HD3 memory effects."
 msgstr ""
 
 #: adctoolbox.siggen.nonidealities.ADC_Signal_Generator.apply_reference_error:1
@@ -160,10 +161,11 @@ msgstr ""
 #: adctoolbox.siggen.nonidealities.ADC_Signal_Generator.apply_reference_error:3
 #: of
 msgid ""
-"This simulates the reference voltage dropping due to load current (kick) "
-"and failing to recover fully before the next sample."
+"This simulates the reference voltage dropping due to load current kick and "
+"failing to recover fully before the next sample."
 msgstr ""
 
+#: adctoolbox.siggen.nonidealities.ADC_Signal_Generator.apply_am_noise:3
 #: adctoolbox.siggen.nonidealities.ADC_Signal_Generator.apply_noise_shaping:16
 #: adctoolbox.siggen.nonidealities.ADC_Signal_Generator.apply_reference_error:6
 #: of
@@ -174,35 +176,22 @@ msgstr ""
 #: of
 msgid ""
 "input_signal: The input signal. settling_tau: Recovery time constant in "
-"units of samples (e.g., 2.0)."
-msgstr ""
-
-#: adctoolbox.siggen.nonidealities.ADC_Signal_Generator.apply_reference_error:9
-#: of
-msgid "Larger = Slower recovery = Worse settling."
-msgstr ""
-
-#: adctoolbox.siggen.nonidealities.ADC_Signal_Generator.apply_reference_error:10
-#: of
-msgid ""
-"droop_strength: How much Vref drops proportional to signal amplitude "
-"(0.01 = 1%)."
+"units of samples. droop_strength: Vref drop proportional to signal amplitude."
 msgstr ""
 
 #: adctoolbox.siggen.nonidealities.ADC_Signal_Generator.apply_am_noise:1 of
-msgid "Apply random AM noise (Multiplicative Thermal Noise). Params:"
+msgid "Apply random AM noise (Multiplicative Thermal Noise)."
 msgstr ""
 
-#: adctoolbox.siggen.nonidealities.ADC_Signal_Generator.apply_am_noise:3 of
+#: adctoolbox.siggen.nonidealities.ADC_Signal_Generator.apply_am_noise:4 of
 msgid ""
-"input_signal: The signal to modulate. am_noise_depth: The RMS level of "
-"the noise relative to signal amplitude (default 0.1)."
+"input_signal: The signal to modulate. strength: RMS level of the noise "
+"relative to signal amplitude."
 msgstr ""
 
-#: adctoolbox.siggen.nonidealities.ADC_Signal_Generator.apply_am_noise:5 of
+#: adctoolbox.siggen.nonidealities.ADC_Signal_Generator.apply_am_noise:7 of
 msgid ""
-"There is NO frequency parameter here because white noise contains ALL "
-"frequencies."
+"There is no frequency parameter because white noise contains all frequencies."
 msgstr ""
 
 #: adctoolbox.siggen.nonidealities.ADC_Signal_Generator.apply_am_tone:1 of
@@ -213,20 +202,20 @@ msgstr ""
 
 #: adctoolbox.siggen.nonidealities.ADC_Signal_Generator.apply_clipping:1 of
 msgid ""
-"Apply hard clipping based on signal's percentile (e.g., 1.0 clips "
-"top/bottom 1%)."
+"Apply hard clipping based on signal's percentile (e.g., 1.0 clips top/bottom "
+"1%)."
 msgstr ""
 
 #: adctoolbox.siggen.nonidealities.ADC_Signal_Generator.apply_drift:1 of
 msgid ""
-"Apply drift (low-frequency random walk). Params: input_signal, "
-"drift_scale (default 5e-5)."
+"Apply drift (low-frequency random walk). Params: input_signal, drift_scale "
+"(default 5e-5)."
 msgstr ""
 
 #: adctoolbox.siggen.nonidealities.ADC_Signal_Generator.apply_glitch:1 of
 msgid ""
-"Apply random glitches. Params: input_signal, glitch_prob (default 0.00015"
-" = 0.015%), glitch_amplitude (default 0.1)."
+"Apply random glitches. Params: input_signal, glitch_prob (default 0.00015 = "
+"0.015%), glitch_amplitude (default 0.1)."
 msgstr ""
 
 #: adctoolbox.siggen.nonidealities.ADC_Signal_Generator.apply_noise_shaping:1
@@ -242,20 +231,19 @@ msgstr ""
 #: adctoolbox.siggen.nonidealities.ADC_Signal_Generator.apply_noise_shaping:5
 #: of
 msgid ""
-"Order characteristics: - 1st order: 20 dB/decade roll-off (common in "
-"basic delta-sigma) - 2nd order: 40 dB/decade roll-off (most common for "
-"oversampling ADCs) - 3rd order: 60 dB/decade roll-off (aggressive "
-"shaping) - 4th order: 80 dB/decade roll-off (maximum practical, stability"
-" concerns) - 5th order: 100 dB/decade roll-off (rarely used, high "
-"stability risk)"
+"Order characteristics: - 1st order: 20 dB/decade roll-off (common in basic "
+"delta-sigma) - 2nd order: 40 dB/decade roll-off (most common for "
+"oversampling ADCs) - 3rd order: 60 dB/decade roll-off (aggressive shaping) - "
+"4th order: 80 dB/decade roll-off (maximum practical, stability concerns) - "
+"5th order: 100 dB/decade roll-off (rarely used, high stability risk)"
 msgstr ""
 
 #: adctoolbox.siggen.nonidealities.ADC_Signal_Generator.apply_noise_shaping:12
 #: of
 msgid ""
-"This method applies actual quantization (using apply_quantization_noise),"
-" then shapes the quantization error spectrum using the NTF filter. Pushes"
-" quantization noise to higher frequencies, improving in-band SNR."
+"This method applies actual quantization (using apply_quantization_noise), "
+"then shapes the quantization error spectrum using the NTF filter. Pushes "
+"quantization noise to higher frequencies, improving in-band SNR."
 msgstr ""
 
 #: adctoolbox.siggen.nonidealities.ADC_Signal_Generator.apply_noise_shaping:17
@@ -263,8 +251,8 @@ msgstr ""
 msgid ""
 "input_signal: Input signal (None -> clean sine wave) n_bits: Quantizer "
 "resolution (default 10) quant_range: Quantization range (v_min, v_max), "
-"e.g., (0, 1) or (-0.5, 0.5) order: Noise shaping order (1, 2, 3, 4, or 5,"
-" default 1)"
+"e.g., (0, 1) or (-0.5, 0.5) order: Noise shaping order (1, 2, 3, 4, or 5, "
+"default 1)"
 msgstr ""
 
 #: ../../source/api/siggen.rst
@@ -284,4 +272,3 @@ msgstr ""
 #: of
 msgid "If order is not in [1, 2, 3, 4, 5]"
 msgstr ""
-

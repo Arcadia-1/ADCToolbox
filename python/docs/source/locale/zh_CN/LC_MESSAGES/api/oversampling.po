@@ -6,7 +6,7 @@
 #, fuzzy
 msgid ""
 msgstr ""
-"Project-Id-Version: ADCToolbox 0.5.0\n"
+"Project-Id-Version: ADCToolbox 0.8.0\n"
 "Report-Msgid-Bugs-To: \n"
 "POT-Creation-Date: 2026-03-10 20:52+0800\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
@@ -25,8 +25,8 @@ msgstr ""
 
 #: ../../source/api/oversampling.rst:4
 msgid ""
-"The ``oversampling`` module provides tools for analyzing oversampling and"
-" Delta-Sigma modulators."
+"The ``oversampling`` module provides tools for analyzing oversampling and "
+"Delta-Sigma modulators."
 msgstr ""
 
 #: adctoolbox.oversampling:1 of
@@ -43,8 +43,8 @@ msgstr ""
 
 #: adctoolbox.oversampling.ntf_analyzer.ntf_analyzer:3 of
 msgid ""
-"The noise transfer function (in z domain) - scipy.signal.TransferFunction"
-" or tuple (num, den)"
+"The noise transfer function (in z domain) - scipy.signal.TransferFunction or "
+"tuple (num, den)"
 msgstr ""
 
 #: adctoolbox.oversampling.ntf_analyzer.ntf_analyzer:4 of
@@ -65,11 +65,9 @@ msgstr ""
 
 #: adctoolbox.oversampling.ntf_analyzer.ntf_analyzer:8 of
 msgid ""
-"Integrated noise suppression of NTF in signal band in dB (compared to "
-"NTF=1)"
+"Integrated noise suppression of NTF in signal band in dB (compared to NTF=1)"
 msgstr ""
 
 #: ../../source/api/oversampling.rst
 msgid "Return type"
 msgstr ""
-

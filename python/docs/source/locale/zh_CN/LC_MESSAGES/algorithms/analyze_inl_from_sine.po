@@ -6,7 +6,7 @@
 #, fuzzy
 msgid ""
 msgstr ""
-"Project-Id-Version: ADCToolbox 0.5.0\n"
+"Project-Id-Version: ADCToolbox 0.8.0\n"
 "Report-Msgid-Bugs-To: \n"
 "POT-Creation-Date: 2026-03-10 20:52+0800\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
@@ -31,8 +31,8 @@ msgstr ""
 msgid ""
 "`analyze_inl_from_sine` computes Integral Nonlinearity (INL) and "
 "Differential Nonlinearity (DNL) from sine wave histogram test using the "
-"inverse cosine method. This is the Python implementation following IEEE "
-"Std 1241-2010."
+"inverse cosine method. This is the Python implementation following IEEE Std "
+"1241-2010."
 msgstr ""
 
 #: ../../source/algorithms/analyze_inl_from_sine.md:7
@@ -57,12 +57,13 @@ msgstr ""
 
 #: ../../source/algorithms/analyze_inl_from_sine.md:30
 msgid ""
-"**`num_bits`** (int, optional) — ADC resolution in bits. If None, "
-"inferred from data range"
+"**`num_bits`** (int, optional) — ADC resolution in bits. If None, inferred "
+"from data range"
 msgstr ""
 
 #: ../../source/algorithms/analyze_inl_from_sine.md:31
-msgid "**`full_scale`** (float, optional) — Full-scale voltage for quantization"
+msgid ""
+"**`full_scale`** (float, optional) — Full-scale voltage for quantization"
 msgstr ""
 
 #: ../../source/algorithms/analyze_inl_from_sine.md:32
@@ -75,8 +76,8 @@ msgstr ""
 
 #: ../../source/algorithms/analyze_inl_from_sine.md:34
 msgid ""
-"**`clip_percent`** (float, default=0.01) — Fraction of code range to "
-"exclude from edges (0.01 = 1%)"
+"**`clip_percent`** (float, default=0.01) — Fraction of code range to exclude "
+"from edges (0.01 = 1%)"
 msgstr ""
 
 #: ../../source/algorithms/analyze_inl_from_sine.md:35
@@ -89,14 +90,14 @@ msgstr ""
 
 #: ../../source/algorithms/analyze_inl_from_sine.md:37
 msgid ""
-"**`show_title`** (bool, default=True) — Show auto-generated title with "
-"min/max ranges"
+"**`show_title`** (bool, default=True) — Show auto-generated title with min/"
+"max ranges"
 msgstr ""
 
 #: ../../source/algorithms/analyze_inl_from_sine.md:38
 msgid ""
-"**`col_title`** (str, optional) — Column title above DNL plot (e.g., \"N "
-"= 2^10\")"
+"**`col_title`** (str, optional) — Column title above DNL plot (e.g., \"N = "
+"2^10\")"
 msgstr ""
 
 #: ../../source/algorithms/analyze_inl_from_sine.md:39
@@ -321,8 +322,7 @@ msgstr ""
 
 #: ../../source/algorithms/analyze_inl_from_sine.md:165
 msgid ""
-"**Sine wave input required**: Assumes sine wave histogram PDF `∝ 1/√(1 - "
-"x²)`"
+"**Sine wave input required**: Assumes sine wave histogram PDF `∝ 1/√(1 - x²)`"
 msgstr ""
 
 #: ../../source/algorithms/analyze_inl_from_sine.md:166
@@ -331,8 +331,8 @@ msgstr ""
 
 #: ../../source/algorithms/analyze_inl_from_sine.md:167
 msgid ""
-"**Sufficient samples**: Requires `>> 2^N` samples for N-bit ADC "
-"(typically 10× minimum)"
+"**Sufficient samples**: Requires `>> 2^N` samples for N-bit ADC (typically "
+"10× minimum)"
 msgstr ""
 
 #: ../../source/algorithms/analyze_inl_from_sine.md:168
@@ -368,7 +368,8 @@ msgid "See Also"
 msgstr ""
 
 #: ../../source/algorithms/analyze_inl_from_sine.md:191
-msgid "[`fit_sine_4param`](fit_sine_4param.md) — Sine wave parameter extraction"
+msgid ""
+"[`fit_sine_4param`](fit_sine_4param.md) — Sine wave parameter extraction"
 msgstr ""
 
 #: ../../source/algorithms/analyze_inl_from_sine.md:192
@@ -399,13 +400,12 @@ msgstr ""
 
 #: ../../source/algorithms/analyze_inl_from_sine.md:199
 msgid ""
-"J. Doernberg et al., \"Full-Speed Testing of A/D Converters,\" IEEE JSSC,"
-" 1984"
+"J. Doernberg et al., \"Full-Speed Testing of A/D Converters,\" IEEE JSSC, "
+"1984"
 msgstr ""
 
 #: ../../source/algorithms/analyze_inl_from_sine.md:200
 msgid ""
-"M. F. Wagdy and W. Ng, \"Validity of Uniform Quantization Error Model for"
-" Sinusoidal Signals Without and With Dither,\" IEEE Trans. IM, 1989"
+"M. F. Wagdy and W. Ng, \"Validity of Uniform Quantization Error Model for "
+"Sinusoidal Signals Without and With Dither,\" IEEE Trans. IM, 1989"
 msgstr ""
-

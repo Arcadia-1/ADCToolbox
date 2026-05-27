@@ -6,9 +6,9 @@
 #, fuzzy
 msgid ""
 msgstr ""
-"Project-Id-Version: ADCToolbox 0.5.0\n"
+"Project-Id-Version: ADCToolbox 0.8.0\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2026-03-10 20:52+0800\n"
+"POT-Creation-Date: 2026-05-26 22:15+0800\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language: zh_CN\n"
@@ -31,8 +31,8 @@ msgstr ""
 msgid ""
 "`analyze_spectrum` performs FFT-based spectrum analysis for ADC "
 "characterization, computing key metrics including ENOB, SNR, SNDR, SFDR, "
-"THD, and harmonic content. This is the primary tool for frequency-domain "
-"ADC performance evaluation."
+"THD, and harmonic content. This is the primary tool for frequency-domain ADC "
+"performance evaluation."
 msgstr ""
 
 #: ../../source/algorithms/analyze_spectrum.md:7
@@ -57,8 +57,8 @@ msgstr ""
 
 #: ../../source/algorithms/analyze_spectrum.md:33
 msgid ""
-"**`window`** (str, default='blackman') — Window function: 'rect', 'hann',"
-" 'hamming', 'blackman', 'flattop'"
+"**`window`** (str, default='blackman') — Window function: 'rect', 'hann', "
+"'hamming', 'blackman', 'flattop'"
 msgstr ""
 
 #: ../../source/algorithms/analyze_spectrum.md:34
@@ -71,12 +71,12 @@ msgstr ""
 
 #: ../../source/algorithms/analyze_spectrum.md:36
 msgid ""
-"**`mode`** (str, default='coherent') — Averaging mode: 'coherent' or "
-"'power'"
+"**`mode`** (str, default='coherent') — Averaging mode: 'coherent' or 'power'"
 msgstr ""
 
 #: ../../source/algorithms/analyze_spectrum.md:37
-msgid "**`show_plot`** (bool, default=False) — Display interactive spectrum plot"
+msgid ""
+"**`show_plot`** (bool, default=False) — Display interactive spectrum plot"
 msgstr ""
 
 #: ../../source/algorithms/analyze_spectrum.md:38
@@ -117,8 +117,7 @@ msgstr ""
 
 #: ../../source/algorithms/analyze_spectrum.md:50
 msgid ""
-"**`sinad_db`** — Signal-to-Noise-and-Distortion (alternative name for "
-"SNDR)"
+"**`sinad_db`** — Signal-to-Noise-and-Distortion (alternative name for SNDR)"
 msgstr ""
 
 #: ../../source/algorithms/analyze_spectrum.md:51
@@ -383,39 +382,33 @@ msgstr ""
 
 #: ../../source/algorithms/analyze_spectrum.md:224
 msgid ""
-"[`analyze_spectrum_polar`](analyze_spectrum_polar.md) — Polar phase "
-"spectrum analysis"
+"[`analyze_spectrum_polar`](analyze_spectrum_polar.md) — Polar phase spectrum "
+"analysis"
 msgstr ""
 
 #: ../../source/algorithms/analyze_spectrum.md:225
 msgid ""
-"[`analyze_two_tone_spectrum`](analyze_two_tone_spectrum.md) — Two-tone "
-"IMD testing"
+"[`find_coherent_frequency`](../api/fundamentals.rst) — Calculate coherent "
+"test frequencies"
 msgstr ""
 
-#: ../../source/algorithms/analyze_spectrum.md:226
-msgid ""
-"[`find_coherent_frequency`](../api/fundamentals.rst) — Calculate coherent"
-" test frequencies"
-msgstr ""
-
-#: ../../source/algorithms/analyze_spectrum.md:228
+#: ../../source/algorithms/analyze_spectrum.md:227
 msgid "References"
 msgstr ""
 
-#: ../../source/algorithms/analyze_spectrum.md:230
+#: ../../source/algorithms/analyze_spectrum.md:229
 msgid ""
 "IEEE Std 1241-2010, \"IEEE Standard for Terminology and Test Methods for "
 "ADCs\""
 msgstr ""
 
+#: ../../source/algorithms/analyze_spectrum.md:230
+msgid ""
+"F. J. Harris, \"On the Use of Windows for Harmonic Analysis with the DFT,\" "
+"Proc. IEEE, 1978"
+msgstr ""
+
 #: ../../source/algorithms/analyze_spectrum.md:231
 msgid ""
-"F. J. Harris, \"On the Use of Windows for Harmonic Analysis with the "
-"DFT,\" Proc. IEEE, 1978"
+"Application Note AN-9675, \"Coherent Sampling Calculator,\" Analog Devices"
 msgstr ""
-
-#: ../../source/algorithms/analyze_spectrum.md:232
-msgid "Application Note AN-9675, \"Coherent Sampling Calculator,\" Analog Devices"
-msgstr ""
-

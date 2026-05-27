@@ -28,3 +28,22 @@ def test_create_window(win_type, expected_window_gain, expected_equiv_noise_bw_f
 
     assert window_gain == pytest.approx(expected_window_gain, abs=1e-3)
     assert equiv_noise_bw_factor == pytest.approx(expected_equiv_noise_bw_factor, abs=1e-3)
+
+
+@pytest.mark.parametrize("win_type", [
+    "rectangular",
+    "hann",
+    "hamming",
+    "blackman",
+    "blackmanharris",
+    "flattop",
+])
+def test_power_correction_uses_window_rms_power(win_type):
+    """Power correction should match MATLAB plotspec's RMS-window scaling."""
+    N = 10240
+    window_vector, window_gain, equiv_noise_bw_factor = _create_window(win_type, N)
+
+    expected = 4 / np.mean(window_vector**2)
+    actual = _calculate_power_correction(window_gain, equiv_noise_bw_factor)
+
+    assert actual == pytest.approx(expected, rel=1e-12)

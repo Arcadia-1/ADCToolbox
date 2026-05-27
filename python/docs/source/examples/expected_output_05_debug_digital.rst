@@ -1,18 +1,20 @@
 Expected Output: 05_debug_digital
 =======================================
 
-This document shows the expected console output and example figures from all examples in `python/src/adctoolbox/examples/05_debug_digital/`.
+This document shows selected expected console output and example figures from
+`python/src/adctoolbox/examples/05_debug_digital/`.
 
 Summary
 -------
 
 All examples in `05_debug_digital` demonstrate digital output analysis capabilities:
 
-**Total Examples**: 7
+**Total Examples**: 11
 
 **Categories**:
 - **Weight Calibration**: exp_d01-d03 (lite, full, redundancy comparison)
 - **Digital Debugging**: exp_d11-d14 (bit activity, ENOB sweep, weight scaling, overflow check)
+- **SAR Calibration**: exp_d15-d18 (unit-cap mismatch, Monte Carlo spread, repeated calibration, training-length sweep)
 
 **Key Features**:
 - Foreground calibration using sine waves
@@ -20,6 +22,7 @@ All examples in `05_debug_digital` demonstrate digital output analysis capabilit
 - Bit-level activity monitoring
 - Weight and radix calculations
 - Overflow detection
+- SAR capacitor-mismatch modeling and foreground calibration
 
 
 

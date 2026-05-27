@@ -6,7 +6,7 @@
 #, fuzzy
 msgid ""
 msgstr ""
-"Project-Id-Version: ADCToolbox 0.5.0\n"
+"Project-Id-Version: ADCToolbox 0.8.0\n"
 "Report-Msgid-Bugs-To: \n"
 "POT-Creation-Date: 2026-03-10 20:52+0800\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
@@ -29,10 +29,10 @@ msgstr ""
 
 #: ../../source/algorithms/analyze_decomposition_polar.md:5
 msgid ""
-"`analyze_decomposition_polar` performs time-domain harmonic decomposition"
-" with polar (magnitude-phase) visualization. This provides an intuitive "
-"view of harmonic distortion structure, showing how each harmonic "
-"component relates to the fundamental in both amplitude and phase."
+"`analyze_decomposition_polar` performs time-domain harmonic decomposition "
+"with polar (magnitude-phase) visualization. This provides an intuitive view "
+"of harmonic distortion structure, showing how each harmonic component "
+"relates to the fundamental in both amplitude and phase."
 msgstr ""
 
 #: ../../source/algorithms/analyze_decomposition_polar.md:7
@@ -293,8 +293,8 @@ msgstr ""
 
 #: ../../source/algorithms/analyze_decomposition_polar.md:154
 msgid ""
-"[`analyze_decomposition_time`](analyze_decomposition_time.md) — Time-"
-"domain view"
+"[`analyze_decomposition_time`](analyze_decomposition_time.md) — Time-domain "
+"view"
 msgstr ""
 
 #: ../../source/algorithms/analyze_decomposition_polar.md:155
@@ -302,7 +302,8 @@ msgid "[`analyze_spectrum`](analyze_spectrum.md) — Frequency-domain metrics"
 msgstr ""
 
 #: ../../source/algorithms/analyze_decomposition_polar.md:156
-msgid "[`fit_static_nonlin`](fit_static_nonlin.md) — Extract k2/k3 coefficients"
+msgid ""
+"[`fit_static_nonlin`](fit_static_nonlin.md) — Extract k2/k3 coefficients"
 msgstr ""
 
 #: ../../source/algorithms/analyze_decomposition_polar.md:158
@@ -315,7 +316,6 @@ msgstr ""
 
 #: ../../source/algorithms/analyze_decomposition_polar.md:161
 msgid ""
-"R. Schreier and G. C. Temes, \"Understanding Delta-Sigma Data "
-"Converters,\" Wiley-IEEE Press, 2005"
+"R. Schreier and G. C. Temes, \"Understanding Delta-Sigma Data Converters,\" "
+"Wiley-IEEE Press, 2005"
 msgstr ""
-

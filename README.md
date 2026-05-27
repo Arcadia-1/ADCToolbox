@@ -50,7 +50,7 @@ python -c "import adctoolbox; print(adctoolbox.__version__)"
 
 ## Quick Start
 
-**Get all 45 examples in one command:**
+**Get all 59 runnable examples in one command:**
 
 ```bash
 cd /path/to/your/workspace
@@ -80,83 +80,20 @@ See [Usage Examples](#usage-examples) section below for detailed code examples.
 
 ## Example Categories
 
-### 01_basic - Fundamentals (2 examples)
-Environment verification and coherent sampling basics.
+| Folder | Count | Focus |
+|--------|------:|-------|
+| `01_basic/` | 2 | Environment checks and coherent sampling basics |
+| `02_spectrum/` | 13 | FFT analysis, windows, averaging, polar plots, and near-Nyquist handling |
+| `03_generate_signals/` | 6 | Synthetic ADC signals with noise, jitter, quantization, nonlinearities, and interference |
+| `04_debug_analog/` | 15 | Sine fitting, error PDFs, phase/value error analysis, INL/DNL, harmonics, and phase-plane views |
+| `05_debug_digital/` | 11 | Bit activity, overflow, digital weight calibration, SAR redundancy, and mismatch calibration |
+| `06_use_toolsets/` | 4 | One-command AOUT/DOUT dashboard workflows |
+| `07_conversions/` | 5 | Aliasing, dB/unit conversions, FoM, SNR, and NSD conversions |
+| `08_time_interleave/` | 2 | Time-interleaved ADC skew extraction, spur prediction, and foreground calibration |
+| `09_downsample/` | 1 | Subsample-only debug output and aliasing behavior |
 
-| Example | Description |
-|---------|-------------|
-| `exp_b01_environment_check.py` | Verify installation and plot test signal |
-| `exp_b02_coherent_vs_non_coherent.py` | Demonstrate coherent vs non-coherent sampling impact on ENOB |
-
-### 02_spectrum - FFT-Based Analysis (14 examples)
-Spectrum analysis with windowing, averaging, and polar plots.
-
-| Example | Description |
-|---------|-------------|
-| `exp_s01_analyze_spectrum_simplest.py` | Simplest spectrum analysis example |
-| `exp_s02_analyze_spectrum_interactive.py` | Interactive spectrum visualization |
-| `exp_s03_analyze_spectrum_savefig.py` | Save spectrum plots with amplitude comparison |
-| `exp_s04_sweep_dynamic_range.py` | Dynamic range measurement (SNR vs amplitude) |
-| `exp_s05_annotating_spur.py` | Annotate and identify spurs in spectrum |
-| `exp_s06_sweeping_fft_and_osr.py` | FFT length and OSR comparison (resolution vs SNR) |
-| `exp_s07_spectrum_averaging.py` | Coherent averaging demonstration |
-| `exp_s08_windowing_deep_dive.py` | Window function comparison (8 windows × 3 scenarios) |
-| `exp_s10_polar_noise_and_harmonics.py` | Polar phase spectrum: noise vs harmonics |
-| `exp_s11_polar_memory_effect.py` | Memory effect analysis via polar spectrum |
-| `exp_s12_polar_coherent_averaging.py` | Coherent averaging with polar plots |
-
-### 03_generate_signals - Non-Ideality Modeling (6 examples)
-Generate ADC signals with various impairments for testing and validation.
-
-| Example | Description |
-|---------|-------------|
-| `exp_g01_generate_signal_demo.py` | Thermal noise demonstration (4 noise levels) |
-| `exp_g03_sweep_quant_bits.py` | Quantization noise vs bit resolution (2-16 bits) |
-| `exp_g04_sweep_jitter_fin.py` | Jitter vs input frequency sweep |
-| `exp_g05_sweep_static_nonlin.py` | Static nonlinearity (HD2/HD3 sign combinations) |
-| `exp_g06_sweep_dynamic_nonlin.py` | Dynamic effects (settling, memory, RA gain) |
-| `exp_g07_sweep_interferences.py` | Interference types (glitch, AM, clipping, drift) |
-
-### 04_debug_analog - Error Characterization (13 examples)
-Time-domain, frequency-domain, and statistical error analysis on analog waveforms.
-
-| Example | Description |
-|---------|-------------|
-| `exp_a01_fit_sine_4param.py` | 4-parameter sine fitting (DC, amplitude, frequency, phase) |
-| `exp_a02_analyze_error_by_value.py` | Error histograms binned by ADC code |
-| `exp_a03_analyze_error_by_phase.py` | Decompose error into AM/PM noise components |
-| `exp_a04_jitter_calculation.py` | Jitter measurement and validation |
-| `exp_a11_decompose_harmonics.py` | Time-domain harmonic decomposition |
-| `exp_a12_decompose_harmonics_polar.py` | Polar plot harmonic decomposition |
-| `exp_a21_analyze_error_pdf.py` | Error probability distribution (15 non-idealities) |
-| `exp_a22_analyze_error_spectrum.py` | Error spectrum analysis |
-| `exp_a23_analyze_error_autocorrelation.py` | Temporal correlation in error signal |
-| `exp_a24_analyze_error_envelope_spectrum.py` | Error envelope spectrum (AM patterns) |
-| `exp_a25_spectra.py` | Spectrum comparison across non-idealities |
-| `exp_a31_fit_static_nonlin.py` | Extract k2/k3 nonlinearity coefficients |
-| `exp_a32_inl_from_sine_sweep_length.py` | INL/DNL vs record length (N = 2^10 to 2^16) |
-
-### 05_debug_digital - Calibration & Redundancy (5 examples)
-Digital code analysis for pipeline and SAR ADCs with calibration algorithms.
-
-| Example | Description |
-|---------|-------------|
-| `exp_d01_bit_activity.py` | Bit flip activity visualization |
-| `exp_d02_cal_weight_sine.py` | Foreground weight calibration using sine wave |
-| `exp_d03_redundancy_comparison.py` | Architecture comparison (1.5-bit vs 2-bit stages) |
-| `exp_d04_weight_scaling.py` | Digital weight scaling analysis |
-| `exp_d05_sweep_bit_enob.py` | ENOB vs bit resolution sweep |
-
-### 06_calculate_metric - Utility Functions (5 examples)
-Helper functions for unit conversions and metric calculations.
-
-| Example | Description |
-|---------|-------------|
-| `exp_b01_aliasing_nyquist_zones.py` | Aliasing and Nyquist zone demonstration |
-| `exp_b02_unit_conversions.py` | dB, magnitude, SNR, ENOB conversions |
-| `exp_b03_calculate_fom.py` | Figure of Merit (FoM) calculations |
-| `exp_b05_amplitudes_to_snr.py` | Amplitude to SNR conversion |
-| `exp_b06_convert_nsd_snr.py` | Noise Spectral Density and SNR conversion |
+See the packaged `examples/README.md` after running `adctoolbox-get-examples`
+for the full script map.
 
 ## Usage Examples
 
@@ -307,3 +244,13 @@ MIT License
 - **[Algorithm Reference](https://arcadia-1.github.io/ADCToolbox/algorithms/index.html)** - 15 detailed algorithm guides
 - **[API Documentation](https://arcadia-1.github.io/ADCToolbox/api/index.html)** - Function signatures and parameters
 - **[Changelog](https://arcadia-1.github.io/ADCToolbox/changelog.html)** - Version history
+
+## Star History
+
+<a href="https://star-history.com/#Arcadia-1/ADCToolbox&Date">
+  <picture>
+    <source media="(prefers-color-scheme: dark)" srcset="https://api.star-history.com/svg?repos=Arcadia-1/ADCToolbox&type=Date&theme=dark"/>
+    <source media="(prefers-color-scheme: light)" srcset="https://api.star-history.com/svg?repos=Arcadia-1/ADCToolbox&type=Date"/>
+    <img alt="Star History Chart" src="https://api.star-history.com/svg?repos=Arcadia-1/ADCToolbox&type=Date"/>
+  </picture>
+</a>

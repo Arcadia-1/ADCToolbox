@@ -54,7 +54,8 @@ def _dual_basis_lstsq(
     cos_basis: np.ndarray,
     sin_basis: np.ndarray,
     offset_matrix: np.ndarray,
-    deriv_matrix: np.ndarray | None = None
+    deriv_matrix: np.ndarray | None = None,
+    verbose: int = 0,
 ) -> tuple[np.ndarray, int, float]:
     """
     Core dual-basis solver: tries both cosine=1 and sine=1 assumptions.
@@ -79,8 +80,9 @@ def _dual_basis_lstsq(
     coeffs2, _, _, _ = lstsq(A2, b2)
     err2 = np.linalg.norm(A2 @ coeffs2 - b2)
     
-    print(f"\nDEBUG: err1 (Cos assumption) = {err1:.2e}")
-    print(f"DEBUG: err2 (Sin assumption) = {err2:.2e}")
+    if verbose >= 2:
+        print(f"\nDEBUG: err1 (Cos assumption) = {err1:.2e}")
+        print(f"DEBUG: err2 (Sin assumption) = {err2:.2e}")
 
     if err1 < err2:
         return coeffs1, 0, float(err1)
@@ -91,7 +93,8 @@ def _dual_basis_lstsq(
 def _solve_weights_with_known_freq(
     bits_list: list[np.ndarray],
     freq_array: np.ndarray,
-    harmonic_order: int
+    harmonic_order: int,
+    verbose: int = 0,
 ) -> tuple[np.ndarray, int, np.ndarray, np.ndarray]:
     """
     Static solve at known frequencies (unified for single/multi datasets).
@@ -160,7 +163,13 @@ def _solve_weights_with_known_freq(
         row_start = row_end
 
     # Solve using dual-basis least-squares
-    coeffs, basis_choice, _ = _dual_basis_lstsq(bits_effective_stacked, cos_basis, sin_basis, offset_matrix)
+    coeffs, basis_choice, _ = _dual_basis_lstsq(
+        bits_effective_stacked,
+        cos_basis,
+        sin_basis,
+        offset_matrix,
+        verbose=verbose,
+    )
 
     return coeffs, basis_choice, cos_basis, sin_basis
 
@@ -250,7 +259,7 @@ def _solve_weights_searching_freq(
 
         # Solve for current coefficients
         coeffs_temp, basis_choice_temp, cos_basis, sin_basis = _solve_weights_with_known_freq(
-            bits_list, freq_array, harmonic_order
+            bits_list, freq_array, harmonic_order, verbose=verbose
         )
 
         # Extract coefficients based on which basis is unity
@@ -309,7 +318,14 @@ def _solve_weights_searching_freq(
         deriv_matrix = np.column_stack(derivative_cols)
 
         # Solve using dual-basis least-squares
-        coeffs, basis_choice, _ = _dual_basis_lstsq(bits_effective_stacked, cos_basis, sin_basis, offset_matrix, deriv_matrix)
+        coeffs, basis_choice, _ = _dual_basis_lstsq(
+            bits_effective_stacked,
+            cos_basis,
+            sin_basis,
+            offset_matrix,
+            deriv_matrix,
+            verbose=verbose,
+        )
 
         # Extract frequency corrections (last num_datasets elements)
         delta_f_raw = coeffs[-num_datasets:]

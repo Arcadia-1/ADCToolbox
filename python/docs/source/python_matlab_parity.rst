@@ -5,7 +5,7 @@ This page tracks the functional parity between the Python ``adctoolbox`` package
 and the original MATLAB implementation. The goal is to keep both versions
 feature-equivalent.
 
-Last updated: 2026-03-10
+Last updated: 2026-05-26
 
 Function Mapping
 ----------------
@@ -123,6 +123,27 @@ Digital Output Analysis
 - ``analyze_bit_activity`` — Percentage of 1's per bit (DC offset / clipping
   detection).
 - ``analyze_enob_sweep`` — ENOB vs. number of calibration bits.
+- ``plot_residual_scatter`` — Partial-sum residual visualization.
+
+ADC Behavioral Models
+^^^^^^^^^^^^^^^^^^^^^
+
+- ``sar_convert`` / ``sar_reconstruct`` — SAR forward conversion and analog
+  reconstruction.
+- ``sar_ideal_weights`` — Ideal binary or redundant SAR weights.
+- ``sar_apply_cap_mismatch`` — Unit-cap/Pelgrom-style CDAC mismatch model.
+- ``sar_apply_mismatch`` — Legacy per-weight gaussian perturbation helper.
+
+Time-Interleaved ADC Analysis
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+- ``deinterleave`` / ``interleave`` — Split and recombine interleaved samples.
+- ``extract_mismatch_sine`` — Estimate channel gain, offset, and timing skew
+  from a sine capture.
+- ``predict_spurs`` — Predict mismatch spur locations and amplitudes.
+- ``fractional_delay_fft`` / ``fractional_delay_farrow`` — Fractional-delay
+  correction primitives.
+- ``calibrate_foreground`` — Foreground offset/gain/skew correction.
 
 Unit Conversions & Metrics
 ^^^^^^^^^^^^^^^^^^^^^^^^^^
@@ -174,13 +195,16 @@ Summary
      - —
    * - Python-only
      - —
-     - 29
+     - 41
    * - Signal generation module
      - No
      - Yes (``siggen``)
    * - Unit conversion utilities
      - No (inline)
      - Yes (20 functions)
-   * - Two-tone analysis
+   * - SAR behavioral models
+     - No
+     - Yes
+   * - Time-interleaved ADC tools
      - No
      - Yes

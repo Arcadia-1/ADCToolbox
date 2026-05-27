@@ -6,7 +6,7 @@
 #, fuzzy
 msgid ""
 msgstr ""
-"Project-Id-Version: ADCToolbox 0.5.0\n"
+"Project-Id-Version: ADCToolbox 0.8.0\n"
 "Report-Msgid-Bugs-To: \n"
 "POT-Creation-Date: 2026-03-10 20:52+0800\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
@@ -25,8 +25,8 @@ msgstr ""
 
 #: ../../source/examples/expected_output_07_conversions.rst:4
 msgid ""
-"This document shows the expected console output and example figures from "
-"all examples in `python/src/adctoolbox/examples/07_conversions/`."
+"This document shows the expected console output and example figures from all "
+"examples in `python/src/adctoolbox/examples/07_conversions/`."
 msgstr ""
 
 #: ../../source/examples/expected_output_07_conversions.rst:7
@@ -45,8 +45,8 @@ msgstr ""
 
 #: ../../source/examples/expected_output_07_conversions.rst:12
 msgid ""
-"**exp_c02**: Comprehensive unit conversions (9 conversion categories with"
-" round-trip validation)"
+"**exp_c02**: Comprehensive unit conversions (9 conversion categories with "
+"round-trip validation)"
 msgstr ""
 
 #: ../../source/examples/expected_output_07_conversions.rst:13
@@ -88,7 +88,8 @@ msgid "exp_c02_unit_conversions.py"
 msgstr ""
 
 #: ../../source/examples/expected_output_07_conversions.rst:44
-msgid "**Description**: Comprehensive unit conversion utilities for ADC testing."
+msgid ""
+"**Description**: Comprehensive unit conversion utilities for ADC testing."
 msgstr ""
 
 #: ../../source/examples/expected_output_07_conversions.rst:173
@@ -97,8 +98,8 @@ msgstr ""
 
 #: ../../source/examples/expected_output_07_conversions.rst:175
 msgid ""
-"**Description**: Calculate ADC figures of merit (Walden FOM, Schreier "
-"FOM, jitter-limited SNR, thermal noise-limited SNR)."
+"**Description**: Calculate ADC figures of merit (Walden FOM, Schreier FOM, "
+"jitter-limited SNR, thermal noise-limited SNR)."
 msgstr ""
 
 #: ../../source/examples/expected_output_07_conversions.rst:208
@@ -120,4 +121,3 @@ msgstr ""
 #: ../../source/examples/expected_output_07_conversions.rst:242
 msgid "---"
 msgstr ""
-

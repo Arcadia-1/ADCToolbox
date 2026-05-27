@@ -6,9 +6,9 @@
 #, fuzzy
 msgid ""
 msgstr ""
-"Project-Id-Version: ADCToolbox 0.5.0\n"
+"Project-Id-Version: ADCToolbox 0.8.0\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2026-03-10 20:52+0800\n"
+"POT-Creation-Date: 2026-05-26 22:15+0800\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language: zh_CN\n"
@@ -30,9 +30,8 @@ msgstr ""
 #: ../../source/algorithms/analyze_spectrum_polar.md:5
 msgid ""
 "`analyze_spectrum_polar` performs FFT-based spectrum analysis with polar "
-"(phase) visualization. This tool is particularly useful for "
-"distinguishing between noise (random phase) and deterministic distortion "
-"(coherent phase)."
+"(phase) visualization. This tool is particularly useful for distinguishing "
+"between noise (random phase) and deterministic distortion (coherent phase)."
 msgstr ""
 
 #: ../../source/algorithms/analyze_spectrum_polar.md:7
@@ -76,7 +75,8 @@ msgid "Returns"
 msgstr ""
 
 #: ../../source/algorithms/analyze_spectrum_polar.md:32
-msgid "Dictionary containing spectrum metrics (same as `analyze_spectrum`) plus:"
+msgid ""
+"Dictionary containing spectrum metrics (same as `analyze_spectrum`) plus:"
 msgstr ""
 
 #: ../../source/algorithms/analyze_spectrum_polar.md:33
@@ -131,19 +131,12 @@ msgstr ""
 msgid "[`analyze_spectrum`](analyze_spectrum.md) — Standard spectrum analysis"
 msgstr ""
 
-#: ../../source/algorithms/analyze_spectrum_polar.md:51
-msgid ""
-"[`analyze_two_tone_spectrum`](analyze_two_tone_spectrum.md) — Two-tone "
-"testing"
-msgstr ""
-
-#: ../../source/algorithms/analyze_spectrum_polar.md:53
+#: ../../source/algorithms/analyze_spectrum_polar.md:52
 msgid "References"
 msgstr ""
 
-#: ../../source/algorithms/analyze_spectrum_polar.md:55
+#: ../../source/algorithms/analyze_spectrum_polar.md:54
 msgid ""
 "IEEE Std 1241-2010, \"IEEE Standard for Terminology and Test Methods for "
 "ADCs\""
 msgstr ""
-

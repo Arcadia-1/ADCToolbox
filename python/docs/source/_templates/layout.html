@@ -1,16 +1,45 @@
 {% extends "!layout.html" %}
-{% block extrahead %}
-{{ super() }}
-<style>
-  .language-banner { background:#1a1a2e; color:#fff; text-align:center; padding:6px; font-size:0.85em; }
-  .language-banner a { color:#4fc3f7; margin:0 8px; }
-</style>
-{% endblock %}
 {% block content %}
+{% set page_file = 'index.html' if pagename == 'index' else pagename ~ '.html' %}
+{% set current_file = 'index.html' if pagename == 'index' else pagename.split('/')[-1] ~ '.html' %}
+{% set page_depth = (pagename.split('/') | length) - 1 %}
+{% set en_root = '../' * page_depth %}
+{% set zh_to_en_root = '../' * (page_depth + 1) %}
+{% if adctoolbox_language == 'zh_CN' %}
+  {% set english_href = zh_to_en_root if pagename == 'index' else zh_to_en_root ~ page_file %}
+  {% set chinese_href = current_file %}
+{% else %}
+  {% set english_href = './' if pagename == 'index' else current_file %}
+  {% set chinese_href = en_root ~ 'zh_CN/' if pagename == 'index' else en_root ~ 'zh_CN/' ~ page_file %}
+{% endif %}
 <div class="language-banner">
-  &#x1F310; Language:
-  <a href="/ADCToolbox/{% if pagename != 'index' %}{{ pagename }}{% endif %}">English</a> |
-  <a href="/ADCToolbox/zh_CN/{% if pagename != 'index' %}{{ pagename }}{% endif %}">中文</a>
+  <span>Language:</span>
+  <a href="{{ english_href }}">English</a>
+  <span aria-hidden="true">/</span>
+  <a href="{{ chinese_href }}">中文</a>
 </div>
 {{ super() }}
+<div class="busuanzi-stats" aria-label="Traffic statistics">
+  {% if adctoolbox_language == 'zh_CN' %}
+  <span>全站浏览量 <strong id="busuanzi_site_pv">...</strong></span>
+  <span>独立访客 <strong id="busuanzi_site_uv">...</strong></span>
+  <span>当前页浏览量 <strong id="busuanzi_page_pv">...</strong></span>
+  {% else %}
+  <span>Total site views <strong id="busuanzi_site_pv">...</strong></span>
+  <span>Unique visitors <strong id="busuanzi_site_uv">...</strong></span>
+  <span>Current page views <strong id="busuanzi_page_pv">...</strong></span>
+  {% endif %}
+</div>
+<script>
+  (function () {
+    var host = window.location.hostname;
+    if (!host || host === "localhost" || host === "127.0.0.1" || host === "::1") {
+      return;
+    }
+    var script = document.createElement("script");
+    script.src = "https://api.busuanzi.cc/static/3.6.9/busuanzi.min.js";
+    script.defer = true;
+    document.body.appendChild(script);
+  }());
+</script>
 {% endblock %}

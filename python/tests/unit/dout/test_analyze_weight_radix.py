@@ -29,6 +29,28 @@ def test_binary_weights():
     plt.close('all')
 
 
+def test_effres_matches_weight_range_formula():
+    """effres is log2(sum(significant_weights) / min_weight + 1)."""
+    weights = np.array([8, 4, 2, 1], dtype=float)
+    result = analyze_weight_radix(weights, create_plot=False)
+
+    expected_effres = np.log2(np.sum(weights) / np.min(weights) + 1)
+    np.testing.assert_allclose(result['effres'], expected_effres, atol=1e-12)
+    np.testing.assert_allclose(result['effres'], 4.0, atol=1e-12)
+
+    plt.close('all')
+
+
+def test_redundant_weights_use_full_significant_sum():
+    """Duplicated significant weights increase the weight-list span."""
+    weights = np.array([8, 4, 4, 2, 1], dtype=float)
+    result = analyze_weight_radix(weights, create_plot=False)
+
+    np.testing.assert_allclose(result['effres'], np.log2(20), atol=1e-12)
+
+    plt.close('all')
+
+
 def test_subradix_weights():
     """Sub-radix weights: effres < num_weights."""
     weights = np.array([1156, 642, 357, 198, 110, 61, 34, 18, 10, 5, 3, 2, 1, 1],
@@ -47,7 +69,7 @@ def test_subradix_weights():
 
 
 def test_negative_weights():
-    """Weights with negatives: wgtsca still computed."""
+    """Negative weights are included by absolute magnitude."""
     weights = np.array([1024, 512, -256, 128, 64, 32, 16, 8, 4, 2, 1, 1],
                        dtype=float)
     result = analyze_weight_radix(weights, create_plot=False)
@@ -55,6 +77,16 @@ def test_negative_weights():
     assert result['wgtsca'] > 0
     assert result['effres'] > 0
     assert len(result['radix']) == len(weights)
+
+    plt.close('all')
+
+
+def test_negative_trim_weight_counts_by_magnitude():
+    """A negative half-LSB trim bit extends effres by one bit in this metric."""
+    weights = np.array([8, 4, 2, 1, -0.5], dtype=float)
+    result = analyze_weight_radix(weights, create_plot=False)
+
+    np.testing.assert_allclose(result['effres'], 5.0, atol=1e-12)
 
     plt.close('all')
 
@@ -71,6 +103,19 @@ def test_significance_threshold():
     # effres should reflect ~8 bits, not 12
     assert result['effres'] < 10
     assert result['effres'] > 7
+
+    plt.close('all')
+
+
+def test_tiny_tail_does_not_increase_effres():
+    """First adjacent ratio >= 3 excludes the sorted tail from effres."""
+    significant = np.power(2.0, np.arange(7, -1, -1))
+    tail = np.array([0.1, 0.05], dtype=float)
+    weights = np.concatenate([significant, tail])
+
+    result = analyze_weight_radix(weights, create_plot=False)
+
+    np.testing.assert_allclose(result['effres'], 8.0, atol=1e-12)
 
     plt.close('all')
 

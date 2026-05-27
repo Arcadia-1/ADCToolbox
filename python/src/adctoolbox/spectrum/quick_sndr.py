@@ -1,69 +1,68 @@
 """
 Lean SNDR + ENOB computation.
 
-Implements SNDR by its raw definition — signal_power divided by all
-remaining in-band power — without breaking the "remainder" into
-harmonic vs noise vs spurious categories.  No plotting, no auxiliary
-metrics, no per-bin diagnostics.  Use for optimization loops,
-parameter sweeps, and spec gates where only ENOB matters and the
-per-call cost adds up.
-
-For the full breakdown (SFDR / THD / HD2-HDk / NSD / noise floor)
-use `analyze_spectrum`.
+Uses a direct FFT ratio path for optimization loops and spec gates. This keeps
+the metric definition aligned with compute_spectrum for explicit coherent
+side-bin settings without running harmonic, spur, or auto side-bin analysis.
 """
 
 import numpy as np
 
-from adctoolbox.spectrum._window import _create_window, _get_default_side_bin
+from adctoolbox.spectrum._bin_ranges import rfft_inband_bin_count
 from adctoolbox.spectrum._locate_fundamental import _locate_fundamental
+from adctoolbox.spectrum._prepare_fft_input import _prepare_fft_input
+from adctoolbox.spectrum._spectrum_averaging import _power_average
+from adctoolbox.spectrum._window import (
+    _calculate_power_correction,
+    _create_window,
+    _get_default_side_bin,
+)
 
 
-def quick_sndr(data, fs=1.0, win_type='hann', side_bin=None):
+def quick_sndr(data, fs=1.0, win_type="hann", side_bin=None, max_scale_range=None):
     """
-    SNDR + ENOB from a single 1-D capture.
-
-    By definition: ``SNDR = signal_power / (total_power - signal_power)``.
-    Everything not in the fundamental's main lobe — harmonics, spurs,
-    noise, DC offset — counts as noise+distortion.
+    SNDR + ENOB from a single 1-D capture (same SNDR definition as analyze_spectrum).
 
     Parameters
     ----------
-    data : np.ndarray
-        Time-domain samples, shape (N,).
-    fs : float
-        Sample rate (Hz).  Not used in the SNDR ratio (it cancels) but
-        preserved so callers can swap `quick_sndr(...)` in place of
-        `analyze_spectrum(...)` without re-shuffling kwargs.
-    win_type : str
-        Window function name ('hann', 'rectangular', 'blackman', ...).
-        Default 'hann' matches `analyze_spectrum`.
-    side_bin : int, optional
-        Number of bins on each side of the fundamental to count as
-        signal.  Default None → auto: 1 for Hann/coherent, 0 for
-        rectangular/coherent, etc. (see `_get_default_side_bin`).
+    data
+        Time-domain samples, shape (N,)
+    fs
+        Sample rate (Hz)
+    win_type
+        Window name ('hann', 'rectangular', ...)
+    side_bin
+        Side bins around fundamental; None uses the window's coherent default
+    max_scale_range
+        Optional full-scale range for input normalization
 
     Returns
     -------
     dict
         ``{'sndr_dbc': float, 'enob': float}``
     """
-    x = np.asarray(data, dtype=np.float64)
-    N = len(x)
+    data_normalized = _prepare_fft_input(data, max_scale_range)
+    _, n_fft = data_normalized.shape
+    n_inband = rfft_inband_bin_count(n_fft, osr=1)
 
-    w, _, _ = _create_window(win_type, N)
-    Xw = np.fft.fft(x * w)
-    P = np.abs(Xw[:N // 2]) ** 2
+    window_vector, window_gain, equiv_noise_bw_factor = _create_window(win_type, n_fft)
+    power_spectrum, _ = _power_average(data_normalized * window_vector)
+    power_spectrum *= _calculate_power_correction(window_gain, equiv_noise_bw_factor)
 
-    fund_bin, fund_bin_frac = _locate_fundamental(P, len(P))
+    fundamental_bin, _ = _locate_fundamental(power_spectrum, n_inband)
     if side_bin is None:
-        is_coherent = abs(fund_bin_frac - fund_bin) < 0.01
-        side_bin = _get_default_side_bin(win_type, is_coherent)
+        side_bin = _get_default_side_bin(win_type)
+    side_bin = int(max(side_bin, 0))
 
-    sig_start = max(fund_bin - side_bin, 0)
-    sig_end = min(fund_bin + side_bin + 1, len(P))
-    sig_power = P[sig_start:sig_end].sum()
-    nd_power = P.sum() - sig_power
+    sig_bin_start = max(fundamental_bin - side_bin, 0)
+    sig_bin_end = min(fundamental_bin + side_bin + 1, n_inband)
+    sig_linear = float(np.sum(power_spectrum[sig_bin_start:sig_bin_end]))
 
-    sndr_dbc = 10.0 * np.log10(sig_power / max(nd_power, 1e-30))
+    noise_distortion_spectrum = power_spectrum.copy()
+    noise_distortion_spectrum[: min(side_bin + 1, len(noise_distortion_spectrum))] = 0.0
+    noise_distortion_spectrum[sig_bin_start:sig_bin_end] = 0.0
+    noise_distortion = float(np.sum(noise_distortion_spectrum[:n_inband]))
+
+    sndr_dbc = 10 * np.log10(sig_linear / (noise_distortion + 1e-20))
     enob = (sndr_dbc - 1.76) / 6.02
-    return {'sndr_dbc': float(sndr_dbc), 'enob': float(enob)}
+    return {"sndr_dbc": float(sndr_dbc), "enob": float(enob)}

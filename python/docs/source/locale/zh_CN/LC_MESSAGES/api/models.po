@@ -1,0 +1,249 @@
+# SOME DESCRIPTIVE TITLE.
+# Copyright (C) 2026, ADCToolbox Contributors
+# This file is distributed under the same license as the ADCToolbox package.
+# FIRST AUTHOR <EMAIL@ADDRESS>, 2026.
+#
+#, fuzzy
+msgid ""
+msgstr ""
+"Project-Id-Version: ADCToolbox 0.8.3\n"
+"Report-Msgid-Bugs-To: \n"
+"POT-Creation-Date: 2026-05-26 22:15+0800\n"
+"PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
+"Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
+"Language: zh_CN\n"
+"Language-Team: zh_CN <LL@li.org>\n"
+"Plural-Forms: nplurals=1; plural=0;\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=utf-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Generated-By: Babel 2.18.0\n"
+
+#: ../../source/api/models.rst:2
+msgid "ADC Behavioral Models (models)"
+msgstr ""
+
+#: ../../source/api/models.rst:4
+msgid ""
+"The ``models`` module provides ADC forward models that convert analog input "
+"samples into digital decision streams and reconstruct analog output values."
+msgstr ""
+
+#: ../../source/api/models.rst:10
+msgid "SAR Models"
+msgstr ""
+
+#: adctoolbox.models.sar.sar_convert:1 of
+msgid "Batch SAR conversion."
+msgstr ""
+
+#: adctoolbox.models.sar.sar_convert:3 of
+msgid "Per-sample algorithm::"
+msgstr ""
+
+#: adctoolbox.models.sar.sar_convert:12 of
+msgid ""
+"Vectorized over samples so the whole batch runs in one Python loop of length "
+"``B`` (typically 4-20 iterations), not ``N`` (typically 10⁴-10⁶)."
+msgstr ""
+
+#: ../../source/api/models.rst adctoolbox.models.sar.sar_convert
+#: adctoolbox.models.sar.sar_ideal_weights of
+msgid "Parameters"
+msgstr ""
+
+#: adctoolbox.models.sar.sar_convert:15 of
+msgid "Input voltage trace. Interpreted relative to ``quant_range``."
+msgstr ""
+
+#: adctoolbox.models.sar.sar_convert:17 of
+msgid ""
+"Actual analog CDAC weights (MSB first). Resolution and redundancy are "
+"inferred from this vector. Use :func:`sar_ideal_weights` for an ideal binary "
+"or redundant array, :func:`sar_apply_cap_mismatch` for unit-cap/Pelgrom-"
+"style capacitor mismatch."
+msgstr ""
+
+#: adctoolbox.models.sar.sar_convert:22 of
+msgid ""
+"ADC input and output range ``(v_min, v_max)``. This mirrors "
+"``ADC_Signal_Generator.apply_quantization_noise(..., quant_range=...)``."
+msgstr ""
+
+#: adctoolbox.models.sar.sar_convert:25 of
+msgid ""
+"Sampled input noise RMS, in the same unit as ``vin``. One random value is "
+"added per sample before the SAR bit trials."
+msgstr ""
+
+#: adctoolbox.models.sar.sar_convert:28 of
+msgid ""
+"Comparator input-referred thermal noise RMS, in the same unit as ``vin``. A "
+"fresh random value is used for each bit decision."
+msgstr ""
+
+#: adctoolbox.models.sar.sar_convert:31 of
+msgid "RNG for sampling and comparator noise."
+msgstr ""
+
+#: ../../source/api/models.rst adctoolbox.models.sar.sar_convert
+#: adctoolbox.models.sar.sar_ideal_weights of
+msgid "Returns"
+msgstr ""
+
+#: adctoolbox.models.sar.sar_convert:34 of
+msgid ""
+"**codes** -- Raw bit decisions, MSB at column 0. Pass "
+"to :func:`sar_reconstruct` for the analog estimate, or to a calibration "
+"routine (e.g. :func:`adctoolbox.calibration.calibrate_weight_sine`) for "
+"weight estimation."
+msgstr ""
+
+#: ../../source/api/models.rst adctoolbox.models.sar.sar_convert
+#: adctoolbox.models.sar.sar_ideal_weights of
+msgid "Return type"
+msgstr ""
+
+#: adctoolbox.models.sar.sar_convert:41 of
+msgid "Notes"
+msgstr ""
+
+#: adctoolbox.models.sar.sar_convert:42 of
+msgid ""
+"The model does NOT include DAC settling errors, metastability delay, charge-"
+"injection artifacts, or PVT drift. For those, supplement with a Spectre / "
+"Verilog-A simulation."
+msgstr ""
+
+#: adctoolbox.models.sar.sar_reconstruct:1 of
+msgid "Linear weighted-sum reconstruction: ``codes @ digital_weights``."
+msgstr ""
+
+#: adctoolbox.models.sar.sar_reconstruct:3 of
+msgid ""
+"``weights`` are the digital reconstruction weights, which usually match the "
+"analog CDAC weights in an ideal model. With mismatch, keep the two roles "
+"explicit: encode with actual analog weights, then reconstruct with the "
+"nominal, calibrated, or actual digital weights you want to evaluate. "
+"Subtract the sample mean before spectrum analysis to remove the DC offset "
+"introduced by the unipolar encoding."
+msgstr ""
+
+#: adctoolbox.models.sar.sar_reconstruct:10 of
+msgid "Raw bit decisions from :func:`sar_convert`."
+msgstr ""
+
+#: adctoolbox.models.sar.sar_reconstruct:12 of
+msgid ""
+"Digital reconstruction weights. Use the nominal weights for an "
+"\"uncalibrated\" output; use cal-estimated or actual weights to assess "
+"calibration quality."
+msgstr ""
+
+#: adctoolbox.models.sar.sar_reconstruct:16 of
+msgid ""
+"Output voltage range ``(v_min, v_max)``. The default preserves the "
+"normalized reconstruction convention."
+msgstr ""
+
+#: adctoolbox.models.sar.sar_reconstruct:20 of
+msgid ""
+"**aout** -- Reconstructed analog estimate, range ``[v_min, v_min + (v_max - "
+"v_min) * sum(weights)]``."
+msgstr ""
+
+#: adctoolbox.models.sar.sar_ideal_weights:1 of
+msgid "Generate ideal binary CDAC weights, optionally with one duplicated bit."
+msgstr ""
+
+#: adctoolbox.models.sar.sar_ideal_weights:3 of
+msgid ""
+"The normalization base is the sum of all bit weights plus one LSB: ``denom = "
+"sum(raw_bit_weights) + raw_lsb``. In other words, a 4-bit ideal ADC uses "
+"``[8, 4, 2, 1] / (8+4+2+1+1) = /16``, not endpoint-normalized ``/ 15`` "
+"weights. With one duplicated redundant bit, ``[8, 4, 4, 2, 1]`` normalizes "
+"by ``20``."
+msgstr ""
+
+#: adctoolbox.models.sar.sar_ideal_weights:9 of
+msgid "Architectural resolution (number of distinct decision steps)."
+msgstr ""
+
+#: adctoolbox.models.sar.sar_ideal_weights:11 of
+msgid ""
+"If given, the cap at index ``redundant_bit`` is duplicated, yielding an "
+"output array of length ``num_bits + 1``. Use to model sub-radix-2 SAR with "
+"one bit of redundancy. Architectural resolution stays at ``num_bits`` — the "
+"redundancy adds error-correction margin, not bits."
+msgstr ""
+
+#: adctoolbox.models.sar.sar_ideal_weights:17 of
+msgid ""
+"**weights** -- Cap weights, MSB at index 0. The denominator is "
+"``sum(raw_bit_weights) + raw_lsb``. If ``redundant_bit`` is used, the "
+"duplicated cap participates in both the sum and the resulting overrange / "
+"correction margin."
+msgstr ""
+
+#: adctoolbox.models.sar.sar_ideal_weights:24 of
+msgid "Examples"
+msgstr ""
+
+#: adctoolbox.models.sar.sar_apply_cap_mismatch:1 of
+msgid "Realize unit-cap/Pelgrom-style CDAC mismatch."
+msgstr ""
+
+#: adctoolbox.models.sar.sar_apply_cap_mismatch:3 of
+msgid ""
+"``sigma`` is the RMS relative mismatch of a single unit capacitor. A bit "
+"made from ``n`` unit capacitors gets relative RMS mismatch ``sigma / "
+"sqrt(n)``. This captures the usual ``sigma(C) / C ∝ 1/sqrt(C)`` trend: MSB "
+"capacitors are larger and therefore have smaller relative mismatch than LSB "
+"capacitors."
+msgstr ""
+
+#: adctoolbox.models.sar.sar_apply_cap_mismatch:9 of
+msgid ""
+"By default, unit counts are inferred from the normalized weights by dividing "
+"by the smallest positive weight. For ideal binary weights this gives ``[8, "
+"4, 2, 1]`` for a 4-bit ADC and ``[8, 4, 4, 2, 1]`` for a redundant array. "
+"Pass ``cap_units`` explicitly for custom capacitor arrays."
+msgstr ""
+
+#: adctoolbox.models.sar.sar_apply_cap_mismatch:15 of
+msgid "Nominal analog CDAC weights, typically from :func:`sar_ideal_weights`."
+msgstr ""
+
+#: adctoolbox.models.sar.sar_apply_cap_mismatch:18 of
+msgid ""
+"RMS relative mismatch of one unit capacitor. For example, ``0.01`` is 1% RMS "
+"for a 1-Cu element; an 8-Cu MSB then has ``0.01/sqrt(8)`` relative RMS."
+msgstr ""
+
+#: adctoolbox.models.sar.sar_apply_cap_mismatch:22 of
+msgid "Numpy random generator. Use a deterministic seed to lock one chip."
+msgstr ""
+
+#: adctoolbox.models.sar.sar_apply_cap_mismatch:24 of
+msgid ""
+"Unit capacitor counts or relative capacitor sizes for each weight. Values "
+"must be positive. If omitted, they are inferred from ``weights / "
+"min(weights)``."
+msgstr ""
+
+#: adctoolbox.models.sar.sar_apply_cap_mismatch:29 of
+msgid ""
+"**perturbed_weights** -- Cap weights with unit-cap-scaled gaussian mismatch "
+"applied. The result is NOT re-normalized."
+msgstr ""
+
+#: adctoolbox.models.sar.sar_apply_mismatch:1 of
+msgid "Legacy per-weight gaussian mismatch helper."
+msgstr ""
+
+#: adctoolbox.models.sar.sar_apply_mismatch:3 of
+msgid ""
+"This preserves the pre-0.8.2 behavior where each supplied weight receives "
+"the same relative RMS perturbation. For Pelgrom/unit-cap-scaled mismatch, "
+"use :func:`sar_apply_cap_mismatch`."
+msgstr ""

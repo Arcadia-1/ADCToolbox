@@ -6,7 +6,7 @@
 #, fuzzy
 msgid ""
 msgstr ""
-"Project-Id-Version: ADCToolbox 0.5.0\n"
+"Project-Id-Version: ADCToolbox 0.8.0\n"
 "Report-Msgid-Bugs-To: \n"
 "POT-Creation-Date: 2026-03-10 20:52+0800\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
@@ -25,8 +25,8 @@ msgstr ""
 
 #: ../../source/examples/expected_output_03_generate_signals.rst:4
 msgid ""
-"This document shows the expected console output and example figures from "
-"all examples in `python/src/adctoolbox/examples/03_generate_signals/`."
+"This document shows the expected console output and example figures from all "
+"examples in `python/src/adctoolbox/examples/03_generate_signals/`."
 msgstr ""
 
 #: ../../source/examples/expected_output_03_generate_signals.rst:7
@@ -35,8 +35,8 @@ msgstr ""
 
 #: ../../source/examples/expected_output_03_generate_signals.rst:9
 msgid ""
-"All examples in `03_generate_signals` demonstrate various signal "
-"generation capabilities:"
+"All examples in `03_generate_signals` demonstrate various signal generation "
+"capabilities:"
 msgstr ""
 
 #: ../../source/examples/expected_output_03_generate_signals.rst:11
@@ -52,7 +52,8 @@ msgid "**exp_g04**: Jitter-induced SNR degradation (0.2-32 GHz, 8 test cases)"
 msgstr ""
 
 #: ../../source/examples/expected_output_03_generate_signals.rst:14
-msgid "**exp_g05**: Static nonlinearity harmonic distortion (4 sign combinations)"
+msgid ""
+"**exp_g05**: Static nonlinearity harmonic distortion (4 sign combinations)"
 msgstr ""
 
 #: ../../source/examples/expected_output_03_generate_signals.rst:15
@@ -65,8 +66,8 @@ msgstr ""
 
 #: ../../source/examples/expected_output_03_generate_signals.rst:18
 msgid ""
-"**Total Examples**: 6 **Total Test Cases**: 40 different signal "
-"conditions analyzed"
+"**Total Examples**: 6 **Total Test Cases**: 40 different signal conditions "
+"analyzed"
 msgstr ""
 
 #: ../../source/examples/expected_output_03_generate_signals.rst:24
@@ -83,8 +84,8 @@ msgstr ""
 
 #: ../../source/examples/expected_output_03_generate_signals.rst:56
 msgid ""
-"**Description**: Sweep quantization bits to analyze how noise floor "
-"changes with ADC resolution."
+"**Description**: Sweep quantization bits to analyze how noise floor changes "
+"with ADC resolution."
 msgstr ""
 
 #: ../../source/examples/expected_output_03_generate_signals.rst:79
@@ -101,8 +102,8 @@ msgstr ""
 
 #: ../../source/examples/expected_output_03_generate_signals.rst:90
 msgid ""
-"**Description**: Sweep input frequency to analyze sampling jitter impact "
-"on SNR."
+"**Description**: Sweep input frequency to analyze sampling jitter impact on "
+"SNR."
 msgstr ""
 
 #: ../../source/examples/expected_output_03_generate_signals.rst:112
@@ -111,8 +112,8 @@ msgstr ""
 
 #: ../../source/examples/expected_output_03_generate_signals.rst:114
 msgid ""
-"**Description**: Sweep static nonlinearity coefficients to analyze "
-"harmonic distortion."
+"**Description**: Sweep static nonlinearity coefficients to analyze harmonic "
+"distortion."
 msgstr ""
 
 #: ../../source/examples/expected_output_03_generate_signals.rst:130
@@ -129,11 +130,10 @@ msgstr ""
 
 #: ../../source/examples/expected_output_03_generate_signals.rst:156
 msgid ""
-"**Description**: Sweep different interference types to show effects on "
-"ADC spectrum."
+"**Description**: Sweep different interference types to show effects on ADC "
+"spectrum."
 msgstr ""
 
 #: ../../source/examples/expected_output_03_generate_signals.rst:179
 msgid "---"
 msgstr ""
-

@@ -29,15 +29,15 @@ Use for:
 - Getting from a raw `dout` / `aout` buffer to SNDR / SFDR / ENOB
 - Generating synthetic ADC stimulus for a testbench
 - **Forward-modeling an ADC architecture in Python** — for SAR, use
-  `adctoolbox.models.sar_encode` / `sar_reconstruct` / `sar_ideal_weights`
-  / `sar_apply_mismatch` (binary or sub-radix-2, with optional cap mismatch
-  + comparator noise; vectorized). Convention: `vin ∈ [0, 1]` normalized
-  unipolar; weights are normalized by `sum(bit_weights) + 1 LSB` (for
-  example `[8, 4, 2, 1] / 16`, or redundant `[8, 4, 4, 2, 1] / 20`). See
-  module docstring for the differential-SAR mapping
-  `vin = (VIP − VIN + VDD) / (2·VDD)`. Keep analog CDAC weights and digital
-  reconstruction weights explicit; they match unless modeling mismatch or
-  calibration.
+  `adctoolbox.models.sar_convert` / `sar_reconstruct` / `sar_ideal_weights`
+  / `sar_apply_cap_mismatch` (binary or sub-radix-2, with optional unit-cap
+  mismatch + sampling noise + comparator noise; vectorized). Convention: `vin` is
+  interpreted relative to `quant_range=(v_min, v_max)`, default `(0, 1)`.
+  SAR weights are still explicit and normalized by `sum(bit_weights) + 1 LSB`
+  (for example `[8, 4, 2, 1] / 16`, or redundant `[8, 4, 4, 2, 1] / 20`).
+  For differential SAR, pass `VIP - VIN` with a differential `quant_range`
+  such as `(-VDD, VDD)`. Keep analog CDAC weights and digital reconstruction
+  weights explicit; they match unless modeling mismatch or calibration.
 
 Do NOT use for:
 - Analog topology / transistor design → `analog-design`, `analog-explore`
@@ -82,9 +82,14 @@ Most analysis functions return `dict`. Notable exceptions and dict-key gotchas:
 | `analyze_bit_activity` | `ndarray` (% of 1's per bit, length = N_bits) |
 | `analyze_overflow` | `tuple` of 4 ndarrays `(range_min, range_max, ovf_pct_zero, ovf_pct_one)` |
 | `analyze_enob_sweep` | `tuple (enob_sweep, n_bits_vec)` |
-| `analyze_weight_radix` | `dict` — `radix`, `wgtsca`, `effres` |
+| `analyze_weight_radix` | `dict` — `radix`, `wgtsca`, `effres` (weight-list resolution estimate) |
 | `fit_static_nonlin` | `tuple (k2, k3, fitted_sine, fitted_transfer)` |
 | `convert_cap_to_weight` | `tuple (weights, c_total)` |
+
+`analyze_weight_radix(weights)["effres"]` is computed from significant
+absolute weights as `log2(sum(abs_w_sig) / min(abs_w_sig) + 1)`. It estimates
+the theoretical span of the supplied SAR/DAC weight list; it is not a
+missing-code, DNL/INL, or SAR-reachability check.
 
 When docs conflict, trust the current `__init__.py` exports + the
 `tests/integration/test_user_guide_skill_examples.py` smoke tests.
@@ -111,6 +116,10 @@ fig, axes = plt.subplots(3, 1)
 for ax, trace in zip(axes, traces):
     metrics = analyze_spectrum(trace, fs=fs, create_plot=True, ax=ax)
 ```
+
+When `side_bin=None`, spectrum tools use the selected window's coherent
+main-lobe width. If the capture is intentionally non-coherent, pass a larger
+`side_bin` explicitly; the analyzer does not infer that from the waveform.
 
 To set up a coherent capture *upstream* (where you control the stimulus
 frequency), snap `Fin` to an FFT bin first:
@@ -167,6 +176,11 @@ weights_fast = calibrate_weight_sine_lite(bits, freq_norm)   # ndarray, no dict
 `calibrate_weight_sine` returns a dict with `weight`, `offset`,
 `calibrated_signal`, `ideal`, `error`, `refined_frequency`. The `_lite` variant
 returns just the weights ndarray and is positional (no `freq=` kw).
+If `freq` is omitted, `calibrate_weight_sine` estimates the tone frequency and
+then fine-searches it against the calibration residual. If the coherent
+training frequency is already known, pass `freq=k/N` to keep that exact
+frequency fixed; use `force_search=True` only when you deliberately want to
+refine a provided frequency.
 
 ## 5. Import rules (compressed)
 

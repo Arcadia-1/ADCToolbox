@@ -6,7 +6,7 @@
 #, fuzzy
 msgid ""
 msgstr ""
-"Project-Id-Version: ADCToolbox 0.5.0\n"
+"Project-Id-Version: ADCToolbox 0.8.0\n"
 "Report-Msgid-Bugs-To: \n"
 "POT-Creation-Date: 2026-03-10 20:52+0800\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
@@ -40,7 +40,8 @@ msgid ""
 msgstr ""
 
 #: adctoolbox.toolset.generate_aout_dashboard.generate_aout_dashboard:1 of
-msgid "Generate comprehensive analysis dashboard with 8 subplots in a 2x4 panel."
+msgid ""
+"Generate comprehensive analysis dashboard with 8 subplots in a 2x4 panel."
 msgstr ""
 
 #: ../../source/api/toolset.rst
@@ -57,8 +58,8 @@ msgstr ""
 
 #: adctoolbox.toolset.generate_aout_dashboard.generate_aout_dashboard:7 of
 msgid ""
-"Signal frequency in Hz (default: None, auto-estimate) Will be converted "
-"to normalized frequency where needed"
+"Signal frequency in Hz (default: None, auto-estimate) Will be converted to "
+"normalized frequency where needed"
 msgstr ""
 
 #: adctoolbox.toolset.generate_aout_dashboard.generate_aout_dashboard:10
@@ -94,8 +95,8 @@ msgstr ""
 
 #: adctoolbox.toolset.generate_dout_dashboard.generate_dout_dashboard:1 of
 msgid ""
-"Generate comprehensive digital analysis dashboard with 6 subplots in a "
-"2x3 panel."
+"Generate comprehensive digital analysis dashboard with 6 subplots in a 2x3 "
+"panel."
 msgstr ""
 
 #: adctoolbox.toolset.generate_dout_dashboard.generate_dout_dashboard:3 of
@@ -132,4 +133,3 @@ msgstr ""
 #: ../../source/api/toolset.rst:19
 msgid "Digital Output Toolset"
 msgstr ""
-

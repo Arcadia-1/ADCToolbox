@@ -43,7 +43,7 @@ Other Common Functions:
 >>> from adctoolbox import analyze_error_by_phase, compute_spectrum
 """
 
-__version__ = '0.7.0'
+__version__ = '0.8.3'
 
 # ======================================================================
 # Public API Registry
@@ -235,15 +235,17 @@ _export('calibrate_foreground', calibrate_foreground)
 # ======================================================================
 
 from .models import (
-    sar_encode,
+    sar_convert,
     sar_reconstruct,
     sar_ideal_weights,
+    sar_apply_cap_mismatch,
     sar_apply_mismatch,
 )
 
-_export('sar_encode', sar_encode)
+_export('sar_convert', sar_convert)
 _export('sar_reconstruct', sar_reconstruct)
 _export('sar_ideal_weights', sar_ideal_weights)
+_export('sar_apply_cap_mismatch', sar_apply_cap_mismatch)
 _export('sar_apply_mismatch', sar_apply_mismatch)
 
 # ======================================================================
@@ -267,4 +269,3 @@ _export('models', models)
 _export('oversampling', oversampling)
 _export('spectrum', spectrum)
 _export('timeinterleave', timeinterleave)
-

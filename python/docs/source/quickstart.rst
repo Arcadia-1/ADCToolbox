@@ -32,9 +32,9 @@ Analyze an ADC output spectrum:
 
     # Access metrics
     print(f"ENOB: {result['enob']:.2f} bits")
-    print(f"SNDR: {result['sndr_db']:.2f} dB")
-    print(f"SFDR: {result['sfdr_db']:.2f} dB")
-    print(f"SNR: {result['snr_db']:.2f} dB")
+    print(f"SNDR: {result['sndr_dbc']:.2f} dB")
+    print(f"SFDR: {result['sfdr_dbc']:.2f} dB")
+    print(f"SNR: {result['snr_dbc']:.2f} dB")
 
     # Show the interactive plot
     plt.show()

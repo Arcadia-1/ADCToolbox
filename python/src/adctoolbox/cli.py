@@ -39,7 +39,7 @@ def copy_examples():
         print("-" * 50)
         print("Next steps:")
         print(f"  cd {dest_dir.name}")
-        print("  python example_00_basic.py")
+        print("  python 01_basic/exp_b01_environment_check.py")
         print("-" * 50)
         
     except Exception as e:

@@ -13,7 +13,7 @@ from adctoolbox.spectrum.plot_spectrum import plot_spectrum
 
 
 def analyze_spectrum(data, fs=1.0, osr=1, max_scale_range=None, win_type='hann', side_bin=None,
-                     max_harmonic=5, nf_method=2, assumed_sig_pwr_dbfs=np.nan, coherent_averaging=False,
+                     max_harmonic=5, nf_method=0, assumed_sig_pwr_dbfs=np.nan, coherent_averaging=False,
                      create_plot: bool = True, show_title=True, show_label=True, plot_harmonics_up_to=3, ax=None):
     """
     Spectral analysis and plotting. (Wrapper function for modular core and plotting)
@@ -30,10 +30,12 @@ def analyze_spectrum(data, fs=1.0, osr=1, max_scale_range=None, win_type='hann',
         max_scale_range: Full scale range for normalization.
             Can be: scalar (direct range), tuple/list [min, max], or None (auto-detect)
         win_type: Window function type ('hann', 'hamming', 'boxcar')
-        side_bin: Number of side bins around fundamental (None for automatic selection)
+        side_bin: Number of side bins around fundamental. None uses the
+                  coherent main-lobe width for the selected window; pass a
+                  larger value explicitly for non-coherent captures.
         osr: Oversampling ratio
         max_harmonic: Number of harmonics for THD calculation
-        nf_method: Noise floor calculation method (0=median, 1=trimmed mean, 2=exclude harmonics)
+        nf_method: Noise floor method (0=auto default, 1=median, 2=trimmed mean, 3=exclude, 4=legacy wide exclude)
         assumed_sig_pwr_dbfs: Pre-defined signal level in dBFS
         create_plot: Plot the spectrum (True) or not (False)
         show_title: Display auto-generated title (True) or not (False)
@@ -88,7 +90,7 @@ def analyze_spectrum(data, fs=1.0, osr=1, max_scale_range=None, win_type='hann',
 
 
 def analyze_spectrum_virtuoso(data, fs=1.0, osr=1, max_scale_range=None, win_type='rectangular',
-                              side_bin=None, max_harmonic=5, nf_method=2,
+                              side_bin=None, max_harmonic=5, nf_method=0,
                               assumed_sig_pwr_dbfs=np.nan, coherent_averaging=False,
                               create_plot: bool = True, show_title=True, show_label=True,
                               plot_harmonics_up_to=3, ax=None):

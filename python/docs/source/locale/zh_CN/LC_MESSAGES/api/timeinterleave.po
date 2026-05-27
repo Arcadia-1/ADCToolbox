@@ -1,0 +1,334 @@
+# SOME DESCRIPTIVE TITLE.
+# Copyright (C) 2026, ADCToolbox Contributors
+# This file is distributed under the same license as the ADCToolbox package.
+# FIRST AUTHOR <EMAIL@ADDRESS>, 2026.
+#
+#, fuzzy
+msgid ""
+msgstr ""
+"Project-Id-Version: ADCToolbox 0.8.3\n"
+"Report-Msgid-Bugs-To: \n"
+"POT-Creation-Date: 2026-05-26 22:15+0800\n"
+"PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
+"Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
+"Language: zh_CN\n"
+"Language-Team: zh_CN <LL@li.org>\n"
+"Plural-Forms: nplurals=1; plural=0;\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=utf-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Generated-By: Babel 2.18.0\n"
+
+#: ../../source/api/timeinterleave.rst:2
+msgid "Time-Interleaved ADC Analysis (timeinterleave)"
+msgstr ""
+
+#: ../../source/api/timeinterleave.rst:4
+msgid ""
+"The ``timeinterleave`` module provides utilities for channel splitting, "
+"mismatch extraction, spur prediction, and foreground correction in time-"
+"interleaved ADCs."
+msgstr ""
+
+#: ../../source/api/timeinterleave.rst:11
+msgid "Data Layout"
+msgstr ""
+
+#: adctoolbox.timeinterleave.deinterleave.deinterleave:1 of
+msgid "Deinterleave ``x`` into ``M`` sub-channels."
+msgstr ""
+
+#: ../../source/api/timeinterleave.rst
+#: adctoolbox.timeinterleave.calibrate_foreground.calibrate_foreground
+#: adctoolbox.timeinterleave.extract_mismatch_sine.extract_mismatch_sine
+#: adctoolbox.timeinterleave.fractional_delay.fractional_delay_farrow
+#: adctoolbox.timeinterleave.fractional_delay.fractional_delay_fft of
+msgid "Parameters"
+msgstr ""
+
+#: adctoolbox.timeinterleave.deinterleave.deinterleave:3 of
+msgid ""
+"Interleaved time series. Sample at index ``n`` belongs to channel ``n mod "
+"M``."
+msgstr ""
+
+#: adctoolbox.timeinterleave.deinterleave.deinterleave:5 of
+msgid "Number of sub-ADCs (channels)."
+msgstr ""
+
+#: ../../source/api/timeinterleave.rst
+#: adctoolbox.timeinterleave.calibrate_foreground.calibrate_foreground
+#: adctoolbox.timeinterleave.extract_mismatch_sine.extract_mismatch_sine
+#: adctoolbox.timeinterleave.fractional_delay.fractional_delay_farrow
+#: adctoolbox.timeinterleave.fractional_delay.fractional_delay_fft of
+msgid "Returns"
+msgstr ""
+
+#: adctoolbox.timeinterleave.deinterleave.deinterleave:8 of
+msgid ""
+"**channels** -- ``channels[m]`` contains the samples of channel ``m`` in "
+"chronological order."
+msgstr ""
+
+#: ../../source/api/timeinterleave.rst
+#: adctoolbox.timeinterleave.calibrate_foreground.calibrate_foreground
+#: adctoolbox.timeinterleave.extract_mismatch_sine.extract_mismatch_sine
+#: adctoolbox.timeinterleave.fractional_delay.fractional_delay_farrow
+#: adctoolbox.timeinterleave.fractional_delay.fractional_delay_fft of
+msgid "Return type"
+msgstr ""
+
+#: adctoolbox.timeinterleave.deinterleave.interleave:1 of
+msgid ""
+"Inverse of :func:`deinterleave` — stitch M channels back into one stream."
+msgstr ""
+
+#: adctoolbox.timeinterleave.deinterleave.interleave:3 of
+msgid "``channels[m, k]`` is the k-th sample of channel m."
+msgstr ""
+
+#: adctoolbox.timeinterleave.deinterleave.interleave:6 of
+msgid "**x**"
+msgstr ""
+
+#: ../../source/api/timeinterleave.rst:17
+msgid "Mismatch Analysis"
+msgstr ""
+
+#: adctoolbox.timeinterleave.extract_mismatch_sine.extract_mismatch_sine:1 of
+msgid ""
+"Extract per-channel offset, gain, and sample-skew from a TI-ADC sine capture."
+msgstr ""
+
+#: adctoolbox.timeinterleave.extract_mismatch_sine.extract_mismatch_sine:3 of
+msgid ""
+"Interleaved output. Sample ``x[n]`` belongs to channel ``n mod M`` and was "
+"taken at time ``n / fs``."
+msgstr ""
+
+#: adctoolbox.timeinterleave.extract_mismatch_sine.extract_mismatch_sine:6 of
+msgid "Number of sub-ADCs."
+msgstr ""
+
+#: adctoolbox.timeinterleave.calibrate_foreground.calibrate_foreground:10
+#: adctoolbox.timeinterleave.extract_mismatch_sine.extract_mismatch_sine:8
+#: adctoolbox.timeinterleave.predict_spurs.predict_spurs:7 of
+msgid "Aggregate sample rate (Hz)."
+msgstr ""
+
+#: adctoolbox.timeinterleave.extract_mismatch_sine.extract_mismatch_sine:10 of
+msgid ""
+"Input-tone frequency. If None, it is estimated from the FFT of ``x`` (use "
+"coherent sampling for best results)."
+msgstr ""
+
+#: adctoolbox.timeinterleave.extract_mismatch_sine.extract_mismatch_sine:14 of
+msgid ""
+"**params** -- ``gain``    : (M,) relative gain, normalized so ``mean == 1``. "
+"``offset``  : (M,) DC offset per channel (same units as ``x``). "
+"``skew``    : (M,) sample-skew per channel (seconds, mean zero). "
+"``fin``     : float — tone frequency used for the fit. ``A``       : float — "
+"fitted fundamental amplitude (mean across channels). ``phases``  : (M,) raw "
+"fitted phase per channel (rad) for diagnostics."
+msgstr ""
+
+#: adctoolbox.timeinterleave.calibrate_foreground.calibrate_foreground:28
+#: adctoolbox.timeinterleave.extract_mismatch_sine.extract_mismatch_sine:23
+#: adctoolbox.timeinterleave.fractional_delay.fractional_delay_farrow:22
+#: adctoolbox.timeinterleave.fractional_delay.fractional_delay_fft:18 of
+msgid "Notes"
+msgstr ""
+
+#: adctoolbox.timeinterleave.extract_mismatch_sine.extract_mismatch_sine:24 of
+msgid ""
+"The \"skew\" returned here is relative: the mean is subtracted so an overall "
+"clock delay (which is not observable from a single capture) does not leak "
+"into the per-channel result. Pass ``skew - skew.mean()`` upstream."
+msgstr ""
+
+#: adctoolbox.timeinterleave.predict_spurs.predict_spurs:1 of
+msgid "Predict TI-ADC spur frequencies and magnitudes."
+msgstr ""
+
+#: adctoolbox.timeinterleave.predict_spurs.predict_spurs:3 of
+msgid ""
+"Output of :func:`extract_mismatch_sine`. Must contain ``gain``, ``offset``, "
+"``skew``, and at least one of ``fin`` / ``A``; ``fin`` can also be supplied "
+"via the argument below."
+msgstr ""
+
+#: adctoolbox.timeinterleave.predict_spurs.predict_spurs:9 of
+msgid "Input-tone frequency. Defaults to ``params['fin']`` if present."
+msgstr ""
+
+#: adctoolbox.timeinterleave.predict_spurs.predict_spurs:11 of
+msgid ""
+"Signal full-scale (peak) used as the dBFS reference. If your ``x`` was "
+"scaled so the ideal sine has peak amplitude ``A``, set ``full_scale = "
+"A_full_scale`` — usually the converter's peak code."
+msgstr ""
+
+#: adctoolbox.timeinterleave.predict_spurs.predict_spurs:16 of
+msgid ""
+"**spurs** -- One dict per predicted spur with keys:  - ``freq_hz`` : spur "
+"frequency folded to ``[0, fs/2]`` - ``kind``    : ``'offset'`` or "
+"``'gain_skew'`` - ``k``       : spur index in the M-point DFT (1..M-1) - "
+"``amp``     : spur amplitude in the same units as ``x`` - ``dbfs``    : spur "
+"magnitude in dBFS (relative to ``full_scale``) - ``dbc``     : spur "
+"magnitude in dBc (relative to fundamental)"
+msgstr ""
+
+#: adctoolbox.timeinterleave.predict_spurs.predict_spurs:16 of
+msgid "**spurs** -- One dict per predicted spur with keys:"
+msgstr ""
+
+#: adctoolbox.timeinterleave.predict_spurs.predict_spurs:18 of
+msgid "``freq_hz`` : spur frequency folded to ``[0, fs/2]``"
+msgstr ""
+
+#: adctoolbox.timeinterleave.predict_spurs.predict_spurs:19 of
+msgid "``kind``    : ``'offset'`` or ``'gain_skew'``"
+msgstr ""
+
+#: adctoolbox.timeinterleave.predict_spurs.predict_spurs:20 of
+msgid "``k``       : spur index in the M-point DFT (1..M-1)"
+msgstr ""
+
+#: adctoolbox.timeinterleave.predict_spurs.predict_spurs:21 of
+msgid "``amp``     : spur amplitude in the same units as ``x``"
+msgstr ""
+
+#: adctoolbox.timeinterleave.predict_spurs.predict_spurs:22 of
+msgid "``dbfs``    : spur magnitude in dBFS (relative to ``full_scale``)"
+msgstr ""
+
+#: adctoolbox.timeinterleave.predict_spurs.predict_spurs:23 of
+msgid "``dbc``     : spur magnitude in dBc (relative to fundamental)"
+msgstr ""
+
+#: ../../source/api/timeinterleave.rst:23
+msgid "Correction"
+msgstr ""
+
+#: adctoolbox.timeinterleave.fractional_delay.fractional_delay_fft:1 of
+msgid "Apply a fractional-sample delay via DFT phase rotation."
+msgstr ""
+
+#: adctoolbox.timeinterleave.fractional_delay.fractional_delay_fft:3 of
+msgid ""
+"Output ``y[n]`` approximates ``x((n / fs) - delay_sec)`` using the sinc "
+"interpolation implicit in a length-``N`` DFT. Exact for signals that are "
+"periodic over their length and strictly bandlimited to ``[0, fs/2)``."
+msgstr ""
+
+#: adctoolbox.timeinterleave.fractional_delay.fractional_delay_fft:9 of
+msgid "Delay in seconds; positive = later in time, negative = earlier."
+msgstr ""
+
+#: adctoolbox.timeinterleave.fractional_delay.fractional_delay_fft:11 of
+msgid "Sample rate (Hz)."
+msgstr ""
+
+#: adctoolbox.timeinterleave.fractional_delay.fractional_delay_farrow:18
+#: adctoolbox.timeinterleave.fractional_delay.fractional_delay_fft:14 of
+msgid "**y**"
+msgstr ""
+
+#: adctoolbox.timeinterleave.fractional_delay.fractional_delay_farrow:19
+#: adctoolbox.timeinterleave.fractional_delay.fractional_delay_fft:15 of
+msgid "ndarray, same length as ``x``."
+msgstr ""
+
+#: adctoolbox.timeinterleave.fractional_delay.fractional_delay_fft:19 of
+msgid ""
+"Because the DFT assumes periodic extension, non-periodic signals will wrap "
+"around when ``|delay_sec|`` approaches the full record length. For clean "
+"results near the edges, zero-pad ``x`` before calling and trim afterwards."
+msgstr ""
+
+#: adctoolbox.timeinterleave.fractional_delay.fractional_delay_farrow:1 of
+msgid "Apply a fractional-sample delay via a Lagrange FIR interpolator."
+msgstr ""
+
+#: adctoolbox.timeinterleave.fractional_delay.fractional_delay_farrow:3 of
+msgid ""
+"Causal / streaming alternative to :func:`fractional_delay_fft`. The "
+"``n_taps``-tap centered filter trades accuracy against boundary transient "
+"length (``n_taps // 2`` samples on each end are unreliable, because the "
+"`same`-mode convolution zero-pads the input edges)."
+msgstr ""
+
+#: adctoolbox.timeinterleave.fractional_delay.fractional_delay_farrow:14 of
+msgid ""
+"Must be a positive odd integer. 5–9 is typical; higher = flatter passband "
+"but longer transient."
+msgstr ""
+
+#: adctoolbox.timeinterleave.fractional_delay.fractional_delay_farrow:23 of
+msgid ""
+"The delay is split into an integer part (applied by zero-padded shift) and a "
+"fractional remainder in ``(-0.5, 0.5]`` handled by the centered Lagrange "
+"filter. When ``delay_sec == 0`` the filter is an impulse at the center tap."
+msgstr ""
+
+#: adctoolbox.timeinterleave.calibrate_foreground.calibrate_foreground:1 of
+msgid "Apply offset / gain / skew corrections to a TI-ADC interleaved capture."
+msgstr ""
+
+#: adctoolbox.timeinterleave.calibrate_foreground.calibrate_foreground:3 of
+msgid "Interleaved time series."
+msgstr ""
+
+#: adctoolbox.timeinterleave.calibrate_foreground.calibrate_foreground:5 of
+msgid "Sub-ADC count."
+msgstr ""
+
+#: adctoolbox.timeinterleave.calibrate_foreground.calibrate_foreground:7 of
+msgid ""
+"Output of :func:`extract_mismatch_sine`. Required keys: ``offset``, "
+"``gain``, ``skew``."
+msgstr ""
+
+#: adctoolbox.timeinterleave.calibrate_foreground.calibrate_foreground:12 of
+msgid ""
+"How to apply the fractional-sample skew correction:  - ``'fft'``   — per-"
+"channel DFT phase rotation. Near machine-precision   accuracy for signals "
+"with energy strictly below ``fs/(2M)``; circular   wrap at record "
+"boundaries. - ``'farrow'`` — per-channel Lagrange FIR. Causal and streaming-"
+"friendly.   Accuracy and boundary transient length are set by ``n_taps``."
+msgstr ""
+
+#: adctoolbox.timeinterleave.calibrate_foreground.calibrate_foreground:12 of
+msgid "How to apply the fractional-sample skew correction:"
+msgstr ""
+
+#: adctoolbox.timeinterleave.calibrate_foreground.calibrate_foreground:14 of
+msgid ""
+"``'fft'``   — per-channel DFT phase rotation. Near machine-precision "
+"accuracy for signals with energy strictly below ``fs/(2M)``; circular wrap "
+"at record boundaries."
+msgstr ""
+
+#: adctoolbox.timeinterleave.calibrate_foreground.calibrate_foreground:17 of
+msgid ""
+"``'farrow'`` — per-channel Lagrange FIR. Causal and streaming-friendly. "
+"Accuracy and boundary transient length are set by ``n_taps``."
+msgstr ""
+
+#: adctoolbox.timeinterleave.calibrate_foreground.calibrate_foreground:20 of
+msgid ""
+"Only consulted when ``skew_method == 'farrow'``; must be a positive odd "
+"integer."
+msgstr ""
+
+#: adctoolbox.timeinterleave.calibrate_foreground.calibrate_foreground:24 of
+msgid "**y** -- Calibrated interleaved signal."
+msgstr ""
+
+#: adctoolbox.timeinterleave.calibrate_foreground.calibrate_foreground:29 of
+msgid ""
+"The order matters: offset is removed first (before gain normalization), then "
+"gain is applied, and skew correction is last — mixing channels only at the "
+"fractional-delay interpolation stage preserves the per-channel amplitude "
+"balance that the prior two steps just enforced."
+msgstr ""

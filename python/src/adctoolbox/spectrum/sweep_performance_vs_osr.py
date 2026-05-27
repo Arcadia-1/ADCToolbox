@@ -8,6 +8,7 @@ import numpy as np
 import matplotlib.pyplot as plt
 
 from adctoolbox.fundamentals import fit_sine_4param, fold_frequency_to_nyquist
+from adctoolbox.spectrum._bin_ranges import rfft_inband_bin_count
 
 
 def sweep_performance_vs_osr(
@@ -47,7 +48,7 @@ def sweep_performance_vs_osr(
 
     # Default OSR: sweep from 1 to N/2
     if osr is None:
-        n_bins = n // 2
+        n_bins = rfft_inband_bin_count(n, osr=1) - 1
         osr = (n / 2) / np.arange(n_bins, 0, -1)
 
     osr = np.asarray(osr, dtype=float)
@@ -82,8 +83,7 @@ def sweep_performance_vs_osr(
     spur_power = 0.0
 
     for ii in range(n_osr):
-        n_inband = int(np.floor(n / 2 / osr_sorted[ii]))
-        n_inband = max(1, min(n_inband, len(err_spec)))
+        n_inband = rfft_inband_bin_count(n, osr_sorted[ii])
 
         if n_inband > n_inband_prev:
             incremental = err_spec[n_inband_prev:n_inband]

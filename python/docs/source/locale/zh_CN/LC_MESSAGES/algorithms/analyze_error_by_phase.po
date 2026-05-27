@@ -6,7 +6,7 @@
 #, fuzzy
 msgid ""
 msgstr ""
-"Project-Id-Version: ADCToolbox 0.5.0\n"
+"Project-Id-Version: ADCToolbox 0.8.0\n"
 "Report-Msgid-Bugs-To: \n"
 "POT-Creation-Date: 2026-03-10 20:52+0800\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
@@ -30,9 +30,9 @@ msgstr ""
 #: ../../source/algorithms/analyze_error_by_phase.md:5
 msgid ""
 "`analyze_error_by_phase` performs AM/PM (Amplitude Modulation / Phase "
-"Modulation) decomposition of ADC errors as a function of the input signal"
-" phase. This reveals whether errors are signal-dependent and whether they"
-" modulate the amplitude (AM) or timing/phase (PM) of the signal."
+"Modulation) decomposition of ADC errors as a function of the input signal "
+"phase. This reveals whether errors are signal-dependent and whether they "
+"modulate the amplitude (AM) or timing/phase (PM) of the signal."
 msgstr ""
 
 #: ../../source/algorithms/analyze_error_by_phase.md:7
@@ -49,8 +49,8 @@ msgstr ""
 
 #: ../../source/algorithms/analyze_error_by_phase.md:27
 msgid ""
-"**`norm_freq`** (float, optional) — Normalized frequency (f/fs), range "
-"(0, 0.5)"
+"**`norm_freq`** (float, optional) — Normalized frequency (f/fs), range (0, "
+"0.5)"
 msgstr ""
 
 #: ../../source/algorithms/analyze_error_by_phase.md:28
@@ -58,13 +58,14 @@ msgid "If None: auto-detected via FFT"
 msgstr ""
 
 #: ../../source/algorithms/analyze_error_by_phase.md:29
-msgid "**`n_bins`** (int, default=100) — Number of phase bins for visualization"
+msgid ""
+"**`n_bins`** (int, default=100) — Number of phase bins for visualization"
 msgstr ""
 
 #: ../../source/algorithms/analyze_error_by_phase.md:30
 msgid ""
-"**`include_base_noise`** (bool, default=True) — Include base noise term "
-"in fitting"
+"**`include_base_noise`** (bool, default=True) — Include base noise term in "
+"fitting"
 msgstr ""
 
 #: ../../source/algorithms/analyze_error_by_phase.md:31
@@ -73,12 +74,12 @@ msgstr ""
 
 #: ../../source/algorithms/analyze_error_by_phase.md:32
 msgid ""
-"**`axes`** (tuple, optional) — Tuple of (ax1, ax2) for top and bottom "
-"panels"
+"**`axes`** (tuple, optional) — Tuple of (ax1, ax2) for top and bottom panels"
 msgstr ""
 
 #: ../../source/algorithms/analyze_error_by_phase.md:33
-msgid "**`ax`** (matplotlib axis, optional) — Single axis to split into 2 panels"
+msgid ""
+"**`ax`** (matplotlib axis, optional) — Single axis to split into 2 panels"
 msgstr ""
 
 #: ../../source/algorithms/analyze_error_by_phase.md:34
@@ -151,8 +152,7 @@ msgstr ""
 
 #: ../../source/algorithms/analyze_error_by_phase.md:57
 msgid ""
-"**`amplitude`**, **`dc_offset`**, **`norm_freq`** — Fitted signal "
-"parameters"
+"**`amplitude`**, **`dc_offset`**, **`norm_freq`** — Fitted signal parameters"
 msgstr ""
 
 #: ../../source/algorithms/analyze_error_by_phase.md:58
@@ -197,8 +197,8 @@ msgstr ""
 
 #: ../../source/algorithms/analyze_error_by_phase.md:77
 msgid ""
-"**Path A (Raw)**: Fit all N samples → highest precision AM/PM values "
-"**Path B (Binned)**: Compute binned statistics → visualization"
+"**Path A (Raw)**: Fit all N samples → highest precision AM/PM values **Path "
+"B (Binned)**: Compute binned statistics → visualization"
 msgstr ""
 
 #: ../../source/algorithms/analyze_error_by_phase.md:80
@@ -244,8 +244,7 @@ msgstr ""
 
 #: ../../source/algorithms/analyze_error_by_phase.md
 msgid ""
-"Gain error, amplitude-dependent distortion, residue amplifier gain "
-"variation"
+"Gain error, amplitude-dependent distortion, residue amplifier gain variation"
 msgstr ""
 
 #: ../../source/algorithms/analyze_error_by_phase.md
@@ -397,7 +396,8 @@ msgid "See Also"
 msgstr ""
 
 #: ../../source/algorithms/analyze_error_by_phase.md:192
-msgid "[`analyze_error_by_value`](analyze_error_by_value.md) — Error vs. ADC code"
+msgid ""
+"[`analyze_error_by_value`](analyze_error_by_value.md) — Error vs. ADC code"
 msgstr ""
 
 #: ../../source/algorithms/analyze_error_by_phase.md:193
@@ -406,8 +406,7 @@ msgstr ""
 
 #: ../../source/algorithms/analyze_error_by_phase.md:194
 msgid ""
-"[`analyze_error_autocorr`](analyze_error_autocorr.md) — Temporal "
-"correlation"
+"[`analyze_error_autocorr`](analyze_error_autocorr.md) — Temporal correlation"
 msgstr ""
 
 #: ../../source/algorithms/analyze_error_by_phase.md:196
@@ -425,4 +424,3 @@ msgid ""
 "M. Soudan et al., \"A Novel AM-PM-Jitter Decomposition Method for "
 "Characterizing ADC Nonidealities,\" IEEE Trans. IM, 2008"
 msgstr ""
-

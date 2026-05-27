@@ -6,9 +6,12 @@ Validates:
   2. Bare-defaults call works (just data + fs).
   3. Window override is honored.
 """
+import importlib
+
 import numpy as np
 
 from adctoolbox import quick_sndr, analyze_spectrum
+from adctoolbox.spectrum.compute_spectrum import compute_spectrum
 
 
 def _ideal_quantized_sine(n_samples=256, n_bits=16, bin_index=7):
@@ -33,6 +36,23 @@ def test_quick_sndr_matches_analyze_spectrum_on_ideal_sine():
         f"{a['sndr_dbc']:.3f}"
     )
     assert abs(q['enob'] - a['enob']) < 0.02
+
+
+def test_quick_sndr_matches_compute_spectrum_with_explicit_side_bin():
+    aout = _ideal_quantized_sine(n_samples=1024, bin_index=37)
+    fs = 12.5e6
+
+    q = quick_sndr(aout, fs=fs, win_type='hann', side_bin=1)
+    c = compute_spectrum(aout, fs=fs, win_type='hann', side_bin=1)
+
+    assert abs(q['sndr_dbc'] - c['metrics']['sndr_dbc']) < 1e-9
+    assert abs(q['enob'] - c['metrics']['enob']) < 1e-9
+
+
+def test_quick_sndr_keeps_direct_fft_fast_path():
+    quick_sndr_module = importlib.import_module('adctoolbox.spectrum.quick_sndr')
+
+    assert 'compute_spectrum' not in quick_sndr_module.__dict__
 
 
 def test_quick_sndr_bare_call():

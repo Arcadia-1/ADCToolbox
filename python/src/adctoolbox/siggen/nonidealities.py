@@ -206,45 +206,46 @@ class ADC_Signal_Generator:
         return v_output_ac + self.DC
     
     def apply_reference_error(self, input_signal=None, settling_tau=2.0, droop_strength=0.01):
-            """
-            Apply Reference Incomplete Settling error (Vref Memory Effect).
-            
-            This simulates the reference voltage dropping due to load current (kick) 
-            and failing to recover fully before the next sample.
-            
-            Params:
-                input_signal: The input signal.
-                settling_tau: Recovery time constant in units of samples (e.g., 2.0). 
-                            Larger = Slower recovery = Worse settling.
-                droop_strength: How much Vref drops proportional to signal amplitude (0.01 = 1%).
-            """
-            signal = self._resolve_signal(input_signal)
-            signal_ac = signal - self.DC
+        """
+        Apply Reference Incomplete Settling error (Vref Memory Effect).
 
-            # Calculate Vref droop using IIR filter to simulate exponential decay         
-            current_kick = droop_strength * np.abs(signal_ac)            
-            decay = np.exp(-1.0 / settling_tau)            
-            from scipy.signal import lfilter
-            vref_droop = lfilter([1], [1, -decay], current_kick)            
-            signal_settled = signal * (1.0 - vref_droop)
-            
-            return signal_settled + self.DC
+        This simulates the reference voltage dropping due to load current
+        kick and failing to recover fully before the next sample.
+
+        Params:
+            input_signal: The input signal.
+            settling_tau: Recovery time constant in units of samples.
+            droop_strength: Vref drop proportional to signal amplitude.
+        """
+        signal = self._resolve_signal(input_signal)
+        signal_ac = signal - self.DC
+
+        # Calculate Vref droop using IIR filter to simulate exponential decay
+        current_kick = droop_strength * np.abs(signal_ac)
+        decay = np.exp(-1.0 / settling_tau)
+        from scipy.signal import lfilter
+        vref_droop = lfilter([1], [1, -decay], current_kick)
+        signal_settled = signal * (1.0 - vref_droop)
+
+        return signal_settled + self.DC
 
     def apply_am_noise(self, input_signal=None, strength=0.01):
-            """
-            Apply random AM noise (Multiplicative Thermal Noise).
-            Params: 
-                input_signal: The signal to modulate.
-                am_noise_depth: The RMS level of the noise relative to signal amplitude (default 0.1).
-            Note:
-                There is NO frequency parameter here because white noise contains ALL frequencies.
-            """
-            signal = self._resolve_signal(input_signal)
-            signal_ac = signal - self.DC            
-            am_envelope = 1 + strength * np.random.normal(loc=0.0, scale=1.0, size=len(self.t))
-            
-            signal_am = signal_ac * am_envelope
-            return signal_am + self.DC
+        """
+        Apply random AM noise (Multiplicative Thermal Noise).
+
+        Params:
+            input_signal: The signal to modulate.
+            strength: RMS level of the noise relative to signal amplitude.
+
+        Note:
+            There is no frequency parameter because white noise contains all frequencies.
+        """
+        signal = self._resolve_signal(input_signal)
+        signal_ac = signal - self.DC
+        am_envelope = 1 + strength * np.random.normal(loc=0.0, scale=1.0, size=len(self.t))
+
+        signal_am = signal_ac * am_envelope
+        return signal_am + self.DC
     
     def apply_am_tone(self, input_signal=None, am_tone_freq=500e3, am_tone_depth=0.05):
         """Apply AM tone (coherent modulation). Params: input_signal, am_tone_freq (default 500kHz), am_tone_depth (default 0.05)."""
@@ -356,6 +357,5 @@ class ADC_Signal_Generator:
             )
 
         return signal + quant_error_shaped
-
 
 

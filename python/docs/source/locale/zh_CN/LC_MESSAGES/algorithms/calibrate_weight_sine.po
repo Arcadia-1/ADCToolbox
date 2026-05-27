@@ -6,7 +6,7 @@
 #, fuzzy
 msgid ""
 msgstr ""
-"Project-Id-Version: ADCToolbox 0.5.0\n"
+"Project-Id-Version: ADCToolbox 0.8.0\n"
 "Report-Msgid-Bugs-To: \n"
 "POT-Creation-Date: 2026-03-10 20:52+0800\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
@@ -89,8 +89,8 @@ msgstr ""
 
 #: ../../source/algorithms/calibrate_weight_sine.md:44
 msgid ""
-"**`freq`** (float, array, or None, optional) — Normalized frequency (f_in"
-" / f_s)"
+"**`freq`** (float, array, or None, optional) — Normalized frequency (f_in / "
+"f_s)"
 msgstr ""
 
 #: ../../source/algorithms/calibrate_weight_sine.md:45
@@ -107,8 +107,8 @@ msgstr ""
 
 #: ../../source/algorithms/calibrate_weight_sine.md:49
 msgid ""
-"**`force_search`** (bool, optional) — Force fine frequency search even "
-"when frequency is provided"
+"**`force_search`** (bool, optional) — Force fine frequency search even when "
+"frequency is provided"
 msgstr ""
 
 #: ../../source/algorithms/calibrate_weight_sine.md:50
@@ -135,8 +135,8 @@ msgstr ""
 
 #: ../../source/algorithms/calibrate_weight_sine.md:57
 msgid ""
-"**`harmonic_order`** (int, optional) — Number of harmonic terms to "
-"exclude in calibration"
+"**`harmonic_order`** (int, optional) — Number of harmonic terms to exclude "
+"in calibration"
 msgstr ""
 
 #: ../../source/algorithms/calibrate_weight_sine.md:58
@@ -153,8 +153,8 @@ msgstr ""
 
 #: ../../source/algorithms/calibrate_weight_sine.md:62
 msgid ""
-"**`learning_rate`** (float, optional) — Adaptive learning rate for "
-"frequency updates"
+"**`learning_rate`** (float, optional) — Adaptive learning rate for frequency "
+"updates"
 msgstr ""
 
 #: ../../source/algorithms/calibrate_weight_sine.md:63
@@ -170,7 +170,8 @@ msgid "Lower values = more conservative convergence"
 msgstr ""
 
 #: ../../source/algorithms/calibrate_weight_sine.md:67
-msgid "**`reltol`** (float, optional) — Relative error tolerance for convergence"
+msgid ""
+"**`reltol`** (float, optional) — Relative error tolerance for convergence"
 msgstr ""
 
 #: ../../source/algorithms/calibrate_weight_sine.md:68
@@ -179,8 +180,7 @@ msgstr ""
 
 #: ../../source/algorithms/calibrate_weight_sine.md:70
 msgid ""
-"**`max_iter`** (int, optional) — Maximum iterations for fine frequency "
-"search"
+"**`max_iter`** (int, optional) — Maximum iterations for fine frequency search"
 msgstr ""
 
 #: ../../source/algorithms/calibrate_weight_sine.md:71
@@ -255,8 +255,8 @@ msgstr ""
 
 #: ../../source/algorithms/calibrate_weight_sine.md:94
 msgid ""
-"**`ideal`** (ndarray or list) — Best fitted sinewave (excluding harmonics"
-" > H)"
+"**`ideal`** (ndarray or list) — Best fitted sinewave (excluding harmonics > "
+"H)"
 msgstr ""
 
 #: ../../source/algorithms/calibrate_weight_sine.md:98
@@ -348,8 +348,7 @@ msgstr ""
 
 #: ../../source/algorithms/calibrate_weight_sine.md:143
 msgid ""
-"Unlike the lite version, the full algorithm tries **both** basis "
-"assumptions:"
+"Unlike the lite version, the full algorithm tries **both** basis assumptions:"
 msgstr ""
 
 #: ../../source/algorithms/calibrate_weight_sine.md:145
@@ -362,8 +361,7 @@ msgstr ""
 
 #: ../../source/algorithms/calibrate_weight_sine.md:155
 msgid ""
-"The algorithm solves both and selects the one with **lower residual "
-"error**."
+"The algorithm solves both and selects the one with **lower residual error**."
 msgstr ""
 
 #: ../../source/algorithms/calibrate_weight_sine.md:157
@@ -372,8 +370,8 @@ msgstr ""
 
 #: ../../source/algorithms/calibrate_weight_sine.md:159
 msgid ""
-"For redundant ADCs (e.g., weights `[128, 128, 64, ...]`), the bit matrix "
-"has rank deficiency. The algorithm:"
+"For redundant ADCs (e.g., weights `[128, 128, 64, ...]`), the bit matrix has "
+"rank deficiency. The algorithm:"
 msgstr ""
 
 #: ../../source/algorithms/calibrate_weight_sine.md:161
@@ -426,7 +424,8 @@ msgid "**Coarse Search** (when `freq=None`):"
 msgstr ""
 
 #: ../../source/algorithms/calibrate_weight_sine.md:181
-msgid "Reconstruct signal using nominal weights: `y_nom(n) = Σ w_i^nom · b_i(n)`"
+msgid ""
+"Reconstruct signal using nominal weights: `y_nom(n) = Σ w_i^nom · b_i(n)`"
 msgstr ""
 
 #: ../../source/algorithms/calibrate_weight_sine.md:182
@@ -579,8 +578,8 @@ msgstr ""
 
 #: ../../source/algorithms/calibrate_weight_sine.md:371
 msgid ""
-"**Purity**: Input signal should have low distortion (THD < -60 dB) for "
-"best results"
+"**Purity**: Input signal should have low distortion (THD < -60 dB) for best "
+"results"
 msgstr ""
 
 #: ../../source/algorithms/calibrate_weight_sine.md:372
@@ -603,8 +602,8 @@ msgstr ""
 
 #: ../../source/algorithms/calibrate_weight_sine.md:378
 msgid ""
-"**Multi-tone interference**: Avoid frequencies near `k/M` where k is "
-"small integer"
+"**Multi-tone interference**: Avoid frequencies near `k/M` where k is small "
+"integer"
 msgstr ""
 
 #: ../../source/algorithms/calibrate_weight_sine.md:380
@@ -670,8 +669,8 @@ msgstr ""
 
 #: ../../source/algorithms/calibrate_weight_sine.md:400
 msgid ""
-"For ADCs with **per-channel weight variation**, use separate single-"
-"dataset calibrations."
+"For ADCs with **per-channel weight variation**, use separate single-dataset "
+"calibrations."
 msgstr ""
 
 #: ../../source/algorithms/calibrate_weight_sine.md:402
@@ -1009,14 +1008,13 @@ msgstr ""
 
 #: ../../source/algorithms/calibrate_weight_sine.md:494
 msgid ""
-"**Recover rank deficiency**: Distribute effective weights to all physical"
-" bits"
+"**Recover rank deficiency**: Distribute effective weights to all physical "
+"bits"
 msgstr ""
 
 #: ../../source/algorithms/calibrate_weight_sine.md:495
 msgid ""
-"**Post-process**: Assemble results dictionary with SNDR, ENOB, error "
-"signals"
+"**Post-process**: Assemble results dictionary with SNDR, ENOB, error signals"
 msgstr ""
 
 #: ../../source/algorithms/calibrate_weight_sine.md:497
@@ -1032,22 +1030,22 @@ msgstr ""
 #: ../../source/algorithms/calibrate_weight_sine.md:501
 msgid ""
 "Vogel, C., & Johansson, H. (2006). \"Time-interleaved analog-to-digital "
-"converters: Status and future directions.\" *IEEE Transactions on "
-"Circuits and Systems I*, 53(11), 2386-2394."
+"converters: Status and future directions.\" *IEEE Transactions on Circuits "
+"and Systems I*, 53(11), 2386-2394."
 msgstr ""
 
 #: ../../source/algorithms/calibrate_weight_sine.md:503
 msgid ""
 "Jin, H., & Lee, E. K. F. (1992). \"A digital-background calibration "
-"technique for minimizing timing-error effects in time-interleaved ADCs.\""
-" *IEEE Transactions on Circuits and Systems II*, 47(7), 603-613."
+"technique for minimizing timing-error effects in time-interleaved ADCs.\" "
+"*IEEE Transactions on Circuits and Systems II*, 47(7), 603-613."
 msgstr ""
 
 #: ../../source/algorithms/calibrate_weight_sine.md:505
 msgid ""
 "Le Dortz, N., et al. (2014). \"A 1.62GS/s time-interleaved SAR ADC with "
-"digital background mismatch calibration achieving interleaving spurs "
-"below 70dBFS.\" *ISSCC Digest of Technical Papers*, 386-387."
+"digital background mismatch calibration achieving interleaving spurs below "
+"70dBFS.\" *ISSCC Digest of Technical Papers*, 386-387."
 msgstr ""
 
 #: ../../source/algorithms/calibrate_weight_sine.md:507
@@ -1060,15 +1058,15 @@ msgstr ""
 
 #: ../../source/algorithms/calibrate_weight_sine.md:511
 msgid ""
-"[calibrate_weight_sine_lite](calibrate_weight_sine_lite.md) - Lightweight"
-" version for embedded systems"
+"[calibrate_weight_sine_lite](calibrate_weight_sine_lite.md) - Lightweight "
+"version for embedded systems"
 msgstr ""
 
 #: ../../source/algorithms/calibrate_weight_sine.md:512
-msgid "[analyze_spectrum](analyze_spectrum.md) - Spectral analysis for SNDR/ENOB"
+msgid ""
+"[analyze_spectrum](analyze_spectrum.md) - Spectral analysis for SNDR/ENOB"
 msgstr ""
 
 #: ../../source/algorithms/calibrate_weight_sine.md:513
 msgid "[fit_sine_4param](fit_sine_4param.md) - IEEE 1057 sinewave fitting"
 msgstr ""
-

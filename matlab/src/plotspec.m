@@ -92,7 +92,7 @@ function [enob,sndr,sfdr,snr,thd,sigpwr,noi,nsd,h] = plotspec(sig,varargin)
 %       Scalar, real number
 %     sigpwr - Signal power in dBFS
 %       Scalar, real number
-%     noi - Noise Floor in dB
+%     noi - Noise floor in dBFS (negative below 0 dBFS; equals sigpwr - SNR)
 %       Scalar, real number
 %     nsd - Noise Spectral Density in dBFS/Hz
 %       Scalar, real number
@@ -586,7 +586,8 @@ end
 
 THD = 10*log10(thd/sigs);
 SNR = 10*log10(sig/noi);
-NF = SNR - pwr;  % Noise floor relative to 0 dBFS
+noise_floor_dbfs = pwr - SNR;  % dBFS (negative below 0 dBFS; matches Python noise_floor_dbfs)
+nsd = noise_floor_dbfs - 10*log10(Fs/2/OSR);
 
 % Finalize plot formatting and annotations
 if(dispPlot)
@@ -666,7 +667,7 @@ if(dispPlot)
         end
         if(show_l)
             TYN = TYN + 1;
-            text(TX,TYD*TYN,['Noise Floor = ',num2str(NF,'%.2f'),' dB']);
+            text(TX,TYD*TYN,['Noise Floor = ',num2str(noise_floor_dbfs,'%.2f'),' dB']);
         end
 
         % Display additional metrics and noise floor line
@@ -675,9 +676,9 @@ if(dispPlot)
                 text(bin/N_fft*Fs,min(pwr,TYD/2),['Sig = ',num2str(pwr,'%.2f'),' dB']);
             end
             if(show_y)
-                semilogx([Fs/N_fft,Fs/2/OSR],-[1,1]*(NF+10*log10(N_fft/2/OSR)),'r--');
+                semilogx([Fs/N_fft,Fs/2/OSR],[1,1]*(noise_floor_dbfs-10*log10(N_fft/2/OSR)),'r--');
                 TYN = TYN + 1;
-                text(TX,TYD*TYN,['NSD = ',num2str(-NF-10*log10(Fs/2/OSR),'%.2f'),' dBFS/Hz']);
+                text(TX,TYD*TYN,['NSD = ',num2str(nsd,'%.2f'),' dBFS/Hz']);
             end
             if(show_o)
                 TYN = TYN + 1;
@@ -693,9 +694,9 @@ if(dispPlot)
                 end
             end
             if(show_y)
-                plot([0,Fs/2],-[1,1]*(NF+10*log10(N_fft/2/OSR)),'r--');
+                plot([0,Fs/2],[1,1]*(noise_floor_dbfs-10*log10(N_fft/2/OSR)),'r--');
                 TYN = TYN + 1;
-                text(TX,TYD*TYN,['NSD = ',num2str(-NF-10*log10(Fs/2/OSR),'%.2f'),' dBFS/Hz']);
+                text(TX,TYD*TYN,['NSD = ',num2str(nsd,'%.2f'),' dBFS/Hz']);
             end
         end
     end
@@ -720,8 +721,7 @@ sfdr = SFDR;
 snr = SNR;
 thd = THD;
 sigpwr = pwr;
-noi = NF;
-nsd = -(NF + 10*log10(Fs/2/OSR));
+noi = noise_floor_dbfs;
 
 if(~dispPlot)
     h = [];

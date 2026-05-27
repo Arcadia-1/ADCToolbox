@@ -1,0 +1,10 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="144" height="144" viewBox="0 0 144 144" role="img" aria-labelledby="title desc">
+  <title id="title">ADCToolbox logo</title>
+  <desc id="desc">A compact mark combining an ADC transfer staircase and a sampled waveform.</desc>
+  <rect width="144" height="144" rx="24" fill="#0b1f2a"/>
+  <path d="M28 91h18V74h18V57h18V40h34" fill="none" stroke="#34b6a4" stroke-width="9" stroke-linecap="round" stroke-linejoin="round"/>
+  <path d="M26 105c16 0 16-18 32-18s16 18 32 18 16-18 32-18" fill="none" stroke="#f2b84b" stroke-width="7" stroke-linecap="round"/>
+  <circle cx="46" cy="74" r="5" fill="#f7fbff"/>
+  <circle cx="64" cy="57" r="5" fill="#f7fbff"/>
+  <circle cx="82" cy="40" r="5" fill="#f7fbff"/>
+</svg>
