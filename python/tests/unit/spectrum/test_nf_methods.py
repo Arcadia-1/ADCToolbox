@@ -2,6 +2,7 @@
 
 import numpy as np
 from adctoolbox.spectrum.compute_spectrum import compute_spectrum
+from adctoolbox.spectrum._estimate_noise_power import _estimate_noise_power
 
 
 def test_nf_methods_comparison():
@@ -57,6 +58,24 @@ def test_nf_methods_comparison():
     assert abs(metrics_auto['snr_dbc'] - theoretical_snr) < 2.0, "Auto SNR error too large"
 
     print("\n[PASS] All noise floor methods working correctly!")
+
+
+def test_nf_methods_handle_empty_nonzero_noise_bins():
+    spectrum_power = np.zeros(64)
+    spectrum_power[5] = 1.0
+
+    for method in [0, 1, 2, 3]:
+        noise_power = _estimate_noise_power(
+            spectrum_power,
+            method,
+            n_inband=32,
+            M=1,
+            bin_idx=5,
+            harmonic_bins=np.array([10, 15]),
+            side_bin=1,
+        )
+        assert np.isfinite(noise_power)
+        assert noise_power == 1e-15
 
 
 if __name__ == "__main__":

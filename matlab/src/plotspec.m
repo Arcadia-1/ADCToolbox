@@ -535,9 +535,12 @@ if(dispPlot && label && show_p)
 end
 
 % Calculate noise floor using all methods and select per NFMethod
-spec_inband = spec(1:inbandEnd);
+spec_inband_all = spec(1:inbandEnd);
 
-spec_inband = spec_inband(abs(spec_inband) > 1E-20);    %% exclude zeros while estimate noisefloor
+spec_inband = spec_inband_all(abs(spec_inband_all) > 1E-20);    % exclude zeros while estimating noisefloor
+if isempty(spec_inband)
+    spec_inband = spec_inband_all;
+end
 n_inband = length(spec_inband);
 
 % Method 1: Median-based estimation (robust to spurs)

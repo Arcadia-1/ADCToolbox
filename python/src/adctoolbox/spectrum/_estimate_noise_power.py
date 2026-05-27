@@ -81,14 +81,17 @@ def _estimate_noise_power(
         return noise_power
 
     spec = _zeroed_inband_spectrum(spectrum_power, n_inband, bin_idx, side_bin)
+    spec_for_floor = spec[np.abs(spec) > 1e-20]
+    if spec_for_floor.size == 0:
+        spec_for_floor = spec
 
     def _median_noise() -> float:
         mn = 0.72 if M == 1 else (1 - 2 / (9 * M)) ** 3
-        return float(np.median(spec) / mn * n_inband)
+        return float(np.median(spec_for_floor) / mn * n_inband)
 
     def _trimmed_noise() -> float:
-        spec_sorted = np.sort(spec)
-        start, end = _matlab_trimmed_indices(n_inband)
+        spec_sorted = np.sort(spec_for_floor)
+        start, end = _matlab_trimmed_indices(spec_for_floor.size)
         return float(np.mean(spec_sorted[start:end]) * n_inband)
 
     def _exclude_noise() -> float:

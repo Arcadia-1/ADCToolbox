@@ -6,22 +6,25 @@ It asks a different question: how many coherent training samples are needed
 before foreground sine calibration generalizes to a fixed 16384-sample test
 capture?
 
-For each training length from ``2**4`` to ``2**14``, the script runs 32
-Monte Carlo trials. Each trial uses a different mismatch realization and
-different sine starting phases. The main plot shows the calibrated ENOB
-distribution envelope on an independent test capture versus training length.
+For each training length, the script runs 32 Monte Carlo trials. The sweep
+uses powers of two from ``2**4`` to ``2**14`` plus extra short-record points
+at 24, 28, 40, 48, and 56 samples. Each trial uses a different mismatch
+realization and different sine starting phases. The main plot shows the
+calibrated ENOB distribution envelope on an independent test capture versus
+training length.
 
 The second plot intentionally evaluates the same calibrated weights on the
-calibration capture itself, using the same visual style as the main plot.
-Comparing the two saved figures exposes the overfitting case: short training
-records can look excellent on the data used to solve the weights while failing
-to generalize.
+calibration capture itself, using the same visual style as the main plot. The
+third plot overlays the two distributions. Comparing them exposes the
+overfitting case: short training records can look excellent on the data used
+to solve the weights while failing to generalize.
 """
 
 from __future__ import annotations
 
 import contextlib
 import io
+import math
 from pathlib import Path
 
 import matplotlib.pyplot as plt
@@ -43,7 +46,7 @@ N_TEST = 2**14
 FS = 1.0
 TEST_BIN = 1777
 TRAIN_TARGET_BIN_AT_N_TEST = 997
-TRAIN_LENGTHS = 2 ** np.arange(4, 15)
+TRAIN_LENGTHS = np.unique(np.r_[2 ** np.arange(4, 15), [24, 28, 40, 48, 56]]).astype(int)
 AMPLITUDE = 0.499
 N_MC = 32
 MISMATCH_SIGMA_PCT = 1.0
@@ -79,7 +82,7 @@ def radix18_integer_weights_16bit() -> np.ndarray:
 
 
 def coherent_train_bin(n_samples: int) -> int:
-    """Pick an odd coherent training bin near the target normalized tone."""
+    """Pick an odd, non-repeating coherent training bin near the target tone."""
     target_ratio = TRAIN_TARGET_BIN_AT_N_TEST / N_TEST
     bin_index = int(round(target_ratio * n_samples))
     bin_index = max(1, min(bin_index, n_samples // 2 - 1))
@@ -88,6 +91,13 @@ def coherent_train_bin(n_samples: int) -> int:
             bin_index += 1
         elif bin_index > 1:
             bin_index -= 1
+    if math.gcd(n_samples, bin_index) == 1:
+        return bin_index
+
+    for delta in range(2, n_samples // 2 + 1, 2):
+        for candidate in (bin_index + delta, bin_index - delta):
+            if 1 <= candidate < n_samples // 2 and math.gcd(n_samples, candidate) == 1:
+                return candidate
     return bin_index
 
 
@@ -187,6 +197,7 @@ def plot_distribution_envelope(
     color: str,
     title: str,
     ylabel: str,
+    y_bottom: float | None = None,
     y_top: float | None = None,
 ) -> None:
     """Plot the min/max, percentile bands, and median for one ENOB distribution."""
@@ -245,7 +256,7 @@ def plot_distribution_envelope(
 
     failed_mask = ~finite_mask
     if np.any(failed_mask):
-        marker_y = np.nanmin(y_min[finite_mask]) - 0.08
+        marker_y = y_bottom + 0.22 if y_bottom is not None else np.nanmin(y_min[finite_mask]) - 0.08
         ax.scatter(
             x[failed_mask],
             np.full(np.sum(failed_mask), marker_y),
@@ -259,12 +270,190 @@ def plot_distribution_envelope(
     ax.set_xticks(x)
     ax.set_xticklabels([str(int(v)) for v in x], rotation=35, ha="right")
     ax.set_xlim(x[0] * 0.85, x[-1] * 1.15)
+    if y_bottom is None:
+        y_bottom = max(0.0, np.nanmin(y_min[finite_mask]) - 0.25)
     if y_top is None:
         y_top = np.nanmax(y_max[finite_mask]) + 0.10
-    ax.set_ylim(max(0.0, np.nanmin(y_min[finite_mask]) - 0.25), y_top)
+    ax.set_ylim(y_bottom, y_top)
     ax.set_title(title, fontsize=13)
     ax.set_xlabel("Training samples")
     ax.set_ylabel(ylabel)
+    ax.grid(True, which="both", linestyle="--", linewidth=0.75, alpha=0.70)
+    ax.legend(title="32-run ENOB distribution", loc="lower right", frameon=True)
+
+
+def plot_distribution_overlay(ax, x: np.ndarray, rows: list[dict]) -> None:
+    """Overlay calibration-capture and independent-test ENOB distributions."""
+    ill_conditioned_boundary = 18
+    overfit_boundary = 128
+    display_y_min = 14.0
+    display_y_max = 18.0
+
+    def arrays(prefix: str) -> tuple[np.ndarray, ...]:
+        def key(name: str) -> str:
+            return name if prefix == "" else f"{prefix}_{name}"
+
+        n_valid = np.array([row[key("n_valid")] for row in rows], dtype=int)
+        y_min = np.array([row[key("min")] for row in rows], dtype=float)
+        y_p10 = np.array([row[key("p10")] for row in rows], dtype=float)
+        y_q25 = np.array([row[key("q25")] for row in rows], dtype=float)
+        y_med = np.array([row[key("median")] for row in rows], dtype=float)
+        y_q75 = np.array([row[key("q75")] for row in rows], dtype=float)
+        y_p90 = np.array([row[key("p90")] for row in rows], dtype=float)
+        y_max = np.array([row[key("max")] for row in rows], dtype=float)
+        return n_valid, y_min, y_p10, y_q25, y_med, y_q75, y_p90, y_max
+
+    def draw(prefix: str, color: str, label: str) -> None:
+        n_valid, y_min, y_p10, y_q25, y_med, y_q75, y_p90, y_max = arrays(prefix)
+        finite_mask = n_valid > 0
+        ax.fill_between(
+            x[finite_mask],
+            y_min[finite_mask],
+            y_max[finite_mask],
+            color=color,
+            alpha=0.08,
+            linewidth=0,
+        )
+        ax.fill_between(
+            x[finite_mask],
+            y_p10[finite_mask],
+            y_p90[finite_mask],
+            color=color,
+            alpha=0.16,
+            linewidth=0,
+        )
+        ax.fill_between(
+            x[finite_mask],
+            y_q25[finite_mask],
+            y_q75[finite_mask],
+            color=color,
+            alpha=0.25,
+            linewidth=0,
+        )
+        ax.plot(
+            x[finite_mask],
+            y_med[finite_mask],
+            color=color,
+            linewidth=2.2,
+            marker="o",
+            label=label,
+        )
+
+    ax.axvspan(
+        x[0] * 0.85,
+        ill_conditioned_boundary,
+        color="#d0d0d0",
+        alpha=0.45,
+        linewidth=0,
+        zorder=0,
+    )
+    ax.axvspan(
+        ill_conditioned_boundary,
+        overfit_boundary,
+        color="#e6e6e6",
+        alpha=0.38,
+        linewidth=0,
+        zorder=0,
+    )
+    draw("train_enob", "#ff7f0e", "Test on Training Set median")
+    draw("", "#1f77b4", "Test on Test Set median")
+
+    test_valid, test_min, *_test_tail = arrays("")
+    train_valid, train_min, *_train_tail = arrays("train_enob")
+    finite_min = np.nanmin(
+        np.r_[
+            test_min[test_valid > 0],
+            train_min[train_valid > 0],
+        ]
+    )
+    failed_mask = (test_valid == 0) & (train_valid == 0)
+    if np.any(failed_mask):
+        ax.scatter(
+            x[failed_mask],
+            np.full(np.sum(failed_mask), display_y_min + 0.22),
+            marker="x",
+            color="#d62728",
+            label="all 32 runs failed",
+        )
+
+    ax.text(
+        180,
+        16.86,
+        "Test on Training Set",
+        color="#222222",
+        fontsize=22,
+        fontweight="bold",
+        alpha=0.78,
+    )
+    ax.text(
+        180,
+        15.18,
+        "Test on Test Set",
+        color="#222222",
+        fontsize=22,
+        fontweight="bold",
+        alpha=0.78,
+    )
+    ax.axvline(
+        ill_conditioned_boundary,
+        color="#555555",
+        lw=1.1,
+        ls="--",
+        alpha=0.85,
+    )
+    ax.axvline(
+        overfit_boundary,
+        color="#555555",
+        lw=1.1,
+        ls="--",
+        alpha=0.85,
+    )
+    ax.text(
+        15.3,
+        15.55,
+        "Ill-conditioned",
+        color="#222222",
+        fontsize=14,
+        fontweight="bold",
+        alpha=0.62,
+        rotation=90,
+        va="center",
+        ha="center",
+    )
+    ax.text(
+        58,
+        17.14,
+        "Overfitting",
+        color="#222222",
+        fontsize=18,
+        fontweight="bold",
+        alpha=0.62,
+        va="center",
+        ha="center",
+    )
+
+    test_max = _test_tail[-1]
+    train_max = _train_tail[-1]
+    finite_max = np.nanmax(
+        np.r_[
+            test_max[test_valid > 0],
+            train_max[train_valid > 0],
+        ]
+    )
+
+    ax.axhline(16.0, color="#555555", lw=0.9, ls=":", alpha=0.85)
+    ax.set_xscale("log", base=2)
+    ax.set_xticks(x)
+    ax.set_xticklabels([str(int(v)) for v in x], rotation=35, ha="right")
+    ax.set_xlim(x[0] * 0.85, x[-1] * 1.15)
+    ax.set_ylim(display_y_min, min(display_y_max, finite_max + 0.10))
+    ax.set_title(
+        "Redundant 16-bit SAR calibration vs training length\n"
+        f"{N_MC} runs, {MISMATCH_SIGMA_PCT:.1f}% unit-cap mismatch, calibration vs test",
+        fontsize=13,
+    )
+    ax.set_xlabel("Training samples")
+    ax.set_ylabel("Calibrated ENOB")
     ax.grid(True, which="both", linestyle="--", linewidth=0.75, alpha=0.70)
     ax.legend(title="32-run ENOB distribution", loc="lower right", frameon=True)
 
@@ -340,7 +529,7 @@ def main() -> None:
         "Redundant 16-bit SAR calibration vs training length\n"
         f"{N_MC} runs, {MISMATCH_SIGMA_PCT:.1f}% unit-cap mismatch, test N={N_TEST}"
     )
-    fig, ax = plt.subplots(figsize=(8.6, 5.1), constrained_layout=True)
+    fig, ax = plt.subplots(figsize=(8.0, 6.0), constrained_layout=True)
     plot_distribution_envelope(
         ax,
         x,
@@ -349,11 +538,12 @@ def main() -> None:
         color="#1f77b4",
         title=test_title,
         ylabel="Calibrated ENOB on 16384-sample test capture",
+        y_bottom=14.0,
         y_top=min(16.35, np.nanmax(y_max[n_valid > 0]) + 0.10),
     )
 
     fig_path = output_dir / "exp_d18_sar_redundant_mismatch_training_length_sweep.png"
-    fig.savefig(fig_path, dpi=180, bbox_inches="tight")
+    fig.savefig(fig_path, dpi=180)
     plt.close(fig)
 
     train_y_max = np.array([row["train_enob_max"] for row in stat_rows], dtype=float)
@@ -362,7 +552,7 @@ def main() -> None:
         "Redundant 16-bit SAR calibration vs training length\n"
         f"{N_MC} runs, {MISMATCH_SIGMA_PCT:.1f}% unit-cap mismatch, calibration capture"
     )
-    fig, ax = plt.subplots(figsize=(8.6, 5.1), constrained_layout=True)
+    fig, ax = plt.subplots(figsize=(8.0, 6.0), constrained_layout=True)
     plot_distribution_envelope(
         ax,
         x,
@@ -375,11 +565,18 @@ def main() -> None:
     )
 
     fit_fig_path = output_dir / "exp_d18_sar_redundant_mismatch_training_capture_overfit.png"
-    fig.savefig(fit_fig_path, dpi=180, bbox_inches="tight")
+    fig.savefig(fit_fig_path, dpi=180)
+    plt.close(fig)
+
+    fig, ax = plt.subplots(figsize=(8.0, 6.0), constrained_layout=True)
+    plot_distribution_overlay(ax, x, stat_rows)
+    overlay_fig_path = output_dir / "exp_d18_sar_redundant_mismatch_training_capture_overlay.png"
+    fig.savefig(overlay_fig_path, dpi=180)
     plt.close(fig)
 
     print(f"[Save fig] -> [{fig_path}]")
     print(f"[Save overfit fig] -> [{fit_fig_path}]")
+    print(f"[Save overlay fig] -> [{overlay_fig_path}]")
 
 
 if __name__ == "__main__":

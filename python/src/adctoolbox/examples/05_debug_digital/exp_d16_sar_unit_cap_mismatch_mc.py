@@ -166,7 +166,7 @@ def main() -> None:
         row.update(summarize(values))
         stat_rows.append(row)
 
-    fig, ax = plt.subplots(figsize=(8.2, 4.9), constrained_layout=True)
+    fig, ax = plt.subplots(figsize=(8.0, 6.0), constrained_layout=True)
     styles = [
         ("Strict binary", "before cal", "#1f77b4", "--"),
         ("Strict binary", "after cal", "#1f77b4", "-"),
@@ -214,8 +214,8 @@ def main() -> None:
     ax.set_xticks(np.arange(0, 10.1, 1.0))
     ax.grid(True, color="#d9d9d9", linewidth=0.75, linestyle="--", alpha=0.75)
     ax.text(
-        0.06,
-        0.84,
+        0.56,
+        0.79,
         "After cal.",
         transform=ax.transAxes,
         fontsize=22,
