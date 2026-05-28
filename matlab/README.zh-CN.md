@@ -27,7 +27,7 @@
 ### 方式一：安装工具箱包（推荐）
 
 1. 进入 `toolbox/` 目录
-2. 双击 `ADCToolbox_1v30.mltbx` 进行安装
+2. 双击 `ADCToolbox_1v32.mltbx` 进行安装
 3. 工具箱将自动添加到 MATLAB 路径中
 4. 也可从 [MATLAB Add-Ons](https://www.mathworks.com/matlabcentral/fileexchange/181879-adctoolbox) 下载此工具箱
 
@@ -595,6 +595,7 @@ radix = plotwgt(weight);
 **语法：**
 ```matlab
 plotres(sig, bits)
+plotres(sig, bits, xyPreset)
 plotres(sig, bits, wgt)
 plotres(sig, bits, wgt, xy)
 plotres(sig, bits, wgt, xy, alpha)
@@ -606,12 +607,17 @@ plotres(sig, bits, 'Name', Value)
 - 第 k 级残差 = sig - bits(:,1:k) * wgt(1:k)'
 - 支持自动或手动 alpha 控制的半透明标记
 - 支持自定义比特权重和任意比特对选择
+- 内置 `xy` 预设：`'sig'`、`'res'`、`'bit'`
 
 **参数：**
 - `sig` - 理想输入信号（N x 1 或 1 x N）
 - `bits` - 原始 ADC 比特矩阵（N x M），MSB 在前
 - `wgt` - 比特权重（可选，默认：二进制权重 `[2^(M-1), ..., 1]`）
-- `xy` - 要绘制的比特对索引（可选，默认：`[(0:(M-1))', ones(M,1)*M]`）
+- `xy` - 要绘制的比特对索引或预设字符串（可选，默认：`'res'`）
+  - `'sig'`：`xy = [zeros(M,1), (1:M)']`
+  - `'res'`：`xy = [(0:(M-1))', ones(M,1)*M]`
+  - `'bit'`：`xy = [(0:M-1)', (1:M)']`
+  - 其他字符串为非法输入，会报错
 - `alpha` - 标记透明度（可选，默认：`'auto'`）
   - `'auto'`：缩放为 `clamp(1000/N, 0.1, 1)`
   - 数值标量 (0, 1]：固定透明度
@@ -625,8 +631,14 @@ code = round(sig);
 bits = dec2bin(code, M) - '0';
 plotres(sig, bits);
 
+% 使用内置 xy 预设
+plotres(sig, bits, 'bit');
+
 % 指定比特对和自定义透明度
 plotres(sig, bits, 2.^(M-1:-1:0), [2 4; 4 6], 0.3);
+
+% 使用名值参数形式的 xy 预设并设置透明度
+plotres(sig, bits, 'xy', 'sig', 'alpha', 0.3);
 ```
 
 **另见：** bitchk, plotwgt, plotressin
@@ -647,13 +659,14 @@ plotressin(bits, ..., 'Name', Value)
 **主要特性：**
 - 内部调用 `wcalsin` 恢复校准权重和理想信号
 - 将重建的参考信号（`ideal + offset`）和权重转发给 `plotres`
-- 接受与 `plotres` 相同的 `xy` 格式
+- 接受与 `plotres` 相同的数值 `xy` 格式和预设字符串
 - 将 `freq`、`order`、`verbose` 参数转发给 `wcalsin`
 - 将 `alpha` 参数转发给 `plotres`
 
 **参数：**
 - `bits` - 原始 ADC 比特矩阵（N x M），MSB 在前
-- `xy` - 要绘制的比特对索引（可选，与 `plotres` 格式相同）
+- `xy` - 要绘制的比特对索引或预设字符串（可选，与 `plotres` 格式相同；默认：`'res'`）
+- `'xy'` - `xy` 的名值参数形式，同样接受 `'sig'`、`'res'`、`'bit'`
 - `'freq'` - `wcalsin` 的归一化输入频率（默认：0，自动搜索）
 - `'order'` - 拟合模型中的谐波数（默认：1）
 - `'verbose'` - 详细输出标志（默认：0）
@@ -670,6 +683,12 @@ plotressin(bits)
 
 % 指定比特对和已知频率
 plotressin(bits, [0 6; 3 6], 'freq', 3/1024)
+
+% 使用内置 xy 预设
+plotressin(bits, 'sig')
+
+% 使用名值参数形式的 xy 预设
+plotressin(bits, 'xy', 'bit', 'alpha', 0.3)
 
 % 转发校准参数
 plotressin(bits, 'order', 3)
@@ -813,6 +832,7 @@ sig = sin(2*pi*0.12345*(0:999)') + 0.01*randn(1000,1);
 - 未指定时自动检测频率
 - 分解为：基波 + 谐波 + 残差
 - 可配置谐波阶数（默认：10）
+- 显示模式中谐波用红色绘制，其他残差用蓝色绘制
 
 **分解关系：**
 - `sig = sine + err`
@@ -939,10 +959,11 @@ bitchk(bits, 'name', value)
 - 检测溢出（≥1）和下溢（≤0）条件
 - 颜色编码：蓝色（正常）、红色（溢出）、黄色（下溢）
 - 显示边界处的样本百分比
+- 支持行向量或列向量形式的比特权重
 
 **参数：**
 - `bits` - 原始 ADC 比特矩阵 [MSB ... LSB]（N×M）
-- `wgt` - 比特权重（默认：二进制权重）
+- `wgt` - 比特权重（默认：二进制权重；支持 1-by-M 行向量或 M-by-1 列向量）
 - `chkpos` - 检查的比特位置（默认：MSB）
 
 **示例：**
@@ -954,6 +975,9 @@ bitchk(bits);
 % 自定义权重和检查位置
 wgt = 2.^(9:-1:0);
 bitchk(bits, wgt, 8);  % 检查从第 8 位到 LSB 的段
+
+% 也支持列向量权重
+bitchk(bits, wgt.', 8);
 ```
 
 ## 使用示例
@@ -1220,8 +1244,10 @@ matlab/
 │   │   └── bitInBand.m
 │   └── toolbox.ignore
 ├── toolbox/                 # 工具箱打包文件
-│   ├── ADCToolbox_1v30.mltbx  # 最新工具箱包
-│   ├── ADCToolbox_1v21.mltbx  # 历史版本
+│   ├── ADCToolbox_1v32.mltbx  # 最新工具箱包
+│   ├── ADCToolbox_1v31.mltbx  # 历史版本
+│   ├── ADCToolbox_1v30.mltbx
+│   ├── ADCToolbox_1v21.mltbx
 │   ├── ADCToolbox_1v2.mltbx
 │   ├── ADCToolbox_1v1.mltbx
 │   ├── ADCToolbox_1v0.mltbx
@@ -1332,7 +1358,16 @@ plot(test_frequencies, enob);
 
 ## 版本历史
 
-- **v1.30**（当前版本，2026-02-09）
+- **v1.32**（当前版本，2026-05-29）
+  - 更新工具箱打包文件为 `ADCToolbox_1v32.mltbx`
+  - （v1.31 更新，合并记录到 v1.32）改进 `plotspec` 对高度非相干信号的 median/mean 噪底估计：排除接近零的带内 bin，并使用 `inbandEnd` 进行缩放
+  - 为 `plotres` 和 `plotressin` 新增 `xy` 预设字符串：`'sig'`、`'res'`、`'bit'`
+  - 对不支持的 `xy` 字符串输入新增明确报错
+  - 保留数值 `xy` 选择，并新增名值参数形式的 `xy` 预设支持
+  - 更新 `bitchk`，支持行向量或列向量形式的比特权重
+  - 将 `tomdec` 显示图中的其他残差曲线颜色改为蓝色
+
+- **v1.30**（2026-02-09）
   - 新增 `plotres` 和 `plotressin` 函数，支持半透明散点图
   - 在 `adcpanel` 中新增整数向量到二进制分解功能（`bits` 数据类型）
   - 在 `plotspec` 中为截尾均值索引添加边界保护
