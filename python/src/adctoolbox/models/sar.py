@@ -194,11 +194,14 @@ def sar_convert(
 
     Vectorized over samples so the whole batch runs in one Python loop of
     length ``B`` (typically 4-20 iterations), not ``N`` (typically 10⁴-10⁶).
+    Multi-channel or multi-run inputs are supported by preserving the input
+    shape and appending one bit axis to the returned codes.
 
     Parameters
     ----------
-    vin : array-like of shape (N,)
-        Input voltage trace. Interpreted relative to ``quant_range``.
+    vin : array-like of shape (...,)
+        Input voltage trace or batch of traces. Interpreted relative to
+        ``quant_range``.
     weights : array-like of shape (B,)
         Actual analog CDAC weights (MSB first). Resolution and redundancy are
         inferred from this vector. Use :func:`sar_ideal_weights` for an ideal
@@ -218,7 +221,7 @@ def sar_convert(
 
     Returns
     -------
-    codes : ndarray of shape (N, B), dtype int8
+    codes : ndarray of shape vin.shape + (B,), dtype int8
         Raw bit decisions, MSB at column 0. Pass to :func:`sar_reconstruct`
         for the analog estimate, or to a calibration routine (e.g.
         :func:`adctoolbox.calibration.calibrate_weight_sine`) for weight
@@ -239,18 +242,22 @@ def sar_convert(
 
     vin_sampled = vin.copy()
     if sampling_noise_rms > 0:
-        vin_sampled = vin_sampled + sampling_noise_rms * rng.standard_normal(len(vin_sampled))
+        vin_sampled = vin_sampled + sampling_noise_rms * rng.standard_normal(vin_sampled.shape)
 
     vin_norm = (vin_sampled - v_min) / full_scale
     comparator_noise_norm = comparator_noise_rms / full_scale
-    N, B = len(vin_norm), len(weights)
-    codes = np.zeros((N, B), dtype=np.int8)
-    v_dac = np.zeros(N)
+    B = len(weights)
+    codes = np.zeros(vin_norm.shape + (B,), dtype=np.int8)
+    v_dac = np.zeros_like(vin_norm)
     for j in range(B):
         v_test = v_dac + weights[j]
-        noise = comparator_noise_norm * rng.standard_normal(N) if comparator_noise_rms > 0 else 0.0
+        noise = (
+            comparator_noise_norm * rng.standard_normal(vin_norm.shape)
+            if comparator_noise_rms > 0
+            else 0.0
+        )
         bit = (vin_norm + noise >= v_test).astype(np.int8)
-        codes[:, j] = bit
+        codes[..., j] = bit
         v_dac = np.where(bit, v_test, v_dac)
     return codes
 
@@ -271,7 +278,7 @@ def sar_reconstruct(
 
     Parameters
     ----------
-    codes : ndarray of shape (N, B)
+    codes : ndarray of shape (..., B)
         Raw bit decisions from :func:`sar_convert`.
     weights : ndarray of shape (B,)
         Digital reconstruction weights. Use the nominal weights for an
@@ -283,7 +290,7 @@ def sar_reconstruct(
 
     Returns
     -------
-    aout : ndarray of shape (N,)
+    aout : ndarray of shape codes.shape[:-1]
         Reconstructed analog estimate, range
         ``[v_min, v_min + (v_max - v_min) * sum(weights)]``.
     """

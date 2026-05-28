@@ -187,6 +187,59 @@ def test_reconstruct_is_codes_at_weights():
     assert np.allclose(aout, codes @ w)
 
 
+def test_convert_preserves_multichannel_input_shape():
+    w = sar_ideal_weights(4)
+    vin = np.array([
+        [0.0, 1 / 16, 7 / 16, 15 / 16],
+        [1.0, 14 / 16, 8 / 16, 2 / 16],
+    ])
+
+    codes = sar_convert(vin, w, rng=np.random.default_rng(0))
+
+    assert codes.shape == vin.shape + (len(w),)
+    assert np.array_equal(codes[0], sar_convert(vin[0], w, rng=np.random.default_rng(0)))
+    assert np.array_equal(codes[1], sar_convert(vin[1], w, rng=np.random.default_rng(0)))
+    assert sar_reconstruct(codes, w).shape == vin.shape
+
+
+def test_convert_multichannel_sampling_noise_uses_full_input_shape():
+    w = sar_ideal_weights(4)
+    vin = np.array([
+        [0.0, 1 / 16, 7 / 16, 15 / 16],
+        [1.0, 14 / 16, 8 / 16, 2 / 16],
+    ])
+    noise_rms = 1e-3
+
+    codes = sar_convert(
+        vin,
+        w,
+        sampling_noise_rms=noise_rms,
+        rng=np.random.default_rng(123),
+    )
+
+    rng = np.random.default_rng(123)
+    sampled_vin = vin + noise_rms * rng.standard_normal(vin.shape)
+    expected = sar_convert(sampled_vin, w, rng=np.random.default_rng(0))
+
+    assert codes.shape == vin.shape + (len(w),)
+    assert np.array_equal(codes, expected)
+
+
+def test_convert_multichannel_comparator_noise_uses_full_input_shape():
+    w = sar_ideal_weights(4)
+    vin = np.linspace(0.0, 1.0, 12).reshape(3, 4)
+
+    codes = sar_convert(
+        vin,
+        w,
+        comparator_noise_rms=1e-3,
+        rng=np.random.default_rng(456),
+    )
+
+    assert codes.shape == vin.shape + (len(w),)
+    assert sar_reconstruct(codes, w).shape == vin.shape
+
+
 # ──────────────────── headline: ENoB ≈ N at 0 dBFS ───────────────────────
 
 @pytest.mark.parametrize(

@@ -4,6 +4,8 @@ Unit Test: Verify compute_spectrum for single-tone FFT analysis
 Purpose: Self-verify that compute_spectrum correctly computes spectrum metrics
          including SNR, THD, SFDR, and ENOB for ADC analysis
 """
+import warnings
+
 import pytest
 import numpy as np
 from adctoolbox.spectrum.compute_spectrum import compute_spectrum
@@ -375,16 +377,27 @@ def test_verify_compute_spectrum_noise_floor_methods():
     print(f'\n[Verify Noise Floor Methods]')
 
     for method in methods:
-        if method == 0:
-            with pytest.warns(RuntimeWarning, match="Noise floor estimation methods differ"):
-                result = compute_spectrum(sig, nf_method=method, verbose=0)
-        else:
-            result = compute_spectrum(sig, nf_method=method, verbose=0)
+        result = compute_spectrum(sig, nf_method=method, verbose=0)
         print(f'  [Method {method}] NF={result["metrics"]["noise_floor_dbfs"]:.2f} dB')
 
         assert 'noise_floor_dbfs' in result['metrics'], f"Missing noise floor for method {method}"
 
     print(f'  [Status] PASS')
+
+
+def test_auto_noise_floor_method_does_not_warn_on_method_spread():
+    N = 1024
+    sig = 0.4 * np.sin(2*np.pi*0.1*np.arange(N))
+
+    with warnings.catch_warnings(record=True) as caught:
+        warnings.simplefilter("always")
+        result = compute_spectrum(sig, nf_method=0, verbose=0)
+
+    assert 'noise_floor_dbfs' in result['metrics']
+    assert not any(
+        "Noise floor estimation methods differ" in str(warning.message)
+        for warning in caught
+    )
 
 
 def test_verify_compute_spectrum_metrics_structure():

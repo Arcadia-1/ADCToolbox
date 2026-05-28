@@ -109,14 +109,6 @@ def _estimate_noise_power(
 
     if nf_method == 0:
         vals = [parts["median"], parts["trimmed"], parts["exclude"]]
-        min_val = min(vals)
-        if min_val > 0 and max(vals) / min_val > 1.25:
-            warnings.warn(
-                f"Noise floor estimation methods differ by "
-                f"{10 * np.log10(max(vals) / min_val):.1f} dB.",
-                RuntimeWarning,
-                stacklevel=2,
-            )
         noise_power = float(np.median(vals))
     elif nf_method == 1:
         noise_power = parts["median"]
