@@ -146,7 +146,7 @@ function [sine, err, har, oth, freq] = tomdec(sig, varargin)
             % Plot har and oth overlapped
             plot(1:N, har, 'r-', 'LineWidth', 1);
             hold on;
-            plot(1:N, oth, 'm-', 'LineWidth', 1);
+            plot(1:N, oth, 'b-', 'LineWidth', 1);
             hold off;
             leg_entries = {'Signal', 'Ideal', 'Harmonics', 'Other'};
             err_min = min(min(har),min(oth)); err_max = max(max(har),max(oth));

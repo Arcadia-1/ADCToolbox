@@ -21,8 +21,9 @@ function [range_min, range_max, ovf_percent_zero, ovf_percent_one] = bitchk(bits
 %       Each row represents the output code for one sample point
 %       Code format: [MSB, MSB-1, MSB-2, .., LSB]
 %     wgt - Bit weights for ADC code calculation. Optional.
-%       Vector (1-by-M)
+%       Vector (1-by-M or M-by-1)
 %       Weight of each bit in the ADC
+%       Column vectors are automatically transposed to row vectors
 %       Default: binary weights [2^(M-1), 2^(M-2), ..., 2, 1]
 %     chkpos - Bit position to check for overflow. Optional.
 %       Scalar
@@ -94,11 +95,17 @@ end
 
 % Parse input arguments
 p = inputParser;
-addOptional(p, 'wgt', 2.^(M-1:-1:0), @(x) isnumeric(x) && isvector(x));
+addOptional(p, 'wgt', 2.^(M-1:-1:0), @isnumeric);
 addOptional(p, 'chkpos', M, @(x) isnumeric(x) && isscalar(x) && (x >= 1) && (x <= M));
 addParameter(p, 'disp', nargout == 0, @(x) islogical(x) || (isnumeric(x) && isscalar(x)));
 parse(p, varargin{:});
 wgt = p.Results.wgt;
+if ~(numel(wgt) == M && (isrow(wgt) || iscolumn(wgt)))
+    error('bitchk:InvalidWgtSize', 'wgt must be a 1-by-%d row vector or %d-by-1 column vector.', M, M);
+end
+if iscolumn(wgt)
+    wgt = wgt.';
+end
 chkpos = p.Results.chkpos;
 dispFlag = logical(p.Results.disp);
 

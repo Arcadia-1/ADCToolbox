@@ -15,13 +15,19 @@ function plotressin(bits, varargin)
 %       number of bits. Each column represents one bit (MSB first).
 %
 %     xy - Pairs of bit indices whose residuals are plotted (optional)
-%       Same format as PLOTRES: vector (1x2) or matrix (Px2)
+%       Same format as PLOTRES: vector (1x2), matrix (Px2), or preset string
+%       Preset strings:
+%         'sig': [zeros(M,1), (1:M)']
+%         'res': [(0:(M-1))', ones(M,1)*M] (default)
+%         'bit': [(0:M-1)', (1:M)']
 %       Default: [(0:(M-1))', ones(M,1)*M]
 %
-%   Name-Value Arguments (forwarded to WCALSIN):
+%   Name-Value Arguments:
+%     xy      - Bit-pair indices or preset string (same as optional xy)
 %     freq    - Normalized input frequency (Fin/Fs). Default: 0 (auto)
 %     order   - Number of harmonics in the fitting model. Default: 1
 %     verbose - Verbose output flag. Default: 0
+%     alpha   - Marker transparency forwarded to PLOTRES. Default: 'auto'
 %
 %   Examples:
 %     % Basic residual plot (weights recovered automatically)
@@ -33,6 +39,9 @@ function plotressin(bits, varargin)
 %
 %     % Specific bit pairs
 %     plotressin(bits, [2 4; 4 6])
+%
+%     % Preset bit-pair selections
+%     plotressin(bits, 'sig')
 %
 %     % Forward calibration parameters
 %     plotressin(bits, 'order', 3)
@@ -50,23 +59,10 @@ function plotressin(bits, varargin)
     [N, M] = size(bits);
     if N < M
         bits = bits';
-        [N, M] = size(bits);
+        M = size(bits, 2);
     end
 
-    p = inputParser;
-    addOptional(p, 'xy', [(0:(M-1))', ones(M,1)*M], ...
-        @(x) isnumeric(x) && ismatrix(x) && (size(x,1)==2 || size(x,2)==2));
-    addParameter(p, 'freq', 0);
-    addParameter(p, 'order', 1);
-    addParameter(p, 'verbose', 0);
-    addParameter(p, 'alpha', 'auto');
-    parse(p, varargin{:});
-
-    xy      = p.Results.xy;
-    freq    = p.Results.freq;
-    order   = p.Results.order;
-    verbose = p.Results.verbose;
-    alpha   = p.Results.alpha;
+    [xy, freq, order, verbose, alpha] = parsePlotressinInputs(varargin, M);
 
     % Calibrate weights and recover ideal sinewave
     [weight, offset, ~, ideal] = wcalsin(bits, ...
@@ -78,4 +74,101 @@ function plotressin(bits, varargin)
     % Plot residuals
     plotres(sig, bits, weight, xy, 'alpha', alpha);
 
+end
+
+function [xy, freq, order, verbose, alpha] = parsePlotressinInputs(args, M)
+    xy = resolvePlotressinXy('res', M);
+    freq = 0;
+    order = 1;
+    verbose = 0;
+    alpha = 'auto';
+
+    idx = 1;
+    numArgs = numel(args);
+
+    if idx <= numArgs
+        if isPlotressinTextScalar(args{idx})
+            if isPlotressinXyPreset(args{idx})
+                xy = resolvePlotressinXy(args{idx}, M);
+                idx = idx + 1;
+            elseif ~isPlotressinParameterName(args{idx})
+                error('plotressin:invalidInput', 'Invalid xy preset "%s". Use ''sig'', ''res'', or ''bit''.', char(args{idx}));
+            end
+        else
+            validatePlotressinXy(args{idx});
+            xy = resolvePlotressinXy(args{idx}, M);
+            idx = idx + 1;
+        end
+    end
+
+    while idx <= numArgs
+        if ~isPlotressinTextScalar(args{idx})
+            error('plotressin:invalidInput', 'Name-value argument names must be text.');
+        end
+        if ~isPlotressinParameterName(args{idx})
+            error('plotressin:invalidInput', 'Unrecognized parameter name "%s".', char(args{idx}));
+        end
+
+        name = lower(char(args{idx}));
+        idx = idx + 1;
+
+        if idx > numArgs
+            error('plotressin:invalidInput', 'Missing value for parameter "%s".', name);
+        end
+
+        switch name
+            case 'xy'
+                validatePlotressinXy(args{idx});
+                xy = resolvePlotressinXy(args{idx}, M);
+            case 'freq'
+                freq = args{idx};
+            case 'order'
+                order = args{idx};
+            case 'verbose'
+                verbose = args{idx};
+            case 'alpha'
+                alpha = args{idx};
+        end
+        idx = idx + 1;
+    end
+end
+
+function validatePlotressinXy(xy)
+    if isPlotressinTextScalar(xy)
+        return;
+    end
+
+    if ~(isnumeric(xy) && ismatrix(xy) && (size(xy, 1) == 2 || size(xy, 2) == 2))
+        error('plotressin:invalidInput', 'xy must be numeric bit-pair indices or one of ''sig'', ''res'', or ''bit''.');
+    end
+end
+
+function xy = resolvePlotressinXy(xy, M)
+    if ~isPlotressinTextScalar(xy)
+        return;
+    end
+
+    preset = char(xy);
+    switch lower(preset)
+        case 'sig'
+            xy = [zeros(M, 1), (1:M)'];
+        case 'res'
+            xy = [(0:(M-1))', ones(M, 1) * M];
+        case 'bit'
+            xy = [(0:M-1)', (1:M)'];
+        otherwise
+            error('plotressin:invalidInput', 'Invalid xy preset "%s". Use ''sig'', ''res'', or ''bit''.', preset);
+    end
+end
+
+function tf = isPlotressinTextScalar(x)
+    tf = (ischar(x) && isrow(x)) || (isstring(x) && isscalar(x));
+end
+
+function tf = isPlotressinXyPreset(x)
+    tf = isPlotressinTextScalar(x) && any(strcmpi(char(x), {'sig', 'res', 'bit'}));
+end
+
+function tf = isPlotressinParameterName(x)
+    tf = isPlotressinTextScalar(x) && any(strcmpi(char(x), {'xy', 'freq', 'order', 'verbose', 'alpha'}));
 end

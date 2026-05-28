@@ -9,6 +9,7 @@ function plotres(sig, bits, varargin)
 %
 %   Syntax:
 %     PLOTRES(sig, bits)
+%     PLOTRES(sig, bits, xyPreset)
 %     PLOTRES(sig, bits, wgt)
 %     PLOTRES(sig, bits, wgt, xy)
 %     PLOTRES(sig, bits, wgt, xy, alpha)
@@ -33,6 +34,10 @@ function plotres(sig, bits, varargin)
 %       Range of x_bit and y_bit: [0, M]
 %         0 means the raw input signal (no bits subtracted)
 %         1..M means the residual after subtracting the first 1..M bits
+%       Preset strings:
+%         'sig': [zeros(M,1), (1:M)']
+%         'res': [(0:(M-1))', ones(M,1)*M] (default)
+%         'bit': [(0:M-1)', (1:M)']
 %       Default: [0, M; 1, M; ...; M-1, M]
 %
 %     alpha - Marker transparency for scatter points
@@ -47,6 +52,9 @@ function plotres(sig, bits, varargin)
 %     code = round(sig);
 %     bits = dec2bin(code, M) - '0';
 %     plotres(sig, bits);
+%
+%     % Preset bit-pair selections
+%     plotres(sig, bits, 'bit');
 %
 %     % Custom weights
 %     wgt = 2.^(M-1:-1:0);
@@ -79,17 +87,7 @@ function plotres(sig, bits, varargin)
         sig = sig';
     end
 
-    p = inputParser;
-    addOptional(p, 'wgt', 2.^(M-1:-1:0), @(x) isnumeric(x) && isvector(x));
-    addOptional(p, 'xy', [(0:(M-1))',ones(M,1)*M], @(x) isnumeric(x) && ismatrix(x) && (size(x, 1) == 2 || size(x, 2) == 2));
-    addOptional(p, 'alpha', 'auto', @(x) (ischar(x) && strcmpi(x, 'auto')) || ...
-        (isstring(x) && strcmpi(x, 'auto')) || ...
-        (isnumeric(x) && isscalar(x) && x > 0 && x <= 1));
-
-    parse(p, varargin{:});
-    wgt = p.Results.wgt;
-    xy = p.Results.xy;
-    alphaVal = p.Results.alpha;
+    [wgt, xy, alphaVal] = parsePlotresInputs(varargin, M);
 
     % Resolve alpha
     if ischar(alphaVal) || isstring(alphaVal)
@@ -131,4 +129,137 @@ function plotres(sig, bits, varargin)
 
     end
 
+end
+
+function [wgt, xy, alphaVal] = parsePlotresInputs(args, M)
+    wgt = 2.^(M-1:-1:0);
+    xy = resolvePlotresXy('res', M);
+    alphaVal = 'auto';
+
+    idx = 1;
+    numArgs = numel(args);
+
+    if idx <= numArgs
+        if isPlotresTextScalar(args{idx})
+            if ~isPlotresParameterName(args{idx})
+                xy = resolvePlotresXy(args{idx}, M);
+                idx = idx + 1;
+                if idx <= numArgs && ~isPlotresParameterName(args{idx})
+                    if idx == numArgs
+                        [alphaVal, idx] = readPlotresAlpha(args, idx);
+                    else
+                        error('plotres:invalidInput', 'Too many input arguments.');
+                    end
+                end
+            end
+        else
+            validatePlotresWeight(args{idx});
+            wgt = args{idx};
+            idx = idx + 1;
+
+            if idx <= numArgs
+                if ~isPlotresParameterName(args{idx})
+                    validatePlotresXy(args{idx});
+                    xy = resolvePlotresXy(args{idx}, M);
+                    idx = idx + 1;
+                    if idx <= numArgs && ~isPlotresParameterName(args{idx})
+                        if idx == numArgs
+                            [alphaVal, idx] = readPlotresAlpha(args, idx);
+                        else
+                            error('plotres:invalidInput', 'Too many input arguments.');
+                        end
+                    end
+                end
+            end
+        end
+    end
+
+    while idx <= numArgs
+        if ~isPlotresTextScalar(args{idx})
+            error('plotres:invalidInput', 'Name-value argument names must be text.');
+        end
+        if ~isPlotresParameterName(args{idx})
+            error('plotres:invalidInput', 'Unrecognized parameter name "%s".', char(args{idx}));
+        end
+
+        name = lower(char(args{idx}));
+        idx = idx + 1;
+
+        if idx > numArgs
+            error('plotres:invalidInput', 'Missing value for parameter "%s".', name);
+        end
+
+        switch name
+            case 'wgt'
+                validatePlotresWeight(args{idx});
+                wgt = args{idx};
+                idx = idx + 1;
+            case 'xy'
+                validatePlotresXy(args{idx});
+                xy = resolvePlotresXy(args{idx}, M);
+                idx = idx + 1;
+            case 'alpha'
+                [alphaVal, idx] = readPlotresAlpha(args, idx);
+        end
+    end
+end
+
+function [alphaVal, idx] = readPlotresAlpha(args, idx)
+    if idx > numel(args)
+        error('plotres:invalidInput', 'Missing value for alpha.');
+    end
+
+    alphaVal = args{idx};
+    if ~isValidPlotresAlpha(alphaVal)
+        error('plotres:invalidInput', 'alpha must be ''auto'' or a numeric scalar in (0, 1].');
+    end
+    idx = idx + 1;
+end
+
+function validatePlotresWeight(wgt)
+    if ~(isnumeric(wgt) && isvector(wgt))
+        error('plotres:invalidInput', 'wgt must be a numeric vector.');
+    end
+end
+
+function validatePlotresXy(xy)
+    if isPlotresTextScalar(xy)
+        return;
+    end
+
+    if ~(isnumeric(xy) && ismatrix(xy) && (size(xy, 1) == 2 || size(xy, 2) == 2))
+        error('plotres:invalidInput', 'xy must be numeric bit-pair indices or one of ''sig'', ''res'', or ''bit''.');
+    end
+end
+
+function xy = resolvePlotresXy(xy, M)
+    if ~isPlotresTextScalar(xy)
+        return;
+    end
+
+    preset = char(xy);
+    switch lower(preset)
+        case 'sig'
+            xy = [zeros(M, 1), (1:M)'];
+        case 'res'
+            xy = [(0:(M-1))', ones(M, 1) * M];
+        case 'bit'
+            xy = [(0:M-1)', (1:M)'];
+        otherwise
+            error('plotres:invalidInput', 'Invalid xy preset "%s". Use ''sig'', ''res'', or ''bit''.', preset);
+    end
+end
+
+function tf = isPlotresTextScalar(x)
+    tf = (ischar(x) && isrow(x)) || (isstring(x) && isscalar(x));
+end
+
+function tf = isPlotresParameterName(x)
+    tf = isPlotresTextScalar(x) && any(strcmpi(char(x), {'wgt', 'xy', 'alpha'}));
+end
+
+function tf = isValidPlotresAlpha(x)
+    tf = (ischar(x) && isrow(x) && strcmpi(x, 'auto')) || ...
+        (isstring(x) && isscalar(x) && strcmpi(x, 'auto')) || ...
+        (isnumeric(x) && isscalar(x) && x > 0 && x <= 1);
 end
