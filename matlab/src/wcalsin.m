@@ -418,7 +418,7 @@ function [weight,offset,postcal,ideal,err,freqcal] = wcalsin(bits,varargin)
                 fprintf('Freq coarse searching (%d/5):',i1);
             end
             % Estimate Fin/Fs using a weighted sum of the top i1 columns
-            freq = [freq, findFin(bits_patch(:,1:i1)*nomWeight(LR(1:i1))')];
+            freq = [freq, findfreq(bits_patch(:,1:i1)*nomWeight(LR(1:i1))')];
             if verbose
                 fprintf(' freq = %d\n',freq(end));
             end

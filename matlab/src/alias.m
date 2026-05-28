@@ -34,7 +34,7 @@ function fal = alias(fin,fs)
 %     - Even zones: direct aliasing (fal = mod(fin,fs))
 %     - Odd zones: mirrored aliasing (fal = fs - mod(fin,fs))
 %
-%   See also: findFin, findBin
+%   See also: findfreq, findbin
 
     % Input validation
     if fs <= 0
