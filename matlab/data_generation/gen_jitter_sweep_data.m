@@ -1,3 +1,4 @@
+run(fullfile(fileparts(mfilename('fullpath')), '..', 'tests', 'utils', 'ensureMatlabRoot.m'));
 close all; clear; clc; warning("off")
 rng(42);
 subFolder = fullfile("test_dataset", "jitter_sweep");

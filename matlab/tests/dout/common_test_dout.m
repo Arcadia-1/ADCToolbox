@@ -1,3 +1,4 @@
+run(fullfile(fileparts(mfilename('fullpath')), '..', 'utils', 'ensureMatlabRoot.m'));
 close all; clc; clear; warning("off")
 
 %% Configuration

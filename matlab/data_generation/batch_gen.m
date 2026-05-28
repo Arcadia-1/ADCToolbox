@@ -2,6 +2,7 @@
 % This script runs all individual generator scripts in sequence
 % Comment out any generators you don't need
 
+run(fullfile(fileparts(mfilename('fullpath')), '..', 'tests', 'utils', 'ensureMatlabRoot.m'));
 close all; clear; clc; warning("off");
 
 fprintf("\n=== Generating AOUT datasets ===\n");

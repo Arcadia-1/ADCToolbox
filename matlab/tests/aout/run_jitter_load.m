@@ -1,4 +1,5 @@
 %% run_jitter_load.m - Unit test for jitter analysis
+run(fullfile(fileparts(mfilename('fullpath')), '..', 'utils', 'ensureMatlabRoot.m'));
 close all; clear; clc; warning("off")
 
 %% Configuration

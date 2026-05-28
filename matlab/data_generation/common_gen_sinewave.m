@@ -1,6 +1,7 @@
 %% Centralized Configuration for Sinewave Generation
 % Edit this file to update paths and parameters for all sinewave generation scripts
 
+run(fullfile(fileparts(mfilename('fullpath')), '..', 'tests', 'utils', 'ensureMatlabRoot.m'));
 close all; clear; clc; warning("off");
 
 %% Directory Paths

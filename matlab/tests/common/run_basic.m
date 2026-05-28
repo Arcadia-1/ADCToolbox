@@ -1,10 +1,14 @@
-%% Centralized Configuration for Aout Test
-common_test_aout;
+%% Basic sine-wave plot test (standalone; does not require test_dataset)
+run(fullfile(fileparts(mfilename('fullpath')), '..', 'utils', 'ensureMatlabRoot.m'));
+testsDir = fileparts(fileparts(mfilename('fullpath')));
+addpath(genpath(testsDir));
+addpath(genpath(fullfile(testsDir, '..', 'src')));
+close all; clc; clear; warning("off");
 
 %% Configuration
 verbose = 0;
-outputDir = "test_output/test_basic";
-figureDir = "test_plots";
+outputDir = 'test_output/test_basic';
+figureDir = 'test_plots';
 if ~isfolder(outputDir), mkdir(outputDir); end
 %% Generate sine wave
 N = 1024;
@@ -47,7 +51,7 @@ ylim([min(sinewave_zoom) - 0.1, max(sinewave_zoom) + 0.1]);
 
 
 %% Save results
-figureName = "test_basic_matlab.png";
+figureName = 'test_basic_matlab.png';
 saveFig(figureDir, figureName, verbose);
 
 % Save sinewave data (first 1000 samples to match Python)

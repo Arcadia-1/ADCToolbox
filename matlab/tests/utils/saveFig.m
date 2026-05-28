@@ -1,6 +1,8 @@
 function saveFig(folder, pngFilename, verbose)
 % saveFig Save the current figure to a PNG file and optionally print a message.
 
+folder = char(folder);
+pngFilename = char(pngFilename);
 if ~isfolder(folder), mkdir(folder); end
 
 filePath = fullfile(folder, pngFilename);
