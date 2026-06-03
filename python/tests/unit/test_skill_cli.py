@@ -8,6 +8,19 @@ from adctoolbox.skill_cli import main
 from adctoolbox.skill_cli import skill_status
 
 
+def _skip_if_directory_symlinks_unavailable(tmp_path: Path) -> None:
+    source = tmp_path / "symlink-source"
+    target = tmp_path / "symlink-target"
+    source.mkdir()
+
+    try:
+        target.symlink_to(source, target_is_directory=True)
+    except OSError as exc:
+        pytest.skip(f"directory symlink creation is unavailable: {exc}")
+    else:
+        target.unlink()
+
+
 def test_list_bundled_skills_contains_default_and_dev_skill():
     names = available_skill_names()
 
@@ -52,6 +65,8 @@ def test_status_reports_missing_copy_and_synced(tmp_path: Path):
 
 
 def test_install_editable_skill_creates_symlink(tmp_path: Path):
+    _skip_if_directory_symlinks_unavailable(tmp_path)
+
     install_root = tmp_path / "skills"
 
     installed_paths = install_bundled_skills(dest=install_root, editable=True)
