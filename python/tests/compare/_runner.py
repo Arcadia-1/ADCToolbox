@@ -49,8 +49,9 @@ def run_comparison_suite(project_root, matlab_test_name,
         # Scenario: root / dataset / test_name
         datasets = discover_test_datasets(ref_root, subfolder=matlab_test_name)
         if not datasets:
-            log(f"[WARNING] No datasets found in {ref_root} containing '{matlab_test_name}'")
-            return
+            raise AssertionError(
+                f"No reference datasets found in {ref_root} containing '{matlab_test_name}'"
+            )
 
         for ds in datasets:
             mat_dir = ref_root / ds / matlab_test_name
@@ -65,8 +66,7 @@ def run_comparison_suite(project_root, matlab_test_name,
 
         # Check if the folder exists at all
         if not mat_dir.exists():
-            log(f"[WARNING] Flat reference folder not found: {mat_dir}")
-            return
+            raise AssertionError(f"Flat reference folder not found: {mat_dir}")
 
         comparison_targets.append(("Single", mat_dir, py_dir))
 
@@ -85,13 +85,15 @@ def run_comparison_suite(project_root, matlab_test_name,
 
         # Check Directory (Python-Centric: skip if Python didn't generate it)
         if not py_dir.exists():
-            log(f"  -> [SKIP] Python directory not found (dataset not processed)")
+            log(f"  -> [FAIL] Python directory not found: {py_dir}")
+            failures.append(f"{display_name}: Python directory not found: {py_dir}")
             continue
 
         # Discover Variables (Python-Centric: scan what Python generated)
         python_csv_files = sorted(py_dir.glob("*_python.csv"))
         if not python_csv_files:
-            log(f"  -> [SKIP] No Python output files found")
+            log(f"  -> [FAIL] No Python output files found in {py_dir}")
+            failures.append(f"{display_name}: No Python output files found in {py_dir}")
             continue
 
         # Extract variable names from Python files
@@ -107,7 +109,8 @@ def run_comparison_suite(project_root, matlab_test_name,
 
             # Check if MATLAB reference exists (Skip if no reference, not FAIL)
             if not mat_csv.exists():
-                log(f"  [{var:<{max_len}}] -> [SKIP] No MATLAB reference")
+                log(f"  [{var:<{max_len}}] -> [FAIL] No MATLAB reference: {mat_csv}")
+                failures.append(f"{display_name}/{var}: No MATLAB reference: {mat_csv}")
                 continue
 
             # Compare
@@ -115,6 +118,7 @@ def run_comparison_suite(project_root, matlab_test_name,
             status = result['status']
             diff_abs = result['max_diff_abs']
             diff_rel = result.get('max_diff_rel', 0)
+            error = result.get('error')
 
             # Format output with both absolute and relative errors
             if diff_rel < 0.01:  # Less than 0.01% - show absolute only
@@ -126,12 +130,20 @@ def run_comparison_suite(project_root, matlab_test_name,
                 log(msg)
             else:
                 log(f"{msg} <--- FAIL")
-                failures.append(
-                    f"{display_name}/{var}: {status} (Abs: {diff_abs:.2e}, Rel: {diff_rel:.4f}%)")
+                detail = f"{display_name}/{var}: {status} (Abs: {diff_abs:.2e}, Rel: {diff_rel:.4f}%)"
+                if error:
+                    detail += f" error={error}"
+                failures.append(detail)
 
     # 4. Summary
     log("-" * 60)
     log(f"[SUMMARY] Verified {total_checks} files.")
+
+    if not comparison_targets:
+        raise AssertionError("No comparison targets were discovered.")
+
+    if total_checks == 0 and not failures:
+        raise AssertionError("No comparison files were checked.")
 
     if failures:
         log("\n[FAILURES DETAILS]")
@@ -147,4 +159,7 @@ def run_comparison_suite(project_root, matlab_test_name,
         log_file.write_text('\n'.join(log_lines), encoding='utf-8')
 
     if failures:
-        raise AssertionError(f"Comparison failed for {len(failures)} item(s). check logs for details.")
+        raise AssertionError(
+            f"Comparison failed for {len(failures)} item(s):\n"
+            + "\n".join(f"  - {failure}" for failure in failures)
+        )

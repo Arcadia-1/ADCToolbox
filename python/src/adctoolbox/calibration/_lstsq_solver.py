@@ -49,6 +49,15 @@ def _build_harmonic_basis(
     phase = 2.0 * np.pi * freq * np.outer(t, harmonics)
     return np.cos(phase), np.sin(phase)
 
+
+def _build_harmonic_basis_matrix(
+    n_samples: int,
+    freq: float,
+    harmonic_order: int,
+) -> tuple[np.ndarray, np.ndarray]:
+    """Backward-compatible alias for ``_build_harmonic_basis``."""
+    return _build_harmonic_basis(n_samples, freq, harmonic_order)
+
 def _dual_basis_lstsq(
     A_common: np.ndarray,
     cos_basis: np.ndarray,
