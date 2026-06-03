@@ -155,6 +155,7 @@ def analyze_error_phase_plane(data, fs=1.0, ax=None, title=None, create_plot: bo
 
     return {
         'residual': residual,
+        'fitted_sine': fit_result['fitted_signal'],
         'fitted_params': fit_result,
         'trend_coeffs': poly_coeff,
         'hysteresis_gap': hysteresis_gap

@@ -12,6 +12,21 @@ from adctoolbox.spectrum.compute_spectrum import compute_spectrum
 from adctoolbox.spectrum.plot_spectrum import plot_spectrum
 
 
+def _with_legacy_metric_keys(metrics: dict) -> dict:
+    """Add pre-0.8 metric names while preserving current metric keys."""
+    aliases = {
+        'sndr_db': 'sndr_dbc',
+        'sfdr_db': 'sfdr_dbc',
+        'snr_db': 'snr_dbc',
+        'thd_db': 'thd_dbc',
+        'noise_floor_db': 'noise_floor_dbfs',
+    }
+    for old_name, current_name in aliases.items():
+        if current_name in metrics and old_name not in metrics:
+            metrics[old_name] = metrics[current_name]
+    return metrics
+
+
 def analyze_spectrum(data, fs=1.0, osr=1, max_scale_range=None, win_type='hann', side_bin=None,
                      max_harmonic=5, nf_method=0, assumed_sig_pwr_dbfs=np.nan, coherent_averaging=False,
                      create_plot: bool = True, show_title=True, show_label=True, plot_harmonics_up_to=3, ax=None):
@@ -86,7 +101,7 @@ def analyze_spectrum(data, fs=1.0, osr=1, max_scale_range=None, win_type='hann',
             ax=ax
         )
 
-    return results['metrics']
+    return _with_legacy_metric_keys(results['metrics'])
 
 
 def analyze_spectrum_virtuoso(data, fs=1.0, osr=1, max_scale_range=None, win_type='rectangular',
@@ -136,4 +151,4 @@ def analyze_spectrum_virtuoso(data, fs=1.0, osr=1, max_scale_range=None, win_typ
             ax=ax,
         )
 
-    return results['metrics']
+    return _with_legacy_metric_keys(results['metrics'])

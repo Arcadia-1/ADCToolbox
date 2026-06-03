@@ -134,13 +134,18 @@ def compute_spectrum(
         side_bin=side_bin,
         max_harmonic=max_harmonic,
     )
-    harmonics_dbc = 10 * np.log10(harmonic_powers / sig_peak)
-    thd_dbc = 10 * np.log10(thd_power / sig_peak)
-
     spur_bin_idx, spur_power = _extract_highest_spur(
         power_spectrum, side_bin, n_inband, sig_bin_start, sig_bin_end
     )
-    sfdr_dbc = np.inf if spur_power <= 0 else 10 * np.log10(sig_peak / spur_power)
+    if sig_peak > 0:
+        with np.errstate(divide="ignore", invalid="ignore"):
+            harmonics_dbc = 10 * np.log10(harmonic_powers / sig_peak)
+            thd_dbc = 10 * np.log10(thd_power / sig_peak)
+            sfdr_dbc = np.inf if spur_power <= 0 else 10 * np.log10(sig_peak / spur_power)
+    else:
+        harmonics_dbc = np.full_like(harmonic_powers, np.nan, dtype=float)
+        thd_dbc = np.nan
+        sfdr_dbc = np.nan
 
     spec_sndr = power_spectrum.copy()
     spec_sndr[: min(side_bin + 1, len(spec_sndr))] = 0.0
