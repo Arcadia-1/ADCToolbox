@@ -1,6 +1,6 @@
 # ADCToolbox Examples
 
-This directory contains 59 runnable ADCToolbox examples. They are copied to a
+This directory contains 60 runnable ADCToolbox examples. They are copied to a
 user workspace by:
 
 ```bash
@@ -45,6 +45,7 @@ python 05_debug_digital/exp_d02_cal_weight_sine.py
 | `exp_s10_cartesian_and_polar_plot.py` | Cartesian and polar spectrum views |
 | `exp_s11_polar_memory_effect.py` | Memory-effect visualization in polar spectrum |
 | `exp_s12_polar_coherent_averaging.py` | Coherent averaging with polar plots |
+| `exp_s13_fft_length_mc_sfdr_sndr.py` | FFT-length Monte Carlo sweep for SFDR/SNDR |
 
 ### `03_generate_signals/` - synthetic ADC stimulus
 

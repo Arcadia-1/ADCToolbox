@@ -20,8 +20,9 @@ All examples in `02_spectrum` demonstrate spectrum analysis capabilities:
 9. **exp_s10**: Cartesian and polar spectrum comparison
 10. **exp_s11**: Polar spectrum - static nonlinearity vs memory effect
 11. **exp_s12**: Polar spectrum - coherent averaging improvement
+12. **exp_s13**: FFT-length Monte Carlo sweep for SFDR/SNDR
 
-**Total Examples**: 13
+**Total Examples**: 14
 
 
 
@@ -432,3 +433,30 @@ exp_s12_polar_coherent_averaging.py
    :width: 600px
 
    Polar spectrum demonstrating coherent averaging improvement
+
+
+exp_s13_fft_length_mc_sfdr_sndr.py
+----------------------------------
+
+**Description**: FFT-length Monte Carlo sweep for SFDR and SNDR with a fixed -80 dBc HD3 spur.
+
+.. code-block:: none
+
+   FFT LENGTH MONTE CARLO SWEEP: 10-bit ADC, ENOB=9 noise, HD3=-80 dBc
+   Monte Carlo runs per FFT length: 100
+   Input noise RMS: 0.000475683 FS units
+   HD3 amplitude: 4.9e-05 FS units (-80.0 dBc)
+
+   N=    16, bin=    3, SFDR= 62.24 +/-  3.59 dBc, SNDR= 60.92 +/-  3.49 dBc
+   N=    32, bin=    5, SFDR= 61.80 +/-  1.78 dBc, SNDR= 57.43 +/-  1.61 dBc
+   N=    64, bin=    9, SFDR= 63.78 +/-  1.49 dBc, SNDR= 56.73 +/-  1.02 dBc
+   N=   128, bin=   17, SFDR= 65.85 +/-  1.32 dBc, SNDR= 56.31 +/-  0.78 dBc
+   N=   256, bin=   31, SFDR= 68.16 +/-  1.28 dBc, SNDR= 56.13 +/-  0.55 dBc
+   N=   512, bin=   63, SFDR= 70.61 +/-  1.06 dBc, SNDR= 56.01 +/-  0.36 dBc
+   N=  1024, bin=  127, SFDR= 73.09 +/-  0.67 dBc, SNDR= 55.95 +/-  0.29 dBc
+   N=  2048, bin=  253, SFDR= 75.60 +/-  0.66 dBc, SNDR= 55.95 +/-  0.18 dBc
+   N=  4096, bin=  505, SFDR= 77.81 +/-  0.92 dBc, SNDR= 55.91 +/-  0.11 dBc
+   N=  8192, bin= 1009, SFDR= 79.46 +/-  1.41 dBc, SNDR= 55.94 +/-  0.09 dBc
+   N= 16384, bin= 2015, SFDR= 80.07 +/-  1.22 dBc, SNDR= 55.92 +/-  0.06 dBc
+   N= 32768, bin= 4031, SFDR= 79.82 +/-  0.96 dBc, SNDR= 55.92 +/-  0.04 dBc
+   N= 65536, bin= 8061, SFDR= 80.10 +/-  0.70 dBc, SNDR= 55.93 +/-  0.03 dBc
