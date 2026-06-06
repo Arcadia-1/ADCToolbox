@@ -25,6 +25,9 @@ def extract_freq_components(din, bands):
     np.ndarray
         Output data with only components in specified bands.
     """
+    if not np.isrealobj(din):
+        raise ValueError('input signal must be real-valued')
+
     din = np.asarray(din, dtype=float)
     bands = np.asarray(bands, dtype=float)
 
@@ -42,6 +45,8 @@ def extract_freq_components(din, bands):
     P, Q = bands.shape
     if Q != 2:
         raise ValueError('bands must have exactly 2 columns [fLow, fHigh]')
+    if not np.isrealobj(bands) or np.any(bands < 0) or np.any(bands > 0.5):
+        raise ValueError('band frequencies must be real and in range [0, 0.5]')
 
     spec = np.fft.fft(din, axis=0)
     mask = np.zeros(N)
