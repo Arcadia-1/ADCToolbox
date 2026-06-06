@@ -1,6 +1,6 @@
 # ADCToolbox Examples
 
-This directory contains 60 runnable ADCToolbox examples. They are copied to a
+This directory contains 63 runnable ADCToolbox examples. They are copied to a
 user workspace by:
 
 ```bash
@@ -125,3 +125,11 @@ python 05_debug_digital/exp_d02_cal_weight_sine.py
 | File | Topic |
 |---|---|
 | `exp_d00_subsample_aliasing.py` | Subsample-only debug output and aliasing behavior |
+
+### `10_oversampling/` - oversampling and noise shaping
+
+| File | Topic |
+|---|---|
+| `exp_o01_noise_shaping_spectrum.py` | Noise-shaped quantization spectra |
+| `exp_o02_ifilter_band_analysis.py` | In-band extraction with MATLAB-compatible `ifilter` |
+| `exp_o03_ntfperf_perfosr.py` | NTF theory and performance-vs-OSR sweep |

@@ -285,11 +285,11 @@ class ADC_Signal_Generator:
         glitch = glitch_mask * glitch_amplitude
         return signal + glitch
 
-    def apply_noise_shaping(self, input_signal=None, n_bits=10, quant_range=(0.0, 1.0), order=1):
+    def apply_noise_shaping(self, input_signal=None, n_bits=10, quant_range=(0.0, 1.0), order=1, ntf=None):
         """
-        Apply noise-shaped quantization (1st to 5th order delta-sigma).
+        Apply noise-shaped quantization.
 
-        Noise Transfer Function: NTF(z) = (1 - z^-1)^order
+        Default Noise Transfer Function: NTF(z) = (1 - z^-1)^order
 
         Order characteristics:
         - 1st order: 20 dB/decade roll-off (common in basic delta-sigma)
@@ -307,6 +307,9 @@ class ADC_Signal_Generator:
             n_bits: Quantizer resolution (default 10)
             quant_range: Quantization range (v_min, v_max), e.g., (0, 1) or (-0.5, 0.5)
             order: Noise shaping order (1, 2, 3, 4, or 5, default 1)
+            ntf: Optional custom NTF coefficients. Use a numerator sequence
+                for FIR shaping or a tuple ``(num, den)`` for IIR shaping.
+                When provided, ``order`` is ignored.
 
         Returns:
             Signal with noise-shaped quantization noise added
@@ -314,7 +317,7 @@ class ADC_Signal_Generator:
         Raises:
             ValueError: If order is not in [1, 2, 3, 4, 5]
         """
-        if order not in [1, 2, 3, 4, 5]:
+        if ntf is None and order not in [1, 2, 3, 4, 5]:
             raise ValueError(f"Noise shaping order must be 1, 2, 3, 4, or 5. Got: {order}")
 
         signal = self._resolve_signal(input_signal)
@@ -323,38 +326,26 @@ class ADC_Signal_Generator:
         signal_quantized = self.apply_quantization_noise(signal, n_bits=n_bits, quant_range=quant_range)
         quant_error_white = signal_quantized - signal
 
-        # Binomial coefficients for (1 - z^-1)^order using Pascal's triangle
-        # Order 1: [1, -1]
-        # Order 2: [1, -2, 1]
-        # Order 3: [1, -3, 3, -1]
-        # Order 4: [1, -4, 6, -4, 1]
-        # Order 5: [1, -5, 10, -10, 5, -1]
-        coeffs = {
-            1: [1, -1],
-            2: [1, -2, 1],
-            3: [1, -3, 3, -1],
-            4: [1, -4, 6, -4, 1],
-            5: [1, -5, 10, -10, 5, -1]
-        }
+        if ntf is None:
+            # Binomial coefficients for (1 - z^-1)^order using Pascal's triangle
+            coeffs = {
+                1: [1, -1],
+                2: [1, -2, 1],
+                3: [1, -3, 3, -1],
+                4: [1, -4, 6, -4, 1],
+                5: [1, -5, 10, -10, 5, -1]
+            }
+            num = coeffs[order]
+            den = [1]
+        elif isinstance(ntf, tuple):
+            num, den = ntf
+        else:
+            num = ntf
+            den = [1]
 
-        coeff = coeffs[order]
-
-        # Apply NTF to shape the quantization error
-        quant_error_shaped = np.zeros(self.N)
-
-        # Initialize first 'order' samples
-        for n in range(min(order, self.N)):
-            quant_error_shaped[n] = sum(
-                coeff[k] * quant_error_white[n - k]
-                for k in range(n + 1)
-            )
-
-        # Apply full filter for remaining samples
-        for n in range(order, self.N):
-            quant_error_shaped[n] = sum(
-                coeff[k] * quant_error_white[n - k]
-                for k in range(len(coeff))
-            )
+        # Zero initial conditions match MATLAB filter(num, den, x) and the
+        # previous FIR implementation.
+        quant_error_shaped = scipy_signal.lfilter(num, den, quant_error_white)
 
         return signal + quant_error_shaped
 

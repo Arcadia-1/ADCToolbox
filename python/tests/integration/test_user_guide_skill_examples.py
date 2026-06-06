@@ -285,7 +285,7 @@ def test_api_quickref_flat_imports_resolve():
         db_to_mag, mag_to_db, db_to_power, power_to_db,
         snr_to_enob, enob_to_snr, snr_to_nsd, nsd_to_snr,
         bin_to_freq, freq_to_bin, fold_frequency_to_nyquist,
-        ntf_analyzer,
+        ifilter, ntf_analyzer, ntfperf, perfosr,
     )
     # Each should be a callable / class
     locals_dict = locals()
