@@ -3,8 +3,41 @@ Changelog
 
 For the complete changelog with detailed version history, see the `CHANGELOG.md <https://github.com/Arcadia-1/ADCToolbox/blob/main/CHANGELOG.md>`_ file in the repository.
 
-Version 0.8.3 (Latest)
+Version 0.9.0 (Latest)
 ----------------------
+
+**Release Date**: 2026-06-11
+
+**Oversampling Parity Release** - adds MATLAB-compatible oversampling entry
+points, noise-shaping examples, and a MATLAB ``noiseshape`` helper.
+
+Added
+~~~~~
+
+* Python MATLAB-compatible oversampling APIs:
+
+  - ``adctoolbox.ifilter`` / ``adctoolbox.oversampling.ifilter``
+  - ``adctoolbox.perfosr`` / ``adctoolbox.oversampling.perfosr``
+  - ``adctoolbox.ntfperf`` / ``adctoolbox.oversampling.ntfperf``
+
+* New ``10_oversampling/`` Python example group for noise-shaped spectra,
+  in-band extraction, NTF theory, and performance-vs-OSR sweeps.
+* MATLAB ``matlab/src/noiseshape.m`` for lightweight noise-shaped
+  quantization signal generation, with a MATLAB smoke test.
+
+Changed
+~~~~~~~
+
+* ``ADC_Signal_Generator.apply_noise_shaping()`` accepts custom NTF
+  coefficients.
+* ``sweep_performance_vs_osr()`` supports MATLAB-style ``logscale`` and
+  ``smooth`` options.
+* ``extract_freq_components()`` validates real-valued inputs and normalized
+  passbands in ``[0, 0.5]``.
+* CI runs oversampling unit tests and the ``10_oversampling/`` example scripts.
+
+Version 0.8.3
+-------------
 
 **Release Date**: 2026-05-26
 

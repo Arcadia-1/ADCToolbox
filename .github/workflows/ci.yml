@@ -48,6 +48,13 @@ jobs:
         env:
           MPLBACKEND: Agg
 
+      - name: Run Unit Tests — Oversampling (pytest)
+        run: |
+          cd python
+          pytest tests/unit/oversampling/ -v
+        env:
+          MPLBACKEND: Agg
+
       - name: Run Basic Examples (01_basic)
         run: |
           cd python/src/adctoolbox/examples/01_basic
@@ -160,6 +167,23 @@ jobs:
 
           EXAMPLES="
             exp_d00_subsample_aliasing.py
+          "
+
+          for script in $EXAMPLES; do
+            echo "Running $script..."
+            python "$script" || exit 1
+          done
+        env:
+          MPLBACKEND: Agg
+
+      - name: Run Oversampling Examples (10_oversampling)
+        run: |
+          cd python/src/adctoolbox/examples/10_oversampling
+
+          EXAMPLES="
+            exp_o01_noise_shaping_spectrum.py
+            exp_o02_ifilter_band_analysis.py
+            exp_o03_ntfperf_perfosr.py
           "
 
           for script in $EXAMPLES; do

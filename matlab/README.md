@@ -1362,6 +1362,14 @@ Contributions are welcome! Please follow these guidelines:
 
 ## Version History
 
+- **Source update** (2026-06-11)
+  - Added `noiseshape` — a lightweight helper for generated or input-driven
+    noise-shaped quantization signals with default `(1 - z^-1)^order` NTFs or
+    custom NTF coefficients.
+  - Added `tests/common/test_noiseshape.m` and wired it into `run_common.m`.
+  - The latest packaged `.mltbx` remains `ADCToolbox_1v32.mltbx`; install
+    from source to use this new helper until the next packaged toolbox release.
+
 - **v1.32** (Current, 2026-05-29)
   - Updated packaged toolbox file to `ADCToolbox_1v32.mltbx`
   - (v1.31 update, included in v1.32) Improved `plotspec` median/mean noise-floor estimation for highly non-coherent signals by excluding near-zero in-band bins and scaling with `inbandEnd`

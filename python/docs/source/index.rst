@@ -10,8 +10,8 @@ ADCToolbox
        <p class="adt-kicker">ADC characterization for Python</p>
        <h1>ADCToolbox</h1>
        <p class="adt-lede">
-         Spectrum analysis, SAR modeling, digital calibration, and debug
-         dashboards for converter development.
+         Spectrum analysis, oversampling workflows, SAR modeling, digital
+         calibration, and debug dashboards for converter development.
        </p>
        <div class="adt-actions">
          <a class="adt-button adt-button-primary" href="quickstart.html">Quick start</a>
@@ -64,7 +64,7 @@ Common Starting Points
       :link-type: doc
 
       Use ready-to-run scripts for spectrum, signal generation, calibration,
-      debug, conversions, and time interleaving.
+      debug, conversions, time interleaving, and oversampling.
 
    .. grid-item-card:: API Reference
       :link: api/index
@@ -119,7 +119,7 @@ Analysis Areas
       :link-type: doc
 
       Delta-sigma and oversampling analysis utilities, including NTF
-      visualization.
+      visualization, in-band filtering, noise shaping, and OSR sweeps.
 
 Outputs
 -------

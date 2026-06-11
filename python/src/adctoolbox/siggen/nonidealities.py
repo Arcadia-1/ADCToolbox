@@ -302,20 +302,30 @@ class ADC_Signal_Generator:
         then shapes the quantization error spectrum using the NTF filter.
         Pushes quantization noise to higher frequencies, improving in-band SNR.
 
-        Params:
-            input_signal: Input signal (None -> clean sine wave)
-            n_bits: Quantizer resolution (default 10)
-            quant_range: Quantization range (v_min, v_max), e.g., (0, 1) or (-0.5, 0.5)
-            order: Noise shaping order (1, 2, 3, 4, or 5, default 1)
-            ntf: Optional custom NTF coefficients. Use a numerator sequence
-                for FIR shaping or a tuple ``(num, den)`` for IIR shaping.
-                When provided, ``order`` is ignored.
+        Parameters
+        ----------
+        input_signal : array_like, optional
+            Input signal. If omitted, the generator's clean sine wave is used.
+        n_bits : int, default=10
+            Quantizer resolution.
+        quant_range : tuple[float, float], default=(0.0, 1.0)
+            Quantization range ``(v_min, v_max)``.
+        order : int, default=1
+            Noise-shaping order for the default NTF. Must be 1 through 5.
+        ntf : array_like or tuple[array_like, array_like], optional
+            Custom NTF coefficients. Use a numerator sequence for FIR shaping
+            or a ``(num, den)`` tuple for IIR shaping. When provided, ``order``
+            is ignored.
 
-        Returns:
-            Signal with noise-shaped quantization noise added
+        Returns
+        -------
+        ndarray
+            Signal with noise-shaped quantization noise added.
 
-        Raises:
-            ValueError: If order is not in [1, 2, 3, 4, 5]
+        Raises
+        ------
+        ValueError
+            If ``order`` is not in ``[1, 2, 3, 4, 5]``.
         """
         if ntf is None and order not in [1, 2, 3, 4, 5]:
             raise ValueError(f"Noise shaping order must be 1, 2, 3, 4, or 5. Got: {order}")
@@ -348,5 +358,4 @@ class ADC_Signal_Generator:
         quant_error_shaped = scipy_signal.lfilter(num, den, quant_error_white)
 
         return signal + quant_error_shaped
-
 

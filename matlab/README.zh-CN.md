@@ -1362,6 +1362,13 @@ plot(test_frequencies, enob);
 
 ## 版本历史
 
+- **源码更新**（2026-06-11）
+  - 新增 `noiseshape`：用于生成或处理输入信号的轻量级噪声整形量化
+    工具，支持默认 `(1 - z^-1)^order` NTF 和自定义 NTF 系数。
+  - 新增 `tests/common/test_noiseshape.m`，并接入 `run_common.m`。
+  - 最新已打包 `.mltbx` 仍为 `ADCToolbox_1v32.mltbx`；在下一次工具箱
+    打包发布前，请从源码路径安装以使用该新工具。
+
 - **v1.32**（当前版本，2026-05-29）
   - 更新工具箱打包文件为 `ADCToolbox_1v32.mltbx`
   - （v1.31 更新，合并记录到 v1.32）改进 `plotspec` 对高度非相干信号的 median/mean 噪底估计：排除接近零的带内 bin，并使用 `inbandEnd` 进行缩放

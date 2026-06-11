@@ -26,9 +26,13 @@
   - phase/magnitude relationships and **Error Envelope** plots to identify dynamic nonlinearities.
   - decomposes ADC errors into time-domain (INL/DNL), frequency-domain (Harmonics/Spurs), and statistical components (PDF/Histograms) for root-cause analysis.
 
-- **Realistic Signal Modeling**: generates high-fidelity ADC waveforms simulating real-world impairments, including clock jitter, thermal noise, quantization effects, and settling errors.
+- **Realistic Signal Modeling**: generates high-fidelity ADC waveforms simulating real-world impairments, including clock jitter, thermal noise, quantization effects, settling errors, and noise-shaped quantization.
 
 - **Calibration Algorithms**: built-in reference implementations for digital calibration, including bit-weight extraction and redundancy management for SAR and Pipeline architectures.
+
+- **Oversampling Workflows**: MATLAB-compatible `ifilter`, `perfosr`, and
+  `ntfperf` entry points for in-band extraction, performance-vs-OSR sweeps,
+  and NTF analysis.
 
 <div align="center">
   <img src="docs/images/exp_t02_dashboard_10_RA_Dynamic_Gain.png" alt="ADCToolbox Dashboard" width="100%">
@@ -50,7 +54,7 @@ python -c "import adctoolbox; print(adctoolbox.__version__)"
 
 ## Quick Start
 
-**Get all 59 runnable examples in one command:**
+**Get all 63 runnable examples in one command:**
 
 ```bash
 cd /path/to/your/workspace
@@ -83,7 +87,7 @@ See [Usage Examples](#usage-examples) section below for detailed code examples.
 | Folder | Count | Focus |
 |--------|------:|-------|
 | `01_basic/` | 2 | Environment checks and coherent sampling basics |
-| `02_spectrum/` | 13 | FFT analysis, windows, averaging, polar plots, and near-Nyquist handling |
+| `02_spectrum/` | 14 | FFT analysis, windows, averaging, polar plots, and near-Nyquist handling |
 | `03_generate_signals/` | 6 | Synthetic ADC signals with noise, jitter, quantization, nonlinearities, and interference |
 | `04_debug_analog/` | 15 | Sine fitting, error PDFs, phase/value error analysis, INL/DNL, harmonics, and phase-plane views |
 | `05_debug_digital/` | 11 | Bit activity, overflow, digital weight calibration, SAR redundancy, and mismatch calibration |
@@ -91,6 +95,7 @@ See [Usage Examples](#usage-examples) section below for detailed code examples.
 | `07_conversions/` | 5 | Aliasing, dB/unit conversions, FoM, SNR, and NSD conversions |
 | `08_time_interleave/` | 2 | Time-interleaved ADC skew extraction, spur prediction, and foreground calibration |
 | `09_downsample/` | 1 | Subsample-only debug output and aliasing behavior |
+| `10_oversampling/` | 3 | Noise shaping, in-band filtering, NTF analysis, and OSR sweeps |
 
 See the packaged `examples/README.md` after running `adctoolbox-get-examples`
 for the full script map.

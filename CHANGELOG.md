@@ -7,6 +7,34 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.9.0] - 2026-06-11
+
+**Oversampling Parity Release** — adds MATLAB-compatible oversampling entry
+points, noise-shaping examples, and a MATLAB `noiseshape` helper.
+
+### Added
+- Python MATLAB-compatible oversampling APIs:
+  - `adctoolbox.ifilter` / `adctoolbox.oversampling.ifilter`
+  - `adctoolbox.perfosr` / `adctoolbox.oversampling.perfosr`
+  - `adctoolbox.ntfperf` / `adctoolbox.oversampling.ntfperf`
+- New `10_oversampling/` Python example group:
+  - noise-shaped quantization spectrum analysis
+  - in-band extraction with `ifilter`
+  - NTF theory plus performance-vs-OSR sweep
+- MATLAB `matlab/src/noiseshape.m` for lightweight noise-shaped quantization
+  signal generation, with `matlab/tests/common/test_noiseshape.m`.
+- Unit tests for MATLAB-compatible oversampling APIs and oversampling examples.
+
+### Changed
+- `ADC_Signal_Generator.apply_noise_shaping()` now accepts custom NTF
+  coefficients.
+- `sweep_performance_vs_osr()` supports MATLAB-style `logscale` and `smooth`
+  options.
+- `extract_freq_components()` now validates real-valued inputs and normalized
+  passbands in `[0, 0.5]`.
+- CI now runs oversampling unit tests and the `10_oversampling/` example
+  scripts.
+
 ## [0.8.3] - 2026-05-26
 
 **Example Output Cleanup Release** — keeps SAR calibration examples focused on

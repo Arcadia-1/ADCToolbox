@@ -91,9 +91,9 @@ The packaged examples are the canonical runnable workflows. Copy them with:
 adctoolbox-get-examples
 ```
 
-The example tree currently contains 59 scripts across spectrum analysis,
+The example tree currently contains 63 scripts across spectrum analysis,
 signal generation, analog debug, digital/SAR calibration, toolset dashboards,
-conversions, time-interleaving, and downsampling.
+conversions, time-interleaving, downsampling, and oversampling.
 
 ## Maintenance Notes
 

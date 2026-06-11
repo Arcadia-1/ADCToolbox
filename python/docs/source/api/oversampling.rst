@@ -29,8 +29,3 @@ Workflow Notes
     Analyze theoretical NTF in-band noise suppression. These functions do not
     generate a noise-shaped waveform; they evaluate an NTF response over a
     signal band.
-
-.. automodule:: adctoolbox.oversampling
-   :members:
-   :undoc-members:
-   :show-inheritance:
