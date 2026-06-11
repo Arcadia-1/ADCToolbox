@@ -15,6 +15,7 @@ from .analyze_spectrum_polar import analyze_spectrum_polar
 
 from .compute_spectrum import compute_spectrum
 from .quick_sndr import quick_sndr
+from .extract_freq_components import extract_freq_components
 
 # ----------------------------------------------------------------------
 # Plotting functions (visualization)
@@ -52,6 +53,7 @@ __all__ = [
     # Core computation
     'compute_spectrum',
     'quick_sndr',
+    'extract_freq_components',
 
     # Visualization
     'plot_spectrum',

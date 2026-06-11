@@ -117,6 +117,7 @@ Functions for analyzing ADC linearity performance.
 Functions for analyzing noise-shaping ADCs (Delta-Sigma modulators).
 
 - **[`ntfperf`](#ntfperf)** - Analyze noise transfer function performance and SNR improvement
+- **`noiseshape`** - Generate noise-shaped quantized ADC-like output for oversampling examples and testbenches
 
 ### Shortcut Functions
 

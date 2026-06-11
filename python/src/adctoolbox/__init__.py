@@ -132,6 +132,7 @@ from .spectrum import (
     analyze_spectrum,
     analyze_spectrum_polar,
     analyze_spectrum_virtuoso,
+    extract_freq_components,
     quick_sndr,
     sweep_performance_vs_osr,
 )
@@ -139,6 +140,7 @@ from .spectrum import (
 _export('analyze_spectrum', analyze_spectrum)
 _export('analyze_spectrum_polar', analyze_spectrum_polar)
 _export('analyze_spectrum_virtuoso', analyze_spectrum_virtuoso)
+_export('extract_freq_components', extract_freq_components)
 _export('quick_sndr', quick_sndr)
 _export('sweep_performance_vs_osr', sweep_performance_vs_osr)
 
@@ -203,10 +205,16 @@ _export('plot_residual_scatter', plot_residual_scatter)
 # ======================================================================
 
 from .oversampling import (
+    ifilter,
     ntf_analyzer,
+    ntfperf,
+    perfosr,
 )
 
+_export('ifilter', ifilter)
 _export('ntf_analyzer', ntf_analyzer)
+_export('ntfperf', ntfperf)
+_export('perfosr', perfosr)
 
 # ======================================================================
 # Time-Interleave (TI-ADC) Analysis Functions

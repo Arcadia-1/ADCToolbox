@@ -17,6 +17,8 @@ def sweep_performance_vs_osr(
     harmonic: int = 5,
     create_plot: bool = True,
     ax: plt.Axes | None = None,
+    logscale: bool = True,
+    smooth: int | None = None,
 ) -> dict:
     """
     Sweep ADC performance metrics versus oversampling ratio.
@@ -34,6 +36,11 @@ def sweep_performance_vs_osr(
     ax : plt.Axes, optional
         Axes for main performance plot. If None and create_plot, creates
         2-subplot figure (performance + slope).
+    logscale : bool, default=True
+        Use logarithmic OSR axis, matching MATLAB ``perfosr`` default.
+    smooth : int, optional
+        Half-width used for local SNDR slope estimation. Default matches the
+        local MATLAB-style heuristic.
 
     Returns
     -------
@@ -108,8 +115,9 @@ def sweep_performance_vs_osr(
             ax_main = ax
 
         # --- Main performance plot ---
-        ax_main.semilogx(osr, sndr, 'b-', linewidth=1.5, label='SNDR (ENOB)')
-        ax_main.semilogx(osr, sfdr, 'r-', linewidth=1.5, label='SFDR')
+        plot_fn = ax_main.semilogx if logscale else ax_main.plot
+        plot_fn(osr, sndr, 'b-', linewidth=1.5, label='SNDR (ENOB)')
+        plot_fn(osr, sfdr, 'r-', linewidth=1.5, label='SFDR')
         ax_main.set_ylabel('SNDR / SFDR (dB)')
         ax_main.set_xlabel('OSR')
         ax_main.set_title('Performance vs OSR')
@@ -145,7 +153,7 @@ def sweep_performance_vs_osr(
         if make_slope and len(osr) >= 3:
             log_osr = np.log10(osr)
             n_pts = len(osr)
-            smooth_win = max(5, round(n_pts / 10))
+            smooth_win = max(5, round(n_pts / 10)) if smooth is None else int(smooth)
             smooth_win = min(smooth_win, (n_pts - 1) // 2)
 
             local_slope = np.zeros(n_pts)
@@ -156,7 +164,8 @@ def sweep_performance_vs_osr(
                 if abs(denom) > 1e-15:
                     local_slope[i] = (sndr[i_hi] - sndr[i_lo]) / denom
 
-            ax_slope.semilogx(osr, local_slope, 'b-', linewidth=1.5)
+            slope_plot_fn = ax_slope.semilogx if logscale else ax_slope.plot
+            slope_plot_fn(osr, local_slope, 'b-', linewidth=1.5)
             ax_slope.axhline(10, color='k', linestyle='--', linewidth=0.5)
             ax_slope.text(max(osr), 10, 'White Noise Limit', fontsize=8,
                           ha='right', va='bottom')

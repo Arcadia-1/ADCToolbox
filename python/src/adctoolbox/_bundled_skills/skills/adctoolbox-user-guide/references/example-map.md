@@ -19,6 +19,8 @@ current packaged examples under `python/src/adctoolbox/examples/`.
   `02_spectrum/exp_s03_analyze_spectrum_savefig.py`
 - SAR FFT-length sweep near Nyquist:
   `02_spectrum/exp_s09_sar_fft_length_near_nyquist.py`
+- Noise-shaped quantization spectrum:
+  `10_oversampling/exp_o01_noise_shaping_spectrum.py`
 
 ## Example Families
 
@@ -34,6 +36,8 @@ current packaged examples under `python/src/adctoolbox/examples/`.
   start in `06_use_toolsets/`
 - Metric and frequency conversions:
   start in `07_conversions/`
+- Oversampling and noise shaping:
+  start in `10_oversampling/`
 
 ## High-Value Files
 
@@ -57,6 +61,10 @@ current packaged examples under `python/src/adctoolbox/examples/`.
   `06_use_toolsets/exp_t01_aout_dashboard_single.py`
 - DOUT dashboard:
   `06_use_toolsets/exp_t03_dout_dashboard_single.py`
+- In-band extraction with MATLAB-compatible `ifilter`:
+  `10_oversampling/exp_o02_ifilter_band_analysis.py`
+- NTF theory and performance-vs-OSR sweep:
+  `10_oversampling/exp_o03_ntfperf_perfosr.py`
 
 ## Practical Notes
 

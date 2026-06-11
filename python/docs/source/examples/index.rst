@@ -1,7 +1,7 @@
 Examples
 ================
 
-ADCToolbox includes 59 ready-to-run examples organized into 9 categories. This
+ADCToolbox includes 63 ready-to-run examples organized into 10 categories. This
 page demonstrates common use cases and analysis workflows.
 
 Getting the Examples
@@ -40,6 +40,7 @@ within each category folder.
 * ``07_conversions/`` - Conversion and metric calculation examples
 * ``08_time_interleave/`` - Time-interleaved ADC analysis examples
 * ``09_downsample/`` - Subsample and aliasing examples
+* ``10_oversampling/`` - Oversampling and noise-shaping examples
 
 Expected Outputs
 ----------------
