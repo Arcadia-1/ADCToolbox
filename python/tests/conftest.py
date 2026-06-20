@@ -1,5 +1,8 @@
 from pathlib import Path
+import matplotlib
 import pytest
+
+matplotlib.use("Agg")
 
 @pytest.fixture
 def project_root():

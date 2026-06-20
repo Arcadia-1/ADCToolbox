@@ -43,8 +43,9 @@ def test_plot_error_autocorr(project_root):
     """
     Batch runner for error autocorrelation analysis.
     """
-    run_unit_test_batch(
+    result = run_unit_test_batch(
         project_root=project_root,
         input_subpath=config.AOUT['input_path'], test_module_name="test_plot_error_autocorr", file_pattern=config.AOUT['file_pattern'],
         process_callback=_process_plot_error_autocorr
     )
+    assert result.success_count == len(result.files) > 0

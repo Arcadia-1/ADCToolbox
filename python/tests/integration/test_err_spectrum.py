@@ -38,7 +38,8 @@ def test_err_spectrum(project_root):
     """
     Batch runner for error spectrum analysis.
     """
-    run_unit_test_batch(
+    result = run_unit_test_batch(
         project_root=project_root,
         input_subpath=config.AOUT['input_path'], test_module_name="test_err_spectrum", file_pattern=config.AOUT['file_pattern'],        process_callback=_process_err_spectrum
     )
+    assert result.success_count == len(result.files) > 0

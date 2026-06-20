@@ -24,6 +24,15 @@ def _process_fit_sine(raw_data, sub_folder, dataset_name, figures_folder, test_n
     dc_offset = fit_result['dc_offset']
     phase = fit_result['phase']
 
+    assert fitted_signal.shape == raw_data.shape
+    assert np.all(np.isfinite(fitted_signal))
+    assert np.isfinite(frequency)
+    assert 0 < frequency <= 0.5
+    assert np.isfinite(amplitude)
+    assert amplitude > 0
+    assert np.isfinite(dc_offset)
+    assert np.isfinite(phase)
+
     # 2. Save Variables - Pythonic names auto-mapped to MATLAB names
     save_variable(sub_folder, frequency, 'frequency')        # → freq_python.csv
     save_variable(sub_folder, amplitude, 'amplitude')        # → mag_python.csv
@@ -59,7 +68,8 @@ def test_fit_sine(project_root):
     """
     Batch runner for fit_sine (Single Channel Version).
     """
-    run_unit_test_batch(
+    result = run_unit_test_batch(
         project_root=project_root,
         input_subpath=config.AOUT['input_path'], test_module_name="test_fit_sine", file_pattern=config.AOUT['file_pattern'],        process_callback=_process_fit_sine
     )
+    assert result.success_count == len(result.files) > 0

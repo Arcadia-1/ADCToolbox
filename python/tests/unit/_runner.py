@@ -1,6 +1,19 @@
 import numpy as np
+from dataclasses import dataclass
 from pathlib import Path
 from tests._utils import auto_search_files
+
+
+@dataclass(frozen=True)
+class BatchTestResult:
+    """Summary returned by run_unit_test_batch for integration assertions."""
+
+    files: list[str]
+    success_count: int
+    output_dir: Path
+    figures_dir: Path
+    output_folders: list[Path]
+
 
 def run_unit_test_batch(project_root, input_subpath, test_module_name, file_pattern, process_callback, output_subpath="test_output", flatten=True):
     """
@@ -24,6 +37,7 @@ def run_unit_test_batch(project_root, input_subpath, test_module_name, file_patt
 
     success_count = 0
     failures = []
+    output_folders = []
 
     for k, current_filename in enumerate(files_list, 1):
         try:
@@ -39,8 +53,11 @@ def run_unit_test_batch(project_root, input_subpath, test_module_name, file_patt
             sub_folder.mkdir(parents=True, exist_ok=True)
 
             process_callback(raw_data, sub_folder, dataset_name, figures_dir, test_module_name)
+            if not any(sub_folder.glob("*_python.csv")):
+                raise AssertionError(f"No Python CSV outputs were generated in {sub_folder}.")
 
             success_count += 1
+            output_folders.append(sub_folder)
 
         except Exception as e:
             error_msg = f"{current_filename}: {str(e)}"
@@ -55,3 +72,19 @@ def run_unit_test_batch(project_root, input_subpath, test_module_name, file_patt
         raise AssertionError(
             f"Test failed for {len(failures)} file(s):\n" + "\n".join(f"  - {f}" for f in failures)
         )
+
+    if success_count == 0:
+        raise AssertionError(f"No files were successfully processed for {test_module_name}.")
+
+    if success_count != len(files_list):
+        raise AssertionError(
+            f"Processed {success_count}/{len(files_list)} file(s) for {test_module_name}."
+        )
+
+    return BatchTestResult(
+        files=files_list,
+        success_count=success_count,
+        output_dir=output_dir,
+        figures_dir=figures_dir,
+        output_folders=output_folders,
+    )

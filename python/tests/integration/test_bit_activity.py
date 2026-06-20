@@ -1,3 +1,4 @@
+import numpy as np
 import matplotlib.pyplot as plt
 
 from adctoolbox.dout import check_bit_activity
@@ -21,6 +22,10 @@ def _process_check_bit_activity(raw_data, sub_folder, dataset_name, figures_fold
     plt.gca().tick_params(labelsize=16)
     plt.title(f'Bit activity: {dataset_name}')
 
+    assert bit_usage.shape == (raw_data.shape[1],)
+    assert np.all(np.isfinite(bit_usage))
+    assert np.all((0 <= bit_usage) & (bit_usage <= 100))
+
     figure_name = f"{test_name}_{dataset_name}_python.png"
     save_fig(figures_folder, figure_name, dpi=150)
 
@@ -31,8 +36,9 @@ def test_check_bit_activity(project_root):
     """
     Batch runner for bit activity analysis.
     """
-    run_unit_test_batch(
+    result = run_unit_test_batch(
         project_root=project_root,
         input_subpath=config.DOUT['input_path'], test_module_name="test_check_bit_activity", file_pattern=config.DOUT['file_pattern'],        process_callback=_process_check_bit_activity,
         flatten=False  # Digital output data is 2D (N samples x M bits)
     )
+    assert result.success_count == len(result.files) > 0

@@ -68,10 +68,20 @@ def test_basic(project_root):
     dataset_name = "test_basic"
     test_name = "test_basic"
     figure_name = f"{test_name}_{dataset_name}_python.png"
-    save_fig(test_output_dir, figure_name)
-    save_variable(test_output_dir, sinewave, 'sinewave')
+    figure_path = save_fig(test_output_dir, figure_name)
+    sinewave_path = save_variable(test_output_dir, sinewave, 'sinewave')
     
     test_matrix = sinewave.reshape((4, int(N/4)), order='F')
     test_scalar = np.mean(sinewave)
-    save_variable(test_output_dir, test_matrix, 'test_matrix')
-    save_variable(test_output_dir, test_scalar, 'test_scalar')
+    matrix_path = save_variable(test_output_dir, test_matrix, 'test_matrix')
+    scalar_path = save_variable(test_output_dir, test_scalar, 'test_scalar')
+
+    assert sinewave.shape == (N,)
+    assert np.all(np.isfinite(sinewave))
+    assert np.min(sinewave) >= DC - A - 1e-12
+    assert np.max(sinewave) <= DC + A + 1e-12
+    assert abs(test_scalar - DC) < 0.02
+    assert test_matrix.shape == (4, N // 4)
+    for output_path in [figure_path, sinewave_path, matrix_path, scalar_path]:
+        assert output_path.exists()
+        assert output_path.stat().st_size > 0

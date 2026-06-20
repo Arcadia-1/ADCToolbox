@@ -37,8 +37,9 @@ def test_plot_weight_radix(project_root):
     """
     Batch runner for weight scaling analysis.
     """
-    run_unit_test_batch(
+    result = run_unit_test_batch(
         project_root=project_root,
         input_subpath=config.DOUT['input_path'], test_module_name="test_plot_weight_radix", file_pattern=config.DOUT['file_pattern'],        process_callback=_process_plot_weight_radix,
         flatten=False  # Digital output data is 2D (N samples x M bits)
     )
+    assert result.success_count == len(result.files) > 0

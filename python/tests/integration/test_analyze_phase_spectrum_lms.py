@@ -1,5 +1,4 @@
 import numpy as np
-from pathlib import Path
 import matplotlib.pyplot as plt
 
 from adctoolbox.aout import analyze_decomposition_polar
@@ -23,6 +22,7 @@ def test_analyze_phase_spectrum_lms(project_root):
     output_dir.mkdir(parents=True, exist_ok=True)
     figures_dir.mkdir(parents=True, exist_ok=True)
     success_count = 0
+    failures = []
 
     for k, current_filename in enumerate(files_list, 1):
         try:
@@ -37,13 +37,26 @@ def test_analyze_phase_spectrum_lms(project_root):
 
             figure_name = f"test_plotphase_lms_{dataset_name}_python.png"
             phase_plot_path = figures_dir / figure_name
-            decomp_result, plot_data = analyze_decomposition_polar(raw_data, harmonic=10, save_path=str(phase_plot_path))
+            fig = plt.figure(figsize=(8, 6))
+            decomp_result = analyze_decomposition_polar(raw_data, harmonic=10)
+            plt.savefig(phase_plot_path, dpi=150, bbox_inches='tight')
+            plt.close(fig)
 
             # Extract LMS mode outputs
-            harm_phase = decomp_result['harm_phase']
-            harm_mag = decomp_result['harm_mag']
+            harm_phase = decomp_result['phases']
+            harm_mag = decomp_result['magnitudes_db']
             freq = decomp_result['fundamental_freq']
-            noise_dB = decomp_result['noise_dB']
+            noise_dB = decomp_result['noise_db']
+
+            assert harm_phase.shape == (10,)
+            assert harm_mag.shape == (10,)
+            assert np.all(np.isfinite(harm_phase))
+            assert np.all(np.isfinite(harm_mag))
+            assert np.isfinite(freq)
+            assert 0 <= freq <= 0.5
+            assert np.isfinite(noise_dB)
+            assert phase_plot_path.exists()
+            assert phase_plot_path.stat().st_size > 0
 
             save_variable(sub_folder, harm_phase, 'harm_phase')
             save_variable(sub_folder, harm_mag, 'harm_mag')
@@ -55,7 +68,15 @@ def test_analyze_phase_spectrum_lms(project_root):
         except Exception as e:
             print(f"      -> [ERROR] Failed in processing [{current_filename}]")
             print(f"      -> {str(e)}\n")
+            failures.append(f"{current_filename}: {e}")
 
     print("-" * 60)
     print(f"[DONE] LMS mode complete. Success: {success_count}/{len(files_list)}")
     plt.close('all')
+
+    if failures:
+        raise AssertionError(
+            f"LMS phase spectrum failed for {len(failures)} file(s):\n"
+            + "\n".join(f"  - {failure}" for failure in failures)
+        )
+    assert success_count == len(files_list) > 0

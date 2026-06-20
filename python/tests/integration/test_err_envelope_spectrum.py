@@ -52,7 +52,8 @@ def test_plot_envelope_spectrum(project_root):
     """
     Batch runner for error envelope spectrum analysis.
     """
-    run_unit_test_batch(
+    result = run_unit_test_batch(
         project_root=project_root,
         input_subpath=config.AOUT['input_path'], test_module_name="test_plot_envelope_spectrum", file_pattern=config.AOUT['file_pattern'],        process_callback=_process_plot_envelope_spectrum
     )
+    assert result.success_count == len(result.files) > 0

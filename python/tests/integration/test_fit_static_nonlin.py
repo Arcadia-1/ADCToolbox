@@ -66,10 +66,11 @@ def test_fit_static_nonlin(project_root):
     Batch runner for fit_static_nonlin function.
     Tests static nonlinearity extraction from ADC transfer function.
     """
-    run_unit_test_batch(
+    result = run_unit_test_batch(
         project_root=project_root,
         input_subpath=config.AOUT['input_path'],
         test_module_name="test_fit_static_nonlin",
         file_pattern=config.AOUT['file_pattern'],
         process_callback=_process_fit_static_nonlin
     )
+    assert result.success_count == len(result.files) > 0

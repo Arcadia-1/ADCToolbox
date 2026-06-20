@@ -1,3 +1,4 @@
+import numpy as np
 import matplotlib.pyplot as plt
 
 from adctoolbox.aout import analyze_spectrum
@@ -28,6 +29,21 @@ def _process_analyze_spectrum(raw_data, sub_folder, dataset_name, figures_folder
     noise_spectral_density = result['nsd_dbfs_hz']
     plt.title("Spectrum")
 
+    metrics = np.array([
+        enob,
+        sndr,
+        sfdr,
+        snr,
+        thd,
+        signal_power,
+        noise_floor,
+        noise_spectral_density,
+    ], dtype=float)
+    assert np.all(np.isfinite(metrics))
+    assert enob > 0
+    assert sndr > 0
+    assert sfdr > 0
+
     # 2. Save Variables - auto-mapped to MATLAB names
     save_variable(sub_folder, enob, 'enob')                                        # → enob_python.csv
     save_variable(sub_folder, sndr, 'sndr')                                        # → sndr_python.csv
@@ -47,7 +63,8 @@ def test_analyze_spectrum(project_root):
     """
     Batch runner for analyze_spectrum (Single Channel Version).
     """
-    run_unit_test_batch(
+    result = run_unit_test_batch(
         project_root=project_root,
         input_subpath=config.AOUT['input_path'], test_module_name="test_analyze_spectrum", file_pattern=config.AOUT['file_pattern'],        process_callback=_process_analyze_spectrum
     )
+    assert result.success_count == len(result.files) > 0

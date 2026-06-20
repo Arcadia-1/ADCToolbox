@@ -50,7 +50,7 @@ def test_check_overflow(project_root):
     Batch runner for check_overflow function.
     Tests overflow detection by analyzing bit segment residue distributions.
     """
-    run_unit_test_batch(
+    result = run_unit_test_batch(
         project_root=project_root,
         input_subpath=config.DOUT['input_path'],
         test_module_name="test_check_overflow",
@@ -58,3 +58,4 @@ def test_check_overflow(project_root):
         process_callback=_process_check_overflow,
         flatten=False  # Digital output data is 2D (N samples x M bits)
     )
+    assert result.success_count == len(result.files) > 0

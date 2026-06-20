@@ -1,148 +1,125 @@
-"""
-Unit Test: Verify frequency estimation helper functions
-
-Purpose: Self-verify that frequency estimation works correctly for:
-- User-provided scalar frequencies (broadcast to all datasets)
-- User-provided array frequencies (validated against dataset count)
-- Automatic FFT-based frequency estimation (variance-weighted bit selection)
-"""
+"""Regression tests for calibration frequency initialization."""
 
 import numpy as np
-import time
+import pytest
+
 from adctoolbox.calibration._estimate_frequencies import _estimate_frequencies
 
-def test_freq_estimation_shuffled():
 
-    n_samples_list = [16, 128, 1024, 16384]  # Different lengths to sweep
+def _quantized_sine_bits(freqs, n_samples, bit_width=12, shuffled_indices=None, rng=None, noise=0.0):
+    """Build stacked bit segments that mimic ADC output records."""
+    if shuffled_indices is None:
+        shuffled_indices = np.arange(bit_width)
+
+    t = np.arange(n_samples)
+    bits_by_frequency = []
+
+    for freq in freqs:
+        signal = 0.5 * np.sin(2 * np.pi * freq * t) + 0.5
+        if noise:
+            signal = signal + noise * rng.standard_normal(n_samples)
+
+        quantized = np.floor(signal * (2**bit_width)).astype(int)
+        quantized = np.clip(quantized, 0, 2**bit_width - 1)
+        bits = (quantized[:, None] >> np.arange(bit_width)) & 1
+        bits_by_frequency.append(bits[:, shuffled_indices])
+
+    return np.vstack(bits_by_frequency)
+
+
+def test_scalar_frequency_init_is_broadcast_to_each_segment():
+    bits = np.zeros((12, 3), dtype=int)
+    segment_lengths = np.array([4, 4, 4])
+
+    freq_array = _estimate_frequencies(bits, segment_lengths, freq_init=0.125)
+
+    np.testing.assert_allclose(freq_array, np.array([0.125, 0.125, 0.125]))
+
+
+def test_array_frequency_init_is_validated_and_returned():
+    bits = np.zeros((12, 3), dtype=int)
+    segment_lengths = np.array([4, 4, 4])
+    freq_init = np.array([0.125, 0.25, 0.375])
+
+    freq_array = _estimate_frequencies(bits, segment_lengths, freq_init=freq_init)
+
+    np.testing.assert_allclose(freq_array, freq_init)
+
+
+def test_frequency_init_array_must_match_segment_count():
+    bits = np.zeros((12, 3), dtype=int)
+    segment_lengths = np.array([4, 4, 4])
+
+    with pytest.raises(ValueError, match="must match number of datasets"):
+        _estimate_frequencies(bits, segment_lengths, freq_init=np.array([0.125, 0.25]))
+
+
+@pytest.mark.parametrize("n_samples", [128, 1024, 4096])
+def test_automatic_frequency_estimation_with_shuffled_bits(n_samples):
+    rng = np.random.default_rng(12345)
     bit_width = 12
-    shuffled_indices = np.random.permutation(bit_width)
-    # shuffled_indices = np.arange(bit_width)
+    shuffled_indices = rng.permutation(bit_width)
+    freqs = np.array([
+        1 / n_samples,
+        2 / n_samples,
+        0.15,
+        0.21,
+        0.25,
+        0.29,
+        0.30,
+        0.40,
+        (0.5 * n_samples - 2) / n_samples,
+        (0.5 * n_samples - 1) / n_samples,
+    ])
+    bits = _quantized_sine_bits(freqs, n_samples, bit_width, shuffled_indices)
 
-    print(f"\n[n_samples_list to sweep]: {n_samples_list}")
-    print(f"[Shuffled bit indices]: {shuffled_indices}")
+    freq_array = _estimate_frequencies(bits, np.full(len(freqs), n_samples), verbose=0)
 
-    for n_samp in n_samples_list:
-        freq_true = np.array([0, 1/n_samp, 2/n_samp, 0.1, 0.15, 0.2, 0.21, 0.25, 0.29, 0.3, 0.35, 0.4, (0.5*n_samp - 2)/n_samp, (0.5*n_samp - 1)/n_samp, 0.5])
-        # freq_true = np.array([0.2,0.5])
-
-        # Generate bits_ideal for all frequencies at this n_samp
-        bits_ideal = []
-        for freq in freq_true:
-            t = np.arange(n_samp)
-            signal = 0.5 * np.sin(2 * np.pi * freq * t) + 0.5
-            quantized_signal = np.floor(signal * (2**bit_width)).astype(int)
-            quantized_signal = np.clip(quantized_signal, 0, 2**bit_width - 1)
-            bits = (quantized_signal[:, None] >> np.arange(bit_width)) & 1
-            bits_ideal.append(bits)
-
-        # Shuffle each bit array and concatenate them
-        bits_mangled_list = [bits[:, shuffled_indices] for bits in bits_ideal]
-        bits_mangled = np.vstack(bits_mangled_list)
-
-        segment_lengths = np.array([n_samp] * len(freq_true))
-
-        print(f"\n{'='*80}")
-        print(f"[N_samples = {n_samp}]")
-        print(f"[Bits_mangled shape]: {bits_mangled.shape}")
-        print(f"[Number of frequencies]: {len(freq_true)}")
-        print(f"[One bin threshold]: {1/n_samp:.8f}")
-
-        # Estimate without freq_init
-        start_time = time.time()
-        freq_array = _estimate_frequencies(bits_mangled, segment_lengths, verbose=2)
-        elapsed_time = time.time() - start_time
-        print(f"\n[Without freq_init] Runtime: {elapsed_time*1e6:.6f} us")
-
-        # Print results with one-bin threshold
-        threshold = 1 / n_samp
-        print(f"\nResults (threshold = 1/N = {threshold:.8f}):")
-        for i, (freq_t, freq_e) in enumerate(zip(freq_true, freq_array)):
-            abs_error = abs(float(freq_e) - float(freq_t))
-            if abs_error <= threshold:
-                print(f"  [{i:<3}], N=[{n_samp:<7}], True Freq=[{float(freq_t):<8.6f}], Est Freq=[{float(freq_e):<8.6f}], Abs Error=[{abs_error:<9.2e}]")
-            else:
-                print(f"  [{i:<3}], N=[{n_samp:<7}], True Freq=[{float(freq_t):<8.6f}], Est Freq=[{float(freq_e):<8.6f}], Abs Error=[{abs_error:<9.2e}] <-- Bad")
+    assert freq_array.shape == freqs.shape
+    assert np.all(np.isfinite(freq_array))
+    np.testing.assert_allclose(freq_array, freqs, atol=1 / n_samples, rtol=0)
 
 
-    # 5. Assertions
-    # The frequency bin resolution is 1/N. 
-    # The coarse estimate should be within 1 bin of the truth.
-    # freq_est = freq_array[0]
-    # error = abs(freq_est - freq_true)
-    # max_allowed_error = 1.0 / n_samples
-    
-    # print(f"\n[STRESS TEST RESULT]")
-    # print(f"True Freq: {freq_true:.6f}")
-    # print(f"Est  Freq: {freq_est:.6f}")
-    # print(f"Error:     {error:.2e} (Limit: {max_allowed_error:.2e})")
-    
-    # assert error <= max_allowed_error, f"Frequency estimation failed! Error {error} too large."
-
-
-def test_freq_estimation_shuffled_with_noise():
-
-    n_samples_list = [16, 128, 1024, 16384]  # Different lengths to sweep
+@pytest.mark.parametrize("n_samples", [128, 1024, 4096])
+def test_automatic_frequency_estimation_with_noisy_shuffled_bits(n_samples):
+    rng = np.random.default_rng(67890)
     bit_width = 12
-    shuffled_indices = np.random.permutation(bit_width)
-    # shuffled_indices = np.arange(bit_width)
+    shuffled_indices = rng.permutation(bit_width)
+    freqs = np.array([
+        1 / n_samples,
+        2 / n_samples,
+        0.15,
+        0.21,
+        0.25,
+        0.29,
+        0.30,
+        0.35,
+        0.40,
+        (0.5 * n_samples - 2) / n_samples,
+        (0.5 * n_samples - 1) / n_samples,
+    ])
+    bits = _quantized_sine_bits(
+        freqs,
+        n_samples,
+        bit_width,
+        shuffled_indices,
+        rng=rng,
+        noise=0.0005,
+    )
 
-    print(f"\n[n_samples_list to sweep]: {n_samples_list}")
-    print(f"[Shuffled bit indices]: {shuffled_indices}")
+    freq_array = _estimate_frequencies(bits, np.full(len(freqs), n_samples), verbose=0)
 
-    for n_samp in n_samples_list:
-        freq_true = np.array([1/n_samp, 2/n_samp, 0.1, 0.15, 0.2, 0.21, 0.25, 0.29, 0.3, 0.35, 0.4, (0.5*n_samp - 2)/n_samp, (0.5*n_samp - 1)/n_samp, 0.5])
-        # freq_true = np.array([0.2,0.5])
-
-        # Generate bits_ideal for all frequencies at this n_samp
-        bits_ideal = []
-        for freq in freq_true:
-            t = np.arange(n_samp)
-            signal = 0.5 * np.sin(2 * np.pi * freq * t) + 0.5 + 0.0005 * np.random.randn(n_samp)  # Add noise
-            quantized_signal = np.floor(signal * (2**bit_width)).astype(int)
-            quantized_signal = np.clip(quantized_signal, 0, 2**bit_width - 1)
-            bits = (quantized_signal[:, None] >> np.arange(bit_width)) & 1
-            bits_ideal.append(bits)
-
-        # Shuffle each bit array and concatenate them
-        bits_mangled_list = [bits[:, shuffled_indices] for bits in bits_ideal]
-        bits_mangled = np.vstack(bits_mangled_list)
-
-        segment_lengths = np.array([n_samp] * len(freq_true))
-
-        print(f"\n{'='*80}")
-        print(f"[N_samples = {n_samp}]")
-        print(f"[Bits_mangled shape]: {bits_mangled.shape}")
-        print(f"[Number of frequencies]: {len(freq_true)}")
-        print(f"[One bin threshold]: {1/n_samp:.8f}")
-
-        # Estimate without freq_init
-        start_time = time.time()
-        freq_array = _estimate_frequencies(bits_mangled, segment_lengths, verbose=2)
-        elapsed_time = time.time() - start_time
-        print(f"\n[Without freq_init] Runtime: {elapsed_time*1e6:.6f} us")
-
-        # Print results with one-bin threshold
-        threshold = 1 / n_samp
-        print(f"\nResults (threshold = 1/N = {threshold:.8f}):")
-        for i, (freq_t, freq_e) in enumerate(zip(freq_true, freq_array)):
-            abs_error = abs(float(freq_e) - float(freq_t))
-            if abs_error <= threshold:
-                print(f"  [{i:<3}], N=[{n_samp:<7}], True Freq=[{float(freq_t):<8.6f}], Est Freq=[{float(freq_e):<8.6f}], Abs Error=[{abs_error:<9.2e}]")
-            else:
-                print(f"  [{i:<3}], N=[{n_samp:<7}], True Freq=[{float(freq_t):<8.6f}], Est Freq=[{float(freq_e):<8.6f}], Abs Error=[{abs_error:<9.2e}] <-- Bad")
+    assert freq_array.shape == freqs.shape
+    assert np.all(np.isfinite(freq_array))
+    np.testing.assert_allclose(freq_array, freqs, atol=1 / n_samples, rtol=0)
 
 
-    # 5. Assertions
-    # The frequency bin resolution is 1/N. 
-    # The coarse estimate should be within 1 bin of the truth.
-    # freq_est = freq_array[0]
-    # error = abs(freq_est - freq_true)
-    # max_allowed_error = 1.0 / n_samples
-    
-    # print(f"\n[STRESS TEST RESULT]")
-    # print(f"True Freq: {freq_true:.6f}")
-    # print(f"Est  Freq: {freq_est:.6f}")
-    # print(f"Error:     {error:.2e} (Limit: {max_allowed_error:.2e})")
-    
-    # assert error <= max_allowed_error, f"Frequency estimation failed! Error {error} too large."
+@pytest.mark.xfail(strict=True, reason="Nyquist estimation is a documented limitation.")
+def test_automatic_frequency_estimation_documents_nyquist_limit():
+    n_samples = 1024
+    freqs = np.array([0.5])
+    bits = _quantized_sine_bits(freqs, n_samples)
 
+    freq_array = _estimate_frequencies(bits, np.array([n_samples]), verbose=0)
+
+    np.testing.assert_allclose(freq_array, freqs, atol=1 / n_samples, rtol=0)
