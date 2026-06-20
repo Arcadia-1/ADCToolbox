@@ -39,12 +39,13 @@ def _process_plot_error_autocorr(raw_data, sub_folder, dataset_name, figures_fol
     save_variable(sub_folder, lags, 'lags')
     save_variable(sub_folder, acf, 'acf')
 
-def test_plot_error_autocorr(project_root):
+def test_plot_error_autocorr(project_root, artifact_root):
     """
     Batch runner for error autocorrelation analysis.
     """
     result = run_unit_test_batch(
         project_root=project_root,
+        artifact_root=artifact_root,
         input_subpath=config.AOUT['input_path'], test_module_name="test_plot_error_autocorr", file_pattern=config.AOUT['file_pattern'],
         process_callback=_process_plot_error_autocorr
     )

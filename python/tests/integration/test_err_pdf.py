@@ -50,12 +50,13 @@ def _process_plot_error_pdf(raw_data, sub_folder, dataset_name, figures_folder, 
     save_variable(sub_folder, fx, 'fx')
     save_variable(sub_folder, gauss_pdf, 'gauss_pdf')
 
-def test_plot_error_pdf(project_root):
+def test_plot_error_pdf(project_root, artifact_root):
     """
     Batch runner for error PDF analysis.
     """
     result = run_unit_test_batch(
         project_root=project_root,
+        artifact_root=artifact_root,
         input_subpath=config.AOUT['input_path'],
         test_module_name="test_plot_error_pdf",
         file_pattern=config.AOUT['file_pattern'],

@@ -17,9 +17,9 @@ from tests._utils import save_variable, save_fig
 
 plt.rcParams['font.size'] = 14
 
-def test_basic(project_root):
+def test_basic(project_root, artifact_root):
     """Generate basic sine wave, plot it, and save to CSV."""
-    test_output_dir = project_root / "test_output" / "test_basic"
+    test_output_dir = artifact_root / "test_output" / "test_basic"
     test_output_dir.mkdir(parents=True, exist_ok=True)
     print(f"[INFO] Test output directory: [{test_output_dir}]")
 
@@ -69,7 +69,8 @@ def test_basic(project_root):
     test_name = "test_basic"
     figure_name = f"{test_name}_{dataset_name}_python.png"
     figure_path = save_fig(test_output_dir, figure_name)
-    sinewave_path = save_variable(test_output_dir, sinewave, 'sinewave')
+    sinewave_path = test_output_dir / "sinewave_python.csv"
+    np.savetxt(sinewave_path, sinewave[:1000], delimiter=',', fmt='%.5f')
     
     test_matrix = sinewave.reshape((4, int(N/4)), order='F')
     test_scalar = np.mean(sinewave)

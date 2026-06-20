@@ -48,12 +48,13 @@ def _process_plot_envelope_spectrum(raw_data, sub_folder, dataset_name, figures_
     figure_name = f"{test_name}_{dataset_name}_python.png"
     save_fig(figures_folder, figure_name, dpi=150)
 
-def test_plot_envelope_spectrum(project_root):
+def test_plot_envelope_spectrum(project_root, artifact_root):
     """
     Batch runner for error envelope spectrum analysis.
     """
     result = run_unit_test_batch(
         project_root=project_root,
+        artifact_root=artifact_root,
         input_subpath=config.AOUT['input_path'], test_module_name="test_plot_envelope_spectrum", file_pattern=config.AOUT['file_pattern'],        process_callback=_process_plot_envelope_spectrum
     )
     assert result.success_count == len(result.files) > 0

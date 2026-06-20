@@ -34,11 +34,11 @@ def _process_fit_sine(raw_data, sub_folder, dataset_name, figures_folder, test_n
     assert np.isfinite(phase)
 
     # 2. Save Variables - Pythonic names auto-mapped to MATLAB names
-    save_variable(sub_folder, frequency, 'frequency')        # → freq_python.csv
-    save_variable(sub_folder, amplitude, 'amplitude')        # → mag_python.csv
-    save_variable(sub_folder, dc_offset, 'dc_offset')        # → dc_python.csv
-    save_variable(sub_folder, phase, 'phase')                # → phi_python.csv
-    save_variable(sub_folder, fitted_signal, 'fitted_signal')  # → fitout_python.csv
+    save_variable(sub_folder, frequency, 'frequency')        # -> freq_python.csv
+    save_variable(sub_folder, amplitude, 'amplitude')        # -> mag_python.csv
+    save_variable(sub_folder, dc_offset, 'dc_offset')        # -> dc_python.csv
+    save_variable(sub_folder, phase, 'phase')                # -> phi_python.csv
+    save_variable(sub_folder, fitted_signal, 'fitted_signal')  # -> fitout_python.csv
 
     # 3. Plotting Logic
     period_samples = int(round(1.0 / frequency)) if frequency > 0 else len(raw_data)
@@ -64,12 +64,13 @@ def _process_fit_sine(raw_data, sub_folder, dataset_name, figures_folder, test_n
     save_fig(figures_folder, figure_name)
     plt.close(fig)
 
-def test_fit_sine(project_root):
+def test_fit_sine(project_root, artifact_root):
     """
     Batch runner for fit_sine (Single Channel Version).
     """
     result = run_unit_test_batch(
         project_root=project_root,
+        artifact_root=artifact_root,
         input_subpath=config.AOUT['input_path'], test_module_name="test_fit_sine", file_pattern=config.AOUT['file_pattern'],        process_callback=_process_fit_sine
     )
     assert result.success_count == len(result.files) > 0

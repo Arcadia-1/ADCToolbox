@@ -15,7 +15,17 @@ class BatchTestResult:
     output_folders: list[Path]
 
 
-def run_unit_test_batch(project_root, input_subpath, test_module_name, file_pattern, process_callback, output_subpath="test_output", flatten=True):
+def run_unit_test_batch(
+    project_root,
+    input_subpath,
+    test_module_name,
+    file_pattern,
+    process_callback,
+    output_subpath="test_output",
+    flatten=True,
+    artifact_root=None,
+    figures_subpath="test_plots",
+):
     """
     Generic batch runner for unit tests.
     Executes process_callback(raw_data, output_folder, dataset_name, figures_folder, test_name) for each file.
@@ -23,14 +33,18 @@ def run_unit_test_batch(project_root, input_subpath, test_module_name, file_patt
 
     :param output_subpath: Relative path for CSV output (default: "test_output")
     :param flatten: Whether to flatten data to 1D (default: True for aout, False for dout)
+    :param artifact_root: Root for generated CSV/PNG artifacts. Defaults to project_root
+                          for compatibility with explicit golden workflows.
+    :param figures_subpath: Relative path for generated plots.
 
     Output structure:
     - CSV data: test_output/{dataset_name}/{test_module_name}/
     - Plots: test_plots/
     """
     input_dir = project_root / input_subpath
-    output_dir = project_root / output_subpath  # CSV data output
-    figures_dir = project_root / "test_plots"  # Plots output
+    artifact_base = Path(artifact_root) if artifact_root is not None else project_root
+    output_dir = artifact_base / output_subpath  # CSV data output
+    figures_dir = artifact_base / figures_subpath  # Plots output
 
     files_list = []
     files_list = auto_search_files(files_list, input_dir, file_pattern)

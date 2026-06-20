@@ -61,13 +61,14 @@ def _process_fit_static_nonlin(raw_data, sub_folder, dataset_name, figures_folde
     # Close figure at the end
     plt.close(fig)
 
-def test_fit_static_nonlin(project_root):
+def test_fit_static_nonlin(project_root, artifact_root):
     """
     Batch runner for fit_static_nonlin function.
     Tests static nonlinearity extraction from ADC transfer function.
     """
     result = run_unit_test_batch(
         project_root=project_root,
+        artifact_root=artifact_root,
         input_subpath=config.AOUT['input_path'],
         test_module_name="test_fit_static_nonlin",
         file_pattern=config.AOUT['file_pattern'],

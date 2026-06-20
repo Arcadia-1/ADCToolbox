@@ -31,20 +31,21 @@ def _process_decompose_harmonics(raw_data, sub_folder, dataset_name, figures_fol
     save_fig(figures_folder, figure_name, dpi=150, close_fig=False)
 
     # Save variables - auto-mapped to MATLAB names
-    save_variable(sub_folder, fundamental_signal, 'fundamental_signal')    # → sine_python.csv
-    save_variable(sub_folder, total_error, 'total_error')                  # → error_python.csv
-    save_variable(sub_folder, harmonic_error, 'harmonic_error')            # → harmic_python.csv
-    save_variable(sub_folder, residual_error, 'residual_error')            # → others_python.csv
+    save_variable(sub_folder, fundamental_signal, 'fundamental_signal')    # -> sine_python.csv
+    save_variable(sub_folder, total_error, 'total_error')                  # -> error_python.csv
+    save_variable(sub_folder, harmonic_error, 'harmonic_error')            # -> harmic_python.csv
+    save_variable(sub_folder, residual_error, 'residual_error')            # -> others_python.csv
 
     # Close figure at the end
     plt.close(fig)
 
-def test_decompose_harmonics(project_root):
+def test_decompose_harmonics(project_root, artifact_root):
     """
     Batch runner for Thompson decomposition.
     """
     result = run_unit_test_batch(
         project_root=project_root,
+        artifact_root=artifact_root,
         input_subpath=config.AOUT['input_path'], test_module_name="test_decompose_harmonics", file_pattern=config.AOUT['file_pattern'],        process_callback=_process_decompose_harmonics
     )
     assert result.success_count == len(result.files) > 0

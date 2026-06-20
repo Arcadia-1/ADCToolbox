@@ -45,26 +45,27 @@ def _process_analyze_spectrum(raw_data, sub_folder, dataset_name, figures_folder
     assert sfdr > 0
 
     # 2. Save Variables - auto-mapped to MATLAB names
-    save_variable(sub_folder, enob, 'enob')                                        # → enob_python.csv
-    save_variable(sub_folder, sndr, 'sndr')                                        # → sndr_python.csv
-    save_variable(sub_folder, sfdr, 'sfdr')                                        # → sfdr_python.csv
-    save_variable(sub_folder, snr, 'snr')                                          # → snr_python.csv
-    save_variable(sub_folder, thd, 'thd')                                          # → thd_python.csv
-    save_variable(sub_folder, signal_power, 'signal_power')                        # → sigpwr_python.csv
-    save_variable(sub_folder, noise_floor, 'noise_floor')                          # → noi_python.csv
-    save_variable(sub_folder, noise_spectral_density, 'noise_spectral_density')    # → nsd_python.csv
+    save_variable(sub_folder, enob, 'enob')                                        # -> enob_python.csv
+    save_variable(sub_folder, sndr, 'sndr')                                        # -> sndr_python.csv
+    save_variable(sub_folder, sfdr, 'sfdr')                                        # -> sfdr_python.csv
+    save_variable(sub_folder, snr, 'snr')                                          # -> snr_python.csv
+    save_variable(sub_folder, thd, 'thd')                                          # -> thd_python.csv
+    save_variable(sub_folder, signal_power, 'signal_power')                        # -> sigpwr_python.csv
+    save_variable(sub_folder, noise_floor, 'noise_floor')                          # -> noi_python.csv
+    save_variable(sub_folder, noise_spectral_density, 'noise_spectral_density')    # -> nsd_python.csv
 
     # 3. Save Figure
     figure_name = f"{test_name}_{dataset_name}_python.png"
     save_fig(figures_folder, figure_name, dpi=100)
     plt.close(fig)
 
-def test_analyze_spectrum(project_root):
+def test_analyze_spectrum(project_root, artifact_root):
     """
     Batch runner for analyze_spectrum (Single Channel Version).
     """
     result = run_unit_test_batch(
         project_root=project_root,
+        artifact_root=artifact_root,
         input_subpath=config.AOUT['input_path'], test_module_name="test_analyze_spectrum", file_pattern=config.AOUT['file_pattern'],        process_callback=_process_analyze_spectrum
     )
     assert result.success_count == len(result.files) > 0

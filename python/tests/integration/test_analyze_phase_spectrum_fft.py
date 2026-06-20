@@ -8,12 +8,12 @@ from tests import config
 plt.rcParams['font.size'] = 14
 plt.rcParams['axes.grid'] = True
 
-def test_analyze_phase_spectrum_fft(project_root):
+def test_analyze_phase_spectrum_fft(project_root, artifact_root):
     """
     Batch runner for analyze_phase_spectrum - FFT Mode.
     """
     input_dir = project_root / config.AOUT['input_path']
-    figures_dir = project_root / "test_plots"
+    figures_dir = artifact_root / "test_plots"
 
     files_list = []
     files_list = auto_search_files(files_list, input_dir, config.AOUT['file_pattern'])

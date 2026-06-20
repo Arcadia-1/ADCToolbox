@@ -32,12 +32,13 @@ def _process_check_bit_activity(raw_data, sub_folder, dataset_name, figures_fold
     # Save bit_usage data
     save_variable(sub_folder, bit_usage, 'bit_usage')
 
-def test_check_bit_activity(project_root):
+def test_check_bit_activity(project_root, artifact_root):
     """
     Batch runner for bit activity analysis.
     """
     result = run_unit_test_batch(
         project_root=project_root,
+        artifact_root=artifact_root,
         input_subpath=config.DOUT['input_path'], test_module_name="test_check_bit_activity", file_pattern=config.DOUT['file_pattern'],        process_callback=_process_check_bit_activity,
         flatten=False  # Digital output data is 2D (N samples x M bits)
     )

@@ -8,13 +8,13 @@ from tests import config
 plt.rcParams['font.size'] = 14
 plt.rcParams['axes.grid'] = True
 
-def test_analyze_phase_spectrum_lms(project_root):
+def test_analyze_phase_spectrum_lms(project_root, artifact_root):
     """
     Batch runner for analyze_phase_spectrum - LMS Mode (extracting harmonic info).
     """
     input_dir = project_root / config.AOUT['input_path']
-    output_dir = project_root / "test_output"
-    figures_dir = project_root / "test_plots"
+    output_dir = artifact_root / "test_output"
+    figures_dir = artifact_root / "test_plots"
 
     files_list = []
     files_list = auto_search_files(files_list, input_dir, config.AOUT['file_pattern'])
