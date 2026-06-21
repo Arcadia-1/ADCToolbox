@@ -46,3 +46,9 @@ where = ["src"]
 
 [tool.setuptools.dynamic]
 version = {attr = "adctoolbox.__version__"}
+
+[tool.pytest.ini_options]
+addopts = "-m 'not slow'"
+markers = [
+    "slow: broad exploratory sweeps for diagnostics; excluded from the default regression run",
+]

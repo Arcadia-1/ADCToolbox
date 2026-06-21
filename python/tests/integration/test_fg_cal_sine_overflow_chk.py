@@ -32,12 +32,14 @@ def _process_check_overflow(raw_data, sub_folder, dataset_name, figures_folder, 
     # Save data_decom variable
     save_variable(sub_folder, data_decom, 'data_decom')
 
-def test_calibrate_weight_sine_check_overflow(project_root):
+def test_calibrate_weight_sine_check_overflow(project_root, artifact_root):
     """
     Batch runner for overflow check analysis.
     """
-    run_unit_test_batch(
+    result = run_unit_test_batch(
         project_root=project_root,
+        artifact_root=artifact_root,
         input_subpath=config.DOUT['input_path'], test_module_name="test_calibrate_weight_sine_check_overflow", file_pattern=config.DOUT['file_pattern'],        process_callback=_process_check_overflow,
         flatten=False  # Digital output data is 2D (N samples x M bits)
     )
+    assert result.success_count == len(result.files) > 0

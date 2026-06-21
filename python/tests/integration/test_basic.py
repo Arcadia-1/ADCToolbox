@@ -17,9 +17,9 @@ from tests._utils import save_variable, save_fig
 
 plt.rcParams['font.size'] = 14
 
-def test_basic(project_root):
+def test_basic(project_root, artifact_root):
     """Generate basic sine wave, plot it, and save to CSV."""
-    test_output_dir = project_root / "test_output" / "test_basic"
+    test_output_dir = artifact_root / "test_output" / "test_basic"
     test_output_dir.mkdir(parents=True, exist_ok=True)
     print(f"[INFO] Test output directory: [{test_output_dir}]")
 
@@ -68,10 +68,21 @@ def test_basic(project_root):
     dataset_name = "test_basic"
     test_name = "test_basic"
     figure_name = f"{test_name}_{dataset_name}_python.png"
-    save_fig(test_output_dir, figure_name)
-    save_variable(test_output_dir, sinewave, 'sinewave')
+    figure_path = save_fig(test_output_dir, figure_name)
+    sinewave_path = test_output_dir / "sinewave_python.csv"
+    np.savetxt(sinewave_path, sinewave[:1000], delimiter=',', fmt='%.5f')
     
     test_matrix = sinewave.reshape((4, int(N/4)), order='F')
     test_scalar = np.mean(sinewave)
-    save_variable(test_output_dir, test_matrix, 'test_matrix')
-    save_variable(test_output_dir, test_scalar, 'test_scalar')
+    matrix_path = save_variable(test_output_dir, test_matrix, 'test_matrix')
+    scalar_path = save_variable(test_output_dir, test_scalar, 'test_scalar')
+
+    assert sinewave.shape == (N,)
+    assert np.all(np.isfinite(sinewave))
+    assert np.min(sinewave) >= DC - A - 1e-12
+    assert np.max(sinewave) <= DC + A + 1e-12
+    assert abs(test_scalar - DC) < 0.02
+    assert test_matrix.shape == (4, N // 4)
+    for output_path in [figure_path, sinewave_path, matrix_path, scalar_path]:
+        assert output_path.exists()
+        assert output_path.stat().st_size > 0

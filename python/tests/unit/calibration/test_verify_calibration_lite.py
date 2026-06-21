@@ -1,440 +1,355 @@
-"""Test calibrate_weight_sine_lite function."""
+"""Tests for calibrate_weight_sine_lite.
+
+The fast tests below are deterministic regression checks.  The broad sweeps
+are still useful for algorithm exploration, but are marked slow so they do not
+blur the default pytest signal.
+"""
+
+from dataclasses import dataclass
+import time
 
 import numpy as np
-import time
-from adctoolbox.calibration import calibrate_weight_sine_lite
+import pytest
+
 from adctoolbox import analyze_spectrum
+from adctoolbox.calibration import calibrate_weight_sine_lite
+
+
+BIT_WIDTH = 12
+DEFAULT_PHASE = np.pi / 4
+FULL_SCALE_WEIGHT_TOL = 2e-3
+
+
+@dataclass(frozen=True)
+class LiteMetrics:
+    bit_width: int
+    n_samp: int
+    freq: float
+    phase: float
+    recovered_weights: np.ndarray
+    recovered_weights_scaled: np.ndarray
+    true_weights: np.ndarray
+    max_weight_error: float
+    sndr_before: float
+    sndr_calc: float
+    sndr_after: float
+    enob_before: float
+    enob_calc: float
+    enob_after: float
+    elapsed_ms: float
+    signal_range_codes: int
+
+
+def _binary_weights(bit_width=BIT_WIDTH):
+    return 2.0 ** np.arange(bit_width - 1, -1, -1)
+
+
+def _quantized_sine(
+    n_samp,
+    fin_bin,
+    phase=DEFAULT_PHASE,
+    amplitude=0.5,
+    bit_width=BIT_WIDTH,
+    noise_rms=0.0,
+    rng=None,
+):
+    freq = fin_bin / n_samp
+    t = np.arange(n_samp)
+    signal = amplitude * np.sin(2 * np.pi * freq * t + phase) + 0.5
+    if noise_rms:
+        signal = signal + rng.normal(0.0, noise_rms, n_samp)
+
+    max_code = 2**bit_width - 1
+    codes = np.clip(np.floor(signal * (2**bit_width)), 0, max_code).astype(int)
+    return t, freq, codes
+
+
+def _bits_from_codes(codes, bit_width=BIT_WIDTH):
+    return (codes[:, None] >> np.arange(bit_width - 1, -1, -1)) & 1
+
+
+def _redundant_bits_from_codes(codes, weights):
+    bits = np.zeros((len(codes), len(weights)), dtype=int)
+
+    for i, code in enumerate(codes):
+        remaining = float(code)
+        for j, weight in enumerate(weights):
+            if remaining >= weight - 0.5:
+                bits[i, j] = 1
+                remaining -= weight
+
+    return bits
+
+
+def _snr_db(reference, error):
+    return 10 * np.log10(np.mean(reference**2) / (np.mean(error**2) + 1e-30))
+
+
+def _metrics_from_signals(
+    *,
+    n_samp,
+    freq,
+    phase,
+    t,
+    codes,
+    bits,
+    true_weights,
+    recovered_weights,
+    recovered_weights_scaled,
+    bit_width=BIT_WIDTH,
+    amplitude=0.5,
+    elapsed_ms=0.0,
+):
+    normalized_weights = true_weights / np.max(true_weights)
+    max_weight_error = float(np.max(np.abs(recovered_weights - normalized_weights)))
+    calibrated_signal = bits @ recovered_weights_scaled
+
+    adc_amplitude = (2**bit_width - 1) / 2.0
+    ideal_signal = (
+        adc_amplitude * (amplitude / 0.5) * np.sin(2 * np.pi * freq * t + phase)
+        + adc_amplitude
+    )
+    error_signal = calibrated_signal - ideal_signal
+
+    sndr_before = float(analyze_spectrum(codes)["sndr_db"])
+    sndr_calc = float(_snr_db(ideal_signal, error_signal))
+    sndr_after = float(analyze_spectrum(calibrated_signal)["sndr_db"])
+
+    return LiteMetrics(
+        bit_width=bit_width,
+        n_samp=n_samp,
+        freq=freq,
+        phase=phase,
+        recovered_weights=recovered_weights,
+        recovered_weights_scaled=recovered_weights_scaled,
+        true_weights=true_weights,
+        max_weight_error=max_weight_error,
+        sndr_before=sndr_before,
+        sndr_calc=sndr_calc,
+        sndr_after=sndr_after,
+        enob_before=(sndr_before - 1.76) / 6.02,
+        enob_calc=(sndr_calc - 1.76) / 6.02,
+        enob_after=(sndr_after - 1.76) / 6.02,
+        elapsed_ms=elapsed_ms,
+        signal_range_codes=int(codes.max() - codes.min()),
+    )
+
+
+def _run_binary_lite_case(
+    n_samp=2**13,
+    fin_bin=13,
+    phase=DEFAULT_PHASE,
+    amplitude=0.5,
+    bit_width=BIT_WIDTH,
+    noise_rms=0.0,
+    rng=None,
+):
+    t, freq, codes = _quantized_sine(
+        n_samp,
+        fin_bin,
+        phase=phase,
+        amplitude=amplitude,
+        bit_width=bit_width,
+        noise_rms=noise_rms,
+        rng=rng,
+    )
+    true_weights = _binary_weights(bit_width)
+    bits = _bits_from_codes(codes, bit_width)
+
+    start = time.perf_counter()
+    recovered_weights = calibrate_weight_sine_lite(bits, freq=freq)
+    elapsed_ms = (time.perf_counter() - start) * 1e3
+
+    recovered_weights_scaled = recovered_weights * np.max(true_weights)
+    return _metrics_from_signals(
+        n_samp=n_samp,
+        freq=freq,
+        phase=phase,
+        t=t,
+        codes=codes,
+        bits=bits,
+        true_weights=true_weights,
+        recovered_weights=recovered_weights,
+        recovered_weights_scaled=recovered_weights_scaled,
+        bit_width=bit_width,
+        amplitude=amplitude,
+        elapsed_ms=elapsed_ms,
+    )
+
+
+def _run_redundant_lite_case(n_samp=2**13, fin_bin=13, phase=DEFAULT_PHASE):
+    true_weights = np.array(
+        [2048.0, 1024.0, 512.0, 256.0, 128.0, 128.0, 64.0, 32.0, 16.0, 8.0, 4.0, 2.0]
+    )
+    t, freq, codes = _quantized_sine(n_samp, fin_bin, phase=phase, bit_width=BIT_WIDTH)
+    bits = _redundant_bits_from_codes(codes, true_weights)
+
+    start = time.perf_counter()
+    recovered_weights = calibrate_weight_sine_lite(bits, freq=freq)
+    elapsed_ms = (time.perf_counter() - start) * 1e3
+
+    recovered_weights_scaled = recovered_weights * np.max(true_weights)
+    return _metrics_from_signals(
+        n_samp=n_samp,
+        freq=freq,
+        phase=phase,
+        t=t,
+        codes=codes,
+        bits=bits,
+        true_weights=true_weights,
+        recovered_weights=recovered_weights,
+        recovered_weights_scaled=recovered_weights_scaled,
+        bit_width=BIT_WIDTH,
+        elapsed_ms=elapsed_ms,
+    )
+
+
+def _assert_finite_metrics(metrics):
+    assert metrics.recovered_weights.shape == metrics.true_weights.shape
+    assert metrics.recovered_weights_scaled.shape == metrics.true_weights.shape
+    assert np.all(np.isfinite(metrics.recovered_weights))
+    assert np.all(np.isfinite(metrics.recovered_weights_scaled))
+    for value in [
+        metrics.max_weight_error,
+        metrics.sndr_before,
+        metrics.sndr_calc,
+        metrics.sndr_after,
+        metrics.enob_before,
+        metrics.enob_calc,
+        metrics.enob_after,
+    ]:
+        assert np.isfinite(value)
+
+
+def _assert_full_scale_regression(metrics, max_weight_error=FULL_SCALE_WEIGHT_TOL):
+    _assert_finite_metrics(metrics)
+    assert metrics.signal_range_codes > 0
+    assert metrics.max_weight_error < max_weight_error
+    np.testing.assert_allclose(metrics.sndr_before, metrics.sndr_calc, atol=3.0)
+    assert metrics.sndr_after > metrics.sndr_before - 3.0
+    assert metrics.enob_after > 10.0
+
+
+def _print_summary(label, metrics):
+    print(
+        f"{label}: N={metrics.n_samp}, freq={metrics.freq:.6f}, "
+        f"phase={metrics.phase:.3f}, range={metrics.signal_range_codes}, "
+        f"runtime={metrics.elapsed_ms:6.2f}ms, "
+        f"weight_err={metrics.max_weight_error:.2e}, "
+        f"SNDR={metrics.sndr_before:.1f}/{metrics.sndr_calc:.1f}/{metrics.sndr_after:.1f} dB, "
+        f"ENOB={metrics.enob_before:.2f}/{metrics.enob_calc:.2f}/{metrics.enob_after:.2f}"
+    )
 
 
 def test_calibration_lite():
-    """Validate weight recovery from quantized sinewave using lite calibration."""
+    """Validate weight recovery for a representative full-scale sine input."""
+    metrics = _run_binary_lite_case()
 
-    # Test configuration
-    n_samp = 2**13
-    bit_width = 12
-    freq_true = 13 / n_samp
-
-    # Generate quantized sinewave
-    t = np.arange(n_samp)
-    signal = 0.5 * np.sin(2 * np.pi * freq_true * t + np.pi/4) + 0.5
-    quantized_signal = np.clip(np.floor(signal * (2**bit_width)), 0, 2**bit_width - 1).astype(int)
-
-    # Extract bits and run calibration
-    true_weights = 2.0 ** np.arange(bit_width - 1, -1, -1)
-    bits = (quantized_signal[:, None] >> np.arange(bit_width - 1, -1, -1)) & 1
-    recovered_weights = calibrate_weight_sine_lite(bits, freq=freq_true)
-
-    # Scale recovered weights
-    recovered_weights_scaled = recovered_weights * np.max(true_weights)
-
-    # Print weights with equal width formatting
-    true_weights_str = ', '.join([f'{w:5.1f}' for w in true_weights])
-    recovered_weights_str = ', '.join([f'{w:5.1f}' for w in recovered_weights_scaled])
-    print(f"True weights     : [{true_weights_str}]")
-    print(f"Recovered weights: [{recovered_weights_str}]")
-
-    # Compute calibrated signal and SNDR
-    calibrated_signal = bits @ recovered_weights_scaled
-    adc_amplitude = (2**bit_width - 1) / 2.0
-    ideal_signal = adc_amplitude * np.sin(2 * np.pi * freq_true * t + np.pi/4) + adc_amplitude
-    error_signal = calibrated_signal - ideal_signal
-
-    sndr_before = analyze_spectrum(quantized_signal)['sndr_db']
-    sndr_calc = 10 * np.log10(np.mean(ideal_signal**2) / np.mean(error_signal**2))
-
-    np.testing.assert_allclose(sndr_before, sndr_calc, atol=3.0)
+    _assert_full_scale_regression(metrics)
 
 
+@pytest.mark.parametrize(
+    "n_samp, fin_bin, phase",
+    [
+        (2**10, 3, np.pi / 4),
+        (2**13, 13, np.pi / 4),
+        (2**13, 257, np.pi / 3),
+    ],
+)
+def test_calibration_lite_representative_cases(n_samp, fin_bin, phase):
+    """Small deterministic cases cover the default regression contract."""
+    metrics = _run_binary_lite_case(n_samp=n_samp, fin_bin=fin_bin, phase=phase)
+
+    _assert_full_scale_regression(metrics)
+
+
+@pytest.mark.slow
 def test_calibration_lite_sweep_N():
-    """Sweep N from 2^8 to 2^16 and validate calibration."""
-
-    bit_width = 12
-    print(f"\n[Batch Test] Sweeping N from 2^8 to 2^16")
-
+    """Explore sample-count sensitivity across a broad N range."""
     for n_exp in range(3, 17):
-        n_samp = 2**n_exp
-        freq_true = 3 / n_samp
+        metrics = _run_binary_lite_case(n_samp=2**n_exp, fin_bin=3)
+        _assert_finite_metrics(metrics)
+        if metrics.n_samp >= 2**8:
+            _assert_full_scale_regression(metrics)
+        _print_summary(f"N=2^{n_exp:02d}", metrics)
 
-        # Generate quantized sinewave
-        t = np.arange(n_samp)
-        signal = 0.5 * np.sin(2 * np.pi * freq_true * t + np.pi/4) + 0.5
-        quantized_signal = np.clip(np.floor(signal * (2**bit_width)), 0, 2**bit_width - 1).astype(int)
 
-        # Extract bits and run calibration
-        true_weights = 2.0 ** np.arange(bit_width - 1, -1, -1)
-        bits = (quantized_signal[:, None] >> np.arange(bit_width - 1, -1, -1)) & 1
-
-        start_time = time.time()
-        recovered_weights = calibrate_weight_sine_lite(bits, freq=freq_true)
-        elapsed_time = time.time() - start_time
-
-        # Scale recovered weights
-        recovered_weights_scaled = recovered_weights * np.max(true_weights)
-
-        # Print weights with equal width formatting
-        true_weights_str = ', '.join([f'{w:5.1f}' for w in true_weights])
-        recovered_weights_str = ', '.join([f'{w:5.1f}' for w in recovered_weights_scaled])
-        print(f"True weights     : [{true_weights_str}]")
-        print(f"Recovered weights: [{recovered_weights_str}]")
-
-        # Validate weight recovery
-        normalized_weights = true_weights / np.max(true_weights)
-        max_weight_error = np.max(np.abs(recovered_weights - normalized_weights))
-        lsb_threshold = 1 / (2**bit_width)
-
-        # Compute calibrated signal and SNDR
-        calibrated_signal = bits @ recovered_weights_scaled
-        adc_amplitude = (2**bit_width - 1) / 2.0
-        ideal_signal = adc_amplitude * np.sin(2 * np.pi * freq_true * t + np.pi/4) + adc_amplitude
-        error_signal = calibrated_signal - ideal_signal
-
-        sndr_before = analyze_spectrum(quantized_signal)['sndr_db']
-        sndr_calc = 10 * np.log10(np.mean(ideal_signal**2) / np.mean(error_signal**2))
-        sndr_after = analyze_spectrum(calibrated_signal)['sndr_db']
-
-        enob_before = (sndr_before - 1.76) / 6.02
-        enob_calc = (sndr_calc - 1.76) / 6.02
-        enob_after = (sndr_after - 1.76) / 6.02
-
-        print(f"N=2^{n_exp:2d} ({n_samp:6d}): "
-              f"Runtime={elapsed_time*1e3:6.2f}ms, "
-              f"Weight_err={max_weight_error:.2e}, "
-              f"SNDR: {sndr_before:.1f}/{sndr_calc:.1f}/{sndr_after:.1f} dB, "
-              f"ENOB: {enob_before:.2f}/{enob_calc:.2f}/{enob_after:.2f}")
-
+@pytest.mark.slow
 def test_calibration_lite_sweep_fin():
-    """Sweep frequency bin from 1 to N/2 - 1."""
-
-    bit_width = 12
+    """Explore frequency-bin sensitivity across the available band."""
     n_samp = 2**13
-
-    print(f"\n[Fin Sweep Test] Sweeping frequency bin from 1 to {n_samp//2 - 1}")
-    print(f"N_samples={n_samp}, bit_width={bit_width}")
 
     for fin_bin in range(1, n_samp // 2, 32):
-        freq_true = fin_bin / n_samp
-
-        # Generate quantized sinewave
-        t = np.arange(n_samp)
-        signal = 0.5 * np.sin(2 * np.pi * freq_true * t + np.pi/4) + 0.5
-        quantized_signal = np.clip(np.floor(signal * (2**bit_width)), 0, 2**bit_width - 1).astype(int)
-
-        # Extract bits and run calibration
-        true_weights = 2.0 ** np.arange(bit_width - 1, -1, -1)
-        bits = (quantized_signal[:, None] >> np.arange(bit_width - 1, -1, -1)) & 1
-
-        start_time = time.time()
-        recovered_weights = calibrate_weight_sine_lite(bits, freq=freq_true)
-        elapsed_time = time.time() - start_time
-
-        # Scale recovered weights
-        recovered_weights_scaled = recovered_weights * np.max(true_weights)
-
-        # Print weights with equal width formatting
-        true_weights_str = ', '.join([f'{w:5.1f}' for w in true_weights])
-        recovered_weights_str = ', '.join([f'{w:5.1f}' for w in recovered_weights_scaled])
-        print(f"True weights     : [{true_weights_str}]")
-        print(f"Recovered weights: [{recovered_weights_str}]")
-
-        # Validate weight recovery
-        normalized_weights = true_weights / np.max(true_weights)
-        max_weight_error = np.max(np.abs(recovered_weights - normalized_weights))
-
-        # Compute calibrated signal and SNDR
-        calibrated_signal = bits @ recovered_weights_scaled
-        adc_amplitude = (2**bit_width - 1) / 2.0
-        ideal_signal = adc_amplitude * np.sin(2 * np.pi * freq_true * t + np.pi/4) + adc_amplitude
-        error_signal = calibrated_signal - ideal_signal
-
-        sndr_before = analyze_spectrum(quantized_signal)['sndr_db']
-        sndr_calc = 10 * np.log10(np.mean(ideal_signal**2) / np.mean(error_signal**2))
-        sndr_after = analyze_spectrum(calibrated_signal)['sndr_db']
-
-        enob_before = (sndr_before - 1.76) / 6.02
-        enob_calc = (sndr_calc - 1.76) / 6.02
-        enob_after = (sndr_after - 1.76) / 6.02
-
-        print(f"Bin={fin_bin:4d}, Freq={freq_true:.6f}: "
-              f"Runtime={elapsed_time*1e3:5.2f}ms, "
-              f"Weight_err={max_weight_error:.2e}, "
-              f"SNDR: {sndr_before:.1f}/{sndr_calc:.1f}/{sndr_after:.1f} dB, "
-              f"ENOB: {enob_before:.2f}/{enob_calc:.2f}/{enob_after:.2f}")
+        metrics = _run_binary_lite_case(n_samp=n_samp, fin_bin=fin_bin)
+        _assert_finite_metrics(metrics)
+        if 3 <= fin_bin <= n_samp // 2 - 32:
+            assert metrics.sndr_after > metrics.sndr_before - 3.0
+        _print_summary(f"bin={fin_bin:04d}", metrics)
 
 
-
+@pytest.mark.slow
 def test_calibration_lite_sweep_phase():
-    """Sweep phase from 0 to 2π in 16 runs."""
-
-    # Test configuration
+    """Explore phase sensitivity; exact zero/pi phases are known edge cases."""
     n_samp = 2**13
-    bit_width = 12
-    freq_true = 13 / n_samp
-
-    print(f"\n[Phase Test] Sweeping phase from 0 to 2π (16 runs)")
-    print(f"N_samples={n_samp}, bit_width={bit_width}, freq={freq_true:.6f}")
-
     n_phases = 36
+
     for i in range(n_phases + 1):
         phase = i * 2 * np.pi / n_phases
-
-        # Generate quantized sinewave with varying phase
-        t = np.arange(n_samp)
-        signal = 0.5 * np.sin(2 * np.pi * freq_true * t + phase) + 0.5
-        quantized_signal = np.clip(np.floor(signal * (2**bit_width)), 0, 2**bit_width - 1).astype(int)
-
-        # Extract bits and run calibration
-        true_weights = 2.0 ** np.arange(bit_width - 1, -1, -1)
-        bits = (quantized_signal[:, None] >> np.arange(bit_width - 1, -1, -1)) & 1
-
-        start_time = time.time()
-        recovered_weights = calibrate_weight_sine_lite(bits, freq=freq_true)
-        elapsed_time = time.time() - start_time
-
-        # Scale recovered weights
-        recovered_weights_scaled = recovered_weights * np.max(true_weights)
-
-        # Print weights with equal width formatting
-        true_weights_str = ', '.join([f'{w:5.1f}' for w in true_weights])
-        recovered_weights_str = ', '.join([f'{w:5.1f}' for w in recovered_weights_scaled])
-        print(f"True weights     : [{true_weights_str}]")
-        print(f"Recovered weights: [{recovered_weights_str}]")
-
-        # Validate weight recovery
-        normalized_weights = true_weights / np.max(true_weights)
-        max_weight_error = np.max(np.abs(recovered_weights - normalized_weights))
-
-        # Compute calibrated signal and SNDR
-        calibrated_signal = bits @ recovered_weights_scaled
-        adc_amplitude = (2**bit_width - 1) / 2.0
-        ideal_signal = adc_amplitude * np.sin(2 * np.pi * freq_true * t + phase) + adc_amplitude
-        error_signal = calibrated_signal - ideal_signal
-
-        sndr_before = analyze_spectrum(quantized_signal)['sndr_db']
-        sndr_calc = 10 * np.log10(np.mean(ideal_signal**2) / np.mean(error_signal**2))
-        sndr_after = analyze_spectrum(calibrated_signal)['sndr_db']
-
-        enob_before = (sndr_before - 1.76) / 6.02
-        enob_calc = (sndr_calc - 1.76) / 6.02
-        enob_after = (sndr_after - 1.76) / 6.02
-
-        print(f"Phase={phase:5.3f} rad ({phase*180/np.pi:6.1f}°): "
-              f"Runtime={elapsed_time*1e3:5.2f}ms, "
-              f"Weight_err={max_weight_error:.2e}, "
-              f"SNDR: {sndr_before:.1f}/{sndr_calc:.1f}/{sndr_after:.1f} dB, "
-              f"ENOB: {enob_before:.2f}/{enob_calc:.2f}/{enob_after:.2f}")
+        metrics = _run_binary_lite_case(n_samp=n_samp, fin_bin=13, phase=phase)
+        _assert_finite_metrics(metrics)
+        if abs(np.sin(phase)) > 0.25:
+            _assert_full_scale_regression(metrics)
+        _print_summary(f"phase={i:02d}/{n_phases}", metrics)
 
 
+@pytest.mark.slow
 def test_calibration_lite_sweep_phase_noise():
-    """Sweep phase from 0 to 2π in 16 runs."""
-
-    # Test configuration
+    """Explore noisy phase sensitivity using deterministic noise."""
+    rng = np.random.default_rng(20260620)
     n_samp = 2**13
-    bit_width = 12
-    freq_true = 13 / n_samp
-
-    print(f"\n[Phase Test] Sweeping phase from 0 to 2π (16 runs)")
-    print(f"N_samples={n_samp}, bit_width={bit_width}, freq={freq_true:.6f}, noise=0.0002")
-
     n_phases = 36
+
     for i in range(n_phases + 1):
         phase = i * 2 * np.pi / n_phases
-
-        # Generate quantized sinewave with varying phase
-        t = np.arange(n_samp)
-        signal = 0.5 * np.sin(2 * np.pi * freq_true * t + phase) + 0.5 + 0.0002 * np.random.randn(n_samp)
-        quantized_signal = np.clip(np.floor(signal * (2**bit_width)), 0, 2**bit_width - 1).astype(int)
-
-        # Extract bits and run calibration
-        true_weights = 2.0 ** np.arange(bit_width - 1, -1, -1)
-        bits = (quantized_signal[:, None] >> np.arange(bit_width - 1, -1, -1)) & 1
-
-        start_time = time.time()
-        recovered_weights = calibrate_weight_sine_lite(bits, freq=freq_true)
-        elapsed_time = time.time() - start_time
-
-        # Scale recovered weights
-        recovered_weights_scaled = recovered_weights * np.max(true_weights)
-
-        # Print weights with equal width formatting
-        true_weights_str = ', '.join([f'{w:5.1f}' for w in true_weights])
-        recovered_weights_str = ', '.join([f'{w:5.1f}' for w in recovered_weights_scaled])
-        print(f"True weights     : [{true_weights_str}]")
-        print(f"Recovered weights: [{recovered_weights_str}]")
-
-        # Validate weight recovery
-        normalized_weights = true_weights / np.max(true_weights)
-        max_weight_error = np.max(np.abs(recovered_weights - normalized_weights))
-
-        # Compute calibrated signal and SNDR
-        calibrated_signal = bits @ recovered_weights_scaled
-        adc_amplitude = (2**bit_width - 1) / 2.0
-        ideal_signal = adc_amplitude * np.sin(2 * np.pi * freq_true * t + phase) + adc_amplitude
-        error_signal = calibrated_signal - ideal_signal
-
-        sndr_before = analyze_spectrum(quantized_signal)['sndr_db']
-        sndr_calc = 10 * np.log10(np.mean(ideal_signal**2) / np.mean(error_signal**2))
-        sndr_after = analyze_spectrum(calibrated_signal)['sndr_db']
-
-        enob_before = (sndr_before - 1.76) / 6.02
-        enob_calc = (sndr_calc - 1.76) / 6.02
-        enob_after = (sndr_after - 1.76) / 6.02
-
-        print(f"Phase={phase:5.3f} rad ({phase*180/np.pi:6.1f}°): "
-              f"Runtime={elapsed_time*1e3:5.2f}ms, "
-              f"Weight_err={max_weight_error:.2e}, "
-              f"SNDR: {sndr_before:.1f}/{sndr_calc:.1f}/{sndr_after:.1f} dB, "
-              f"ENOB: {enob_before:.2f}/{enob_calc:.2f}/{enob_after:.2f}")
+        metrics = _run_binary_lite_case(
+            n_samp=n_samp,
+            fin_bin=13,
+            phase=phase,
+            noise_rms=0.0002,
+            rng=rng,
+        )
+        _assert_finite_metrics(metrics)
+        if abs(np.sin(phase)) > 0.25:
+            assert metrics.sndr_calc > 40.0
+            assert metrics.sndr_after > metrics.sndr_before - 10.0
+        _print_summary(f"noisy_phase={i:02d}/{n_phases}", metrics)
 
 
-
+@pytest.mark.slow
 def test_calibration_lite_sweep_amplitude():
-    """Sweep amplitude from -60 dB to 0 dBFS."""
-
-    # Test configuration
+    """Explore amplitude sensitivity from very small signals to full scale."""
     n_samp = 2**13
-    bit_width = 12
-    freq_true = 13 / n_samp
-    phase = np.pi / 4
-
-    print(f"\n[Amplitude Test] Sweeping amplitude from -60 dB to 0 dBFS")
-    print(f"N_samples={n_samp}, bit_width={bit_width}, freq={freq_true:.6f}")
 
     for amplitude_db in range(-60, 1, 1):
-        # Convert dB to linear amplitude (0 dBFS = 0.5 full scale)
-        amplitude = 0.5 * 10**(amplitude_db / 20.0)
-
-        # Generate quantized sinewave with varying amplitude
-        t = np.arange(n_samp)
-        signal = amplitude * np.sin(2 * np.pi * freq_true * t + phase) + 0.5
-        quantized_signal = np.clip(np.floor(signal * (2**bit_width)), 0, 2**bit_width - 1).astype(int)
-
-        # Extract bits and run calibration
-        true_weights = 2.0 ** np.arange(bit_width - 1, -1, -1)
-        bits = (quantized_signal[:, None] >> np.arange(bit_width - 1, -1, -1)) & 1
-        
-
-        start_time = time.time()
-        recovered_weights = calibrate_weight_sine_lite(bits, freq=freq_true)
-        elapsed_time = time.time() - start_time
-
-        # Compute calibrated signal directly
-        calibrated_signal = bits @ recovered_weights
-
-        # Estimate actual amplitude and offset from calibrated signal
-        offset_est = np.mean(calibrated_signal)
-        signal_centered = calibrated_signal - offset_est
-        amplitude_est = np.std(signal_centered) * np.sqrt(2)
-
-        # Scale recovered weights to match true full-scale weights
-        adc_amplitude = 2**bit_width / 2.0
-        expected_amplitude = adc_amplitude * amplitude / 0.5
-        scale_factor = amplitude_est / expected_amplitude if expected_amplitude > 1e-6 else 1.0
-        recovered_weights_scaled = recovered_weights / scale_factor
-
-        # Validate weight recovery
-        max_weight_error = np.max(np.abs(recovered_weights_scaled - true_weights))
-
-        # Compute ideal signal at calibrated scale
-        ideal_signal = amplitude_est * np.sin(2 * np.pi * freq_true * t + phase) + offset_est
-        error_signal = calibrated_signal - ideal_signal
-
-        # Print weights with equal width formatting
-        true_weights_str = ', '.join([f'{w:5.1f}' for w in true_weights])
-        recovered_weights_str = ', '.join([f'{w:5.1f}' for w in recovered_weights_scaled])
-        print(f"True weights     : [{true_weights_str}]")
-        print(f"Recovered weights: [{recovered_weights_str}]")
-
-        sndr_before = analyze_spectrum(quantized_signal)['sndr_db']
-        sndr_calc = 10 * np.log10(np.mean(ideal_signal**2) / np.mean(error_signal**2))
-        sndr_after = analyze_spectrum(calibrated_signal)['sndr_db']
-
-        enob_before = (sndr_before - 1.76) / 6.02
-        enob_calc = (sndr_calc - 1.76) / 6.02
-        enob_after = (sndr_after - 1.76) / 6.02
-
-        signal_range = quantized_signal.max() - quantized_signal.min()
-        print(f"Amplitude={amplitude_db:3d} dBFS (range={signal_range:4d} codes): "
-              f"Runtime={elapsed_time*1e3:5.2f}ms, "
-              f"Weight_err={max_weight_error:.2e}, "
-              f"SNDR: {sndr_before:.1f}/{sndr_calc:.1f}/{sndr_after:.1f} dB, "
-              f"ENOB: {enob_before:.2f}/{enob_calc:.2f}/{enob_after:.2f}\n")
+        amplitude = 0.5 * 10 ** (amplitude_db / 20.0)
+        metrics = _run_binary_lite_case(n_samp=n_samp, fin_bin=13, amplitude=amplitude)
+        _assert_finite_metrics(metrics)
+        assert metrics.signal_range_codes > 0
+        if amplitude_db >= -10:
+            assert metrics.sndr_after > metrics.sndr_before - 3.0
+        _print_summary(f"amplitude={amplitude_db:03d}dBFS", metrics)
 
 
+@pytest.mark.slow
 def test_calibration_lite_sweep_phase_redundancy():
-    """Sweep phase from 0 to 2π with redundant ADC weights."""
-
-    # Test configuration
-    n_samp = 2**13
-    bit_width = 12
-    freq_true = 13 / n_samp
-
-    # Redundant weights: bit 4 and 5 both have weight 128
-    true_weights = np.array([2048.0, 1024.0, 512.0, 256.0, 128.0, 128.0, 64.0, 32.0, 16.0, 8.0, 4.0, 2.0])
-
-    print(f"\n[Phase Redundancy Test] Sweeping phase from 0 to 2π (36 runs)")
-    print(f"N_samples={n_samp}, bit_width={bit_width}, freq={freq_true:.6f}")
-    print(f"Redundant weights: {true_weights.tolist()}")
-
-    def decompose_to_redundant_bits(codes, weights):
-        """Decompose ADC codes into redundant bit representation using greedy algorithm."""
-        n_samples = len(codes)
-        bit_width = len(weights)
-        bits = np.zeros((n_samples, bit_width), dtype=int)
-
-        for i, code in enumerate(codes):
-            remaining = float(code)
-            for j, weight in enumerate(weights):
-                if remaining >= weight - 0.5:  # tolerance for float comparison
-                    bits[i, j] = 1
-                    remaining -= weight
-
-        return bits
-
+    """Explore phase sensitivity with redundant ADC weights."""
     n_phases = 36
+
     for i in range(n_phases + 1):
         phase = i * 2 * np.pi / n_phases
-
-        # Generate quantized sinewave with varying phase
-        t = np.arange(n_samp)
-        signal = 0.5 * np.sin(2 * np.pi * freq_true * t + phase) + 0.5
-        quantized_signal = np.clip(np.floor(signal * (2**bit_width)), 0, 2**bit_width - 1).astype(int)
-
-        # Decompose into redundant bit representation
-        bits = decompose_to_redundant_bits(quantized_signal, true_weights)
-
-        start_time = time.time()
-        recovered_weights = calibrate_weight_sine_lite(bits, freq=freq_true)
-        elapsed_time = time.time() - start_time
-
-        # Scale recovered weights
-        recovered_weights_scaled = recovered_weights * np.max(true_weights)
-
-        # Print weights with equal width formatting
-        true_weights_str = ', '.join([f'{w:5.1f}' for w in true_weights])
-        recovered_weights_str = ', '.join([f'{w:5.1f}' for w in recovered_weights_scaled])
-        print(f"True weights     : [{true_weights_str}]")
-        print(f"Recovered weights: [{recovered_weights_str}]")
-
-        # Validate weight recovery
-        normalized_weights = true_weights / np.max(true_weights)
-        max_weight_error = np.max(np.abs(recovered_weights - normalized_weights))
-
-        # Compute calibrated signal and SNDR
-        calibrated_signal = bits @ recovered_weights_scaled
-        adc_amplitude = (2**bit_width - 1) / 2.0
-        ideal_signal = adc_amplitude * np.sin(2 * np.pi * freq_true * t + phase) + adc_amplitude
-        error_signal = calibrated_signal - ideal_signal
-
-        sndr_before = analyze_spectrum(quantized_signal)['sndr_db']
-        sndr_calc = 10 * np.log10(np.mean(ideal_signal**2) / np.mean(error_signal**2))
-        sndr_after = analyze_spectrum(calibrated_signal)['sndr_db']
-
-        enob_before = (sndr_before - 1.76) / 6.02
-        enob_calc = (sndr_calc - 1.76) / 6.02
-        enob_after = (sndr_after - 1.76) / 6.02
-
-        print(f"Phase={phase:5.3f} rad ({phase*180/np.pi:6.1f}°): "
-              f"Runtime={elapsed_time*1e3:5.2f}ms, "
-              f"Weight_err={max_weight_error:.2e}, "
-              f"SNDR: {sndr_before:.1f}/{sndr_calc:.1f}/{sndr_after:.1f} dB, "
-              f"ENOB: {enob_before:.2f}/{enob_calc:.2f}/{enob_after:.2f}")
+        metrics = _run_redundant_lite_case(phase=phase)
+        _assert_finite_metrics(metrics)
+        assert metrics.sndr_after > 55.0
+        if abs(np.sin(phase)) > 0.25:
+            assert metrics.sndr_calc > 55.0
+        _print_summary(f"redundant_phase={i:02d}/{n_phases}", metrics)

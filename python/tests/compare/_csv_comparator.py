@@ -15,6 +15,9 @@ class CSVComparator:
     # 1e-6 allows for numerical differences between MATLAB and NumPy implementations
     THRESHOLD = 1e-6
 
+    def __init__(self, threshold=None):
+        self.threshold = self.THRESHOLD if threshold is None else threshold
+
     def compare_pair(self, py_path: Union[str, Path], mat_path: Union[str, Path]) -> Dict[str, Any]:
         """
         Compares two CSV files as numeric arrays.
@@ -83,7 +86,7 @@ class CSVComparator:
                 max_diff_rel = np.max(diff_rel)
 
             # 4. Strict Pass/Fail Logic
-            if max_diff_abs <= self.THRESHOLD:
+            if max_diff_abs <= self.threshold:
                 status = 'PERFECT'
             else:
                 status = 'FAIL'

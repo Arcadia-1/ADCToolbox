@@ -28,26 +28,26 @@ def project_root():
     return Path(__file__).parent.parent.parent.parent
 
 
-def test_digital_bit_activity(project_root):
+def test_digital_bit_activity(project_root, comparison_output_root):
     """Test bit_activity comparison."""
-    test_compare_bit_activity(project_root)
+    test_compare_bit_activity(project_root, comparison_output_root)
 
 
-def test_digital_enob_bit_sweep(project_root):
+def test_digital_enob_bit_sweep(project_root, comparison_output_root):
     """Test enob_bit_sweep comparison."""
-    test_compare_enob_bit_sweep(project_root)
+    test_compare_enob_bit_sweep(project_root, comparison_output_root)
 
 
-def test_digital_fg_cal_sine(project_root):
+def test_digital_fg_cal_sine(project_root, comparison_output_root):
     """Test fg_cal_sine comparison."""
-    test_compare_fg_cal_sine(project_root)
+    test_compare_fg_cal_sine(project_root, comparison_output_root)
 
 
-def test_digital_weight_scaling(project_root):
+def test_digital_weight_scaling(project_root, comparison_output_root):
     """Test weight_scaling comparison."""
-    test_compare_weight_scaling(project_root)
+    test_compare_weight_scaling(project_root, comparison_output_root)
 
 
-def test_digital_fg_cal_sine_overflow_chk(project_root):
+def test_digital_fg_cal_sine_overflow_chk(project_root, comparison_output_root):
     """Test fg_cal_sine_overflow_chk comparison."""
-    test_compare_overflow_chk(project_root)
+    test_compare_overflow_chk(project_root, comparison_output_root)

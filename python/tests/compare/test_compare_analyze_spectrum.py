@@ -6,7 +6,7 @@ from tests.compare._runner import run_comparison_suite
                          "See agent_playground/THD_CALCULATION_INCONSISTENCY.md for details. "
                          "Python is MORE correct - uses consistent side bin handling. "
                          "Differences: THD ~3%, SFDR ~2%, others <0.1%")
-def test_compare_spec_plot(project_root):
+def test_compare_spec_plot(project_root, comparison_output_root):
 
     run_comparison_suite(project_root, matlab_test_name="run_plotspec",
-                         ref_folder="reference_output", out_folder="test_output", structure="nested")
+                         ref_folder="reference_output", out_folder=comparison_output_root, structure="nested")

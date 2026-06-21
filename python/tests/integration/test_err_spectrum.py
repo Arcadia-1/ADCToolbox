@@ -34,11 +34,13 @@ def _process_err_spectrum(raw_data, sub_folder, dataset_name, figures_folder, te
     figure_name = f"{test_name}_{dataset_name}_python.png"
     save_fig(figures_folder, figure_name, dpi=150)
 
-def test_err_spectrum(project_root):
+def test_err_spectrum(project_root, artifact_root):
     """
     Batch runner for error spectrum analysis.
     """
-    run_unit_test_batch(
+    result = run_unit_test_batch(
         project_root=project_root,
+        artifact_root=artifact_root,
         input_subpath=config.AOUT['input_path'], test_module_name="test_err_spectrum", file_pattern=config.AOUT['file_pattern'],        process_callback=_process_err_spectrum
     )
+    assert result.success_count == len(result.files) > 0

@@ -48,11 +48,13 @@ def _process_plot_error_hist_phase(raw_data, sub_folder, dataset_name, figures_f
     # Close figure at the end
     plt.close(fig)
 
-def test_plot_error_hist_phase(project_root):
+def test_plot_error_hist_phase(project_root, artifact_root):
     """
     Batch runner for plot_error_hist_phase (Single Channel Version).
     """
-    run_unit_test_batch(
+    result = run_unit_test_batch(
         project_root=project_root,
+        artifact_root=artifact_root,
         input_subpath=config.AOUT['input_path'], test_module_name="test_plot_error_hist_phase", file_pattern=config.AOUT['file_pattern'],        process_callback=_process_plot_error_hist_phase
     )
+    assert result.success_count == len(result.files) > 0

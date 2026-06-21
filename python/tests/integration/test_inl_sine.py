@@ -73,11 +73,13 @@ def _process_compute_inl_from_sine(raw_data, sub_folder, dataset_name, figures_f
         save_fig(figures_folder, figure_name, dpi=150)
         plt.close(fig)
 
-def test_compute_inl_from_sine(project_root):
+def test_compute_inl_from_sine(project_root, artifact_root):
     """
     Batch runner for compute_inl_from_sine (Single Channel Version).
     """
-    run_unit_test_batch(
+    result = run_unit_test_batch(
         project_root=project_root,
+        artifact_root=artifact_root,
         input_subpath=config.AOUT['input_path'], test_module_name="test_compute_inl_from_sine", file_pattern=config.AOUT['file_pattern'],        process_callback=_process_compute_inl_from_sine
     )
+    assert result.success_count == len(result.files) > 0

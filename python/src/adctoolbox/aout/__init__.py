@@ -85,10 +85,10 @@ def decompose_harmonics(signal, freq=None, harmonic=5, disp=1):
         create_plot=bool(disp),
     )
     return (
-        result.get('fundamental_signal'),
-        result.get('total_error'),
-        result.get('harmonic_error'),
-        result.get('residual_error'),
+        result['fundamental_signal'],
+        result['harmonic_signal'] + result['noise_residual'],
+        result['harmonic_signal'],
+        result['noise_residual'],
     )
 
 

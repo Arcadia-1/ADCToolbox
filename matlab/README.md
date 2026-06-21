@@ -7,6 +7,7 @@ A comprehensive MATLAB toolbox for ADC (Analog-to-Digital Converter) testing, ch
 ## Table of Contents
 
 - [Installation](#installation)
+- [Testing](#testing)
 - [Quick Start](#quick-start)
 - [Function Categories](#function-categories)
   - [Spectral Analysis](#spectral-analysis)
@@ -45,6 +46,20 @@ savepath  % Optional: save path for future sessions
 % Run the setup script (from the matlab/ directory)
 run('setupLib.m')
 ```
+
+## Testing
+
+MATLAB tests are optional external validation and require a local MATLAB
+installation. From the repository root:
+
+```bash
+python matlab/tests/run_matlab_tests.py all
+```
+
+Use `--matlab-executable`, `ADCTOOLBOX_MATLAB`, or `MATLAB_EXECUTABLE` when
+MATLAB is not on `PATH`. Missing MATLAB returns exit code `77` unless
+`--missing-ok` is passed. See [MATLAB_TESTS_OVERVIEW.md](MATLAB_TESTS_OVERVIEW.md)
+for suite names and CI guidance.
 
 ## Quick Start
 

@@ -89,12 +89,14 @@ def _process_calibrate_weight_sine(raw_data, sub_folder, dataset_name, figures_f
     save_variable(sub_folder, ENoB_pre, 'ENoB_pre')
     save_variable(sub_folder, ENoB_post, 'ENoB_post')
 
-def test_calibrate_weight_sine(project_root):
+def test_calibrate_weight_sine(project_root, artifact_root):
     """
     Batch runner for foreground calibration sine test.
     """
-    run_unit_test_batch(
+    result = run_unit_test_batch(
         project_root=project_root,
+        artifact_root=artifact_root,
         input_subpath=config.DOUT['input_path'], test_module_name="test_calibrate_weight_sine", file_pattern=config.DOUT['file_pattern'],        process_callback=_process_calibrate_weight_sine,
         flatten=False  # Digital output data is 2D (N samples x M bits)
     )
+    assert result.success_count == len(result.files) > 0
