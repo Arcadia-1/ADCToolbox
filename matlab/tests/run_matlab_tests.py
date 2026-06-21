@@ -52,9 +52,13 @@ def _standard_install_candidates() -> list[Path]:
     return candidates
 
 
+def _is_executable_file(path: Path) -> bool:
+    return path.is_file() and os.access(path, os.X_OK)
+
+
 def _resolve_matlab_candidate(candidate: str) -> Path | None:
     candidate_path = Path(candidate)
-    if candidate_path.exists():
+    if _is_executable_file(candidate_path):
         return candidate_path
 
     resolved = shutil.which(candidate)
@@ -82,7 +86,7 @@ def find_matlab_executable(explicit: str | None = None) -> Path | None:
             return resolved
 
     for candidate_path in _standard_install_candidates():
-        if candidate_path.exists():
+        if _is_executable_file(candidate_path):
             return candidate_path
 
     return None
@@ -111,7 +115,7 @@ def _missing_matlab_message() -> str:
 
 def _invalid_matlab_executable_message(candidate: str) -> str:
     return (
-        f"MATLAB executable specified by --matlab-executable was not found: {candidate}. "
+        f"MATLAB executable specified by --matlab-executable was not found or is not executable: {candidate}. "
         "Because the executable was set explicitly, automatic fallback discovery was not used."
     )
 
