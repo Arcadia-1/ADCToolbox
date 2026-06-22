@@ -71,6 +71,22 @@ def _add_slope_indicator(ax, slope_db_per_decade, order):
     #         zorder=101)
 
 
+def _assert_noise_shaping_dashboard(fig, axes, results):
+    assert len(fig.axes) == 6
+    assert axes.shape == (2, 3)
+    assert set(results) == set(range(6))
+
+    for order, ax in enumerate(axes.ravel()):
+        assert f'Order {order}' in ax.get_title()
+        assert len(ax.lines) >= 1
+        assert ax.get_xlabel() == 'Freq (Hz)'
+        assert ax.get_ylabel() == 'dBFS'
+
+    for order in range(6):
+        assert np.isfinite(results[order]['snr_dbc'])
+
+
+@pytest.mark.slow
 def test_noise_shaping_0th_to_4th_order_spectrum():
     """Test spectrum of 0th (no shaping) to 5th order noise shaping.
 
@@ -206,7 +222,8 @@ def test_noise_shaping_0th_to_4th_order_spectrum():
         plt.tight_layout(rect=[0, 0, 1, 0.99])  # Leave space for suptitle
         fig_path = output_dir / f'test_noise_shaping_0th_to_5th_order_{n_bits}bit.png'
         plt.savefig(fig_path, dpi=150, bbox_inches='tight')
-        plt.close()
+        _assert_noise_shaping_dashboard(fig, axes, results)
+        plt.close(fig)
 
         # Verify file was created
         assert fig_path.exists(), f"Figure file not created: {fig_path}"
@@ -224,6 +241,7 @@ def test_noise_shaping_0th_to_4th_order_spectrum():
                 print(f'  Order {order}: {snr:6.2f} dB (Improvement: +{improvement:5.2f} dB)')
 
         print(f'\n[Figure saved] -> {fig_path}')
+
 
 if __name__ == "__main__":
     test_noise_shaping_0th_to_4th_order_spectrum()
