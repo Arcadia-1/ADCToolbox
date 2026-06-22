@@ -13,6 +13,23 @@ output_dir = Path(__file__).parent / "test_output"
 output_dir.mkdir(exist_ok=True)
 
 
+def _assert_acf_panel(ax, result, title, max_lag, n_samples):
+    assert ax.get_title() == title
+    assert ax.get_xlabel() == 'Lag (samples)'
+    assert ax.get_ylabel() == 'ACF'
+    assert len(ax.collections) >= 1
+    assert len(ax.lines) >= 1
+
+    lags = result['lags']
+    acf = result['acf']
+    assert lags.shape == acf.shape == (2 * max_lag + 1,)
+    assert lags[0] == -max_lag
+    assert lags[-1] == max_lag
+    assert acf[lags == 0][0] == pytest.approx(1.0)
+    assert result['error_signal'].shape == (n_samples,)
+    assert np.all(np.isfinite(acf))
+
+
 def test_analyze_error_autocorrelation_basic():
     """Test error autocorrelation analysis for different noise types."""
     # Setup
@@ -59,13 +76,21 @@ def test_analyze_error_autocorrelation_basic():
 
     fig_path = output_dir / 'test_analyze_error_autocorrelation.png'
     plt.savefig(fig_path, dpi=150, bbox_inches='tight')
-    plt.close()
 
     print(f"\n[Save fig] -> [{fig_path.resolve()}]\n")
 
     # Verify file was created
     assert fig_path.exists(), f"Figure file not created: {fig_path}"
     assert fig_path.stat().st_size > 0, f"Figure file is empty: {fig_path}"
+
+    assert len(fig.axes) == 3
+    for ax, result, title in [
+        (axes[0], result1, 'Thermal Noise'),
+        (axes[1], result2, 'Memory Effect'),
+        (axes[2], result3, 'Drift'),
+    ]:
+        _assert_acf_panel(ax, result, title, max_lag=100, n_samples=N)
+    plt.close(fig)
 
 
 if __name__ == '__main__':

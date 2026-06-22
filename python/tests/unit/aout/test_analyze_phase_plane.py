@@ -14,6 +14,21 @@ output_dir = Path(__file__).parent / "test_output"
 output_dir.mkdir(exist_ok=True)
 
 
+def _scatter_point_count(ax):
+    return sum(collection.get_offsets().shape[0] for collection in ax.collections)
+
+
+def _assert_phase_plane_panel(ax, result, title, n_samples):
+    lag = result['lag']
+    assert ax.get_title() == title
+    assert ax.get_xlabel() == 'x[n]'
+    assert ax.get_ylabel() == f'x[n+{lag}]'
+    assert lag > 0
+    assert result['outliers'].ndim == 1
+    assert _scatter_point_count(ax) == n_samples - lag
+    assert any(text.get_text().startswith('Lag:') for text in ax.texts)
+
+
 def test_analyze_phase_plane_basic():
     """Test phase plane analysis for different ADC non-idealities."""
     # Setup
@@ -56,7 +71,6 @@ def test_analyze_phase_plane_basic():
 
     fig_path = output_dir / 'test_analyze_phase_plane.png'
     plt.savefig(fig_path, dpi=150, bbox_inches='tight')
-    plt.close()
 
     print(f"\n[Save fig] -> [{fig_path.resolve()}]\n")
 
@@ -67,6 +81,15 @@ def test_analyze_phase_plane_basic():
     # Basic assertions
     assert 'lag' in result1, "Result should contain lag"
     assert 'outliers' in result1, "Result should contain outliers"
+
+    assert len(fig.axes) == 3
+    for ax, result, title in [
+        (axes[0], result1, 'Thermal Noise'),
+        (axes[1], result2, 'Glitch'),
+        (axes[2], result3, 'Quantization Noise'),
+    ]:
+        _assert_phase_plane_panel(ax, result, title, N)
+    plt.close(fig)
 
 
 if __name__ == '__main__':

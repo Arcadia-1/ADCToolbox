@@ -14,6 +14,22 @@ output_dir = Path(__file__).parent / "test_output"
 output_dir.mkdir(exist_ok=True)
 
 
+def _assert_error_phase_plane_panel(ax, result, title, n_samples, polynomial_order):
+    assert ax.get_title() == title
+    assert ax.get_xlabel() == 'Signal Amplitude (V)'
+    assert ax.get_ylabel() == 'Error / Residual (uV)'
+    assert len(ax.collections) >= 1
+    assert ax.collections[0].get_offsets().shape == (n_samples, 2)
+    assert len(ax.lines) >= 1
+    assert any(text.get_text().startswith('RMS:') for text in ax.texts)
+
+    assert result['residual'].shape == (n_samples,)
+    assert result['fitted_sine'].shape == (n_samples,)
+    assert result['trend_coeffs'].shape == (polynomial_order + 1,)
+    assert result['hysteresis_gap'] >= 0
+    assert np.all(np.isfinite(result['residual']))
+
+
 def test_analyze_error_phase_plane_basic():
     """Test residual phase plane analysis for different ADC non-idealities."""
     # Setup
@@ -69,7 +85,6 @@ def test_analyze_error_phase_plane_basic():
 
     fig_path = output_dir / 'test_analyze_error_phase_plane.png'
     plt.savefig(fig_path, dpi=150, bbox_inches='tight')
-    plt.close()
 
     print(f"\n[Save fig] -> [{fig_path.resolve()}]\n")
 
@@ -80,6 +95,15 @@ def test_analyze_error_phase_plane_basic():
     # Basic assertions
     assert 'residual' in result1, "Result should contain residual"
     assert 'fitted_sine' in result1, "Result should contain fitted_sine"
+
+    assert len(fig.axes) == 3
+    for ax, result, title in [
+        (axes[0], result1, 'Thermal Noise'),
+        (axes[1], result2, 'Static HD2 (-80 dBc)'),
+        (axes[2], result3, 'Static HD3 (-70 dBc)'),
+    ]:
+        _assert_error_phase_plane_panel(ax, result, title, N, polynomial_order=3)
+    plt.close(fig)
 
 
 if __name__ == '__main__':

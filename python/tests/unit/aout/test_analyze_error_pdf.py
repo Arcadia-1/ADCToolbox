@@ -13,6 +13,24 @@ output_dir = Path(__file__).parent / "test_output"
 output_dir.mkdir(exist_ok=True)
 
 
+def _assert_pdf_panel(ax, result, title, n_samples):
+    assert ax.get_title() == title
+    assert ax.get_xlabel() == 'Error (LSB)'
+    assert ax.get_ylabel() == 'Probability Density'
+    assert len(ax.lines) == 2
+    assert [line.get_label() for line in ax.lines] == ['Actual PDF (KDE)', 'Gaussian Fit']
+    assert ax.get_legend() is not None
+    assert len(ax.texts) == 1
+
+    assert result['err_lsb'].shape == (n_samples,)
+    assert result['x'].shape == result['pdf'].shape == result['gauss_pdf'].shape == (200,)
+    assert np.all(np.isfinite(result['pdf']))
+    assert np.all(np.isfinite(result['gauss_pdf']))
+    assert np.isfinite(result['mu'])
+    assert result['sigma'] > 0
+    assert result['kl_divergence'] >= 0
+
+
 def test_analyze_error_pdf_basic():
     """Test error PDF analysis for thermal noise and nonlinearity."""
     # Setup
@@ -52,7 +70,6 @@ def test_analyze_error_pdf_basic():
 
     fig_path = output_dir / 'test_analyze_error_pdf.png'
     plt.savefig(fig_path, dpi=150, bbox_inches='tight')
-    plt.close()
 
     print(f"\n[Save fig] -> [{fig_path.resolve()}]\n")
 
@@ -64,6 +81,15 @@ def test_analyze_error_pdf_basic():
     assert 'mu' in result1, "Result should contain mu"
     assert 'sigma' in result1, "Result should contain sigma"
     assert 'kl_divergence' in result1, "Result should contain kl_divergence"
+
+    assert len(fig.axes) == 3
+    for ax, result, title in [
+        (axes[0], result1, 'Thermal Noise'),
+        (axes[1], result2, 'Quantization Noise'),
+        (axes[2], result3, 'Static Nonlinearity'),
+    ]:
+        _assert_pdf_panel(ax, result, title, N)
+    plt.close(fig)
 
 
 if __name__ == '__main__':

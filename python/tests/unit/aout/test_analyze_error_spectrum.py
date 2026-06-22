@@ -13,6 +13,17 @@ output_dir = Path(__file__).parent / "test_output"
 output_dir.mkdir(exist_ok=True)
 
 
+def _assert_error_spectrum_panel(ax, result, title, n_samples):
+    assert ax.get_title() == title
+    assert ax.get_xlabel() == 'Frequency (Hz)'
+    assert ax.get_ylabel() == 'Error Spectrum (dB)'
+    assert len(ax.lines) >= 1
+    assert len(ax.lines[0].get_xdata()) > 0
+    assert len(ax.lines[0].get_ydata()) > 0
+    assert result['error_signal'].shape == (n_samples,)
+    assert np.all(np.isfinite(result['error_signal']))
+
+
 def test_analyze_error_spectrum_basic():
     """Test error spectrum analysis for thermal noise and nonlinearity."""
     # Setup
@@ -37,9 +48,9 @@ def test_analyze_error_spectrum_basic():
     fig, axes = plt.subplots(1, 3, figsize=(18, 6))
 
     # Analyze each case
-    analyze_error_spectrum(sig_thermal, fs=Fs, ax=axes[0], title='Thermal Noise')
-    analyze_error_spectrum(sig_jitter, fs=Fs, ax=axes[1], title='Jitter Noise')
-    analyze_error_spectrum(sig_nonlin, fs=Fs, ax=axes[2], title='Static HD3')
+    result1 = analyze_error_spectrum(sig_thermal, fs=Fs, ax=axes[0], title='Thermal Noise')
+    result2 = analyze_error_spectrum(sig_jitter, fs=Fs, ax=axes[1], title='Jitter Noise')
+    result3 = analyze_error_spectrum(sig_nonlin, fs=Fs, ax=axes[2], title='Static HD3')
 
     fig.suptitle(f'Error Spectrum Analysis: ADC Non-idealities (Fs={Fs/1e6:.0f} MHz, Fin={Fin/1e6:.1f} MHz)',
                  fontsize=14, fontweight='bold')
@@ -47,13 +58,21 @@ def test_analyze_error_spectrum_basic():
 
     fig_path = output_dir / 'test_analyze_error_spectrum.png'
     plt.savefig(fig_path, dpi=150, bbox_inches='tight')
-    plt.close()
 
     print(f"[Save fig] -> [{fig_path.resolve()}]\n")
 
     # Verify file was created
     assert fig_path.exists(), f"Figure file not created: {fig_path}"
     assert fig_path.stat().st_size > 0, f"Figure file is empty: {fig_path}"
+
+    assert len(fig.axes) == 3
+    for ax, result, title in [
+        (axes[0], result1, 'Thermal Noise'),
+        (axes[1], result2, 'Jitter Noise'),
+        (axes[2], result3, 'Static HD3'),
+    ]:
+        _assert_error_spectrum_panel(ax, result, title, N)
+    plt.close(fig)
 
 
 if __name__ == '__main__':
