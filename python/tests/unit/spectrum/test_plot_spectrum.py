@@ -132,7 +132,8 @@ def test_plot_spectrum_distorted_sine(hd2_target, hd3_target):
     # Generate signal with both HD2 and HD3 distortion
     t = np.arange(N_fft) / Fs
     sig_ideal = A * np.sin(2 * np.pi * Fin * t)
-    signal = sig_ideal + k2 * sig_ideal**2 + k3 * sig_ideal**3 + np.random.randn(N_fft) * noise_rms
+    rng = np.random.default_rng(2026062246)
+    signal = sig_ideal + k2 * sig_ideal**2 + k3 * sig_ideal**3 + rng.standard_normal(N_fft) * noise_rms
 
     # Compute spectrum
     result = compute_spectrum(signal, fs=Fs, max_harmonic=6, side_bin=1)
@@ -165,7 +166,8 @@ def test_plot_spectrum_clean_sine():
 
     # Generate clean signal
     t = np.arange(N_fft) / Fs
-    signal = A * np.sin(2 * np.pi * Fin * t) + np.random.randn(N_fft) * noise_rms
+    rng = np.random.default_rng(2026062247)
+    signal = A * np.sin(2 * np.pi * Fin * t) + rng.standard_normal(N_fft) * noise_rms
 
     # Compute spectrum
     result = compute_spectrum(signal, fs=Fs, max_harmonic=5, side_bin=1)
@@ -214,7 +216,8 @@ def test_plot_spectrum_comparison():
         # Generate signal
         t = np.arange(N_fft) / Fs
         sig_ideal = A * np.sin(2 * np.pi * Fin * t)
-        signal = sig_ideal + k2 * sig_ideal**2 + k3 * sig_ideal**3 + np.random.randn(N_fft) * noise_rms
+        rng = np.random.default_rng(2026062248 + idx)
+        signal = sig_ideal + k2 * sig_ideal**2 + k3 * sig_ideal**3 + rng.standard_normal(N_fft) * noise_rms
 
         # Compute spectrum
         result = compute_spectrum(signal, fs=Fs, max_harmonic=6, side_bin=1)

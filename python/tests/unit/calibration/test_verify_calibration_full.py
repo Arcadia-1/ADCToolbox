@@ -62,7 +62,7 @@ def test_calibration_single_dataset_shuffled():
             shift_amounts_order = np.arange(bit_width - 1, -1, -1)
 
 
-            # shuffled_indices = np.random.permutation(bit_width)
+            # shuffled_indices = np.random.default_rng(2026062200).permutation(bit_width)
             shuffled_indices = np.arange(bit_width)
             shuffled_weights = true_weights[shuffled_indices]
             current_shifts = shift_amounts_order[shuffled_indices]
@@ -170,7 +170,7 @@ def test_calibration_single_dataset_shuffled_search_freq():
             shift_amounts_order = np.arange(bit_width - 1, -1, -1)
 
 
-            # shuffled_indices = np.random.permutation(bit_width)
+            # shuffled_indices = np.random.default_rng(2026062200).permutation(bit_width)
             shuffled_indices = np.arange(bit_width)
             shuffled_weights = true_weights[shuffled_indices]
             current_shifts = shift_amounts_order[shuffled_indices]

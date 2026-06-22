@@ -27,7 +27,8 @@ def test_prepare_fft_input_transpose_handling(input_shape, expected_output_shape
     Verifies correct shape transformation for various input formats.
     """
 
-    test_data = np.random.randn(*input_shape)
+    rng = np.random.default_rng(2026062240)
+    test_data = rng.standard_normal(input_shape)
     processed = _prepare_fft_input(test_data)
 
     assert processed.shape == expected_output_shape
@@ -53,7 +54,8 @@ def test_prepare_fft_input_transpose_handling(input_shape, expected_output_shape
 ])
 def test_prepare_fft_input_max_scale_range(signal_range, max_scale_range, expected_range):
     """Test max_scale_range normalization."""
-    test_signal = np.random.uniform(*signal_range, 10000)
+    rng = np.random.default_rng(2026062241)
+    test_signal = rng.uniform(*signal_range, 10000)
     processed = _prepare_fft_input(test_signal, max_scale_range=max_scale_range)
 
     assert np.abs(np.mean(processed)) < 1e-10

@@ -21,8 +21,7 @@ def generate_test_signal():
         signal: Test signal with 4 harmonics + noise
         params: Dictionary of expected values
     """
-    # Set random seed for reproducibility
-    np.random.seed(42)
+    rng = np.random.default_rng(42)
 
     N = 8192           # Number of samples
     Fs = 1e9           # Sampling frequency
@@ -49,7 +48,7 @@ def generate_test_signal():
               A_HD4 * np.sin(2*np.pi*4*Fin*t + phi_HD4))
 
     # Add DC offset and small noise
-    signal = signal + 0.5 + np.random.randn(N) * 1e-5
+    signal = signal + 0.5 + rng.standard_normal(N) * 1e-5
 
     # Calculate maxSignal for normalization (needed for expected values)
     maxSignal = np.max(signal) - np.min(signal)

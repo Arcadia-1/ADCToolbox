@@ -142,12 +142,13 @@ def test_weight_recovery_absolute():
     4. Force the Solver's 'b' vector to match our Target Signal.
     """
     n_samples = 1000
+    rng = np.random.default_rng(2026062205)
     # 1. Define Ground Truth
     true_weights = np.array([0.25, 0.5, 1.0])
     bit_width = len(true_weights)
     
     # 2. Generate random bit matrix (n_samples, 3)
-    bits = np.random.randint(0, 2, (n_samples, bit_width)).astype(float)
+    bits = rng.integers(0, 2, (n_samples, bit_width)).astype(float)
     
     # 3. Construct the Target Signal directly from bits and weights
     # This signal is exactly what the solver should aim to reconstruct
@@ -238,15 +239,16 @@ def test_solve_weights_shared_recovery():
     Test 6: Verify that weights are shared across datasets but DCs are independent.
     """
     n_samples = 500
+    rng = np.random.default_rng(2026062206)
     true_weights = np.array([10.0, 20.0]) # Shared
     dc1, dc2 = 5.0, -3.0 # Different DCs
     
     # Dataset 1: bits @ weights + dc1
-    bits1 = np.random.randint(0, 2, (n_samples, 2)).astype(float)
+    bits1 = rng.integers(0, 2, (n_samples, 2)).astype(float)
     sig1 = bits1 @ true_weights + dc1
     
     # Dataset 2: bits @ weights + dc2
-    bits2 = np.random.randint(0, 2, (n_samples, 2)).astype(float)
+    bits2 = rng.integers(0, 2, (n_samples, 2)).astype(float)
     sig2 = bits2 @ true_weights + dc2
     
     # Mocking the basis to be the signals themselves to force direct recovery

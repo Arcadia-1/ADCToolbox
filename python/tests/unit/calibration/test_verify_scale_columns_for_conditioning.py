@@ -8,7 +8,8 @@ def test_scaling_and_near_zero():
     # Col 1: Range [0, 1e6] (Large magnitude)
     # Col 2: Range [0, 0] (Dead bit / Near-zero)
     
-    bits = np.random.rand(1024, 12)    
+    rng = np.random.default_rng(2026062203)
+    bits = rng.random((1024, 12))
     bits[:, 3] *= 1e6  # Amplify col 3 to test large scaling
     bits[:, 5] *= 0    # Wipe col 5 to test near-zero protection
     bits[:, 11] *= 0    # Wipe col 11 to test near-zero protection
@@ -29,8 +30,9 @@ def test_scaling_and_near_zero():
 
 def test_scaling_and_recover():
     n_bits = 16
+    rng = np.random.default_rng(2026062204)
     nominal_weights = 2 ** np.arange(n_bits-1, -1, -1) / 2**(n_bits-1)
-    bits = np.random.randint(0, 2, (1024, n_bits)) * nominal_weights
+    bits = rng.integers(0, 2, (1024, n_bits)) * nominal_weights
 
     print()
     bits_effective, bit_scales = _scale_columns_for_conditioning(bits, verbose=2)

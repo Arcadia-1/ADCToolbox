@@ -21,11 +21,12 @@ def test_fit_sine_4param_basic():
     A = 0.499
     DC = 0.5
     noise_rms = 20e-3
+    rng = np.random.default_rng(2026062218)
 
     print(f"\n[Sinewave] [Fs={Fs/1e6:.1f} MHz] [Fin={Fin/1e6:.6f} MHz] [Amplitude={A:.3f} V] [DC={DC:.3f} V] [Noise RMS={noise_rms*1e3:.2f} mV]")
 
     sig_ideal = A * np.cos(2 * np.pi * Fin * t) + DC
-    sig_noisy = sig_ideal + np.random.randn(N) * noise_rms
+    sig_noisy = sig_ideal + rng.standard_normal(N) * noise_rms
 
     # Fit 4-parameter sine wave
     result = fit_sine_4param(sig_noisy)
@@ -110,9 +111,10 @@ def test_fit_sine_4param_noise_levels(noise_level):
     t = np.arange(N) / Fs
     A = 0.499
     DC = 0.5
+    rng = np.random.default_rng(2026062219)
 
     sig_ideal = A * np.cos(2 * np.pi * Fin * t) + DC
-    sig_noisy = sig_ideal + np.random.randn(N) * noise_level
+    sig_noisy = sig_ideal + rng.standard_normal(N) * noise_level
 
     result = fit_sine_4param(sig_noisy)
     sig_fit = result['fitted_signal']

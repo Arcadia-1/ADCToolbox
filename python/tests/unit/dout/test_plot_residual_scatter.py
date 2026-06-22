@@ -8,9 +8,8 @@ import matplotlib.pyplot as plt
 from adctoolbox import plot_residual_scatter
 
 
-def _make_adc_data(n=1024, m=6, seed=42):
+def _make_adc_data(n=1024, m=6):
     """Generate simple ADC signal and bit matrix for testing."""
-    np.random.seed(seed)
     t = np.arange(n)
     sig = (np.sin(2 * np.pi * 3 * t / n) / 2 + 0.5) * (2**m - 1)
     code = np.clip(np.round(sig).astype(int), 0, 2**m - 1)

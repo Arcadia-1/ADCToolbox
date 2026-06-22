@@ -56,7 +56,8 @@ def test_window_sweep_coherent():
     # Generate signal with harmonics and noise
     t = np.arange(N_fft) / Fs
     sig_ideal = A * np.sin(2*np.pi*Fin*t)
-    signal = sig_ideal + k2 * sig_ideal**2 + k3 * sig_ideal**3 + np.random.randn(N_fft) * noise_rms
+    rng = np.random.default_rng(2026062252)
+    signal = sig_ideal + k2 * sig_ideal**2 + k3 * sig_ideal**3 + rng.standard_normal(N_fft) * noise_rms
 
     print('\n' + '='*80)
     print('COHERENT SIGNAL - WINDOW SWEEP (Default side_bin)')
@@ -147,7 +148,8 @@ def test_window_sweep_noncoherent():
     # Generate signal with harmonics and noise
     t = np.arange(N_fft) / Fs
     sig_ideal = A * np.sin(2*np.pi*Fin*t)
-    signal = sig_ideal + k2 * sig_ideal**2 + k3 * sig_ideal**3 + np.random.randn(N_fft) * noise_rms
+    rng = np.random.default_rng(2026062253)
+    signal = sig_ideal + k2 * sig_ideal**2 + k3 * sig_ideal**3 + rng.standard_normal(N_fft) * noise_rms
 
     print('\n' + '='*80)
     print('NON-COHERENT SIGNAL - WINDOW SWEEP (Default side_bin)')
@@ -250,7 +252,8 @@ def test_noise_accuracy_with_windows(win_type):
     # Generate signal with known noise
     t = np.arange(N_fft) / Fs
     sig_ideal = A * np.sin(2*np.pi*Fin*t)
-    signal = sig_ideal + np.random.randn(N_fft) * noise_rms
+    rng = np.random.default_rng(2026062254)
+    signal = sig_ideal + rng.standard_normal(N_fft) * noise_rms
 
     # Calculate theoretical values
     sig_pwr_theory = 0.0  # dBFS (auto-detect uses peak as reference)

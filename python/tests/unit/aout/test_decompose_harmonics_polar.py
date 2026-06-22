@@ -24,25 +24,26 @@ def test_decompose_harmonics_polar_basic():
     DC = 0.5
     base_noise = 50e-6
     adc_range = [0, 1]
+    rng = np.random.default_rng(2026062217)
 
     sig_ac = A * np.sin(2 * np.pi * Fin * t)
     sig_ideal = sig_ac + DC
     print(f"\n[Config] Fs={Fs/1e6:.0f} MHz, Fin={Fin/1e6:.6f} MHz, Bin={Fin_bin}, N={N}")
 
     # Case 1: Ideal ADC with Thermal Noise
-    sig_noise = sig_ideal + np.random.randn(N) * base_noise
+    sig_noise = sig_ideal + rng.standard_normal(N) * base_noise
 
     # Case 2: ADC with Nonlinearity
     k2 = 0.001
     k3 = 0.005
-    sig_nonlin = DC + sig_ac + k2 * sig_ac**2 + k3 * sig_ac**3 + np.random.randn(N) * base_noise
+    sig_nonlin = DC + sig_ac + k2 * sig_ac**2 + k3 * sig_ac**3 + rng.standard_normal(N) * base_noise
 
     # Case 3: ADC with Glitches
     glitch_prob = 0.01
     glitch_amplitude = 0.1
-    glitch_mask = np.random.rand(N) < glitch_prob
+    glitch_mask = rng.random(N) < glitch_prob
     glitch = glitch_mask * glitch_amplitude
-    sig_glitch = sig_ideal + glitch + np.random.randn(N) * base_noise
+    sig_glitch = sig_ideal + glitch + rng.standard_normal(N) * base_noise
 
     # Create 2x3 subplot grid
     fig = plt.figure(figsize=(18, 12))

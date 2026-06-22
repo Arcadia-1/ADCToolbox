@@ -19,9 +19,10 @@ def test_assumed_signal_power(assumed_sig_pwr_dbfs):
     Fs = 100e6
     Fin = 123 / N_fft * Fs  # Coherent frequency
     t = np.arange(N_fft) / Fs
+    rng = np.random.default_rng(2026062231)
 
     # Generate pure tone
-    signal = signal_amplitude * np.sin(2 * np.pi * Fin * t) + np.random.randn(N_fft) * noise_rms
+    signal = signal_amplitude * np.sin(2 * np.pi * Fin * t) + rng.standard_normal(N_fft) * noise_rms
 
     # Compute spectrum WITH assumed signal power
     result = compute_spectrum(signal, fs=Fs, win_type='hann', side_bin=1, assumed_sig_pwr_dbfs=assumed_sig_pwr_dbfs)

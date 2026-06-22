@@ -22,15 +22,16 @@ def test_analyze_error_by_value_thermal_vs_nonlinearity():
     A = 0.49
     DC = 0.5
     base_noise = 50e-6
+    rng = np.random.default_rng(2026062212)
 
     print(f"\n[Config] Fs={Fs/1e6:.0f} MHz, Fin={Fin/1e6:.2f} MHz, N={N}")
 
     # Case 1: Ideal ADC with Thermal Noise
-    sig_noise = A * np.sin(2 * np.pi * Fin * t) + DC + np.random.randn(N) * base_noise
+    sig_noise = A * np.sin(2 * np.pi * Fin * t) + DC + rng.standard_normal(N) * base_noise
 
     # Case 2: ADC with 3rd Order Nonlinearity
     k3 = 0.01
-    sig_nonlin = A * np.sin(2 * np.pi * Fin * t) + DC + k3 * (A * np.sin(2 * np.pi * Fin * t))**3 + np.random.randn(N) * base_noise
+    sig_nonlin = A * np.sin(2 * np.pi * Fin * t) + DC + k3 * (A * np.sin(2 * np.pi * Fin * t))**3 + rng.standard_normal(N) * base_noise
 
     # Create figure with 3 subplots
     fig, axes = plt.subplots(1, 3, figsize=(18, 8))
@@ -65,8 +66,9 @@ def test_analyze_error_by_value_bin_count(n_bins):
     DC = 0.5
     base_noise = 50e-6
     k3 = 0.01
+    rng = np.random.default_rng(2026062213)
 
-    sig_nonlin = A * np.sin(2 * np.pi * Fin * t) + DC + k3 * (A * np.sin(2 * np.pi * Fin * t))**3 + np.random.randn(N) * base_noise
+    sig_nonlin = A * np.sin(2 * np.pi * Fin * t) + DC + k3 * (A * np.sin(2 * np.pi * Fin * t))**3 + rng.standard_normal(N) * base_noise
 
     # Create a simple plot
     fig, ax = plt.subplots(1, 1, figsize=(6, 5))
@@ -86,17 +88,18 @@ def test_analyze_error_by_value_different_nonlinearities():
     A = 0.49
     DC = 0.5
     base_noise = 50e-6
+    rng = np.random.default_rng(2026062214)
 
     # Case 1: Thermal only
-    sig_thermal = A * np.sin(2 * np.pi * Fin * t) + DC + np.random.randn(N) * base_noise
+    sig_thermal = A * np.sin(2 * np.pi * Fin * t) + DC + rng.standard_normal(N) * base_noise
 
     # Case 2: 2nd order nonlinearity
     k2 = 0.01
-    sig_k2 = A * np.sin(2 * np.pi * Fin * t) + DC + k2 * (A * np.sin(2 * np.pi * Fin * t))**2 + np.random.randn(N) * base_noise
+    sig_k2 = A * np.sin(2 * np.pi * Fin * t) + DC + k2 * (A * np.sin(2 * np.pi * Fin * t))**2 + rng.standard_normal(N) * base_noise
 
     # Case 3: 3rd order nonlinearity
     k3 = 0.01
-    sig_k3 = A * np.sin(2 * np.pi * Fin * t) + DC + k3 * (A * np.sin(2 * np.pi * Fin * t))**3 + np.random.randn(N) * base_noise
+    sig_k3 = A * np.sin(2 * np.pi * Fin * t) + DC + k3 * (A * np.sin(2 * np.pi * Fin * t))**3 + rng.standard_normal(N) * base_noise
 
     # Create figure with 3 subplots
     fig, axes = plt.subplots(1, 3, figsize=(18, 8))

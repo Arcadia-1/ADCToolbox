@@ -23,6 +23,7 @@ def test_analyze_error_by_phase_pure_cases():
     A = 0.49
     DC = 0.5
     phase_clean = 2 * np.pi * Fin * t
+    rng = np.random.default_rng(2026062210)
 
     print(f"\n[Config] Fs={Fs/1e6:.0f} MHz, Fin={Fin/1e6:.2f} MHz, N={N}, A={A}")
 
@@ -38,9 +39,9 @@ def test_analyze_error_by_phase_pure_cases():
 
     # Generate signals
     for case in test_cases:
-        am_noise = np.random.randn(N) * case['am'] if case['am'] > 0 else 0
-        pm_noise = np.random.randn(N) * case['pm'] / A if case['pm'] > 0 else 0
-        th_noise = np.random.randn(N) * case['thermal'] if case['thermal'] > 0 else 0
+        am_noise = rng.standard_normal(N) * case['am'] if case['am'] > 0 else 0
+        pm_noise = rng.standard_normal(N) * case['pm'] / A if case['pm'] > 0 else 0
+        th_noise = rng.standard_normal(N) * case['thermal'] if case['thermal'] > 0 else 0
         case['signal'] = (A + am_noise) * np.sin(phase_clean + pm_noise) + DC + th_noise
 
     # Test both baseline modes
@@ -93,6 +94,7 @@ def test_analyze_error_by_phase_mixed_cases():
     A = 0.49
     DC = 0.5
     phase_clean = 2 * np.pi * Fin * t
+    rng = np.random.default_rng(2026062211)
 
     # Define mixed test cases
     test_cases = [
@@ -106,9 +108,9 @@ def test_analyze_error_by_phase_mixed_cases():
 
     # Generate signals
     for case in test_cases:
-        am_noise = np.random.randn(N) * case['am'] if case['am'] > 0 else 0
-        pm_noise = np.random.randn(N) * case['pm'] / A if case['pm'] > 0 else 0
-        th_noise = np.random.randn(N) * case['thermal'] if case['thermal'] > 0 else 0
+        am_noise = rng.standard_normal(N) * case['am'] if case['am'] > 0 else 0
+        pm_noise = rng.standard_normal(N) * case['pm'] / A if case['pm'] > 0 else 0
+        th_noise = rng.standard_normal(N) * case['thermal'] if case['thermal'] > 0 else 0
         case['signal'] = (A + am_noise) * np.sin(phase_clean + pm_noise) + DC + th_noise
 
     fig, axes = plt.subplots(1, 3, figsize=(18, 8))

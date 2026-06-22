@@ -28,7 +28,8 @@ def test_harmonic_detection(hd2_target, hd3_target):
     # Generate signal with both HD2 and HD3 distortion
     t = np.arange(N_fft) / Fs
     sig_ideal = A * np.sin(2 * np.pi * Fin * t)
-    signal = sig_ideal + k2 * sig_ideal**2 + k3 * sig_ideal**3 + np.random.randn(N_fft) * noise_rms
+    rng = np.random.default_rng(2026062236)
+    signal = sig_ideal + k2 * sig_ideal**2 + k3 * sig_ideal**3 + rng.standard_normal(N_fft) * noise_rms
 
     # Run spectrum analysis
     result = compute_spectrum(signal, fs=Fs, max_harmonic=6, side_bin=1)

@@ -63,9 +63,10 @@ class TestAlignSpectrumPhase:
         n_fft = 256
         bin_idx = 25
         bin_r = 25.0
+        rng = np.random.default_rng(2026062223)
 
         # Create FFT data
-        fft_data = np.random.randn(n_fft) + 1j * np.random.randn(n_fft)
+        fft_data = rng.standard_normal(n_fft) + 1j * rng.standard_normal(n_fft)
         original_mag = np.abs(fft_data)
 
         fft_aligned = _align_spectrum_phase(fft_data, bin_idx, bin_r, n_fft)
@@ -178,8 +179,9 @@ class TestAlignSpectrumPhase:
         n_fft = 128
         bin_idx = 10
         bin_r = 10.0
+        rng = np.random.default_rng(2026062224)
 
-        fft_data = np.random.randn(n_fft) + 1j * np.random.randn(n_fft)
+        fft_data = rng.standard_normal(n_fft) + 1j * rng.standard_normal(n_fft)
         fft_data_original = fft_data.copy()
 
         _align_spectrum_phase(fft_data, bin_idx, bin_r, n_fft)
@@ -229,8 +231,9 @@ class TestAlignSpectrumPhase:
         n_fft = 16384
         bin_idx = 1000
         bin_r = 1000.0
+        rng = np.random.default_rng(2026062225)
 
-        fft_data = np.random.randn(n_fft) + 1j * np.random.randn(n_fft)
+        fft_data = rng.standard_normal(n_fft) + 1j * rng.standard_normal(n_fft)
         fft_data[bin_idx] = 100.0 * np.exp(1j * np.pi / 3)
 
         # Should complete without error

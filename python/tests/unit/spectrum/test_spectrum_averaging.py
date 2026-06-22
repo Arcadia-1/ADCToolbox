@@ -15,7 +15,8 @@ from adctoolbox.spectrum._spectrum_averaging import _power_average, _coherent_av
 ])
 def test_power_average(M, N):
     """Test power-averaged spectrum computation."""
-    data = np.random.randn(M, N)
+    rng = np.random.default_rng(2026062242)
+    data = rng.standard_normal((M, N))
 
     spectrum_power, _ = _power_average(data)
 
@@ -64,7 +65,8 @@ def test_coherent_average(M, N, osr):
     bin_target = N // 15
     A = 1.0  # Sine wave amplitude
     # Vectorized sine wave generation with random phases
-    phases = 2 * np.pi * np.random.rand(M, 1)
+    rng = np.random.default_rng(2026062243)
+    phases = 2 * np.pi * rng.random((M, 1))
     t = np.arange(N)
     data = A * np.sin(2 * np.pi * bin_target * t / N + phases)
 

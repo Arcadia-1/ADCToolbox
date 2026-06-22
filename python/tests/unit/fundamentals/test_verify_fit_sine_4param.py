@@ -54,7 +54,7 @@ def test_verify_fit_sine_4param_noisy_signal():
     2. Fit using fit_sine_4param
     3. Assert: Fitted parameters close to true values (within noise margin)
     """
-    np.random.seed(42)
+    rng = np.random.default_rng(42)
     N = 1000
     t = np.arange(N)
 
@@ -66,7 +66,7 @@ def test_verify_fit_sine_4param_noisy_signal():
 
     # Generate noisy signal
     sig_ideal = A_true * np.sin(2*np.pi*freq_true*t) + dc_true
-    noise = np.random.normal(0, noise_std, N)
+    noise = rng.normal(0, noise_std, N)
     sig_noisy = sig_ideal + noise
 
     # Fit the signal

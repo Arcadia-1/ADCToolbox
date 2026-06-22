@@ -150,8 +150,9 @@ def test_compute_spectrum_sndr(signal_amplitude, noise_rms):
     Fs = 100e6     # 100 MHz sampling rate
     Fin = 123 / N_fft * Fs  # Coherent frequency
     t = np.arange(N_fft) / Fs
+    rng = np.random.default_rng(2026062226)
 
-    signal = signal_amplitude * np.sin(2 * np.pi * Fin * t) + np.random.randn(N_fft) * noise_rms
+    signal = signal_amplitude * np.sin(2 * np.pi * Fin * t) + rng.standard_normal(N_fft) * noise_rms
 
     # Define full scale range as internal parameter
     max_scale_range = [-1, 1]
@@ -188,8 +189,9 @@ def test_compute_spectrum_sndr_no_max_scale_range(signal_amplitude, noise_rms):
     Fs = 100e6     # 100 MHz sampling rate
     Fin = 123 / N_fft * Fs  # Coherent frequency
     t = np.arange(N_fft) / Fs
+    rng = np.random.default_rng(2026062227)
 
-    signal = signal_amplitude * np.sin(2 * np.pi * Fin * t) + np.random.randn(N_fft) * noise_rms
+    signal = signal_amplitude * np.sin(2 * np.pi * Fin * t) + rng.standard_normal(N_fft) * noise_rms
 
     # Use hann window
     result = compute_spectrum(signal, fs=Fs, win_type='hann', verbose=0)
@@ -239,8 +241,9 @@ def test_compute_spectrum_window_sweep(win_type, side_bin):
     Fs = 100e6     # 100 MHz sampling rate
     Fin = 123 / N_fft * Fs  # Coherent frequency
     t = np.arange(N_fft) / Fs
+    rng = np.random.default_rng(2026062228)
 
-    signal = signal_amplitude * np.sin(2 * np.pi * Fin * t) + np.random.randn(N_fft) * noise_rms
+    signal = signal_amplitude * np.sin(2 * np.pi * Fin * t) + rng.standard_normal(N_fft) * noise_rms
 
     # Define full scale range as internal parameter
     max_scale_range = [-2, 2]
@@ -294,8 +297,9 @@ def test_compute_spectrum_window_sweep_no_max_scale_range(win_type, side_bin):
     Fs = 100e6     # 100 MHz sampling rate
     Fin = 123 / N_fft * Fs  # Coherent frequency
     t = np.arange(N_fft) / Fs
+    rng = np.random.default_rng(2026062229)
 
-    signal = signal_amplitude * np.sin(2 * np.pi * Fin * t) + np.random.randn(N_fft) * noise_rms
+    signal = signal_amplitude * np.sin(2 * np.pi * Fin * t) + rng.standard_normal(N_fft) * noise_rms
 
     print(f"\n[Window Test] win_type={win_type}, side_bin={side_bin}, A={signal_amplitude:.2f}, noise_rms={noise_rms*1e6:.2f}uV")
 

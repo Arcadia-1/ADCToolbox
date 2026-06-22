@@ -3,8 +3,10 @@ from adctoolbox.calibration._prepare_input import _prepare_input
 
 def test_single_dataset():
     """Verify standard flow with N (samples) > M (bits)."""
+    rng = np.random.default_rng(2026062201)
+
     # --- Case 1: Proper Orientation ---
-    data = np.random.randint(0, 2, (1024, 8)).astype(float)
+    data = rng.integers(0, 2, (1024, 8)).astype(float)
     print()
     res = _prepare_input(data, verbose=2)
     
@@ -14,7 +16,7 @@ def test_single_dataset():
     np.testing.assert_array_equal(res["bits_segments"][0], data)
 
     # --- Case 2: Transpose Triggered (N < M) ---
-    data = np.random.randint(0, 2, (8, 1024)).astype(float)
+    data = rng.integers(0, 2, (8, 1024)).astype(float)
     print()
     res = _prepare_input(data, verbose=2)
     
@@ -24,7 +26,7 @@ def test_single_dataset():
     np.testing.assert_array_equal(res["bits_segments"][0], data.T)
 
     # --- Case 3: Square Matrix Boundary ---
-    data = np.random.randint(0, 2, (16, 16)).astype(float)
+    data = rng.integers(0, 2, (16, 16)).astype(float)
     print()
     res = _prepare_input(data, verbose=2)
     
@@ -36,11 +38,13 @@ def test_single_dataset():
 
 def test_multi_dataset():
     """Verify vertical stacking and segment tracking for multiple datasets."""
+    rng = np.random.default_rng(2026062202)
+
     # Create 4 datasets with varying sample counts but same bit width
-    d1 = np.random.randint(0, 2, (1024, 8)).astype(float)
-    d2 = np.random.randint(0, 2, (512, 8)).astype(float)
-    d3 = np.random.randint(0, 2, (8, 8192)).astype(float)
-    d4 = np.random.randint(0, 2, (8, 16384)).astype(float)
+    d1 = rng.integers(0, 2, (1024, 8)).astype(float)
+    d2 = rng.integers(0, 2, (512, 8)).astype(float)
+    d3 = rng.integers(0, 2, (8, 8192)).astype(float)
+    d4 = rng.integers(0, 2, (8, 16384)).astype(float)
     data = [d1, d2, d3, d4]
     print()
     res = _prepare_input(data, verbose=2)

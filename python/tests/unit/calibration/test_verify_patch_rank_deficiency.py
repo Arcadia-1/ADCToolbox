@@ -10,7 +10,8 @@ def test_patch_rank_deficiency_logic():
     """
     nominal_weights = [128, 64, 32, 16, 8, 4, 2, 1]
 
-    bits_input = np.random.randint(0, 2, (2048, len(nominal_weights)))
+    rng = np.random.default_rng(2026062207)
+    bits_input = rng.integers(0, 2, (2048, len(nominal_weights)))
     # Create dependencies:
     bits_input[:, 1] = 0
     bits_input[:, 2] = 1
@@ -54,7 +55,8 @@ def test_patch_rank_deficiency_logic_reverse():
     """
     nominal_weights = [128, 64, 32, 16, 8, 4, 2, 1][::-1]
 
-    bits_input = np.random.randint(0, 2, (2048, len(nominal_weights)))
+    rng = np.random.default_rng(2026062208)
+    bits_input = rng.integers(0, 2, (2048, len(nominal_weights)))
     # Create dependencies:
     bits_input[:, 1] = 0
     bits_input[:, 2] = 1
@@ -99,7 +101,8 @@ def test_patch_rank_deficiency_logic_recover():
     """
     nominal_weights = [128, 64, 32, 16, 8, 4, 2, 1][::-1]
 
-    bits_input = np.random.randint(0, 2, (2048, len(nominal_weights)))
+    rng = np.random.default_rng(2026062209)
+    bits_input = rng.integers(0, 2, (2048, len(nominal_weights)))
     # Create dependencies:
     bits_input[:, 1] = 0
     bits_input[:, 2] = 1

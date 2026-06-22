@@ -33,12 +33,12 @@ def test_clean_sine_high_sndr():
 
 def test_noisy_sine_sndr_increases_with_osr():
     """Sine + white noise: SNDR should increase with OSR (~3 dB per doubling)."""
-    np.random.seed(42)
+    rng = np.random.default_rng(42)
     N = 4096
     t = np.arange(N)
     freq = 0.05
     sig = 0.5 * np.sin(2 * np.pi * freq * t)
-    noise = np.random.normal(0, 0.01, N)
+    noise = rng.normal(0, 0.01, N)
     data = sig + noise
 
     osr_values = np.array([2, 4, 8, 16, 32, 64])
@@ -102,8 +102,9 @@ def test_plot_with_ax():
 def test_plot_auto_subplots():
     """No ax provided should create 2-subplot figure."""
     N = 512
+    rng = np.random.default_rng(0)
     t = np.arange(N)
-    sig = 0.5 * np.sin(2 * np.pi * 0.1 * t) + np.random.RandomState(0).normal(0, 0.01, N)
+    sig = 0.5 * np.sin(2 * np.pi * 0.1 * t) + rng.normal(0, 0.01, N)
 
     result = sweep_performance_vs_osr(sig, osr=np.array([2, 4, 8, 16]))
     assert result is not None

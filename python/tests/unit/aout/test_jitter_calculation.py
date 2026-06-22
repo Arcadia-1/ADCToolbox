@@ -21,6 +21,7 @@ def test_jitter_recovery_at_1ghz():
     A = 0.49
     DC = 0.0
     base_noise = 50e-6
+    rng = np.random.default_rng(2026062221)
 
     # Test 3 frequencies
     fin_targets = [100e6, 1000e6, 2000e6]  # 100 MHz, 1 GHz, 2 GHz
@@ -52,9 +53,9 @@ def test_jitter_recovery_at_1ghz():
 
                 # Phase jitter model
                 phase_noise_rms = 2 * np.pi * Fin * jitter_rms
-                phase_jitter = np.random.randn(N) * phase_noise_rms
+                phase_jitter = rng.standard_normal(N) * phase_noise_rms
 
-                signal = A * np.sin(2*np.pi*Fin*t + phase_jitter) + DC + np.random.randn(N) * noise_level
+                signal = A * np.sin(2*np.pi*Fin*t + phase_jitter) + DC + rng.standard_normal(N) * noise_level
 
                 # Measure jitter using analyze_error_by_phase
                 results = analyze_error_by_phase(signal, norm_freq=Fin/Fs, n_bins=100,
@@ -164,6 +165,7 @@ def test_jitter_recovery_frequency_sweep(fin_target, expected_correlation):
     Fs = 7e9
     A = 0.49
     DC = 0.0
+    rng = np.random.default_rng(2026062222)
 
     # Find coherent frequency
     Fin, Fin_bin = find_coherent_frequency(fs=Fs, fin_target=fin_target, n_fft=N)
@@ -179,7 +181,7 @@ def test_jitter_recovery_frequency_sweep(fin_target, expected_correlation):
         # Generate signal
         t = np.arange(N) / Fs
         phase_noise_rms = 2 * np.pi * Fin * jitter_rms
-        phase_jitter = np.random.randn(N) * phase_noise_rms
+        phase_jitter = rng.standard_normal(N) * phase_noise_rms
         signal = A * np.sin(2*np.pi*Fin*t + phase_jitter) + DC
 
         # Measure jitter

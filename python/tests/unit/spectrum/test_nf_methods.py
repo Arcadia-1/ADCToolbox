@@ -20,7 +20,8 @@ def test_nf_methods_comparison():
     Fin_coherent = bin_target * Fs / N_fft
 
     t = np.arange(N_fft) / Fs
-    signal = A * np.sin(2*np.pi*Fin_coherent*t) + np.random.randn(N_fft) * noise_rms
+    rng = np.random.default_rng(2026062239)
+    signal = A * np.sin(2*np.pi*Fin_coherent*t) + rng.standard_normal(N_fft) * noise_rms
 
     # MATLAB numbering: 0=auto, 1=median, 2=trimmed, 3=exclude
     results_auto = compute_spectrum(signal, fs=Fs, nf_method=0)

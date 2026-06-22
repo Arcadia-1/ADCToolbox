@@ -56,9 +56,10 @@ def test_peak_power_with_windows(win_type, side_bin):
     Fs = 100e6
     Fin = 123 / N_fft * Fs  # Coherent frequency
     t = np.arange(N_fft) / Fs
+    rng = np.random.default_rng(2026062232)
 
     # Generate pure tone
-    signal = signal_amplitude * np.sin(2 * np.pi * Fin * t) + np.random.randn(N_fft) * 1e-6
+    signal = signal_amplitude * np.sin(2 * np.pi * Fin * t) + rng.standard_normal(N_fft) * 1e-6
 
     # Compute spectrum
     result = compute_spectrum(signal, fs=Fs, win_type=win_type, side_bin=side_bin)
@@ -101,9 +102,10 @@ def test_peak_power_with_windows_max_scale_range(win_type, side_bin):
     Fs = 100e6
     Fin = 123 / N_fft * Fs  # Coherent frequency
     t = np.arange(N_fft) / Fs
+    rng = np.random.default_rng(2026062233)
 
     # Generate pure tone
-    signal = signal_amplitude * np.sin(2 * np.pi * Fin * t) + np.random.randn(N_fft) * 1e-6
+    signal = signal_amplitude * np.sin(2 * np.pi * Fin * t) + rng.standard_normal(N_fft) * 1e-6
 
     # Compute spectrum
     max_scale_range = [-1, 1]

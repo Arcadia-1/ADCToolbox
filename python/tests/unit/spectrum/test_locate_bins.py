@@ -19,7 +19,8 @@ def test_locate_bins(bin_target, side_bin, max_harmonic):
 
     f_sig = bin_target * fs / n_fft
     t = np.arange(n_fft) / fs
-    signal = np.sin(2 * np.pi * f_sig * t) + np.random.randn(n_fft) * noise_rms
+    rng = np.random.default_rng(2026062237)
+    signal = np.sin(2 * np.pi * f_sig * t) + rng.standard_normal(n_fft) * noise_rms
 
     result = compute_spectrum(signal, fs=fs, osr=osr, side_bin=side_bin, max_harmonic=max_harmonic)
 
@@ -78,7 +79,8 @@ def test_locate_bins_noncoherent(fin, max_harmonic):
 
     # Generate signal at non-coherent frequency
     t = np.arange(n_fft) / fs
-    signal = np.sin(2 * np.pi * fin * t) + np.random.randn(n_fft) * noise_rms
+    rng = np.random.default_rng(2026062238)
+    signal = np.sin(2 * np.pi * fin * t) + rng.standard_normal(n_fft) * noise_rms
 
     result = compute_spectrum(signal, fs=fs, osr=osr, side_bin=side_bin, max_harmonic=max_harmonic)
 

@@ -55,8 +55,9 @@ def test_ifilter_rejects_invalid_frequency_bands():
 
 def test_perfosr_returns_matlab_order_and_matches_existing_core():
     n = 1024
+    rng = np.random.default_rng(0)
     t = np.arange(n)
-    data = 0.5 * np.sin(2 * np.pi * 0.05 * t) + 0.002 * np.random.RandomState(0).normal(size=n)
+    data = 0.5 * np.sin(2 * np.pi * 0.05 * t) + 0.002 * rng.normal(size=n)
     osr = np.array([2, 4, 8, 16])
 
     osr_out, sndr, sfdr, enob = perfosr(data, osr=osr, disp=False)

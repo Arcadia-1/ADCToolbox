@@ -23,8 +23,9 @@ def test_power_averaging_sndr(M):
     t = np.arange(N_fft) / Fs
     signal_clean = signal_amplitude * np.sin(2 * np.pi * Fin * t)
     signal_runs = np.zeros((M, N_fft))
+    rng = np.random.default_rng(2026062234)
     for m in range(M):
-        signal_runs[m, :] = signal_clean + np.random.randn(N_fft) * noise_rms
+        signal_runs[m, :] = signal_clean + rng.standard_normal(N_fft) * noise_rms
 
     # Power averaging
     result = compute_spectrum(signal_runs, fs=Fs, coherent_averaging=False)
@@ -68,8 +69,9 @@ def test_coherent_averaging_sndr(M):
     t = np.arange(N_fft) / Fs
     signal_clean = signal_amplitude * np.sin(2 * np.pi * Fin * t)
     signal_runs = np.zeros((M, N_fft))
+    rng = np.random.default_rng(2026062235)
     for m in range(M):
-        signal_runs[m, :] = signal_clean + np.random.randn(N_fft) * noise_rms
+        signal_runs[m, :] = signal_clean + rng.standard_normal(N_fft) * noise_rms
 
     # Coherent averaging
     result = compute_spectrum(signal_runs, fs=Fs, coherent_averaging=True)

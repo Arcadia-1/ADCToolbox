@@ -25,6 +25,7 @@ def test_inl_from_sine_sweep_length():
     DC = 0.5
     base_noise = 50e-6
     hd2_dB, hd3_dB = -80, -66
+    rng = np.random.default_rng(2026062220)
 
     # Compute HD coefficients
     hd2_amp = 10**(hd2_dB/20)
@@ -43,7 +44,7 @@ def test_inl_from_sine_sweep_length():
         fin, J = find_coherent_frequency(fs, fin_target, N)
         t = np.arange(N) / fs
         sinewave = A * np.sin(2 * np.pi * fin * t)
-        signal_distorted = sinewave + k2 * sinewave**2 + k3 * sinewave**3 + DC + np.random.randn(N) * base_noise
+        signal_distorted = sinewave + k2 * sinewave**2 + k3 * sinewave**3 + DC + rng.standard_normal(N) * base_noise
 
         result = analyze_spectrum(signal_distorted, fs=fs, create_plot=False)
 

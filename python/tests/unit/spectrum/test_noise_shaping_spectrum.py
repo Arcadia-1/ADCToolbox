@@ -26,6 +26,7 @@ def test_first_order_noise_shaping_spectrum():
     OSR = 64  # Oversampling ratio
     Fin_target = Fs / (2 * OSR) / 14  # Signal in lower quarter of Nyquist band
     A = 0.49
+    rng = np.random.default_rng(2026062230)
 
     # Find coherent frequency
     Fin, Fin_bin = find_coherent_frequency(fs=Fs, fin_target=Fin_target, n_fft=N)
@@ -35,10 +36,10 @@ def test_first_order_noise_shaping_spectrum():
     signal_ideal = A * np.sin(2 * np.pi * Fin * t)
 
     # Thermal noise (white, cannot be shaped) - keep small
-    thermal_noise = np.random.randn(N) * 100e-6
+    thermal_noise = rng.standard_normal(N) * 100e-6
 
     # Quantization noise (white noise as approximation, can be shaped) - make dominant
-    quant_noise_white = np.random.randn(N) * 2000e-6
+    quant_noise_white = rng.standard_normal(N) * 2000e-6
 
     # Apply 1st order noise shaping to quantization noise: NTF(z) = 1 - z^-1
     # noise_shaped[n] = noise[n] - noise[n-1]
@@ -68,8 +69,8 @@ def test_first_order_noise_shaping_spectrum():
 
     for run in range(N_runs):
         # Generate new noise for each run
-        thermal_run = np.random.randn(N) * 100e-6
-        quant_run = np.random.randn(N) * 2000e-6
+        thermal_run = rng.standard_normal(N) * 100e-6
+        quant_run = rng.standard_normal(N) * 2000e-6
 
         # Apply noise shaping to quantization noise
         quant_shaped_1st_run = np.zeros(N)
