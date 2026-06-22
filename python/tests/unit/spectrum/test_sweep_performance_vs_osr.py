@@ -9,6 +9,27 @@ from adctoolbox import sweep_performance_vs_osr
 from adctoolbox.spectrum._bin_ranges import rfft_inband_bin_count
 
 
+def _legend_labels(ax):
+    legend = ax.get_legend()
+    assert legend is not None
+    return [text.get_text() for text in legend.get_texts()]
+
+
+def _assert_performance_axis(ax):
+    assert ax.get_xlabel() == 'OSR'
+    assert ax.get_ylabel() == 'SNDR / SFDR (dB)'
+    assert ax.get_title() == 'Performance vs OSR'
+    assert ax.get_xscale() == 'log'
+    assert len(ax.lines) >= 2
+    assert {'SNDR (ENOB)', 'SFDR'}.issubset(_legend_labels(ax))
+
+
+def _assert_enob_axis(ax):
+    assert ax.get_ylabel() == 'ENOB (bits)'
+    ymin, ymax = ax.get_ylim()
+    assert ymin < ymax
+
+
 def test_clean_sine_high_sndr():
     """Clean sine: SNDR should be very high at all OSR."""
     N = 1024
@@ -92,23 +113,46 @@ def test_plot_with_ax():
     N = 512
     t = np.arange(N)
     sig = 0.5 * np.sin(2 * np.pi * 0.1 * t)
+    osr = np.array([2, 4, 8])
 
     fig, ax = plt.subplots()
-    result = sweep_performance_vs_osr(sig, osr=np.array([2, 4, 8]), ax=ax)
-    assert result is not None
-    plt.close('all')
+    result = sweep_performance_vs_osr(sig, osr=osr, ax=ax)
+
+    np.testing.assert_array_equal(result['osr'], osr)
+    assert len(result['sndr']) == len(osr)
+    assert fig.axes[0] is ax
+    assert len(fig.axes) == 2
+    _assert_performance_axis(ax)
+    _assert_enob_axis(fig.axes[1])
+    plt.close(fig)
 
 
 def test_plot_auto_subplots():
     """No ax provided should create 2-subplot figure."""
+    plt.close('all')
     N = 512
     rng = np.random.default_rng(0)
     t = np.arange(N)
     sig = 0.5 * np.sin(2 * np.pi * 0.1 * t) + rng.normal(0, 0.01, N)
 
     result = sweep_performance_vs_osr(sig, osr=np.array([2, 4, 8, 16]))
-    assert result is not None
-    plt.close('all')
+    fig = plt.gcf()
+    main_axes = [ax for ax in fig.axes if ax.get_title() == 'Performance vs OSR']
+    slope_axes = [ax for ax in fig.axes if ax.get_ylabel() == 'SNDR Slope (dB/decade)']
+    enob_axes = [ax for ax in fig.axes if ax.get_ylabel() == 'ENOB (bits)']
+
+    assert len(result['osr']) == 4
+    assert len(fig.axes) == 3
+    assert len(main_axes) == 1
+    assert len(slope_axes) == 1
+    assert len(enob_axes) == 1
+    _assert_performance_axis(main_axes[0])
+    _assert_enob_axis(enob_axes[0])
+    assert slope_axes[0].get_xlabel() == 'OSR'
+    assert slope_axes[0].get_xscale() == 'log'
+    assert len(slope_axes[0].lines) >= 2
+    assert any(text.get_text() == 'White Noise Limit' for text in slope_axes[0].texts)
+    plt.close(fig)
 
 
 def test_enob_formula():

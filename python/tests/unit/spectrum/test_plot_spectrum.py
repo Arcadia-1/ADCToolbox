@@ -17,6 +17,41 @@ output_dir = Path(__file__).parent / "test_output"
 output_dir.mkdir(exist_ok=True)
 
 
+def _text_values(ax):
+    return [text.get_text() for text in ax.texts]
+
+
+def _assert_spectrum_axes(ax, result, *, show_label=True, expected_title='Power Spectrum'):
+    """Verify that plot_spectrum rendered the expected plot structure."""
+    spectrum_line = ax.lines[0]
+    assert len(spectrum_line.get_xdata()) == len(result['plot_data']['freq'])
+    assert len(spectrum_line.get_ydata()) == len(result['plot_data']['power_spectrum_db_plot'])
+
+    ymin, ymax = ax.get_ylim()
+    xmin, xmax = ax.get_xlim()
+    assert xmin > 0
+    assert xmax == pytest.approx(result['fs'] / 2)
+    assert ymin < 0
+    assert ymax == 0
+
+    if expected_title is not None:
+        assert ax.get_title() == expected_title
+
+    if show_label:
+        assert ax.get_xlabel() == 'Freq (Hz)'
+        assert ax.get_ylabel() == 'dBFS'
+        texts = _text_values(ax)
+        for prefix in ('Fin/fs =', 'ENoB =', 'SNDR =', 'Sig ='):
+            assert any(text.startswith(prefix) for text in texts)
+        assert 'MaxSpur' in texts
+        assert any(line.get_marker() == 'o' for line in ax.lines)
+        assert any(line.get_marker() == 'd' for line in ax.lines)
+    else:
+        assert ax.get_xlabel() == ''
+        assert ax.get_ylabel() == ''
+        assert _text_values(ax) == []
+
+
 @pytest.mark.parametrize(
     "nf_line_level,expected",
     [
@@ -141,12 +176,14 @@ def test_plot_spectrum_distorted_sine(hd2_target, hd3_target):
     # Create figure and plot
     fig, ax = plt.subplots(figsize=(10, 6))
     plot_spectrum(result, show_title=True, show_label=True, plot_harmonics_up_to=3, ax=ax)
+    _assert_spectrum_axes(ax, result)
+    assert len(ax.lines) >= 5
 
     # Save figure
     fig_path = output_dir / f'test_plot_distorted_hd2_{hd2_target}_hd3_{hd3_target}.png'
     plt.tight_layout()
     plt.savefig(fig_path, dpi=150, bbox_inches='tight')
-    plt.close()
+    plt.close(fig)
 
     # Verify file was created
     assert fig_path.exists(), f"Figure file not created: {fig_path}"
@@ -175,12 +212,13 @@ def test_plot_spectrum_clean_sine():
     # Create figure and plot
     fig, ax = plt.subplots(figsize=(10, 6))
     plot_spectrum(result, show_title=True, show_label=True, plot_harmonics_up_to=3, ax=ax)
+    _assert_spectrum_axes(ax, result)
 
     # Save figure
     fig_path = output_dir / 'test_plot_clean_sine.png'
     plt.tight_layout()
     plt.savefig(fig_path, dpi=150, bbox_inches='tight')
-    plt.close()
+    plt.close(fig)
 
     # Verify file was created
     assert fig_path.exists(), f"Figure file not created: {fig_path}"
@@ -227,14 +265,17 @@ def test_plot_spectrum_comparison():
         plot_spectrum(result, show_title=False, show_label=True, plot_harmonics_up_to=3, ax=axes[idx])
         axes[idx].set_title(f'{config["label"]}: HD2={config["hd2"]} dBc, HD3={config["hd3"]} dBc',
                            fontsize=12, fontweight='bold')
+        _assert_spectrum_axes(axes[idx], result, expected_title=None)
+        assert config['label'] in axes[idx].get_title()
 
     # Save figure
     fig_path = output_dir / 'test_plot_comparison.png'
     plt.tight_layout()
     plt.savefig(fig_path, dpi=150, bbox_inches='tight')
-    plt.close()
+    plt.close(fig)
 
     # Verify file was created
+    assert len(axes) == len(distortion_configs)
     assert fig_path.exists(), f"Figure file not created: {fig_path}"
     assert fig_path.stat().st_size > 0, f"Figure file is empty: {fig_path}"
 
@@ -259,12 +300,14 @@ def test_plot_spectrum_no_labels():
     # Create figure and plot without labels
     fig, ax = plt.subplots(figsize=(10, 6))
     plot_spectrum(result, show_title=False, show_label=False, plot_harmonics_up_to=0, ax=ax)
+    _assert_spectrum_axes(ax, result, show_label=False, expected_title='')
+    assert len(ax.lines) == 1
 
     # Save figure
     fig_path = output_dir / 'test_plot_no_labels.png'
     plt.tight_layout()
     plt.savefig(fig_path, dpi=150, bbox_inches='tight')
-    plt.close()
+    plt.close(fig)
 
     # Verify file was created
     assert fig_path.exists(), f"Figure file not created: {fig_path}"
@@ -298,12 +341,16 @@ def test_plot_spectrum_high_harmonics():
     # Create figure and plot with many harmonics
     fig, ax = plt.subplots(figsize=(12, 7))
     plot_spectrum(result, show_title=True, show_label=True, plot_harmonics_up_to=7, ax=ax)
+    _assert_spectrum_axes(ax, result)
+    texts = set(_text_values(ax))
+    assert {'2', '3', '4'}.issubset(texts)
+    assert sum(line.get_marker() == 's' for line in ax.lines) >= 3
 
     # Save figure
     fig_path = output_dir / 'test_plot_high_harmonics.png'
     plt.tight_layout()
     plt.savefig(fig_path, dpi=150, bbox_inches='tight')
-    plt.close()
+    plt.close(fig)
 
     # Verify file was created
     assert fig_path.exists(), f"Figure file not created: {fig_path}"

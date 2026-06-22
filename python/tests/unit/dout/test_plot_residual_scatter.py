@@ -17,6 +17,21 @@ def _make_adc_data(n=1024, m=6):
     return sig, bits
 
 
+def _visible_axes(fig):
+    return [ax for ax in fig.axes if ax.get_visible()]
+
+
+def _hidden_axes(fig):
+    return [ax for ax in fig.axes if not ax.get_visible()]
+
+
+def _assert_scatter_axis(ax, *, n_points, xlabel, ylabel):
+    assert ax.get_xlabel() == xlabel
+    assert ax.get_ylabel() == ylabel
+    assert len(ax.collections) == 1
+    assert ax.collections[0].get_offsets().shape == (n_points, 2)
+
+
 def test_basic_output():
     """Basic call returns dict with expected keys."""
     sig, bits = _make_adc_data()
@@ -81,9 +96,43 @@ def test_residual_stage_zero():
 
 
 def test_plot_creation():
-    """Plot creates without error."""
+    """Plot creates one scatter axis per requested pair."""
     sig, bits = _make_adc_data()
-    result = plot_residual_scatter(sig, bits, pairs=[(0, 6), (3, 6)],
-                                   create_plot=True)
-    assert result is not None
-    plt.close('all')
+    pairs = [(0, 6), (3, 6)]
+    result = plot_residual_scatter(sig, bits, pairs=pairs, create_plot=True)
+    fig = plt.gcf()
+    visible_axes = _visible_axes(fig)
+
+    assert result['pairs'] == pairs
+    assert len(fig.axes) == 2
+    assert len(visible_axes) == len(pairs)
+    _assert_scatter_axis(
+        visible_axes[0],
+        n_points=len(sig),
+        xlabel='Signal',
+        ylabel='Res. of bit #6',
+    )
+    _assert_scatter_axis(
+        visible_axes[1],
+        n_points=len(sig),
+        xlabel='Res. of bit #3',
+        ylabel='Res. of bit #6',
+    )
+    plt.close(fig)
+
+
+def test_plot_creation_hides_unused_subplots():
+    """Unused axes in the subplot grid should be hidden."""
+    sig, bits = _make_adc_data(n=128)
+    pairs = [(0, 6), (1, 6), (2, 6), (3, 6), (4, 6)]
+    result = plot_residual_scatter(sig, bits, pairs=pairs, create_plot=True)
+    fig = plt.gcf()
+
+    assert result['pairs'] == pairs
+    assert len(fig.axes) == 8
+    assert len(_visible_axes(fig)) == len(pairs)
+    assert len(_hidden_axes(fig)) == 3
+    for ax in _visible_axes(fig):
+        assert len(ax.collections) == 1
+        assert ax.collections[0].get_offsets().shape == (len(sig), 2)
+    plt.close(fig)
