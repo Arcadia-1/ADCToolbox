@@ -39,6 +39,8 @@ from adctoolbox.aout.plot_decomposition_polar import plot_decomposition_polar
 
 from adctoolbox.aout.analyze_inl_from_sine import analyze_inl_from_sine
 from adctoolbox.aout.compute_inl_from_sine import compute_inl_from_sine
+from adctoolbox.aout.analyze_inl_from_ramp import analyze_inl_from_ramp
+from adctoolbox.aout.compute_inl_from_ramp import compute_inl_from_ramp
 from adctoolbox.aout.plot_dnl_inl import plot_dnl_inl
 
 # ----------------------------------------------------------------------
@@ -185,6 +187,8 @@ __all__ = [
     # INL / DNL
     'analyze_inl_from_sine',
     'compute_inl_from_sine',
+    'analyze_inl_from_ramp',
+    'compute_inl_from_ramp',
 
     # Static nonlinearity
     'fit_static_nonlin',

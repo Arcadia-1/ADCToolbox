@@ -134,6 +134,30 @@ sub-DAC sections (use 0 where there is no bridge), `caps_parasitic` —
 parasitic caps per node. Returns a `(weights, c_total)` tuple — never
 a dict.
 
+## "I have ramp simulation codes and want static INL/DNL"
+
+```python
+from adctoolbox import analyze_inl_from_ramp
+
+result = analyze_inl_from_ramp(codes, num_bits=12, create_plot=False)
+print(result["dnl_pp"], result["inl_pp"], result["missing_codes"])
+```
+
+Use this when `codes` are integer ADC output codes collected while a slow
+monotonic linear ramp was applied. The analyzer uses the code histogram:
+wide codes appear more often, narrow codes appear less often, and missing
+codes have zero count. This is separate from `analyze_inl_from_sine`, which
+uses sine-histogram correction because a sine input is not uniformly
+distributed over code.
+
+Ramp INL defaults to `endpoint="fit"`, so the returned `inl` is best-fit
+baseline corrected. For raw cumulative INL, or to compare directly with the
+current sine-histogram analyzer's raw `cumsum(dnl)` convention, pass
+`endpoint="none"`. DNL is normalized to the mean count over the analyzed code
+range; if the ramp covers only a subrange, the result is relative to that
+subrange's average code width rather than an independently known full-scale
+1 LSB.
+
 ## When to fall back to `SKILL.md`
 
 If the task is plain spectrum analysis (SNDR / SFDR / ENOB), basic

@@ -1,6 +1,6 @@
 # ADCToolbox Examples
 
-This directory contains 63 runnable ADCToolbox examples. They are copied to a
+This directory contains 64 runnable ADCToolbox examples. They are copied to a
 user workspace by:
 
 ```bash
@@ -75,6 +75,7 @@ python 05_debug_digital/exp_d02_cal_weight_sine.py
 | `exp_a25_spectra.py` | Multi-case spectrum comparison |
 | `exp_a31_fit_static_nonlin.py` | Static nonlinearity fitting |
 | `exp_a32_inl_from_sine_sweep_length.py` | INL/DNL versus record length |
+| `exp_a33_inl_from_ramp.py` | Ramp-histogram INL/DNL from output codes |
 | `exp_a41_analyze_phase_plane.py` | Phase-plane analysis |
 | `exp_a42_analyze_error_phase_plane.py` | Error phase-plane analysis |
 
