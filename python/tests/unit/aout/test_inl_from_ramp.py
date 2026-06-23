@@ -24,6 +24,7 @@ def test_ideal_ramp_codes_have_zero_dnl_and_inl():
     )
 
     assert np.array_equal(result["code"], np.arange(16))
+    assert np.array_equal(result["transition_code"], np.arange(17))
     assert np.array_equal(result["counts"], np.full(16, 10))
     assert result["missing_codes"].size == 0
     assert np.allclose(result["dnl"], 0.0)
@@ -66,6 +67,7 @@ def test_code_width_error_maps_to_expected_dnl():
     assert result["ideal_count"] == pytest.approx(20.0)
     assert result["dnl"][6] == pytest.approx(0.5)
     assert result["dnl"][7] == pytest.approx(-0.5)
+    assert np.array_equal(result["raw_inl"], np.r_[0.0, np.cumsum(result["dnl"])])
 
 
 def test_endpoint_exclusion_removes_partial_ramp_edges():
@@ -90,6 +92,7 @@ def test_endpoint_exclusion_removes_partial_ramp_edges():
     assert included["dnl"][0] < 0
     assert included["dnl"][-1] < 0
     assert np.array_equal(excluded["code"], np.arange(1, 15))
+    assert np.array_equal(excluded["transition_code"], np.arange(1, 16))
     assert np.array_equal(excluded["counts"], np.full(14, 10))
     assert np.allclose(excluded["dnl"], 0.0)
     assert np.allclose(excluded["inl"], 0.0)
@@ -120,10 +123,13 @@ def test_endpoint_corrections_are_explicit():
         endpoint="fit",
     )
 
+    assert len(raw["inl"]) == len(raw["dnl"]) + 1
     assert np.array_equal(raw["raw_inl"], raw["inl"])
+    assert np.array_equal(raw["raw_inl"], np.r_[0.0, np.cumsum(raw["dnl"])])
+    assert np.array_equal(np.diff(raw["raw_inl"]), raw["dnl"])
     assert endpoints["inl"][0] == pytest.approx(0.0)
     assert endpoints["inl"][-1] == pytest.approx(0.0)
-    assert abs(np.polyfit(fit["code"], fit["inl"], deg=1)[0]) < 1e-12
+    assert abs(np.polyfit(fit["transition_code"], fit["inl"], deg=1)[0]) < 1e-12
 
 
 def test_default_endpoint_inl_starts_and_ends_at_zero():
@@ -159,7 +165,8 @@ def test_analyze_inl_from_ramp_plots_with_existing_dnl_inl_style():
         ax=ax,
     )
 
-    assert {"code", "counts", "dnl", "inl", "missing_codes"} <= set(result)
+    assert {"code", "counts", "dnl", "transition_code", "inl", "missing_codes"} <= set(result)
+    assert len(result["inl"]) == len(result["dnl"]) + 1
     assert len(fig.axes) == 2
     assert fig.axes[0].get_ylabel() == "DNL (LSB)"
     assert fig.axes[1].get_ylabel() == "INL (LSB)"

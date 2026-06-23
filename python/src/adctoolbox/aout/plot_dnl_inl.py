@@ -9,7 +9,19 @@ import numpy as np
 import matplotlib.pyplot as plt
 from matplotlib.gridspec import GridSpecFromSubplotSpec
 
-def plot_dnl_inl(code, dnl, inl, num_bits=None, show_title=True, col_title=None, axes=None, ax=None, color_dnl='b', color_inl='b'):
+def plot_dnl_inl(
+    code,
+    dnl,
+    inl,
+    num_bits=None,
+    show_title=True,
+    col_title=None,
+    axes=None,
+    ax=None,
+    color_dnl='b',
+    color_inl='b',
+    inl_code=None,
+):
     """
     Plot DNL and INL curves in a 2-row subplot layout.
 
@@ -21,6 +33,9 @@ def plot_dnl_inl(code, dnl, inl, num_bits=None, show_title=True, col_title=None,
         DNL values in LSB (y-axis)
     inl : array_like
         INL values in LSB (y-axis)
+    inl_code : array_like, optional
+        Code or transition-code values for the INL x-axis. If omitted, ``code``
+        is used for both DNL and INL for backward compatibility.
     num_bits : int, optional
         Number of bits for x-axis limits. If None, uses code range.
     show_title : bool, default=True
@@ -72,7 +87,8 @@ def plot_dnl_inl(code, dnl, inl, num_bits=None, show_title=True, col_title=None,
     _plot_single_curve(axes[0], code, dnl, num_bits, 'DNL (LSB)', color_dnl)
 
     # Plot INL (bottom)
-    _plot_single_curve(axes[1], code, inl, num_bits, 'INL (LSB)', color_inl)
+    inl_code = code if inl_code is None else inl_code
+    _plot_single_curve(axes[1], inl_code, inl, num_bits, 'INL (LSB)', color_inl)
 
     # Set titles on subplots
     if show_title:

@@ -152,11 +152,14 @@ distributed over code.
 
 Ramp INL defaults to `endpoint="endpoints"`, so the returned endpoint-INL curve
 starts and ends at zero after removing the line through the first and last raw
-INL samples. Pass `endpoint="fit"` for best-fit INL, or `endpoint="none"` to
-compare directly with the current sine-histogram analyzer's raw `cumsum(dnl)`
-convention. DNL is normalized to the mean count over the analyzed code range;
-if the ramp covers only a subrange, the result is relative to that subrange's
-average code width rather than an independently known full-scale 1 LSB.
+transition-INL samples. DNL is reported per output code in `result["code"]`,
+while INL is reported per transition in `result["transition_code"]`; therefore
+`len(result["inl"]) == len(result["dnl"]) + 1` and raw transition INL satisfies
+`result["raw_inl"] == [0, cumsum(result["dnl"])]`. Pass `endpoint="fit"` for
+best-fit INL, or `endpoint="none"` for raw transition INL. DNL is normalized to
+the mean count over the analyzed code range; if the ramp covers only a
+subrange, the result is relative to that subrange's average code width rather
+than an independently known full-scale 1 LSB.
 
 ## When to fall back to `SKILL.md`
 

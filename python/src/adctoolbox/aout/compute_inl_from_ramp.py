@@ -55,7 +55,7 @@ def _coerce_integer_codes(codes) -> np.ndarray:
     return rounded.astype(np.int64)
 
 
-def _correct_inl(raw_inl: np.ndarray, code: np.ndarray, endpoint: str) -> np.ndarray:
+def _correct_inl(raw_inl: np.ndarray, inl_code: np.ndarray, endpoint: str) -> np.ndarray:
     if not isinstance(endpoint, str):
         raise ValueError("endpoint must be one of 'fit', 'endpoints', or 'none'")
     endpoint = endpoint.lower()
@@ -74,8 +74,8 @@ def _correct_inl(raw_inl: np.ndarray, code: np.ndarray, endpoint: str) -> np.nda
     if endpoint == "fit":
         if len(raw_inl) == 1:
             return raw_inl - raw_inl[0]
-        coeff = np.polyfit(code.astype(float), raw_inl, deg=1)
-        return raw_inl - np.polyval(coeff, code)
+        coeff = np.polyfit(inl_code.astype(float), raw_inl, deg=1)
+        return raw_inl - np.polyval(coeff, inl_code)
 
     raise ValueError("endpoint must be one of 'fit', 'endpoints', or 'none'")
 
@@ -101,13 +101,14 @@ def compute_inl_from_ramp(
     range ramp with uniform sampling, but a partial-range ramp reports DNL
     relative to that partial range's average code width.
 
-    The returned ``inl`` uses the selected ``endpoint`` baseline. The default
-    ``endpoint='endpoints'`` reports endpoint INL by removing the line through
-    the first and last raw INL samples, so the corrected INL starts and ends at
-    zero. Use ``endpoint='fit'`` for best-fit-corrected INL, or
-    ``endpoint='none'`` for raw cumulative INL, including direct comparisons
-    against the current sine-histogram analyzer's raw ``cumsum(dnl)``
-    convention.
+    The returned ``inl`` is transition-level INL: if ``dnl`` has one value per
+    analyzed output code, ``inl`` has one value per transition bounding those
+    code widths, so ``len(inl) == len(dnl) + 1``. Raw transition INL is
+    ``[0, cumsum(dnl)]``, matching the standard relation
+    ``INL[k] = sum(DNL[:k])``. The default ``endpoint='endpoints'`` removes the
+    line through the first and last raw INL samples, so the corrected endpoint
+    INL starts and ends at zero. Use ``endpoint='fit'`` for best-fit-corrected
+    INL, or ``endpoint='none'`` for raw transition INL.
 
     This function does not verify that ``codes`` came from a linear monotonic
     ramp. Non-ramp or non-uniformly swept data will produce mathematically
@@ -127,8 +128,8 @@ def compute_inl_from_ramp(
         inferred from the maximum observed code.
     endpoint : {'endpoints', 'fit', 'none'}, default='endpoints'
         INL baseline correction. ``'endpoints'`` removes the line through the
-        first and last raw INL samples. ``'fit'`` removes a best-fit line from
-        the raw cumulative DNL. ``'none'`` returns the raw cumulative DNL.
+        first and last raw transition-INL samples. ``'fit'`` removes a best-fit
+        line from the raw transition INL. ``'none'`` returns raw transition INL.
     exclude_endpoints : bool, default=True
         Exclude the lowest and highest codes from the reported DNL/INL. This is
         useful for ramp captures where the first and last codes are only
@@ -137,8 +138,8 @@ def compute_inl_from_ramp(
     Returns
     -------
     dict
-        Dictionary with ``code``, ``counts``, ``dnl``, ``inl``,
-        ``missing_codes``, and summary metrics such as ``dnl_min`` and
+        Dictionary with ``code``, ``counts``, ``dnl``, ``transition_code``,
+        ``inl``, ``missing_codes``, and summary metrics such as ``dnl_min`` and
         ``inl_pp``.
     """
     num_bits, code_min, code_max = _validate_code_limits(num_bits, code_min, code_max)
@@ -176,14 +177,16 @@ def compute_inl_from_ramp(
 
     dnl = counts / ideal_count - 1.0
     dnl = np.maximum(dnl, -1.0)
-    raw_inl = np.cumsum(dnl)
-    inl = _correct_inl(raw_inl, code, endpoint)
+    transition_code = np.arange(code[0], code[-1] + 2, dtype=np.int64)
+    raw_inl = np.concatenate(([0.0], np.cumsum(dnl)))
+    inl = _correct_inl(raw_inl, transition_code, endpoint)
     missing_codes = code[counts == 0].astype(int)
 
     return {
         "code": code.astype(int),
         "counts": counts.astype(int),
         "dnl": dnl,
+        "transition_code": transition_code.astype(int),
         "inl": inl,
         "raw_inl": raw_inl,
         "missing_codes": missing_codes,

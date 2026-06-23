@@ -53,6 +53,7 @@ for col, (title, codes) in enumerate(cases):
     )
 
     code = result["code"]
+    transition_code = result["transition_code"]
     counts = result["counts"]
     dnl = result["dnl"]
     inl = result["inl"]
@@ -72,9 +73,9 @@ for col, (title, codes) in enumerate(cases):
     ax_dnl.axhline(-1.0, color="gray", linestyle="--", linewidth=0.8)
     ax_dnl.set_ylabel("DNL (LSB)")
 
-    ax_inl.step(code, inl, where="mid", color="#54A24B")
+    ax_inl.step(transition_code, inl, where="post", color="#54A24B")
     ax_inl.axhline(0.0, color="black", linewidth=0.8)
-    ax_inl.set_xlabel("ADC output code")
+    ax_inl.set_xlabel("ADC transition code")
     ax_inl.set_ylabel("INL (LSB)")
 
     for ax in (ax_counts, ax_dnl, ax_inl):

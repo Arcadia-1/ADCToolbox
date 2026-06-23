@@ -35,10 +35,11 @@ def analyze_inl_from_ramp(
     pairs should be handled by a future API extension.
 
     By default this wrapper reports endpoint INL because
-    ``endpoint='endpoints'`` forces the first and last analyzed INL samples to
-    zero. Pass ``endpoint='fit'`` for best-fit-corrected INL, or
-    ``endpoint='none'`` for raw cumulative INL and direct comparison with the
-    current sine-histogram analyzer's baseline convention.
+    ``endpoint='endpoints'`` forces the first and last transition-INL samples
+    to zero. ``result['dnl']`` is one value per analyzed output code, while
+    ``result['inl']`` is one value per transition and therefore has one extra
+    sample. Pass ``endpoint='fit'`` for best-fit-corrected INL, or
+    ``endpoint='none'`` for raw transition INL.
 
     Parameters
     ----------
@@ -97,6 +98,7 @@ def analyze_inl_from_ramp(
             col_title=col_title,
             axes=axes,
             ax=ax,
+            inl_code=result["transition_code"],
         )
 
     return result
