@@ -48,6 +48,7 @@ for col, (title, codes) in enumerate(cases):
     result = analyze_inl_from_ramp(
         codes,
         num_bits=num_bits,
+        endpoint="endpoints",
         create_plot=False,
     )
 
@@ -102,7 +103,7 @@ for col, (title, codes) in enumerate(cases):
 
 fig.suptitle(
     "Ramp-Based Static INL/DNL from Code Histogram\n"
-    "Counts show code width; DNL is counts/mean(counts)-1; INL uses endpoint='fit'",
+    "Counts show code width; DNL is counts/mean(counts)-1; INL uses endpoint='endpoints'",
     fontweight="bold",
 )
 plt.tight_layout(rect=[0, 0, 1, 0.93])

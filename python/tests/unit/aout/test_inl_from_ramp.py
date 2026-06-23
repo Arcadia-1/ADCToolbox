@@ -126,6 +126,23 @@ def test_endpoint_corrections_are_explicit():
     assert abs(np.polyfit(fit["code"], fit["inl"], deg=1)[0]) < 1e-12
 
 
+def test_default_endpoint_inl_starts_and_ends_at_zero():
+    counts = np.full(8, 10)
+    counts[2] = 14
+    counts[5] = 6
+    codes = _codes_from_counts(counts)
+
+    result = compute_inl_from_ramp(
+        codes,
+        num_bits=3,
+        exclude_endpoints=False,
+    )
+
+    assert result["endpoint"] == "endpoints"
+    assert result["inl"][0] == pytest.approx(0.0)
+    assert result["inl"][-1] == pytest.approx(0.0)
+
+
 def test_analyze_inl_from_ramp_plots_with_existing_dnl_inl_style():
     import matplotlib
     matplotlib.use("Agg")

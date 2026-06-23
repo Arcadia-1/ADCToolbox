@@ -17,7 +17,7 @@ def analyze_inl_from_ramp(
     code_min: int = 0,
     code_max: int | None = None,
     input_type: str = "codes",
-    endpoint: str = "fit",
+    endpoint: str = "endpoints",
     exclude_endpoints: bool = True,
     create_plot: bool = True,
     show_title: bool = True,
@@ -34,10 +34,11 @@ def analyze_inl_from_ramp(
     code histograms only; transition extraction from analog ramp/input-voltage
     pairs should be handled by a future API extension.
 
-    By default this wrapper reports best-fit-corrected INL because
-    ``endpoint='fit'``. For raw cumulative INL, or for direct comparison with
-    the current sine-histogram analyzer's baseline convention, pass
-    ``endpoint='none'``.
+    By default this wrapper reports endpoint INL because
+    ``endpoint='endpoints'`` forces the first and last analyzed INL samples to
+    zero. Pass ``endpoint='fit'`` for best-fit-corrected INL, or
+    ``endpoint='none'`` for raw cumulative INL and direct comparison with the
+    current sine-histogram analyzer's baseline convention.
 
     Parameters
     ----------
@@ -54,7 +55,7 @@ def analyze_inl_from_ramp(
         Reserved for future voltage/transition-level support. Only ``'codes'``
         is currently implemented. Passing arbitrary non-ramp code streams will
         return histogram results, but they are not meaningful ramp DNL/INL.
-    endpoint : {'fit', 'endpoints', 'none'}, default='fit'
+    endpoint : {'endpoints', 'fit', 'none'}, default='endpoints'
         INL baseline correction passed to :func:`compute_inl_from_ramp`.
     exclude_endpoints : bool, default=True
         Exclude first and last codes from reported DNL/INL.

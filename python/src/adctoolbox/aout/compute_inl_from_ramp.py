@@ -85,7 +85,7 @@ def compute_inl_from_ramp(
     num_bits: int | None = None,
     code_min: int = 0,
     code_max: int | None = None,
-    endpoint: str = "fit",
+    endpoint: str = "endpoints",
     exclude_endpoints: bool = True,
 ) -> dict:
     """
@@ -102,9 +102,12 @@ def compute_inl_from_ramp(
     relative to that partial range's average code width.
 
     The returned ``inl`` uses the selected ``endpoint`` baseline. The default
-    ``endpoint='fit'`` reports best-fit-corrected INL. Use ``endpoint='none'``
-    for raw cumulative INL, including direct comparisons against the current
-    sine-histogram analyzer's raw ``cumsum(dnl)`` convention.
+    ``endpoint='endpoints'`` reports endpoint INL by removing the line through
+    the first and last raw INL samples, so the corrected INL starts and ends at
+    zero. Use ``endpoint='fit'`` for best-fit-corrected INL, or
+    ``endpoint='none'`` for raw cumulative INL, including direct comparisons
+    against the current sine-histogram analyzer's raw ``cumsum(dnl)``
+    convention.
 
     This function does not verify that ``codes`` came from a linear monotonic
     ramp. Non-ramp or non-uniformly swept data will produce mathematically
@@ -122,10 +125,10 @@ def compute_inl_from_ramp(
     code_max : int, optional
         Highest allowed ADC code. If omitted with ``num_bits=None``, it is
         inferred from the maximum observed code.
-    endpoint : {'fit', 'endpoints', 'none'}, default='fit'
-        INL baseline correction. ``'fit'`` removes a best-fit line from the raw
-        cumulative DNL. ``'endpoints'`` removes the line through the first and
-        last raw INL samples. ``'none'`` returns the raw cumulative DNL.
+    endpoint : {'endpoints', 'fit', 'none'}, default='endpoints'
+        INL baseline correction. ``'endpoints'`` removes the line through the
+        first and last raw INL samples. ``'fit'`` removes a best-fit line from
+        the raw cumulative DNL. ``'none'`` returns the raw cumulative DNL.
     exclude_endpoints : bool, default=True
         Exclude the lowest and highest codes from the reported DNL/INL. This is
         useful for ramp captures where the first and last codes are only
