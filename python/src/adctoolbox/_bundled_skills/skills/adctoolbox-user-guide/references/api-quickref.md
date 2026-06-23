@@ -57,6 +57,7 @@ from adctoolbox import (
     analyze_error_autocorr,
     analyze_error_envelope_spectrum,
     analyze_inl_from_sine,
+    analyze_inl_from_ramp,
     analyze_decomposition_time,
     analyze_decomposition_polar,
     fit_static_nonlin,
@@ -91,6 +92,7 @@ from adctoolbox.toolset import generate_aout_dashboard, generate_dout_dashboard
 from adctoolbox.fundamentals import convert_cap_to_weight
 from adctoolbox.aout import (
     analyze_phase_plane, analyze_error_phase_plane, decompose_harmonic_error,
+    compute_inl_from_ramp,
 )
 ```
 
@@ -106,7 +108,7 @@ from adctoolbox.aout import (
   `analyze_bit_activity`, `analyze_overflow`, `analyze_weight_radix`,
   `analyze_enob_sweep`
 - Static nonlinearity:
-  `fit_static_nonlin`
+  `fit_static_nonlin`, `analyze_inl_from_sine`, `analyze_inl_from_ramp`
 - Cap-to-weight:
   `convert_cap_to_weight`
 

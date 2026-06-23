@@ -245,6 +245,18 @@ def test_advanced_static_nonlinearity(synth_capture):
     assert len(fitted_transfer) == 2
 
 
+def test_advanced_ramp_inl_dnl():
+    from adctoolbox import analyze_inl_from_ramp
+
+    codes = np.repeat(np.arange(16), 8)
+    result = analyze_inl_from_ramp(codes, num_bits=4, create_plot=False)
+
+    assert {"dnl_pp", "inl_pp", "missing_codes"} <= set(result.keys())
+    assert result["dnl_pp"] == pytest.approx(0.0)
+    assert result["inl_pp"] == pytest.approx(0.0)
+    assert result["missing_codes"].size == 0
+
+
 # ----------------------------------------------------------------------
 # advanced-debug.md — cap-to-weight
 # ----------------------------------------------------------------------
@@ -274,7 +286,7 @@ def test_api_quickref_flat_imports_resolve():
         analyze_error_by_value, analyze_error_by_phase,
         analyze_error_pdf, analyze_error_spectrum,
         analyze_error_autocorr, analyze_error_envelope_spectrum,
-        analyze_inl_from_sine,
+        analyze_inl_from_sine, analyze_inl_from_ramp,
         analyze_decomposition_time, analyze_decomposition_polar,
         fit_static_nonlin,
         analyze_bit_activity, analyze_overflow,
@@ -299,7 +311,9 @@ def test_api_quickref_submodule_imports_resolve():
     from adctoolbox.fundamentals import (
         validate_aout_data, validate_dout_data, convert_cap_to_weight
     )
-    from adctoolbox.aout import analyze_phase_plane, analyze_error_phase_plane
+    from adctoolbox.aout import (
+        analyze_phase_plane, analyze_error_phase_plane, compute_inl_from_ramp
+    )
     from adctoolbox.spectrum import compute_spectrum
     from adctoolbox.toolset import (
         generate_aout_dashboard, generate_dout_dashboard
@@ -307,7 +321,7 @@ def test_api_quickref_submodule_imports_resolve():
     for obj in (
         ADC_Signal_Generator, calibrate_weight_sine_lite,
         validate_aout_data, validate_dout_data, convert_cap_to_weight,
-        analyze_phase_plane, analyze_error_phase_plane,
+        analyze_phase_plane, analyze_error_phase_plane, compute_inl_from_ramp,
         compute_spectrum, generate_aout_dashboard, generate_dout_dashboard,
     ):
         assert callable(obj)

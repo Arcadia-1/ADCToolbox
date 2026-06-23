@@ -100,9 +100,10 @@ packaged scripts:
 - Error decomposition (by-phase / by-value / harmonic / PDF / spectrum / autocorr / envelope):
   `04_debug_analog/exp_a02_*`, `exp_a03_*`, `exp_a11_*`, `exp_a12_*`,
   `exp_a21_*` through `exp_a25_*`
-- Static nonlinearity / INL from sine:
+- Static nonlinearity / INL from sine or ramp:
   `04_debug_analog/exp_a31_fit_static_nonlin.py`,
-  `exp_a32_inl_from_sine_sweep_length.py`
+  `exp_a32_inl_from_sine_sweep_length.py`,
+  `exp_a33_inl_from_ramp.py`
 
 Cap-array → normalized weights (`convert_cap_to_weight`) is not
 packaged as a standalone example; the inline snippet in

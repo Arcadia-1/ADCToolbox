@@ -7,7 +7,7 @@ description: >
   (weight_sine / weight_sine_lite), generating synthetic ADC
   stimulus/output, or validating aout/dout buffer shapes. For deeper
   debug (dashboards, phase-plane, bit-level, error decomposition,
-  static nonlinearity, cap-to-weight), open
+  static nonlinearity, ramp INL/DNL, cap-to-weight), open
   references/advanced-debug.md.
   NOT for analog topology selection, transistor sizing, Spectre
   simulation, or layout/parasitic review — those belong to the
@@ -200,7 +200,7 @@ concluding the tool is gone. Common submodule-only names:
 ## 6. Going further
 
 - Dashboards, phase-plane, bit-level, error decomposition, static
-  nonlinearity, cap-to-weight → **`references/advanced-debug.md`**
+  nonlinearity, ramp INL/DNL, cap-to-weight → **`references/advanced-debug.md`**
 - Function signatures / return keys → `references/api-quickref.md`
 - Ready-to-adapt example files → `references/example-map.md`
 
