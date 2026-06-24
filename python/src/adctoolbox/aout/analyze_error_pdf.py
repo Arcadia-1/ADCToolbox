@@ -6,9 +6,11 @@ Computes error PDF, fits Gaussian, and calculates KL divergence for goodness-of-
 import numpy as np
 import matplotlib.pyplot as plt
 from adctoolbox.fundamentals.fit_sine_4param import fit_sine_4param
+from adctoolbox.aout._fit_diagnostics import extract_fit_diagnostics
 
 def analyze_error_pdf(signal, resolution=12, full_scale=None, frequency=None, create_plot: bool = True,
-                       ax=None, title: str | None = None):
+                       ax=None, title: str | None = None, max_iterations: int = 1,
+                       tolerance: float = 1e-9, return_fit: bool = False):
     """
     Compute and optionally plot error probability density function using KDE.
 
@@ -31,6 +33,12 @@ def analyze_error_pdf(signal, resolution=12, full_scale=None, frequency=None, cr
         Axes to plot on. If None, uses current axes (plt.gca())
     title : str, optional
         Title for the plot. If None, no title is set
+    max_iterations : int, default=1
+        Frequency-refinement iterations passed to fit_sine_4param.
+    tolerance : float, default=1e-9
+        Frequency-refinement convergence threshold passed to fit_sine_4param.
+    return_fit : bool, default=False
+        If True, include scalar sine-fit diagnostics under result['fit'].
 
     Returns
     -------
@@ -43,6 +51,7 @@ def analyze_error_pdf(signal, resolution=12, full_scale=None, frequency=None, cr
         - 'x': Sample points for PDF
         - 'pdf': KDE-estimated PDF values
         - 'gauss_pdf': Fitted Gaussian PDF values
+        - 'fit': Optional sine-fit diagnostics when return_fit=True
 
     Notes
     -----
@@ -52,10 +61,11 @@ def analyze_error_pdf(signal, resolution=12, full_scale=None, frequency=None, cr
     """
 
     # Fit ideal sine to extract reference
+    fit_kwargs = {"max_iterations": max_iterations, "tolerance": tolerance}
     if frequency is None:
-        fit_result = fit_sine_4param(signal)
+        fit_result = fit_sine_4param(signal, **fit_kwargs)
     else:
-        fit_result = fit_sine_4param(signal, frequency_estimate=frequency)
+        fit_result = fit_sine_4param(signal, frequency_estimate=frequency, **fit_kwargs)
 
     sig_ideal = fit_result['fitted_signal']
 
@@ -120,7 +130,7 @@ def analyze_error_pdf(signal, resolution=12, full_scale=None, frequency=None, cr
         if title is not None:
             ax.set_title(title, fontsize=12)
 
-    return {
+    result = {
         'err_lsb': err_lsb,
         'mu': mu,
         'sigma': sigma,
@@ -129,3 +139,7 @@ def analyze_error_pdf(signal, resolution=12, full_scale=None, frequency=None, cr
         'pdf': fx,
         'gauss_pdf': gauss_pdf
     }
+    if return_fit:
+        result['fit'] = extract_fit_diagnostics(fit_result)
+
+    return result

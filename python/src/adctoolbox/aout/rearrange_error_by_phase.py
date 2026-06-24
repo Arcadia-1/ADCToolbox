@@ -9,13 +9,17 @@ Dual-track parallel design:
 import numpy as np
 
 from adctoolbox.fundamentals.fit_sine_4param import fit_sine_4param
+from adctoolbox.aout._fit_diagnostics import extract_fit_diagnostics
 from adctoolbox.aout._fit_error_phase import _fit_error_phase
 
 def rearrange_error_by_phase(
     signal: np.ndarray,
     norm_freq: float = None,
     n_bins: int = 100,
-    include_base_noise: bool = True
+    include_base_noise: bool = True,
+    max_iterations: int = 1,
+    tolerance: float = 1e-9,
+    return_fit: bool = False,
 ) -> dict[str, np.ndarray]:
     """Rearrange error by phase using dual-track AM/PM separation.
 
@@ -29,6 +33,12 @@ def rearrange_error_by_phase(
         Number of phase bins for visualization.
     include_base_noise : bool, default=True
         Include base noise floor in fitting model.
+    max_iterations : int, default=1
+        Frequency-refinement iterations passed to fit_sine_4param.
+    tolerance : float, default=1e-9
+        Frequency-refinement convergence threshold passed to fit_sine_4param.
+    return_fit : bool, default=False
+        If True, include scalar sine-fit diagnostics under result['fit'].
 
     Returns
     -------
@@ -42,7 +52,8 @@ def rearrange_error_by_phase(
         Visualization (binned):
             bin_error_rms_v, bin_error_mean_v, phase_bin_centers_rad, bin_counts
         Metadata:
-            amplitude, dc_offset, norm_freq, fitted_signal, error, phase
+            amplitude, dc_offset, norm_freq, fitted_signal, error, phase,
+            optional fit diagnostics
     """
     signal = np.asarray(signal).flatten()
     n_samples = len(signal)
@@ -50,7 +61,12 @@ def rearrange_error_by_phase(
     # ===== Step 1: Fit fundamental sinewave (Cosine basis) =====
     # fit_sine_4param: y = A*cos(wt) + B*sin(wt) + C
     # phase = atan2(-B, A), so fitted = amplitude * cos(wt + phase)
-    fit_result = fit_sine_4param(signal, frequency_estimate=norm_freq, max_iterations=1)
+    fit_result = fit_sine_4param(
+        signal,
+        frequency_estimate=norm_freq,
+        max_iterations=max_iterations,
+        tolerance=tolerance,
+    )
     fitted_signal = fit_result['fitted_signal']
     amplitude = fit_result['amplitude']
     dc_offset = fit_result['dc_offset']
@@ -172,7 +188,7 @@ def rearrange_error_by_phase(
     # ===== Build results =====
     total_rms_v = float(np.sqrt(np.mean(error_sq)))
 
-    return {
+    result = {
         # Numerics (from raw fitting - highest precision)
         'am_noise_rms_v': float(am_v),
         'am_relative': float(am_v / amplitude) if amplitude > 1e-10 else 0.0,
@@ -204,3 +220,7 @@ def rearrange_error_by_phase(
         '_coeffs_plot': [am_var_final, pm_var_final, base_noise_var],
         '_include_base_noise': include_base_noise,
     }
+    if return_fit:
+        result['fit'] = extract_fit_diagnostics(fit_result)
+
+    return result

@@ -1,15 +1,29 @@
 """Unit tests for harmonic decomposition time-domain analysis with figure generation."""
 
+import warnings
+
 import pytest
 import numpy as np
 import matplotlib.pyplot as plt
 from pathlib import Path
-from adctoolbox import analyze_decomposition_time
+from adctoolbox import analyze_decomposition_polar, analyze_decomposition_time
+from adctoolbox.aout import decompose_harmonic_error, decompose_harmonics
 
 
 # Create output directory for test figures
 output_dir = Path(__file__).parent / "test_output"
 output_dir.mkdir(exist_ok=True)
+
+
+def _clean_harmonic_signal(n=2048, freq_bin=37.25):
+    t = np.arange(n)
+    freq = freq_bin / n
+    signal = (
+        0.45 * np.sin(2 * np.pi * freq * t + 0.2)
+        + 0.01 * np.sin(2 * np.pi * 2 * freq * t - 0.4)
+        + 0.1
+    )
+    return signal, freq
 
 
 def test_decompose_harmonics_basic():
@@ -87,6 +101,130 @@ def test_decompose_harmonics_nonlinearity_levels(k3_value):
     plt.close(fig)
 
     print(f"\n[k3={k3_value:.3f}] -> [PASS]")
+
+
+def test_decompose_harmonic_error_uses_fixed_frequency():
+    """Known frequency plus max_iterations=0 should remain fixed."""
+    signal, freq = _clean_harmonic_signal()
+
+    with warnings.catch_warnings(record=True) as records:
+        warnings.simplefilter("always")
+        result = decompose_harmonic_error(
+            signal,
+            n_harmonics=2,
+            frequency=freq,
+            max_iterations=0,
+        )
+
+    runtime_warnings = [w for w in records if issubclass(w.category, RuntimeWarning)]
+    assert runtime_warnings == []
+    assert result['fundamental_freq'] == pytest.approx(freq)
+    assert result['residual_rms'] < 1e-12
+
+
+def test_decomposition_wrappers_forward_frequency_options():
+    """Time and polar wrappers should expose the core fit controls."""
+    signal, freq = _clean_harmonic_signal()
+
+    time_result = analyze_decomposition_time(
+        signal,
+        harmonic=2,
+        frequency=freq,
+        max_iterations=0,
+        create_plot=False,
+    )
+    polar_result = analyze_decomposition_polar(
+        signal,
+        harmonic=2,
+        frequency=freq,
+        max_iterations=0,
+        create_plot=False,
+    )
+
+    assert time_result['fundamental_freq'] == pytest.approx(freq)
+    assert polar_result['fundamental_freq'] == pytest.approx(freq)
+    assert time_result['residual_rms'] < 1e-12
+    assert polar_result['residual_rms'] < 1e-12
+
+
+def test_legacy_decompose_harmonics_uses_provided_frequency():
+    """The legacy freq argument should drive decomposition instead of being ignored."""
+    signal, freq = _clean_harmonic_signal()
+
+    with warnings.catch_warnings(record=True) as records:
+        warnings.simplefilter("always")
+        fundamental, other, harmonic, noise = decompose_harmonics(
+            signal,
+            freq=freq,
+            harmonic=2,
+            disp=0,
+        )
+
+    runtime_warnings = [w for w in records if issubclass(w.category, RuntimeWarning)]
+    assert runtime_warnings == []
+    assert fundamental.shape == other.shape == harmonic.shape == noise.shape == signal.shape
+    assert np.std(noise) < 1e-12
+
+
+def test_decompose_harmonic_error_fit_options_reduce_near_dc_residual():
+    """Extra fit iterations should remove near-DC false residual structure."""
+    n = 8192
+    freq = 0.70 / n
+    t = np.arange(n)
+    signal = 0.5 * np.sin(2 * np.pi * freq * t) + 0.1
+
+    with pytest.warns(RuntimeWarning, match="did not converge"):
+        one_iter = decompose_harmonic_error(
+            signal,
+            n_harmonics=5,
+            max_iterations=1,
+        )
+
+    with warnings.catch_warnings(record=True) as records:
+        warnings.simplefilter("always")
+        five_iter = decompose_harmonic_error(
+            signal,
+            n_harmonics=5,
+            max_iterations=5,
+        )
+
+    runtime_warnings = [w for w in records if issubclass(w.category, RuntimeWarning)]
+    assert runtime_warnings == []
+    assert abs(one_iter['fundamental_freq'] * n - 0.70) > 0.01
+    assert five_iter['fundamental_freq'] == pytest.approx(freq, abs=1e-12)
+    assert five_iter['residual_rms'] < one_iter['residual_rms'] * 1e-8
+
+
+def test_decompose_harmonic_error_known_frequency_handles_strong_hd2():
+    """Known frequency should bypass auto-detection when HD2 is the largest tone."""
+    n = 4096
+    freq = 37 / n
+    t = np.arange(n)
+    signal = (
+        0.05 * np.sin(2 * np.pi * freq * t + 0.2)
+        + 0.4 * np.sin(2 * np.pi * 2 * freq * t - 0.4)
+        + 0.1
+    )
+
+    with pytest.warns(RuntimeWarning, match="did not converge"):
+        auto_result = decompose_harmonic_error(signal, n_harmonics=3)
+
+    with warnings.catch_warnings(record=True) as records:
+        warnings.simplefilter("always")
+        fixed_result = decompose_harmonic_error(
+            signal,
+            n_harmonics=3,
+            frequency=freq,
+            max_iterations=0,
+        )
+
+    runtime_warnings = [w for w in records if issubclass(w.category, RuntimeWarning)]
+    assert runtime_warnings == []
+    assert auto_result['fundamental_freq'] * n == pytest.approx(2 * freq * n, abs=1e-2)
+    assert fixed_result['fundamental_freq'] == pytest.approx(freq)
+    assert fixed_result['magnitudes'][0] == pytest.approx(0.1)
+    assert fixed_result['magnitudes'][1] == pytest.approx(0.8)
+    assert fixed_result['residual_rms'] < auto_result['residual_rms'] * 1e-10
 
 
 if __name__ == '__main__':

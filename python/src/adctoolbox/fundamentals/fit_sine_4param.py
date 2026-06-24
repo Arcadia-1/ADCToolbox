@@ -27,6 +27,11 @@ def fit_sine_4param(data, frequency_estimate=None, max_iterations=1, tolerance=1
             - phase: atan2(-B, A) in radians
             - dc_offset: DC component
             - rmse: Root mean square error
+            - converged: Whether frequency refinement reached tolerance
+              (or no refinement was requested)
+            - n_iterations: Number of frequency-refinement iterations run
+            - initial_frequency: Initial normalized frequency before refinement
+            - last_delta_freq: Last normalized frequency update applied
 
         For 2D input, all values (except fitted_signal, residuals) are 1D arrays.
     """
@@ -46,8 +51,11 @@ def _fit_core(y, freq_init, max_iter, tol, verbose=0):
     n = len(y)
     t = np.arange(n)
     freq = freq_init if freq_init is not None else _estimate_frequency_fft(y)
+    initial_frequency = freq
     a = b = c = 0.0
-    converged = False
+    converged = max_iter == 0
+    n_iterations = 0
+    last_delta_freq = 0.0
 
     for i in range(max_iter + 1):
         omega = 2 * np.pi * freq
@@ -66,6 +74,8 @@ def _fit_core(y, freq_init, max_iter, tol, verbose=0):
 
         if len(coeffs) > 3:
             delta_freq = coeffs[3] / (2 * np.pi)
+            last_delta_freq = delta_freq
+            n_iterations += 1
             freq += delta_freq
             # Clamp frequency to valid range
             freq = np.clip(freq, 1e-10, 0.5 - 1e-10)
@@ -97,7 +107,11 @@ def _fit_core(y, freq_init, max_iter, tol, verbose=0):
         'amplitude': np.sqrt(a**2 + b**2),
         'phase': np.arctan2(-b, a),
         'dc_offset': c,
-        'rmse': np.sqrt(np.mean(residuals**2))
+        'rmse': np.sqrt(np.mean(residuals**2)),
+        'converged': converged,
+        'n_iterations': n_iterations,
+        'initial_frequency': initial_frequency,
+        'last_delta_freq': last_delta_freq,
     }
 
 def _merge_results(results_list):

@@ -12,7 +12,10 @@ from adctoolbox.fundamentals.fit_sine_4param import fit_sine_4param
 
 def decompose_harmonic_error(
     signal: np.ndarray,
-    n_harmonics: int = 5
+    n_harmonics: int = 5,
+    frequency: float = None,
+    max_iterations: int = 1,
+    tolerance: float = 1e-9,
 ) -> dict[str, Any]:
     """Decompose ADC error into harmonic distortion and other errors using least-squares fitting.
 
@@ -27,6 +30,12 @@ def decompose_harmonic_error(
         For multi-run data, runs are averaged before decomposition
     n_harmonics : int, optional
         Number of harmonics to extract (default: 5)
+    frequency : float, optional
+        Normalized fundamental frequency (0 to 0.5). If None, auto-detected.
+    max_iterations : int, default=1
+        Frequency-refinement iterations passed to fit_sine_4param.
+    tolerance : float, default=1e-9
+        Frequency-refinement convergence threshold passed to fit_sine_4param.
 
     Returns
     -------
@@ -44,7 +53,7 @@ def decompose_harmonic_error(
         - 'noise_db': float
             Noise floor in dB relative to full scale
         - 'fundamental_freq': float
-            Detected fundamental frequency (normalized, 0 to 1)
+            Fundamental frequency used for decomposition (normalized, 0 to 0.5)
         - 'noise_residual': np.ndarray, shape (N,)
             Residual signal after removing all harmonics (centered at 0, no DC)
         - 'reconstructed_signal': np.ndarray, shape (N,)
@@ -59,7 +68,7 @@ def decompose_harmonic_error(
     Algorithm:
     1. Average multiple runs if provided
     2. Normalize signal to full scale
-    3. Find fundamental frequency using 4-parameter sine fit
+    3. Find or use the provided fundamental frequency via 4-parameter sine fit
     4. Build sine/cosine basis for harmonics: cos(k*ω*t), sin(k*ω*t)
     5. Solve least squares: W = (A^T A)^(-1) A^T * signal
     6. Extract magnitude and phase for each harmonic (vectorized)
@@ -84,8 +93,13 @@ def decompose_harmonic_error(
     dc_offset = np.mean(sig_avg)
     sig_zero_mean = sig_avg - dc_offset
 
-    # Find fundamental frequency using fit_sine_4param
-    fit_result = fit_sine_4param(sig_zero_mean, frequency_estimate=None, max_iterations=1)
+    # Find or refine the fundamental frequency using fit_sine_4param
+    fit_result = fit_sine_4param(
+        sig_zero_mean,
+        frequency_estimate=frequency,
+        max_iterations=max_iterations,
+        tolerance=tolerance,
+    )
     fundamental_freq = fit_result['frequency']
 
     # Use fit_sine_harmonics as the core math kernel for least-squares fitting
