@@ -144,6 +144,10 @@ def test_verify_fit_sine_4param_2d_input():
     assert result["residuals"].shape == (N, M), f"residuals shape mismatch: {result['residuals'].shape}"
     assert result["frequency"].shape == (M,), f"frequency shape should be ({M},), got {result['frequency'].shape}"
     assert result["amplitude"].shape == (M,), f"amplitude shape should be ({M},), got {result['amplitude'].shape}"
+    assert result["converged"].shape == (M,), f"converged shape should be ({M},), got {result['converged'].shape}"
+    assert result["n_iterations"].shape == (M,), f"n_iterations shape should be ({M},), got {result['n_iterations'].shape}"
+    assert result["initial_frequency"].shape == (M,), f"initial_frequency shape should be ({M},), got {result['initial_frequency'].shape}"
+    assert result["last_delta_freq"].shape == (M,), f"last_delta_freq shape should be ({M},), got {result['last_delta_freq'].shape}"
 
     # Check frequency extraction for each channel
     for i, freq_true in enumerate(freqs):
@@ -284,7 +288,19 @@ def test_verify_fit_sine_4param_return_keys():
     sig = np.sin(2*np.pi*0.1*np.arange(100))
     result = fit_sine_4param(sig)
 
-    expected_keys = ['fitted_signal', 'residuals', 'frequency', 'amplitude', 'phase', 'dc_offset', 'rmse']
+    expected_keys = [
+        'fitted_signal',
+        'residuals',
+        'frequency',
+        'amplitude',
+        'phase',
+        'dc_offset',
+        'rmse',
+        'converged',
+        'n_iterations',
+        'initial_frequency',
+        'last_delta_freq',
+    ]
 
     print(f'\n[Verify Return Keys]')
     print(f'  [Expected] {expected_keys}')
@@ -294,6 +310,68 @@ def test_verify_fit_sine_4param_return_keys():
         assert key in result, f"Missing key in result: {key}"
 
     print(f'  [Status] All keys present: PASS')
+
+
+def test_fit_sine_4param_diagnostics_no_refinement_requested():
+    """Verify diagnostics for fixed-frequency fitting with no refinement."""
+    N = 512
+    freq = 0.125
+    t = np.arange(N)
+    sig = 0.4 * np.sin(2 * np.pi * freq * t) + 0.2
+
+    result = fit_sine_4param(sig, frequency_estimate=freq, max_iterations=0)
+
+    assert result["converged"] is True
+    assert result["n_iterations"] == 0
+    assert result["initial_frequency"] == freq
+    assert result["frequency"] == freq
+    assert result["last_delta_freq"] == 0.0
+    assert result["rmse"] < 1e-12
+
+
+def test_fit_sine_4param_diagnostics_explain_near_dc_warning():
+    """Verify diagnostics distinguish one-step boundary failure from later convergence."""
+    N = 8192
+    true_bin = 0.70
+    freq = true_bin / N
+    t = np.arange(N)
+    sig = 0.5 * np.sin(2 * np.pi * freq * t + 0.2) + 0.1
+
+    with pytest.warns(RuntimeWarning, match="did not converge"):
+        one_iter = fit_sine_4param(sig, max_iterations=1)
+
+    five_iter = fit_sine_4param(sig, max_iterations=5)
+
+    assert one_iter["converged"] is False
+    assert one_iter["n_iterations"] == 1
+    assert abs(one_iter["last_delta_freq"]) > 1e-9
+    assert abs(one_iter["frequency"] - freq) * N > 1e-3
+
+    assert five_iter["converged"] is True
+    assert 1 <= five_iter["n_iterations"] <= 5
+    assert abs(five_iter["last_delta_freq"]) < 1e-9
+    assert abs(five_iter["frequency"] - freq) * N < 1e-6
+    assert five_iter["rmse"] < one_iter["rmse"] * 1e-6
+
+
+def test_fit_sine_4param_diagnostics_merge_for_2d_input():
+    """Verify diagnostic fields merge cleanly for multi-channel input."""
+    N = 512
+    freq = 0.125
+    t = np.arange(N)
+    sig_2d = np.column_stack([
+        0.4 * np.sin(2 * np.pi * freq * t) + 0.2,
+        0.2 * np.cos(2 * np.pi * freq * t) - 0.1,
+    ])
+
+    result = fit_sine_4param(sig_2d, frequency_estimate=freq, max_iterations=0)
+
+    np.testing.assert_array_equal(result["converged"], np.array([True, True]))
+    np.testing.assert_array_equal(result["n_iterations"], np.array([0, 0]))
+    np.testing.assert_allclose(result["initial_frequency"], np.array([freq, freq]))
+    np.testing.assert_allclose(result["last_delta_freq"], np.array([0.0, 0.0]))
+    np.testing.assert_allclose(result["frequency"], np.array([freq, freq]))
+    assert result["fitted_signal"].shape == sig_2d.shape
 
 
 if __name__ == '__main__':
