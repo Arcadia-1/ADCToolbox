@@ -168,8 +168,22 @@ class ADC_Signal_Generator:
 
         return vout + self.DC
     
-    def apply_ra_gain_error(self, input_signal=None, relative_gain=0.99, msb_bits=4, lsb_bits=12):
-        """Apply interstage gain error (2-stage pipeline ADC). Params: input_signal, relative_gain (default 0.99 = 1% error)."""
+    def apply_ra_gain_error(
+        self,
+        input_signal=None,
+        relative_gain=0.99,
+        msb_bits=4,
+        lsb_bits=12,
+        mode="coarse_path",
+    ):
+        """
+        Apply a two-stage pipeline gain-mismatch model.
+
+        ``mode='coarse_path'`` preserves the legacy behavior: ``relative_gain``
+        scales the reconstructed coarse/MSB path before adding the LSB residue.
+        Use ``mode='residue_path'`` when modeling a residue-amplifier gain error
+        that scales the second-stage reconstructed residue contribution.
+        """
         signal = self._resolve_signal(input_signal)
         signal_ac = signal - self.DC
 
@@ -177,18 +191,39 @@ class ADC_Signal_Generator:
         msb = np.floor(signal_ac * 2**msb_bits) / 2**msb_bits
         lsb = np.floor((signal_ac - msb) * 2**lsb_bits) / 2**lsb_bits
 
-        # Apply gain error to MSB stage, combine with LSB
-        return msb * relative_gain + lsb + self.DC
+        if mode == "coarse_path":
+            return msb * relative_gain + lsb + self.DC
+        if mode == "residue_path":
+            return msb + lsb * relative_gain + self.DC
+        raise ValueError("mode must be 'coarse_path' or 'residue_path'")
     
-    def apply_ra_gain_error_dynamic(self, input_signal=None, relative_gain=1, coeff_3=0.15, msb_bits=4, lsb_bits=12):
-        """Applies dynamic gain error to the interstage residue amplifier in a pipeline ADC. G[n] is non-linearly dependent on the previous residue output magnitude (V_prev_ac^3), modeling HD3 memory effects."""
+    def apply_ra_gain_error_dynamic(
+        self,
+        input_signal=None,
+        relative_gain=1,
+        coeff_3=0.15,
+        msb_bits=4,
+        lsb_bits=12,
+        mode="coarse_path",
+    ):
+        """
+        Apply dynamic two-stage pipeline gain mismatch.
+
+        ``mode='coarse_path'`` preserves the legacy behavior and applies the
+        dynamic gain to the coarse/MSB path. ``mode='residue_path'`` applies the
+        dynamic gain to the reconstructed LSB/residue path, which better matches
+        a residue-amplifier gain-error interpretation.
+        """
+        if mode not in {"coarse_path", "residue_path"}:
+            raise ValueError("mode must be 'coarse_path' or 'residue_path'")
 
         signal = self._resolve_signal(input_signal)
         signal_ac = signal - self.DC
 
         v_output_ac = np.zeros(self.N)  
-        # Memory term initialization: AC component of the previous residue amp output        
-        v_residue_out_prev_ac = 0.0
+        # Preserve the legacy coarse-path state while using residue-path state
+        # for the explicit residue-amplifier mode.
+        v_dynamic_state_prev_ac = 0.0
         
         for n in range(self.N):
             v_in_ac = signal_ac[n]
@@ -197,12 +232,16 @@ class ADC_Signal_Generator:
             v_msb_code = np.floor(v_in_ac * 2**msb_bits) / 2**msb_bits            
             v_lsb_code = np.floor((v_in_ac - v_msb_code) * 2**lsb_bits) / 2**lsb_bits
 
-            G_dynamic = relative_gain + coeff_3 * (v_residue_out_prev_ac ** 2)
-            v_output_ac[n] = v_msb_code * G_dynamic + v_lsb_code
+            G_dynamic = relative_gain + coeff_3 * (v_dynamic_state_prev_ac ** 2)
+            if mode == "coarse_path":
+                gain_path = v_msb_code * G_dynamic
+                v_output_ac[n] = gain_path + v_lsb_code
+                v_dynamic_state_prev_ac = v_output_ac[n]
+            else:
+                gain_path = v_lsb_code * G_dynamic
+                v_output_ac[n] = v_msb_code + gain_path
+                v_dynamic_state_prev_ac = gain_path
             
-            # Update Memory Term
-            v_residue_out_prev_ac = v_output_ac[n]
-
         return v_output_ac + self.DC
     
     def apply_reference_error(self, input_signal=None, settling_tau=2.0, droop_strength=0.01):
@@ -225,7 +264,7 @@ class ADC_Signal_Generator:
         decay = np.exp(-1.0 / settling_tau)
         from scipy.signal import lfilter
         vref_droop = lfilter([1], [1, -decay], current_kick)
-        signal_settled = signal * (1.0 - vref_droop)
+        signal_settled = signal_ac * (1.0 - vref_droop)
 
         return signal_settled + self.DC
 
@@ -358,4 +397,3 @@ class ADC_Signal_Generator:
         quant_error_shaped = scipy_signal.lfilter(num, den, quant_error_white)
 
         return signal + quant_error_shaped
-
