@@ -84,6 +84,8 @@ def decompose_harmonics(signal, freq=None, harmonic=5, disp=1):
     result = analyze_decomposition_time(
         signal,
         harmonic=harmonic,
+        frequency=freq,
+        max_iterations=0 if freq is not None else 1,
         create_plot=bool(disp),
     )
     return (

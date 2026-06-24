@@ -10,7 +10,10 @@ def analyze_decomposition_polar(
     harmonic: int = 5,
     create_plot: bool = True,
     ax=None,
-    title: str = None
+    title: str = None,
+    frequency: float = None,
+    max_iterations: int = 1,
+    tolerance: float = 1e-9,
 ) -> dict[str, Any]:
     """
     Analyze harmonic decomposition with polar visualization.
@@ -29,6 +32,12 @@ def analyze_decomposition_polar(
         Polar axis to plot on.
     title : str, optional
         Custom title for the plot.
+    frequency : float, optional
+        Normalized fundamental frequency (0 to 0.5). If None, auto-detected.
+    max_iterations : int, default=1
+        Frequency-refinement iterations passed to fit_sine_4param.
+    tolerance : float, default=1e-9
+        Frequency-refinement convergence threshold passed to fit_sine_4param.
 
     Returns
     -------
@@ -39,7 +48,10 @@ def analyze_decomposition_polar(
     # 1. Compute
     results = decompose_harmonic_error(
         signal=signal,
-        n_harmonics=harmonic
+        n_harmonics=harmonic,
+        frequency=frequency,
+        max_iterations=max_iterations,
+        tolerance=tolerance,
     )
 
     # 2. Plot
