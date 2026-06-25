@@ -21,6 +21,8 @@ SUITES = {
     "jitter": "run_jitter_load",
 }
 
+_WINDOWS_SCRIPT_SUFFIXES = {".bat", ".cmd"}
+
 
 def _repo_root() -> Path:
     return Path(__file__).resolve().parents[2]
@@ -52,8 +54,30 @@ def _standard_install_candidates() -> list[Path]:
     return candidates
 
 
+def _has_windows_pe_signature(path: Path) -> bool:
+    try:
+        with path.open("rb") as handle:
+            dos_header = handle.read(64)
+            if len(dos_header) < 64 or dos_header[:2] != b"MZ":
+                return False
+            pe_offset = int.from_bytes(dos_header[0x3C:0x40], byteorder="little")
+            if pe_offset < 64:
+                return False
+            handle.seek(pe_offset)
+            return handle.read(4) == b"PE\0\0"
+    except OSError:
+        return False
+
+
 def _is_executable_file(path: Path) -> bool:
-    return path.is_file() and os.access(path, os.X_OK)
+    if not path.is_file():
+        return False
+    if os.name == "nt":
+        suffix = path.suffix.lower()
+        if suffix in _WINDOWS_SCRIPT_SUFFIXES:
+            return True
+        return suffix == ".exe" and _has_windows_pe_signature(path)
+    return os.access(path, os.X_OK)
 
 
 def _resolve_matlab_candidate(candidate: str) -> Path | None:
@@ -63,7 +87,9 @@ def _resolve_matlab_candidate(candidate: str) -> Path | None:
 
     resolved = shutil.which(candidate)
     if resolved:
-        return Path(resolved)
+        resolved_path = Path(resolved)
+        if _is_executable_file(resolved_path):
+            return resolved_path
 
     return None
 
@@ -162,7 +188,11 @@ def main(argv: list[str] | None = None) -> int:
     if args.dry_run:
         return 0
 
-    completed = subprocess.run(command, cwd=_repo_root(), check=False)
+    try:
+        completed = subprocess.run(command, cwd=_repo_root(), check=False)
+    except OSError as exc:
+        print(f"Failed to execute MATLAB executable {executable}: {exc}", file=sys.stderr)
+        return INVALID_MATLAB_EXECUTABLE_EXIT_CODE
     return completed.returncode
 
 

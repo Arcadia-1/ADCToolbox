@@ -1,9 +1,16 @@
 import importlib.util
+import os
+import shutil
+import sys
 from pathlib import Path
 from types import SimpleNamespace
 
 
 def _make_executable(path: Path) -> Path:
+    if os.name == "nt":
+        path = path.with_suffix(".exe")
+        shutil.copyfile(sys.executable, path)
+        return path
     path.write_text("")
     path.chmod(0o755)
     return path
@@ -69,6 +76,28 @@ def test_explicit_non_executable_matlab_path_is_rejected(tmp_path, capsys):
     assert "not found or is not executable" in capsys.readouterr().err
 
 
+def test_explicit_invalid_windows_exe_is_rejected(monkeypatch, tmp_path, capsys):
+    runner = _load_runner()
+    monkeypatch.setattr(runner.os, "name", "nt")
+    executable = tmp_path / "matlab.exe"
+    executable.write_text("")
+
+    exit_code = runner.main(["common", "--matlab-executable", str(executable), "--dry-run"])
+
+    assert exit_code == runner.INVALID_MATLAB_EXECUTABLE_EXIT_CODE
+    assert "not found or is not executable" in capsys.readouterr().err
+
+
+def test_which_result_is_rechecked_before_accepting(monkeypatch, tmp_path):
+    runner = _load_runner()
+    monkeypatch.setattr(runner.os, "name", "nt")
+    executable = tmp_path / "matlab.exe"
+    executable.write_text("")
+    monkeypatch.setattr(runner.shutil, "which", lambda _name: str(executable))
+
+    assert runner.find_matlab_executable("matlab") is None
+
+
 def test_dry_run_prints_command_without_executing(tmp_path, capsys):
     runner = _load_runner()
     executable = _make_executable(tmp_path / "matlab")
@@ -97,6 +126,21 @@ def test_command_print_is_flushed_before_running(monkeypatch, tmp_path):
     assert exit_code == 0
     assert print_calls[0][1]["flush"] is True
     assert "run_common" in print_calls[0][0][0]
+
+
+def test_oserror_while_running_returns_invalid_executable(monkeypatch, tmp_path, capsys):
+    runner = _load_runner()
+    executable = _make_executable(tmp_path / "matlab")
+    monkeypatch.setattr(
+        runner.subprocess,
+        "run",
+        lambda *_args, **_kwargs: (_ for _ in ()).throw(OSError("cannot execute")),
+    )
+
+    exit_code = runner.main(["common", "--matlab-executable", str(executable)])
+
+    assert exit_code == runner.INVALID_MATLAB_EXECUTABLE_EXIT_CODE
+    assert "Failed to execute MATLAB executable" in capsys.readouterr().err
 
 
 def test_build_command_escapes_matlab_root(tmp_path):
