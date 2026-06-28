@@ -22,6 +22,7 @@ import numpy as np
 import matplotlib.pyplot as plt
 
 from adctoolbox.spectrum.plot_spectrum import (
+    _attach_max_spur_annotation,
     _noise_floor_axis_min,
     _should_label_harmonic,
 )
@@ -137,13 +138,14 @@ def plot_spectrum_virtuoso(compute_results, show_title=True, show_label=True,
             ax.plot(bin_center * fs / N, spec_db[bin_center],
                     's', color=_C_HARM, markersize=5)
             ax.text(bin_center * fs / N, spec_db[bin_center] + 3, str(order),
-                    color=_C_HARM, fontsize=11, ha='center')
+                    color=_C_HARM, fontsize=11, ha='center', clip_on=True)
 
     # ---- Max-spur diamond + "MaxSpur" text ---------------------------
-    ax.plot(spur_bin_idx / N * fs, spur_db,
-            'd', color=_C_FUND, markersize=5)
-    ax.text(spur_bin_idx / N * fs, spur_db + 10, 'MaxSpur',
-            color=_C_FUND, fontsize=10, ha='center')
+    max_spur_marker, = ax.plot(spur_bin_idx / N * fs, spur_db,
+                               'd', color=_C_FUND, markersize=5)
+    max_spur_label = ax.text(spur_bin_idx / N * fs, spur_db + 10, 'MaxSpur',
+                             color=_C_FUND, fontsize=10, ha='center', clip_on=True)
+    _attach_max_spur_annotation(ax, max_spur_marker, max_spur_label, spur_db)
 
     # ---- Text-block positioning (mirrors plot_spectrum.py) -----------
     # Axes-relative metric text stays fixed if callers change y-limits.

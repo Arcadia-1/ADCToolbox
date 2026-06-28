@@ -38,6 +38,73 @@ def _should_label_harmonic(harmonic_power_db, nf_line_level, margin_db=20):
     return harmonic_power_db >= nf_line_level - margin_db
 
 
+def _refresh_max_spur_annotation(
+    ax,
+    marker_artist,
+    text_artist,
+    spur_db,
+    above_db=10,
+    below_db=8,
+):
+    """Keep the MaxSpur marker/label meaningful within the current y-limits."""
+    y0, y1 = ax.get_ylim()
+    y_min, y_max = min(y0, y1), max(y0, y1)
+    if not np.isfinite(spur_db) or not np.isfinite(y_min) or not np.isfinite(y_max) or y_max <= y_min:
+        marker_artist.set_visible(False)
+        text_artist.set_visible(False)
+        return
+
+    y_span = y_max - y_min
+    margin_db = min(max(0.04 * y_span, 1.0), 6.0)
+
+    if spur_db <= y_min + margin_db or spur_db > y_max:
+        marker_artist.set_visible(False)
+        text_artist.set_visible(False)
+        return
+
+    spur_x = float(np.ravel(marker_artist.get_xdata())[0])
+    x_axes = ax.transAxes.inverted().transform(
+        ax.transData.transform((spur_x, spur_db))
+    )[0]
+    if not np.isfinite(x_axes) or x_axes < 0 or x_axes > 1:
+        marker_artist.set_visible(False)
+        text_artist.set_visible(False)
+        return
+
+    marker_artist.set_visible(True)
+    text_artist.set_visible(True)
+
+    top_limit = y_max - margin_db
+    bottom_limit = y_min + margin_db
+    label_y = spur_db + above_db
+    va = 'bottom'
+    if label_y > top_limit:
+        label_y = spur_db - below_db
+        va = 'top'
+    if label_y < bottom_limit:
+        label_y = min(max(spur_db, bottom_limit), top_limit)
+        va = 'center'
+
+    text_artist.set_y(label_y)
+    text_artist.set_va(va)
+    if x_axes > 0.95:
+        text_artist.set_ha('right')
+    elif x_axes < 0.05:
+        text_artist.set_ha('left')
+    else:
+        text_artist.set_ha('center')
+
+
+def _attach_max_spur_annotation(ax, marker_artist, text_artist, spur_db):
+    """Update MaxSpur annotation when callers adjust y-limits after plotting."""
+    def _on_limits_changed(changed_ax):
+        _refresh_max_spur_annotation(changed_ax, marker_artist, text_artist, spur_db)
+
+    _on_limits_changed(ax)
+    ax.callbacks.connect('ylim_changed', _on_limits_changed)
+    ax.callbacks.connect('xlim_changed', _on_limits_changed)
+
+
 def plot_spectrum(compute_results, show_title=True, show_label=True, plot_harmonics_up_to=3, ax=None):
     """
     Pure spectrum plotting using pre-computed analysis results.
@@ -131,12 +198,19 @@ def plot_spectrum(compute_results, show_title=True, show_label=True, plot_harmon
                 ):
                     ax.plot(harm['freq'], harm['power_db'], 'rs', markersize=5)
                     ax.text(harm['freq'], harm['power_db'] + 3, str(harm['harmonic_num']),
-                            fontname='Arial', fontsize=12, ha='center')
+                            fontname='Arial', fontsize=12, ha='center', clip_on=True)
 
         # Plot max spurious
-        ax.plot(spur_bin_idx / N * fs, spur_db, 'rd', markersize=5)
-        ax.text(spur_bin_idx / N * fs, spur_db + 10, 'MaxSpur',
-                fontname='Arial', fontsize=10, ha='center')
+        max_spur_marker, = ax.plot(spur_bin_idx / N * fs, spur_db, 'rd', markersize=5)
+        max_spur_label = ax.text(
+            spur_bin_idx / N * fs,
+            spur_db + 10,
+            'MaxSpur',
+            fontname='Arial',
+            fontsize=10,
+            ha='center',
+            clip_on=True,
+        )
 
     # --- Set axis limits (plotspec.m: median(in-band)-20, clamped) ---
     median_inband = float(np.median(spec_db[:n_inband]))
@@ -148,6 +222,8 @@ def plot_spectrum(compute_results, show_title=True, show_label=True, plot_harmon
     x_max = fs / 2
     ax.set_xlim(x_min, x_max)
     ax.set_ylim(minx, 0)
+    if show_label:
+        _attach_max_spur_annotation(ax, max_spur_marker, max_spur_label, spur_db)
 
     # --- Add annotations ---
     if show_label:
