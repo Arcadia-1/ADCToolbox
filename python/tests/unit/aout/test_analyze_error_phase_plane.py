@@ -14,10 +14,18 @@ output_dir = Path(__file__).parent / "test_output"
 output_dir.mkdir(exist_ok=True)
 
 
-def _assert_error_phase_plane_panel(ax, result, title, n_samples, polynomial_order):
+def _assert_error_phase_plane_panel(
+    ax,
+    result,
+    title,
+    n_samples,
+    polynomial_order,
+    expected_xlabel="ADC Input Level (V)",
+    expected_ylabel="Residual (uV)",
+):
     assert ax.get_title() == title
-    assert ax.get_xlabel() == 'Signal Amplitude (V)'
-    assert ax.get_ylabel() == 'Error / Residual (uV)'
+    assert ax.get_xlabel() == expected_xlabel
+    assert ax.get_ylabel() == expected_ylabel
     assert len(ax.collections) >= 1
     assert ax.collections[0].get_offsets().shape == (n_samples, 2)
     assert len(ax.lines) >= 1
@@ -104,6 +112,61 @@ def test_analyze_error_phase_plane_basic():
     ]:
         _assert_error_phase_plane_panel(ax, result, title, N, polynomial_order=3)
     plt.close(fig)
+
+
+def test_analyze_error_phase_plane_unit_modes():
+    N = 2**12
+    Fs = 100e6
+    Fin, _ = find_coherent_frequency(Fs, 7e6, N)
+    t = np.arange(N) / Fs
+
+    signal_norm = 0.49 * np.sin(2 * np.pi * Fin * t) + 0.5
+    signal_voltage = 2.5 * signal_norm
+    signal_code = 4095 * signal_norm
+
+    cases = [
+        (
+            signal_norm,
+            "normalized_fs",
+            "ADC Input Level (FS, 0-1)",
+            "Residual (uFS)",
+        ),
+        (
+            signal_voltage,
+            "voltage",
+            "ADC Input Level (V)",
+            "Residual (uV)",
+        ),
+        (
+            signal_code,
+            "code",
+            "ADC Output Code",
+            "Residual (LSB)",
+        ),
+    ]
+
+    fig, axes = plt.subplots(1, len(cases), figsize=(15, 4))
+    for ax, (signal, unit_mode, expected_xlabel, expected_ylabel) in zip(axes, cases):
+        analyze_error_phase_plane(
+            signal,
+            fs=Fs,
+            ax=ax,
+            create_plot=False,
+            detect_hysteresis=False,
+            unit_mode=unit_mode,
+        )
+        assert ax.get_xlabel() == expected_xlabel
+        assert ax.get_ylabel() == expected_ylabel
+        assert any(text.get_text().startswith("RMS:") for text in ax.texts)
+
+    plt.close(fig)
+
+
+def test_analyze_error_phase_plane_invalid_unit_mode_raises():
+    signal = np.sin(np.linspace(0, 2 * np.pi, 256, endpoint=False))
+
+    with pytest.raises(ValueError, match="unit_mode"):
+        analyze_error_phase_plane(signal, create_plot=False, unit_mode="banana")
 
 
 if __name__ == '__main__':

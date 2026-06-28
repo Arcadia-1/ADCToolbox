@@ -5,7 +5,8 @@ import matplotlib.pyplot as plt
 from adctoolbox.fundamentals import fit_sine_4param
 
 def analyze_error_phase_plane(data, fs=1.0, ax=None, title=None, create_plot: bool = True,
-                               fit_polynomial_order=3, detect_hysteresis=True):
+                               fit_polynomial_order=3, detect_hysteresis=True,
+                               unit_mode="auto"):
     """
     Residual Phase Plane: Magnify harmonic distortion by removing the fundamental.
 
@@ -28,6 +29,11 @@ def analyze_error_phase_plane(data, fs=1.0, ax=None, title=None, create_plot: bo
         Order of polynomial to fit the residual trend (default 3 for HD2/HD3).
     detect_hysteresis : bool
         If True, separately fit rising and falling edges to detect memory effects.
+    unit_mode : {"auto", "normalized_fs", "voltage", "code"}
+        Display-unit mode for the phase-plane plot. ``normalized_fs`` treats
+        data as a 0-to-1 full-scale ADC level and displays residuals in uFS.
+        ``voltage`` displays residuals in uV. ``code`` displays residuals in
+        LSB. ``auto`` keeps the legacy range heuristic.
 
     Returns
     -------
@@ -39,9 +45,11 @@ def analyze_error_phase_plane(data, fs=1.0, ax=None, title=None, create_plot: bo
 
     Notes
     -----
-    Units are automatically detected:
-    - Data range < 50: Assumed voltage, displayed in µV
-    - Data range ≥ 50: Assumed ADC codes, displayed in LSB
+    Unit handling:
+    - unit_mode="normalized_fs": ADC Input Level (FS, 0-1), residual in uFS
+    - unit_mode="voltage": ADC Input Level (V), residual in uV
+    - unit_mode="code": ADC Output Code, residual in LSB
+    - unit_mode="auto": data range < 50 uses voltage display, otherwise code
 
     What to look for in the plot:
     - Parabola (U-shape): HD2 (2nd harmonic) - gain asymmetry
@@ -54,11 +62,29 @@ def analyze_error_phase_plane(data, fs=1.0, ax=None, title=None, create_plot: bo
     data = np.asarray(data).flatten()
     N = len(data)
 
-    # --- 1. Auto-detect unit and scale factor ---
-    # Heuristic: voltage data is typically < 50, ADC codes are > 100
-    is_voltage = np.max(np.abs(data)) < 50
-    scale_factor = 1e6 if is_voltage else 1.0
-    unit_str = 'uV' if is_voltage else 'LSB'
+    # --- 1. Resolve display units and scale factor ---
+    valid_unit_modes = {"auto", "normalized_fs", "voltage", "code"}
+    if unit_mode not in valid_unit_modes:
+        raise ValueError(f"unit_mode must be one of {sorted(valid_unit_modes)}")
+
+    resolved_unit_mode = unit_mode
+    if resolved_unit_mode == "auto":
+        # Legacy heuristic: small numeric ranges are treated as voltage-like
+        # data, while large ranges are treated as ADC output codes.
+        resolved_unit_mode = "voltage" if np.max(np.abs(data)) < 50 else "code"
+
+    if resolved_unit_mode == "normalized_fs":
+        scale_factor = 1e6
+        unit_str = "uFS"
+        x_label = "ADC Input Level (FS, 0-1)"
+    elif resolved_unit_mode == "voltage":
+        scale_factor = 1e6
+        unit_str = "uV"
+        x_label = "ADC Input Level (V)"
+    else:
+        scale_factor = 1.0
+        unit_str = "LSB"
+        x_label = "ADC Output Code"
 
     # --- 2. IEEE 1057 Sine Fit (Fast & Robust) ---
     # Use standardized 4-parameter fit instead of curve_fit
@@ -136,8 +162,8 @@ def analyze_error_phase_plane(data, fs=1.0, ax=None, title=None, create_plot: bo
             gap_str = f", Hysteresis: {hysteresis_gap*scale_factor:.1f} {unit_str}" if hysteresis_gap > 0 else ""
             ax.set_title(f"Error Phase Plane{gap_str}", fontsize=12, fontweight='bold')
 
-        ax.set_xlabel("Signal Amplitude (V)" if unit_str == 'uV' else "Signal Amplitude (Code)", fontsize=10)
-        ax.set_ylabel(f"Error / Residual ({unit_str})", fontsize=10)
+        ax.set_xlabel(x_label, fontsize=10)
+        ax.set_ylabel(f"Residual ({unit_str})", fontsize=10)
         ax.grid(True, alpha=0.3)
 
         # Show statistics

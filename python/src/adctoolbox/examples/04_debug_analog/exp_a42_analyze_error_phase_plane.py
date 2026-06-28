@@ -46,7 +46,7 @@ t_setup = time.time()
 gen, CASES, params = get_batch_test_setup(hd2_target_dB=-80, hd3_target_dB=-70)
 
 print(f"[Config] Fs={params['Fs']/1e6:.0f} MHz, Fin={params['Fin']/1e6:.1f} MHz, Bin={params['Fin_bin']}, N={params['N']}")
-print(f"[Config] A={params['A']:.3f} V, DC={params['DC']:.3f} V, Resolution={params['B']} bits")
+print(f"[Config] A={params['A']:.3f} FS peak, DC={params['DC']:.3f} FS, Range=0-1 FS, Resolution={params['B']} bits")
 print(f"[Timing] Setup: {time.time() - t_setup:.4f}s\n")
 
 # --- 3. Generate Signals and Plot ---
@@ -71,15 +71,16 @@ for idx, case in enumerate(CASES):
         ax=axes[idx],
         title=case['title'],
         create_plot=False,
-        fit_polynomial_order=3
+        fit_polynomial_order=3,
+        unit_mode="normalized_fs",
     )
 
-    # Print metrics (convert from V to uV)
-    rms_uV = result['residual'].std() * 1e6
-    peak_uV = abs(result['residual']).max() * 1e6
+    # Print metrics in micro-full-scale units.
+    rms_uFS = result['residual'].std() * 1e6
+    peak_uFS = abs(result['residual']).max() * 1e6
     print(f"{idx+1:<4} | {case['title']:<30} | "
-          f"{rms_uV:>10.1f} uV | "
-          f"{peak_uV:>10.1f} uV")
+          f"{rms_uFS:>10.1f} uFS | "
+          f"{peak_uFS:>10.1f} uFS")
 
 print("=" * 80)
 print(f"\n[Timing] Signal Generation & Plotting: {time.time() - t_plot:.4f}s")
