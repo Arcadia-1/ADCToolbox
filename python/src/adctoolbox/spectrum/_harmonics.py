@@ -259,16 +259,16 @@ def _calculate_harmonic_phases(
     hd2_phase_deg = 0.0
     hd3_phase_deg = 0.0
 
-    # Extract HD2 phase (harmonic 2, index 1)
-    if len(harmonic_bins) > 1:
-        hd2_bin = harmonic_bins[1]
+    # Extract HD2 phase (harmonic 2, index 0)
+    if len(harmonic_bins) > 0:
+        hd2_bin = harmonic_bins[0]
         if hd2_bin < len(spec_coherent_normalized):
             hd2_phase_rad = np.angle(spec_coherent_normalized[hd2_bin])
             hd2_phase_deg = np.degrees(hd2_phase_rad)
 
-    # Extract HD3 phase (harmonic 3, index 2)
-    if len(harmonic_bins) > 2:
-        hd3_bin = harmonic_bins[2]
+    # Extract HD3 phase (harmonic 3, index 1)
+    if len(harmonic_bins) > 1:
+        hd3_bin = harmonic_bins[1]
         if hd3_bin < len(spec_coherent_normalized):
             hd3_phase_rad = np.angle(spec_coherent_normalized[hd3_bin])
             hd3_phase_deg = np.degrees(hd3_phase_rad)

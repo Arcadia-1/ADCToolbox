@@ -54,6 +54,7 @@ def analyze_spectrum_polar(
         fs=fs,
         win_type=win_type,
         coherent_averaging=True,
+        max_harmonic=max(3, harmonic),
     )
 
     # 2. --- Optional Plotting ---
