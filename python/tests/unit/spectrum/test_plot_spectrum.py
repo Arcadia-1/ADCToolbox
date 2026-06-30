@@ -10,6 +10,7 @@ from adctoolbox.spectrum.plot_spectrum import (
     _should_label_harmonic,
     plot_spectrum,
 )
+from adctoolbox.spectrum.plot_spectrum_virtuoso import plot_spectrum_virtuoso
 
 
 # Create output directory for test figures
@@ -19,6 +20,37 @@ output_dir.mkdir(exist_ok=True)
 
 def _text_values(ax):
     return [text.get_text() for text in ax.texts]
+
+
+def _max_spur_text(ax):
+    return next(text for text in ax.texts if text.get_text() == 'MaxSpur')
+
+
+def _max_spur_marker(ax):
+    return next(line for line in ax.lines if line.get_marker() == 'd')
+
+
+def _thermal_noise_demo_result(noise_rms=0.0):
+    n_fft = 2**13
+    fs = 100e6
+    fund_bin = 983
+    n = np.arange(n_fft)
+    signal = 0.5 * np.sin(2 * np.pi * fund_bin * n / n_fft) + 0.5
+    if noise_rms:
+        rng = np.random.default_rng(20260628)
+        signal = signal + rng.standard_normal(n_fft) * noise_rms
+    return compute_spectrum(signal, fs=fs)
+
+
+def _strong_spur_result():
+    n_fft = 2**14
+    fs = 1.0
+    n = np.arange(n_fft)
+    signal = (
+        0.49 * np.sin(2 * np.pi * 997 * n / n_fft)
+        + 0.42 * np.sin(2 * np.pi * 2501 * n / n_fft)
+    )
+    return compute_spectrum(signal, fs=fs, win_type='rectangular', side_bin=0)
 
 
 def _assert_spectrum_axes(ax, result, *, show_label=True, expected_title='Power Spectrum'):
@@ -124,6 +156,64 @@ def test_plot_spectrum_labels_stay_fixed_when_ylim_changes():
     plt.close(fig)
 
     np.testing.assert_allclose(after, before, atol=0.5)
+
+
+@pytest.mark.parametrize("plotter", [plot_spectrum, plot_spectrum_virtuoso])
+def test_max_spur_annotation_hides_when_spur_is_below_user_ylim(plotter):
+    result = _thermal_noise_demo_result(noise_rms=0.0)
+
+    fig, ax = plt.subplots()
+    plotter(result, show_title=False, show_label=True, ax=ax)
+    ax.set_ylim([-140, 0])
+    fig.canvas.draw()
+
+    assert not _max_spur_text(ax).get_visible()
+    assert not _max_spur_marker(ax).get_visible()
+    plt.close(fig)
+
+
+@pytest.mark.parametrize("plotter", [plot_spectrum, plot_spectrum_virtuoso])
+def test_max_spur_annotation_remains_visible_for_in_range_spur_after_user_ylim(plotter):
+    result = _thermal_noise_demo_result(noise_rms=50e-6)
+
+    fig, ax = plt.subplots()
+    plotter(result, show_title=False, show_label=True, ax=ax)
+    ax.set_ylim([-140, 0])
+    fig.canvas.draw()
+
+    max_spur_text = _max_spur_text(ax)
+    ymin, ymax = ax.get_ylim()
+    assert max_spur_text.get_visible()
+    assert _max_spur_marker(ax).get_visible()
+    assert ymin <= max_spur_text.get_position()[1] <= ymax
+    renderer = fig.canvas.get_renderer()
+    text_bbox = max_spur_text.get_window_extent(renderer=renderer)
+    axes_bbox = ax.get_window_extent(renderer=renderer)
+    assert text_bbox.x0 >= axes_bbox.x0 - 0.5
+    assert text_bbox.x1 <= axes_bbox.x1 + 0.5
+    plt.close(fig)
+
+
+@pytest.mark.parametrize("plotter", [plot_spectrum, plot_spectrum_virtuoso])
+def test_max_spur_annotation_stays_inside_axes_for_high_spur(plotter):
+    result = _strong_spur_result()
+
+    fig, ax = plt.subplots(figsize=(7, 5))
+    plotter(result, show_title=False, show_label=True, ax=ax)
+    fig.canvas.draw()
+
+    max_spur_text = _max_spur_text(ax)
+    renderer = fig.canvas.get_renderer()
+    text_bbox = max_spur_text.get_window_extent(renderer=renderer)
+    axes_bbox = ax.get_window_extent(renderer=renderer)
+
+    assert max_spur_text.get_visible()
+    assert _max_spur_marker(ax).get_visible()
+    assert text_bbox.x0 >= axes_bbox.x0 - 0.5
+    assert text_bbox.x1 <= axes_bbox.x1 + 0.5
+    assert text_bbox.y0 >= axes_bbox.y0 - 0.5
+    assert text_bbox.y1 <= axes_bbox.y1 + 0.5
+    plt.close(fig)
 
 
 @pytest.mark.parametrize(
@@ -345,6 +435,9 @@ def test_plot_spectrum_high_harmonics():
     texts = set(_text_values(ax))
     assert {'2', '3', '4'}.issubset(texts)
     assert sum(line.get_marker() == 's' for line in ax.lines) >= 3
+    for text in ax.texts:
+        if text.get_text() in {'2', '3', '4'}:
+            assert text.get_clip_on()
 
     # Save figure
     fig_path = output_dir / 'test_plot_high_harmonics.png'
