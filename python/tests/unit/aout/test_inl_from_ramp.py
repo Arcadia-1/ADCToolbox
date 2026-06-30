@@ -170,6 +170,11 @@ def test_analyze_inl_from_ramp_plots_with_existing_dnl_inl_style():
     assert len(fig.axes) == 2
     assert fig.axes[0].get_ylabel() == "DNL (LSB)"
     assert fig.axes[1].get_ylabel() == "INL (LSB)"
+    assert fig.axes[0].get_xlabel() == "Code (2^4 LSB)"
+    assert fig.axes[1].get_xlabel() == "Code (2^4 LSB)"
+    assert fig.axes[0].get_xlim() == pytest.approx((0, 1))
+    assert fig.axes[1].get_xlim() == pytest.approx((0, 1))
+    assert fig.axes[0].get_xticks().tolist() == pytest.approx([0, 0.25, 0.5, 0.75, 1])
     assert len(fig.axes[0].lines) >= 1
     assert len(fig.axes[1].lines) >= 1
     plt.close(fig)

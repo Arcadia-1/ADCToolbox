@@ -124,8 +124,15 @@ def _plot_single_curve(ax, code, data, num_bits=None, ylabel='Data (LSB)', color
     color : str, default='r'
         Line color
     """
+    code = np.asarray(code)
+    if num_bits is not None:
+        full_scale = 2**num_bits
+        x_values = code / full_scale
+    else:
+        x_values = code
+
     # Plot curve
-    ax.plot(code, data, f'{color}-', linewidth=0.5)
+    ax.plot(x_values, data, f'{color}-', linewidth=0.5)
 
     # Add reference lines
     ax.axhline(1.0, color='gray', linestyle='--', linewidth=1.2, alpha=0.8)
@@ -133,20 +140,17 @@ def _plot_single_curve(ax, code, data, num_bits=None, ylabel='Data (LSB)', color
 
     # Always show grid and labels
     ax.grid(True, alpha=0.3)
-    ax.set_xlabel('Code (LSB)')
     ax.set_ylabel(ylabel)
 
     # Set x-axis limits
     if num_bits is not None:
-        full_scale = 2**num_bits
-        ax.set_xlim([0, full_scale])
-        # Set x-ticks: 1/8, 2/8, ..., 8/8 of full scale with actual code values as labels
-        tick_positions = [full_scale * i / 8 for i in range(1, 9)]
-        tick_labels = [f'{int(full_scale * i / 8)}' for i in range(1, 9)]
-        ax.set_xticks(tick_positions)
-        ax.set_xticklabels(tick_labels)
+        ax.set_xlim([0, 1])
+        ax.set_xlabel(f'Code (2^{num_bits} LSB)')
+        ax.set_xticks([0, 0.25, 0.5, 0.75, 1.0])
+        ax.set_xticklabels(['0', '0.25', '0.5', '0.75', '1'])
     else:
         ax.set_xlim([np.min(code), np.max(code)])
+        ax.set_xlabel('Code (LSB)')
 
     # Set y-axis limits: minimum ±1, or 1.2x data range if larger
     data_min, data_max = np.min(data), np.max(data)
