@@ -11,7 +11,10 @@ def analyze_decomposition_time(
     n_cycles: float = 5.0,
     create_plot: bool = True,
     ax=None,
-    title: str = None
+    title: str = None,
+    frequency: float = None,
+    max_iterations: int = 1,
+    tolerance: float = 1e-9,
 ) -> dict[str, Any]:
     """
     Analyze harmonic decomposition with time-domain visualization.
@@ -32,6 +35,12 @@ def analyze_decomposition_time(
         Axis to plot on (will be split for multi-panel).
     title : str, optional
         Custom title for the plot.
+    frequency : float, optional
+        Normalized fundamental frequency (0 to 0.5). If None, auto-detected.
+    max_iterations : int, default=1
+        Frequency-refinement iterations passed to fit_sine_4param.
+    tolerance : float, default=1e-9
+        Frequency-refinement convergence threshold passed to fit_sine_4param.
 
     Returns
     -------
@@ -42,7 +51,10 @@ def analyze_decomposition_time(
     # 1. Compute
     results = decompose_harmonic_error(
         signal=signal,
-        n_harmonics=harmonic
+        n_harmonics=harmonic,
+        frequency=frequency,
+        max_iterations=max_iterations,
+        tolerance=tolerance,
     )
 
     # 2. Plot

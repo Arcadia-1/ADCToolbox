@@ -3,6 +3,7 @@
 import numpy as np
 from typing import Any
 from adctoolbox.fundamentals.fit_sine_4param import fit_sine_4param
+from adctoolbox.aout._fit_diagnostics import extract_fit_diagnostics
 from adctoolbox.aout._infer_signal_range import _infer_signal_range
 
 def rearrange_error_by_value(
@@ -11,10 +12,14 @@ def rearrange_error_by_value(
     n_bins: int = 100,
     clip_percent: float = 0.01,
     value_range: tuple[float, float | None] = None,
+    max_iterations: int = 1,
+    tolerance: float = 1e-9,
+    return_fit: bool = False,
 ) -> dict[str, Any]:
     """
     Compute value-binned error metrics.
     Maps input signal linearly to [0, n_bins-1].
+    Fit controls are forwarded to fit_sine_4param.
     """
     
     signal = np.asarray(signal).flatten()
@@ -37,11 +42,12 @@ def rearrange_error_by_value(
     bin_indices = np.clip(bin_indices, 0, n_bins - 1)
 
     # Fit sine wave and compute residuals
+    fit_kwargs = {"max_iterations": max_iterations, "tolerance": tolerance}
     if norm_freq is None or np.isnan(norm_freq):
-        fit_res = fit_sine_4param(signal)
+        fit_res = fit_sine_4param(signal, **fit_kwargs)
         norm_freq = fit_res['frequency']
     else:        
-        fit_res = fit_sine_4param(signal, frequency_estimate=norm_freq)
+        fit_res = fit_sine_4param(signal, frequency_estimate=norm_freq, **fit_kwargs)
 
     fitted_signal = fit_res['fitted_signal']
     error = signal - fitted_signal
@@ -67,7 +73,7 @@ def rearrange_error_by_value(
         # Noise Profile
         error_rms = np.where(count_per_bin > 0, np.sqrt(sum_sq_err_per_bin / count_per_bin), np.nan)
 
-    return {
+    result = {
         'error_mean': error_mean,
         'error_rms': error_rms,
         'bin_centers': np.arange(n_bins),
@@ -77,3 +83,7 @@ def rearrange_error_by_value(
         'n_bins': n_bins,
         'norm_freq': float(norm_freq),
     }
+    if return_fit:
+        result['fit'] = extract_fit_diagnostics(fit_res)
+
+    return result

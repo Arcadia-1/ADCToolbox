@@ -12,7 +12,10 @@ def analyze_error_by_phase(
     include_base_noise: bool = True,
     create_plot: bool = True,
     axes=None, ax=None,
-    title: str = None
+    title: str = None,
+    max_iterations: int = 1,
+    tolerance: float = 1e-9,
+    return_fit: bool = False
 ) -> dict[str, Any]:
     """Analyze phase error using AM/PM decomposition.
 
@@ -39,6 +42,12 @@ def analyze_error_by_phase(
         Single axis to split into 2 panels.
     title : str, optional
         Test setup description for title.
+    max_iterations : int, default=1
+        Frequency-refinement iterations passed to fit_sine_4param.
+    tolerance : float, default=1e-9
+        Frequency-refinement convergence threshold passed to fit_sine_4param.
+    return_fit : bool, default=False
+        If True, include scalar sine-fit diagnostics under results['fit'].
 
     Returns
     -------
@@ -53,7 +62,10 @@ def analyze_error_by_phase(
         signal=signal,
         norm_freq=norm_freq,
         n_bins=n_bins,
-        include_base_noise=include_base_noise
+        include_base_noise=include_base_noise,
+        max_iterations=max_iterations,
+        tolerance=tolerance,
+        return_fit=return_fit
     )
 
     # 2. Plot (always uses binned bar plot)

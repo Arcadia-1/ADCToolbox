@@ -8,9 +8,11 @@ import matplotlib.pyplot as plt
 
 from adctoolbox.spectrum import analyze_spectrum
 from adctoolbox.fundamentals.fit_sine_4param import fit_sine_4param
+from adctoolbox.aout._fit_diagnostics import extract_fit_diagnostics
 
 def analyze_error_spectrum(signal, fs=1, frequency=None, create_plot: bool = True,
-                           ax=None, title: str = None):
+                           ax=None, title: str = None, max_iterations: int = 1,
+                           tolerance: float = 1e-9, return_fit: bool = False):
     """
     Compute error spectrum directly from the error signal.
 
@@ -31,6 +33,12 @@ def analyze_error_spectrum(signal, fs=1, frequency=None, create_plot: bool = Tru
         Axes to plot on. If None, uses current axes (plt.gca())
     title : str, optional
         Title for the plot. If None, no title is set
+    max_iterations : int, default=1
+        Frequency-refinement iterations passed to fit_sine_4param.
+    tolerance : float, default=1e-9
+        Frequency-refinement convergence threshold passed to fit_sine_4param.
+    return_fit : bool, default=False
+        If True, include scalar sine-fit diagnostics under result['fit'].
 
     Returns
     -------
@@ -44,6 +52,7 @@ def analyze_error_spectrum(signal, fs=1, frequency=None, create_plot: bool = Tru
         - 'sig_pwr_dbfs': Signal power (dBFS)
         - 'noise_floor_dbfs': Noise floor (dBFS)
         - 'error_signal': Error signal (signal - fitted sine)
+        - 'fit': Optional sine-fit diagnostics when return_fit=True
 
     Notes
     -----
@@ -53,10 +62,11 @@ def analyze_error_spectrum(signal, fs=1, frequency=None, create_plot: bool = Tru
     """
 
     # Fit ideal sine to extract reference
+    fit_kwargs = {"max_iterations": max_iterations, "tolerance": tolerance}
     if frequency is None:
-        fit_result = fit_sine_4param(signal)
+        fit_result = fit_sine_4param(signal, **fit_kwargs)
     else:
-        fit_result = fit_sine_4param(signal, frequency_estimate=frequency)
+        fit_result = fit_sine_4param(signal, frequency_estimate=frequency, **fit_kwargs)
 
     sig_ideal = fit_result['fitted_signal']
 
@@ -90,5 +100,7 @@ def analyze_error_spectrum(signal, fs=1, frequency=None, create_plot: bool = Tru
 
     # Add error signal to results
     result['error_signal'] = error_signal
+    if return_fit:
+        result['fit'] = extract_fit_diagnostics(fit_result)
 
     return result
