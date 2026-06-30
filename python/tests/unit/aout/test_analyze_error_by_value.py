@@ -5,6 +5,7 @@ import numpy as np
 import matplotlib.pyplot as plt
 from pathlib import Path
 from adctoolbox import analyze_error_by_value
+from adctoolbox.aout.rearrange_error_by_value import rearrange_error_by_value
 
 
 # Create output directory for test figures
@@ -120,6 +121,69 @@ def test_analyze_error_by_value_different_nonlinearities():
     # Verify file was created
     assert fig_path.exists(), f"Figure file not created: {fig_path}"
     assert fig_path.stat().st_size > 0, f"Figure file is empty: {fig_path}"
+
+
+def test_analyze_error_by_value_uses_residual_diagnostic_labels():
+    N = 2**12
+    Fs = 800e6
+    Fin = 10.125e6
+    t = np.arange(N) / Fs
+    signal = 0.49 * np.sin(2 * np.pi * Fin * t) + 0.5
+
+    fig, ax = plt.subplots(1, 1, figsize=(6, 5))
+    result = analyze_error_by_value(
+        signal,
+        n_bins=16,
+        ax=ax,
+        title="Value diagnostic",
+        create_plot=True,
+        max_iterations=0,
+        norm_freq=Fin / Fs,
+    )
+
+    labels = [text.get_text() for axes in fig.axes for text in axes.texts]
+    legend_labels = [
+        text.get_text()
+        for axes in fig.axes
+        for legend in [axes.get_legend()]
+        if legend is not None
+        for text in legend.get_texts()
+    ]
+
+    assert "value_bin_centers" in result
+    assert "count_per_bin" in result
+    assert result["count_per_bin"].shape == (16,)
+    assert np.all(np.diff(result["value_bin_centers"]) > 0)
+    assert fig.axes[0].get_ylabel() == "Residual"
+    assert fig.axes[1].get_xlabel() == "Signal Value"
+    assert fig.axes[1].get_ylabel() == "RMS Residual"
+    assert "Value-Binned Mean Residual" in legend_labels
+    assert not any("INL" in label for label in labels + legend_labels)
+    plt.close(fig)
+
+
+@pytest.mark.parametrize(
+    "kwargs, match",
+    [
+        ({"n_bins": 0}, "n_bins"),
+        ({"n_bins": 1.5}, "n_bins"),
+        ({"clip_percent": -0.1}, "clip_percent"),
+        ({"clip_percent": 0.5}, "clip_percent"),
+        ({"value_range": (1.0, 1.0)}, "value_range"),
+    ],
+)
+def test_rearrange_error_by_value_validates_inputs(kwargs, match):
+    signal = 0.49 * np.sin(np.linspace(0, 2 * np.pi, 256, endpoint=False)) + 0.5
+
+    with pytest.raises(ValueError, match=match):
+        rearrange_error_by_value(signal, **kwargs)
+
+
+def test_rearrange_error_by_value_rejects_nonfinite_signal():
+    signal = np.array([0.0, 0.1, np.nan, 0.2])
+
+    with pytest.raises(ValueError, match="finite"):
+        rearrange_error_by_value(signal)
 
 
 if __name__ == '__main__':

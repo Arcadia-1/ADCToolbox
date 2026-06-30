@@ -1,12 +1,13 @@
 """
 Demonstrates `analyze_error_by_value` for distinguishing thermal noise from static nonlinearity.
-This method provides a quick, coarse visualization of the INL shape (error vs. code)
-to identify static nonlinearity errors without running a full histogram test.
+This method provides a quick value-binned residual diagnostic for identifying
+static nonlinearity trends. It is not a replacement for strict code-domain
+INL/DNL extraction.
 
 3 Figures:
-- Figure 1: Thermal Noise (50 bins)
-- Figure 2: 3rd Order Nonlinearity (50 bins)
-- Figure 3: 3rd Order Nonlinearity (200 bins) - Higher resolution
+- Figure 1: Thermal Noise (16 bins)
+- Figure 2: 3rd Order Nonlinearity (16 bins)
+- Figure 3: 3rd Order Nonlinearity (64 bins) - Higher value resolution
 """
 
 import time

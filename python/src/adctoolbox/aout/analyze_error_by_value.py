@@ -19,9 +19,11 @@ def analyze_error_by_value(
     return_fit: bool = False
 ) -> dict[str, Any]:
     """
-    Analyze error binned by value (INL/DNL/Noise).
+    Analyze sine-fit residuals binned by signal value.
 
-    Combines core computation and optional plotting.
+    This is a value-binned residual diagnostic. It can reveal static
+    nonlinearity trends, but it is not a replacement for strict code-domain
+    INL/DNL extraction.
 
     Parameters
     ----------
@@ -30,7 +32,8 @@ def analyze_error_by_value(
     norm_freq : float, optional
         Normalized frequency (f/fs). If None, auto-detected.
     n_bins : int, default=100
-        Number of bins for analysis (x-axis resolution).
+        Number of value bins for analysis. Too few bins can average away
+        code-scale structure; too many bins can leave sparse/noisy bins.
     clip_percent : float, default=0.01
         Ratio of values to clip from edges.
     value_range : tuple(min, max), optional
@@ -53,7 +56,8 @@ def analyze_error_by_value(
     Returns
     -------
     results : dict
-        Dictionary containing 'error_mean', 'error_rms', 'bin_centers', etc.
+        Dictionary containing 'error_mean', 'error_rms', 'value_bin_centers',
+        'count_per_bin', 'bin_centers', etc.
     """
 
     # 1. Compute

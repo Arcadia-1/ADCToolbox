@@ -6,11 +6,11 @@ from matplotlib.gridspec import GridSpecFromSubplotSpec
 
 def plot_rearranged_error_by_value(results: dict, axes=None, ax=None, title: str = None):
     """
-    Plot Mean Error (INL) and RMS Error (Noise) vs Bin Index.
+    Plot value-binned mean residual and RMS residual.
 
     Creates a comprehensive visualization showing:
-    - Top panel: Scatter of raw error vs bin index with mean error overlay
-    - Bottom panel: RMS error vs bin index as bar chart
+    - Top panel: Scatter of raw residual vs value bin with mean residual overlay
+    - Bottom panel: RMS residual vs value bin as bar chart
 
     Parameters
     ----------
@@ -31,7 +31,10 @@ def plot_rearranged_error_by_value(results: dict, axes=None, ax=None, title: str
     error_mean = results['error_mean']
     error_rms = results['error_rms']
     bin_centers = results['bin_centers']
+    value_bin_centers = results.get('value_bin_centers', bin_centers)
     n_bins = results['n_bins']
+    scatter_x = value_bin_centers[bin_indices]
+    finite_value_bins = np.isfinite(value_bin_centers)
 
     if len(bin_indices) == 0: return
 
@@ -63,28 +66,33 @@ def plot_rearranged_error_by_value(results: dict, axes=None, ax=None, title: str
     # Top Panel: Scatter of error vs bin index with mean error overlay
     # ======================================================================
     if len(error) > 0:
-        
-        # Scatter plot: High transparency, rasterized for performance on large datasets
-        ax1.scatter(bin_indices, error, alpha=0.2, s=1, color='red', 
-                   rasterized=True, label='Raw Error')
 
-        # Mean error line overlay (INL Profile)
-        ax1.plot(bin_centers, error_mean, 'b-', linewidth=1.5, label='Mean Error (INL)')
+        # Scatter plot: High transparency, rasterized for performance on large datasets
+        ax1.scatter(scatter_x, error, alpha=0.2, s=1, color='red',
+                   rasterized=True, label='Raw Residual')
+
+        # Mean residual line overlay (value-binned conditional mean)
+        ax1.plot(value_bin_centers, error_mean, 'b-', linewidth=1.5,
+                 label='Value-Binned Mean Residual')
 
         # Set axis limits
-        ax1.set_xlim([-0.5, n_bins - 0.5])
-        
+        if np.any(finite_value_bins):
+            x_min = np.nanmin(value_bin_centers)
+            x_max = np.nanmax(value_bin_centers)
+            x_margin = 0.02 * (x_max - x_min) if x_max > x_min else 0.5
+            ax1.set_xlim([x_min - x_margin, x_max + x_margin])
+
         # Smart Y-limits
         y_min, y_max = np.min(error), np.max(error)
         y_range = y_max - y_min
         margin = y_range * 0.1 if y_range != 0 else 1.0
         ax1.set_ylim([y_min - margin, y_max + margin])
 
-        ax1.set_ylabel('Error')
+        ax1.set_ylabel('Residual')
         if title:
             ax1.set_title(title)
         else:
-            ax1.set_title('Signal and Error vs Value')
+            ax1.set_title('Value-Binned Residual Diagnostic')
         ax1.grid(True, alpha=0.3)
         ax1.legend(loc='upper right', fontsize=8)
         # Hide x-labels for top plot to avoid clutter
@@ -95,16 +103,24 @@ def plot_rearranged_error_by_value(results: dict, axes=None, ax=None, title: str
     # ======================================================================
     if len(bin_centers) > 0:
         # Bar chart
-        ax2.bar(bin_centers, error_rms, width=0.9,
+        if len(value_bin_centers) > 1:
+            bar_width = 0.9 * np.nanmedian(np.diff(value_bin_centers))
+        else:
+            bar_width = 0.9
+        ax2.bar(value_bin_centers, error_rms, width=bar_width,
                 color='skyblue', alpha=0.8, edgecolor='darkblue', linewidth=0.3)
 
         # Set axis limits
-        ax2.set_xlim([-0.5, n_bins - 0.5])
+        if np.any(finite_value_bins):
+            x_min = np.nanmin(value_bin_centers)
+            x_max = np.nanmax(value_bin_centers)
+            x_margin = 0.02 * (x_max - x_min) if x_max > x_min else 0.5
+            ax2.set_xlim([x_min - x_margin, x_max + x_margin])
         ax2.set_ylim([0, np.nanmax(error_rms) * 1.15])
 
-        ax2.set_xlabel('Bin Index')
-        ax2.set_ylabel('RMS Error')
-        ax2.set_title('RMS Error vs Value')
+        ax2.set_xlabel('Signal Value')
+        ax2.set_ylabel('RMS Residual')
+        ax2.set_title('Value-Binned RMS Residual')
         ax2.grid(True, alpha=0.3, axis='y')
 
     # Tight layout if we created the figure structure ourselves
