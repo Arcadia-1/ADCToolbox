@@ -510,12 +510,7 @@ if(dispPlot)
     end
 end
 
-% Calculate SNDR and SFDR
-% Save signal bin value for SFDR calculation
-sigs = spec(bin);
-if(~isnan(assumedSignal))
-    sigs = 10.^(assumedSignal/10);
-end
+% Calculate SNDR and SFDR using integrated signal/spur power.
 % Remove signal and DC from spectrum for noise/distortion calculation
 spec(max(bin-sideBin,1):min(bin+sideBin,Nd2)) = 0;
 spec(1:sideBin) = 0;
@@ -523,9 +518,12 @@ spec_inband = spec(1:inbandEnd);
 noi = sum(spec_inband);  % Total noise + distortion power
 
 % Find largest spur for SFDR
-[spur, sbin] = max(spec_inband);
+[~, sbin] = max(spec_inband);
+spur_start = max(sbin-sideBin,1);
+spur_end = min(sbin+sideBin,inbandEnd);
+spur = sum(spec_inband(spur_start:spur_end));
 SNDR = 10*log10(sig/noi);
-SFDR = 10*log10(sigs/spur);
+SFDR = 10*log10(sig/spur);
 ENoB = (SNDR-1.76)/6.02;
 
 % Mark maximum spur on plot
@@ -573,14 +571,17 @@ else
     noi = noi_exclude;
 end
 
-% Calculate THD by summing harmonic power
-thd = 0;
+% Calculate THD by summing integrated harmonic-lobe power with de-duplication.
+thd_mask = false(1,Nd2);
 for i = 2:nTHD
     b = alias(round((bin_r-1)*i),N_fft) +1;
-    thd = thd + spec(b);
+    h_start = max(b-sideBin,1);
+    h_end = min(b+sideBin,inbandEnd);
+    thd_mask(h_start:h_end) = true;
 end
+thd = sum(spec(thd_mask));
 
-THD = 10*log10(thd/sigs);
+THD = 10*log10(thd/sig);
 SNR = 10*log10(sig/noi);
 noise_floor_dbfs = pwr - SNR;  % dBFS (negative below 0 dBFS; matches Python noise_floor_dbfs)
 nsd = noise_floor_dbfs - 10*log10(Fs/2/OSR);
