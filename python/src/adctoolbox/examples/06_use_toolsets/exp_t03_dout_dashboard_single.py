@@ -64,10 +64,11 @@ t_plot = time.time()
 
 fig_path = (output_dir / 'exp_t03_dout_dashboard.png').resolve()
 
-# Generate dashboard with auto-frequency detection (freq=None)
+# Generate dashboard with known normalized frequency and real sampling rate.
 fig, axes = generate_dout_dashboard(
     bits=bits,
     freq=Fin/Fs,  # Normalized frequency
+    fs=Fs,
     weights=None,  # Use binary weights by default
     output_path=fig_path
 )

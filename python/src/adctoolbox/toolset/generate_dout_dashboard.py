@@ -11,7 +11,7 @@ from adctoolbox.dout import analyze_overflow
 from adctoolbox.dout import analyze_enob_sweep
 from adctoolbox.dout import analyze_weight_radix
 
-def generate_dout_dashboard(bits, freq=None, weights=None, output_path=None, show=False):
+def generate_dout_dashboard(bits, freq=None, fs=1.0, weights=None, output_path=None, show=False):
     """
     Generate comprehensive digital analysis dashboard with 6 subplots in a 2x3 panel.
 
@@ -20,7 +20,11 @@ def generate_dout_dashboard(bits, freq=None, weights=None, output_path=None, sho
     bits : array_like
         Digital bits (N samples x B bits, MSB to LSB order)
     freq : float, optional
-        Normalized frequency (0-0.5). If None, auto-detect from calibration
+        Normalized frequency (0-0.5). If None, auto-detect from calibration.
+        This frequency is used by the sine-weight calibration tools.
+    fs : float, optional
+        Sampling frequency used for spectrum plot frequency axes. Defaults to
+        1.0 for normalized-frequency plots.
     weights : array_like, optional
         Nominal weights for bits (default: None, uses binary weights)
     output_path : str or Path, optional
@@ -57,13 +61,13 @@ def generate_dout_dashboard(bits, freq=None, weights=None, output_path=None, sho
     # Plot 1: Spectrum with nominal weights
     plt.sca(axes[0])
     signal_nominal = bits @ weights
-    analyze_spectrum(signal_nominal, create_plot=True)
+    analyze_spectrum(signal_nominal, fs=fs, create_plot=True)
     axes[0].set_title('(1) Spectrum: Nominal Weights', fontsize=14)
 
     # Plot 2: Spectrum after calibration
     plt.sca(axes[1])
     signal_calibrated = result['calibrated_signal']
-    analyze_spectrum(signal_calibrated, create_plot=True)
+    analyze_spectrum(signal_calibrated, fs=fs, create_plot=True)
     axes[1].set_title('(2) Spectrum: Calibrated Weights', fontsize=14)
 
     # Plot 3: Bit Activity
