@@ -12,7 +12,7 @@ import time
 import numpy as np
 import matplotlib.pyplot as plt
 from pathlib import Path
-from adctoolbox import freq_to_bin, analyze_spectrum
+from adctoolbox import freq_to_bin, analyze_spectrum, fit_sine_4param
 from adctoolbox.calibration import calibrate_weight_sine_lite
 
 output_dir = Path(__file__).parent / "output"
@@ -67,11 +67,8 @@ elapsed_cal = time.time() - t_cal
 # Scale recovered weights to match true weights range
 recovered_weights_scaled = recovered_weights * np.max(true_weights)
 
-# Compute calibrated signal and ideal reference
+# Compute calibrated signal
 calibrated_signal = bits @ recovered_weights_scaled
-adc_amplitude = (2**bit_width - 1) / 2.0
-ideal_signal = adc_amplitude * np.sin(2 * np.pi * freq_norm * t + np.pi/8) + adc_amplitude
-error_signal = calibrated_signal - ideal_signal
 
 # Create overlapping spectrum plot
 fig, ax = plt.subplots(figsize=(8, 6))
@@ -111,9 +108,18 @@ enob_before = result_before['enob']
 sndr_after = result_after['sndr_dbc']
 enob_after = result_after['enob']
 
-# Calculate SNDR manually for verification
-sndr_calc = 10 * np.log10(np.mean(ideal_signal**2) / np.mean(error_signal**2))
-enob_calc = (sndr_calc - 1.76) / 6.02
+# Verify SNDR independently from a best-fit fundamental sine residual.
+# The fit absorbs arbitrary gain, phase, and DC offset, matching dynamic-test
+# SNDR semantics better than subtracting a hand-written ideal sine reference.
+fit_check = fit_sine_4param(
+    calibrated_signal,
+    frequency_estimate=freq_norm,
+    max_iterations=0,
+)
+fit_signal_ac = fit_check['fitted_signal'] - np.mean(fit_check['fitted_signal'])
+fit_residual = fit_check['residuals']
+sndr_fit = 10 * np.log10(np.mean(fit_signal_ac**2) / np.mean(fit_residual**2))
+enob_fit = (sndr_fit - 1.76) / 6.02
 
 # Print spectrum metrics
 print(f"\n[Spectrum Before] ENOB={result_before['enob']:5.2f} b, SNDR={result_before['sndr_dbc']:6.2f} dB, SFDR={result_before['sfdr_dbc']:6.2f} dB, SNR={result_before['snr_dbc']:6.2f} dB, NSD={result_before['nsd_dbfs_hz']:7.2f} dBFS/Hz")
@@ -132,8 +138,8 @@ print(f"  Recovered weights: [{recovered_weights_str}]")
 # Print SNDR/ENOB comparison
 print(f"\n[Performance]")
 print(f"  Calibration Runtime: {elapsed_cal*1e3:.2f} ms")
-print(f"  SNDR: {sndr_before:.2f} dB -> {sndr_after:.2f} dB (calc: {sndr_calc:.2f} dB)")
-print(f"  ENOB: {enob_before:.2f} bit -> {enob_after:.2f} bit (calc: {enob_calc:.2f} bit)")
+print(f"  SNDR: {sndr_before:.2f} dB -> {sndr_after:.2f} dB (fit-check: {sndr_fit:.2f} dB)")
+print(f"  ENOB: {enob_before:.2f} bit -> {enob_after:.2f} bit (fit-check: {enob_fit:.2f} bit)")
 print(f"  Improvement: +{sndr_after - sndr_before:.2f} dB, +{enob_after - enob_before:.2f} bit")
 
 # Set title with performance metrics
