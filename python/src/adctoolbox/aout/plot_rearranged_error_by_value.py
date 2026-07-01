@@ -95,8 +95,7 @@ def plot_rearranged_error_by_value(results: dict, axes=None, ax=None, title: str
             ax1.set_title('Value-Binned Residual Diagnostic')
         ax1.grid(True, alpha=0.3)
         ax1.legend(loc='upper right', fontsize=8)
-        # Hide x-labels for top plot to avoid clutter
-        ax1.set_xticklabels([])
+        ax1.set_xlabel('Signal Value')
 
     # ======================================================================
     # Bottom Panel: RMS Error Bar Chart (Noise Profile)
