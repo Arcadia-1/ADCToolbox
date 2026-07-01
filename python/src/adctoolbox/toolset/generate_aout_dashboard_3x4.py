@@ -49,6 +49,7 @@ def generate_aout_dashboard(signal, fs=1.0, freq=None, output_path=None, resolut
 
     # Calculate normalized frequency if freq is provided
     norm_freq = freq / fs if freq is not None else None
+    fit_kwargs = {"max_iterations": 0} if norm_freq is not None else {}
 
     # Create 3x4 panel
     fig, axes = plt.subplots(3, 4, figsize=(32, 18))
@@ -71,54 +72,91 @@ def generate_aout_dashboard(signal, fs=1.0, freq=None, output_path=None, resolut
     axes[1].set_title('(2) Spectrum Polar', fontsize=12, fontweight='bold', pad=20)
 
     # Plot 3: analyze_error_by_value
-    plt.sca(axes[2])
-    analyze_error_by_value(signal)
-    plt.gca().set_title('(3) Error by Value', fontsize=12, fontweight='bold')
+    analyze_error_by_value(
+        signal,
+        norm_freq=norm_freq,
+        ax=axes[2],
+        title='(3) Error by Value',
+        **fit_kwargs,
+    )
 
     # Plot 4: analyze_error_by_phase
-    plt.sca(axes[3])
-    analyze_error_by_phase(signal)
-    plt.gca().set_title('(4) Error by Phase', fontsize=12, fontweight='bold')
+    analyze_error_by_phase(
+        signal,
+        norm_freq=norm_freq,
+        ax=axes[3],
+        title='(4) Error by Phase',
+        **fit_kwargs,
+    )
 
     # Plot 5: analyze_decomposition_time
-    plt.sca(axes[4])
-    analyze_decomposition_time(signal)
-    plt.gca().set_title('(5) Decomposition Time', fontsize=12, fontweight='bold')
+    analyze_decomposition_time(
+        signal,
+        ax=axes[4],
+        title='(5) Decomposition Time',
+        frequency=norm_freq,
+        **fit_kwargs,
+    )
 
     # Plot 6: analyze_decomposition_polar
-    plt.sca(axes[5])
-    analyze_decomposition_polar(signal)
-    axes[5].set_title('(6) Decomposition Polar', fontsize=12, fontweight='bold', pad=20)
+    analyze_decomposition_polar(
+        signal,
+        ax=axes[5],
+        title='(6) Decomposition Polar',
+        frequency=norm_freq,
+        **fit_kwargs,
+    )
 
     # Plot 7: analyze_error_pdf
-    plt.sca(axes[6])
-    analyze_error_pdf(signal, resolution=resolution)
-    plt.gca().set_title('(7) Error PDF', fontsize=12, fontweight='bold')
+    analyze_error_pdf(
+        signal,
+        resolution=resolution,
+        frequency=norm_freq,
+        ax=axes[6],
+        title='(7) Error PDF',
+        **fit_kwargs,
+    )
 
     # Plot 8: analyze_error_autocorr
-    plt.sca(axes[7])
-    analyze_error_autocorr(signal, frequency=norm_freq)
-    plt.gca().set_title('(8) Error Autocorrelation', fontsize=12, fontweight='bold')
+    analyze_error_autocorr(
+        signal,
+        frequency=norm_freq,
+        ax=axes[7],
+        title='(8) Error Autocorrelation',
+    )
 
     # Plot 9: analyze_error_spectrum
-    plt.sca(axes[8])
-    analyze_error_spectrum(signal, fs=fs)
-    plt.gca().set_title('(9) Error Spectrum', fontsize=12, fontweight='bold')
+    analyze_error_spectrum(
+        signal,
+        fs=fs,
+        frequency=norm_freq,
+        ax=axes[8],
+        title='(9) Error Spectrum',
+        **fit_kwargs,
+    )
 
     # Plot 10: analyze_error_envelope_spectrum
-    plt.sca(axes[9])
-    analyze_error_envelope_spectrum(signal, fs=fs)
-    plt.gca().set_title('(10) Error Envelope Spectrum', fontsize=12, fontweight='bold')
+    analyze_error_envelope_spectrum(
+        signal,
+        fs=fs,
+        frequency=norm_freq,
+        ax=axes[9],
+        title='(10) Error Envelope Spectrum',
+        **fit_kwargs,
+    )
 
     # Plot 11: analyze_phase_plane
     plt.sca(axes[10])
-    analyze_phase_plane(signal, fs=fs, ax=axes[10], create_plot=False)
-    plt.gca().set_title('(11) Phase Plane', fontsize=12, fontweight='bold')
+    analyze_phase_plane(signal, fs=fs, ax=axes[10], title='(11) Phase Plane')
 
     # Plot 12: analyze_error_phase_plane
     plt.sca(axes[11])
-    analyze_error_phase_plane(signal, fs=fs, ax=axes[11], create_plot=False)
-    plt.gca().set_title('(12) Error Phase Plane', fontsize=12, fontweight='bold')
+    analyze_error_phase_plane(
+        signal,
+        fs=fs,
+        ax=axes[11],
+        title='(12) Error Phase Plane',
+    )
 
     # Overall title
     fig.suptitle('Comprehensive ADC Analysis Dashboard (12 Tools)',
