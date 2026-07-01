@@ -6,7 +6,7 @@ from adctoolbox.spectrum._bin_ranges import rfft_inband_bin_count
 from adctoolbox.spectrum._prepare_fft_input import _prepare_fft_input
 from adctoolbox.spectrum._locate_fundamental import _locate_fundamental
 from adctoolbox.spectrum._harmonics import _locate_harmonic_bins
-from adctoolbox.spectrum._harmonics import _calculate_harmonic_power_plotspec
+from adctoolbox.spectrum._harmonics import _calculate_harmonic_power
 from adctoolbox.spectrum._harmonics import _extract_highest_spur
 from adctoolbox.spectrum._spectrum_averaging import _power_average, _coherent_average
 from adctoolbox.spectrum._window import (
@@ -117,31 +117,29 @@ def compute_spectrum(
     sig_linear = float(np.sum(power_spectrum[sig_bin_start:sig_bin_end]))
     sig_pwr_linear = sig_linear
     sig_pwr_dbfs = 10 * np.log10(max(sig_pwr_linear, 1e-30))
-    sig_peak = float(power_spectrum[fundamental_bin])
 
     if assumed_sig_pwr_dbfs is not None and not np.isnan(assumed_sig_pwr_dbfs):
         sig_pwr_linear = 10 ** (assumed_sig_pwr_dbfs / 10)
         sig_pwr_dbfs = assumed_sig_pwr_dbfs
         sig_linear = sig_pwr_linear
-        sig_peak = sig_pwr_linear
 
     harmonic_bins = _locate_harmonic_bins(fundamental_bin_fractional, max_harmonic, N)
 
-    thd_power, harmonic_powers, collided_harmonics = _calculate_harmonic_power_plotspec(
+    thd_power, harmonic_powers, collided_harmonics = _calculate_harmonic_power(
         power_spectrum=power_spectrum,
-        harmonic_bins=harmonic_bins,
         fundamental_bin=fundamental_bin,
+        harmonic_bins=harmonic_bins,
         side_bin=side_bin,
         max_harmonic=max_harmonic,
     )
     spur_bin_idx, spur_power = _extract_highest_spur(
         power_spectrum, side_bin, n_inband, sig_bin_start, sig_bin_end
     )
-    if sig_peak > 0:
+    if sig_linear > 0:
         with np.errstate(divide="ignore", invalid="ignore"):
-            harmonics_dbc = 10 * np.log10(harmonic_powers / sig_peak)
-            thd_dbc = 10 * np.log10(thd_power / sig_peak)
-            sfdr_dbc = np.inf if spur_power <= 0 else 10 * np.log10(sig_peak / spur_power)
+            harmonics_dbc = 10 * np.log10(harmonic_powers / sig_linear)
+            thd_dbc = 10 * np.log10(thd_power / sig_linear)
+            sfdr_dbc = np.inf if spur_power <= 0 else 10 * np.log10(sig_linear / spur_power)
     else:
         harmonics_dbc = np.full_like(harmonic_powers, np.nan, dtype=float)
         thd_dbc = np.nan

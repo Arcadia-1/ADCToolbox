@@ -182,7 +182,7 @@ def _extract_highest_spur(
     n_search_inband: int,
     sig_bin_start: int,
     sig_bin_end: int
-) -> tuple[int, float, float]:
+) -> tuple[int, float]:
     """Extract the highest spur from in-band spectrum (excluding fundamental).
 
     Parameters
@@ -204,18 +204,18 @@ def _extract_highest_spur(
         Bin index of the maximum spur
     spur_power : float
         Spur power (linear scale, summed over center ± side_bin)
-    spur_db : float
-        Spur power in dB (single bin, for plotting)
     """
-    # Copy in-band spectrum for search (MATLAB plotspec: zero DC..sideBin, then signal lobe)
+    # Copy in-band spectrum for search and zero regions that must not
+    # contribute to spur power.
     spectrum_copy = spectrum_power[:n_search_inband].copy()
     spectrum_copy[: min(side_bin + 1, n_search_inband)] = 0
     if sig_bin_start < sig_bin_end:
         spectrum_copy[sig_bin_start:sig_bin_end] = 0
 
     spur_bin_idx = int(np.argmax(spectrum_copy))
-    # MATLAB SFDR: peak spur is a single FFT bin (spec(bin) / max(spec_inband))
-    spur_power = float(spectrum_copy[spur_bin_idx])
+    spur_start = max(spur_bin_idx - side_bin, 0)
+    spur_end = min(spur_bin_idx + side_bin + 1, n_search_inband)
+    spur_power = float(np.sum(spectrum_copy[spur_start:spur_end]))
 
     return spur_bin_idx, spur_power
 
@@ -274,4 +274,3 @@ def _calculate_harmonic_phases(
             hd3_phase_deg = np.degrees(hd3_phase_rad)
 
     return hd2_phase_deg, hd3_phase_deg
-
