@@ -128,6 +128,7 @@ for idx, case in enumerate(CASES):
     fig, axes = generate_dout_dashboard(
         bits=bits,
         freq=Fin/Fs,  # Normalized frequency
+        fs=Fs,
         weights=None,  # Use binary weights by default
         output_path=fig_path
     )
