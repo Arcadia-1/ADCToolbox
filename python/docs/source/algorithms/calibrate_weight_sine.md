@@ -108,6 +108,14 @@ Dictionary with keys:
 - **`enob`** (float or ndarray) — Effective number of bits
   - Calculated as: `(snr_db - 1.76) / 6.02`
 
+- **`rank_patch`** (dict) — Rank-deficiency diagnostics
+  - `applied`: whether rank-deficiency patching was used
+  - `bit_width_effective`: number of effective columns used by the solver
+  - `bit_to_col_map`: original bit column to effective column map (`-1` means unmapped)
+  - `bit_weight_ratios`: nominal-weight ratios used for merged columns
+  - `dropped_constant_bits`: bit columns that were constant in this capture
+  - `unmapped_bits`: bit columns returned as zero for this fitted model
+
 ## Algorithm
 
 ### Modular Pipeline (8 Stages)
@@ -370,6 +378,7 @@ print(f"Refined frequency: {result['refined_frequency']:.8f}")
 1. **Amplitude**: Input should be > -6 dBFS for stable weight recovery
 2. **Purity**: Input signal should have low distortion (THD < -60 dB) for best results
 3. **Coherency**: For FFT-based frequency estimation, use coherent sampling when possible
+4. **Bit activity**: Each weight can only be estimated if its bit column has AC activity in the capture
 
 ### Frequency Constraints
 
@@ -399,6 +408,20 @@ Multi-dataset calibration assumes:
 
 For ADCs with **per-channel weight variation**, use separate single-dataset calibrations.
 
+### Rank-Deficient Captures
+
+Constant bit columns have no AC information and are not identifiable separately
+from the fitted offset. If all bit columns are constant, calibration raises a
+`ValueError` because no effective bit columns remain. If only some columns are
+constant or otherwise unmapped, the solver continues with observable columns,
+sets the unmapped fitted weights to zero for the current model, emits a
+`UserWarning`, and reports the affected columns in `result["rank_patch"]`.
+
+Those zero fitted weights do **not** mean the physical ADC weights are zero.
+They mean the current capture did not observe those columns. Increase input
+amplitude, improve code coverage, use a different common-mode/window, or combine
+multiple captures if those weights must be calibrated.
+
 ## Comparison with Lite Version
 
 | Feature | Lite Version | Full Version |
@@ -409,7 +432,7 @@ For ADCs with **per-channel weight variation**, use separate single-dataset cali
 | **Multi-dataset** | ❌ Single only | ✅ Multiple datasets |
 | **Numerical stability** | Basic lstsq | Column scaling + conditioning |
 | **Output** | Weights only (ndarray) | Full diagnostics (dict) |
-| **Return values** | 1 (weights) | 7 (weights, offset, signals, SNDR, ENOB, etc.) |
+| **Return values** | 1 (weights) | weights, offset, signals, SNDR, ENOB, rank patch diagnostics, etc. |
 | **Code complexity** | ~40 lines | ~600+ lines (modular) |
 | **Typical runtime** | 5 ms | 20-100 ms |
 

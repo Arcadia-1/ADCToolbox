@@ -8,6 +8,8 @@ Main wrapper function that uses modular helper functions for:
 - Result assembly and normalization
 """
 
+import warnings
+
 import numpy as np
 
 from adctoolbox.calibration._prepare_input import _prepare_input
@@ -85,9 +87,10 @@ def calibrate_weight_sine(
     dict
         Calibration result containing ``weight``, ``offset``,
         ``calibrated_signal``, ``ideal``, ``error``, and
-        ``refined_frequency``. Array-valued entries are returned as a single
-        array for single-dataset input or as a list of arrays for
-        multi-dataset input.
+        ``refined_frequency``. The ``rank_patch`` entry reports any dropped
+        or merged rank-deficient bit columns. Array-valued entries are
+        returned as a single array for single-dataset input or as a list of
+        arrays for multi-dataset input.
     """
 
     # 0. Frequency-unit guard: freq must be NORMALIZED Fin/Fs in [0, 0.5].
@@ -114,6 +117,19 @@ def calibrate_weight_sine(
     bit_to_col_map = patched_input["bit_to_col_map"]
     bit_weight_ratios = patched_input["bit_weight_ratios"]
     bit_width_effective = patched_input["bit_width_effective"]
+    rank_patch_applied = patched_input["rank_patch_applied"]
+    dropped_constant_bits = patched_input["dropped_constant_bits"]
+    unmapped_bits = patched_input["unmapped_bits"]
+
+    if unmapped_bits.size > 0:
+        warnings.warn(
+            "Some bit columns were constant or otherwise unobservable in this "
+            "capture and have no recoverable AC information. Returned weights "
+            "for these bits are set to 0 for this fitted model; this does not "
+            "imply their physical ADC weights are zero.",
+            UserWarning,
+            stacklevel=2,
+        )
 
     # Scale columns for numerical conditioning
     bits_stacked_effective_scaled, bit_scales = _scale_columns_for_conditioning(bits_stacked_effective, verbose)
@@ -178,5 +194,14 @@ def calibrate_weight_sine(
         sin_basis=sin_basis,
         freq_array=freq_array
     )
+
+    results["rank_patch"] = {
+        "applied": rank_patch_applied,
+        "bit_width_effective": bit_width_effective,
+        "bit_to_col_map": bit_to_col_map.copy(),
+        "bit_weight_ratios": bit_weight_ratios.copy(),
+        "dropped_constant_bits": dropped_constant_bits.copy(),
+        "unmapped_bits": unmapped_bits.copy(),
+    }
 
     return results

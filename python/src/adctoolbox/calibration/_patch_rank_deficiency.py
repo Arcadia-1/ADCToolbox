@@ -42,7 +42,10 @@ def _patch_rank_deficiency(
             "bits_effective": bits_stacked,
             "bit_to_col_map": np.arange(bit_width),
             "bit_weight_ratios": np.ones(bit_width),
-            "bit_width_effective": bit_width
+            "bit_width_effective": bit_width,
+            "rank_patch_applied": False,
+            "dropped_constant_bits": np.array([], dtype=int),
+            "unmapped_bits": np.array([], dtype=int),
         }
 
     if verbose >= 1:
@@ -53,6 +56,7 @@ def _patch_rank_deficiency(
     eff_col_to_bit = []  # Reverse link to map effective columns back to original indices
     bit_to_col_map = np.full(bit_width, -1, dtype=int) # -1 indicates dropped/merged bits
     bit_weight_ratios = np.zeros(bit_width)
+    constant_bits = []
 
     for bit_idx in range(bit_width):
         col = bits_stacked[:, bit_idx]
@@ -60,6 +64,7 @@ def _patch_rank_deficiency(
         # Case A: Constant column = dead bit, drop it
         # bit_to_col_map stays -1, bit_weight_ratios stays 0, eff_col_to_bit unchanged
         if np.ptp(col) < 1e-15:
+            constant_bits.append(bit_idx)
             if verbose >= 1:
                 print(f"[DEBUG] Bit [{bit_idx}] is constant (dead bit). Dropping this column.")
             continue
@@ -100,11 +105,24 @@ def _patch_rank_deficiency(
                 print(f"[DEBUG] Bit [{bit_idx}] is dependent. Merging into effective column [{bit_to_col_map[bit_idx]}] "
                       f"with weight ratio {bit_weight_ratios[bit_idx]:.4f}.")
 
+    dropped_constant_bits = np.asarray(constant_bits, dtype=int)
+    unmapped_bits = np.flatnonzero(bit_to_col_map < 0)
+    if bits_effective.shape[1] == 0:
+        raise ValueError(
+            "No effective bit columns remain after rank-deficiency patching. "
+            "All bit columns are constant in this capture, so sine-based weight "
+            "calibration is not identifiable. Increase input amplitude, check "
+            "bit activity, or provide a capture with sufficient code coverage."
+        )
+
     return {
         "bits_effective": bits_effective,
         "bit_to_col_map": bit_to_col_map,
         "bit_weight_ratios": bit_weight_ratios,
-        "bit_width_effective": bits_effective.shape[1]
+        "bit_width_effective": bits_effective.shape[1],
+        "rank_patch_applied": True,
+        "dropped_constant_bits": dropped_constant_bits,
+        "unmapped_bits": unmapped_bits,
     }
 
 def _recover_rank_deficiency(
@@ -133,7 +151,23 @@ def _recover_rank_deficiency(
     weights_recovered : ndarray
         The physical weights mapped back to the original bit dimensions.
     """
-    
+    w_effective = np.asarray(w_effective)
+    bit_to_col_map = np.asarray(bit_to_col_map, dtype=int)
+    bit_weight_ratios = np.asarray(bit_weight_ratios, dtype=float)
+
+    if w_effective.size == 0:
+        raise ValueError(
+            "No effective bit weights are available for rank-deficiency recovery. "
+            "The calibration problem is not identifiable when no effective bit "
+            "columns remain."
+        )
+
+    if np.any(bit_to_col_map >= w_effective.size):
+        raise ValueError(
+            "rank-deficiency recovery map refers to an effective weight column "
+            "that does not exist."
+        )
+
     # 1. Broadly map effective weights back to original bit positions.
     # We use np.maximum(..., 0) to prevent -1 (discarded bits) from causing 
     # IndexError; these positions will be corrected in the final step.
