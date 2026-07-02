@@ -4,6 +4,7 @@ import numpy as np
 import pytest
 
 from adctoolbox.spectrum._estimate_noise_power import _estimate_noise_power
+from adctoolbox.spectrum._harmonics import _calculate_harmonic_power
 from adctoolbox.spectrum.compute_spectrum import compute_spectrum
 
 
@@ -133,3 +134,41 @@ def test_osr_thd_ignores_out_of_band_harmonics():
     assert full_band["metrics"]["thd_dbc"] == pytest.approx(hd2_dbc, abs=1e-9)
     assert osr_four["metrics"]["harmonics_dbc"][0] <= -149.0
     assert osr_four["metrics"]["thd_dbc"] <= -149.0
+
+
+def test_thd_clips_harmonic_lobe_when_center_is_just_out_of_band():
+    power_spectrum = np.zeros(16)
+    power_spectrum[6] = 2.0
+    power_spectrum[7] = 3.0
+
+    thd_power, harmonic_powers, collided_harmonics = _calculate_harmonic_power(
+        power_spectrum=power_spectrum,
+        fundamental_bin=2,
+        harmonic_bins=np.array([8]),
+        side_bin=2,
+        max_harmonic=2,
+        n_inband=8,
+    )
+
+    assert thd_power == pytest.approx(5.0)
+    assert harmonic_powers[0] == pytest.approx(5.0)
+    assert collided_harmonics == []
+
+
+def test_nf_method3_clips_harmonic_lobe_when_center_is_just_out_of_band():
+    spectrum_power = np.zeros(16)
+    spectrum_power[5] = 1.0
+    spectrum_power[6] = 2.0
+    spectrum_power[7] = 3.0
+
+    noise_power = _estimate_noise_power(
+        spectrum_power=spectrum_power,
+        nf_method=3,
+        n_inband=8,
+        M=1,
+        bin_idx=2,
+        harmonic_bins=np.array([8]),
+        side_bin=2,
+    )
+
+    assert noise_power == pytest.approx(1.0)

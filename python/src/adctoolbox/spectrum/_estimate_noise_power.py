@@ -98,7 +98,7 @@ def _estimate_noise_power(
         spec_noise = spec.copy()
         for h_bin in harmonic_bins:
             h_bin = int(h_bin)
-            if h_bin <= side_bin or h_bin >= n_inband:
+            if h_bin <= side_bin:
                 continue
             if abs(h_bin - bin_idx) <= 2 * side_bin:
                 continue

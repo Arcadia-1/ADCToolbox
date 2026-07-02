@@ -123,17 +123,18 @@ def _calculate_harmonic_power(
         collision_threshold = 2 * side_bin
         is_fundamental_collision = abs(harmonic_bin_center - fundamental_bin) <= collision_threshold
         is_dc_collision = harmonic_bin_center <= side_bin
-        is_out_of_band = harmonic_bin_center >= max_bin
 
         if is_fundamental_collision:
             collided_harmonics.append(harmonic_order)
             continue
-        if is_dc_collision or is_out_of_band:
+        if is_dc_collision:
             continue
 
         # Determine bin range for this harmonic
         harmonic_start_index = max(harmonic_bin_center - side_bin, 0)
         harmonic_end_index = min(harmonic_bin_center + side_bin + 1, max_bin)
+        if harmonic_start_index >= harmonic_end_index:
+            continue
 
         # Extract individual harmonic power (independent of deduplication)
         current_harmonic_power = np.sum(power_spectrum[harmonic_start_index:harmonic_end_index])
