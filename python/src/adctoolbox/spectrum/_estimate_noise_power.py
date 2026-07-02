@@ -100,8 +100,6 @@ def _estimate_noise_power(
             h_bin = int(h_bin)
             if h_bin <= side_bin:
                 continue
-            if abs(h_bin - bin_idx) <= 2 * side_bin:
-                continue
             lo = max(h_bin - side_bin, 0)
             hi = min(h_bin + side_bin + 1, n_inband)
             if lo < hi:

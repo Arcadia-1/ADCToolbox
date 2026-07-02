@@ -172,3 +172,78 @@ def test_nf_method3_clips_harmonic_lobe_when_center_is_just_out_of_band():
     )
 
     assert noise_power == pytest.approx(1.0)
+
+
+def test_thd_counts_harmonic_annulus_near_fundamental_lobe():
+    power_spectrum = np.zeros(32)
+    power_spectrum[8] = 100.0
+    power_spectrum[11] = 2.0
+    power_spectrum[12] = 3.0
+    power_spectrum[13] = 5.0
+
+    thd_power, harmonic_powers, collided_harmonics = _calculate_harmonic_power(
+        power_spectrum=power_spectrum,
+        fundamental_bin=8,
+        harmonic_bins=np.array([11]),
+        side_bin=2,
+        max_harmonic=2,
+        n_inband=16,
+    )
+
+    assert thd_power == pytest.approx(10.0)
+    assert harmonic_powers[0] == pytest.approx(10.0)
+    assert collided_harmonics == []
+
+
+def test_nf_method3_excludes_harmonic_annulus_near_fundamental_lobe():
+    spectrum_power = np.zeros(32)
+    spectrum_power[8] = 100.0
+    spectrum_power[11] = 2.0
+    spectrum_power[12] = 3.0
+    spectrum_power[13] = 5.0
+    spectrum_power[14] = 7.0
+
+    noise_power = _estimate_noise_power(
+        spectrum_power=spectrum_power,
+        nf_method=3,
+        n_inband=16,
+        M=1,
+        bin_idx=8,
+        harmonic_bins=np.array([11]),
+        side_bin=2,
+    )
+
+    assert noise_power == pytest.approx(7.0)
+
+
+def test_compute_spectrum_handles_hd2_alias_near_fundamental_lobe():
+    n_samples = 1024
+    fundamental_bin = 340
+    hd2_dbc = -60.0
+    noise_dbc = -80.0
+    noise_bin = 100
+
+    signal = (
+        _coherent_tone(n_samples, fundamental_bin)
+        + _coherent_tone(n_samples, 2 * fundamental_bin, 10 ** (hd2_dbc / 20))
+        + _coherent_tone(n_samples, noise_bin, 10 ** (noise_dbc / 20))
+    )
+
+    result = compute_spectrum(
+        signal,
+        fs=1.0,
+        max_scale_range=[-1, 1],
+        win_type="rectangular",
+        side_bin=2,
+        max_harmonic=2,
+        nf_method=3,
+        assumed_sig_pwr_dbfs=0.0,
+    )
+    metrics = result["metrics"]
+    expected_sndr = 10 * np.log10(1 / (10 ** (hd2_dbc / 10) + 10 ** (noise_dbc / 10)))
+
+    assert result["plot_data"]["harmonic_bins"][0] == 344
+    assert metrics["snr_dbc"] == pytest.approx(80.0, abs=1e-9)
+    assert metrics["harmonics_dbc"][0] == pytest.approx(hd2_dbc, abs=1e-9)
+    assert metrics["thd_dbc"] == pytest.approx(hd2_dbc, abs=1e-9)
+    assert metrics["sndr_dbc"] == pytest.approx(expected_sndr, abs=1e-9)
