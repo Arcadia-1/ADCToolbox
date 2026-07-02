@@ -80,7 +80,7 @@ def quick_sndr(data, fs=1.0, win_type="hann", side_bin=None, max_scale_range=Non
     sig_linear = float(np.sum(power_spectrum[sig_bin_start:sig_bin_end]))
 
     noise_distortion_spectrum = power_spectrum.copy()
-    noise_distortion_spectrum[: min(side_bin + 1, len(noise_distortion_spectrum))] = 0.0
+    noise_distortion_spectrum[: min(side_bin, len(noise_distortion_spectrum))] = 0.0
     noise_distortion_spectrum[sig_bin_start:sig_bin_end] = 0.0
     noise_distortion = float(np.sum(noise_distortion_spectrum[:n_inband]))
 

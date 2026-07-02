@@ -22,9 +22,9 @@ def _zeroed_inband_spectrum(
     fundamental_bin: int,
     side_bin: int,
 ) -> np.ndarray:
-    """In-band spectrum with DC..sideBin and fundamental main lobe cleared (plotspec.m)."""
+    """In-band spectrum with MATLAB plotspec low bins and fundamental lobe cleared."""
     spec = spectrum_power[:n_inband].copy()
-    spec[: min(side_bin + 1, n_inband)] = 0.0
+    spec[: min(side_bin, n_inband)] = 0.0
     lo = max(fundamental_bin - side_bin, 0)
     hi = min(fundamental_bin + side_bin + 1, n_inband)
     if lo < hi:

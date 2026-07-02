@@ -147,7 +147,7 @@ def compute_spectrum(
         sfdr_dbc = np.nan
 
     spec_sndr = power_spectrum.copy()
-    spec_sndr[: min(side_bin + 1, len(spec_sndr))] = 0.0
+    spec_sndr[: min(side_bin, len(spec_sndr))] = 0.0
     lo = max(fundamental_bin - side_bin, 0)
     hi = min(fundamental_bin + side_bin + 1, n_inband)
     if lo < hi:

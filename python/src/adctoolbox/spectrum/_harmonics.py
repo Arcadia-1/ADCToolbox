@@ -222,7 +222,7 @@ def _extract_highest_spur(
     # Copy in-band spectrum for search and zero regions that must not
     # contribute to spur power.
     spectrum_copy = spectrum_power[:n_search_inband].copy()
-    spectrum_copy[: min(side_bin + 1, n_search_inband)] = 0
+    spectrum_copy[: min(side_bin, n_search_inband)] = 0
     if sig_bin_start < sig_bin_end:
         spectrum_copy[sig_bin_start:sig_bin_end] = 0
 
