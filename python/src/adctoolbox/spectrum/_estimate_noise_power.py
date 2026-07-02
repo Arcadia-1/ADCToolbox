@@ -97,8 +97,15 @@ def _estimate_noise_power(
     def _exclude_noise() -> float:
         spec_noise = spec.copy()
         for h_bin in harmonic_bins:
-            if 0 <= h_bin < n_inband:
-                spec_noise[h_bin] = 0.0
+            h_bin = int(h_bin)
+            if h_bin <= side_bin or h_bin >= n_inband:
+                continue
+            if abs(h_bin - bin_idx) <= 2 * side_bin:
+                continue
+            lo = max(h_bin - side_bin, 0)
+            hi = min(h_bin + side_bin + 1, n_inband)
+            if lo < hi:
+                spec_noise[lo:hi] = 0.0
         return float(np.sum(spec_noise))
 
     parts = {

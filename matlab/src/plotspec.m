@@ -556,7 +556,9 @@ noi_mean = mean(spec_sort(max(1,floor(n_inband*0.05)):max(1,floor(n_inband*0.95)
 spec_noise = spec;
 for i = 2:nTHD
     b = alias(round((bin_r-1)*i),N_fft) +1;
-    spec_noise(b) = 0;
+    h_start = max(b-sideBin,1);
+    h_end = min(b+sideBin,inbandEnd);
+    spec_noise(h_start:h_end) = 0;
 end
 noi_exclude = sum(spec_noise(1:inbandEnd));
 
