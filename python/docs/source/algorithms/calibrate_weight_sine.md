@@ -2,15 +2,15 @@
 
 ## Overview
 
-`calibrate_weight_sine` provides comprehensive, production-ready ADC foreground calibration using sinewave input. This is the full-featured version supporting automatic frequency search, rank deficiency handling, harmonic rejection, and multi-dataset calibration.
+`calibrate_weight_sine` provides comprehensive, production-ready ADC foreground calibration using sinewave input. This is the full-featured version supporting automatic frequency search, rank deficiency handling, harmonic nuisance fitting, and multi-dataset calibration.
 
 **Key Features:**
 - ✅ Automatic frequency search with coarse and fine refinement
 - ✅ Rank deficiency handling for redundant ADC architectures
-- ✅ Harmonic rejection to exclude distortion
+- ✅ Harmonic nuisance fitting for source/test-chain harmonic terms
 - ✅ Multi-dataset calibration for time-interleaved ADCs
 - ✅ Numerical conditioning for robust convergence
-- ✅ Comprehensive diagnostics (SNDR, ENOB, error signals)
+- ✅ Comprehensive diagnostics (weights, fitted residual metrics, error signals)
 
 ## Syntax
 
@@ -28,7 +28,7 @@ result = calibrate_weight_sine(bits, freq=0.001587)
 result = calibrate_weight_sine(bits, freq=0.001587,
                                nominal_weights=[2048, 1024, 512, 256, 128, 128, ...])
 
-# With harmonic rejection
+# With harmonic nuisance fitting
 result = calibrate_weight_sine(bits, freq=0.001587, harmonic_order=3)
 
 # Multi-dataset (time-interleaved ADC)
@@ -55,10 +55,12 @@ result = calibrate_weight_sine([bits_ch0, bits_ch1, bits_ch2, bits_ch3])
   - Default: `[2^(M-1), 2^(M-2), ..., 2, 1]`
   - Required for redundant ADCs (e.g., `[128, 128, 64, ...]`)
 
-- **`harmonic_order`** (int, optional) — Number of harmonic terms to exclude in calibration
-  - Default: `1` (fundamental only, no harmonic exclusion)
-  - Higher values exclude more harmonics from error term
-  - Example: `harmonic_order=3` excludes 1st, 2nd, 3rd harmonics
+- **`harmonic_order`** (int, optional) — Number of harmonic terms included in the fitted reference
+  - Default: `1` (fundamental only)
+  - Higher values include H2/H3/... as fitted nuisance terms in `ideal`
+  - Fitted harmonic terms are excluded from `error`
+  - Example: `harmonic_order=3` fits the fundamental plus H2/H3 in the reference
+  - Use this to keep source/test-chain harmonics from contaminating weight estimation; it does not prove ADC harmonic distortion was removed from `calibrated_signal`
 
 - **`learning_rate`** (float, optional) — Adaptive learning rate for frequency updates
   - Default: `0.5`
@@ -92,22 +94,25 @@ Dictionary with keys:
   - Single array for single dataset
   - List of arrays for multi-dataset
 
-- **`ideal`** (ndarray or list) — Best fitted sinewave (excluding harmonics > H)
+- **`ideal`** (ndarray or list) — Best fitted reference waveform
+  - Includes the fundamental and fitted harmonics up to `harmonic_order`
   - Single array for single dataset
   - List of arrays for multi-dataset
 
 - **`error`** (ndarray or list) — Residue errors after calibration
-  - error = calibrated_signal - ideal
-  - Excludes distortion harmonics
+  - `error = calibrated_signal - offset - ideal`
+  - Excludes the harmonic terms included in `ideal`
 
 - **`refined_frequency`** (float or ndarray) — Refined frequency from calibration
   - Single value for single dataset
   - Array for multi-dataset
 
-- **`snr_db`** (float or ndarray) — Signal-to-noise ratio in dB
+- **`snr_db`** (float or ndarray) — Fitted-reference to residual ratio in dB
+  - When `harmonic_order > 1`, this is not standard ADC dynamic SNDR
 
 - **`enob`** (float or ndarray) — Effective number of bits
   - Calculated as: `(snr_db - 1.76) / 6.02`
+  - Interpret as a fitted-residual ENOB estimate, not FFT ENOB, when harmonics are included in `ideal`
 
 - **`rank_patch`** (dict) — Rank-deficiency diagnostics
   - `applied`: whether rank-deficiency patching was used
@@ -168,7 +173,8 @@ Each stage is implemented as a separate helper function.
 
 ### Mathematical Model
 
-The ADC output with harmonic rejection is modeled as:
+The weighted bit output is fitted to a reference waveform with optional
+harmonic nuisance terms:
 
 ```
 y(n) = Σ w_i · b_i(n) = Σ [A_k·cos(2πkfn) + B_k·sin(2πkfn)] + C
@@ -181,8 +187,13 @@ where:
 - `b_i(n) ∈ {0, 1}` = binary value of bit i
 - `f` = normalized frequency
 - `H` = harmonic order
-- `A_k, B_k` = amplitude coefficients for harmonic k
+- `A_k, B_k` = fitted reference coefficients for harmonic k
 - `C` = DC offset
+
+For `H > 1`, the harmonics are part of the fitted reference. They are useful
+when the training source or test chain contains harmonic content that should not
+be absorbed into ADC bit weights. They should not be read as a claim that ADC
+harmonic distortion has been removed from `calibrated_signal`.
 
 ### Dual-Basis Least Squares
 
@@ -267,8 +278,8 @@ result = calibrate_weight_sine(bits, freq=freq_true, verbose=2)
 # Access results
 print(f"Recovered weights: {result['weight']}")
 print(f"Refined frequency: {result['refined_frequency']:.8f}")
-print(f"SNDR: {result['snr_db']:.2f} dB")
-print(f"ENOB: {result['enob']:.2f} bits")
+print(f"Fitted residual SNR: {result['snr_db']:.2f} dB")
+print(f"Fitted residual ENOB: {result['enob']:.2f} bits")
 ```
 
 ### Example 2: Automatic Frequency Search
@@ -320,10 +331,12 @@ print(f"Recovered weights: {result['weight'] * np.max(true_weights)}")
 # NOT:      [2048, 1024, 512, 256, 128,   0, 64, 32, 16, 8, 4, 2] ❌
 ```
 
-### Example 4: Harmonic Rejection
+### Example 4: Harmonic Nuisance Fitting
 
 ```python
-# Exclude up to 3rd harmonic from error calculation
+from adctoolbox import analyze_spectrum
+
+# Fit source/test-chain harmonic nuisance terms up to H3.
 result = calibrate_weight_sine(
     bits,
     freq=freq_true,
@@ -331,9 +344,13 @@ result = calibrate_weight_sine(
     verbose=2
 )
 
-# Error signal excludes harmonics 1-3
-# Improves weight accuracy for ADCs with significant INL
-print(f"SNDR (with harmonic rejection): {result['snr_db']:.2f} dB")
+# The returned snr_db is a fitted-residual metric. Fitted H2/H3 terms are
+# included in result["ideal"] and excluded from result["error"].
+print(f"Fitted residual SNR: {result['snr_db']:.2f} dB")
+
+# To evaluate ADC dynamic performance, analyze the calibrated output itself.
+spec = analyze_spectrum(result["calibrated_signal"])
+print(f"FFT SNDR: {spec['sndr_dbc']:.2f} dBc")
 ```
 
 ### Example 5: Multi-Dataset Calibration (Time-Interleaved ADC)
@@ -356,7 +373,7 @@ result = calibrate_weight_sine(
 print(f"Shared weights: {result['weight']}")
 print(f"Per-channel offsets: {result['offset']}")
 print(f"Per-channel frequencies: {result['refined_frequency']}")
-print(f"Per-channel ENOB: {result['enob']}")
+print(f"Per-channel fitted residual ENOB: {result['enob']}")
 ```
 
 ### Example 6: Forced Frequency Refinement
@@ -404,17 +421,22 @@ print(f"Refined frequency: {result['refined_frequency']:.8f}")
 - Coarse FFT: Accuracy ≈ 1/N bins
 - Fine search: Accuracy < 10⁻¹² (relative)
 
-**ENOB Improvement**:
+**Fitted-Residual ENOB Improvement**:
 - Binary ADC (no INL): +0.5 to +2 ENOB
 - Redundant ADC: +2 to +4 ENOB (error correction)
 - Time-interleaved: +3 to +6 ENOB (timing skew correction)
+
+These values are based on the fitted residual returned by calibration. When
+`harmonic_order > 1`, fitted harmonics are excluded from that residual. Use
+`analyze_spectrum(result["calibrated_signal"])` for standard FFT SNDR, THD, HDx,
+and dynamic ENOB.
 
 ## Limitations
 
 ### Input Signal Requirements
 
 1. **Amplitude**: Input should be > -6 dBFS for stable weight recovery
-2. **Purity**: Input signal should have low distortion (THD < -60 dB) for best results
+2. **Purity**: Input signal should have low distortion (THD < -60 dB) for best results. If source/test-chain harmonics are unavoidable, `harmonic_order > 1` can model them as nuisance terms for weight estimation, but the calibrated output spectrum remains the source of truth for ADC distortion.
 3. **Coherency**: For FFT-based frequency estimation, use coherent sampling when possible
 4. **Bit activity**: Each weight can only be estimated if its bit column has AC activity in the capture
 
@@ -466,11 +488,11 @@ multiple captures if those weights must be calibrated.
 |---------|-------------|--------------|
 | **Frequency handling** | Known frequency only | Auto search + refinement |
 | **Rank deficiency** | ❌ Collapses redundancy | ✅ Preserves all weights |
-| **Harmonic rejection** | ❌ No | ✅ Configurable order |
+| **Harmonic nuisance fitting** | ❌ No | ✅ Configurable order |
 | **Multi-dataset** | ❌ Single only | ✅ Multiple datasets |
 | **Numerical stability** | Basic lstsq | Column scaling + conditioning |
 | **Output** | Weights only (ndarray) | Full diagnostics (dict) |
-| **Return values** | 1 (weights) | weights, offset, signals, SNDR, ENOB, rank patch diagnostics, etc. |
+| **Return values** | 1 (weights) | weights, offset, signals, fitted residual metrics, rank patch diagnostics, etc. |
 | **Code complexity** | ~40 lines | ~600+ lines (modular) |
 | **Typical runtime** | 5 ms | 20-100 ms |
 
@@ -481,7 +503,7 @@ multiple captures if those weights must be calibrated.
 - Redundant ADC architecture
 - Need comprehensive diagnostics
 - Multi-dataset or time-interleaved ADCs
-- Harmonic rejection required
+- Harmonic nuisance fitting required for source/test-chain distortion
 - Production/research environments
 
 ❌ **Use lite version when:**
@@ -553,7 +575,7 @@ b̃_i = b_i / s_i
 
 - **Recover column scaling**: Undo normalization
 - **Recover rank deficiency**: Distribute effective weights to all physical bits
-- **Post-process**: Assemble results dictionary with SNDR, ENOB, error signals
+- **Post-process**: Assemble results dictionary with fitted residual metrics and error signals
 
 ## References
 

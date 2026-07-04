@@ -3,7 +3,12 @@ Assemble and normalize calibration results into physical quantities.
 
 This module handles the final stage of ADC calibration: converting the
 least-squares solution vector into physical weights, reconstructing signals,
-and computing performance metrics (SNDR, ENOB).
+and computing fitted-reference residual metrics.
+
+When ``harmonic_order`` is greater than 1, the reconstructed reference includes
+the fitted harmonic terms. The returned ``snr_db`` and ``enob`` therefore
+describe the residual after subtracting that fitted reference; they are not a
+replacement for FFT dynamic SNDR/ENOB of ``calibrated_signal``.
 """
 
 import numpy as np
@@ -50,7 +55,8 @@ def _post_process(
         # Signal reconstruction
         sig_k = weights @ bit_segments[k].T
         
-        # Ideal reference reconstruction
+        # Fitted reference reconstruction. This includes harmonics up to
+        # harmonic_order, so those fitted harmonics are excluded from err_k.
         ref_k = _reconstruct_sine_k(
             solution_vector, k, harmonic_order, num_harm_total,
             harm_start, basis_choice, 
@@ -59,17 +65,17 @@ def _post_process(
             norm_factor
         )
         
-        # Performance metrics
+        # Calibration residual metrics, not FFT dynamic SNDR/ENOB.
         err_k = sig_k - dc_offset - ref_k
         p_sig = np.mean(ref_k**2)
         p_noise = np.mean(err_k**2)
-        sndr_k = 10 * np.log10(p_sig / p_noise) if p_noise > 0 else 200.0 # Cap max SNR
-        enob_k = (sndr_k - 1.76) / 6.02
+        residual_snr_k = 10 * np.log10(p_sig / p_noise) if p_noise > 0 else 200.0 # Cap max SNR
+        enob_k = (residual_snr_k - 1.76) / 6.02
 
         calibrated_signals.append(sig_k)
         reference_sines.append(ref_k)
         residual_errors.append(err_k)
-        snr_list.append(sndr_k)
+        snr_list.append(residual_snr_k)
         enob_list.append(enob_k)
         
         row_start = row_end
@@ -110,7 +116,10 @@ def _reconstruct_sine_k(
     norm_factor: float
 ) -> np.ndarray:
     """
-    Reconstruct the ideal reference sinewave for the k-th dataset.
+    Reconstruct the fitted reference waveform for the k-th dataset.
+
+    The reference contains the fundamental and any fitted harmonic nuisance
+    terms requested by harmonic_order.
     Handles index mapping based on basis_choice (0: Cos=1, 1: Sin=1).
     """
     # The size of the first half of harmonic columns (where one fund is unity)

@@ -43,8 +43,12 @@ def calibrate_weight_sine(
 
     This function estimates per-bit weights and a DC offset for an ADC by
     fitting the weighted sum of raw bit columns to a sine series at a given
-    (or estimated) normalized frequency Fin/Fs. It optionally performs a
-    coarse and fine frequency search to refine the input tone frequency.
+    (or estimated) normalized frequency Fin/Fs. Harmonic terms above the
+    fundamental are fitted reference/nuisance terms: they can prevent source
+    or test-chain harmonics from contaminating weight estimation, but they do
+    not remove those harmonics from ``calibrated_signal``. It optionally
+    performs a coarse and fine frequency search to refine the input tone
+    frequency.
 
     Implementation uses a unified pipeline where single-dataset calibration
     is treated as a special case of multi-dataset calibration (N=1).
@@ -70,9 +74,12 @@ def calibrate_weight_sine(
         Nominal bit weights (only effective when rank is deficient).
         Default is 2^(M-1) down to 2^0.
     harmonic_order : int, optional
-        Number of harmonic terms to exclude in calibration.
-        Default is 1 (fundamental only, no harmonic exclusion).
-        Higher values exclude more harmonics from the error term.
+        Number of harmonic terms included in the fitted reference. Default is
+        1 (fundamental only). Values greater than 1 include H2/H3/... as
+        nuisance terms in ``ideal`` and exclude them from ``error``. This is
+        useful for source/test-chain harmonic nuisance modeling; it should not
+        be interpreted as proof that ADC harmonic distortion has been removed
+        from ``calibrated_signal``.
     learning_rate : float, optional
         Adaptive learning rate for frequency updates (0..1), default is 0.5.
     reltol : float, optional
@@ -87,10 +94,15 @@ def calibrate_weight_sine(
     dict
         Calibration result containing ``weight``, ``offset``,
         ``calibrated_signal``, ``ideal``, ``error``, and
-        ``refined_frequency``. The ``rank_patch`` entry reports any dropped
-        or merged rank-deficient bit columns. Array-valued entries are
-        returned as a single array for single-dataset input or as a list of
-        arrays for multi-dataset input.
+        ``refined_frequency``. ``ideal`` includes fitted harmonics up to
+        ``harmonic_order``; ``error`` is the residual after subtracting that
+        fitted reference. The returned ``snr_db`` and ``enob`` are calibration
+        fitted-residual metrics, not FFT dynamic SNDR/ENOB when
+        ``harmonic_order`` is greater than 1. Use spectrum analysis on
+        ``calibrated_signal`` for ADC dynamic SNDR/THD/HDx. The ``rank_patch``
+        entry reports any dropped or merged rank-deficient bit columns.
+        Array-valued entries are returned as a single array for single-dataset
+        input or as a list of arrays for multi-dataset input.
 
         The calibrated waveform fields use ``scale_convention ==
         "solver_unit_sine"``: the least-squares solve fixes the fitted

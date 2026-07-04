@@ -26,8 +26,9 @@ function [weight,offset,postcal,ideal,err,freqcal] = wcalsin(bits,varargin)
 %       Scalar
 %     niter - Maximum iterations for fine frequency search. Default: 100
 %       Positive integer
-%     order - Number of harmonic terms to include in the fitting model. Default: 1 (fundamental only)
-%       Positive integer
+%     order - Number of harmonic terms to include in the fitted reference model. Default: 1 (fundamental only)
+%       Positive integer. Values greater than 1 model source/test-chain harmonic
+%       nuisance terms; fitted harmonics are included in ideal and excluded from err.
 %     fsearch - Force fine frequency search. Default: 0
 %       Logical or {0, 1}
 %     verbose - Enable verbose output during frequency search. Default: 0
@@ -49,11 +50,13 @@ function [weight,offset,postcal,ideal,err,freqcal] = wcalsin(bits,varargin)
 %       Scalar
 %     postcal - Signal after weight calibration, in solver-unit-sine scale
 %       Vector [1×N] or Cell array {[1×N1], [1×N2], ...}
-%     ideal - Best-fit sinewave with specified orders of harmonics, in
-%       solver-unit-sine scale
+%     ideal - Best-fit reference waveform with specified orders of harmonics,
+%       in solver-unit-sine scale
 %       Vector [1×N] or Cell array {[1×N1], [1×N2], ...}
-%     err - Residual error after calibration (excluding harmonics), in
+%     err - Residual error after subtracting the fitted reference, in
 %       solver-unit-sine scale
+%       Harmonics included by order are excluded from this residual. Use
+%       plotspec(postcal, ...) to evaluate ADC dynamic SNDR/THD/HDx.
 %       Vector [1×N] or Cell array {[1×N1], [1×N2], ...}
 %     freqcal - Fine-tuned normalized frequency
 %       Scalar or Vector (for cell array input)
@@ -65,7 +68,7 @@ function [weight,offset,postcal,ideal,err,freqcal] = wcalsin(bits,varargin)
 %     % Calibration with known frequency
 %     [wgt, off, cal, ideal, err, freq] = wcalsin(bits, 'freq', 0.123)
 %
-%     % Multi-dataset calibration with harmonic exclusion
+%     % Multi-dataset calibration with harmonic nuisance fitting
 %     [wgt, off] = wcalsin({bits1, bits2}, 'freq', [0.1, 0.2], 'order', 3)
 %
 %     % Enable verbose output to see frequency search progress
@@ -73,7 +76,8 @@ function [weight,offset,postcal,ideal,err,freqcal] = wcalsin(bits,varargin)
 %
 %   Notes:
 %     - For multi-dataset calibration, weights and offset are shared across all
-%       datasets, but each dataset's frequency and harmonics are independent
+%       datasets, but each dataset's frequency and fitted harmonic nuisance
+%       terms are independent
 %     - When freq=0, the function performs coarse frequency estimation followed
 %       by iterative fine search
 %     - Rank-deficient bit matrices are handled by merging correlated columns
@@ -316,13 +320,13 @@ function [weight,offset,postcal,ideal,err,freqcal] = wcalsin(bits,varargin)
     % ==================
     % Single-dataset path
     % ==================
-    % Parse optional inputs controlling frequency search and harmonic exclusion order
+    % Parse optional inputs controlling frequency search and harmonic nuisance fitting order
     p = inputParser;
     addOptional(p, 'freq', 0, @(x) isnumeric(x) && isscalar(x) && (x >= 0));             % normalized Fin/Fs (0 triggers frequency search)
     addOptional(p, 'rate', 0.5, @(x) isnumeric(x) && isscalar(x) && (x > 0) && (x < 1)); % adaptive rate for frequency updates
     addOptional(p, 'reltol', 1E-12, @(x) isnumeric(x) && isscalar(x) && (x > 0));        % stop criterion (relative error tolerance)
     addOptional(p, 'niter', 100, @(x) isnumeric(x) && isscalar(x) && (x > 0));           % max fine-search iterations
-    addOptional(p, 'order', 1, @(x) isnumeric(x) && isscalar(x) && (x > 0));             % harmonics exclusion order (1 for no exclusion)
+    addOptional(p, 'order', 1, @(x) isnumeric(x) && isscalar(x) && (x > 0));             % fitted reference harmonic order
     addOptional(p, 'fsearch', 0, @(x) isnumeric(x) && isscalar(x));                      % force fine search (1) or not (0)
     addOptional(p, 'verbose', 0, @(x) (islogical(x) && isscalar(x)) || (isnumeric(x) && isscalar(x) && ismember(x, [0, 1]))); % enable verbose output (0: off, 1: on)
     addOptional(p, 'autotrans', 1, @(x) isnumeric(x) && isscalar(x) && ismember(x, [0, 1])); % auto-transpose if rows < cols (0: skip)
@@ -539,7 +543,7 @@ function [weight,offset,postcal,ideal,err,freqcal] = wcalsin(bits,varargin)
         ideal = -(xc(:,1) + xc(:,2:end) * x(M+2:M+order) + xs * x(M+1+order:M+2*order))'/w0;
     end
 
-    err = postcal-offset-ideal;         % residual error after calibration
+    err = postcal-offset-ideal;         % residual after subtracting the fitted reference
 
     % Enforce positive overall polarity: flip everything if total weight sum is negative
     if(sum(weight)<0)
@@ -552,10 +556,11 @@ function [weight,offset,postcal,ideal,err,freqcal] = wcalsin(bits,varargin)
 
     freqcal = freq;                     % return refined frequency estimate
 
-    % Check signal-to-noise ratio
+    % Check fitted-reference to residual ratio. This is not FFT dynamic SNDR
+    % when order includes harmonic nuisance terms.
     snr_linear = std(ideal) / std(err);
     if snr_linear < 10  % 20dB = 20*log10(10)
-        warning('SNR (%.1f dB) is below 20 dB. Calibration may have failed or sinewave may not be correctly extracted.', 20*log10(snr_linear));
+        warning('Fitted residual SNR (%.1f dB) is below 20 dB. Calibration may have failed or sinewave may not be correctly extracted.', 20*log10(snr_linear));
     end
 
 end
