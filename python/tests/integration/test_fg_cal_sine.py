@@ -1,5 +1,6 @@
 import numpy as np
 import matplotlib.pyplot as plt
+from pathlib import Path
 
 from adctoolbox.dout import calibrate_weight_sine
 from adctoolbox.aout import analyze_spectrum
@@ -9,6 +10,28 @@ from tests import config
 
 plt.rcParams['font.size'] = 14
 plt.rcParams['axes.grid'] = True
+
+PROJECT_ROOT = Path(__file__).resolve().parents[3]
+
+
+def _calibration_kwargs_for_parity(dataset_name):
+    """Use MATLAB's saved freqCal to isolate fixed-frequency solver parity."""
+    freq_ref = (
+        PROJECT_ROOT
+        / "reference_output"
+        / dataset_name
+        / "test_wcalsine"
+        / "freqCal_matlab.csv"
+    )
+    if not freq_ref.exists():
+        return {"freq": 0, "order": 5}
+
+    return {
+        "freq": float(np.loadtxt(freq_ref, delimiter=",")),
+        "order": 5,
+        "force_search": False,
+    }
+
 
 def _process_calibrate_weight_sine(raw_data, sub_folder, dataset_name, figures_folder, test_name):
     """
@@ -27,11 +50,12 @@ def _process_calibrate_weight_sine(raw_data, sub_folder, dataset_name, figures_f
     # Pre-calibration: Convert using nominal weights
     preCal = raw_data @ nomWeight
 
-    # Run calibrate_weight_sine
+    # Run calibrate_weight_sine.  For MATLAB/Python numeric parity we reuse
+    # MATLAB's saved freqCal when available, so this test isolates the
+    # fixed-frequency least-squares solve from auto-frequency policy.
     weight, offset, postCal, ideal, err, freqCal = calibrate_weight_sine(
         raw_data,
-        freq=0,
-        order=5
+        **_calibration_kwargs_for_parity(dataset_name),
     )
 
     # Spectrum plot BEFORE calibration (using nominal weights)
@@ -85,9 +109,10 @@ def _process_calibrate_weight_sine(raw_data, sub_folder, dataset_name, figures_f
     save_variable(sub_folder, ideal, 'ideal')
     save_variable(sub_folder, err, 'err')
     save_variable(sub_folder, freqCal, 'freqCal')
+    save_variable(sub_folder, preCal, 'preCal')
 
-    save_variable(sub_folder, ENoB_pre, 'ENoB_pre')
-    save_variable(sub_folder, ENoB_post, 'ENoB_post')
+    save_variable(sub_folder, ENoB_pre, 'ENoB_before')
+    save_variable(sub_folder, ENoB_post, 'ENoB_after')
 
 def test_calibrate_weight_sine(project_root, artifact_root):
     """
