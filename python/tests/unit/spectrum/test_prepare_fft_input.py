@@ -10,6 +10,7 @@ Window function handling has been moved to compute_spectrum.py
 
 import pytest
 import numpy as np
+import warnings
 from adctoolbox.spectrum._prepare_fft_input import _prepare_fft_input
 
 @pytest.mark.parametrize("input_shape,expected_output_shape", [
@@ -66,3 +67,44 @@ def test_prepare_fft_input_max_scale_range(signal_range, max_scale_range, expect
 
     assert actual_min >= expected_range[0] - 0.1
     assert actual_max <= expected_range[1] + 0.1
+
+
+def test_prepare_fft_input_warns_on_tuple_raw_overrange():
+    """Tuple ranges represent an absolute ADC range before DC removal."""
+    n = np.arange(1024)
+    signal = 0.5 + 0.9 * np.sin(2 * np.pi * 7 * n / len(n))
+
+    with pytest.warns(RuntimeWarning, match="exceeds declared max_scale_range"):
+        _prepare_fft_input(signal, max_scale_range=(-1.0, 1.0))
+
+
+def test_prepare_fft_input_scalar_range_ignores_dc_but_checks_ac_peak():
+    """Scalar ranges represent centered peak amplitude after DC removal."""
+    n = np.arange(1024)
+    signal = 0.5 + 0.9 * np.sin(2 * np.pi * 7 * n / len(n))
+
+    with pytest.warns(RuntimeWarning, match="exceeds declared max_scale_range"):
+        _prepare_fft_input(signal, max_scale_range=0.5)
+
+    with warnings.catch_warnings(record=True) as caught:
+        warnings.simplefilter("always")
+        _prepare_fft_input(signal, max_scale_range=1.0)
+    assert not [
+        warning for warning in caught
+        if "exceeds declared max_scale_range" in str(warning.message)
+    ]
+
+
+def test_prepare_fft_input_no_overrange_warning_for_none_or_valid_tuple():
+    """Self-referenced scaling has no external FS; valid tuple ranges stay quiet."""
+    n = np.arange(1024)
+    signal = 0.5 + 0.49 * np.sin(2 * np.pi * 7 * n / len(n))
+
+    with warnings.catch_warnings(record=True) as caught:
+        warnings.simplefilter("always")
+        _prepare_fft_input(signal, max_scale_range=None)
+        _prepare_fft_input(signal, max_scale_range=(0.0, 1.0))
+    assert not [
+        warning for warning in caught
+        if "exceeds declared max_scale_range" in str(warning.message)
+    ]
