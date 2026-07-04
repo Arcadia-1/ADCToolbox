@@ -14,19 +14,28 @@ import numpy as np
 from collections import Counter
 
 def _estimate_frequencies(
-    bits_stacked: np.ndarray, 
-    segment_lengths: np.ndarray, 
-    freq_init: float | np.ndarray | None = 0, 
-    verbose: int = 0
+    bits_stacked: np.ndarray,
+    segment_lengths: np.ndarray,
+    freq_init: float | np.ndarray | None = 0,
+    verbose: int = 0,
+    frequency_policy: str = "python",
+    nominal_weights: np.ndarray | None = None,
 ) -> np.ndarray:
     """
     Standardize or estimate the starting frequency for each dataset segment.
-    
-    This function uses a variance-based bit selection strategy:
-    1. Identify the most active bit (MSB candidate) via variance.
-    2. Perform RFFT on each segment of that bit to find the coarse peak.
+
+    ``frequency_policy="python"`` preserves the historical Python coarse
+    estimator based on bit-toggle ordering and spectral quality.  Use
+    ``frequency_policy="matlab"`` to emulate MATLAB ``wcalsin(freq=0)``:
+    estimate a frequency from nominally reconstructed prefixes of the
+    rank-patched bit matrix, then take their median.
     """
     num_datasets = len(segment_lengths)
+    if frequency_policy not in {"python", "matlab"}:
+        raise ValueError(
+            "frequency_policy must be 'python' or 'matlab'; "
+            f"got {frequency_policy!r}."
+        )
     
     # --- Part 1: Handle User-Provided Frequencies ---
     # If freq_init is not 0/None, we validate and return
@@ -41,6 +50,14 @@ def _estimate_frequencies(
                 f"number of datasets ({num_datasets})."
             )
         return freq_array
+
+    if frequency_policy == "matlab":
+        return _estimate_frequencies_matlab(
+            bits_stacked=bits_stacked,
+            segment_lengths=segment_lengths,
+            nominal_weights=nominal_weights,
+            verbose=verbose,
+        )
 
     freq_array = np.zeros(num_datasets)
     row_offsets = np.insert(np.cumsum(segment_lengths), 0, 0)
@@ -98,5 +115,60 @@ def _estimate_frequencies(
 
             print(f"  - Dataset [{k+1}/{num_datasets}]: Mode={mode_str}, SNDR_A={SNDR_A:.1f}, SNDR_B={SNDR_B:.1f}, Freq={f_est:.6f}")
             print(f"  - Dataset [{k+1}/{num_datasets}]: Mode={mode_str}, Sig_Power_A={Sig_power_A:.1f}, Sig_Power_B={Sig_power_B:.1f}, Freq={f_est:.6f}")
+
+    return freq_array
+
+
+def _estimate_frequencies_matlab(
+    bits_stacked: np.ndarray,
+    segment_lengths: np.ndarray,
+    nominal_weights: np.ndarray | None,
+    verbose: int = 0,
+) -> np.ndarray:
+    """
+    MATLAB-compatible coarse frequency estimator for ``wcalsin(freq=0)``.
+
+    MATLAB estimates several candidate frequencies from the first
+    ``min(bit_width, 5)`` nominally reconstructed column prefixes and uses
+    their median as the starting point for fine search.
+    """
+    if nominal_weights is None:
+        raise ValueError(
+            "nominal_weights are required when frequency_policy='matlab'."
+        )
+
+    nominal_weights = np.asarray(nominal_weights, dtype=float)
+    if nominal_weights.ndim != 1:
+        raise ValueError("nominal_weights must be a one-dimensional array.")
+    if nominal_weights.size != bits_stacked.shape[1]:
+        raise ValueError(
+            "nominal_weights length must match the bit matrix column count "
+            f"for frequency_policy='matlab'; got {nominal_weights.size} "
+            f"weights for {bits_stacked.shape[1]} columns."
+        )
+
+    num_datasets = len(segment_lengths)
+    freq_array = np.zeros(num_datasets)
+    row_offsets = np.insert(np.cumsum(segment_lengths), 0, 0)
+
+    for k in range(num_datasets):
+        start, end = row_offsets[k], row_offsets[k + 1]
+        current_segment = bits_stacked[start:end, :]
+        n_use = min(current_segment.shape[1], 5)
+
+        candidates = np.zeros(n_use)
+        for i in range(1, n_use + 1):
+            reconstructed = current_segment[:, :i] @ nominal_weights[:i]
+            candidates[i - 1] = estimate_frequency(reconstructed)
+
+        freq_array[k] = float(np.median(candidates))
+
+        if verbose == 2:
+            print(
+                f"\n[current dataset {k + 1}/{num_datasets}] "
+                f"Samples: {segment_lengths[k]}"
+            )
+            print(f"  - MATLAB policy candidate frequencies: {candidates}")
+            print(f"  - MATLAB policy median frequency: {freq_array[k]:.12f}")
 
     return freq_array

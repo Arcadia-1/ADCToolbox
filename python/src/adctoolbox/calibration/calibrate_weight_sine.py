@@ -36,7 +36,8 @@ def calibrate_weight_sine(
     learning_rate: float = 0.5,
     reltol: float = 1e-12,
     max_iter: int = 100,
-    verbose: int = 0
+    verbose: int = 0,
+    frequency_policy: str = "python",
 ) -> dict:
     """
     FGCalSine — Foreground calibration using a sinewave input
@@ -70,6 +71,12 @@ def calibrate_weight_sine(
         frequencies fixed. Set True to refine provided frequencies too, or
         False to disable fine search unless a zero frequency placeholder
         remains.
+    frequency_policy : {"python", "matlab"}, optional
+        Coarse frequency estimator used when ``freq`` is ``None`` or zero.
+        ``"python"`` preserves the historical Python estimator. ``"matlab"``
+        uses a MATLAB ``wcalsin(freq=0)`` compatible estimator based on
+        nominally reconstructed rank-patched bit prefixes. Explicit nonzero
+        frequencies are not changed by this option. Default is ``"python"``.
     nominal_weights : array-like, optional
         Nominal bit weights (only effective when rank is deficient).
         Default is 2^(M-1) down to 2^0.
@@ -103,6 +110,8 @@ def calibrate_weight_sine(
         entry reports any dropped or merged rank-deficient bit columns.
         Array-valued entries are returned as a single array for single-dataset
         input or as a list of arrays for multi-dataset input.
+        ``initial_frequency`` records the coarse frequency used before fine
+        search, and ``frequency_policy`` records the coarse-estimator policy.
 
         The calibrated waveform fields use ``scale_convention ==
         "solver_unit_sine"``: the least-squares solve fixes the fitted
@@ -114,6 +123,12 @@ def calibrate_weight_sine(
 
     # 0. Frequency-unit guard: freq must be NORMALIZED Fin/Fs in [0, 0.5].
     # Silent-fail (all-zero weights) used to happen when callers passed Fin in Hz.
+    if frequency_policy not in {"python", "matlab"}:
+        raise ValueError(
+            "frequency_policy must be 'python' or 'matlab'; "
+            f"got {frequency_policy!r}."
+        )
+
     if freq is not None:
         _freq_check = np.atleast_1d(np.asarray(freq, dtype=float))
         if np.any(_freq_check > 0.5):
@@ -156,7 +171,25 @@ def calibrate_weight_sine(
     auto_frequency_requested = freq is None or np.all(np.asarray(freq) == 0)
 
     # Estimate or validate frequencies
-    freq_array = _estimate_frequencies(bits_stacked, segment_lengths, freq, verbose)
+    frequency_bits = bits_stacked
+    frequency_nominal_weights = nominal_weights
+    if frequency_policy == "matlab":
+        frequency_bits = bits_stacked_effective
+        frequency_nominal_weights = _effective_nominal_weights(
+            nominal_weights=nominal_weights,
+            bit_to_col_map=bit_to_col_map,
+            bit_width_effective=bit_width_effective,
+        )
+
+    freq_array = _estimate_frequencies(
+        frequency_bits,
+        segment_lengths,
+        freq,
+        verbose,
+        frequency_policy=frequency_policy,
+        nominal_weights=frequency_nominal_weights,
+    )
+    initial_freq_array = freq_array.copy()
 
     bits_segments_scaled = []
     curr = 0
@@ -222,5 +255,30 @@ def calibrate_weight_sine(
         "dropped_constant_bits": dropped_constant_bits.copy(),
         "unmapped_bits": unmapped_bits.copy(),
     }
+    is_single = len(bits_segments) == 1
+    results["frequency_policy"] = frequency_policy
+    results["initial_frequency"] = (
+        initial_freq_array[0] if is_single else initial_freq_array.copy()
+    )
 
     return results
+
+
+def _effective_nominal_weights(
+    nominal_weights: np.ndarray,
+    bit_to_col_map: np.ndarray,
+    bit_width_effective: int,
+) -> np.ndarray:
+    """Return the representative nominal weights used by MATLAB-style search."""
+    effective_nominal_weights = np.empty(bit_width_effective, dtype=float)
+
+    for col in range(bit_width_effective):
+        source_bits = np.flatnonzero(bit_to_col_map == col)
+        if source_bits.size == 0:
+            raise ValueError(
+                f"No source bit maps to effective column {col}; cannot "
+                "estimate MATLAB-compatible coarse frequency."
+            )
+        effective_nominal_weights[col] = nominal_weights[source_bits[0]]
+
+    return effective_nominal_weights

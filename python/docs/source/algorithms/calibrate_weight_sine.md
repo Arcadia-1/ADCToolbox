@@ -5,7 +5,7 @@
 `calibrate_weight_sine` provides comprehensive, production-ready ADC foreground calibration using sinewave input. This is the full-featured version supporting automatic frequency search, rank deficiency handling, harmonic nuisance fitting, and multi-dataset calibration.
 
 **Key Features:**
-- ✅ Automatic frequency search with coarse and fine refinement
+- ✅ Automatic frequency search with selectable coarse-estimator policies and fine refinement
 - ✅ Rank deficiency handling for redundant ADC architectures
 - ✅ Harmonic nuisance fitting for source/test-chain harmonic terms
 - ✅ Multi-dataset calibration for time-interleaved ADCs
@@ -20,6 +20,9 @@ from adctoolbox.calibration import calibrate_weight_sine, scale_calibration_outp
 
 # Basic usage (auto frequency search)
 result = calibrate_weight_sine(bits)
+
+# MATLAB wcalsin-compatible coarse frequency search
+result = calibrate_weight_sine(bits, freq=0, frequency_policy="matlab")
 
 # With known frequency
 result = calibrate_weight_sine(bits, freq=0.001587)
@@ -47,9 +50,16 @@ result = calibrate_weight_sine([bits_ch0, bits_ch1, bits_ch2, bits_ch3])
   - `float`: Single frequency for all datasets
   - `array`: Per-dataset frequencies for multi-dataset mode
 
-- **`force_search`** (bool, optional) — Force fine frequency search even when frequency is provided
-  - Default: `False`
-  - Set to `True` to refine provided frequencies
+- **`force_search`** (bool or None, optional) — Fine frequency search policy
+  - Default: `None`
+  - `None`: refine automatically estimated frequencies; keep explicitly provided nonzero frequencies fixed
+  - `True`: refine provided frequencies too
+  - `False`: disable fine search unless a zero frequency placeholder remains
+
+- **`frequency_policy`** (`"python"` or `"matlab"`, optional) — Coarse estimator used for automatic frequency search
+  - Default: `"python"` preserves the historical Python bit-activity/SNDR coarse estimator
+  - `"matlab"` uses the MATLAB `wcalsin(freq=0)` compatible estimator: rank-patched nominal bit-prefix reconstructions, one frequency fit per prefix, then the median candidate
+  - Explicit nonzero `freq` values remain fixed unless `force_search=True`
 
 - **`nominal_weights`** (array, optional) — Nominal bit weights (only effective when rank is deficient)
   - Default: `[2^(M-1), 2^(M-2), ..., 2, 1]`
@@ -106,6 +116,11 @@ Dictionary with keys:
 - **`refined_frequency`** (float or ndarray) — Refined frequency from calibration
   - Single value for single dataset
   - Array for multi-dataset
+
+- **`initial_frequency`** (float or ndarray) — Coarse frequency used before fine search
+  - Useful for diagnosing automatic frequency-search policy differences
+
+- **`frequency_policy`** (str) — Coarse-estimator policy used for this result
 
 - **`snr_db`** (float or ndarray) — Fitted-reference to residual ratio in dB
   - When `harmonic_order > 1`, this is not standard ADC dynamic SNDR
@@ -234,19 +249,25 @@ For redundant ADCs (e.g., weights `[128, 128, 64, ...]`), the bit matrix has ran
 
 ### Frequency Search
 
-**Coarse Search** (when `freq=None`):
-1. Reconstruct signal using nominal weights: `y_nom(n) = Σ w_i^nom · b_i(n)`
-2. Compute FFT: `Y(k) = FFT(y_nom)`
-3. Find peak: `k_peak = argmax |Y(k)|`
-4. Initial frequency: `f_0 = k_peak / N`
+**Coarse Search** (when `freq=None` or `freq=0`):
+1. `frequency_policy="python"` preserves the historical Python estimator:
+   it ranks bit columns by toggle activity, builds low-toggle and high-toggle
+   surrogate waveforms, chooses the cleaner surrogate by spectrum quality, and
+   fits its tone frequency.
+2. `frequency_policy="matlab"` matches MATLAB `wcalsin(freq=0)` coarse search:
+   after rank patching, reconstruct prefixes of the first `min(M, 5)`
+   effective bit columns using nominal representative weights, fit one
+   frequency per prefix, and use the median candidate.
+3. Explicit nonzero `freq` values skip coarse search. They remain fixed by
+   default and are refined only when `force_search=True`.
 
 **Fine Search** (iterative refinement):
 ```
 for iteration = 1 to max_iter:
     1. Solve weights at current frequency f^(t)
-    2. Compute residual error: e(n) = y(n) - fitted_sinewave(n)
-    3. Compute phase gradient: ∇φ = angle(e · exp(-j2πf^(t)n))
-    4. Update frequency: f^(t+1) = f^(t) + α · ∇φ / (2πN)
+    2. Append the derivative of the fitted harmonic reference with respect to frequency
+    3. Solve the augmented least-squares system for a frequency correction
+    4. Update frequency: f^(t+1) = f^(t) + learning_rate * delta_f
     5. Check convergence: |f^(t+1) - f^(t)| / f^(t) < reltol
     6. If converged, break
 ```
@@ -550,7 +571,8 @@ b̃_i = b_i / s_i
 **Purpose**: Estimate or validate input frequencies
 
 **Logic**:
-- If `freq=None`: FFT-based coarse estimation for each dataset
+- If `freq=None` or `freq=0`: coarse estimation for each dataset using
+  `frequency_policy`
 - If `freq=scalar`: broadcast to all datasets
 - If `freq=array`: validate length matches number of datasets
 
@@ -567,8 +589,8 @@ b̃_i = b_i / s_i
 1. Initialize with coarse frequency
 2. Loop until convergence:
    - Solve weights at current frequency
-   - Compute phase error
-   - Update frequency using gradient
+   - Append the frequency-derivative column
+   - Solve the augmented least-squares system for a correction
    - Check convergence
 
 ### Stage 6-8: Recovery and Post-Processing

@@ -70,21 +70,22 @@ def _dual_basis_lstsq(
     Core dual-basis solver: tries both cosine=1 and sine=1 assumptions.
     Returns the solution with the minimum residual.
     """
-    # Combine extra columns (Offsets and potentially Frequency Derivatives)
-    extra_cols = [offset_matrix]
-    if deriv_matrix is not None:
-        extra_cols.append(deriv_matrix)
-
     # Assumption 1: Cosine fundamental is unity
-    # Layout: [Weights, Offsets, (Derivs), Cos_harmonics[1:], Sin_harmonics[:]]
-    A1 = np.column_stack([A_common, *extra_cols, cos_basis[:, 1:], sin_basis])
+    # Layout: [Weights, Offsets, Cos_harmonics[1:], Sin_harmonics[:], (Derivs)]
+    columns1 = [A_common, offset_matrix, cos_basis[:, 1:], sin_basis]
+    if deriv_matrix is not None:
+        columns1.append(deriv_matrix)
+    A1 = np.column_stack(columns1)
     b1 = -cos_basis[:, 0]
     coeffs1, _, _, _ = lstsq(A1, b1)
     err1 = np.linalg.norm(A1 @ coeffs1 - b1)
 
     # Assumption 2: Sine fundamental is unity
-    # Layout: [Weights, Offsets, (Derivs), Sin_harmonics[1:], Cos_harmonics[:]]
-    A2 = np.column_stack([A_common, *extra_cols, sin_basis[:, 1:], cos_basis])
+    # Layout: [Weights, Offsets, Sin_harmonics[1:], Cos_harmonics[:], (Derivs)]
+    columns2 = [A_common, offset_matrix, sin_basis[:, 1:], cos_basis]
+    if deriv_matrix is not None:
+        columns2.append(deriv_matrix)
+    A2 = np.column_stack(columns2)
     b2 = -sin_basis[:, 0]
     coeffs2, _, _, _ = lstsq(A2, b2)
     err2 = np.linalg.norm(A2 @ coeffs2 - b2)
@@ -294,8 +295,10 @@ def _solve_weights_searching_freq(
                 sin_coeffs_k = coeffs_temp[sin_idx : sin_idx + harmonic_order]
             else:
                 # Sine is unity: [weights, DC, sin[1:], cos[:]]
-                sin_idx = harmonic_start + (k * harmonic_order - 1)
-                sin_coeffs_k = coeffs_temp[sin_idx : sin_idx + harmonic_order]
+                h_idx = harmonic_start + k * (harmonic_order - 1)
+                sin_coeffs_k = np.concatenate(
+                    [[1.0], coeffs_temp[h_idx : h_idx + harmonic_order - 1]]
+                )
 
                 # Cos coefficients start after sin
                 cos_idx = harmonic_start + unity_harmonics_size + k * harmonic_order

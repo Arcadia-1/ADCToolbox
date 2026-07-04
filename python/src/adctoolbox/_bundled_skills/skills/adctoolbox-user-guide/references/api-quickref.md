@@ -134,8 +134,11 @@ adctoolbox-install-skill --dev --editable --force --dest ~/.codex/skills
   freq)` expect normalized `freq = Fin/Fs`. The `_lite` variant takes `freq`
   positionally (not as a keyword) and is required (no auto-search).
 - If `freq` is omitted, `calibrate_weight_sine` estimates the tone frequency
-  and fine-searches it against the calibration residual. A provided `freq`
-  remains fixed unless `force_search=True`.
+  and fine-searches it against the calibration residual. The default
+  `frequency_policy="python"` preserves the historical Python coarse estimator;
+  `frequency_policy="matlab"` uses the MATLAB `wcalsin(freq=0)` compatible
+  coarse estimator. A provided nonzero `freq` remains fixed unless
+  `force_search=True`.
 - `analyze_enob_sweep(bits, freq=...)` and `generate_dout_dashboard(bits,
   freq=...)` also expect normalized `freq`.
 - `generate_aout_dashboard(aout, fs=..., freq=...)` takes `freq` in Hz (it
@@ -160,7 +163,7 @@ adctoolbox-install-skill --dev --editable --force --dest ~/.codex/skills
   `complex_spectrum`, `fundamental_bin`, …).
 - `calibrate_weight_sine(...)` returns a dict: `weight`, `offset`,
   `calibrated_signal`, `ideal`, `error`, `refined_frequency`,
-  `scale_convention`.
+  `initial_frequency`, `frequency_policy`, `scale_convention`.
   `calibrate_weight_sine_lite(...)` returns just the weights ndarray.
   Calibration waveform fields are solver-unit-sine scaled by default; use
   `scale_calibration_output(...)` before comparing calibrated dBFS, noise
