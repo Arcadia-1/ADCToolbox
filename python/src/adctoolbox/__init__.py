@@ -181,10 +181,12 @@ _export('fit_static_nonlin', fit_static_nonlin)
 from .calibration import (
     calibrate_weight_sine,
     scale_calibration_output,
+    diagnose_calibration_matrix,
 )
 
 _export('calibrate_weight_sine', calibrate_weight_sine)
 _export('scale_calibration_output', scale_calibration_output)
+_export('diagnose_calibration_matrix', diagnose_calibration_matrix)
 
 # ======================================================================
 # Digital Output (DOUT) Analysis Functions
