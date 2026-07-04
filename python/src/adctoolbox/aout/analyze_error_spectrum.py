@@ -12,7 +12,8 @@ from adctoolbox.aout._fit_diagnostics import extract_fit_diagnostics
 
 def analyze_error_spectrum(signal, fs=1, frequency=None, create_plot: bool = True,
                            ax=None, title: str = None, max_iterations: int = 1,
-                           tolerance: float = 1e-9, return_fit: bool = False):
+                           tolerance: float = 1e-9, return_fit: bool = False,
+                           max_scale_range=None):
     """
     Compute error spectrum directly from the error signal.
 
@@ -39,6 +40,12 @@ def analyze_error_spectrum(signal, fs=1, frequency=None, create_plot: bool = Tru
         Frequency-refinement convergence threshold passed to fit_sine_4param.
     return_fit : bool, default=False
         If True, include scalar sine-fit diagnostics under result['fit'].
+    max_scale_range : float or tuple/list, optional
+        Full-scale reference passed to analyze_spectrum for residual scaling.
+        If None, the residual is self-normalized, which is useful for viewing
+        frequency fingerprints but does not preserve ADC full-scale dBFS
+        meaning. Pass the ADC range, for example (0, 1), to report the
+        residual spectrum relative to ADC full scale.
 
     Returns
     -------
@@ -52,6 +59,10 @@ def analyze_error_spectrum(signal, fs=1, frequency=None, create_plot: bool = Tru
         - 'sig_pwr_dbfs': Signal power (dBFS)
         - 'noise_floor_dbfs': Noise floor (dBFS)
         - 'error_signal': Error signal (signal - fitted sine)
+        - 'error_spectrum_scale': 'residual' when max_scale_range is None,
+          otherwise 'adc_full_scale'
+        - 'error_spectrum_max_scale_range': Full-scale reference used for
+          residual spectrum analysis
         - 'fit': Optional sine-fit diagnostics when return_fit=True
 
     Notes
@@ -59,6 +70,9 @@ def analyze_error_spectrum(signal, fs=1, frequency=None, create_plot: bool = Tru
     - Error = signal - ideal_sine (fitted using fit_sine_4param)
     - Analyzes spectrum of error directly (no envelope extraction)
     - Reveals frequency components in the error signal
+    - With max_scale_range=None, the residual is normalized to its own peak
+      range. Pass an ADC full-scale range when dBFS, noise floor, or NSD
+      should retain engineering full-scale meaning.
     """
 
     # Fit ideal sine to extract reference
@@ -72,6 +86,8 @@ def analyze_error_spectrum(signal, fs=1, frequency=None, create_plot: bool = Tru
 
     # Compute error
     error_signal = signal - sig_ideal
+    error_scale = "residual" if max_scale_range is None else "adc_full_scale"
+    ylabel = "Error Spectrum (dB, residual FS)" if max_scale_range is None else "Error Spectrum (dBFS)"
 
     # Analyze error spectrum directly (not envelope)
     if create_plot:
@@ -79,9 +95,15 @@ def analyze_error_spectrum(signal, fs=1, frequency=None, create_plot: bool = Tru
         if ax is not None:
             plt.sca(ax)
 
-        result = analyze_spectrum(error_signal, fs=fs, show_label=False, max_harmonic=5)
+        result = analyze_spectrum(
+            error_signal,
+            fs=fs,
+            max_scale_range=max_scale_range,
+            show_label=False,
+            max_harmonic=5,
+        )
         plt.xlabel("Frequency (Hz)")
-        plt.ylabel("Error Spectrum (dB)")
+        plt.ylabel(ylabel)
         plt.grid(True, alpha=0.3)
 
         # Set title if provided
@@ -93,13 +115,21 @@ def analyze_error_spectrum(signal, fs=1, frequency=None, create_plot: bool = Tru
         backend_orig = matplotlib.get_backend()
         matplotlib.use('Agg')  # Non-interactive backend
 
-        result = analyze_spectrum(error_signal, fs=fs, show_label=False, max_harmonic=5)
+        result = analyze_spectrum(
+            error_signal,
+            fs=fs,
+            max_scale_range=max_scale_range,
+            show_label=False,
+            max_harmonic=5,
+        )
         plt.close()
 
         matplotlib.use(backend_orig)  # Restore original backend
 
     # Add error signal to results
     result['error_signal'] = error_signal
+    result['error_spectrum_scale'] = error_scale
+    result['error_spectrum_max_scale_range'] = max_scale_range
     if return_fit:
         result['fit'] = extract_fit_diagnostics(fit_result)
 

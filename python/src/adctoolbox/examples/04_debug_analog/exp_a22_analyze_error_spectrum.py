@@ -32,6 +32,7 @@ gen, CASES, params = get_batch_test_setup()
 
 print(f"[Config] Fs={params['Fs']/1e6:.0f} MHz, Fin={params['Fin']/1e6:.1f} MHz, Bin={params['Fin_bin']}, N={params['N']}")
 print(f"[Config] A={params['A']:.3f} V, DC={params['DC']:.3f} V")
+print(f"[Config] Error spectrum reference range={params['adc_range']} FS")
 print(f"[Timing] Setup: {time.time() - t_setup:.4f}s\n")
 
 # --- 3. Get Standard Non-ideality Cases ---
@@ -51,7 +52,13 @@ for idx, case in enumerate(CASES):
     signal = case['func']()
 
     # Analyze error spectrum
-    result = analyze_error_spectrum(signal, fs=params['Fs'], ax=axes[idx], title=case['title'])
+    result = analyze_error_spectrum(
+        signal,
+        fs=params['Fs'],
+        ax=axes[idx],
+        title=case['title'],
+        max_scale_range=params['adc_range'],
+    )
 
 print(f"\n[Timing] Signal Generation & Plotting: {time.time() - t_plot:.4f}s")
 

@@ -10,15 +10,20 @@
 from adctoolbox import analyze_error_spectrum
 
 # Basic usage
-result = analyze_error_spectrum(signal, fs=100e6, show_plot=True)
+result = analyze_error_spectrum(signal, fs=100e6, create_plot=True)
 
 # With known frequency
 result = analyze_error_spectrum(signal, fs=800e6, frequency=0.123,
-                                show_plot=True)
+                                create_plot=True)
 
 # Custom title
-result = analyze_error_spectrum(signal, fs=100e6, show_plot=True,
+result = analyze_error_spectrum(signal, fs=100e6, create_plot=True,
                                 title="Error Spectrum: 25°C")
+
+# Engineering dBFS view relative to ADC full scale
+result = analyze_error_spectrum(signal, fs=100e6,
+                                max_scale_range=(0, 1),
+                                create_plot=True)
 ```
 
 ## Parameters
@@ -27,9 +32,12 @@ result = analyze_error_spectrum(signal, fs=100e6, show_plot=True,
 - **`fs`** (float, default=1) — Sampling frequency in Hz
 - **`frequency`** (float, optional) — Normalized frequency (0-0.5)
   - If None: auto-detected via FFT
-- **`show_plot`** (bool, default=True) — Display error spectrum plot
+- **`create_plot`** (bool, default=True) — Display error spectrum plot
 - **`ax`** (matplotlib axis, optional) — Axis to plot on
 - **`title`** (str, optional) — Title for the plot
+- **`max_scale_range`** (float or tuple/list, optional) — Full-scale reference for the residual spectrum
+  - If None: normalize the residual by its own peak-to-peak range (fingerprint view)
+  - If tuple/list: use the ADC full-scale range, such as `(0, 1)`, for dBFS engineering interpretation
 
 ## Returns
 
@@ -43,9 +51,12 @@ Dictionary containing:
 - **`thd_db`** — Total Harmonic Distortion (dB)
 - **`sig_pwr_dbfs`** — Signal power (dBFS)
 - **`noise_floor_dbfs`** — Noise floor (dBFS)
+- **`nsd_dbfs_hz`** — Noise spectral density (dBFS/Hz)
 
 **Error Data:**
 - **`error_signal`** — Error signal (data - fitted sine)
+- **`error_spectrum_scale`** — `"residual"` for self-normalized residual view, `"adc_full_scale"` when `max_scale_range` is provided
+- **`error_spectrum_max_scale_range`** — Full-scale reference used for the residual spectrum
 
 ## Algorithm
 
@@ -62,8 +73,30 @@ fitted_sine = result['fitted_signal']
 error_signal = signal - fitted_sine
 
 # 3. Analyze spectrum of error (not signal!)
-spectrum_result = analyze_spectrum(error_signal, fs=fs)
+spectrum_result = analyze_spectrum(error_signal, fs=fs,
+                                   max_scale_range=max_scale_range)
 ```
+
+## Scale Reference
+
+By default, `analyze_error_spectrum` preserves the historical behavior:
+
+```python
+analyze_error_spectrum(signal, fs=fs, max_scale_range=None)
+```
+
+This normalizes the residual by the residual's own peak-to-peak range. It is useful for
+shape or fingerprint diagnosis because small errors are visually expanded.
+
+For engineering dBFS, noise-floor, or NSD interpretation, pass the ADC full-scale range:
+
+```python
+analyze_error_spectrum(signal, fs=fs, max_scale_range=(0, 1))
+```
+
+In that mode, residual spurs and noise are reported relative to ADC full scale instead of
+the residual's own amplitude. This makes different captures and non-ideality cases
+comparable in physical severity.
 
 ## Key Difference from analyze_spectrum
 
@@ -80,8 +113,10 @@ spectrum_result = analyze_spectrum(error_signal, fs=fs)
 import numpy as np
 from adctoolbox import analyze_error_spectrum
 
-# Analyze error spectrum
-result = analyze_error_spectrum(adc_signal, fs=800e6, show_plot=True)
+# Analyze error spectrum relative to ADC full scale
+result = analyze_error_spectrum(adc_signal, fs=800e6,
+                                max_scale_range=(0, 1),
+                                create_plot=True)
 
 print(f"Error SNDR: {result['sndr_db']:.2f} dB")
 print(f"Error SFDR: {result['sfdr_db']:.2f} dB")
@@ -98,12 +133,14 @@ fig, (ax1, ax2) = plt.subplots(1, 2, figsize=(14, 6))
 
 # Signal spectrum (shows fundamental + harmonics + noise)
 plt.sca(ax1)
-sig_result = analyze_spectrum(signal, fs=fs, show_plot=True)
+sig_result = analyze_spectrum(signal, fs=fs, create_plot=True)
 ax1.set_title('Signal Spectrum')
 
 # Error spectrum (shows harmonics + noise, NO fundamental)
 plt.sca(ax2)
-err_result = analyze_error_spectrum(signal, fs=fs, show_plot=True)
+err_result = analyze_error_spectrum(signal, fs=fs,
+                                    max_scale_range=(0, 1),
+                                    create_plot=True)
 ax2.set_title('Error Spectrum')
 
 plt.tight_layout()
@@ -114,7 +151,7 @@ plt.show()
 
 ```python
 # Look for spurs in error spectrum
-result = analyze_error_spectrum(signal, fs=800e6, show_plot=True)
+result = analyze_error_spectrum(signal, fs=800e6, create_plot=True)
 
 # Error spectrum should be relatively flat (white noise)
 # Peaks indicate frequency-dependent errors:
@@ -131,7 +168,7 @@ conditions = ['Room Temp', 'High Temp', 'Low Voltage']
 signals = [sig_25c, sig_85c, sig_low_vdd]
 
 for cond, sig in zip(conditions, signals):
-    result = analyze_error_spectrum(sig, fs=fs, show_plot=False,
+    result = analyze_error_spectrum(sig, fs=fs, create_plot=False,
                                      title=cond)
     print(f"{cond:15s}: Error SNDR = {result['sndr_db']:.2f} dB")
 ```

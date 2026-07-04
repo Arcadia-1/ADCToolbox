@@ -13,15 +13,16 @@ output_dir = Path(__file__).parent / "test_output"
 output_dir.mkdir(exist_ok=True)
 
 
-def _assert_error_spectrum_panel(ax, result, title, n_samples):
+def _assert_error_spectrum_panel(ax, result, title, n_samples, ylabel='Error Spectrum (dB, residual FS)'):
     assert ax.get_title() == title
     assert ax.get_xlabel() == 'Frequency (Hz)'
-    assert ax.get_ylabel() == 'Error Spectrum (dB)'
+    assert ax.get_ylabel() == ylabel
     assert len(ax.lines) >= 1
     assert len(ax.lines[0].get_xdata()) > 0
     assert len(ax.lines[0].get_ydata()) > 0
     assert result['error_signal'].shape == (n_samples,)
     assert np.all(np.isfinite(result['error_signal']))
+    assert result['error_spectrum_scale'] in {'residual', 'adc_full_scale'}
 
 
 def test_analyze_error_spectrum_basic():
@@ -72,6 +73,75 @@ def test_analyze_error_spectrum_basic():
         (axes[2], result3, 'Static HD3'),
     ]:
         _assert_error_spectrum_panel(ax, result, title, N)
+    plt.close(fig)
+
+
+def test_analyze_error_spectrum_adc_full_scale_reference():
+    """Explicit max_scale_range keeps residual dBFS tied to ADC full scale."""
+    N = 4096
+    Fs = 100e6
+    freq = 37 / N
+    t = np.arange(N)
+    signal = (
+        0.49 * np.sin(2 * np.pi * freq * t)
+        + 0.5
+        + 1e-3 * np.sin(2 * np.pi * 2 * freq * t)
+    )
+
+    residual_ref = analyze_error_spectrum(
+        signal,
+        fs=Fs,
+        frequency=freq,
+        create_plot=False,
+        max_iterations=0,
+    )
+    adc_ref = analyze_error_spectrum(
+        signal,
+        fs=Fs,
+        frequency=freq,
+        create_plot=False,
+        max_iterations=0,
+        max_scale_range=(0, 1),
+    )
+
+    assert residual_ref['error_spectrum_scale'] == 'residual'
+    assert residual_ref['error_spectrum_max_scale_range'] is None
+    assert adc_ref['error_spectrum_scale'] == 'adc_full_scale'
+    assert adc_ref['error_spectrum_max_scale_range'] == (0, 1)
+    assert adc_ref['sig_pwr_dbfs'] < residual_ref['sig_pwr_dbfs'] - 40
+
+
+def test_analyze_error_spectrum_adc_full_scale_plot_label():
+    """The plotted residual spectrum label reflects the full-scale reference."""
+    N = 2048
+    Fs = 100e6
+    freq = 23 / N
+    t = np.arange(N)
+    signal = (
+        0.49 * np.sin(2 * np.pi * freq * t)
+        + 0.5
+        + 1e-4 * np.sin(2 * np.pi * 2 * freq * t)
+    )
+
+    fig, ax = plt.subplots()
+    result = analyze_error_spectrum(
+        signal,
+        fs=Fs,
+        frequency=freq,
+        ax=ax,
+        title='ADC-FS Error Spectrum',
+        max_iterations=0,
+        max_scale_range=(0, 1),
+    )
+
+    _assert_error_spectrum_panel(
+        ax,
+        result,
+        'ADC-FS Error Spectrum',
+        N,
+        ylabel='Error Spectrum (dBFS)',
+    )
+    assert result['error_spectrum_scale'] == 'adc_full_scale'
     plt.close(fig)
 
 
