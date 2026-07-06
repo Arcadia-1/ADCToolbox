@@ -1,6 +1,7 @@
 %% Run digital output (dout) unit tests
 
 run_bitact
+run_plotwgt_radix_shape
 run_wscaling
 
 run_wcalsin

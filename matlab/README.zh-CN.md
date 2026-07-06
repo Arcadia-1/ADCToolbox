@@ -572,9 +572,10 @@ radix = plotwgt(weights, disp)
 - `disp` - 显示标志（可选，默认：1）。设为 0 禁用绘图。
 
 **输出：**
-- `radix` - 相邻比特间的 radix，向量 (1 x B-1)
-  - `radix(i) = |weight(i) / weight(i+1)|`
-  - 二进制 ADC：所有比特 radix ≈ 2.00
+- `radix` - 相邻比特间的 radix，向量 (1 x B)
+  - `radix(1) = NaN`，因为 MSB 没有前一位比值
+  - `radix(i) = |weight(i-1) / weight(i)|`，其中 `i = 2..B`
+  - 二进制 ADC：radix(2:end) ≈ 2.00
   - 子基数 ADC：radix < 2.00（如 1.5-bit/stage → ~1.90）
 - `wgtsca` - 最优权重缩放因子，归一化权重以最小化取整误差
 - `effres` - 有效分辨率（比特），从有效权重比估计

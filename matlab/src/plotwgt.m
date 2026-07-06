@@ -23,10 +23,11 @@ function [radix, wgtsca, effres] = plotwgt(weights, disp)
 %       0: Disable plotting, only compute outputs
 %
 %   Outputs:
-%     radix - Radix between consecutive bits
-%       Vector (1 x B-1), where B is the number of bits
-%       radix(i) = |weight(i) / weight(i+1)|
-%       Pure binary ADC: radix = 2.00 for all bits
+%     radix - Radix between consecutive bits, aligned to bit indices
+%       Vector (1 x B), where B is the number of bits
+%       radix(1) = NaN because the MSB has no previous-bit ratio
+%       radix(i) = |weight(i-1) / weight(i)| for i = 2..B
+%       Pure binary ADC: radix(2:end) = 2.00 for all adjacent ratios
 %       Sub-radix ADC: radix < 2.00 (e.g., 1.5-bit/stage -> ~1.90)
 %
 %     wgtsca - Optimal weight scaling factor
@@ -80,10 +81,11 @@ nBits = length(weights);
 isNegative = weights < 0;
 absWeights = abs(weights);
 
-% Calculate radix between consecutive bits: radix(i) = |weight(i)/weight(i+1)|
-radix = zeros(1, nBits-1);
-for i = 1:nBits-1
-    radix(i) = absWeights(i) / absWeights(i+1);
+% Calculate radix between consecutive bits, aligned to bit index:
+% radix(1) = NaN, radix(i) = |weight(i-1)/weight(i)|.
+radix = nan(1, nBits);
+for i = 2:nBits
+    radix(i) = absWeights(i-1) / absWeights(i);
 end
 
 %% Compute wgtsca and effres
@@ -216,7 +218,7 @@ if disp
     % Annotate radix on top of each data point (except first bit)
     for b = 2:nBits
         y_pos = absWeights(b) * 1.5;  % Position text above the marker
-        text(b, y_pos, sprintf('/%.2f', radix(b-1)), ...
+        text(b, y_pos, sprintf('/%.2f', radix(b)), ...
             'HorizontalAlignment', 'center', 'FontSize', 10, ...
             'Color', [0.2 0.2 0.2], 'FontWeight', 'bold');
     end

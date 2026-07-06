@@ -7,6 +7,19 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.9.1] - 2026-07-06
+
+**Contract Clarification Patch** - resolves coherent-bin selection and weight
+radix output-shape ambiguities between Python and MATLAB.
+
+### Added
+- `find_coherent_frequency(..., policy="matlab_findbin")` for explicit parity
+  with MATLAB `findbin` bin selection.
+
+### Changed
+- MATLAB `plotwgt` and legacy `weightScaling` now return radix vectors aligned
+  to bit indices: `radix(1) = NaN`, `radix(i) = |weight(i-1)/weight(i)|`.
+
 ## [0.9.0] - 2026-06-11
 
 **Oversampling Parity Release** — adds MATLAB-compatible oversampling entry

@@ -589,9 +589,10 @@ radix = plotwgt(weights, disp)
 - `disp` - Display flag (optional, default: 1). Set to 0 to disable plotting.
 
 **Outputs:**
-- `radix` - Radix between consecutive bits, vector (1 x B-1)
-  - `radix(i) = |weight(i) / weight(i+1)|`
-  - Binary ADC: radix ≈ 2.00 for all bits
+- `radix` - Radix between consecutive bits, vector (1 x B)
+  - `radix(1) = NaN` because the MSB has no previous-bit ratio
+  - `radix(i) = |weight(i-1) / weight(i)|` for `i = 2..B`
+  - Binary ADC: radix(2:end) ≈ 2.00
   - Sub-radix ADC: radix < 2.00 (e.g., 1.5-bit/stage → ~1.90)
 - `wgtsca` - Optimal weight scaling factor that normalizes weights to minimize rounding error
 - `effres` - Effective resolution in bits, estimated from significant weight ratios

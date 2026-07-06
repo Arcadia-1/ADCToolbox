@@ -9,7 +9,14 @@ import math
 import numpy as np
 from adctoolbox.fundamentals.fit_sine_4param import fit_sine_4param
 
-def find_coherent_frequency(fs, fin_target, n_fft, force_odd=True, search_radius=200):
+def find_coherent_frequency(
+    fs,
+    fin_target,
+    n_fft,
+    force_odd=True,
+    search_radius=200,
+    policy="adc_odd",
+):
     """
     Calculate the precise coherent input frequency and bin index.
 
@@ -27,6 +34,14 @@ def find_coherent_frequency(fs, fin_target, n_fft, force_odd=True, search_radius
         If True, only search for odd bin indices (default: True)
     search_radius : int, optional
         Search radius around the ideal bin (default: 200)
+    policy : {'adc_odd', 'nearest_coprime', 'matlab_findbin'}, optional
+        Bin selection policy. ``'adc_odd'`` preserves the original ADCToolbox
+        behavior: search around the nearest integer bin, prefer coprime bins,
+        and force odd bins when ``force_odd`` is true. ``'nearest_coprime'``
+        uses the same nearest-bin search but leaves odd-bin selection entirely
+        to ``force_odd``. ``'matlab_findbin'`` matches MATLAB ``findbin``:
+        start from ``floor(fin/fs*n)``, search upward before downward at each
+        distance, require only ``gcd(bin, n) == 1``, and ignore ``force_odd``.
 
     Returns
     -------
@@ -44,8 +59,33 @@ def find_coherent_frequency(fs, fin_target, n_fft, force_odd=True, search_radius
     >>> print(f"Coherent frequency: {fin/1e6:.6f} MHz at bin {bin_idx}")
     Coherent frequency: 99.902344 MHz at bin 1023
     """
+    valid_policies = {"adc_odd", "nearest_coprime", "matlab_findbin"}
+    if policy not in valid_policies:
+        raise ValueError(
+            f"Unknown coherent-frequency policy {policy!r}. "
+            f"Expected one of {sorted(valid_policies)}."
+        )
+
     # 1. Calculate the ideal (fractional) total cycles
     target_bin_float = fin_target / fs * n_fft
+
+    if policy == "matlab_findbin":
+        bin_start = int(math.floor(target_bin_float))
+
+        for distance in range(search_radius + 1):
+            upper = bin_start + distance
+            if upper > 0 and math.gcd(upper, n_fft) == 1:
+                return upper * fs / n_fft, upper
+
+            lower = bin_start - distance
+            if lower > 0 and math.gcd(lower, n_fft) == 1:
+                return lower * fs / n_fft, lower
+
+        raise ValueError(
+            f"No MATLAB findbin-compatible coprime bin found near "
+            f"{target_bin_float:.2f} cycles (Fin={fin_target/1e6:.2f}MHz). "
+            f"Try increasing search_radius."
+        )
 
     # 2. Define search center (nearest integer)
     center_int = int(round(target_bin_float))

@@ -14,9 +14,10 @@ function radix = weightScaling(weights)
 %       Vector (1 x B), where B is the number of bits
 %
 %   Outputs:
-%     radix - Radix between consecutive bits
-%       Vector (1 x B-1), where B is the number of bits
-%       radix(i) = |weight(i) / weight(i+1)|
+%     radix - Radix between consecutive bits, aligned to bit indices
+%       Vector (1 x B), where B is the number of bits
+%       radix(1) = NaN because the MSB has no previous-bit ratio
+%       radix(i) = |weight(i-1) / weight(i)| for i = 2..B
 %
 %   See also: plotwgt, wcalsin
 
