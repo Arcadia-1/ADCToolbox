@@ -13,38 +13,60 @@ import numpy as np
 def convert_cap_to_weight(
     caps_bit: np.ndarray,
     caps_bridge: np.ndarray,
-    caps_parasitic: np.ndarray
+    caps_parasitic: np.ndarray,
+    *,
+    input_order: str = "lsb_to_msb",
+    output_order: str | None = None,
 ) -> tuple[np.ndarray, float]:
     """
     Calculate bit weights for a CDAC with bridge capacitors.
 
     The algorithm iterates from LSB to MSB, calculating the equivalent
     load capacitance and scaling previous weights accordingly.
+    By default, this function preserves the historical Python / MATLAB
+    cap2weight convention: inputs and outputs are ordered [LSB ... MSB].
+    Use ``input_order="msb_to_lsb"`` and ``output_order="msb_to_lsb"`` for
+    MATLAB cdacwgt-compatible ordering.
 
     Parameters
     ----------
     caps_bit : np.ndarray
-        DAC bit capacitors [LSB ... MSB] (Cd)
+        DAC bit capacitors (Cd).
     caps_bridge : np.ndarray
-        Bridge capacitors [LSB ... MSB] (Cb). 0 indicates no bridge
+        Bridge capacitors (Cb). 0 indicates no bridge.
     caps_parasitic : np.ndarray
-        Parasitic capacitors to ground [LSB ... MSB] (Cp)
+        Parasitic capacitors to ground (Cp).
+    input_order : {"lsb_to_msb", "msb_to_lsb"}, default="lsb_to_msb"
+        Ordering of all input arrays. ``"lsb_to_msb"`` matches MATLAB's
+        legacy cap2weight convention; ``"msb_to_lsb"`` matches cdacwgt.
+    output_order : {"lsb_to_msb", "msb_to_lsb"}, optional
+        Ordering of returned weights. Defaults to ``input_order``.
 
     Returns
     -------
     tuple[np.ndarray, float]
-        - weights: Normalized weights [LSB ... MSB]
+        - weights: Normalized weights in ``output_order``
         - c_total: Total equivalent input capacitance
     """
     # 1. Input Validation & Standardization
-    cd = np.asarray(caps_bit, dtype=float)
-    cb = np.asarray(caps_bridge, dtype=float)
-    cp = np.asarray(caps_parasitic, dtype=float)
+    cd = np.asarray(caps_bit, dtype=float).reshape(-1)
+    cb = np.asarray(caps_bridge, dtype=float).reshape(-1)
+    cp = np.asarray(caps_parasitic, dtype=float).reshape(-1)
+
+    _validate_order("input_order", input_order)
+    if output_order is None:
+        output_order = input_order
+    _validate_order("output_order", output_order)
 
     if not (len(cd) == len(cb) == len(cp)):
         raise ValueError(
             f"Input array lengths mismatch: Cd={len(cd)}, Cb={len(cb)}, Cp={len(cp)}"
         )
+
+    if input_order == "msb_to_lsb":
+        cd = cd[::-1]
+        cb = cb[::-1]
+        cp = cp[::-1]
 
     n_bits = len(cd)
     weights = np.zeros(n_bits)
@@ -84,4 +106,14 @@ def convert_cap_to_weight(
             # Typically Cb=0 implies a segmented array block boundary or just simple summing
             c_load = c_node_total
 
+    if output_order == "msb_to_lsb":
+        weights = weights[::-1]
+
     return weights, c_load
+
+
+def _validate_order(name: str, value: str) -> None:
+    allowed = {"lsb_to_msb", "msb_to_lsb"}
+    if value not in allowed:
+        allowed_text = "', '".join(sorted(allowed))
+        raise ValueError(f"{name} must be one of '{allowed_text}'")
