@@ -32,24 +32,31 @@ def test_analyze_phase_spectrum_lms(project_root, artifact_root):
             raw_data = np.loadtxt(data_file_path, delimiter=',').flatten()
 
             dataset_name = data_file_path.stem
-            sub_folder = output_dir / dataset_name / "test_plotphase_lms"
+            sub_folder = output_dir / dataset_name / "test_analyze_phase_spectrum_lms"
             sub_folder.mkdir(parents=True, exist_ok=True)
 
             figure_name = f"test_plotphase_lms_{dataset_name}_python.png"
             phase_plot_path = figures_dir / figure_name
             fig = plt.figure(figsize=(8, 6))
-            decomp_result = analyze_decomposition_polar(raw_data, harmonic=10)
+            harmonic = 5
+            decomp_result = analyze_decomposition_polar(
+                raw_data,
+                harmonic=harmonic,
+                max_iterations=100,
+                tolerance=1e-12,
+            )
             plt.savefig(phase_plot_path, dpi=150, bbox_inches='tight')
             plt.close(fig)
 
             # Extract LMS mode outputs
             harm_phase = decomp_result['phases']
-            harm_mag = decomp_result['magnitudes_db']
+            signal_range = np.max(raw_data) - np.min(raw_data)
+            harm_mag = decomp_result['magnitudes'] / signal_range
             freq = decomp_result['fundamental_freq']
             noise_dB = decomp_result['noise_db']
 
-            assert harm_phase.shape == (10,)
-            assert harm_mag.shape == (10,)
+            assert harm_phase.shape == (harmonic,)
+            assert harm_mag.shape == (harmonic,)
             assert np.all(np.isfinite(harm_phase))
             assert np.all(np.isfinite(harm_mag))
             assert np.isfinite(freq)

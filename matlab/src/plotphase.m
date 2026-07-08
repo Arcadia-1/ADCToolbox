@@ -1,4 +1,4 @@
-function [h] = plotphase(sig,varargin)
+function [h,harm_phase,harm_mag,freq,noise_dB] = plotphase(sig,varargin)
 %PLOTPHASE Plot coherent phase spectrum with polar display
 %   This function performs coherent spectral phase analysis on ADC data
 %   and displays the result in a polar plot. It aligns the phase of multiple
@@ -46,6 +46,12 @@ function [h] = plotphase(sig,varargin)
 %   Outputs:
 %     h - Plot handle
 %       Graphics handle to the polar plot
+%     harm_phase - LMS mode harmonic phases relative to the fundamental.
+%       Empty in FFT mode.
+%     harm_mag - LMS mode normalized linear harmonic magnitudes.
+%       Empty in FFT mode.
+%     freq - LMS mode normalized fundamental frequency. Empty in FFT mode.
+%     noise_dB - LMS mode residual noise level in dB. Empty in FFT mode.
 %
 %   Examples:
 %     % Basic usage with default parameters
@@ -127,6 +133,10 @@ mode = lower(p.Results.mode);
 windowFunc = p.Results.window;
 
 %%
+harm_phase = [];
+harm_mag = [];
+freq = [];
+noise_dB = [];
 
 [N,M] = size(sig);
 if(M==1 && N > 1)

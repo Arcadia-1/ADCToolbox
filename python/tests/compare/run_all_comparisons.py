@@ -32,7 +32,7 @@ def run_all_comparisons(project_root):
         ("run_errsin_phase", "nested"),
         ("run_errsin_code", "nested"),
         ("run_plotspec", "nested"),
-        ("run_plotphase", "nested"),
+        ("run_plotphase_lms", "nested"),
         ("run_fitstaticnl", "nested"),
         ("run_errpdf", "nested"),
         ("run_errspec", "nested"),

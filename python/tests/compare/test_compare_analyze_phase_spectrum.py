@@ -3,5 +3,5 @@ from tests.compare._runner import run_comparison_suite
 
 def test_compare_spec_plot_phase(project_root, comparison_output_root):
 
-    run_comparison_suite(project_root, matlab_test_name="run_plotphase",
+    run_comparison_suite(project_root, matlab_test_name="run_plotphase_lms",
                          ref_folder="reference_output", out_folder=comparison_output_root, structure="nested")
