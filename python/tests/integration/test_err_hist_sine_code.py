@@ -1,7 +1,7 @@
 import matplotlib.pyplot as plt
 
-from adctoolbox.common import estimate_frequency
 from adctoolbox.aout import plot_error_hist_code
+from adctoolbox.fundamentals.fit_sine_4param import fit_sine_4param
 from tests._utils import save_variable, save_fig
 from tests.unit._runner import run_unit_test_batch
 from tests import config
@@ -17,8 +17,9 @@ def _process_plot_error_hist_code(raw_data, sub_folder, dataset_name, figures_fo
     3. Save variables
     4. Save plot
     """
-    # 1. Find fundamental frequency
-    freq = estimate_frequency(raw_data, fs=1)
+    # 1. Match MATLAB run_errsin_code: estimate frequency with sinfit first,
+    # then keep that frequency fixed inside the errsin compatibility wrapper.
+    freq = fit_sine_4param(raw_data, max_iterations=100, tolerance=1e-12)["frequency"]
 
     # 2. Error Histogram Analysis (Code Mode)
     emean_code, erms_code, code_axis, error, codes = plot_error_hist_code(

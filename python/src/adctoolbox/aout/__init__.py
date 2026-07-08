@@ -14,6 +14,7 @@ from adctoolbox.aout.rearrange_error_by_value import rearrange_error_by_value
 from adctoolbox.aout.rearrange_error_by_phase import rearrange_error_by_phase
 from adctoolbox.aout.plot_rearranged_error_by_value import plot_rearranged_error_by_value
 from adctoolbox.aout.plot_rearranged_error_by_phase import plot_rearranged_error_by_phase
+from adctoolbox.aout._errsin_compat import errsin_compat
 
 # Additional error analysis
 from adctoolbox.aout.analyze_error_pdf import analyze_error_pdf
@@ -127,40 +128,42 @@ def plot_envelope_spectrum(*args, **kwargs):
 
 
 def plot_error_hist_phase(signal, bins=100, freq=None, disp=1, **kwargs):
-    """Compatibility tuple wrapper for phase-binned error analysis."""
-    result = analyze_error_by_phase(
+    """MATLAB errsin-compatible tuple wrapper for phase-binned residuals."""
+    result = errsin_compat(
         signal,
-        norm_freq=freq,
-        n_bins=bins,
-        create_plot=bool(disp),
+        bins=bins,
+        freq=freq,
+        xaxis='phase',
+        disp=disp,
         **kwargs,
     )
     return (
-        result.get('bin_error_mean_v'),
-        result.get('bin_error_rms_v'),
-        result.get('phase_bin_centers_rad'),
-        result.get('am_noise_rms_v'),
-        result.get('pm_noise_rms_v'),
+        result.get('emean'),
+        result.get('erms'),
+        result.get('xx'),
+        result.get('anoi'),
+        result.get('pnoi'),
         result.get('error'),
-        result.get('phase'),
+        result.get('errxx'),
     )
 
 
 def plot_error_hist_code(signal, bins=100, freq=None, disp=1, **kwargs):
-    """Compatibility tuple wrapper for value-binned error analysis."""
-    result = analyze_error_by_value(
+    """MATLAB errsin-compatible tuple wrapper for value-binned residuals."""
+    result = errsin_compat(
         signal,
-        norm_freq=freq,
-        n_bins=bins,
-        create_plot=bool(disp),
+        bins=bins,
+        freq=freq,
+        xaxis='value',
+        disp=disp,
         **kwargs,
     )
     return (
-        result.get('error_mean'),
-        result.get('error_rms'),
-        result.get('bin_centers'),
+        result.get('emean'),
+        result.get('erms'),
+        result.get('xx'),
         result.get('error'),
-        result.get('value'),
+        result.get('errxx'),
     )
 
 # ----------------------------------------------------------------------
@@ -173,6 +176,7 @@ __all__ = [
     'analyze_error_by_phase',
     'rearrange_error_by_value',
     'rearrange_error_by_phase',
+    'errsin_compat',
 
     'analyze_error_pdf',
     'analyze_error_autocorr',
