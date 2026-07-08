@@ -66,6 +66,8 @@ def errsin_compat(
 
     errxx = result["errxx"]
     filtered_error = error
+    plot_signal = signal
+    plot_phase_deg = phase_deg
     if erange is not None:
         if len(erange) != 2:
             raise ValueError("erange must contain lower and upper bounds")
@@ -73,12 +75,16 @@ def errsin_compat(
         mask = (errxx >= lo) & (errxx <= hi)
         errxx = errxx[mask]
         filtered_error = error[mask]
+        plot_signal = signal[mask]
+        plot_phase_deg = phase_deg[mask]
 
     result.update(
         {
             "error": filtered_error,
             "errxx": errxx,
             "phase": phase_deg,
+            "plot_signal": plot_signal,
+            "plot_phase": plot_phase_deg,
             "fit": fit,
             "frequency": fitted_freq,
             "amplitude": amplitude,
@@ -87,9 +93,9 @@ def errsin_compat(
 
     if disp:
         if xaxis == "phase":
-            _plot_phase(signal, result)
+            _plot_phase(result)
         else:
-            _plot_value(signal, phase_deg, result)
+            _plot_value(result)
 
     return result
 
@@ -215,13 +221,15 @@ def _bin_mean(error: np.ndarray, bin_indices: np.ndarray, bins: int, mask: np.nd
     return result
 
 
-def _plot_phase(signal: np.ndarray, result: dict[str, Any]) -> None:
+def _plot_phase(result: dict[str, Any]) -> None:
     import matplotlib.pyplot as plt
+
+    plot_signal = result["plot_signal"]
 
     fig, (ax1, ax2) = plt.subplots(2, 1, figsize=(8, 6))
     ax1_left = ax1
     ax1_right = ax1.twinx()
-    ax1_left.plot(result["errxx"], signal, "k.", markersize=2)
+    ax1_left.plot(result["errxx"], plot_signal, "k.", markersize=2)
     ax1_right.plot(result["errxx"], result["error"], "r.", markersize=2)
     ax1_right.plot(result["xx"], result["emean"], "b-", linewidth=1.5)
     ax1_left.set_xlim(0, 360)
@@ -237,14 +245,18 @@ def _plot_phase(signal: np.ndarray, result: dict[str, Any]) -> None:
     fig.tight_layout()
 
 
-def _plot_value(signal: np.ndarray, phase_deg: np.ndarray, result: dict[str, Any]) -> None:
+def _plot_value(result: dict[str, Any]) -> None:
     import matplotlib.pyplot as plt
 
+    plot_signal = result["plot_signal"]
+    plot_phase_deg = result["plot_phase"]
+    plot_error = result["error"]
+
     fig, (ax1, ax2) = plt.subplots(2, 1, figsize=(8, 6))
-    idx_rise = phase_deg < 180.0
+    idx_rise = plot_phase_deg < 180.0
     idx_fall = ~idx_rise
-    ax1.plot(signal[idx_rise], result["error"][idx_rise], ".", color=[1.0, 0.5, 0.5], markersize=2)
-    ax1.plot(signal[idx_fall], result["error"][idx_fall], ".", color=[0.5, 0.5, 1.0], markersize=2)
+    ax1.plot(plot_signal[idx_rise], plot_error[idx_rise], ".", color=[1.0, 0.5, 0.5], markersize=2)
+    ax1.plot(plot_signal[idx_fall], plot_error[idx_fall], ".", color=[0.5, 0.5, 1.0], markersize=2)
     ax1.plot(result["xx"], result["emean_rise"], "r-", linewidth=1.5)
     ax1.plot(result["xx"], result["emean_fall"], "b-", linewidth=1.5)
     ax1.plot(result["xx"], result["emean"], "k-", linewidth=1.5)

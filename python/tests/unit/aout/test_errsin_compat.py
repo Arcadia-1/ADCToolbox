@@ -2,6 +2,7 @@
 
 import numpy as np
 import pytest
+import matplotlib.pyplot as plt
 
 from adctoolbox.aout import plot_error_hist_code, plot_error_hist_phase
 from adctoolbox.fundamentals.fit_sine_4param import fit_sine_4param
@@ -63,3 +64,39 @@ def test_plot_error_hist_code_returns_signal_value_axis():
     assert emean.shape == (n_bins,)
     assert erms.shape == (n_bins,)
     assert np.all(np.isfinite(error))
+
+
+def test_plot_error_hist_phase_supports_erange_with_display():
+    signal, freq = _test_signal()
+
+    _emean, _erms, _phase_axis, _anoi, _pnoi, error, phase = plot_error_hist_phase(
+        signal,
+        bins=16,
+        freq=freq,
+        disp=1,
+        erange=(0.0, 180.0),
+    )
+
+    assert error.shape == phase.shape
+    assert len(error) < len(signal)
+    assert np.all((phase >= 0.0) & (phase <= 180.0))
+    plt.close("all")
+
+
+def test_plot_error_hist_code_supports_erange_with_display():
+    signal, freq = _test_signal()
+    lo = float(np.percentile(signal, 25))
+    hi = float(np.percentile(signal, 75))
+
+    _emean, _erms, _code_axis, error, codes = plot_error_hist_code(
+        signal,
+        bins=12,
+        freq=freq,
+        disp=1,
+        erange=(lo, hi),
+    )
+
+    assert error.shape == codes.shape
+    assert len(error) < len(signal)
+    assert np.all((codes >= lo) & (codes <= hi))
+    plt.close("all")
