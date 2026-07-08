@@ -192,6 +192,7 @@ def _sweep_recalibrating_each_subset(
             result = calibrate_weight_sine(
                 bits_subset,
                 freq=subset_freq,
+                force_search=False,
                 harmonic_order=harmonic_order,
                 frequency_policy=frequency_policy,
             )
