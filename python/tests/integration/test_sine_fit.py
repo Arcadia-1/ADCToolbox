@@ -16,8 +16,8 @@ def _process_fit_sine(raw_data, sub_folder, dataset_name, figures_folder, test_n
     2. Save variables
     3. Generate and save plot
     """
-    # 1. Sine Fitting - using new Pythonic names
-    fit_result = fit_sine(raw_data)
+    # MATLAB run_sinfit uses sinfit's default refinement budget.
+    fit_result = fit_sine(raw_data, max_iterations=100, tolerance=1e-12)
     fitted_signal = fit_result['fitted_signal']
     frequency = fit_result['frequency']
     amplitude = fit_result['amplitude']
