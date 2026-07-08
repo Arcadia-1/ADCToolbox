@@ -19,18 +19,19 @@ OSR = p.Results.OSR;
 winType = p.Results.winType;
 doPlot = p.Results.plot;
 
-if freq == 0
-    [~, ~, ~, ~, ~, freq] = wcalsin(bits, 'freq', 0, 'order', order, 'verbose', 0);
-end
+% Calibrate once with all bits; the sweep evaluates prefixes of this
+% full-bit weight solution instead of refitting each prefix independently.
+[weight, ~, ~, ~, ~, freq] = wcalsin(bits, 'freq', freq, 'order', order, 'verbose', 0);
 
 enob_sweep = zeros(1, M);
 nBits_vec = 1:M;
 
 for nBits = 1:M
     bits_subset = bits(:, 1:nBits);
+    weight_subset = weight(1:nBits);
 
     try
-        [~, ~, postCal_temp, ~, ~, ~] = wcalsin(bits_subset, 'freq', freq, 'order', order, 'verbose', 0);
+        postCal_temp = bits_subset * weight_subset';
         [ENoB_temp, ~, ~, ~, ~, ~, ~, ~, ~] = plotspec(postCal_temp, ...
             'label', 0, 'harmonic', harmonic, 'OSR', OSR, 'winType', winType);
         enob_sweep(nBits) = ENoB_temp;

@@ -15,7 +15,7 @@ def test_analyze_enob_sweep_rejects_unknown_calibration_mode():
         analyze_enob_sweep(bits, calibration_mode="unknown", create_plot=False)
 
 
-def test_prefix_mode_calibrates_full_bit_matrix_once(monkeypatch):
+def test_default_mode_calibrates_full_bit_matrix_once(monkeypatch):
     module = importlib.import_module("adctoolbox.dout.analyze_enob_sweep")
     bits = np.eye(3, dtype=float)
     calls = []
@@ -36,7 +36,6 @@ def test_prefix_mode_calibrates_full_bit_matrix_once(monkeypatch):
     enob_sweep, n_bits_vec = analyze_enob_sweep(
         bits,
         freq=0,
-        calibration_mode="prefix_of_full_calibration",
         create_plot=False,
     )
 

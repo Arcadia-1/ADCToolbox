@@ -14,7 +14,7 @@ def analyze_enob_sweep(
     harmonic_order: int = 1,
     osr: int = 1,
     win_type: str = 'hamming',
-    calibration_mode: str = "recalibrate_each_subset",
+    calibration_mode: str = "prefix_of_full_calibration",
     frequency_policy: str = "python",
     create_plot: bool = True,
     ax=None,
@@ -39,14 +39,12 @@ def analyze_enob_sweep(
         Oversampling ratio for spectrum analysis
     win_type : str, default='hamming'
         Window function: 'boxcar', 'hann', 'hamming'
-    calibration_mode : {'recalibrate_each_subset',
-        'prefix_of_full_calibration'}, default='recalibrate_each_subset'
-        ENOB sweep calibration policy. ``'recalibrate_each_subset'`` matches
-        MATLAB ``bitsweep``: estimate the frequency once when needed, then
-        recalibrate each bit-prefix subset independently.
-        ``'prefix_of_full_calibration'`` preserves the historical Python
-        behavior: calibrate all bits once and sweep prefixes of the
-        full-weight solution.
+    calibration_mode : {'prefix_of_full_calibration',
+        'recalibrate_each_subset'}, default='prefix_of_full_calibration'
+        ENOB sweep calibration policy. ``'prefix_of_full_calibration'``
+        calibrates all bits once and sweeps prefixes of the full-weight
+        solution. ``'recalibrate_each_subset'`` estimates the frequency once
+        when needed, then recalibrates each bit-prefix subset independently.
     frequency_policy : {'python', 'matlab'}, default='python'
         Coarse frequency estimator passed to ``calibrate_weight_sine`` when
         automatic frequency search is requested.
@@ -67,11 +65,12 @@ def analyze_enob_sweep(
 
     Notes
     -----
-    The default ``'recalibrate_each_subset'`` mode answers the usual bit-depth
-    sweep question: "if only the first n bits are available, how well can that
-    n-bit subsystem be calibrated?"  Use ``'prefix_of_full_calibration'`` for
-    prefix-ablation diagnostics: "after a full-bit calibration, how much
-    performance remains if lower-bit terms are removed?"
+    The default ``'prefix_of_full_calibration'`` mode answers the calibration
+    ablation question: "after a full-bit calibration, how much performance
+    remains if lower-bit terms are removed?" Use
+    ``'recalibrate_each_subset'`` only when intentionally asking: "if only the
+    first n bits are available, how well can that n-bit subsystem be
+    calibrated?"
 
     What to look for in the plot:
     - Increasing trend: More bits improve resolution
@@ -169,7 +168,7 @@ def _sweep_recalibrating_each_subset(
     frequency_policy: str,
     verbose: bool,
 ) -> np.ndarray:
-    """MATLAB bitsweep-compatible mode: recalibrate every bit-prefix subset."""
+    """Diagnostic mode: recalibrate every bit-prefix subset independently."""
     _, m_bits = bits.shape
     enob_sweep = np.zeros(m_bits)
 

@@ -24,7 +24,6 @@ def _process_analyze_enob_sweep(raw_data, sub_folder, dataset_name, figures_fold
         harmonic_order=5,
         osr=1,
         win_type='hamming',
-        calibration_mode="recalibrate_each_subset",
         frequency_policy="matlab",
     )
 

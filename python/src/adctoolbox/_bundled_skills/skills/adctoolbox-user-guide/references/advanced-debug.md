@@ -68,11 +68,9 @@ Notes on shapes:
   `weights` as its second argument (it's measuring digital-domain over-range,
   not raw saturation).
 - `analyze_enob_sweep` is a 2-tuple `(enob_sweep, n_bits_vec)`. Its default
-  `calibration_mode="recalibrate_each_subset"` matches MATLAB `bitsweep`:
-  estimate frequency once when needed, then recalibrate each bit-prefix subset.
-  Use `calibration_mode="prefix_of_full_calibration"` for the historical
-  Python prefix-ablation diagnostic that calibrates all bits once and sweeps
-  prefixes of the full-weight solution.
+  calibrates all bits once, then sweeps prefixes of the full-bit weight
+  solution. Use `calibration_mode="recalibrate_each_subset"` only when
+  intentionally treating each bit-prefix subset as a separately calibrated ADC.
 - `analyze_weight_radix(weights)` returns a `dict` (was an ndarray in
   pre-`v0.6` versions).
 - `analyze_weight_radix(weights)["effres"]` is a theoretical weight-list span:

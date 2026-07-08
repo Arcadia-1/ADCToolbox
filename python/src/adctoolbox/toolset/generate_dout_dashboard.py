@@ -54,7 +54,7 @@ def generate_dout_dashboard(bits, freq=None, fs=1.0, weights=None, output_path=N
     axes = axes.flatten()
 
     # Perform a full calibration for tools that need full-bit weights; the
-    # ENOB sweep recalibrates bit-prefix subsets internally.
+    # ENOB sweep uses the same full-calibration prefix policy by default.
     result = calibrate_weight_sine(bits, freq=freq)
     weights_calibrated = result['weight']
     freq_refined = result['refined_frequency']

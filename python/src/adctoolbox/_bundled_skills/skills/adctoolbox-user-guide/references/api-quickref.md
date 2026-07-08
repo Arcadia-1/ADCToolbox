@@ -175,9 +175,10 @@ adctoolbox-install-skill --dev --editable --force --dest ~/.codex/skills
   `(range_min, range_max, ovf_pct_zero, ovf_pct_one)`. The second argument
   is the calibrated weights vector — not optional.
 - `analyze_enob_sweep(bits, freq=...)` returns `(enob_sweep, n_bits_vec)`.
-  By default it recalibrates each bit-prefix subset, matching MATLAB
-  `bitsweep`; pass `calibration_mode="prefix_of_full_calibration"` to keep the
-  historical Python prefix-of-full-weight diagnostic.
+  By default it calibrates all bits once, then evaluates prefixes of the
+  full-bit weight solution. Pass
+  `calibration_mode="recalibrate_each_subset"` only when intentionally testing
+  each bit-prefix subset as a separately calibrated ADC.
 - `analyze_weight_radix(weights)` returns a dict (`radix`, `wgtsca`, `effres`).
   `effres` is the significant-weight span:
   `log2(sum(abs_w_sig) / min(abs_w_sig) + 1)`, with the sorted absolute-weight
