@@ -1,5 +1,7 @@
 """Unit tests for error envelope spectrum analysis with figure generation."""
 
+import importlib
+
 import pytest
 import numpy as np
 import matplotlib.pyplot as plt
@@ -11,6 +13,72 @@ from adctoolbox.siggen import ADC_Signal_Generator
 # Create output directory for test figures
 output_dir = Path(__file__).parent / "test_output"
 output_dir.mkdir(exist_ok=True)
+
+
+def test_error_input_kind_uses_residual_directly_and_skips_fit(monkeypatch):
+    module = importlib.import_module("adctoolbox.aout.analyze_error_envelope_spectrum")
+    residual = np.array([0.1, -0.2, 0.3, -0.2, 0.1], dtype=float)
+    analyzed_envelopes = []
+
+    def fail_fit(*args, **kwargs):
+        raise AssertionError("input_kind='error' must not fit a sine")
+
+    def fake_analyze_spectrum(envelope, **kwargs):
+        analyzed_envelopes.append(np.asarray(envelope))
+        return {"enob": 0.0}
+
+    monkeypatch.setattr(module, "fit_sine_4param", fail_fit)
+    monkeypatch.setattr(module, "analyze_spectrum", fake_analyze_spectrum)
+
+    result = analyze_error_envelope_spectrum(
+        residual,
+        input_kind="error",
+        create_plot=False,
+        return_fit=True,
+    )
+
+    np.testing.assert_allclose(result["error_signal"], residual)
+    assert result["input_kind"] == "error"
+    assert result["fit"] is None
+    assert len(analyzed_envelopes) == 1
+    assert analyzed_envelopes[0].shape == residual.shape
+
+
+def test_signal_input_kind_preserves_internal_sine_fit(monkeypatch):
+    module = importlib.import_module("adctoolbox.aout.analyze_error_envelope_spectrum")
+    signal = np.array([0.0, 1.0, 0.0, -1.0], dtype=float)
+    fit_calls = []
+
+    def fake_fit(input_signal, **kwargs):
+        fit_calls.append((np.asarray(input_signal), kwargs))
+        return {"fitted_signal": np.zeros_like(input_signal, dtype=float)}
+
+    def fake_analyze_spectrum(envelope, **kwargs):
+        return {"enob": 0.0}
+
+    monkeypatch.setattr(module, "fit_sine_4param", fake_fit)
+    monkeypatch.setattr(module, "analyze_spectrum", fake_analyze_spectrum)
+
+    result = analyze_error_envelope_spectrum(
+        signal,
+        frequency=0.25,
+        input_kind="signal",
+        create_plot=False,
+    )
+
+    assert result["input_kind"] == "signal"
+    assert len(fit_calls) == 1
+    assert fit_calls[0][1]["frequency_estimate"] == 0.25
+    np.testing.assert_allclose(result["error_signal"], signal)
+
+
+def test_analyze_error_envelope_spectrum_rejects_unknown_input_kind():
+    with pytest.raises(ValueError, match="input_kind"):
+        analyze_error_envelope_spectrum(
+            np.array([0.0, 1.0]),
+            input_kind="residual",
+            create_plot=False,
+        )
 
 
 def _assert_envelope_spectrum_panel(ax, result, title, n_samples):

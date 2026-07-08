@@ -4,33 +4,44 @@
 
 `analyze_error_envelope_spectrum` analyzes the envelope spectrum of ADC errors to detect amplitude modulation (AM) patterns. This reveals signal-dependent errors that modulate with the input amplitude.
 
+By default the input is treated as an ADC output signal: the function fits and
+subtracts a sine internally, then analyzes the envelope of that residual. When
+you already have a residual/error waveform, pass `input_kind="error"` to skip
+the sine fit. That residual-input mode matches MATLAB `errevspec`.
+
 ## Syntax
 
 ```python
 from adctoolbox import analyze_error_envelope_spectrum
 
 # Basic usage
-result = analyze_error_envelope_spectrum(signal, fs=100e6, show_plot=True)
+result = analyze_error_envelope_spectrum(signal, fs=100e6, create_plot=True)
 
-# With custom parameters
-result = analyze_error_envelope_spectrum(signal, fs=100e6, resolution=12)
+# MATLAB errevspec-style usage with a precomputed residual
+result = analyze_error_envelope_spectrum(error, fs=100e6, input_kind="error")
 ```
 
 ## Parameters
 
-- **`signal`** (array_like) — Input ADC signal
+- **`signal`** (array_like) — Input ADC signal, or a residual/error waveform
+  when `input_kind="error"`
 - **`fs`** (float) — Sampling frequency in Hz
-- **`resolution`** (int, optional) — ADC resolution in bits
-- **`show_plot`** (bool, default=False) — Display envelope spectrum
+- **`frequency`** (float, optional) — Normalized input frequency for
+  signal-input sine fitting
+- **`input_kind`** (`"signal"` or `"error"`, default=`"signal"`) — Whether
+  to fit/subtract a sine internally or analyze the input directly as residual
+- **`create_plot`** (bool, default=True) — Display envelope spectrum
 - **`ax`** (matplotlib axis, optional) — Axis for plotting
 
 ## Returns
 
 Dictionary containing:
-- **`envelope_spectrum`** — Envelope spectrum magnitude
-- **`envelope_freq`** — Frequency bins for envelope
-- **`error`** — Error signal
+- spectrum metric keys such as **`enob`**, **`sndr_dbc`**, **`sfdr_dbc`**,
+  **`snr_dbc`**, **`thd_dbc`**, **`sig_pwr_dbfs`**, and
+  **`noise_floor_dbfs`**
+- **`error_signal`** — Error signal used for envelope extraction
 - **`envelope`** — Extracted envelope
+- **`input_kind`** — Input contract used for the analysis
 
 ## Interpretation
 

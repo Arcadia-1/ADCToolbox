@@ -16,13 +16,16 @@ from adctoolbox.aout._fit_diagnostics import extract_fit_diagnostics
 
 def analyze_error_envelope_spectrum(signal, fs=1, frequency=None, create_plot: bool = True,
                                      ax=None, title: str = None, max_iterations: int = 1,
-                                     tolerance: float = 1e-9, return_fit: bool = False):
+                                     tolerance: float = 1e-9, return_fit: bool = False,
+                                     input_kind: str = "signal"):
     """
     Compute envelope spectrum using Hilbert transform.
 
-    This function fits an ideal sine to the signal, computes the error,
-    extracts the error envelope using Hilbert transform, and analyzes
-    its spectrum to reveal amplitude modulation patterns.
+    By default this function fits an ideal sine to the signal, computes the
+    error, extracts the error envelope using Hilbert transform, and analyzes
+    its spectrum to reveal amplitude modulation patterns. Pass
+    ``input_kind="error"`` when the input is already a precomputed error or
+    residual signal, matching MATLAB ``errevspec``.
 
     Parameters
     ----------
@@ -44,6 +47,10 @@ def analyze_error_envelope_spectrum(signal, fs=1, frequency=None, create_plot: b
         Frequency-refinement convergence threshold passed to fit_sine_4param.
     return_fit : bool, default=False
         If True, include scalar sine-fit diagnostics under result['fit'].
+    input_kind : {'signal', 'error'}, default='signal'
+        Input contract. ``'signal'`` treats the input as an ADC output signal
+        and fits/subtracts a sine internally. ``'error'`` treats the input as
+        an already computed error or residual and skips sine fitting.
 
     Returns
     -------
@@ -58,25 +65,37 @@ def analyze_error_envelope_spectrum(signal, fs=1, frequency=None, create_plot: b
         - 'noise_floor_dbfs': Noise floor (dBFS)
         - 'error_signal': Error signal (signal - fitted sine)
         - 'envelope': Error envelope extracted via Hilbert transform
+        - 'input_kind': Input contract used ('signal' or 'error')
         - 'fit': Optional sine-fit diagnostics when return_fit=True
 
     Notes
     -----
-    - Error = signal - ideal_sine (fitted using fit_sine_4param)
+    - With ``input_kind="signal"``, error = signal - ideal_sine (fitted using
+      fit_sine_4param).
+    - With ``input_kind="error"``, the input is used directly as the error.
     - Envelope = ``abs(Hilbert(error))``
     - Analyzes spectrum of envelope to reveal AM patterns
     """
-    # Fit ideal sine to extract reference
-    fit_kwargs = {"max_iterations": max_iterations, "tolerance": tolerance}
-    if frequency is None:
-        fit_result = fit_sine_4param(signal, **fit_kwargs)
+    valid_input_kinds = {"signal", "error"}
+    if input_kind not in valid_input_kinds:
+        raise ValueError(
+            f"Unknown input_kind {input_kind!r}. "
+            f"Expected one of {sorted(valid_input_kinds)}."
+        )
+
+    if input_kind == "signal":
+        # Fit ideal sine to extract reference
+        fit_kwargs = {"max_iterations": max_iterations, "tolerance": tolerance}
+        if frequency is None:
+            fit_result = fit_sine_4param(signal, **fit_kwargs)
+        else:
+            fit_result = fit_sine_4param(signal, frequency_estimate=frequency, **fit_kwargs)
+
+        sig_ideal = fit_result['fitted_signal']
+        error_signal = signal - sig_ideal
     else:
-        fit_result = fit_sine_4param(signal, frequency_estimate=frequency, **fit_kwargs)
-
-    sig_ideal = fit_result['fitted_signal']
-
-    # Compute error
-    error_signal = signal - sig_ideal
+        fit_result = None
+        error_signal = np.asarray(signal)
 
     # Ensure column data
     e = np.asarray(error_signal).flatten()
@@ -110,9 +129,14 @@ def analyze_error_envelope_spectrum(signal, fs=1, frequency=None, create_plot: b
         matplotlib.use(backend_orig)  # Restore original backend
 
     # Add error signal and envelope to result
-    result['error_signal'] = error_signal
+    result['error_signal'] = e
     result['envelope'] = env
+    result['input_kind'] = input_kind
     if return_fit:
-        result['fit'] = extract_fit_diagnostics(fit_result)
+        result['fit'] = (
+            extract_fit_diagnostics(fit_result)
+            if fit_result is not None
+            else None
+        )
 
     return result

@@ -181,6 +181,9 @@ adctoolbox-install-skill --dev --editable --force --dest ~/.codex/skills
   tail dropped after the first adjacent ratio `>= 3`. Treat it as a theoretical
   SAR/DAC weight-list resolution estimate, not a missing-code, DNL/INL, or
   SAR-reachability check.
+- `analyze_error_envelope_spectrum(signal, input_kind="signal")` fits and
+  subtracts a sine internally. Pass `input_kind="error"` when the input is
+  already a residual/error waveform, matching MATLAB `errevspec`.
 - `fit_static_nonlin(sig_distorted, order)` returns
   `(k2, k3, fitted_sine, fitted_transfer)`. Input is a distorted signal,
   not INL/DNL data; `order >= 2`.

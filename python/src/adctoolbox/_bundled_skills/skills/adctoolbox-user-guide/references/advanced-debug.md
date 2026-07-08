@@ -119,6 +119,9 @@ Pick by the error view you need:
 
 All of these expect `aout` (or fall back to `signal`) plus `fs` in Hz.
 They each fit a sine internally if no `frequency` kwarg is supplied.
+`analyze_error_envelope_spectrum` also accepts a precomputed residual with
+`input_kind="error"`; use that mode for MATLAB `errevspec` parity or when you
+have already subtracted the fitted sine.
 
 ## "I need cap array → weight conversion for CDAC modeling"
 

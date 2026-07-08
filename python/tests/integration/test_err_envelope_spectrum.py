@@ -22,9 +22,10 @@ def _process_plot_envelope_spectrum(raw_data, sub_folder, dataset_name, figures_
     fitted_signal = fit_result['fitted_signal']
     err_data = raw_data - fitted_signal
 
-    # Run plot_envelope_spectrum
+    # Run plot_envelope_spectrum on the precomputed residual. This matches
+    # MATLAB errevspec, whose input is err_data rather than the raw signal.
     plt.figure(figsize=(12, 8))
-    result = plot_envelope_spectrum(err_data, fs=1)
+    result = plot_envelope_spectrum(err_data, fs=1, input_kind="error")
     enob = result['enob']
     sndr = result['sndr_db']
     sfdr = result['sfdr_db']
