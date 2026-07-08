@@ -67,8 +67,12 @@ Notes on shapes:
 - `analyze_overflow` is a 4-tuple of ndarrays — needs the calibrated
   `weights` as its second argument (it's measuring digital-domain over-range,
   not raw saturation).
-- `analyze_enob_sweep` is a 2-tuple `(enob_sweep, n_bits_vec)` and runs
-  `calibrate_weight_sine` once internally.
+- `analyze_enob_sweep` is a 2-tuple `(enob_sweep, n_bits_vec)`. Its default
+  `calibration_mode="recalibrate_each_subset"` matches MATLAB `bitsweep`:
+  estimate frequency once when needed, then recalibrate each bit-prefix subset.
+  Use `calibration_mode="prefix_of_full_calibration"` for the historical
+  Python prefix-ablation diagnostic that calibrates all bits once and sweeps
+  prefixes of the full-weight solution.
 - `analyze_weight_radix(weights)` returns a `dict` (was an ndarray in
   pre-`v0.6` versions).
 - `analyze_weight_radix(weights)["effres"]` is a theoretical weight-list span:

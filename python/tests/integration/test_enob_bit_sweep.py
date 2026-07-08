@@ -19,7 +19,14 @@ def _process_analyze_enob_sweep(raw_data, sub_folder, dataset_name, figures_fold
     # Note: Using 'hamming' (Pythonic) instead of win_type=4 (legacy)
     fig = plt.figure(figsize=(10, 7.5))
     enob_sweep, n_bits_vec = analyze_enob_sweep(
-        raw_data, freq=0, harmonic_order=5, osr=1, win_type='hamming')
+        raw_data,
+        freq=0,
+        harmonic_order=5,
+        osr=1,
+        win_type='hamming',
+        calibration_mode="recalibrate_each_subset",
+        frequency_policy="matlab",
+    )
 
     # Save figure
     figure_name = f"{test_name}_{dataset_name}_python.png"
