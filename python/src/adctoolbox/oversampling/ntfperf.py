@@ -5,12 +5,20 @@ from __future__ import annotations
 from adctoolbox.oversampling.ntf_analyzer import ntf_analyzer
 
 
-def ntfperf(ntf, fl: float, fh: float, disp: bool | int = False) -> float:
+def ntfperf(ntf, fl: float, fh: float, disp: bool | int = False, *, n_grid: int = 1_000_000) -> float:
     """Analyze NTF in-band noise suppression.
 
     This is the Python counterpart of MATLAB ``ntfperf(ntf, fl, fh, disp)``.
     It returns the SNR improvement in dB over a flat ``NTF = 1`` baseline.
+    The default frequency grid matches MATLAB ``ntfperf.m``.
     """
 
-    return ntf_analyzer(ntf, fl, fh, is_plot=int(bool(disp)))
+    return ntf_analyzer(
+        ntf,
+        fl,
+        fh,
+        is_plot=int(bool(disp)),
+        n_grid=n_grid,
+        grid_policy="matlab",
+    )
 

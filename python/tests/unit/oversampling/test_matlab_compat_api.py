@@ -81,10 +81,45 @@ def test_perfosr_rejects_invalid_matlab_style_parameters():
             raise AssertionError(f"Expected ValueError for kwargs={kwargs}")
 
 
-def test_ntfperf_alias_matches_ntf_analyzer():
+def test_ntfperf_uses_matlab_grid_policy():
     ntf = signal.TransferFunction([1, -1], [1, 0], dt=1)
 
-    expected = ntf_analyzer(ntf, 0, 0.5 / 16, is_plot=0)
-    actual = ntfperf(ntf, 0, 0.5 / 16, disp=False)
+    expected = ntf_analyzer(
+        ntf,
+        0,
+        0.5 / 16,
+        is_plot=0,
+        n_grid=2048,
+        grid_policy="matlab",
+    )
+    actual = ntfperf(ntf, 0, 0.5 / 16, disp=False, n_grid=2048)
 
     assert actual == expected
+
+
+def test_ntf_analyzer_default_keeps_python_grid_policy():
+    ntf = signal.TransferFunction([1, -1], [1, 0], dt=1)
+
+    default_policy = ntf_analyzer(ntf, 0, 0.5 / 16, is_plot=0, n_grid=2048)
+    explicit_python_policy = ntf_analyzer(
+        ntf,
+        0,
+        0.5 / 16,
+        is_plot=0,
+        n_grid=2048,
+        grid_policy="python",
+    )
+
+    assert default_policy == explicit_python_policy
+
+
+def test_ntf_analyzer_rejects_unknown_grid_policy():
+    ntf = signal.TransferFunction([1, -1], [1, 0], dt=1)
+
+    for kwargs in ({"grid_policy": "octave"}, {"n_grid": 0}):
+        try:
+            ntf_analyzer(ntf, 0, 0.5 / 16, is_plot=0, **kwargs)
+        except ValueError:
+            pass
+        else:
+            raise AssertionError(f"Expected ValueError for kwargs={kwargs}")

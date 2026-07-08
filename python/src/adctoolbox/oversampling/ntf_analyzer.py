@@ -1,9 +1,25 @@
-# Not yet verified with both MATLAB and Python testbenches
+"""NTF performance analysis helpers."""
+
 import numpy as np
 import matplotlib.pyplot as plt
 from scipy import signal
 
-def ntf_analyzer(ntf, flow, fhigh, is_plot=None):
+
+def _frequency_grid(n_grid, grid_policy):
+    n_grid = int(n_grid)
+    if n_grid <= 0:
+        raise ValueError("n_grid must be a positive integer")
+
+    if grid_policy == "python":
+        return np.linspace(0, 0.5, n_grid)
+
+    if grid_policy == "matlab":
+        return np.arange(1, n_grid + 1, dtype=float) / n_grid / 2
+
+    raise ValueError("grid_policy must be 'python' or 'matlab'")
+
+
+def ntf_analyzer(ntf, flow, fhigh, is_plot=None, *, n_grid=2**16, grid_policy="python"):
     """
     Analyze the performance of NTF (Noise Transfer Function)
 
@@ -12,11 +28,14 @@ def ntf_analyzer(ntf, flow, fhigh, is_plot=None):
         flow: Low bound frequency of signal band (relative to Fs)
         fhigh: High bound frequency of signal band (relative to Fs)
         is_plot: Optional plotting flag (1 to plot, None or 0 to skip)
+        n_grid: Number of frequency grid points used for integration.
+        grid_policy: "python" keeps the historical linspace grid; "matlab"
+            uses the same grid as MATLAB ntfperf.m.
 
     Returns:
         noiSup: Integrated noise suppression of NTF in signal band in dB (compared to NTF=1)
     """
-    w = np.linspace(0, 0.5, 2**16)
+    w = _frequency_grid(n_grid, grid_policy)
 
     # Convert NTF to transfer function if needed
     if isinstance(ntf, tuple):
