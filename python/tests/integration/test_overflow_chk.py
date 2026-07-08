@@ -17,11 +17,13 @@ def _process_check_overflow(raw_data, sub_folder, dataset_name, figures_folder, 
     3. Create visualization plot
     4. Save variables and plot
     """
-    # Run calibrate_weight_sine to get calibrated weights
+    # Match MATLAB run_ovfchk.m: wcalsin(read_data) uses automatic frequency
+    # search with the default fundamental-only calibration model.
     weight, _, _, _, _, _ = calibrate_weight_sine(
         raw_data,
         freq=0,
-        order=5
+        order=1,
+        frequency_policy="matlab",
     )
 
     # Run check_overflow and get overflow statistics
