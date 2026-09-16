@@ -1,7 +1,7 @@
 # ADCToolbox
 
 [![CI](https://github.com/Arcadia-1/ADCToolbox/actions/workflows/ci.yml/badge.svg)](https://github.com/Arcadia-1/ADCToolbox/actions/workflows/ci.yml)
-[![Documentation](https://github.com/Arcadia-1/ADCToolbox/actions/workflows/docs.yml/badge.svg)](https://arcadia-1.github.io/ADCToolbox/)
+[![Documentation](https://github.com/Arcadia-1/ADCToolbox/actions/workflows/docs.yml/badge.svg)](https://adctoolbox.tokenzhang.com/doc/)
 [![PyPI version](https://badge.fury.io/py/adctoolbox.svg)](https://badge.fury.io/py/adctoolbox)
 [![PyPI - Downloads](https://img.shields.io/pypi/dm/adctoolbox)](https://pypi.org/project/adctoolbox/)
 [![Python 3.10+](https://img.shields.io/badge/python-3.10+-blue.svg)](https://www.python.org/downloads/)
@@ -242,13 +242,15 @@ MIT License
 
 ## Documentation
 
-📚 **[Full Documentation](https://arcadia-1.github.io/ADCToolbox/)** - Complete API reference, algorithm guides, and tutorials
+🎛️ **[Interactive Illustrations](https://adctoolbox.tokenzhang.com/)** - The toolbox's models running in your browser, with the parameters in your hands
 
-- **[Installation Guide](https://arcadia-1.github.io/ADCToolbox/installation.html)** - Getting started
-- **[Quick Start](https://arcadia-1.github.io/ADCToolbox/quickstart.html)** - First steps with examples
-- **[Algorithm Reference](https://arcadia-1.github.io/ADCToolbox/algorithms/index.html)** - 15 detailed algorithm guides
-- **[API Documentation](https://arcadia-1.github.io/ADCToolbox/api/index.html)** - Function signatures and parameters
-- **[Changelog](https://arcadia-1.github.io/ADCToolbox/changelog.html)** - Version history
+📚 **[Full Documentation](https://adctoolbox.tokenzhang.com/doc/)** - Complete API reference, algorithm guides, and tutorials
+
+- **[Installation Guide](https://adctoolbox.tokenzhang.com/doc/installation)** - Getting started
+- **[Quick Start](https://adctoolbox.tokenzhang.com/doc/quickstart)** - First steps with examples
+- **[Algorithm Reference](https://adctoolbox.tokenzhang.com/doc/algorithms/)** - 15 detailed algorithm guides
+- **[API Documentation](https://adctoolbox.tokenzhang.com/doc/api/)** - Function signatures and parameters
+- **[Changelog](https://adctoolbox.tokenzhang.com/doc/changelog)** - Version history
 
 ## Star History
 

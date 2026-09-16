@@ -90,8 +90,9 @@ adctoolbox-install-skill --dev --editable --force --dest ~/.codex/skills
 
 ## Documentation
 
+- Website: https://adctoolbox.tokenzhang.com/
+- Docs: https://adctoolbox.tokenzhang.com/doc/
 - GitHub: https://github.com/Arcadia-1/ADCToolbox
-- Docs: https://arcadia-1.github.io/ADCToolbox/
 - PyPI: https://pypi.org/project/adctoolbox/
 
 ## License

@@ -15,6 +15,12 @@ dependencies = [
     "scipy>=1.9.0",
 ]
 
+[project.urls]
+Homepage = "https://adctoolbox.tokenzhang.com/"
+Documentation = "https://adctoolbox.tokenzhang.com/doc/"
+Source = "https://github.com/Arcadia-1/ADCToolbox"
+Changelog = "https://adctoolbox.tokenzhang.com/doc/changelog"
+
 [project.scripts]
 adctoolbox-get-examples = "adctoolbox.cli:copy_examples"
 adctoolbox-install-skill = "adctoolbox.skill_cli:main"
