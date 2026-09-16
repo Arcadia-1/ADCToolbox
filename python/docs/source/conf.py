@@ -68,7 +68,13 @@ html_theme_options = {
     'navigation_with_keys': True,
     'logo': {
         'text': 'ADCToolbox',
+        # this manual is published under /doc of the site; the logo goes back to its front page
+        'link': 'https://adctoolbox.tokenzhang.com/',
     },
+    # the illustrations run these same models in the browser
+    'external_links': [
+        {'name': 'Illustrations', 'url': 'https://adctoolbox.tokenzhang.com/'},
+    ],
 }
 
 # -- Napoleon settings (for Google-style docstrings) -------------------------
