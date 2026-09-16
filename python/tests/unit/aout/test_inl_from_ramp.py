@@ -3,8 +3,7 @@
 import numpy as np
 import pytest
 
-from adctoolbox import analyze_inl_from_ramp
-from adctoolbox.aout import compute_inl_from_ramp
+from adctoolbox import analyze_inl_from_ramp, compute_inl_from_ramp
 
 
 def _codes_from_counts(counts, code_min=0):

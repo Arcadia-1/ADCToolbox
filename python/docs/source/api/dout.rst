@@ -9,6 +9,7 @@ Weight Calibration
 ------------------
 
 .. autofunction:: calibrate_weight_sine
+.. autofunction:: scale_calibration_output
 .. autofunction:: adctoolbox.calibration.calibrate_weight_sine_lite
 
 Bit And Weight Analysis

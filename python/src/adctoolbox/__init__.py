@@ -151,6 +151,8 @@ _export('sweep_performance_vs_osr', sweep_performance_vs_osr)
 from .aout import (
     analyze_inl_from_sine,
     analyze_inl_from_ramp,
+    compute_inl_from_sine,
+    compute_inl_from_ramp,
     analyze_decomposition_time,
     analyze_decomposition_polar,
     analyze_error_by_value,
@@ -164,6 +166,8 @@ from .aout import (
 
 _export('analyze_inl_from_sine', analyze_inl_from_sine)
 _export('analyze_inl_from_ramp', analyze_inl_from_ramp)
+_export('compute_inl_from_sine', compute_inl_from_sine)
+_export('compute_inl_from_ramp', compute_inl_from_ramp)
 _export('analyze_decomposition_time', analyze_decomposition_time)
 _export('analyze_decomposition_polar', analyze_decomposition_polar)
 _export('analyze_error_by_value', analyze_error_by_value)

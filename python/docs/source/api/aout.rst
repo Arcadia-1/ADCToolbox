@@ -44,7 +44,9 @@ INL/DNL Analysis
 ----------------
 
 .. autofunction:: analyze_inl_from_sine
-.. autofunction:: adctoolbox.aout.compute_inl_from_sine
+.. autofunction:: compute_inl_from_sine
+.. autofunction:: analyze_inl_from_ramp
+.. autofunction:: compute_inl_from_ramp
 .. autofunction:: adctoolbox.aout.plot_dnl_inl
 
 Static Nonlinearity Fitting
