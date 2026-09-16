@@ -53,6 +53,9 @@ html_logo = '_static/adctoolbox-logo.svg'
 html_favicon = '_static/adctoolbox-logo.svg'
 html_static_path = ['_static']
 
+# canonical links point at the site, which publishes this manual under /doc/ (translations: see setup below)
+html_baseurl = 'https://adctoolbox.tokenzhang.com/doc/'
+
 html_css_files = [
     'adctoolbox.css',
 ]
@@ -124,9 +127,15 @@ todo_include_todos = True
 
 
 def setup(app):
-    """Expose build language to templates for cross-language navigation."""
+    """Expose build language to templates and give each translation its own canonical base."""
+
+    def localize_baseurl(app, config):
+        # -D language=zh_CN is applied after this file runs, and that build is published under /doc/zh_CN/
+        if config.language != 'en':
+            config.html_baseurl += f'{config.language}/'
 
     def add_template_context(app, pagename, templatename, context, doctree):
         context['adctoolbox_language'] = app.config.language
 
+    app.connect('config-inited', localize_baseurl)
     app.connect('html-page-context', add_template_context)
