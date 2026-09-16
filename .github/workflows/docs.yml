@@ -1,6 +1,6 @@
-# adctoolbox.tokenzhang.com now serves the interactive site, with this manual published under /doc by the
-# site's own workflow, which runs exactly the sphinx build below against this source. This deployment stays as the
-# staging copy at arcadia-1.github.io/ADCToolbox and no longer claims the custom domain.
+# The manual is published at adctoolbox.tokenzhang.com/doc/ by the site's own workflow, which runs exactly the sphinx
+# build below against this source. Here the build is a check, and arcadia-1.github.io/ADCToolbox, where the manual used
+# to live, only forwards every old address to the same page there.
 name: Build and Deploy Documentation
 
 on:
@@ -12,6 +12,7 @@ on:
       - 'python/src/adctoolbox/**/*.py'  # Docstrings in source code
       - 'README.md'
       - '.github/workflows/docs.yml'
+      - '.github/pages-redirects.py'
     tags:
       - 'v*'
   workflow_dispatch:
@@ -56,10 +57,13 @@ jobs:
           cd python/docs
           python -m sphinx -b html -D language=zh_CN source build/html/zh_CN
 
+      - name: Forward the old address to the manual's new home
+        run: python .github/pages-redirects.py python/docs/build/html python/docs/build/redirects
+
       - name: Upload artifact
         uses: actions/upload-pages-artifact@v5
         with:
-          path: python/docs/build/html
+          path: python/docs/build/redirects
 
   deploy:
     environment:
