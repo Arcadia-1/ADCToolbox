@@ -1,3 +1,6 @@
+# adctoolbox.tokenzhang.com now serves the interactive site, with this manual published under /doc by the
+# site's own workflow, which runs exactly the sphinx build below against this source. This deployment stays as the
+# staging copy at arcadia-1.github.io/ADCToolbox and no longer claims the custom domain.
 name: Build and Deploy Documentation
 
 on:
@@ -52,9 +55,6 @@ jobs:
         run: |
           cd python/docs
           python -m sphinx -b html -D language=zh_CN source build/html/zh_CN
-
-      - name: Write CNAME for custom domain
-        run: echo "adctoolbox.tokenzhang.com" > python/docs/build/html/CNAME
 
       - name: Upload artifact
         uses: actions/upload-pages-artifact@v5
