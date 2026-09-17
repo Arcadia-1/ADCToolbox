@@ -17,6 +17,35 @@ on:
       - '.github/workflows/docs.yml'
 
 jobs:
+  # The whole unit suite, on every platform the package is used on: a test that only holds on one of them should fail
+  # here rather than on a user's machine.
+  unit-tests:
+    name: Unit Tests (${{ matrix.os }})
+    runs-on: ${{ matrix.os }}
+    strategy:
+      fail-fast: false
+      matrix:
+        os: [ubuntu-latest, macos-latest, windows-latest]
+
+    steps:
+      - uses: actions/checkout@v6
+
+      - name: Set up Python
+        uses: actions/setup-python@v6
+        with:
+          python-version: '3.11'
+
+      - name: Install dependencies
+        run: |
+          pip install pytest
+          pip install -e ./python
+
+      - name: Run unit tests
+        working-directory: python
+        run: pytest tests/unit -q
+        env:
+          MPLBACKEND: Agg
+
   test-examples:
     name: Test Examples
     runs-on: ubuntu-latest
@@ -33,27 +62,6 @@ jobs:
         run: |
           pip install numpy matplotlib scipy pytest
           pip install -e ./python
-
-      - name: Run Unit Tests — Models (pytest)
-        run: |
-          cd python
-          pytest tests/unit/models/ -v
-        env:
-          MPLBACKEND: Agg
-
-      - name: Run Unit Tests — Spectrum (pytest)
-        run: |
-          cd python
-          pytest tests/unit/spectrum/ -v
-        env:
-          MPLBACKEND: Agg
-
-      - name: Run Unit Tests — Oversampling (pytest)
-        run: |
-          cd python
-          pytest tests/unit/oversampling/ -v
-        env:
-          MPLBACKEND: Agg
 
       - name: Run Basic Examples (01_basic)
         run: |

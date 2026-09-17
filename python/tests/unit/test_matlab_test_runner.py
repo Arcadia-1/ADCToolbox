@@ -78,7 +78,7 @@ def test_explicit_non_executable_matlab_path_is_rejected(tmp_path, capsys):
 
 def test_explicit_invalid_windows_exe_is_rejected(monkeypatch, tmp_path, capsys):
     runner = _load_runner()
-    monkeypatch.setattr(runner.os, "name", "nt")
+    monkeypatch.setattr(runner, "_is_windows", lambda: True)
     executable = tmp_path / "matlab.exe"
     executable.write_text("")
 
@@ -90,12 +90,43 @@ def test_explicit_invalid_windows_exe_is_rejected(monkeypatch, tmp_path, capsys)
 
 def test_which_result_is_rechecked_before_accepting(monkeypatch, tmp_path):
     runner = _load_runner()
-    monkeypatch.setattr(runner.os, "name", "nt")
+    monkeypatch.setattr(runner, "_is_windows", lambda: True)
     executable = tmp_path / "matlab.exe"
     executable.write_text("")
     monkeypatch.setattr(runner.shutil, "which", lambda _name: str(executable))
 
     assert runner.find_matlab_executable("matlab") is None
+
+
+def test_windows_install_candidates_come_newest_first(monkeypatch, tmp_path):
+    runner = _load_runner()
+    monkeypatch.setattr(runner, "_is_windows", lambda: True)
+    for release in ("R2021b", "R2024a", "R2023b"):
+        (tmp_path / "MATLAB" / release / "bin").mkdir(parents=True)
+        (tmp_path / "MATLAB" / release / "bin" / "matlab.exe").write_text("")
+    monkeypatch.setenv("ProgramFiles", str(tmp_path))
+    monkeypatch.delenv("ProgramFiles(x86)", raising=False)
+
+    candidates = runner._standard_install_candidates()
+
+    assert [path.parent.parent.name for path in candidates] == ["R2024a", "R2023b", "R2021b"]
+
+
+def test_windows_accepts_batch_scripts_and_real_executables_only(monkeypatch, tmp_path):
+    runner = _load_runner()
+    monkeypatch.setattr(runner, "_is_windows", lambda: True)
+    script = tmp_path / "matlab.cmd"
+    script.write_text("@echo off")
+    fake_exe = tmp_path / "fake.exe"
+    fake_exe.write_bytes(b"MZ" + bytes(62))
+    real_exe = tmp_path / "real.exe"
+    # a DOS header whose e_lfanew points at a PE signature
+    real_exe.write_bytes(b"MZ" + bytes(58) + (64).to_bytes(4, "little") + b"PE\0\0")
+
+    assert runner._is_executable_file(script)
+    assert not runner._is_executable_file(fake_exe)
+    assert runner._is_executable_file(real_exe)
+    assert not runner._is_executable_file(tmp_path / "missing.exe")
 
 
 def test_dry_run_prints_command_without_executing(tmp_path, capsys):
