@@ -2,11 +2,12 @@
 
 Uses a first-order model:
 
-- **Offset mismatch**  ->  spurs at ``k * fs / M`` (``k = 1..M-1``)
+- **Offset mismatch**  ->  spurs at ``k * fs / M`` (``k = 1..M//2``)
 - **Gain + skew mismatch**  ->  spurs at ``fin + k * fs / M`` (``k = 1..M-1``)
 
-For each, spur amplitude equals the appropriate coefficient of the M-point DFT
-of the per-channel mismatch sequence, divided by M.
+For each, spur amplitude follows from the M-point DFT of the per-channel
+mismatch sequence, divided by M. An offset pattern is real, so its coefficients
+k and M-k are one tone at the same frequency, reported once at twice the size.
 
 Skew is folded into a first-order complex-gain ``alpha_m = gain_m · e^{j 2π fin · t_m}``,
 so the ``gain_skew`` spurs cover both gain and timing mismatches at once.
@@ -49,7 +50,8 @@ def predict_spurs(
 
         - ``freq_hz`` : spur frequency folded to ``[0, fs/2]``
         - ``kind``    : ``'offset'`` or ``'gain_skew'``
-        - ``k``       : spur index in the M-point DFT (1..M-1)
+        - ``k``       : spur index in the M-point DFT (offset: 1..M//2,
+          gain_skew: 1..M-1)
         - ``amp``     : spur amplitude in the same units as ``x``
         - ``dbfs``    : spur magnitude in dBFS (relative to ``full_scale``)
         - ``dbc``     : spur magnitude in dBc (relative to fundamental)
@@ -81,10 +83,13 @@ def predict_spurs(
     spurs: list[dict] = []
 
     # ---- offset spurs: DFT of offset sequence ----
+    # A real offset pattern puts O[k] and O[M-k] = conj(O[k]) on the same folded
+    # frequency: together they are one tone of amplitude 2|O[k]|/M. Only k = M/2
+    # is its own mirror.
     O = np.fft.fft(offset)
-    for k in range(1, M):
+    for k in range(1, M // 2 + 1):
         f = float(fold_frequency_to_nyquist(k * fs / M, fs))
-        amp = np.abs(O[k]) / M
+        amp = np.abs(O[k]) / M * (1 if 2 * k == M else 2)
         dbfs, dbc = _to_db(amp)
         spurs.append(
             {"freq_hz": f, "kind": "offset", "k": int(k),

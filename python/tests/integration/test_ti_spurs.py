@@ -60,14 +60,14 @@ def test_predict_matches_measurement(M):
     # Ignore the fundamental when comparing spurs
     fund_bin = int(round(fin / (fs / N)))
 
-    # The two largest predicted spurs should also be visible as peaks in spec
+    # Every predicted spur should be visible as a peak in spec
     predicted_nontrivial = sorted(
         [s for s in predicted if s["amp"] > 1e-6],
         key=lambda s: -s["amp"],
     )
     assert predicted_nontrivial, "no predicted spurs above threshold — seed bad?"
 
-    for s in predicted_nontrivial[:3]:   # check top few spurs
+    for s in predicted_nontrivial:
         f_pred = s["freq_hz"]
         # find nearest bin; allow +/-1 bin for rounding
         k = int(round(f_pred / (fs / N)))

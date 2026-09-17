@@ -100,28 +100,35 @@ def test_extract_mismatch_recovers_known_parameters():
 
 def test_predict_spurs_count_and_bins():
     # 4-channel, only offset mismatch
+    offset = np.array([0.0, 0.01, -0.005, 0.003])
     params = {
         "fin": 1e6,
         "A": 1.0,
         "gain": np.ones(4),
-        "offset": np.array([0.0, 0.01, -0.005, 0.003]),
+        "offset": offset,
         "skew": np.zeros(4),
     }
     fs = 1e9
     spurs = predict_spurs(params, fs=fs, full_scale=1.0)
 
-    # (M-1) offset + (M-1) gain_skew = 2*(M-1) = 6
-    assert len(spurs) == 2 * 3
+    # offset: k = 1, 2 (k = 3 is the mirror of k = 1); gain_skew: k = 1..3
+    assert len(spurs) == 2 + 3
     offset_spurs = [s for s in spurs if s["kind"] == "offset"]
     gs_spurs = [s for s in spurs if s["kind"] == "gain_skew"]
-    assert len(offset_spurs) == 3
+    assert len(offset_spurs) == 2
     assert len(gs_spurs) == 3
 
     # With gain=1, skew=0 -> every gain_skew spur amplitude is 0 (-inf dB)
     for s in gs_spurs:
         assert s["amp"] == pytest.approx(0.0, abs=1e-15)
 
-    # Offset spur frequencies land at fs/4, fs/2, (and fs·3/4 folded -> fs/4)
+    # Offset spur frequencies land at fs/4 (fs·3/4 folds onto it) and fs/2
     freqs = sorted(s["freq_hz"] for s in offset_spurs)
-    expected = sorted([fs/4, fs/2, fs/4])
-    np.testing.assert_allclose(freqs, expected, rtol=1e-12)
+    np.testing.assert_allclose(freqs, [fs/4, fs/2], rtol=1e-12)
+
+    # and their amplitudes are those of the tones the pattern actually holds
+    n = np.arange(4 * 64)
+    spec = np.abs(np.fft.rfft(offset[n % 4])) / n.size
+    spec[1:-1] *= 2.0
+    for s in offset_spurs:
+        assert s["amp"] == pytest.approx(spec[round(s["freq_hz"] / fs * n.size)], rel=1e-12)

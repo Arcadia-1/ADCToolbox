@@ -7,6 +7,13 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Fixed
+- `predict_spurs` reported every offset tone except the one at fs/2 twice, as the
+  DFT coefficients k and M-k, each at half the tone's amplitude, so offset spurs
+  read 6.02 dB low. It now reports each offset tone once (k = 1 ... M/2) at its
+  full amplitude, and the integration test checks every predicted spur against
+  the measured spectrum rather than the three largest.
+
 ## [0.9.1] - 2026-07-06
 
 **Contract Clarification Patch** - resolves coherent-bin selection and weight
