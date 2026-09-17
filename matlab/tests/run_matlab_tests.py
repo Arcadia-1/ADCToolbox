@@ -25,6 +25,12 @@ SUITES = {
 _WINDOWS_SCRIPT_SUFFIXES = {".bat", ".cmd"}
 
 
+def _is_windows() -> bool:
+    """Whether to look for MATLAB the Windows way. A function of its own, so tests can take either branch on any
+    platform: patching os.name instead would also switch pathlib to WindowsPath, which only Windows can create."""
+    return os.name == "nt"
+
+
 def _repo_root() -> Path:
     return Path(__file__).resolve().parents[2]
 
@@ -40,7 +46,7 @@ def _matlab_quote(path: Path) -> str:
 def _standard_install_candidates() -> list[Path]:
     candidates: list[Path] = []
 
-    if os.name == "nt":
+    if _is_windows():
         for env_name in ("ProgramFiles", "ProgramFiles(x86)"):
             root = os.environ.get(env_name)
             if not root:
@@ -73,7 +79,7 @@ def _has_windows_pe_signature(path: Path) -> bool:
 def _is_executable_file(path: Path) -> bool:
     if not path.is_file():
         return False
-    if os.name == "nt":
+    if _is_windows():
         suffix = path.suffix.lower()
         if suffix in _WINDOWS_SCRIPT_SUFFIXES:
             return True
