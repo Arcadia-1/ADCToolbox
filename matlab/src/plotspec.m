@@ -432,6 +432,19 @@ if ischar(sideBin) && strcmp(sideBin, 'auto')
     scale_factor = spec(bin) / ideal_spec(bin);
     ideal_spec = ideal_spec * scale_factor;
 
+    % Preserve at least the coherent main-lobe half-width of the selected
+    % window. This prevents a noise-free record from treating the Hann
+    % side bins as the noise floor and collapsing sideBin to zero.
+    window_power = abs(fft(win)).^2;
+    minimum_sidebin = 0;
+    max_window_search = min(16, floor(N_fft/2)-1);
+    for sidebin_offset = 1:max_window_search
+        if window_power(sidebin_offset+1) <= window_power(1) * 1e-12
+            minimum_sidebin = sidebin_offset - 1;
+            break;
+        end
+    end
+
     % Step 2: Estimate noise floor using median (filter out near-zero bins first)
     n_inband = inbandEnd;
     temp_spec = spec(1:n_inband);
@@ -461,10 +474,15 @@ if ischar(sideBin) && strcmp(sideBin, 'auto')
             break;
         end
     end
+    sideBin = max(sideBin, min(minimum_sidebin, max_sidebin));
 end
 
 % Calculate signal power including side bins
-sig = sum(spec(max(bin-sideBin,1):min(bin+sideBin,inbandEnd)));
+sig_start = max(bin-sideBin,1);
+sig_end = min(bin+sideBin,inbandEnd);
+sig_measured = sum(spec(sig_start:sig_end));
+sig_peak = spec(bin);
+sig = sig_measured;
 pwr = 10*log10(sig);
 % Override with assumed signal power if provided
 if(~isnan(assumedSignal))
@@ -522,6 +540,19 @@ noi = sum(spec_inband);  % Total noise + distortion power
 spur_start = max(sbin-sideBin,1);
 spur_end = min(sbin+sideBin,inbandEnd);
 spur = sum(spec_inband(spur_start:spur_end));
+
+% If a spur lobe touches a mask or a one-sided analysis boundary, direct
+% integration loses part of its power. Recover the complete lobe using the
+% measured fundamental lobe-to-peak ratio. Fully visible lobes retain the
+% direct integrated-power definition.
+touches_boundary = (spur_start == 1) || (spur_end == inbandEnd);
+touches_dc_mask = spur_start <= sideBin;
+touches_signal_mask = max(spur_start, sig_start) <= min(spur_end, sig_end);
+if (touches_boundary || touches_dc_mask || touches_signal_mask) ...
+        && sig_peak > 0 && spec_inband(sbin) > 0
+    compensated_spur = spec_inband(sbin) * sig_measured / sig_peak;
+    spur = max(spur, compensated_spur);
+end
 SNDR = 10*log10(sig/noi);
 SFDR = 10*log10(sig/spur);
 ENoB = (SNDR-1.76)/6.02;

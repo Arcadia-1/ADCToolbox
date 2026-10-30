@@ -195,7 +195,9 @@ def _extract_highest_spur(
     side_bin: int,
     n_search_inband: int,
     sig_bin_start: int,
-    sig_bin_end: int
+    sig_bin_end: int,
+    fundamental_bin: int,
+    measured_signal_power: float,
 ) -> tuple[int, float]:
     """Extract the highest spur from in-band spectrum (excluding fundamental).
 
@@ -211,6 +213,11 @@ def _extract_highest_spur(
         Pre-calculated start index of fundamental region (inclusive)
     sig_bin_end : int
         Pre-calculated end index of fundamental region (exclusive)
+    fundamental_bin : int
+        Center bin of the fundamental
+    measured_signal_power : float
+        Measured integrated fundamental-lobe power before any assumed-signal
+        override
 
     Returns
     -------
@@ -230,6 +237,24 @@ def _extract_highest_spur(
     spur_start = max(spur_bin_idx - side_bin, 0)
     spur_end = min(spur_bin_idx + side_bin + 1, n_search_inband)
     spur_power = float(np.sum(spectrum_copy[spur_start:spur_end]))
+
+    # A spur lobe can touch the fundamental/DC masks or a one-sided analysis
+    # boundary. Summing the masked spectrum then drops part of the lobe and
+    # makes SFDR optimistic. Estimate the complete lobe from its center bin
+    # using the measured fundamental lobe-to-peak ratio. Leave fully visible
+    # lobes on the direct integrated-power path.
+    touches_boundary = spur_start == 0 or spur_end == n_search_inband
+    touches_dc_mask = spur_start < min(side_bin, n_search_inband)
+    touches_signal_mask = (
+        max(spur_start, sig_bin_start) < min(spur_end, sig_bin_end)
+    )
+    if touches_boundary or touches_dc_mask or touches_signal_mask:
+        signal_peak_power = float(spectrum_power[fundamental_bin])
+        spur_peak_power = float(spectrum_copy[spur_bin_idx])
+        if signal_peak_power > 0 and spur_peak_power > 0:
+            lobe_to_peak_ratio = measured_signal_power / signal_peak_power
+            compensated_spur_power = spur_peak_power * lobe_to_peak_ratio
+            spur_power = max(spur_power, compensated_spur_power)
 
     return spur_bin_idx, spur_power
 

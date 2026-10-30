@@ -4,6 +4,7 @@ run_tomdec
 run_plotspec
 run_plotspec_dynamic_metric_masks
 run_plotspec_marker
+run_plotspec_sfdr_boundaries
 run_plotphase_fft
 run_plotphase_lms
 

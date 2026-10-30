@@ -115,6 +115,7 @@ def compute_spectrum(
     sig_bin_end = min(fundamental_bin + side_bin + 1, n_inband)
 
     sig_linear = float(np.sum(power_spectrum[sig_bin_start:sig_bin_end]))
+    measured_sig_linear = sig_linear
     sig_pwr_linear = sig_linear
     sig_pwr_dbfs = 10 * np.log10(max(sig_pwr_linear, 1e-30))
 
@@ -134,7 +135,13 @@ def compute_spectrum(
         n_inband=n_inband,
     )
     spur_bin_idx, spur_power = _extract_highest_spur(
-        power_spectrum, side_bin, n_inband, sig_bin_start, sig_bin_end
+        power_spectrum,
+        side_bin,
+        n_inband,
+        sig_bin_start,
+        sig_bin_end,
+        fundamental_bin,
+        measured_sig_linear,
     )
     if sig_linear > 0:
         with np.errstate(divide="ignore", invalid="ignore"):
