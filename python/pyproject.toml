@@ -35,6 +35,9 @@ docs = [
     "myst-parser>=2.0.0",
     "sphinx-intl",
 ]
+accel = [
+    "numba>=0.59",
+]
 
 [tool.setuptools]
 package-dir = {"" = "src"}

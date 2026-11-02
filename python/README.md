@@ -56,7 +56,8 @@ For PN injection, identification, fixed-point HDC and architecture-specific
 controls, open `11_calibration/DITHER_GUIDE.md` in the copied examples. These
 are behavioral research examples with explicit physical and statistical limits.
 `DitherGainTracker`, `apply_dither_gain` and `DitherHDCTracker` are public APIs;
-plants and the dedicated sine-fit baseline remain in the examples.
+plants and the dedicated sine-fit baseline remain in the examples. Install
+`adctoolbox[accel]` to run the HDC tracker's per-sample loop with Numba.
 
 ## Common APIs
 
