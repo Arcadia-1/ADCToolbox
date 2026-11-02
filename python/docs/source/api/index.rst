@@ -14,6 +14,7 @@ This section provides detailed documentation for all ADCToolbox modules and func
    siggen
    timeinterleave
    oversampling
+   dither
    toolset
 
 Module Overview

@@ -43,6 +43,27 @@ from adctoolbox.spectrum import compute_spectrum
   `validate_aout_data`, `validate_dout_data`, `find_coherent_frequency`,
   `fit_sine_4param`
 
+## Dither calibration
+
+Public imports: `from adctoolbox import DitherGainTracker, apply_dither_gain,
+DitherHDCTracker` (also available from `adctoolbox.calibration`).
+
+- Gain-only: `tracker.apply(coarse, backend, pn)["calibrated_signal"]`, then
+  `tracker.update(backend, pn, backend_code)`. Apply before updating each block;
+  omit updates to freeze. PN is in {-1, 0, 1}, its known amplitude is referred
+  to the residue input, and backend codes supply the rail guard.
+- Three-PN HDC: `tracker.process(backend, pn_signs, stage_code, selection,
+  backend_rails, learn=True)["calibrated_signal"]`. Backend is normalized to
+  [-1, 1]; signs have shape (N, 3); signed stage codes are {-1, 0, 1}; DAC
+  selection tags are {-1, +1}; rails are Boolean. This model has nominal gain 2.
+  `learn=False` freezes active coefficients and cancels pending updates;
+  retain the tracker across contiguous blocks, `reset()` for a new capture.
+
+Use existing `11_calibration/exp_cal01_dither_background.py` and
+`exp_cal08_hdc_fixed.py` for complete simulations. `DITHER_GUIDE.md` and
+`HDC_FIXED.md` hold the physical assumptions and derivations. Other
+architecture experiments are not interchangeable estimators.
+
 ## Advanced
 
 Open `advanced-debug.md` first when working on these — it has

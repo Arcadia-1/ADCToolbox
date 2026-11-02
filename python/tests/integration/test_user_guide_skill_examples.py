@@ -21,6 +21,35 @@ import numpy as np
 import pytest
 
 
+def test_dither_quickref_public_calls():
+    """The short Dither recipe in references/api-quickref.md."""
+    from adctoolbox import DitherGainTracker, apply_dither_gain, DitherHDCTracker
+
+    pn = np.tile([-1., 1.], 512)
+    coarse = np.zeros(len(pn))
+    backend = 3.9*.0625*pn
+    backend_code = np.floor((backend+1)*2048)
+    tracker = DitherGainTracker()
+    corrected = tracker.apply(coarse, backend, pn)['calibrated_signal']
+    tracker.update(backend, pn, backend_code)
+    assert corrected.shape == backend.shape
+    np.testing.assert_allclose(apply_dither_gain(
+        coarse, backend, pn, gain_estimate=3.9, probe_amplitude=.0625,
+    )['calibrated_signal'], 0., atol=1e-15)
+
+    pn_signs = np.random.default_rng(71).choice([-1, 1], (1024, 3))
+    backend = 2*.2/3*pn_signs.sum(axis=1)
+    stage_code = np.zeros(1024)
+    selection = np.ones(1024)
+    backend_rails = np.zeros(1024, dtype=bool)
+    tracker = DitherHDCTracker()
+    corrected = tracker.process(backend, pn_signs, stage_code, selection,
+                                backend_rails, learn=True)['calibrated_signal']
+    np.testing.assert_allclose(corrected, 0., atol=2e-7)
+    tracker.process(backend, pn_signs, stage_code, selection, backend_rails, learn=False)
+    tracker.reset()
+
+
 # ----------------------------------------------------------------------
 # Shared fixture — a small synthetic dout/aout pair used by most tests
 # ----------------------------------------------------------------------

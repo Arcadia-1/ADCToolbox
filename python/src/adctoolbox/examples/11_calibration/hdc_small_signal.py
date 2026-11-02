@@ -9,6 +9,7 @@ import argparse
 import copy
 from dataclasses import asdict
 import hashlib
+from adctoolbox.calibration import _dither_hdc
 from itertools import product
 from pathlib import Path
 import time
@@ -185,7 +186,9 @@ def main(argv=None):
     args.output.mkdir(parents=True, exist_ok=True)
     names = ['hdc_small_signal.py','hdc_fixed.py','exp_cal08_hdc_fixed.py',
              'exp_cal06_joint_dither.py','dither_mechanisms.py']
-    source = {n:hashlib.sha256(Path(__file__).with_name(n).read_bytes()).hexdigest() for n in names}
+    source_paths = {n: Path(__file__).with_name(n) for n in names}
+    source_paths['_dither_hdc.py'] = Path(_dither_hdc.__file__)
+    source = {n:hashlib.sha256(path.read_bytes()).hexdigest() for n, path in source_paths.items()}
     write_json(args.output/'configuration.json', dict(arguments={**vars(args),'output':str(args.output)},
         sources=source, truth=asdict(FINAL), backend_bits=13, fraction=24, bits=28,
         cases=CASES, controller_latency=512, phase_count=256,
@@ -207,7 +210,7 @@ def main(argv=None):
     write_json(args.output/'training.json', training)
     write_json(args.output/'summary.json', results)
     write_json(args.output/'completion.json', dict(elapsed_seconds=time.monotonic()-start,
-        cases=len(results), source_hashes_match=all(hashlib.sha256(Path(__file__).with_name(n).read_bytes()).hexdigest()==h for n,h in source.items())))
+        cases=len(results), source_hashes_match=all(hashlib.sha256(source_paths[n].read_bytes()).hexdigest()==h for n,h in source.items())))
     return 0
 
 

@@ -35,8 +35,10 @@ Six experiments are available (historical numbering is preserved):
 gain calibration entirely in software. It is a minimal two-stage Pipeline
 model, not a reproduction of the earlier five-stage GCN paper or a transistor
 implementation. The plant in `pipeline_dither_model.py` remains an example
-interface. Gain fitting/tracking uses `dither_gain.py` in this directory;
-these helpers are example-only and are not exported as public package APIs.
+interface. `dither_gain.py` imports the public `DitherGainTracker` and
+`apply_dither_gain` APIs and keeps the sine-fit baseline local.
+`DitherHDCTracker` exposes the HDC algorithm through validated observable arrays;
+`hdc_fixed.py` uses the same calibration kernel for detailed arithmetic audits.
 The frozen sine-fit baseline is retained as a control for Dither tracking.
 
 ## Run

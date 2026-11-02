@@ -144,15 +144,19 @@ def test_example_cli_exports_trajectories_and_figure(tmp_path):
                      '--foreground-blocks','2','--seeds','11','--scenarios','constant','--waveforms','sine'])
     result = json.loads((tmp_path/'summary.json').read_text())
     assert len(result['runs']) == 1
+    configuration = json.loads((tmp_path/'configuration.json').read_text())
+    assert {'dither_gain.py', 'dither.py'} <= configuration['source_sha256'].keys()
     assert (tmp_path/'sine_constant_seed11'/'trajectory.csv').is_file()
     assert (tmp_path/'tracking_sine.png').stat().st_size > 1000
 
 
-def test_gain_helpers_are_example_only():
+def test_examples_reuse_public_gain_api_and_keep_sine_baseline_local():
     import adctoolbox
     import adctoolbox.calibration as calibration
     helpers = importlib.import_module("adctoolbox.examples.11_calibration.dither_gain")
-    for name in ("DitherGainTracker", "apply_gain_calibration", "fit_pipeline_gain_sine"):
+    assert helpers.DitherGainTracker is adctoolbox.DitherGainTracker
+    assert helpers.apply_gain_calibration is calibration.apply_dither_gain
+    for name in ("apply_gain_calibration", "fit_pipeline_gain_sine"):
         assert not hasattr(adctoolbox, name)
         assert not hasattr(calibration, name)
         assert name not in adctoolbox.__all__

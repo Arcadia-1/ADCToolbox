@@ -54,8 +54,9 @@ unit conversions, time-interleaved ADC analysis, oversampling, and Dither calibr
 
 For PN injection, identification, fixed-point HDC and architecture-specific
 controls, open `11_calibration/DITHER_GUIDE.md` in the copied examples. These
-are behavioral research examples, with explicit physical and statistical limits;
-they add no public calibration API.
+are behavioral research examples with explicit physical and statistical limits.
+`DitherGainTracker`, `apply_dither_gain` and `DitherHDCTracker` are public APIs;
+plants and the dedicated sine-fit baseline remain in the examples.
 
 ## Common APIs
 

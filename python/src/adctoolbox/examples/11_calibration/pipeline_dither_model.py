@@ -1,6 +1,6 @@
 """Behavioral first-stage gain calibration helpers for exp_cal01.
 
-The plant and gain fitting/tracking helpers are example-only interfaces. Voltages use
+The plant and sine-fit baseline are example-only; gain tracking uses the public API. Voltages use
 input and backend ranges [-1, 1]. A seven-level coarse stage has nominal gain
 4 and an ideal quantized backend. A known PN voltage is injected AFTER the
 coarse decision and BEFORE the residue amplifier:

@@ -46,8 +46,10 @@ controls that deliberately violate the observation assumptions.
 
 Only the HDC example has a tested fixed-point arithmetic/resource contract;
 none of these examples claims verified transistor behavior, RTL timing, or
-general success on every ADC or input. The gain tracker and sine-fit baseline
-are example-only helpers; this collection adds no public calibration API.
+general success on every ADC or input. The public `DitherGainTracker`,
+`apply_dither_gain` and `DitherHDCTracker` interfaces reuse the example
+algorithms; see the [API reference](api/dither.rst). The sine-fit baseline
+and behavioral plants remain example-only helpers.
 
 The repository also includes the {download}`model-basis review <../../../docs/experiments/2026-11-02-hdc-model-basis-review.md>`
 and {download}`physical-state and switch-phase derivation <../../../docs/experiments/2026-11-02-hdc-physical-state-and-phases.md>`.

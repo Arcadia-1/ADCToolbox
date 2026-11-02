@@ -224,6 +224,7 @@ def main(argv=None):
                    'probe_off_controls':'counterfactual plants with identical input and analog-noise draws; probe off',
                    'source_sha256':{p.name:hashlib.sha256(p.read_bytes()).hexdigest() for p in
                        (Path(__file__), Path(__file__).with_name('pipeline_dither_model.py'),
+                        Path(__file__).with_name('dither_gain.py'),
                         Path(inspect.getfile(DitherGainTracker)))}}
     config_path=args.output/'configuration.json'
     if config_path.exists() and json.loads(config_path.read_text())!=configuration:

@@ -6,6 +6,13 @@ Parameter calibration, quantization randomization, DAC element selection and
 timing excitation are separate mechanisms. Random thermal noise and random
 aperture jitter are not deterministic parameters removed by these algorithms.
 
+Public Python entry points are `DitherGainTracker`, `apply_dither_gain` and
+`DitherHDCTracker`, imported from `adctoolbox` or `adctoolbox.calibration`.
+The first two cover the gain-only model; HDC covers the three-PN nominal-gain-2
+model below. Pass aligned observables, retain the tracker across contiguous
+blocks, and reset for independent captures. Plants and architecture controls
+remain examples; their simulation truth is not an estimator input.
+
 ## Shared excitation contract
 
 New comparisons use the HDC construction

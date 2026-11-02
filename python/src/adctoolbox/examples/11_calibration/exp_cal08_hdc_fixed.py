@@ -10,6 +10,7 @@ for _key in ('OPENBLAS_NUM_THREADS', 'OMP_NUM_THREADS', 'MKL_NUM_THREADS'):
 import argparse
 from dataclasses import asdict
 import hashlib
+from adctoolbox.calibration import _dither_hdc
 from pathlib import Path
 import platform
 import time
@@ -158,8 +159,10 @@ def main(argv=None):
     args.output.mkdir(parents=True, exist_ok=True)
     here = Path(__file__).parent
     sources = ['hdc_fixed.py','exp_cal08_hdc_fixed.py','exp_cal06_joint_dither.py','dither_mechanisms.py']
+    source_paths = {name: here/name for name in sources}
+    source_paths['_dither_hdc.py'] = Path(_dither_hdc.__file__)
     write_json(args.output/'config.json', dict(arguments={**vars(args),'output':str(args.output)},
-        sources={name:hashlib.sha256((here/name).read_bytes()).hexdigest() for name in sources},
+        sources={name:hashlib.sha256(path.read_bytes()).hexdigest() for name, path in source_paths.items()},
         python=platform.python_version(), numpy=np.__version__, scipy=scipy.__version__,
         initial=asdict(INITIAL), final=asdict(FINAL), physical_dither_peak=args.dither_peak, pn_lengths=[31,29,23],
         cap_switch_length=27, fraction=24, word_bits=28, fft_size=32768,

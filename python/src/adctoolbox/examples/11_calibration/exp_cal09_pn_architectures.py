@@ -10,6 +10,7 @@ for _key in ('OPENBLAS_NUM_THREADS','OMP_NUM_THREADS','MKL_NUM_THREADS'):
 import argparse
 import csv
 import hashlib
+from adctoolbox.calibration import _dither_hdc
 from itertools import product
 from pathlib import Path
 import platform
@@ -225,9 +226,11 @@ def main(argv=None):
     args.output.mkdir(parents=True,exist_ok=True)
     sources=['pn_architectures.py','exp_cal09_pn_architectures.py','hdc_fixed.py','dither_mechanisms.py','exp_cal06_joint_dither.py']
     here=Path(__file__).parent
+    source_paths = {name: here/name for name in sources}
+    source_paths['_dither_hdc.py'] = Path(_dither_hdc.__file__)
     sizes=dict(sar=2**14 if args.quick else 2**19,ti=2**16 if args.quick else 2**22,ds=2**15 if args.quick else 2**18)
     write_json(args.output/'configuration.json',dict(seeds=args.seeds,quick=args.quick,samples=sizes,
-        sources={p:hashlib.sha256((here/p).read_bytes()).hexdigest() for p in sources},
+        sources={p:hashlib.sha256(path.read_bytes()).hexdigest() for p, path in source_paths.items()},
         python=platform.python_version(),numpy=np.__version__,scipy=scipy.__version__,
         pn=dict(lengths=[31,29,23],peak=.2,level_probabilities=[.125,.375,.375,.125]),
         sar=dict(decisions=14,radix=1.85,active_weights=4,rate=2**-10,input_noise_rms=2e-5),
@@ -264,8 +267,8 @@ def main(argv=None):
     write_json(args.output/'summary.json',summaries)
     figures(sar_plot,ti_plot,ds_plot,args.output/'mechanisms.png')
     write_json(args.output/'completion.json',dict(elapsed_seconds=time.monotonic()-t0,cases=len(summaries),
-        source_hashes_match=all(hashlib.sha256((here/p).read_bytes()).hexdigest()==
-            __import__('json').loads((args.output/'configuration.json').read_text())['sources'][p] for p in sources)))
+        source_hashes_match=all(hashlib.sha256(source_paths[p].read_bytes()).hexdigest()==
+            __import__('json').loads((args.output/'configuration.json').read_text())['sources'][p] for p in source_paths)))
     return 0
 
 

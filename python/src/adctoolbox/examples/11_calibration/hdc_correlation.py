@@ -7,6 +7,7 @@ from __future__ import annotations
 import argparse
 from dataclasses import asdict
 import hashlib
+from adctoolbox.calibration import _dither_hdc
 from itertools import product
 from pathlib import Path
 import platform
@@ -187,7 +188,9 @@ def main(argv=None):
     if args.output.exists() and any(args.output.iterdir()): parser.error('Output directory is not empty')
     args.output.mkdir(parents=True,exist_ok=True)
     sources=['hdc_correlation.py','hdc_fixed.py','dither_mechanisms.py','exp_cal06_joint_dither.py']
-    hashes={name:hashlib.sha256(Path(__file__).with_name(name).read_bytes()).hexdigest() for name in sources}
+    source_paths = {name: Path(__file__).with_name(name) for name in sources}
+    source_paths['_dither_hdc.py'] = Path(_dither_hdc.__file__)
+    hashes={name:hashlib.sha256(path.read_bytes()).hexdigest() for name, path in source_paths.items()}
     write_json(args.output/'configuration.json',dict(arguments={**vars(args),'output':str(args.output)},
         sources=hashes,truth=asdict(FINAL),cases=CASES,backend_bits=BITS,python=platform.python_version(),numpy=np.__version__,
         scope='Diagnostic truth decomposition and nonphysical error permutation; no estimator changes; no 2013 RD implementation'))
@@ -200,7 +203,7 @@ def main(argv=None):
         print('completed',seed,mode,noise,case[0],flush=True)
     save_csv(args.output/'streaming.csv',rows)
     write_json(args.output/'completion.json',dict(elapsed_seconds=time.monotonic()-start,stream_rows=len(rows),balanced_rows=len(balanced),
-        source_hashes_match=all(hashlib.sha256(Path(__file__).with_name(n).read_bytes()).hexdigest()==h for n,h in hashes.items()),
+        source_hashes_match=all(hashlib.sha256(source_paths[n].read_bytes()).hexdigest()==h for n,h in hashes.items()),
         maximum_cubic_identity_error=max(abs(r['cubic_decomposition_residual']) for r in rows+balanced),
         maximum_gain_identity_error=max(abs(r['gain_decomposition_residual']) for r in rows+balanced)))
     return 0
