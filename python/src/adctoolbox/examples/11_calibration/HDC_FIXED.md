@@ -14,6 +14,12 @@ previous output, DAC and PN states; the one-tap residue model here is a conditio
 approximation. A delayed-PN correlation need not observe all physical memory.
 See `docs/experiments/2026-11-02-hdc-physical-state-and-phases.md` in the repository.
 
+The public `adctoolbox.DitherHDCTracker` uses the same kernel, by default with
+floating arithmetic and 2^24-sample windows; `fixed=True` selects the
+bit-accurate datapath described here. Its `estimate_memory` and
+`estimate_dac_mismatch` switches hold an extension's coefficient, and its
+`selection` input must be balanced random DAC role tags.
+
 ## Run
 
 From `python/`, with a new output directory each time:
@@ -25,7 +31,7 @@ uv run --no-sync --with numba python src/adctoolbox/examples/11_calibration/hdc_
 uv run --no-sync --with numba python src/adctoolbox/examples/11_calibration/hdc_small_signal.py --output ../agent_playground/hdc-small
 ```
 
-Numba only accelerates the scalar reference loops. Without it, the same Python
+Numba (the optional `accel` extra) only accelerates the scalar reference loops. Without it, the same Python
 integer operations run, but billion-sample experiments are slow. No matrix
 inversion, SVD, GMM, sine fit, or simulator truth enters the tracker. The
 Newton inverse in `oracle()` is strictly an evaluation control.
@@ -43,13 +49,12 @@ Newton inverse in `oracle()` is strictly an evaluation control.
 | Fixed word format | `Tracker(fraction=..., bits=...)` | F=24, W=28; Python interface, not a main CLI option |
 | Accumulator/delay | `Tracker(accumulator_bits=..., controller_latency=...)` | W+L and 512 clocks; Python interface |
 
-The CLI now routes the same Dither scale through physical injection, every
+The CLI routes the same Dither scale through physical injection, every
 tracker, nominal subtraction and evaluation oracles. `Plant` captures carry
-their nominal scale, and a mismatched tracker rejects them. Legacy captures
-without that metadata still work; their scale remains the caller's contract.
-Setting only `Plant.peak` was not a valid way to change the old fixed-0.2
-experiment. Changing the physical scale still requires the appropriate
-injection capacitor/reference in a circuit, not just a digital coefficient.
+their nominal scale, and a mismatched tracker rejects them. Captures without
+that metadata are accepted; their scale is then the caller's responsibility.
+Changing the physical scale requires the appropriate injection
+capacitor/reference in a circuit, not just a digital coefficient.
 These are run/design-time settings, not an automatic amplitude controller.
 The resource inventory assumes fixed constants; runtime-programmable Dither
 amplitude would also need configuration registers and a coordinated analog
@@ -69,7 +74,7 @@ not a headroom or convergence guarantee. At peak=0.2, F=8/9/10 are rejected
 at initialization because staged rounding makes A^3 zero; F>=11 passes this
 particular check, but low precision can still be inaccurate. The main CLI's
 first case also runs F=16/20 controls, so its chosen peak must pass F=16 too.
-All historical acceptance runs and the small-signal study retain peak 0.2.
+The archived acceptance runs and the small-signal study use peak 0.2.
 
 ## Physical charge convention and model scope
 
@@ -81,8 +86,9 @@ d = A*(p1+p2+p3), A = dither_peak/3;  p_i in {-1,+1}
 ```
 
 At the default peak 0.2, A=1/15 and the levels are {-0.2, -1/15, 1/15, 0.2}, with
-ideal probabilities {1/8, 3/8, 3/8, 1/8}. These are three equal probes, not the
-previous two weighted probes `(2*p1+p2)/3` with equal level probabilities.
+ideal probabilities {1/8, 3/8, 3/8, 1/8}. These are three equal probes;
+exp_cal02/06/07 instead use the two-PN weighted probe `(2*p1+p2)/3` with equal
+level probabilities, so their moments differ.
 Three separate persistent LFSRs have lengths 31, 29, and 23. Their product is
 an XOR/sign operation. A separate 27-bit LFSR selects the DAC element; it is
 not a fourth analog dither injection.
@@ -120,10 +126,10 @@ Initial parameters are `(G,k,H,delta)=(1.94,-0.16,0.06,0.006)`; final parameters
 are `(2.04,-0.24,0.12,0.012)`. In step tests all four change at the midpoint;
 analog/digital history and random streams continue without resets.
 
-This forward-cubic model matches the HDC derivation. The earlier experiment
-used an exact inverse-cubic plant and exchanged sampling/feedback capacitors.
-The present capacitor network and cubic coefficient definition are different;
-the old beta and this k are not interchangeable. This experiment covers one
+This forward-cubic model matches the HDC derivation. The joint-identification
+examples (exp_cal06/07) instead use an exact inverse-cubic plant with
+coefficient beta and exchange sampling/feedback capacitors; beta and this k
+are not interchangeable. This experiment covers one
 DAC mismatch mode and one linear memory tap, not an arbitrary multi-bit DAC
 error map or nonlinear memory kernel.
 
@@ -203,8 +209,11 @@ Newton oracle measures the noise/quantization reference separately.
   slots, decoded from a 9-bit counter. Timing closure is not verified.
 * Gain bounds are 0.75<g<1.25, |k3|<2, |h|<0.25, |delta|<0.05. Digital or
   accumulator overflow, controller saturation, or any backend rail sample
-  invalidates the window. If Q<=0.05 only delta is held. No truth-based stop
-  criterion or coefficient reset is used.
+  invalidates the window. If Q<=0.05, or the delta estimate is outside its
+  bound (as with constant DAC roles), only delta is held and the gain, cubic
+  and memory update proceeds. Either extension can also be disabled
+  (`estimate_memory`, `estimate_dac_mismatch`), holding its coefficient. No
+  truth-based stop criterion or coefficient reset is used.
 
 This is a dump estimator, so there is no LMS update step size to tune. Window
 length sets its variance/tracking tradeoff. A rejected window can retain
@@ -253,10 +262,9 @@ results and acceptance limits.
 ## Correlation attribution experiments
 
 `hdc_correlation.py` adds evaluator-only controls without changing the HDC
-tracker or PN amplitude. Low-amplitude/DC inputs are a new operating-boundary
-study, not an assertion that the upstream repository previously supported
-HDC calibration for those inputs. Upstream already has a separate foreground
-bit-weight amplitude sweep; it tests a different mechanism.
+tracker or PN amplitude. Low-amplitude/DC inputs are an operating-boundary
+study. The repository's foreground bit-weight amplitude sweep tests a
+different mechanism.
 
 For `r0=g*(z+d)+k*(z+d)^3`, let n be additive noise in r units and
 `e=Q(r0+n)-(r0+n)` the quantization error. The experiment records the exact

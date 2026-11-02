@@ -4,7 +4,8 @@ The examples cover PN gain tracking, isolated error mechanisms, joint identifica
 fixed-point three-PN HDC, and architecture-specific observation controls. Their
 equations and reproduction commands ship in
 [DITHER_GUIDE.md](../../python/src/adctoolbox/examples/11_calibration/DITHER_GUIDE.md).
-No public calibration API is added.
+The public `DitherGainTracker`, `apply_dither_gain` and `DitherHDCTracker` reuse
+the gain and HDC algorithms measured here.
 
 ## Measured HDC result
 
@@ -21,12 +22,24 @@ the additional constant-parameter run uses seed 404 and 2^30 samples.
 | Fixed point, 2^24 / 2^28-sample window | 55.76 / 66.18 | 56.93 / 67.12 |
 | Floating point, same long windows | 55.76 / 66.18 | 56.93 / 67.12 |
 | True parameters, same cubic approximate inverse | 56.79 / 66.49 | 56.79 / 66.49 |
+| True parameters, exact (Newton) inverse, evaluation only | 74.36 / 106.29 | 74.36 / 106.26 |
 
 Metrics use coherent 32768-point FFTs and averages over the last quarter of
 each record; the main column also averages three seeds. These results support
 longer averaging at unchanged Dither amplitude. They do not establish general
-convergence or a bound on all inputs. The cubic approximate inverse retains
-higher-order residuals even with known parameters.
+convergence or a bound on all inputs.
+
+The final device has k/g of about -0.235, so the cubic approximate inverse caps
+SNDR near 57 dB even with true parameters, about 17 dB below the exact inverse.
+That gap comes from the inverse order, not from noise or estimation. The
+spectral metrics therefore do not show parameter convergence: with 2^24-sample
+windows the cubic coefficient's relative RMSE over the last quarter was
+11.81%, 14.60% and 2.54% for the three seeds (gain 0.38%, 0.54% and 0.17%), so
+two seeds exceed the registered 10% band while mean SNDR stays within about
+1 dB of the true-parameter cubic inverse. The single-seed 2^28-window run
+reached 1.50% cubic and 0.084% gain error. Each update uses one window only;
+the public `DitherHDCTracker` therefore defaults to 2^24-sample windows, and
+shorter windows trade accuracy for tracking speed.
 
 The main sine/two-tone runs have no overloads, but their minimum backend
 headroom is only 0.005647 / 0.011304 of full-scale amplitude. DC and low-frequency
@@ -72,7 +85,9 @@ the cited evidence. Large generated outputs are excluded from this PR.
 | Pipeline, SAR, TI and Delta-sigma controls | [Architectures](https://github.com/chenzc24/ADCToolbox/blob/daa4e4a28425265b94a5dc97c182e37da7b8d4c3/docs/experiments/2026-11-02-pn-architectures.md) |
 
 Reports link to their data and original configuration/source SHA-256 records.
-These historical full runs were not rerun during PR restructuring; the frozen
-gain-fit helper had already changed since its historical run. Do not interpret
+These historical full runs were not rerun during PR restructuring. Since then the
+frozen gain-fit helper changed, and the HDC tracker holds only the mismatch
+coefficient when that estimate is unobservable or out of range, instead of
+rejecting the whole update. Do not interpret
 old source hashes as hashes of every file in the current tree. Current checks
 are recorded separately in [PR validation](2026-11-02-dither-pr.md).

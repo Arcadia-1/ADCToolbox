@@ -8,8 +8,11 @@ aperture jitter are not deterministic parameters removed by these algorithms.
 
 Public Python entry points are `DitherGainTracker`, `apply_dither_gain` and
 `DitherHDCTracker`, imported from `adctoolbox` or `adctoolbox.calibration`.
-The first two cover the gain-only model; HDC covers the three-PN nominal-gain-2
-model below. Pass aligned observables, retain the tracker across contiguous
+The first two cover the gain-only model; `DitherGainTracker` takes the stage's
+probe amplitude, initial gain, backend resolution and gain bounds explicitly.
+HDC covers the three-PN nominal-gain-2 model below and needs balanced random
+DAC role tags, or `estimate_dac_mismatch=False` for a stage without role
+swapping. Pass aligned observables, retain the tracker across contiguous
 blocks, and reset for independent captures. Plants and architecture controls
 remain examples; their simulation truth is not an estimator input.
 
@@ -29,15 +32,14 @@ reference**, not an analog cubic operation. Injection peak is 0.2 in each
 model's declared node coordinates; this does not equate circuit voltage/power
 or ADC performance across architectures.
 
-Earlier examples intentionally retain their original stimuli and source
-hashes: exp_cal01 uses binary PN, exp_cal02/06/07 include a two-PN weighted
-four-level probe, and the older randomization study uses continuous uniform
-dither. They are historical controls, not implementations of this shared
-three-PN contract. Changing their distributions without re-deriving their
-moments would invalidate the estimators.
+Other examples use probes matched to their own estimators: exp_cal01 uses
+binary PN, exp_cal02/06/07 include a two-PN weighted four-level probe, and the
+randomization study in exp_cal02 uses continuous uniform dither. They do not
+implement this shared three-PN contract; changing their distributions without
+re-deriving their moments would invalidate the estimators.
 
-HDC's `--dither-peak` now configures the plant, tracker and subtraction together;
-the default and all published acceptance results remain 0.2. See the exposed
+HDC's `--dither-peak` configures the plant, tracker and subtraction together;
+the default and all published acceptance results use 0.2. See the exposed
 parameter table in [HDC_FIXED.md](HDC_FIXED.md). A nonzero cubic denominator,
 adequate analog headroom and convergence are separate requirements. That
 guide also documents the offset/amplitude scan and large-to-small input
@@ -194,14 +196,15 @@ the unmodified quantizer output.
 | Entry | Role and evidence |
 |---|---|
 | exp_cal01 | Binary-PN gain tracking, ramp/step and frozen foreground controls |
-| [DITHER_COVERAGE.md](DITHER_COVERAGE.md), exp_cal02 | Isolated mechanisms; distinct legacy plants/probes |
+| [DITHER_COVERAGE.md](DITHER_COVERAGE.md), exp_cal02 | Isolated mechanisms; distinct plants/probes |
 | [JOINT_DITHER.md](JOINT_DITHER.md), exp_cal06 | Derived joint inverse-cubic behavioral model |
 | [JOINT_CONVERGENCE.md](JOINT_CONVERGENCE.md), exp_cal07 | Statistical diagnosis; grouped matrix estimator is software-only |
 | [HDC_FIXED.md](HDC_FIXED.md), exp_cal08 | Published-form gain/cubic HDC, fixed arithmetic, extended memory/DAC model |
 | exp_cal09_pn_architectures | Shared-PN placement, SAR paired weight calibration, TI timing visibility, Delta-sigma subtraction |
 
-The examples are research/teaching models, not new public calibration APIs.
-The gain tracker and frozen sine-fit baseline are local example helpers.
+The examples are research/teaching models. `DitherGainTracker` and
+`DitherHDCTracker` are the public estimators; the frozen sine-fit baseline and
+the architecture-specific estimators remain example-only helpers.
 Full multi-stage silicon, general SAR weight calibration,
 nonlinear memory, arbitrary Delta-sigma topologies and complete TI PVT/jitter
 tracking are not implied by passing these tests.

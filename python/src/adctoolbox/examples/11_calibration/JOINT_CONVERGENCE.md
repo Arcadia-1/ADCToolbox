@@ -10,8 +10,8 @@ datapath, with correlation accumulators and scalar updates preferred where
 their identifiability and stability have actually been verified.
 
 `exp_cal07_joint_convergence.py` diagnoses the gain/cubic fluctuations in
-[the original joint experiment](JOINT_DITHER.md). The original source files
-and its historical results are preserved. This is an example, not a public API.
+[the joint experiment](JOINT_DITHER.md) (exp_cal06) without modifying it.
+This is an example, not a public API.
 
 ```bash
 python 11_calibration/exp_cal07_joint_convergence.py --output output/joint_convergence
@@ -37,8 +37,8 @@ the step. The capacitor equation and acceptance guards are unchanged.
 
 For each seed, both sine and multitone inputs run for 256 blocks, with either
 constant FINAL parameters or INITIAL-to-FINAL parameters at block 128. The
-constant case uses FINAL here to match the long-record bias controls; the
-old experiment used INITIAL for its constant case. Do not compare their
+constant case uses FINAL here to match the long-record bias controls;
+exp_cal06 uses INITIAL for its constant case. Do not compare their
 constant-case averages without accounting for that difference.
 
 An additional 1024-block sine record compares the default joint plant with a

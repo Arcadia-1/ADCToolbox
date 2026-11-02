@@ -211,8 +211,8 @@ backend clipping. A guard can stop an invalid update; it cannot undo clipping.
 The main runs isolate four mechanisms rather than combining all of them in
 one ADC. They do not cover complete multi-stage joint identification, dynamic
 reference settling, nonlinear memory, aperture jitter, metastability,
-fixed-point implementation or chip area/power. The previous `exp_cal01` remains
-the example for continuous gain ramp tracking and probe-amplitude sweeps.
+fixed-point implementation or chip area/power. `exp_cal01` remains the example
+for continuous gain ramp tracking and probe-amplitude sweeps.
 Band-limited non-subtractive dither, DEM/DNC and a full dual-dither circuit are
 documented in the literature review but not numerically reproduced here.
 

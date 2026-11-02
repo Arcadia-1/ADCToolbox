@@ -4,7 +4,7 @@ Start with [DITHER_GUIDE.md](DITHER_GUIDE.md): it maps
 ADC architecture to physical injection, observable moments, correction and
 failure conditions, and separates published mechanisms from our model extensions.
 
-Six experiments are available (historical numbering is preserved):
+Six experiments are available:
 
 - `exp_cal01_dither_background.py`: minimal gain-only calibration, continuous
   drift, step tracking and probe-amplitude diagnostics (documented below).
@@ -33,9 +33,10 @@ Six experiments are available (historical numbering is preserved):
 
 `exp_cal01_dither_background.py` models foreground and background interstage
 gain calibration entirely in software. It is a minimal two-stage Pipeline
-model, not a reproduction of the earlier five-stage GCN paper or a transistor
+model, not a reproduction of a published multi-stage ADC or a transistor
 implementation. The plant in `pipeline_dither_model.py` remains an example
-interface. `dither_gain.py` imports the public `DitherGainTracker` and
+interface; its `gain_tracker()` supplies this stage's explicit tracker settings.
+`dither_gain.py` imports the public `DitherGainTracker` and
 `apply_dither_gain` APIs and keeps the sine-fit baseline local.
 `DitherHDCTracker` exposes the HDC algorithm through validated observable arrays;
 `hdc_fixed.py` uses the same calibration kernel for detailed arithmetic audits.
