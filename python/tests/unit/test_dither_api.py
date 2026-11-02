@@ -18,6 +18,17 @@ def capture(size=12288):
     return c, args
 
 
+GAIN = dict(probe_amplitude=.0625, initial_gain=4., backend_bits=12, gain_bounds=(2., 6.))
+
+
+def fixed_role_capture(size, seed=23):
+    """Plant without DAC mismatch, as for a stage whose roles are never swapped."""
+    example = importlib.import_module('adctoolbox.examples.11_calibration.hdc_fixed')
+    x = .6*np.sin(2*np.pi*(4485/32768)*np.arange(size)+.37)
+    c, _ = example.Plant(seed).convert(x, example.Device(2.04, -.24, .12, 0.))
+    return c
+
+
 def test_public_imports_do_not_load_examples_or_optional_numba():
     result = subprocess.run([sys.executable, '-c', """
 import sys
@@ -38,7 +49,7 @@ def test_gain_update_and_frozen_application_have_distinct_causal_roles():
     coarse = np.full(len(pn), .25)
     backend = 3.8*(signal+.0625*pn)
     codes = np.floor((backend+1)*2048)
-    tracker = DitherGainTracker(learning_rate=1.)
+    tracker = DitherGainTracker(**GAIN, learning_rate=1.)
     before = tracker.apply(coarse, backend, pn)
     assert before['gain_used'] == 4.
     update = tracker.update(backend, pn, codes)
@@ -54,6 +65,35 @@ def test_gain_update_and_frozen_application_have_distinct_causal_roles():
     assert tracker.gain_estimate == saved
     tracker.reset()
     assert tracker.gain_estimate == 4. and tracker.updates == 0
+
+
+def test_gain_tracker_requires_explicit_hardware_parameters():
+    with pytest.raises(TypeError):
+        DitherGainTracker()
+    with pytest.raises(TypeError):
+        DitherGainTracker(.0625, 4., 12, (2., 6.))
+    assert DitherGainTracker(**{**GAIN, 'backend_bits': np.int64(12)}).backend_bits == 12
+    for bad in (dict(backend_bits=True), dict(backend_bits=12.), dict(gain_bounds=(4.5, 6.))):
+        with pytest.raises(ValueError):
+            DitherGainTracker(**{**GAIN, **bad})
+
+
+def test_gain_process_applies_before_updating_and_can_freeze():
+    pn = np.tile([-1., 1.], 64)
+    coarse = np.zeros(len(pn))
+    backend = 3.8*.0625*pn
+    codes = np.floor((backend+1)*2048)
+    stepwise = DitherGainTracker(**GAIN, learning_rate=.5)
+    streaming = DitherGainTracker(**GAIN, learning_rate=.5)
+    for _ in range(3):
+        expected = stepwise.apply(coarse, backend, pn)
+        expected.update(stepwise.update(backend, pn, codes))
+        actual = streaming.process(coarse, backend, pn, codes)
+        np.testing.assert_array_equal(actual.pop('calibrated_signal'), expected.pop('calibrated_signal'))
+        assert actual == expected
+    frozen = streaming.process(coarse, backend, pn, codes, learn=False)
+    assert frozen['status'] == 'frozen' and frozen['gain_next'] == streaming.gain_estimate
+    assert streaming.updates == 3
 
 
 @pytest.mark.parametrize('fixed', [False, True])
@@ -118,6 +158,41 @@ def test_freeze_cancels_pending_update_and_discards_partial_learning_window():
     assert resumed['updates'] == 1 and tracker.coefficients == active
 
 
+@pytest.mark.parametrize('fixed', [False, True])
+def test_constant_selection_holds_only_the_dac_mismatch_coefficient(fixed):
+    c = fixed_role_capture(4 << 14)
+    common = (2*c['r'], c['p'], c['q'])
+    random_tags, constant_tags = (DitherHDCTracker(fixed=fixed, window_log2=14, controller_latency=0)
+                                  for _ in range(2))
+    random_result = random_tags.process(*common, c['s'], c['rails'])
+    constant_result = constant_tags.process(*common, np.ones(len(c['q'])), c['rails'])
+    # An out-of-range mismatch estimate must not block the electronics update.
+    assert constant_result['updates'] == random_result['updates'] > 0
+    assert constant_result['held_dac_mismatch'] == constant_result['updates']
+    assert random_result['held_dac_mismatch'] == 0
+    assert constant_result['coefficients']['dac_mismatch'] == 0
+    for name in ('linear', 'cubic', 'memory'):
+        assert constant_result['coefficients'][name] == random_result['coefficients'][name]
+
+
+def test_disabled_extensions_keep_their_coefficients_and_allow_omitted_selection():
+    c = fixed_role_capture(4 << 14)
+    args = (2*c['r'], c['p'], c['q'])
+    tracker = DitherHDCTracker(window_log2=14, controller_latency=0,
+                               estimate_memory=False, estimate_dac_mismatch=False)
+    result = tracker.process(*args, None, c['rails'])
+    assert result['updates'] > 0 and result['held_dac_mismatch'] == 0
+    assert result['coefficients']['memory'] == 0 and result['coefficients']['dac_mismatch'] == 0
+    assert result['coefficients']['linear'] != 1
+    short = tuple(a[:8] for a in args)
+    with pytest.raises(ValueError, match='selection'):
+        DitherHDCTracker().process(*short, None, c['rails'][:8])
+    nonzero = DitherHDCTracker(estimate_dac_mismatch=False, initial_coefficients=dict(
+        linear=1, cubic=0, memory=0, dac_mismatch=.01))
+    with pytest.raises(ValueError, match='selection'):
+        nonzero.process(*short, None, c['rails'][:8])
+
+
 @pytest.mark.parametrize('index,bad', [
     (0, np.full(12, np.nan)), (0, np.ones((12, 1))), (0, np.full(12, 1.1)),
     (1, np.ones((12, 2))), (1, np.zeros((12, 3))),
@@ -137,7 +212,8 @@ def test_bad_capture_rejected_before_any_state_changes(index, bad):
 
 @pytest.mark.parametrize('kwargs', [
     dict(fixed='yes'), dict(window_log2=10.5), dict(accumulator_bits=0),
-    dict(controller_latency=True), dict(fraction=8), dict(dither_peak=0),
+    dict(controller_latency=True), dict(fixed=True, fraction=8), dict(dither_peak=0),
+    dict(estimate_memory='no'), dict(estimate_dac_mismatch=1),
     dict(initial_coefficients={'linear': 1}),
     dict(initial_coefficients=dict(linear=1, cubic=0, memory=1, dac_mismatch=0)),
 ])

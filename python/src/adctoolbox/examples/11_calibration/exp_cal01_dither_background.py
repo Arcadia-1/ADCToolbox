@@ -28,9 +28,11 @@ import matplotlib.pyplot as plt
 import numpy as np
 
 try:
-    from .pipeline_dither_model import PipelineConfig, DitherPipeline, DitherGainTracker, reconstruct, fit_foreground_gain
+    from .pipeline_dither_model import (PipelineConfig, DitherPipeline, DitherGainTracker, gain_tracker,
+                                        reconstruct, fit_foreground_gain)
 except ImportError:
-    from pipeline_dither_model import PipelineConfig, DitherPipeline, DitherGainTracker, reconstruct, fit_foreground_gain
+    from pipeline_dither_model import (PipelineConfig, DitherPipeline, DitherGainTracker, gain_tracker,
+                                       reconstruct, fit_foreground_gain)
 
 
 METHODS = ("uncalibrated", "foreground_frozen", "background", "oracle",
@@ -91,7 +93,7 @@ def foreground_fit(config, seed, block_size, blocks):
 def run_case(config, *, seed, scenario, kind, blocks, block_size, learning_rate,
              foreground_blocks=32, output=None):
     fg = foreground_fit(config,seed,block_size,foreground_blocks)
-    tracker = DitherGainTracker(config.probe_amplitude, learning_rate=learning_rate, backend_bits=config.backend_bits)
+    tracker = gain_tracker(config, learning_rate=learning_rate)
     plant = DitherPipeline(config,seed)
     probe_off_plant = DitherPipeline(config,seed)
     rows=[]
@@ -214,7 +216,7 @@ def main(argv=None):
         parser.error('Do not repeat seeds, scenarios or waveforms')
     config=PipelineConfig(probe_amplitude=args.probe_amplitude)
     # Validate estimator options before writing any output.
-    DitherGainTracker(config.probe_amplitude,learning_rate=args.learning_rate)
+    gain_tracker(config, learning_rate=args.learning_rate)
     args.output.mkdir(parents=True,exist_ok=True)
     configuration={**vars(args),'output':str(args.output.resolve()),'plant':asdict(config),'fs_hz':FS,
                    'initial_true_gain':INITIAL_GAIN,'ramp_final_gain':4.12,'step_final_gain':4.08,

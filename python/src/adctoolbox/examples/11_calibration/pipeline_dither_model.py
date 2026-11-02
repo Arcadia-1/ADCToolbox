@@ -50,6 +50,18 @@ class PipelineConfig:
             raise ValueError("Probe must be positive and noise RMS nonnegative, all finite")
 
 
+# Plausible residue-gain range for this nominal-gain-4 stage.
+GAIN_BOUNDS = (2., 6.)
+
+
+def gain_tracker(config=None, **overrides):
+    """DitherGainTracker with this example stage's explicit hardware settings."""
+    config = config or PipelineConfig()
+    settings = dict(probe_amplitude=config.probe_amplitude, initial_gain=config.nominal_gain,
+                    backend_bits=config.backend_bits, gain_bounds=GAIN_BOUNDS)
+    return DitherGainTracker(**{**settings, **overrides})
+
+
 class DitherPipeline:
     """Memoryless two-stage plant with persistent, independent RNG streams.
 

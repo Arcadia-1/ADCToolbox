@@ -76,7 +76,7 @@ def branch_tracker(source, window_log2=None):
         target.window_log2, target.window = window_log2, 1 << window_log2
     target.pending = target.commit_at = None
     target.sums[:] = 0
-    target.count = target.samples = target.updates = target.held = 0
+    target.count = target.samples = target.updates = target.held = target.delta_holds = 0
     target.saturations = target.accumulator_saturations = target.controller_saturations = 0
     target.window_bad = False
     target.events = []

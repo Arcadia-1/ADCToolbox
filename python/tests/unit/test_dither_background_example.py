@@ -52,7 +52,7 @@ def test_correlation_estimator_with_independent_nuisance():
     nuisance -= centered*(centered@nuisance)/(centered@centered)
     backend = 3.88*.0625*pn+nuisance+.03
     code = np.floor((backend+1)*2048).astype(int)
-    tracker = model.DitherGainTracker(learning_rate=.1)
+    tracker = model.gain_tracker(learning_rate=.1)
     for _ in range(100):
         result = tracker.update(backend,pn,code)
     assert result['status'] == 'updated'
@@ -63,7 +63,7 @@ def test_correlation_estimator_with_independent_nuisance():
 
 @pytest.mark.parametrize('failure',['no_probe','constant_probe','rail','out_of_range'])
 def test_unreliable_blocks_hold_estimate(failure):
-    tracker = model.DitherGainTracker()
+    tracker = model.gain_tracker()
     pn = np.tile([-1.,1.],64)
     backend = .25*pn
     code = np.full(len(pn),2048)
@@ -99,7 +99,7 @@ def test_physical_probe_overload_is_detected_and_holds_tracker():
     x = .85*np.sin(2*np.pi*561*np.arange(4096)/4096)
     capture = model.DitherPipeline(config,11).convert(x,3.88)
     assert capture['backend_overloads'] > 0
-    tracker = model.DitherGainTracker(probe_amplitude=config.probe_amplitude)
+    tracker = model.gain_tracker(config)
     result = tracker.update(capture['backend'],capture['pn'],capture['backend_code'])
     assert result['status'] == 'held_backend_rail'
     assert tracker.gain_estimate == 4.
@@ -109,7 +109,7 @@ def test_gain_and_probe_amplitude_are_not_separately_identifiable():
     pn = np.tile([-1.,1.],2048)
     backend = 4.*.07*pn
     code = np.floor((backend+1)*2048)
-    tracker = model.DitherGainTracker(probe_amplitude=.0625,learning_rate=1.)
+    tracker = model.gain_tracker(learning_rate=1.)
     tracker.update(backend,pn,code)
     assert tracker.gain_estimate == pytest.approx(4.*.07/.0625)
 
@@ -168,7 +168,7 @@ def test_examples_reuse_public_gain_api_and_keep_sine_baseline_local():
 
 
 def test_hybrid_gain_snapshot_reset_and_hold():
-    tracker = model.DitherGainTracker(initial_gain=3.9, learning_rate=1)
+    tracker = model.gain_tracker(initial_gain=3.9, learning_rate=1)
     p = np.tile([-1., 1.], 100)
     r = 4.1*.0625*p
     codes = np.floor((r+1)*2048).astype(int)

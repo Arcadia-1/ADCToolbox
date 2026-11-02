@@ -29,10 +29,11 @@ def test_dither_quickref_public_calls():
     coarse = np.zeros(len(pn))
     backend = 3.9*.0625*pn
     backend_code = np.floor((backend+1)*2048)
-    tracker = DitherGainTracker()
-    corrected = tracker.apply(coarse, backend, pn)['calibrated_signal']
-    tracker.update(backend, pn, backend_code)
-    assert corrected.shape == backend.shape
+    tracker = DitherGainTracker(probe_amplitude=.0625, initial_gain=4.,
+                                backend_bits=12, gain_bounds=(3., 5.))
+    result = tracker.process(coarse, backend, pn, backend_code)
+    assert result['calibrated_signal'].shape == backend.shape
+    assert result['status'] == 'updated'
     np.testing.assert_allclose(apply_dither_gain(
         coarse, backend, pn, gain_estimate=3.9, probe_amplitude=.0625,
     )['calibrated_signal'], 0., atol=1e-15)
@@ -40,7 +41,7 @@ def test_dither_quickref_public_calls():
     pn_signs = np.random.default_rng(71).choice([-1, 1], (1024, 3))
     backend = 2*.2/3*pn_signs.sum(axis=1)
     stage_code = np.zeros(1024)
-    selection = np.ones(1024)
+    selection = np.random.default_rng(72).choice([-1, 1], 1024)
     backend_rails = np.zeros(1024, dtype=bool)
     tracker = DitherHDCTracker()
     corrected = tracker.process(backend, pn_signs, stage_code, selection,
@@ -48,6 +49,10 @@ def test_dither_quickref_public_calls():
     np.testing.assert_allclose(corrected, 0., atol=2e-7)
     tracker.process(backend, pn_signs, stage_code, selection, backend_rails, learn=False)
     tracker.reset()
+
+    # A stage without DAC role swapping skips the mismatch extension.
+    fixed_roles = DitherHDCTracker(estimate_dac_mismatch=False)
+    fixed_roles.process(backend, pn_signs, stage_code, None, backend_rails)
 
 
 # ----------------------------------------------------------------------

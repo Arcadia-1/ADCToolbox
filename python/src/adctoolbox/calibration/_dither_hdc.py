@@ -127,9 +127,13 @@ class Tracker:
 
     Every dump produces four shadow coefficients, committed atomically after
     the controller delay. Sampling and accumulation continue during the delay.
+    The memory and DAC-mismatch extensions can each be held at their active
+    values. An unobservable or out-of-range mismatch estimate holds only delta,
+    so a stage with constant DAC roles still updates gain, cubic and memory.
     """
     def __init__(self, fixed=True, fraction=24, bits=28, window_log2=20,
-                 accumulator_bits=None, controller_latency=512, dither_peak=.2):
+                 accumulator_bits=None, controller_latency=512, dither_peak=.2,
+                 estimate_memory=True, estimate_dac_mismatch=True):
         if not 8 <= fraction <= 26 or not fraction+2 <= bits <= 30:
             raise ValueError('Require 8 <= fraction <= 26 and fraction+2 <= bits <= 30')
         if not 8 <= window_log2 <= 30:
@@ -146,6 +150,8 @@ class Tracker:
         self.scale = 1 << fraction
         self.divider_width = max(2*bits, self.accumulator_bits+1)
         self.dither_peak = float(dither_peak)
+        self.estimate_memory = bool(estimate_memory)
+        self.estimate_dac_mismatch = bool(estimate_dac_mismatch)
         self.a = int(np.floor(self.scale*dither_peak/3+.5)) if fixed else dither_peak/3
         if fixed:
             # Check the SAME staged rounding used by the controller. Testing
@@ -159,6 +165,8 @@ class Tracker:
         self.sums = np.zeros(6, dtype=np.int64 if fixed else float)
         self.previous = 0 if fixed else 0.
         self.count = self.updates = self.held = self.samples = 0
+        self.delta_holds = 0  # accepted updates that kept the previous delta
+        self._delta_hold = False
         self.controller_latency = controller_latency
         self.pending = None
         self.commit_at = None
@@ -194,20 +202,31 @@ class Tracker:
             if not 3*S//4 < gain < 5*S//4:
                 return None
             c1, k3 = qd(S, gain), qd(gamma3, gain)
-            h = qd(means[3], self.a)
+            h = qd(means[3], self.a) if self.estimate_memory else int(self.coefficients[2])
             occupancy = int(self.sums[5])
-            delta = serial_divide_round(-2*int(self.sums[4]), occupancy, self.divider_width) if occupancy > self.window//20 else int(self.coefficients[3])
+            delta = (serial_divide_round(-2*int(self.sums[4]), occupancy, self.divider_width)
+                     if self.estimate_dac_mismatch and occupancy > self.window//20 else None)
+            # An unobservable or out-of-range delta (e.g. constant DAC roles)
+            # holds only delta; gain, cubic and memory still update.
+            if delta is None or abs(delta) >= S//20:
+                self._delta_hold = self.estimate_dac_mismatch
+                delta = int(self.coefficients[3])
             result = np.array([c1, k3, h, delta], dtype=np.int64)
-            valid = abs(k3) < 2*S and abs(h) < S//4 and abs(delta) < S//20
+            valid = abs(k3) < 2*S and (abs(h) < S//4 or not self.estimate_memory)
         else:
             means = self.sums/self.window
             gamma1, gamma3, eta = means[0]/self.a, means[1]/(6*self.a**3), means[2]
             gain = 1+gamma1-(7*self.a**2+3*eta)*gamma3
             if not .75 < gain < 1.25:
                 return None
-            delta = -2*means[4]/means[5] if means[5] > .05 else self.coefficients[3]
-            result = np.array([1/gain, gamma3/gain, means[3]/self.a, delta])
-            valid = abs(result[1]) < 2 and abs(result[2]) < .25 and abs(result[3]) < .05
+            h = means[3]/self.a if self.estimate_memory else self.coefficients[2]
+            delta = (-2*means[4]/means[5]
+                     if self.estimate_dac_mismatch and means[5] > .05 else None)
+            if delta is None or abs(delta) >= .05:
+                self._delta_hold = self.estimate_dac_mismatch
+                delta = self.coefficients[3]
+            result = np.array([1/gain, gamma3/gain, h, delta])
+            valid = abs(result[1]) < 2 and (abs(result[2]) < .25 or not self.estimate_memory)
         return result if valid else None
 
     def process(self, capture, learn=True):
@@ -240,18 +259,21 @@ class Tracker:
             self.count += size; self.samples += size; offset += size
             if self.count == self.window:
                 old_overflow = self.controller_saturations
+                self._delta_hold = False
                 estimate = self._estimate() if learn and not self.window_bad else None
                 if self.controller_saturations != old_overflow:
                     estimate = None
                 if learn:
                     self.events.append(dict(sample=self.samples, accepted=estimate is not None,
                         rails_or_overflow=self.window_bad, cap_excited=bool(self.sums[5] > self.window//20),
+                        delta_held=estimate is not None and self._delta_hold,
                         shadow_coefficients=None if estimate is None else
                             (estimate/self.scale if self.fixed else estimate).tolist()))
                     if estimate is not None:
                         self.pending = estimate
                         self.commit_at = self.samples+self.controller_latency
                         self.updates += 1
+                        self.delta_holds += int(self._delta_hold)
                     else:
                         self.held += 1
                 self.sums[:] = 0; self.count = 0; self.window_bad = False
