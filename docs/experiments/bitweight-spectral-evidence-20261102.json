@@ -1,0 +1,1029 @@
+{
+  "configuration": {
+    "output": "E:\\ADCToolbox\\python\\src\\adctoolbox\\examples\\11_calibration\\output\\bitweight_spectral_acceptance_20261102",
+    "smooth_baseline": "E:\\ADCToolbox\\python\\src\\adctoolbox\\examples\\11_calibration\\output\\foreground_acceptance_20261101",
+    "smooth_mixed": "E:\\ADCToolbox\\python\\src\\adctoolbox\\examples\\11_calibration\\output\\excitation_mlp_acceptance_20261102",
+    "sar_records": 64,
+    "sar_validation_records": 8,
+    "sar_size": 8192,
+    "sar_stride": 8,
+    "sar_iterations": 1000,
+    "seeds": [
+      11,
+      22,
+      33
+    ],
+    "sar_plants": [
+      "binary",
+      "redundant"
+    ],
+    "source_sha256": {
+      "examples/11_calibration/exp_cal10_foreground_bitweights.py": "90cdd33bf259318cf326582a6719e6cd002611a1d5323c71284ed5ff7682c8f7",
+      "examples/11_calibration/exp_cal03_foreground_nonlinear.py": "68078d73c1e07b335ac3b3bb4489237a38c0f8090c4a1d071e715cae033e7eef",
+      "examples/11_calibration/foreground_benchmark.py": "3674b94c513a7687857f19cf0ed8e348a3c5f5a8537084311ef5688a5bc51a3a",
+      "examples/11_calibration/exp_cal01_dither_background.py": "61357a6e76c04f30f8b84726d64698a74786f123d65846e0bc3e165cce118a8b",
+      "calibration/background.py": "12a6b047a63a0924280e7144fe04fae6d85b0940b4ac8105cf2a64371bbf8c67",
+      "calibration/calibrate_weight_sine.py": "a0a5a359f81b805d33bfca77788790d1bda899e2c9cc5e8d652aa4d84d2439aa",
+      "calibration/calibrate_weight_sine_lite.py": "a5b00fcc3989e58542488f9122a7d019a4cc7288f9104526ec907ca581479376",
+      "calibration/diagnose_calibration_matrix.py": "b951a7741c7f675c246deb581e14c5f9fa3b098049b53714e052ea4b9ecfb152",
+      "calibration/foreground.py": "0e34d02928f5698d224a76195d15594c3c053ce214ce24607743c1ee7e63879d",
+      "calibration/scale_calibration_output.py": "06fee511431315073dfc1924235dc4b6ac709a75af1485954bdb1aeee6a45237",
+      "calibration/_estimate_frequencies.py": "c6d028ee173e4b34167e847416fe1944d61668c30df7248f312831559db0b735",
+      "calibration/_lstsq_solver.py": "5ea56f74aa5dc0b4a4853a40e8faee2cd3be78fb6db29b1240d448196c6b8bf8",
+      "calibration/_patch_rank_deficiency.py": "63501b5705aa6ff95b5511a14421101923b5319183cbe2756e2fca95a2e20730",
+      "calibration/_post_process.py": "ae05b0445cfe338f778c6a93d24b014a1d0228e405fbc5049a7b1c3ed6cf4571",
+      "calibration/_prepare_input.py": "229dbf5ced8e3436229033dcb46c5d732cfb0477f2deb29f83fcf7591ddc27be",
+      "calibration/_scale_columns_for_conditioning.py": "216876659fb7280905a45adb40787ba6fb4ca45996815e2a56560bc111120c8f",
+      "calibration/__init__.py": "98a5912dbe1e7c8da8174869f80476365ca63cace352d7459b1c1d7a025324b2",
+      "spectrum/analyze_spectrum.py": "661fdb24d29653038d3915d129497ab306ccaea63040b81be874e9c90c2a5ad7",
+      "spectrum/analyze_spectrum_polar.py": "55439e967492b6dc0aa4baeceb0eed61ecea86518a8d384fe19f6adf3af1e945",
+      "spectrum/compute_spectrum.py": "f7a0b08878225e66aeb7431a2e0da302147f1a92b1c006554096836b82b7e365",
+      "spectrum/extract_freq_components.py": "7f88e5a5d5192fa8bb8870fdaeb9bb716ed8f7fee259d8a76b5c4122bcd53485",
+      "spectrum/plot_spectrum.py": "666692d0ac70c0bbfcceaa8171920a16a5c9abb1e946361830c3ea572c992de3",
+      "spectrum/plot_spectrum_polar.py": "d617aceedf7a66e78956fa5481fd327fcbe49ee193c0ddf9756672352d11dd01",
+      "spectrum/plot_spectrum_virtuoso.py": "6902506c8f854da7e009b5c85dc6f0c8c709d316e5affd68f372998139b3d4df",
+      "spectrum/quick_sndr.py": "64b242ff337e5a4143d9c6795e4e7838240d156c7ea3f31d1729fee975399def",
+      "spectrum/sweep_performance_vs_osr.py": "7c96cd4e0c2aa0946073a581ebd07a658d4ce82000946ba26f781316fe525dcb",
+      "spectrum/_align_spectrum_phase.py": "94a13a136a20b1dbf6df8cf85390b93160aa8289de514b1ecf535e0221e4b53f",
+      "spectrum/_bin_ranges.py": "cbaff1b210dc37a02ed6023505e0c0b8186356de39a920e8f60bce232502fb83",
+      "spectrum/_estimate_noise_power.py": "defc8f8cc42bd16935577800b8d9378c93dfee7e9237559e7365ccb2a6cf3ca7",
+      "spectrum/_exclude_bins.py": "a2cceaab55e997403b22af4dda8c5e65511492dff7d12b84ef05525bc54bbe48",
+      "spectrum/_harmonics.py": "83ec2f396d1efb765f4d7f79340147c488275747bc94403803a6c304fe750151",
+      "spectrum/_locate_fundamental.py": "795bac44c28cba43b87b29b9f8ad0f1ae5b4272df20967ed4826b9d73836e4d7",
+      "spectrum/_prepare_fft_input.py": "852c53ad260bb956d319688747ca6ff698294d05482158af2a8c466f97045664",
+      "spectrum/_side_bin_auto.py": "e56a8828a27e4ac1427b7fb6edb658f9165d10c74f5ab0fa5a3929976467aa65",
+      "spectrum/_spectrum_averaging.py": "a1f5012120962eb17a06490f9a1ccf3866ed69d61f785c89d5f26a9705d99ffe",
+      "spectrum/_window.py": "75beccc2a719e310d0d48c41aa803bd23fb0016555028183686c015948cdc187",
+      "spectrum/__init__.py": "02720ba3e6bc9dac86ec041d2169d942bc11244d19ab25a145ddf37d60c9d98e",
+      "models/sar.py": "795848f09ab68edd15922f82d3566c7cefa2ef07e746eb91c564fe0525f98b51"
+    },
+    "input_sha256": {
+      "E:\\ADCToolbox\\python\\src\\adctoolbox\\examples\\11_calibration\\output\\foreground_acceptance_20261101\\configuration.json": "bffc1e9b90907ec29c7a6930c621c49908ee0830b9bdbfa68a96288c6af19f33",
+      "E:\\ADCToolbox\\python\\src\\adctoolbox\\examples\\11_calibration\\output\\foreground_acceptance_20261101\\static_seed11\\data_manifest.json": "431d8ffabc84e2b58bb2b434308a6e22dbc6af2b5d84ef90e209fce595433809",
+      "E:\\ADCToolbox\\python\\src\\adctoolbox\\examples\\11_calibration\\output\\excitation_mlp_acceptance_20261102\\configuration.json": "94f1ce65da104a955a89996795a98189e9017e8efe84bcf965a0790d0142d3a3",
+      "E:\\ADCToolbox\\python\\src\\adctoolbox\\examples\\11_calibration\\output\\excitation_mlp_acceptance_20261102\\static_seed11\\models.json": "54be3ceeafafca2e8ff4e0f8e28f1d0bd99fdae1cd33a79b91e928e33b9f54b1",
+      "E:\\ADCToolbox\\python\\src\\adctoolbox\\examples\\11_calibration\\output\\excitation_mlp_acceptance_20261102\\static_seed11\\training_manifest.json": "0b94a4028041372e109828251c772a4b296a09ee51c6ca1890e6f1dee0328fae",
+      "E:\\ADCToolbox\\python\\src\\adctoolbox\\examples\\11_calibration\\output\\foreground_acceptance_20261101\\static_seed22\\data_manifest.json": "55fa8654758b889b7d62dfbdd8be62f3bf1963b76e5de74d472b6b7fbdee7c60",
+      "E:\\ADCToolbox\\python\\src\\adctoolbox\\examples\\11_calibration\\output\\excitation_mlp_acceptance_20261102\\static_seed22\\models.json": "20fb6c0b163c26ada80d95242636a8cfdb737f88d14bc1be511574410a6c3746",
+      "E:\\ADCToolbox\\python\\src\\adctoolbox\\examples\\11_calibration\\output\\excitation_mlp_acceptance_20261102\\static_seed22\\training_manifest.json": "1646e35e405a63696b54ff23cd947189e0d57fe5c882a75812f67e5058e30375",
+      "E:\\ADCToolbox\\python\\src\\adctoolbox\\examples\\11_calibration\\output\\foreground_acceptance_20261101\\static_seed33\\data_manifest.json": "a37962487f6962792eb17bebeee4a7ef13158d34bc52c92a1b998cec5c57cb12",
+      "E:\\ADCToolbox\\python\\src\\adctoolbox\\examples\\11_calibration\\output\\excitation_mlp_acceptance_20261102\\static_seed33\\models.json": "874f66f95a8338dfedd50c56cd6617c904693d3773b9943e0a884819479c9e10",
+      "E:\\ADCToolbox\\python\\src\\adctoolbox\\examples\\11_calibration\\output\\excitation_mlp_acceptance_20261102\\static_seed33\\training_manifest.json": "0138581006a11f0bd6ef03f10ed5726ec9b64f44554b5d749f5a033c9ee53876",
+      "E:\\ADCToolbox\\python\\src\\adctoolbox\\examples\\11_calibration\\output\\foreground_acceptance_20261101\\memory_seed11\\data_manifest.json": "ac8bb616a76e0b4b8eaa883a5bf9b7c235d62dabb7afdbc6b41a6414a58b0092",
+      "E:\\ADCToolbox\\python\\src\\adctoolbox\\examples\\11_calibration\\output\\excitation_mlp_acceptance_20261102\\memory_seed11\\models.json": "27b52d9caccc64768e3a0883cb6c5c298bb2724541ecfb38caeb20ecedee0b0d",
+      "E:\\ADCToolbox\\python\\src\\adctoolbox\\examples\\11_calibration\\output\\excitation_mlp_acceptance_20261102\\memory_seed11\\training_manifest.json": "0b94a4028041372e109828251c772a4b296a09ee51c6ca1890e6f1dee0328fae",
+      "E:\\ADCToolbox\\python\\src\\adctoolbox\\examples\\11_calibration\\output\\foreground_acceptance_20261101\\memory_seed22\\data_manifest.json": "7d9b64cbdb23352ba16320c7dd342096b868a7dd4179b63c2abc5ad5257a6870",
+      "E:\\ADCToolbox\\python\\src\\adctoolbox\\examples\\11_calibration\\output\\excitation_mlp_acceptance_20261102\\memory_seed22\\models.json": "ac123d374284e215285f7dc7e9a1303790beb4b1cc3b43bffc53bb03386da1e5",
+      "E:\\ADCToolbox\\python\\src\\adctoolbox\\examples\\11_calibration\\output\\excitation_mlp_acceptance_20261102\\memory_seed22\\training_manifest.json": "1646e35e405a63696b54ff23cd947189e0d57fe5c882a75812f67e5058e30375",
+      "E:\\ADCToolbox\\python\\src\\adctoolbox\\examples\\11_calibration\\output\\foreground_acceptance_20261101\\memory_seed33\\data_manifest.json": "7d717fc35869b1f657f7c1f580495d64a1cd1c4eda7afe7639334d4e4492c7a3",
+      "E:\\ADCToolbox\\python\\src\\adctoolbox\\examples\\11_calibration\\output\\excitation_mlp_acceptance_20261102\\memory_seed33\\models.json": "d15acbfff37da0fdda5a712390f794022bc80af25ccf424f8daf6e4ab5fbcf58",
+      "E:\\ADCToolbox\\python\\src\\adctoolbox\\examples\\11_calibration\\output\\excitation_mlp_acceptance_20261102\\memory_seed33\\training_manifest.json": "0138581006a11f0bd6ef03f10ed5726ec9b64f44554b5d749f5a033c9ee53876"
+    },
+    "history": 3,
+    "hidden_units": 16,
+    "sar_msb_relative_error": 0.01,
+    "sar_bits": 14,
+    "metric_policy": "coherent boxcar, DC excluded, full Nyquist band, all harmonics included in SNDR; single-tone cross-check public analyzer",
+    "selection": "validation reference MSE only; no test selection"
+  },
+  "diagnostics": {
+    "sar_binary_seed11": {
+      "bits_reference": {
+        "samples": 65536,
+        "parameters": 15,
+        "design_rank": 15,
+        "rank_deficient": false,
+        "ridge": 1e-10,
+        "design_condition_number": 3.291985313020225,
+        "training_rmse": 0.0006458169626717607,
+        "weight": [
+          1.010052443283117,
+          0.5001241556760897,
+          0.2500967566495358,
+          0.12511656307499036,
+          0.06261872806657501,
+          0.03136619390689475,
+          0.015742119954439842,
+          0.007932747079389202,
+          0.004029685768738355,
+          0.002071748769754687,
+          0.001097099582527751,
+          0.0006108234729362912,
+          0.0003641077818049136,
+          0.00024234035334418826
+        ],
+        "offset": -1.0006732465302501
+      },
+      "bits_sine": {
+        "samples": 8192,
+        "record": {
+          "tone_bins": [
+            1421
+          ],
+          "amplitudes": [
+            0.8855311399409262
+          ],
+          "phases": [
+            2.041698003215687
+          ],
+          "capture_seed": 1837007102
+        },
+        "rank_patch_applied": false,
+        "protocol": "one largest-amplitude training sine, full record; nominal-sum scale; no external labels"
+      },
+      "poly5_static": {
+        "samples": 65536,
+        "parameters": 6,
+        "design_rank": 6,
+        "rank_deficient": false,
+        "ridge": 1e-10,
+        "design_condition_number": 69.13952246836277,
+        "training_rmse": 0.002188482619084239
+      },
+      "poly5_history": {
+        "samples": 65536,
+        "parameters": 126,
+        "design_rank": 126,
+        "rank_deficient": false,
+        "ridge": 1e-10,
+        "design_condition_number": 475.9406202443162,
+        "training_rmse": 0.002123525993629972
+      },
+      "mlp_history": {
+        "samples": 65536,
+        "validation_samples": 8192,
+        "parameters": 102,
+        "selected_iteration": 998,
+        "iterations": 1000,
+        "optimizer_converged": false,
+        "optimizer_message": "STOP: TOTAL NO. OF ITERATIONS REACHED LIMIT",
+        "validation_rmse": 0.0005463271641146721,
+        "seed": 11,
+        "l2": 1e-06
+      }
+    },
+    "sar_binary_seed22": {
+      "bits_reference": {
+        "samples": 65536,
+        "parameters": 15,
+        "design_rank": 15,
+        "rank_deficient": false,
+        "ridge": 1e-10,
+        "design_condition_number": 2.988792180498028,
+        "training_rmse": 0.0006181448635843951,
+        "weight": [
+          1.0100390440817788,
+          0.5001009713978106,
+          0.2501067207483552,
+          0.12509937832267906,
+          0.06260917675896564,
+          0.03136036465318225,
+          0.015730583051468135,
+          0.007922517269087123,
+          0.004016656350459314,
+          0.002063370836970721,
+          0.0010868284167226585,
+          0.0005963973604972924,
+          0.0003569474779972941,
+          0.00023193132979495044
+        ],
+        "offset": -1.0006045924366376
+      },
+      "bits_sine": {
+        "samples": 8192,
+        "record": {
+          "tone_bins": [
+            2049
+          ],
+          "amplitudes": [
+            0.8346847094274843
+          ],
+          "phases": [
+            2.503177106813162
+          ],
+          "capture_seed": 1672028619
+        },
+        "rank_patch_applied": false,
+        "protocol": "one largest-amplitude training sine, full record; nominal-sum scale; no external labels"
+      },
+      "poly5_static": {
+        "samples": 65536,
+        "parameters": 6,
+        "design_rank": 6,
+        "rank_deficient": false,
+        "ridge": 1e-10,
+        "design_condition_number": 55.92328072655407,
+        "training_rmse": 0.00213245741854885
+      },
+      "poly5_history": {
+        "samples": 65536,
+        "parameters": 126,
+        "design_rank": 126,
+        "rank_deficient": false,
+        "ridge": 1e-10,
+        "design_condition_number": 423.51880349929684,
+        "training_rmse": 0.0020816529581495933
+      },
+      "mlp_history": {
+        "samples": 65536,
+        "validation_samples": 8192,
+        "parameters": 102,
+        "selected_iteration": 1000,
+        "iterations": 1000,
+        "optimizer_converged": false,
+        "optimizer_message": "STOP: TOTAL NO. OF ITERATIONS REACHED LIMIT",
+        "validation_rmse": 0.0006404222646091532,
+        "seed": 22,
+        "l2": 1e-06
+      }
+    },
+    "sar_binary_seed33": {
+      "bits_reference": {
+        "samples": 65536,
+        "parameters": 15,
+        "design_rank": 15,
+        "rank_deficient": false,
+        "ridge": 1e-10,
+        "design_condition_number": 3.1235812447491416,
+        "training_rmse": 0.0007289864906883305,
+        "weight": [
+          1.0100427673964245,
+          0.5001161170144948,
+          0.250122792751982,
+          0.1251062193358261,
+          0.06263210508208154,
+          0.03139947795638808,
+          0.015771319710799092,
+          0.007965339365479723,
+          0.004054010894046711,
+          0.0021086014297106758,
+          0.0011265739336926122,
+          0.0006383124762663391,
+          0.00039444790171725444,
+          0.00027247050546720485
+        ],
+        "offset": -1.0007998563148401
+      },
+      "bits_sine": {
+        "samples": 8192,
+        "record": {
+          "tone_bins": [
+            1657
+          ],
+          "amplitudes": [
+            0.8156293733144441
+          ],
+          "phases": [
+            6.24343933367717
+          ],
+          "capture_seed": 807509633
+        },
+        "rank_patch_applied": false,
+        "protocol": "one largest-amplitude training sine, full record; nominal-sum scale; no external labels"
+      },
+      "poly5_static": {
+        "samples": 65536,
+        "parameters": 6,
+        "design_rank": 6,
+        "rank_deficient": false,
+        "ridge": 1e-10,
+        "design_condition_number": 64.9810460033856,
+        "training_rmse": 0.002304152309848702
+      },
+      "poly5_history": {
+        "samples": 65536,
+        "parameters": 126,
+        "design_rank": 126,
+        "rank_deficient": false,
+        "ridge": 1e-10,
+        "design_condition_number": 580.6811609716611,
+        "training_rmse": 0.00226400313068156
+      },
+      "mlp_history": {
+        "samples": 65536,
+        "validation_samples": 8192,
+        "parameters": 102,
+        "selected_iteration": 992,
+        "iterations": 1000,
+        "optimizer_converged": false,
+        "optimizer_message": "STOP: TOTAL NO. OF ITERATIONS REACHED LIMIT",
+        "validation_rmse": 0.0005968325262855409,
+        "seed": 33,
+        "l2": 1e-06
+      }
+    },
+    "sar_redundant_seed11": {
+      "bits_reference": {
+        "samples": 65536,
+        "parameters": 16,
+        "design_rank": 16,
+        "rank_deficient": false,
+        "ridge": 1e-10,
+        "design_condition_number": 2.437711028170118,
+        "training_rmse": 3.314009300375111e-05,
+        "weight": [
+          0.8977765957383343,
+          0.44444358708921117,
+          0.22222198411311225,
+          0.2222235603879508,
+          0.1111113506999852,
+          0.055555269246391634,
+          0.02777717698640418,
+          0.01388896809052877,
+          0.006944441262489891,
+          0.0034723096890442455,
+          0.0017361843440567072,
+          0.000868316879909853,
+          0.000434076264999662,
+          0.0002169200062719814,
+          0.00010834403833431949
+        ],
+        "offset": -0.9999441905950756
+      },
+      "bits_sine": {
+        "samples": 8192,
+        "record": {
+          "tone_bins": [
+            1421
+          ],
+          "amplitudes": [
+            0.8855311399409262
+          ],
+          "phases": [
+            2.041698003215687
+          ],
+          "capture_seed": 1837007102
+        },
+        "rank_patch_applied": false,
+        "protocol": "one largest-amplitude training sine, full record; nominal-sum scale; no external labels"
+      },
+      "poly5_static": {
+        "samples": 65536,
+        "parameters": 6,
+        "design_rank": 6,
+        "rank_deficient": false,
+        "ridge": 1e-10,
+        "design_condition_number": 68.48424691208633,
+        "training_rmse": 0.0019843606957801415
+      },
+      "poly5_history": {
+        "samples": 65536,
+        "parameters": 126,
+        "design_rank": 126,
+        "rank_deficient": false,
+        "ridge": 1e-10,
+        "design_condition_number": 474.60887004516854,
+        "training_rmse": 0.0019462346605709957
+      },
+      "mlp_history": {
+        "samples": 65536,
+        "validation_samples": 8192,
+        "parameters": 102,
+        "selected_iteration": 988,
+        "iterations": 1000,
+        "optimizer_converged": false,
+        "optimizer_message": "STOP: TOTAL NO. OF ITERATIONS REACHED LIMIT",
+        "validation_rmse": 0.0006258432313762363,
+        "seed": 11,
+        "l2": 1e-06
+      }
+    },
+    "sar_redundant_seed22": {
+      "bits_reference": {
+        "samples": 65536,
+        "parameters": 16,
+        "design_rank": 16,
+        "rank_deficient": false,
+        "ridge": 1e-10,
+        "design_condition_number": 2.2887537013798047,
+        "training_rmse": 3.3140313018940816e-05,
+        "weight": [
+          0.8977769803726469,
+          0.4444441433713174,
+          0.22222258712704976,
+          0.2222206041402213,
+          0.11111064105724715,
+          0.05555520649986443,
+          0.027777456901960266,
+          0.013888705267984181,
+          0.006944723840514979,
+          0.003471909708753792,
+          0.0017360534352487955,
+          0.0008680848653307802,
+          0.0004340511494376962,
+          0.000217034541800549,
+          0.00010886224064790596
+        ],
+        "offset": -0.9999448975556208
+      },
+      "bits_sine": {
+        "samples": 8192,
+        "record": {
+          "tone_bins": [
+            2049
+          ],
+          "amplitudes": [
+            0.8346847094274843
+          ],
+          "phases": [
+            2.503177106813162
+          ],
+          "capture_seed": 1672028619
+        },
+        "rank_patch_applied": false,
+        "protocol": "one largest-amplitude training sine, full record; nominal-sum scale; no external labels"
+      },
+      "poly5_static": {
+        "samples": 65536,
+        "parameters": 6,
+        "design_rank": 6,
+        "rank_deficient": false,
+        "ridge": 1e-10,
+        "design_condition_number": 55.46268122860813,
+        "training_rmse": 0.0019135900857262871
+      },
+      "poly5_history": {
+        "samples": 65536,
+        "parameters": 126,
+        "design_rank": 126,
+        "rank_deficient": false,
+        "ridge": 1e-10,
+        "design_condition_number": 421.53191301164253,
+        "training_rmse": 0.001877243309081627
+      },
+      "mlp_history": {
+        "samples": 65536,
+        "validation_samples": 8192,
+        "parameters": 102,
+        "selected_iteration": 749,
+        "iterations": 1000,
+        "optimizer_converged": false,
+        "optimizer_message": "STOP: TOTAL NO. OF ITERATIONS REACHED LIMIT",
+        "validation_rmse": 0.0006936795070105081,
+        "seed": 22,
+        "l2": 1e-06
+      }
+    },
+    "sar_redundant_seed33": {
+      "bits_reference": {
+        "samples": 65536,
+        "parameters": 16,
+        "design_rank": 16,
+        "rank_deficient": false,
+        "ridge": 1e-10,
+        "design_condition_number": 2.3294940211732524,
+        "training_rmse": 3.322130801565328e-05,
+        "weight": [
+          0.8977788507795149,
+          0.44444463494637015,
+          0.22222258213457421,
+          0.2222226145237607,
+          0.11111138758650149,
+          0.055555868986165574,
+          0.027777429252393574,
+          0.013888460740370394,
+          0.006944302650004141,
+          0.0034723078482976717,
+          0.0017359563832236701,
+          0.0008678204966871387,
+          0.0004340699937971728,
+          0.00021719034349076675,
+          0.00010822467784224263
+        ],
+        "offset": -0.9999466079040955
+      },
+      "bits_sine": {
+        "samples": 8192,
+        "record": {
+          "tone_bins": [
+            1657
+          ],
+          "amplitudes": [
+            0.8156293733144441
+          ],
+          "phases": [
+            6.24343933367717
+          ],
+          "capture_seed": 807509633
+        },
+        "rank_patch_applied": false,
+        "protocol": "one largest-amplitude training sine, full record; nominal-sum scale; no external labels"
+      },
+      "poly5_static": {
+        "samples": 65536,
+        "parameters": 6,
+        "design_rank": 6,
+        "rank_deficient": false,
+        "ridge": 1e-10,
+        "design_condition_number": 64.34934644145712,
+        "training_rmse": 0.0019453192002454437
+      },
+      "poly5_history": {
+        "samples": 65536,
+        "parameters": 126,
+        "design_rank": 126,
+        "rank_deficient": false,
+        "ridge": 1e-10,
+        "design_condition_number": 578.6752794430862,
+        "training_rmse": 0.0019116830988991163
+      },
+      "mlp_history": {
+        "samples": 65536,
+        "validation_samples": 8192,
+        "parameters": 102,
+        "selected_iteration": 867,
+        "iterations": 1000,
+        "optimizer_converged": false,
+        "optimizer_message": "STOP: TOTAL NO. OF ITERATIONS REACHED LIMIT",
+        "validation_rmse": 0.0005927937229578057,
+        "seed": 33,
+        "l2": 1e-06
+      }
+    },
+    "smooth_memory_seed11": {
+      "bits_reference": {
+        "samples": 204800,
+        "parameters": 15,
+        "design_rank": 15,
+        "rank_deficient": false,
+        "ridge": 1e-10,
+        "design_condition_number": 2.838307896501837,
+        "training_rmse": 0.013258652983123644,
+        "weight": [
+          0.9914192343301679,
+          0.49113713928166514,
+          0.24810555241713803,
+          0.12440278989796588,
+          0.06240019978626164,
+          0.03129546842086708,
+          0.015541929061314422,
+          0.007694754995005876,
+          0.003823433864407701,
+          0.001958403009229303,
+          0.0010755325530036764,
+          0.00042686216373802945,
+          0.00022158827417643025,
+          0.00010317055940932095
+        ],
+        "offset": -0.9914228193980802
+      },
+      "bits_sine": {
+        "samples": 8192,
+        "record": {
+          "record": 66,
+          "tone_bins": [
+            3383
+          ],
+          "amplitudes": [
+            0.8969996423817581
+          ],
+          "phases": [
+            5.4912696337789635
+          ],
+          "capture_seed": 676827336,
+          "overloads": 0
+        },
+        "rank_patch_applied": false,
+        "protocol": "one largest-amplitude training sine, full record; nominal-sum scale; no external labels"
+      }
+    },
+    "smooth_memory_seed22": {
+      "bits_reference": {
+        "samples": 204800,
+        "parameters": 15,
+        "design_rank": 15,
+        "rank_deficient": false,
+        "ridge": 1e-10,
+        "design_condition_number": 2.723750105866196,
+        "training_rmse": 0.013525572065427592,
+        "weight": [
+          0.9915998585764251,
+          0.49151720440649976,
+          0.24750246201296572,
+          0.1247038325484543,
+          0.06222627003875522,
+          0.03130390846344233,
+          0.015516953317576661,
+          0.007686046248939493,
+          0.003844594554280361,
+          0.0018986781683212714,
+          0.0009679880213394781,
+          0.0005450883452558325,
+          0.00035301789907464347,
+          0.00022424147858565136
+        ],
+        "offset": -0.9916411830979962
+      },
+      "bits_sine": {
+        "samples": 8192,
+        "record": {
+          "record": 88,
+          "tone_bins": [
+            3273
+          ],
+          "amplitudes": [
+            0.8968340508301302
+          ],
+          "phases": [
+            4.011461403167443
+          ],
+          "capture_seed": 1404720774,
+          "overloads": 0
+        },
+        "rank_patch_applied": false,
+        "protocol": "one largest-amplitude training sine, full record; nominal-sum scale; no external labels"
+      }
+    },
+    "smooth_memory_seed33": {
+      "bits_reference": {
+        "samples": 204800,
+        "parameters": 15,
+        "design_rank": 15,
+        "rank_deficient": false,
+        "ridge": 1e-10,
+        "design_condition_number": 2.7233150956827306,
+        "training_rmse": 0.013579756927582936,
+        "weight": [
+          0.9902780034902655,
+          0.49006400858336624,
+          0.24790018130364466,
+          0.12426029549140186,
+          0.06215752216651241,
+          0.031202423212686275,
+          0.01565279222486354,
+          0.0076575289666139185,
+          0.0039086283611991,
+          0.0018640426440301395,
+          0.0009647880575135025,
+          0.0005150557991530002,
+          0.00028401570452355585,
+          0.00011327306432236782
+        ],
+        "offset": -0.9901110859951342
+      },
+      "bits_sine": {
+        "samples": 8192,
+        "record": {
+          "record": 282,
+          "tone_bins": [
+            2049
+          ],
+          "amplitudes": [
+            0.8945060294723844
+          ],
+          "phases": [
+            4.367671009634746
+          ],
+          "capture_seed": 862706049,
+          "overloads": 0
+        },
+        "rank_patch_applied": false,
+        "protocol": "one largest-amplitude training sine, full record; nominal-sum scale; no external labels"
+      }
+    },
+    "smooth_static_seed11": {
+      "bits_reference": {
+        "samples": 204800,
+        "parameters": 15,
+        "design_rank": 15,
+        "rank_deficient": false,
+        "ridge": 1e-10,
+        "design_condition_number": 2.8578692490785325,
+        "training_rmse": 0.0028361142503790814,
+        "weight": [
+          0.9959753230877175,
+          0.4939525387816488,
+          0.24946182845406392,
+          0.12506345500072166,
+          0.06244085959147004,
+          0.031188131554605078,
+          0.015620683789744152,
+          0.007840888912943121,
+          0.003906412534702455,
+          0.0019663397527105156,
+          0.0009672471887434256,
+          0.0004886370456378029,
+          0.00023807816751490906,
+          0.00012086450766396722
+        ],
+        "offset": -0.9961811361397552
+      },
+      "bits_sine": {
+        "samples": 8192,
+        "record": {
+          "record": 66,
+          "tone_bins": [
+            3383
+          ],
+          "amplitudes": [
+            0.8969996423817581
+          ],
+          "phases": [
+            5.4912696337789635
+          ],
+          "capture_seed": 676827336,
+          "overloads": 0
+        },
+        "rank_patch_applied": false,
+        "protocol": "one largest-amplitude training sine, full record; nominal-sum scale; no external labels"
+      }
+    },
+    "smooth_static_seed22": {
+      "bits_reference": {
+        "samples": 204800,
+        "parameters": 15,
+        "design_rank": 15,
+        "rank_deficient": false,
+        "ridge": 1e-10,
+        "design_condition_number": 2.7398501428564015,
+        "training_rmse": 0.0029288458769596974,
+        "weight": [
+          0.9958196335772347,
+          0.49384961298773633,
+          0.24932840840598597,
+          0.12509273611934144,
+          0.0624941895715862,
+          0.03121140415574676,
+          0.0156153624169241,
+          0.007800459909948413,
+          0.003918544796832389,
+          0.0019380481526041747,
+          0.0009770304945661144,
+          0.00047818871960224693,
+          0.00023535759311006465,
+          0.0001375891668451217
+        ],
+        "offset": -0.9960861239593196
+      },
+      "bits_sine": {
+        "samples": 8192,
+        "record": {
+          "record": 88,
+          "tone_bins": [
+            3273
+          ],
+          "amplitudes": [
+            0.8968340508301302
+          ],
+          "phases": [
+            4.011461403167443
+          ],
+          "capture_seed": 1404720774,
+          "overloads": 0
+        },
+        "rank_patch_applied": false,
+        "protocol": "one largest-amplitude training sine, full record; nominal-sum scale; no external labels"
+      }
+    },
+    "smooth_static_seed33": {
+      "bits_reference": {
+        "samples": 204800,
+        "parameters": 15,
+        "design_rank": 15,
+        "rank_deficient": false,
+        "ridge": 1e-10,
+        "design_condition_number": 2.738711067866027,
+        "training_rmse": 0.003083533539871776,
+        "weight": [
+          0.9953896587762943,
+          0.4934905676274473,
+          0.24920403109147934,
+          0.12497399475550179,
+          0.06253370181562933,
+          0.031241333827702382,
+          0.015652385616363614,
+          0.007819528897847313,
+          0.0039035319941400407,
+          0.0019458922484003117,
+          0.0010075679406075125,
+          0.0004963129117276144,
+          0.00021882735408728203,
+          0.00010183780588686708
+        ],
+        "offset": -0.9956366088119599
+      },
+      "bits_sine": {
+        "samples": 8192,
+        "record": {
+          "record": 282,
+          "tone_bins": [
+            2049
+          ],
+          "amplitudes": [
+            0.8945060294723844
+          ],
+          "phases": [
+            4.367671009634746
+          ],
+          "capture_seed": 862706049,
+          "overloads": 0
+        },
+        "rank_patch_applied": false,
+        "protocol": "one largest-amplitude training sine, full record; nominal-sum scale; no external labels"
+      }
+    }
+  },
+  "audit": {
+    "status": "passed",
+    "cases": 12,
+    "frozen_rows_replayed": 1326,
+    "max_independent_fft_difference_db": 2.6929569685307797e-11,
+    "public_single_tone_checks": 1170,
+    "auto_peak_mismatches": 0,
+    "overloads": 0,
+    "aggregate_recomputed": true,
+    "case_sha256": {
+      "sar_binary_seed11/manifest.json": "b8eb838bd739b2b1aab59af9a0868d5456937e511778bdd0edfbbaf0ad97fded",
+      "sar_binary_seed11/models.json": "de9ab09cd08e0ba3c3e3b70666a4b889ec697b5b3ed56be5a3a0cdd429a9cacb",
+      "sar_binary_seed11/diagnostics.json": "7e42cb1731079dbc25f18c34cca37dd783fc5d9714b12acabe57543f9115ca5d",
+      "sar_binary_seed11/test_metrics.csv": "638ce38cc11eecc1ac3354c58f1a4a336d5c3604c2952ce1638db9e853ec676c",
+      "sar_binary_seed22/manifest.json": "64b3a54baed309ecf5403051bdd617c510aaddef817fa31b658c8d58da6e88a5",
+      "sar_binary_seed22/models.json": "475ee4b35fdb2e5555c285a64886e173d955a9e683c87343c104bff7bcd196d4",
+      "sar_binary_seed22/diagnostics.json": "39a929eac119056ffe817d4ec486f35df65d7dc4f63987e4ec3286c773cfe1df",
+      "sar_binary_seed22/test_metrics.csv": "d0c8ee8a03beba8b9c08e47489739545757766fc85cfe7031768f518bf5fbdaf",
+      "sar_binary_seed33/manifest.json": "4138131baef3fba26166d338cb21c83ef22b9b855112e976c40ad98592afda20",
+      "sar_binary_seed33/models.json": "ff01c4ac75f9bd6c85be0771c63a8821718dce29ad8de4d3d44970e9f7f5f771",
+      "sar_binary_seed33/diagnostics.json": "24004d79df98c3bc966d58e9498d84aa09dce060b7149ea7ee072a3956a90948",
+      "sar_binary_seed33/test_metrics.csv": "0bbc8717a61ec7e52e1dc74bb1907bcd488b1073b0ab2ad6fd8f5ebc2b34e1e2",
+      "sar_redundant_seed11/manifest.json": "09db5656e987a7e4496aa924e7ade922a486e94654c3e08741677da807ab349c",
+      "sar_redundant_seed11/models.json": "5cd9062086f08b94b47f454bc823b79aeaf20dff529104a6f43ad95465c7f304",
+      "sar_redundant_seed11/diagnostics.json": "389b81e2c320124cae703df9dfbf1caebc402ddf40756798ce5eb421c97fcba6",
+      "sar_redundant_seed11/test_metrics.csv": "5f716197d4760122ca616ba09a1f8bf8922bad3a0c64dfeabbdc813e18b580aa",
+      "sar_redundant_seed22/manifest.json": "032db687f469db12a061278c808614c2bed8fa0a5f1b4c0b368724405194b22e",
+      "sar_redundant_seed22/models.json": "c6a402acae3fdeb269eaa81b58fde1ddca759aff6796efd8d1f5793807f1f731",
+      "sar_redundant_seed22/diagnostics.json": "a1352513061d61ea8776809e4df68c06767d499918eecceb3b350fcdf07ef36d",
+      "sar_redundant_seed22/test_metrics.csv": "359a174d97852a30513973fdf1d6bc53908d86dfec33498b35adc1102227d25b",
+      "sar_redundant_seed33/manifest.json": "add019293e6669483c9e30341fb3e97d7b16c017366ea7af876b8f1d648b1aa9",
+      "sar_redundant_seed33/models.json": "7118ab8f1dcef9e06c0a0c2f2804436a643a71f407fe7d36b12ef9f5637ba4d6",
+      "sar_redundant_seed33/diagnostics.json": "a91c9844a79051d94c42f86dbbed8db876b50e5fd0d17d774a8f564b5fef0686",
+      "sar_redundant_seed33/test_metrics.csv": "75b58507a65d89a14aafd6bc7f080b5f0cf83c383c7021bd26d74af7a1ddaca0",
+      "smooth_memory_seed11/manifest.json": "f353524796bfc51ac45c4481d82802c717310af9176eca745f09f1217aa405f3",
+      "smooth_memory_seed11/models.json": "0efea712a70d992764681e6663ddf35179f68a7e457e45a65eb4c3e7189faf03",
+      "smooth_memory_seed11/diagnostics.json": "014415296ff56c42e470d6860e52a7d8231dd51889f9451a5b244403149da64e",
+      "smooth_memory_seed11/test_metrics.csv": "e81bed4b04ba731d3afe80c314a06a3d80a74799dddde192c5b91827baa84135",
+      "smooth_memory_seed22/manifest.json": "d9efc279f431d20f6763b759c5dac2290875b8d700c00f49fe8760b2460d5bb5",
+      "smooth_memory_seed22/models.json": "51ebd50f268eb005722d378bfde72c7a910459a8c911cf169ab259e277c1719b",
+      "smooth_memory_seed22/diagnostics.json": "394bc795889f520ef45bd9ddc7760eeea1bcd1b34fdf7b144ea03616830c931c",
+      "smooth_memory_seed22/test_metrics.csv": "feaf409d99853b870cc788b50e7311a6e528482986b279818d580ec11876ae0f",
+      "smooth_memory_seed33/manifest.json": "de8428f3af71ae95f603c4bfecfd50a213e7eedd7ee581de17a2c93423e77fb2",
+      "smooth_memory_seed33/models.json": "42e8b0452692acd140f09582efcff3b5dbce245b339774346b287dcf50eeb5eb",
+      "smooth_memory_seed33/diagnostics.json": "b5f38d15ed9d8e765f558881e5c2046b0513f56db2296722015ac75b2196a491",
+      "smooth_memory_seed33/test_metrics.csv": "ce4207ecda99d1d9506a00ac1cd2b921219e603cfa74c656be878b1cf0cf62f6",
+      "smooth_static_seed11/manifest.json": "0b3df0a9c33118e7fea5310f3d8013f8a6136470b2cc2d0610ce7378aeb92cfb",
+      "smooth_static_seed11/models.json": "ca560dc386456655ed4ee3fbb9b4287f83a97480084c3c87e8faa50c104a66fc",
+      "smooth_static_seed11/diagnostics.json": "f6850e5f04fbe04c6d7ae7dbec5da7fc5ec462492efd0cffc5b60eacce2b4088",
+      "smooth_static_seed11/test_metrics.csv": "32fbcd998181c63d57dab02d3d327eedbabda4654a6e37ad4c0a534d31375631",
+      "smooth_static_seed22/manifest.json": "2fb2947f292a2ca856f8643eebc75be97a953bf3688f584e27f4a69ca2013c9b",
+      "smooth_static_seed22/models.json": "d5339ab5bca9d11047ce854fdbd58364f752739c84ab644a2847e793c4cc5e1a",
+      "smooth_static_seed22/diagnostics.json": "13ac00a4efdd4a732b3000821fe13257e46db9571b9a0a9bf8fab5b74cc6208e",
+      "smooth_static_seed22/test_metrics.csv": "9b68173872abbf30d374336662edea93e6a4da69f8c0bbedfe5f1031a715698e",
+      "smooth_static_seed33/manifest.json": "c15202e6efa229de5f6adc261b1ca572042ab1ebf20ad085652b36269b979426",
+      "smooth_static_seed33/models.json": "4cb8fc807c0913061706e5b4c08268f684e7292f6b89b07d8d0689eba4e6cda7",
+      "smooth_static_seed33/diagnostics.json": "bc98c451c641bb2033b6c0bfcd0648401d3cbbc0fbe4f7b2767165d66e039747",
+      "smooth_static_seed33/test_metrics.csv": "095f826ed9f3c1b9d3ca8f9b0c15c7827fe260d2eac08310e1102cc20bff5fd3"
+    }
+  },
+  "tests": {
+    "passed": 73,
+    "skipped": 1,
+    "warnings": 3
+  },
+  "artifact_sha256": {
+    "configuration.json": "79377ea923acce2784381032b6958b1e22a46a8ae20c63aea8b0508004ef1afe",
+    "sar_binary_seed11/diagnostics.json": "7e42cb1731079dbc25f18c34cca37dd783fc5d9714b12acabe57543f9115ca5d",
+    "sar_binary_seed11/manifest.json": "b8eb838bd739b2b1aab59af9a0868d5456937e511778bdd0edfbbaf0ad97fded",
+    "sar_binary_seed11/mlp_history.csv": "34ee461fc8ff29ef8469402bc6321ae5ae6a2d50268ae96cae442506326348fc",
+    "sar_binary_seed11/models.json": "de9ab09cd08e0ba3c3e3b70666a4b889ec697b5b3ed56be5a3a0cdd429a9cacb",
+    "sar_binary_seed11/spectrum.csv": "5d6f563c6aaeae7fbc8a8fddbe66653b27fc179924f96bbb4ceb7bafdcf7122f",
+    "sar_binary_seed11/test_metrics.csv": "638ce38cc11eecc1ac3354c58f1a4a336d5c3604c2952ce1638db9e853ec676c",
+    "sar_binary_seed22/diagnostics.json": "39a929eac119056ffe817d4ec486f35df65d7dc4f63987e4ec3286c773cfe1df",
+    "sar_binary_seed22/manifest.json": "64b3a54baed309ecf5403051bdd617c510aaddef817fa31b658c8d58da6e88a5",
+    "sar_binary_seed22/mlp_history.csv": "4a781db2fe02cb963db39155da675dd4134316b1acc235f7df050682f42085d7",
+    "sar_binary_seed22/models.json": "475ee4b35fdb2e5555c285a64886e173d955a9e683c87343c104bff7bcd196d4",
+    "sar_binary_seed22/spectrum.csv": "0cef6c9f33bc020f8ce4937a737487e2390564cbb4ad66dfcbd3b7bd2aaf057f",
+    "sar_binary_seed22/test_metrics.csv": "d0c8ee8a03beba8b9c08e47489739545757766fc85cfe7031768f518bf5fbdaf",
+    "sar_binary_seed33/diagnostics.json": "24004d79df98c3bc966d58e9498d84aa09dce060b7149ea7ee072a3956a90948",
+    "sar_binary_seed33/manifest.json": "4138131baef3fba26166d338cb21c83ef22b9b855112e976c40ad98592afda20",
+    "sar_binary_seed33/mlp_history.csv": "699c8db7ff3e0bd35d2424a146c8743cd4c28b2a370fe396713b1f632956e98f",
+    "sar_binary_seed33/models.json": "ff01c4ac75f9bd6c85be0771c63a8821718dce29ad8de4d3d44970e9f7f5f771",
+    "sar_binary_seed33/spectrum.csv": "598be569506bc60dc86e3e9eda6b5b947a02941e45fc41251a14a0f6beacceef",
+    "sar_binary_seed33/test_metrics.csv": "0bbc8717a61ec7e52e1dc74bb1907bcd488b1073b0ab2ad6fd8f5ebc2b34e1e2",
+    "sar_redundant_seed11/diagnostics.json": "389b81e2c320124cae703df9dfbf1caebc402ddf40756798ce5eb421c97fcba6",
+    "sar_redundant_seed11/manifest.json": "09db5656e987a7e4496aa924e7ade922a486e94654c3e08741677da807ab349c",
+    "sar_redundant_seed11/mlp_history.csv": "a23e3b84fa74c1d9ba423b65b1ddfa84d091d398e1326d198d1263e25cd9d671",
+    "sar_redundant_seed11/models.json": "5cd9062086f08b94b47f454bc823b79aeaf20dff529104a6f43ad95465c7f304",
+    "sar_redundant_seed11/spectrum.csv": "b1f4fdc01e7cd7e2b1ca38baee6b8a80d9cd5bafb3267b986bfa7aa9f53f3130",
+    "sar_redundant_seed11/test_metrics.csv": "5f716197d4760122ca616ba09a1f8bf8922bad3a0c64dfeabbdc813e18b580aa",
+    "sar_redundant_seed22/diagnostics.json": "a1352513061d61ea8776809e4df68c06767d499918eecceb3b350fcdf07ef36d",
+    "sar_redundant_seed22/manifest.json": "032db687f469db12a061278c808614c2bed8fa0a5f1b4c0b368724405194b22e",
+    "sar_redundant_seed22/mlp_history.csv": "5d1fa4961e70d054b7153169e7a98f7feab7349619ed02aea02285453403b3b6",
+    "sar_redundant_seed22/models.json": "c6a402acae3fdeb269eaa81b58fde1ddca759aff6796efd8d1f5793807f1f731",
+    "sar_redundant_seed22/spectrum.csv": "3eef1ffeb736701062352903c68ca7f782625dd08222a5c917868acdd74d250c",
+    "sar_redundant_seed22/test_metrics.csv": "359a174d97852a30513973fdf1d6bc53908d86dfec33498b35adc1102227d25b",
+    "sar_redundant_seed33/diagnostics.json": "a91c9844a79051d94c42f86dbbed8db876b50e5fd0d17d774a8f564b5fef0686",
+    "sar_redundant_seed33/manifest.json": "add019293e6669483c9e30341fb3e97d7b16c017366ea7af876b8f1d648b1aa9",
+    "sar_redundant_seed33/mlp_history.csv": "42f74d23e3b7acc26edfce9c3882bd5390f99c4c0d25107bc14562e145af8d5f",
+    "sar_redundant_seed33/models.json": "7118ab8f1dcef9e06c0a0c2f2804436a643a71f407fe7d36b12ef9f5637ba4d6",
+    "sar_redundant_seed33/spectrum.csv": "f81553b1947b64935459e6aca08b2b78fdc5d67ddf05bb1be2ed2c92cf9c5ac3",
+    "sar_redundant_seed33/test_metrics.csv": "75b58507a65d89a14aafd6bc7f080b5f0cf83c383c7021bd26d74af7a1ddaca0",
+    "smooth_memory_seed11/diagnostics.json": "014415296ff56c42e470d6860e52a7d8231dd51889f9451a5b244403149da64e",
+    "smooth_memory_seed11/manifest.json": "f353524796bfc51ac45c4481d82802c717310af9176eca745f09f1217aa405f3",
+    "smooth_memory_seed11/models.json": "0efea712a70d992764681e6663ddf35179f68a7e457e45a65eb4c3e7189faf03",
+    "smooth_memory_seed11/spectrum.csv": "9240321dd8f0fb4205d2e6abed78f085e6441944b19f92793df6a6800b979bbe",
+    "smooth_memory_seed11/test_metrics.csv": "e81bed4b04ba731d3afe80c314a06a3d80a74799dddde192c5b91827baa84135",
+    "smooth_memory_seed22/diagnostics.json": "394bc795889f520ef45bd9ddc7760eeea1bcd1b34fdf7b144ea03616830c931c",
+    "smooth_memory_seed22/manifest.json": "d9efc279f431d20f6763b759c5dac2290875b8d700c00f49fe8760b2460d5bb5",
+    "smooth_memory_seed22/models.json": "51ebd50f268eb005722d378bfde72c7a910459a8c911cf169ab259e277c1719b",
+    "smooth_memory_seed22/spectrum.csv": "f1fd0cef5d95523419c3632bccd2f46d24c30c1dbd0a257f3a7a413afa3dc258",
+    "smooth_memory_seed22/test_metrics.csv": "feaf409d99853b870cc788b50e7311a6e528482986b279818d580ec11876ae0f",
+    "smooth_memory_seed33/diagnostics.json": "b5f38d15ed9d8e765f558881e5c2046b0513f56db2296722015ac75b2196a491",
+    "smooth_memory_seed33/manifest.json": "de8428f3af71ae95f603c4bfecfd50a213e7eedd7ee581de17a2c93423e77fb2",
+    "smooth_memory_seed33/models.json": "42e8b0452692acd140f09582efcff3b5dbce245b339774346b287dcf50eeb5eb",
+    "smooth_memory_seed33/spectrum.csv": "9226c1030889ead2dac9ec54c46e2cd0f73d7af934c8d02491e8434b13c2f7e4",
+    "smooth_memory_seed33/test_metrics.csv": "ce4207ecda99d1d9506a00ac1cd2b921219e603cfa74c656be878b1cf0cf62f6",
+    "smooth_static_seed11/diagnostics.json": "f6850e5f04fbe04c6d7ae7dbec5da7fc5ec462492efd0cffc5b60eacce2b4088",
+    "smooth_static_seed11/manifest.json": "0b3df0a9c33118e7fea5310f3d8013f8a6136470b2cc2d0610ce7378aeb92cfb",
+    "smooth_static_seed11/models.json": "ca560dc386456655ed4ee3fbb9b4287f83a97480084c3c87e8faa50c104a66fc",
+    "smooth_static_seed11/spectrum.csv": "33ef7f1e4e57733d877230d4d9ffc4eb788527a8b0a82869624e864c2d2befd0",
+    "smooth_static_seed11/test_metrics.csv": "32fbcd998181c63d57dab02d3d327eedbabda4654a6e37ad4c0a534d31375631",
+    "smooth_static_seed22/diagnostics.json": "13ac00a4efdd4a732b3000821fe13257e46db9571b9a0a9bf8fab5b74cc6208e",
+    "smooth_static_seed22/manifest.json": "2fb2947f292a2ca856f8643eebc75be97a953bf3688f584e27f4a69ca2013c9b",
+    "smooth_static_seed22/models.json": "d5339ab5bca9d11047ce854fdbd58364f752739c84ab644a2847e793c4cc5e1a",
+    "smooth_static_seed22/spectrum.csv": "c57275a3f9a41cd1fe3533237d4d1495593ce714a447d22bbd577b20761edadd",
+    "smooth_static_seed22/test_metrics.csv": "9b68173872abbf30d374336662edea93e6a4da69f8c0bbedfe5f1031a715698e",
+    "smooth_static_seed33/diagnostics.json": "bc98c451c641bb2033b6c0bfcd0648401d3cbbc0fbe4f7b2767165d66e039747",
+    "smooth_static_seed33/manifest.json": "c15202e6efa229de5f6adc261b1ca572042ab1ebf20ad085652b36269b979426",
+    "smooth_static_seed33/models.json": "4cb8fc807c0913061706e5b4c08268f684e7292f6b89b07d8d0689eba4e6cda7",
+    "smooth_static_seed33/spectrum.csv": "e7560d7b60d74404e6e24f590b3b945c902c0d564bb2a576f797b2ff4a15f79e",
+    "smooth_static_seed33/test_metrics.csv": "095f826ed9f3c1b9d3ca8f9b0c15c7827fe260d2eac08310e1102cc20bff5fd3",
+    "source_snapshot/calibration/__init__.py": "98a5912dbe1e7c8da8174869f80476365ca63cace352d7459b1c1d7a025324b2",
+    "source_snapshot/calibration/_estimate_frequencies.py": "c6d028ee173e4b34167e847416fe1944d61668c30df7248f312831559db0b735",
+    "source_snapshot/calibration/_lstsq_solver.py": "5ea56f74aa5dc0b4a4853a40e8faee2cd3be78fb6db29b1240d448196c6b8bf8",
+    "source_snapshot/calibration/_patch_rank_deficiency.py": "63501b5705aa6ff95b5511a14421101923b5319183cbe2756e2fca95a2e20730",
+    "source_snapshot/calibration/_post_process.py": "ae05b0445cfe338f778c6a93d24b014a1d0228e405fbc5049a7b1c3ed6cf4571",
+    "source_snapshot/calibration/_prepare_input.py": "229dbf5ced8e3436229033dcb46c5d732cfb0477f2deb29f83fcf7591ddc27be",
+    "source_snapshot/calibration/_scale_columns_for_conditioning.py": "216876659fb7280905a45adb40787ba6fb4ca45996815e2a56560bc111120c8f",
+    "source_snapshot/calibration/background.py": "12a6b047a63a0924280e7144fe04fae6d85b0940b4ac8105cf2a64371bbf8c67",
+    "source_snapshot/calibration/calibrate_weight_sine.py": "a0a5a359f81b805d33bfca77788790d1bda899e2c9cc5e8d652aa4d84d2439aa",
+    "source_snapshot/calibration/calibrate_weight_sine_lite.py": "a5b00fcc3989e58542488f9122a7d019a4cc7288f9104526ec907ca581479376",
+    "source_snapshot/calibration/diagnose_calibration_matrix.py": "b951a7741c7f675c246deb581e14c5f9fa3b098049b53714e052ea4b9ecfb152",
+    "source_snapshot/calibration/foreground.py": "0e34d02928f5698d224a76195d15594c3c053ce214ce24607743c1ee7e63879d",
+    "source_snapshot/calibration/scale_calibration_output.py": "06fee511431315073dfc1924235dc4b6ac709a75af1485954bdb1aeee6a45237",
+    "source_snapshot/examples/11_calibration/exp_cal01_dither_background.py": "61357a6e76c04f30f8b84726d64698a74786f123d65846e0bc3e165cce118a8b",
+    "source_snapshot/examples/11_calibration/exp_cal03_foreground_nonlinear.py": "68078d73c1e07b335ac3b3bb4489237a38c0f8090c4a1d071e715cae033e7eef",
+    "source_snapshot/examples/11_calibration/exp_cal10_foreground_bitweights.py": "90cdd33bf259318cf326582a6719e6cd002611a1d5323c71284ed5ff7682c8f7",
+    "source_snapshot/examples/11_calibration/foreground_benchmark.py": "3674b94c513a7687857f19cf0ed8e348a3c5f5a8537084311ef5688a5bc51a3a",
+    "source_snapshot/models/sar.py": "795848f09ab68edd15922f82d3566c7cefa2ef07e746eb91c564fe0525f98b51",
+    "source_snapshot/spectrum/__init__.py": "02720ba3e6bc9dac86ec041d2169d942bc11244d19ab25a145ddf37d60c9d98e",
+    "source_snapshot/spectrum/_align_spectrum_phase.py": "94a13a136a20b1dbf6df8cf85390b93160aa8289de514b1ecf535e0221e4b53f",
+    "source_snapshot/spectrum/_bin_ranges.py": "cbaff1b210dc37a02ed6023505e0c0b8186356de39a920e8f60bce232502fb83",
+    "source_snapshot/spectrum/_estimate_noise_power.py": "defc8f8cc42bd16935577800b8d9378c93dfee7e9237559e7365ccb2a6cf3ca7",
+    "source_snapshot/spectrum/_exclude_bins.py": "a2cceaab55e997403b22af4dda8c5e65511492dff7d12b84ef05525bc54bbe48",
+    "source_snapshot/spectrum/_harmonics.py": "83ec2f396d1efb765f4d7f79340147c488275747bc94403803a6c304fe750151",
+    "source_snapshot/spectrum/_locate_fundamental.py": "795bac44c28cba43b87b29b9f8ad0f1ae5b4272df20967ed4826b9d73836e4d7",
+    "source_snapshot/spectrum/_prepare_fft_input.py": "852c53ad260bb956d319688747ca6ff698294d05482158af2a8c466f97045664",
+    "source_snapshot/spectrum/_side_bin_auto.py": "e56a8828a27e4ac1427b7fb6edb658f9165d10c74f5ab0fa5a3929976467aa65",
+    "source_snapshot/spectrum/_spectrum_averaging.py": "a1f5012120962eb17a06490f9a1ccf3866ed69d61f785c89d5f26a9705d99ffe",
+    "source_snapshot/spectrum/_window.py": "75beccc2a719e310d0d48c41aa803bd23fb0016555028183686c015948cdc187",
+    "source_snapshot/spectrum/analyze_spectrum.py": "661fdb24d29653038d3915d129497ab306ccaea63040b81be874e9c90c2a5ad7",
+    "source_snapshot/spectrum/analyze_spectrum_polar.py": "55439e967492b6dc0aa4baeceb0eed61ecea86518a8d384fe19f6adf3af1e945",
+    "source_snapshot/spectrum/compute_spectrum.py": "f7a0b08878225e66aeb7431a2e0da302147f1a92b1c006554096836b82b7e365",
+    "source_snapshot/spectrum/extract_freq_components.py": "7f88e5a5d5192fa8bb8870fdaeb9bb716ed8f7fee259d8a76b5c4122bcd53485",
+    "source_snapshot/spectrum/plot_spectrum.py": "666692d0ac70c0bbfcceaa8171920a16a5c9abb1e946361830c3ea572c992de3",
+    "source_snapshot/spectrum/plot_spectrum_polar.py": "d617aceedf7a66e78956fa5481fd327fcbe49ee193c0ddf9756672352d11dd01",
+    "source_snapshot/spectrum/plot_spectrum_virtuoso.py": "6902506c8f854da7e009b5c85dc6f0c8c709d316e5affd68f372998139b3d4df",
+    "source_snapshot/spectrum/quick_sndr.py": "64b242ff337e5a4143d9c6795e4e7838240d156c7ea3f31d1729fee975399def",
+    "source_snapshot/spectrum/sweep_performance_vs_osr.py": "7c96cd4e0c2aa0946073a581ebd07a658d4ce82000946ba26f781316fe525dcb",
+    "spectral_comparison.png": "9457700f502498fb88ff647d56a2a63db64414022f903a03156c5cbee2bc027c",
+    "summary.csv": "e90f1fb4c5e307472c03bf208b3acffe9ea429511f30007a5770791aa3b2f0e5",
+    "summary.json": "b586a37a7368cfdc508b8f323c3e524cceb46d808196f0935b8bf15d2102315f",
+    "test_metrics.csv": "343beac46070946cf564628975018d04d9132b46405f3643fd24bbcc3ca4bd00"
+  },
+  "distribution": {
+    "wheel_import": "E:\\ADCToolbox\\agent_playground\\bitweight_spectral_20261102\\wheel_unpack\\adctoolbox\\__init__.py",
+    "package_assets": true,
+    "temporary_skill_install": true,
+    "example_copy": true,
+    "wheel_experiment_and_audit": {
+      "status": "passed",
+      "cases": 2,
+      "frozen_rows_replayed": 238,
+      "max_independent_fft_difference_db": 2.3149482331064064e-11,
+      "public_single_tone_checks": 210,
+      "auto_peak_mismatches": 0,
+      "overloads": 0,
+      "aggregate_recomputed": true,
+      "case_sha256": {
+        "sar_binary_seed11/manifest.json": "4985cd445591f0dadcd96200e8b72c7b5d37cfbf357cff9bdac4adad1c3c73f4",
+        "sar_binary_seed11/models.json": "13006bec0b4452034665c036c523f59d3153f495304a5848b956b2b86fe256df",
+        "sar_binary_seed11/diagnostics.json": "a5773b2f0b08822d14a8cad49f64437695da13c94a41f6fe88eaae5dc9cf2b93",
+        "sar_binary_seed11/test_metrics.csv": "5e90f33edd8e403268214117b4470a46a72c449201d0ba15ea368cef46da1ff2",
+        "sar_redundant_seed11/manifest.json": "352c7102d2f9a5ad01a5de5cfacaa43c4896fbd8e5fdecd304d489d319d2d203",
+        "sar_redundant_seed11/models.json": "138cfdfa408346caac067f0962f5a69da414fabef396c89b30014e9e32bbc297",
+        "sar_redundant_seed11/diagnostics.json": "df63f9c5896e36f62ff4dec3c123ab265a3a67ba482858c7acf5bdb1e04af468",
+        "sar_redundant_seed11/test_metrics.csv": "acacb26fb8687ade21fb00e631c2ad48e05a20b778a87dc1d46e85b277cb085e"
+      }
+    }
+  },
+  "sphinx_warnings_as_errors": "passed"
+}

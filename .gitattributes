@@ -24,6 +24,13 @@
 ## MATLAB Project metadata files use LF line endings
 /resources/project/**/*.xml text eol=lf
 
+# Keep foreground source snapshots and recorded evidence hashes reproducible.
+/python/src/adctoolbox/examples/12_foreground/*.py text eol=lf
+/python/src/adctoolbox/calibration/foreground.py text eol=lf
+/docs/experiments/replay_foreground_extraction.py text eol=lf
+/docs/experiments/*.csv -text whitespace=cr-at-eol
+/docs/experiments/*.json -text whitespace=cr-at-eol
+
 ## Other common binary file types
 *.docx binary
 *.exe binary

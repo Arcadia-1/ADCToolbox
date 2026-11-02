@@ -4,10 +4,16 @@ from adctoolbox.calibration.calibrate_weight_sine import calibrate_weight_sine
 from adctoolbox.calibration.calibrate_weight_sine_lite import calibrate_weight_sine_lite
 from adctoolbox.calibration.scale_calibration_output import scale_calibration_output
 from adctoolbox.calibration.diagnose_calibration_matrix import diagnose_calibration_matrix
+from adctoolbox.calibration.foreground import (
+    build_calibration_features, fit_calibration_polynomial,
+    fit_calibration_mlp, apply_calibration,
+)
 
 __all__ = [
     'calibrate_weight_sine',
     'calibrate_weight_sine_lite',
     'scale_calibration_output',
     'diagnose_calibration_matrix',
+    'build_calibration_features', 'fit_calibration_polynomial',
+    'fit_calibration_mlp', 'apply_calibration',
 ]

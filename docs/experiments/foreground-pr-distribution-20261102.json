@@ -1,0 +1,223 @@
+{
+  "status": "passed",
+  "imported_from": "E:\\ADCToolbox\\agent_playground\\foreground-pr-venv\\Lib\\site-packages\\adctoolbox\\__init__.py",
+  "wheel_sha256": "999d51c26f85900a8e55d10b45b54e5b85cd87d3fc2c8d982b9f041e7d299a18",
+  "sdist_sha256": "dd7044bc6a083446b0570ef964572cdd46600bd9280abcf3322a135dfb14e6d2",
+  "installed_foreground": {
+    "status": "passed",
+    "plant_model": "repository_siggen_static_coarse_memory_v1",
+    "inherited_checks": {
+      "baseline": {
+        "cases": 2,
+        "frozen_model_metric_rows_replayed": 360,
+        "maximum_replay_error_db": 0.0,
+        "aggregate_recomputed": true,
+        "optimizer_not_converged": [
+          {
+            "case": "static_seed11",
+            "message": "STOP: TOTAL NO. OF ITERATIONS REACHED LIMIT"
+          },
+          {
+            "case": "memory_seed11",
+            "message": "STOP: TOTAL NO. OF ITERATIONS REACHED LIMIT"
+          }
+        ]
+      },
+      "mixed": {
+        "cases": 2,
+        "mixed_model_metric_rows_replayed": 200,
+        "aggregate_recomputed": true
+      }
+    },
+    "rows_by_run": [
+      360,
+      440,
+      42
+    ],
+    "rows_replayed": 842,
+    "fresh_captures": 6,
+    "max_independent_fft_difference_db": 1.5845103007450234e-11,
+    "public_single_tone_checks": 666,
+    "auto_peak_mismatches": 14,
+    "frozen_models_unchanged": true,
+    "aggregate_recomputed": true,
+    "normal_capture_overloads": 0,
+    "optimizer_diagnostics": [
+      {
+        "case": "static_seed11",
+        "excitation": "single",
+        "samples": 256,
+        "validation_samples": 128,
+        "parameters": 102,
+        "selected_iteration": 1,
+        "iterations": 3,
+        "optimizer_converged": false,
+        "optimizer_message": "STOP: TOTAL NO. OF ITERATIONS REACHED LIMIT",
+        "validation_rmse": 0.003475469883017565,
+        "seed": 11,
+        "l2": 1e-06,
+        "wall_seconds": 0.002384299998084316
+      },
+      {
+        "case": "static_seed11",
+        "excitation": "mixed",
+        "samples": 256,
+        "validation_samples": 128,
+        "parameters": 102,
+        "selected_iteration": 0,
+        "iterations": 3,
+        "optimizer_converged": false,
+        "optimizer_message": "STOP: TOTAL NO. OF ITERATIONS REACHED LIMIT",
+        "validation_rmse": 0.004179946539283536,
+        "seed": 11,
+        "l2": 1e-06
+      },
+      {
+        "case": "memory_seed11",
+        "excitation": "single",
+        "samples": 256,
+        "validation_samples": 128,
+        "parameters": 102,
+        "selected_iteration": 1,
+        "iterations": 3,
+        "optimizer_converged": false,
+        "optimizer_message": "STOP: TOTAL NO. OF ITERATIONS REACHED LIMIT",
+        "validation_rmse": 0.0034952133404874907,
+        "seed": 11,
+        "l2": 1e-06,
+        "wall_seconds": 0.00177090000215685
+      },
+      {
+        "case": "memory_seed11",
+        "excitation": "mixed",
+        "samples": 256,
+        "validation_samples": 128,
+        "parameters": 102,
+        "selected_iteration": 0,
+        "iterations": 3,
+        "optimizer_converged": false,
+        "optimizer_message": "STOP: TOTAL NO. OF ITERATIONS REACHED LIMIT",
+        "validation_rmse": 0.004273918324364644,
+        "seed": 11,
+        "l2": 1e-06
+      }
+    ],
+    "model_artifact_sha256": {
+      "single/static_seed11/models.json": "0e4421763c62ea6b70997c9a0d5245f900ce1bf728518ac118f8fe8dbcfffc65",
+      "single/static_seed11/training_diagnostics.json": "f8a7236ba6b5143f2740768f7bafd41bce5724da6e4eb50d4941d64a6e4a78fc",
+      "single/static_seed11/mlp_history.csv": "9e27040482c52f28dc61617e775f3428c8d0e4c2ba468fe2dcc155b2fe2aa31d",
+      "mixed/static_seed11/models.json": "8dd6ce0968aa8d33bbcc6f632788b1e91b099a5ca48e07ac85394d48cba3d918",
+      "mixed/static_seed11/training_diagnostics.json": "3e26ccfa4f0af11f3d69271d8eb8e30cc8f784d669a89fe3502539b698efd1d3",
+      "mixed/static_seed11/mlp_history.csv": "a5707376258bca03b3b6f400e5accf3f1c0a694f3e981cf51995a7cf98aa9b27",
+      "single/memory_seed11/models.json": "7449100afa430b9386f104f805c6725e46fa0f77486c7c3938b45a16e6179147",
+      "single/memory_seed11/training_diagnostics.json": "634014ed1cfb0ada7517766c82a5dd48b339126053da61b5268672e45135ec99",
+      "single/memory_seed11/mlp_history.csv": "b8d0925e4e589e356f36ae7993459ab022f414d2efaafe77a458201edc479b31",
+      "mixed/memory_seed11/models.json": "7d2b91087d9d90f1d87f7085deb09f1e715e1982351bb707902ddf333f25450d",
+      "mixed/memory_seed11/training_diagnostics.json": "d81354b6952fe3de10c08b7cbb42f0dc53726a01808700c95e86eb25fe8f2721",
+      "mixed/memory_seed11/mlp_history.csv": "b82e59065053dd7f904eb94dd4b8a786af5deaf191782b428dd4fb20b6bfd38d"
+    },
+    "source_sha256": "0d7ae3409229f58c78294bbb2dc3faa96111590572c7902d6d869f5fd271883e"
+  },
+  "installed_bitweights": {
+    "status": "passed",
+    "cases": 2,
+    "frozen_rows_replayed": 238,
+    "max_independent_fft_difference_db": 2.4073187887552194e-11,
+    "public_single_tone_checks": 208,
+    "auto_peak_mismatches": 2,
+    "overloads": 0,
+    "aggregate_recomputed": true,
+    "case_sha256": {
+      "sar_binary_seed11/manifest.json": "69b414bcbe34a2f3dc72aea5c77e0dbadd13102f406d1cabfa8157034b7e3926",
+      "sar_binary_seed11/models.json": "4fd5aa5d5ed561a13f5c51d7af0495d1033c5b5ed2e7c8848bd2c4c641363011",
+      "sar_binary_seed11/diagnostics.json": "aa9720f79a25aae4e1d1cc566edd11ce96dd5eaf1c26ec7c60249767e6a1ead7",
+      "sar_binary_seed11/test_metrics.csv": "8b8e6bbef9593fc7ca039ec7a386cc8f0e4ef7ef40de39a5c765236ea388edef",
+      "sar_redundant_seed11/manifest.json": "01c4be30b96a91e9c2f0f20aedbd7fa4d30a58c1525bffe05419a72fe47feed0",
+      "sar_redundant_seed11/models.json": "d5a4aeda5aa83d9797b133375c5473b51bbd85253a5be9a7ad7b7d2fb6e74bcd",
+      "sar_redundant_seed11/diagnostics.json": "b467ac27a14d51ea8d651ec62d6830accbfc3b302c078de9a4247686e787077b",
+      "sar_redundant_seed11/test_metrics.csv": "1cbab594618c6aa4f7a9a120d77891418b4ce028790c69438bd42e55d2b595e2"
+    }
+  },
+  "installed_combined": {
+    "status": "passed",
+    "cases": 2,
+    "captures": 36,
+    "frozen_rows_replayed": 324,
+    "public_single_tone_checks": 270,
+    "max_independent_fft_difference_db": 8.881784197001252e-12,
+    "both_errors_in_all_tests": true,
+    "overloads": 0,
+    "frozen_models_unchanged": true,
+    "aggregate_recomputed": true,
+    "optimizer_diagnostics": {
+      "binary_seed11/direct_mlp": {
+        "samples": 2048,
+        "validation_samples": 512,
+        "parameters": 51,
+        "selected_iteration": 3,
+        "iterations": 3,
+        "optimizer_converged": false,
+        "optimizer_message": "STOP: TOTAL NO. OF ITERATIONS REACHED LIMIT",
+        "validation_rmse": 0.0021449919690960805,
+        "seed": 11,
+        "l2": 1e-06
+      },
+      "binary_seed11/cascade_mlp": {
+        "samples": 2048,
+        "validation_samples": 512,
+        "parameters": 51,
+        "selected_iteration": 2,
+        "iterations": 3,
+        "optimizer_converged": false,
+        "optimizer_message": "STOP: TOTAL NO. OF ITERATIONS REACHED LIMIT",
+        "validation_rmse": 0.001722905601851285,
+        "seed": 11,
+        "l2": 1e-06
+      },
+      "redundant_seed11/direct_mlp": {
+        "samples": 2048,
+        "validation_samples": 512,
+        "parameters": 51,
+        "selected_iteration": 2,
+        "iterations": 3,
+        "optimizer_converged": false,
+        "optimizer_message": "STOP: TOTAL NO. OF ITERATIONS REACHED LIMIT",
+        "validation_rmse": 0.00373747257320032,
+        "seed": 11,
+        "l2": 1e-06
+      },
+      "redundant_seed11/cascade_mlp": {
+        "samples": 2048,
+        "validation_samples": 512,
+        "parameters": 51,
+        "selected_iteration": 2,
+        "iterations": 3,
+        "optimizer_converged": false,
+        "optimizer_message": "STOP: TOTAL NO. OF ITERATIONS REACHED LIMIT",
+        "validation_rmse": 0.0015180209408146006,
+        "seed": 11,
+        "l2": 1e-06
+      }
+    },
+    "case_sha256": {
+      "binary_seed11/cascade_mlp_history.csv": "c552344c98e450105566976a31019911508ad0bb28b317554a95113e693440d3",
+      "binary_seed11/diagnostics.json": "34f8a8f1e56b004f76ce0f6240c5b5f728dce196b8b5dce5c1c9d7b2710c882d",
+      "binary_seed11/direct_mlp_history.csv": "a5e5c2f4569dd8b5edd63b66655fe4ee6b1bcb73aadec6d8698b068733d2dd65",
+      "binary_seed11/manifest.json": "d4934126cd26be2e4349eeb278e7f57db7d42034a9f105a0a0a5ae3057b6bed0",
+      "binary_seed11/models.json": "760833ef9b9126a3fb2433e5523d99bfba9e5d3e384ea9cb45e77040c05df7e0",
+      "binary_seed11/spectrum.csv": "6588ebf13245b2d5bc60d79c4dbb43fb50d630a1475d47f1ca3a448f2200501d",
+      "binary_seed11/test_metrics.csv": "e526cad9b07281e4cd2d4fe96b0f6bfcf47b3086fe8a518e954afb40a5371bcc",
+      "redundant_seed11/cascade_mlp_history.csv": "1ba693c853df744b67b4dbdf006dde8d0ff303cf657e51912cb54397781282ca",
+      "redundant_seed11/diagnostics.json": "b773a063265627e7b09c1973296ef10ea4f693dc875ab0ddaa0b42377d2988af",
+      "redundant_seed11/direct_mlp_history.csv": "206c7f852fb24b7d8d5ab53256d4c35e4f7747439381a33143b4122ec90fd34a",
+      "redundant_seed11/manifest.json": "fe1888849c73d85acf75df0c9fb584ecfff9a16d52c1b826f0c7a4b09e9c96d9",
+      "redundant_seed11/models.json": "9ac73d35bdbc3941f3449bf7e50b32ca646126c50113029983c5f3223ceb53ab",
+      "redundant_seed11/spectrum.csv": "336a36e4ada099f77795bfbef6e02a12b5a394aa312d4d355dfdd3064a7c5610",
+      "redundant_seed11/test_metrics.csv": "dbcccbb9cce9ae9d22475e1469088a23cc011bfc48d635dd0643f274bab4f1f1"
+    }
+  },
+  "temporary_skill_install": true,
+  "copied_examples": true,
+  "no_dither_dependency": true,
+  "no_packaged_caches": true
+}

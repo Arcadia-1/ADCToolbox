@@ -1,0 +1,641 @@
+{
+  "configurations": {
+    "baseline": {
+      "output": "E:\\ADCToolbox\\python\\src\\adctoolbox\\examples\\11_calibration\\output\\foreground_repository_20261102",
+      "size": 8192,
+      "records": 400,
+      "validation_records": 40,
+      "stride": 16,
+      "iterations": 200,
+      "hidden_units": 16,
+      "seeds": [
+        11,
+        22,
+        33
+      ],
+      "plants": [
+        "static",
+        "memory"
+      ],
+      "history": 3,
+      "plant_model": "repository_siggen_static_coarse_memory_v1",
+      "source_sha256": {
+        "exp_cal03_foreground_nonlinear.py": "3db489feba6722094f24e6e67d67d85abb8e0cd8595d7aa950ec1b97d70f5cbe",
+        "foreground_benchmark.py": "161045946a6930776bcebdce0f6ffd4174dcde3928d18cfe5de150b2a8dad686",
+        "nonidealities.py": "913f2c57d8cda2c0e26163057b02d4a1c66038f948dec3c6768fa1aa81846436",
+        "foreground.py": "0e34d02928f5698d224a76195d15594c3c053ce214ce24607743c1ee7e63879d",
+        "exp_cal01_dither_background.py": "5a37cf9bf67d5e443870ab7e47ad5462b80f7e7cb5b20bbb56407b0be2081477"
+      },
+      "selection": "MLP iterate selected by independent monitor-reference validation MSE; test data unused",
+      "training_rows_per_case": 204800
+    },
+    "mixed": {
+      "baseline": "E:\\ADCToolbox\\python\\src\\adctoolbox\\examples\\11_calibration\\output\\foreground_repository_20261102",
+      "records": 400,
+      "size": 8192,
+      "stride": 16,
+      "plants": [
+        "static",
+        "memory"
+      ],
+      "seeds": [
+        11,
+        22,
+        33
+      ],
+      "ridge": 1e-10,
+      "plant_model": "repository_siggen_static_coarse_memory_v1",
+      "retrain_mlp": true,
+      "validation_records": 40,
+      "hidden_units": 16,
+      "iterations": 200,
+      "mlp_l2": 1e-06,
+      "baseline_configuration_sha256": "10acde89e53ce535cc6d9d9560874ab8493f662cb085b1ff18ea6e7305812ea6",
+      "source_sha256": {
+        "exp_cal05_foreground_excitation.py": "b9ac146a7e6526614c80b71ae5ceadd0a372e7186f55639ac85364904dd07808",
+        "exp_cal03_foreground_nonlinear.py": "3db489feba6722094f24e6e67d67d85abb8e0cd8595d7aa950ec1b97d70f5cbe",
+        "foreground_benchmark.py": "161045946a6930776bcebdce0f6ffd4174dcde3928d18cfe5de150b2a8dad686",
+        "foreground.py": "0e34d02928f5698d224a76195d15594c3c053ce214ce24607743c1ee7e63879d",
+        "exp_cal01_dither_background.py": "5a37cf9bf67d5e443870ab7e47ad5462b80f7e7cb5b20bbb56407b0be2081477",
+        "nonidealities.py": "913f2c57d8cda2c0e26163057b02d4a1c66038f948dec3c6768fa1aa81846436"
+      },
+      "control": "same model sizes and capture/row budgets; new half single/half dual tone records; MLP retrained with independent mixed validation; same optimizer budget"
+    },
+    "fresh": {
+      "baseline": "E:\\ADCToolbox\\python\\src\\adctoolbox\\examples\\11_calibration\\output\\foreground_repository_20261102",
+      "mixed": "E:\\ADCToolbox\\python\\src\\adctoolbox\\examples\\11_calibration\\output\\excitation_repository_20261102",
+      "records_per_group": 4,
+      "size": 8192,
+      "plants": [
+        "static",
+        "memory"
+      ],
+      "seeds": [
+        11,
+        22,
+        33
+      ],
+      "plant_model": "repository_siggen_static_coarse_memory_v1",
+      "source_sha256": {
+        "audit_foreground_transfer.py": "d8f1f0a319e54696b9cd25d98faecae1d77a0cb5aab59b4c917d121bed44b17d",
+        "exp_cal03_foreground_nonlinear.py": "3db489feba6722094f24e6e67d67d85abb8e0cd8595d7aa950ec1b97d70f5cbe",
+        "foreground_benchmark.py": "161045946a6930776bcebdce0f6ffd4174dcde3928d18cfe5de150b2a8dad686",
+        "foreground.py": "0e34d02928f5698d224a76195d15594c3c053ce214ce24607743c1ee7e63879d",
+        "exp_cal05_foreground_excitation.py": "b9ac146a7e6526614c80b71ae5ceadd0a372e7186f55639ac85364904dd07808",
+        "exp_cal01_dither_background.py": "5a37cf9bf67d5e443870ab7e47ad5462b80f7e7cb5b20bbb56407b0be2081477",
+        "nonidealities.py": "913f2c57d8cda2c0e26163057b02d4a1c66038f948dec3c6768fa1aa81846436"
+      },
+      "input_sha256": {
+        "single/static_seed11/models.json": "d2106066a8c56488dd8b2b68d6c5c03a011f8eb178519e55b0e4660ca1cc2ef1",
+        "mixed/static_seed11/models.json": "4006ba5b0fdadb3b8ac876402791df09b7c6afbc24e19f43683c7919b63c5b37",
+        "single/static_seed22/models.json": "e3ad63b581bce3c79002a3c4c5bd14929c0165de7a40ad112e0e10cab2cac481",
+        "mixed/static_seed22/models.json": "1881c04c850abb10d739567980199f2a724e36d021227afe708d92f1deb6c401",
+        "single/static_seed33/models.json": "0a2a2bcf59b80aa1dba51a30c9d805c326455ec94d7f34935bd32162b3d09201",
+        "mixed/static_seed33/models.json": "83727c714e5373a640affc15819f78048fd4e305a2456d01468b957591f6fb0a",
+        "single/memory_seed11/models.json": "0174c59386d63e9702dd67ede7f3ba8ddd9e70227d5faad6920452424f4995cb",
+        "mixed/memory_seed11/models.json": "e410a6acd7c374ddc34230b3425387730bebd40694d4656ad26e344cbd5396f6",
+        "single/memory_seed22/models.json": "4a7624869bed6daeda82c35164a73cb7a3d6aaa31979400b29e312e6b7e78f9b",
+        "mixed/memory_seed22/models.json": "17aa7f6198a563ebd83a0752f5026a07d7bccf32ac0c8718550f749821214264",
+        "single/memory_seed33/models.json": "59d186ffff67101d28ba4a0fd53abe91f4d6ae88a14611b03fbf31a35c0794f8",
+        "mixed/memory_seed33/models.json": "839bd3d83657eabad5b327476ca0fed6621598c9d1702f1e1d9f5a6d62406ee4"
+      },
+      "policy": "frozen models; new random 2/3/5 tones; no tuning or selection"
+    },
+    "bitweights": {
+      "output": "E:\\ADCToolbox\\python\\src\\adctoolbox\\examples\\11_calibration\\output\\bitweight_repository_20261102",
+      "smooth_baseline": "E:\\ADCToolbox\\python\\src\\adctoolbox\\examples\\11_calibration\\output\\foreground_repository_20261102",
+      "smooth_mixed": "E:\\ADCToolbox\\python\\src\\adctoolbox\\examples\\11_calibration\\output\\excitation_repository_20261102",
+      "sar_records": 64,
+      "sar_validation_records": 8,
+      "sar_size": 8192,
+      "sar_stride": 8,
+      "sar_iterations": 1000,
+      "seeds": [
+        11,
+        22,
+        33
+      ],
+      "sar_plants": [],
+      "source_sha256": {
+        "examples/11_calibration/exp_cal10_foreground_bitweights.py": "ea18526a8dc0c5f8b3007bc1a6702a03fdf0e081108599045713081c282616c0",
+        "examples/11_calibration/exp_cal03_foreground_nonlinear.py": "3db489feba6722094f24e6e67d67d85abb8e0cd8595d7aa950ec1b97d70f5cbe",
+        "examples/11_calibration/foreground_benchmark.py": "161045946a6930776bcebdce0f6ffd4174dcde3928d18cfe5de150b2a8dad686",
+        "examples/11_calibration/exp_cal01_dither_background.py": "5a37cf9bf67d5e443870ab7e47ad5462b80f7e7cb5b20bbb56407b0be2081477",
+        "calibration/calibrate_weight_sine.py": "a0a5a359f81b805d33bfca77788790d1bda899e2c9cc5e8d652aa4d84d2439aa",
+        "calibration/calibrate_weight_sine_lite.py": "a5b00fcc3989e58542488f9122a7d019a4cc7288f9104526ec907ca581479376",
+        "calibration/diagnose_calibration_matrix.py": "b951a7741c7f675c246deb581e14c5f9fa3b098049b53714e052ea4b9ecfb152",
+        "calibration/foreground.py": "0e34d02928f5698d224a76195d15594c3c053ce214ce24607743c1ee7e63879d",
+        "calibration/scale_calibration_output.py": "06fee511431315073dfc1924235dc4b6ac709a75af1485954bdb1aeee6a45237",
+        "calibration/_estimate_frequencies.py": "c6d028ee173e4b34167e847416fe1944d61668c30df7248f312831559db0b735",
+        "calibration/_lstsq_solver.py": "5ea56f74aa5dc0b4a4853a40e8faee2cd3be78fb6db29b1240d448196c6b8bf8",
+        "calibration/_patch_rank_deficiency.py": "63501b5705aa6ff95b5511a14421101923b5319183cbe2756e2fca95a2e20730",
+        "calibration/_post_process.py": "ae05b0445cfe338f778c6a93d24b014a1d0228e405fbc5049a7b1c3ed6cf4571",
+        "calibration/_prepare_input.py": "229dbf5ced8e3436229033dcb46c5d732cfb0477f2deb29f83fcf7591ddc27be",
+        "calibration/_scale_columns_for_conditioning.py": "216876659fb7280905a45adb40787ba6fb4ca45996815e2a56560bc111120c8f",
+        "calibration/__init__.py": "75cbb7dd78b8609e0d992dcf4a5f69abcd387a19c1f36fdc927f49e5b74143ec",
+        "spectrum/analyze_spectrum.py": "661fdb24d29653038d3915d129497ab306ccaea63040b81be874e9c90c2a5ad7",
+        "spectrum/analyze_spectrum_polar.py": "55439e967492b6dc0aa4baeceb0eed61ecea86518a8d384fe19f6adf3af1e945",
+        "spectrum/compute_spectrum.py": "f7a0b08878225e66aeb7431a2e0da302147f1a92b1c006554096836b82b7e365",
+        "spectrum/extract_freq_components.py": "7f88e5a5d5192fa8bb8870fdaeb9bb716ed8f7fee259d8a76b5c4122bcd53485",
+        "spectrum/plot_spectrum.py": "666692d0ac70c0bbfcceaa8171920a16a5c9abb1e946361830c3ea572c992de3",
+        "spectrum/plot_spectrum_polar.py": "d617aceedf7a66e78956fa5481fd327fcbe49ee193c0ddf9756672352d11dd01",
+        "spectrum/plot_spectrum_virtuoso.py": "6902506c8f854da7e009b5c85dc6f0c8c709d316e5affd68f372998139b3d4df",
+        "spectrum/quick_sndr.py": "64b242ff337e5a4143d9c6795e4e7838240d156c7ea3f31d1729fee975399def",
+        "spectrum/sweep_performance_vs_osr.py": "7c96cd4e0c2aa0946073a581ebd07a658d4ce82000946ba26f781316fe525dcb",
+        "spectrum/_align_spectrum_phase.py": "94a13a136a20b1dbf6df8cf85390b93160aa8289de514b1ecf535e0221e4b53f",
+        "spectrum/_bin_ranges.py": "cbaff1b210dc37a02ed6023505e0c0b8186356de39a920e8f60bce232502fb83",
+        "spectrum/_estimate_noise_power.py": "defc8f8cc42bd16935577800b8d9378c93dfee7e9237559e7365ccb2a6cf3ca7",
+        "spectrum/_exclude_bins.py": "a2cceaab55e997403b22af4dda8c5e65511492dff7d12b84ef05525bc54bbe48",
+        "spectrum/_harmonics.py": "83ec2f396d1efb765f4d7f79340147c488275747bc94403803a6c304fe750151",
+        "spectrum/_locate_fundamental.py": "795bac44c28cba43b87b29b9f8ad0f1ae5b4272df20967ed4826b9d73836e4d7",
+        "spectrum/_prepare_fft_input.py": "852c53ad260bb956d319688747ca6ff698294d05482158af2a8c466f97045664",
+        "spectrum/_side_bin_auto.py": "e56a8828a27e4ac1427b7fb6edb658f9165d10c74f5ab0fa5a3929976467aa65",
+        "spectrum/_spectrum_averaging.py": "a1f5012120962eb17a06490f9a1ccf3866ed69d61f785c89d5f26a9705d99ffe",
+        "spectrum/_window.py": "75beccc2a719e310d0d48c41aa803bd23fb0016555028183686c015948cdc187",
+        "spectrum/__init__.py": "02720ba3e6bc9dac86ec041d2169d942bc11244d19ab25a145ddf37d60c9d98e",
+        "models/sar.py": "795848f09ab68edd15922f82d3566c7cefa2ef07e746eb91c564fe0525f98b51",
+        "siggen/nonidealities.py": "913f2c57d8cda2c0e26163057b02d4a1c66038f948dec3c6768fa1aa81846436"
+      },
+      "input_sha256": {
+        "E:\\ADCToolbox\\python\\src\\adctoolbox\\examples\\11_calibration\\output\\foreground_repository_20261102\\configuration.json": "10acde89e53ce535cc6d9d9560874ab8493f662cb085b1ff18ea6e7305812ea6",
+        "E:\\ADCToolbox\\python\\src\\adctoolbox\\examples\\11_calibration\\output\\foreground_repository_20261102\\static_seed11\\data_manifest.json": "39891c1f25809f3a20ad60c713e6d1f7115412e6cf92040b1eebd4d7b3c2d3e2",
+        "E:\\ADCToolbox\\python\\src\\adctoolbox\\examples\\11_calibration\\output\\excitation_repository_20261102\\configuration.json": "d452c67ee65d3bd8cea932df838fdc43cb15e72948a442c67d8a9b88cd4c0b90",
+        "E:\\ADCToolbox\\python\\src\\adctoolbox\\examples\\11_calibration\\output\\excitation_repository_20261102\\static_seed11\\models.json": "4006ba5b0fdadb3b8ac876402791df09b7c6afbc24e19f43683c7919b63c5b37",
+        "E:\\ADCToolbox\\python\\src\\adctoolbox\\examples\\11_calibration\\output\\excitation_repository_20261102\\static_seed11\\training_manifest.json": "0b94a4028041372e109828251c772a4b296a09ee51c6ca1890e6f1dee0328fae",
+        "E:\\ADCToolbox\\python\\src\\adctoolbox\\examples\\11_calibration\\output\\foreground_repository_20261102\\static_seed22\\data_manifest.json": "3989c92b36c057bd936b8962f8ab40a36d87fc5f6a6eabdeec17386c515ed104",
+        "E:\\ADCToolbox\\python\\src\\adctoolbox\\examples\\11_calibration\\output\\excitation_repository_20261102\\static_seed22\\models.json": "1881c04c850abb10d739567980199f2a724e36d021227afe708d92f1deb6c401",
+        "E:\\ADCToolbox\\python\\src\\adctoolbox\\examples\\11_calibration\\output\\excitation_repository_20261102\\static_seed22\\training_manifest.json": "1646e35e405a63696b54ff23cd947189e0d57fe5c882a75812f67e5058e30375",
+        "E:\\ADCToolbox\\python\\src\\adctoolbox\\examples\\11_calibration\\output\\foreground_repository_20261102\\static_seed33\\data_manifest.json": "9d1eb06826a2df79a717cfda868414dcbcec40ce4286beff91f82cdc1c344b1e",
+        "E:\\ADCToolbox\\python\\src\\adctoolbox\\examples\\11_calibration\\output\\excitation_repository_20261102\\static_seed33\\models.json": "83727c714e5373a640affc15819f78048fd4e305a2456d01468b957591f6fb0a",
+        "E:\\ADCToolbox\\python\\src\\adctoolbox\\examples\\11_calibration\\output\\excitation_repository_20261102\\static_seed33\\training_manifest.json": "0138581006a11f0bd6ef03f10ed5726ec9b64f44554b5d749f5a033c9ee53876",
+        "E:\\ADCToolbox\\python\\src\\adctoolbox\\examples\\11_calibration\\output\\foreground_repository_20261102\\memory_seed11\\data_manifest.json": "b120f827386ad1eab888e1b3d985c0de42d96fcd27eafcc5b316b6453c05757d",
+        "E:\\ADCToolbox\\python\\src\\adctoolbox\\examples\\11_calibration\\output\\excitation_repository_20261102\\memory_seed11\\models.json": "e410a6acd7c374ddc34230b3425387730bebd40694d4656ad26e344cbd5396f6",
+        "E:\\ADCToolbox\\python\\src\\adctoolbox\\examples\\11_calibration\\output\\excitation_repository_20261102\\memory_seed11\\training_manifest.json": "0b94a4028041372e109828251c772a4b296a09ee51c6ca1890e6f1dee0328fae",
+        "E:\\ADCToolbox\\python\\src\\adctoolbox\\examples\\11_calibration\\output\\foreground_repository_20261102\\memory_seed22\\data_manifest.json": "85910a9ae73c6dbcbae2ececbd9955c0e47807211951d89c0e077867df508d5f",
+        "E:\\ADCToolbox\\python\\src\\adctoolbox\\examples\\11_calibration\\output\\excitation_repository_20261102\\memory_seed22\\models.json": "17aa7f6198a563ebd83a0752f5026a07d7bccf32ac0c8718550f749821214264",
+        "E:\\ADCToolbox\\python\\src\\adctoolbox\\examples\\11_calibration\\output\\excitation_repository_20261102\\memory_seed22\\training_manifest.json": "1646e35e405a63696b54ff23cd947189e0d57fe5c882a75812f67e5058e30375",
+        "E:\\ADCToolbox\\python\\src\\adctoolbox\\examples\\11_calibration\\output\\foreground_repository_20261102\\memory_seed33\\data_manifest.json": "1e3fbf33afe94ce084488ca70da93a98a5bc7267ed55d003d93d798901d7883d",
+        "E:\\ADCToolbox\\python\\src\\adctoolbox\\examples\\11_calibration\\output\\excitation_repository_20261102\\memory_seed33\\models.json": "839bd3d83657eabad5b327476ca0fed6621598c9d1702f1e1d9f5a6d62406ee4",
+        "E:\\ADCToolbox\\python\\src\\adctoolbox\\examples\\11_calibration\\output\\excitation_repository_20261102\\memory_seed33\\training_manifest.json": "0138581006a11f0bd6ef03f10ed5726ec9b64f44554b5d749f5a033c9ee53876"
+      },
+      "history": 3,
+      "hidden_units": 16,
+      "sar_msb_relative_error": 0.01,
+      "sar_bits": 14,
+      "metric_policy": "coherent boxcar, DC excluded, full Nyquist band, all harmonics included in SNDR; single-tone cross-check public analyzer",
+      "selection": "validation reference MSE only; no test selection"
+    }
+  },
+  "audit": {
+    "status": "passed",
+    "plant_model": "repository_siggen_static_coarse_memory_v1",
+    "inherited_checks": {
+      "baseline": {
+        "cases": 6,
+        "frozen_model_metric_rows_replayed": 1080,
+        "maximum_replay_error_db": 0.0,
+        "aggregate_recomputed": true,
+        "optimizer_not_converged": [
+          {
+            "case": "static_seed11",
+            "message": "STOP: TOTAL NO. OF ITERATIONS REACHED LIMIT"
+          },
+          {
+            "case": "static_seed22",
+            "message": "STOP: TOTAL NO. OF ITERATIONS REACHED LIMIT"
+          },
+          {
+            "case": "static_seed33",
+            "message": "STOP: TOTAL NO. OF ITERATIONS REACHED LIMIT"
+          },
+          {
+            "case": "memory_seed11",
+            "message": "STOP: TOTAL NO. OF ITERATIONS REACHED LIMIT"
+          },
+          {
+            "case": "memory_seed22",
+            "message": "STOP: TOTAL NO. OF ITERATIONS REACHED LIMIT"
+          },
+          {
+            "case": "memory_seed33",
+            "message": "STOP: TOTAL NO. OF ITERATIONS REACHED LIMIT"
+          }
+        ]
+      },
+      "mixed": {
+        "cases": 6,
+        "mixed_model_metric_rows_replayed": 600,
+        "aggregate_recomputed": true
+      }
+    },
+    "rows_by_run": [
+      1080,
+      1320,
+      504
+    ],
+    "rows_replayed": 2904,
+    "fresh_captures": 72,
+    "max_independent_fft_difference_db": 1.475086719437968e-11,
+    "public_single_tone_checks": 2040,
+    "auto_peak_mismatches": 0,
+    "frozen_models_unchanged": true,
+    "aggregate_recomputed": true,
+    "normal_capture_overloads": 0,
+    "optimizer_diagnostics": [
+      {
+        "case": "static_seed11",
+        "excitation": "single",
+        "samples": 204800,
+        "validation_samples": 20480,
+        "parameters": 102,
+        "selected_iteration": 200,
+        "iterations": 200,
+        "optimizer_converged": false,
+        "optimizer_message": "STOP: TOTAL NO. OF ITERATIONS REACHED LIMIT",
+        "validation_rmse": 0.0002128984123908001,
+        "seed": 11,
+        "l2": 1e-06,
+        "wall_seconds": 93.16258759999982
+      },
+      {
+        "case": "static_seed11",
+        "excitation": "mixed",
+        "samples": 204800,
+        "validation_samples": 20480,
+        "parameters": 102,
+        "selected_iteration": 200,
+        "iterations": 200,
+        "optimizer_converged": false,
+        "optimizer_message": "STOP: TOTAL NO. OF ITERATIONS REACHED LIMIT",
+        "validation_rmse": 0.0001709353996684756,
+        "seed": 11,
+        "l2": 1e-06
+      },
+      {
+        "case": "static_seed22",
+        "excitation": "single",
+        "samples": 204800,
+        "validation_samples": 20480,
+        "parameters": 102,
+        "selected_iteration": 199,
+        "iterations": 200,
+        "optimizer_converged": false,
+        "optimizer_message": "STOP: TOTAL NO. OF ITERATIONS REACHED LIMIT",
+        "validation_rmse": 0.00013080063659457922,
+        "seed": 22,
+        "l2": 1e-06,
+        "wall_seconds": 73.59963190000053
+      },
+      {
+        "case": "static_seed22",
+        "excitation": "mixed",
+        "samples": 204800,
+        "validation_samples": 20480,
+        "parameters": 102,
+        "selected_iteration": 200,
+        "iterations": 200,
+        "optimizer_converged": false,
+        "optimizer_message": "STOP: TOTAL NO. OF ITERATIONS REACHED LIMIT",
+        "validation_rmse": 8.866601827608523e-05,
+        "seed": 22,
+        "l2": 1e-06
+      },
+      {
+        "case": "static_seed33",
+        "excitation": "single",
+        "samples": 204800,
+        "validation_samples": 20480,
+        "parameters": 102,
+        "selected_iteration": 200,
+        "iterations": 200,
+        "optimizer_converged": false,
+        "optimizer_message": "STOP: TOTAL NO. OF ITERATIONS REACHED LIMIT",
+        "validation_rmse": 0.00011730536778433851,
+        "seed": 33,
+        "l2": 1e-06,
+        "wall_seconds": 63.79173489999994
+      },
+      {
+        "case": "static_seed33",
+        "excitation": "mixed",
+        "samples": 204800,
+        "validation_samples": 20480,
+        "parameters": 102,
+        "selected_iteration": 200,
+        "iterations": 200,
+        "optimizer_converged": false,
+        "optimizer_message": "STOP: TOTAL NO. OF ITERATIONS REACHED LIMIT",
+        "validation_rmse": 0.00012473267085794194,
+        "seed": 33,
+        "l2": 1e-06
+      },
+      {
+        "case": "memory_seed11",
+        "excitation": "single",
+        "samples": 204800,
+        "validation_samples": 20480,
+        "parameters": 102,
+        "selected_iteration": 198,
+        "iterations": 200,
+        "optimizer_converged": false,
+        "optimizer_message": "STOP: TOTAL NO. OF ITERATIONS REACHED LIMIT",
+        "validation_rmse": 0.0007252835342873106,
+        "seed": 11,
+        "l2": 1e-06,
+        "wall_seconds": 104.97109739999905
+      },
+      {
+        "case": "memory_seed11",
+        "excitation": "mixed",
+        "samples": 204800,
+        "validation_samples": 20480,
+        "parameters": 102,
+        "selected_iteration": 189,
+        "iterations": 200,
+        "optimizer_converged": false,
+        "optimizer_message": "STOP: TOTAL NO. OF ITERATIONS REACHED LIMIT",
+        "validation_rmse": 0.0007271269166399013,
+        "seed": 11,
+        "l2": 1e-06
+      },
+      {
+        "case": "memory_seed22",
+        "excitation": "single",
+        "samples": 204800,
+        "validation_samples": 20480,
+        "parameters": 102,
+        "selected_iteration": 200,
+        "iterations": 200,
+        "optimizer_converged": false,
+        "optimizer_message": "STOP: TOTAL NO. OF ITERATIONS REACHED LIMIT",
+        "validation_rmse": 0.0007185775278167531,
+        "seed": 22,
+        "l2": 1e-06,
+        "wall_seconds": 48.3582822999997
+      },
+      {
+        "case": "memory_seed22",
+        "excitation": "mixed",
+        "samples": 204800,
+        "validation_samples": 20480,
+        "parameters": 102,
+        "selected_iteration": 196,
+        "iterations": 200,
+        "optimizer_converged": false,
+        "optimizer_message": "STOP: TOTAL NO. OF ITERATIONS REACHED LIMIT",
+        "validation_rmse": 0.0007317665731287769,
+        "seed": 22,
+        "l2": 1e-06
+      },
+      {
+        "case": "memory_seed33",
+        "excitation": "single",
+        "samples": 204800,
+        "validation_samples": 20480,
+        "parameters": 102,
+        "selected_iteration": 200,
+        "iterations": 200,
+        "optimizer_converged": false,
+        "optimizer_message": "STOP: TOTAL NO. OF ITERATIONS REACHED LIMIT",
+        "validation_rmse": 0.0007278506315899849,
+        "seed": 33,
+        "l2": 1e-06,
+        "wall_seconds": 116.92334380000102
+      },
+      {
+        "case": "memory_seed33",
+        "excitation": "mixed",
+        "samples": 204800,
+        "validation_samples": 20480,
+        "parameters": 102,
+        "selected_iteration": 193,
+        "iterations": 200,
+        "optimizer_converged": false,
+        "optimizer_message": "STOP: TOTAL NO. OF ITERATIONS REACHED LIMIT",
+        "validation_rmse": 0.0007244014452341845,
+        "seed": 33,
+        "l2": 1e-06
+      }
+    ],
+    "model_artifact_sha256": {
+      "single/static_seed11/models.json": "d2106066a8c56488dd8b2b68d6c5c03a011f8eb178519e55b0e4660ca1cc2ef1",
+      "single/static_seed11/training_diagnostics.json": "70b95b7be0626e5478af3eae76353ebdf1e13eeaf7b80794d527dfb8e0cf6972",
+      "single/static_seed11/mlp_history.csv": "d467ce537312ac167d0a05e5772f53da273589a14d454f94c2bfe8d599e317bc",
+      "mixed/static_seed11/models.json": "4006ba5b0fdadb3b8ac876402791df09b7c6afbc24e19f43683c7919b63c5b37",
+      "mixed/static_seed11/training_diagnostics.json": "1f2a2bf5705a6dfef64053afd4ce86aa17c58e6f30d38dc9a7d7fd77828f6a73",
+      "mixed/static_seed11/mlp_history.csv": "23e84782b9ac3c28b72f9247af906600e83c7a89305a08d7ce9f5c7e2123fe09",
+      "single/static_seed22/models.json": "e3ad63b581bce3c79002a3c4c5bd14929c0165de7a40ad112e0e10cab2cac481",
+      "single/static_seed22/training_diagnostics.json": "752e0bd736dc50dc160bc57910fdebe27ebb09b3141af36e0476d402dc2529b6",
+      "single/static_seed22/mlp_history.csv": "89caa9d785c81d96707cd65389996719e20533283bc2ae51823a92b5d83bdb5d",
+      "mixed/static_seed22/models.json": "1881c04c850abb10d739567980199f2a724e36d021227afe708d92f1deb6c401",
+      "mixed/static_seed22/training_diagnostics.json": "8d14b29cb264408921d8d98c6569b04d754e24aa041c613b758e312cab40e352",
+      "mixed/static_seed22/mlp_history.csv": "c710746a44c457ca55f61e29656de73ce04c31e16cc16fdba80b35c19d2faae3",
+      "single/static_seed33/models.json": "0a2a2bcf59b80aa1dba51a30c9d805c326455ec94d7f34935bd32162b3d09201",
+      "single/static_seed33/training_diagnostics.json": "8715894fc2a392aceb42fc2bd088529bd24111dbdb73fd28a390d655463b3365",
+      "single/static_seed33/mlp_history.csv": "9c34ad05fcbcf4df857a27e9726d2610d141fac4f80dbdb69ff63540f3c8fcbb",
+      "mixed/static_seed33/models.json": "83727c714e5373a640affc15819f78048fd4e305a2456d01468b957591f6fb0a",
+      "mixed/static_seed33/training_diagnostics.json": "90e5ac7885d778471be3e894eb4ebb8911bff655a3ddb07cd276da0fdf9628f8",
+      "mixed/static_seed33/mlp_history.csv": "e189153a23c407b0e884f0042605253b629d65076c1c0c9177eabadc3bdf6c01",
+      "single/memory_seed11/models.json": "0174c59386d63e9702dd67ede7f3ba8ddd9e70227d5faad6920452424f4995cb",
+      "single/memory_seed11/training_diagnostics.json": "55240dddbf446f9590aca7552cd6ff96296db702ae219f2b009f5e885f118d16",
+      "single/memory_seed11/mlp_history.csv": "5813a9f8c12bb5737d128984abce7de8b198978ec13a31c405c0828ff66dd4fe",
+      "mixed/memory_seed11/models.json": "e410a6acd7c374ddc34230b3425387730bebd40694d4656ad26e344cbd5396f6",
+      "mixed/memory_seed11/training_diagnostics.json": "94e71d83e4526c27f3c7cb81231662e3d20d88e57ae72465271a59b19d052059",
+      "mixed/memory_seed11/mlp_history.csv": "743ac68f302bb08808d39cab75d4533988dee23380bd3af8a2c567c8f8733573",
+      "single/memory_seed22/models.json": "4a7624869bed6daeda82c35164a73cb7a3d6aaa31979400b29e312e6b7e78f9b",
+      "single/memory_seed22/training_diagnostics.json": "bcf5f3708f1867a32eae54bd28645ec54846e11b72c8d908707468a7950b5787",
+      "single/memory_seed22/mlp_history.csv": "0de9ac762d49f2f0d6fcc54a9a243890412637d19af6ee97bd91b81f96f3646b",
+      "mixed/memory_seed22/models.json": "17aa7f6198a563ebd83a0752f5026a07d7bccf32ac0c8718550f749821214264",
+      "mixed/memory_seed22/training_diagnostics.json": "02442bc23741e3820df6eab512995fcffec2834020aae159ba4f26d5b9d94a3c",
+      "mixed/memory_seed22/mlp_history.csv": "5f7a14b17eb623244712658bfd860756c46824ea1eecb026e5943aa2760caa35",
+      "single/memory_seed33/models.json": "59d186ffff67101d28ba4a0fd53abe91f4d6ae88a14611b03fbf31a35c0794f8",
+      "single/memory_seed33/training_diagnostics.json": "5fb82c4212e22fe1bafe7232bc144101df86d5e9abd9d2023d47e08aba1699d8",
+      "single/memory_seed33/mlp_history.csv": "91fa6ccbd36135f53e6ebeb7fe7e4bf29cad086f5c5562590263f62669bfafac",
+      "mixed/memory_seed33/models.json": "839bd3d83657eabad5b327476ca0fed6621598c9d1702f1e1d9f5a6d62406ee4",
+      "mixed/memory_seed33/training_diagnostics.json": "f0c5a2aee41eeab919ecbab1c16d0fe2e7b42b77e9e93341246e29b1c3cf8edf",
+      "mixed/memory_seed33/mlp_history.csv": "2bf15b37991fd2b20238de8a4659980f8dfa710b66e9b243f79f2e7229435dbb"
+    },
+    "source_sha256": "a21b15127deb751549058ac635125e460b58a7089f2d2ea1e24e48da66e84b3c"
+  },
+  "bitweight_audit": {
+    "status": "passed",
+    "cases": 6,
+    "frozen_rows_replayed": 612,
+    "max_independent_fft_difference_db": 1.475086719437968e-11,
+    "public_single_tone_checks": 540,
+    "auto_peak_mismatches": 0,
+    "overloads": 0,
+    "aggregate_recomputed": true,
+    "case_sha256": {
+      "smooth_memory_seed11/manifest.json": "43afc4524c32ec081d79e274379319aa0925fcf17f5362bf98515b1729be50df",
+      "smooth_memory_seed11/models.json": "6723e1d412b798934c5bb6397b10ba8a20095493d63d84282ca91c0217ec793b",
+      "smooth_memory_seed11/diagnostics.json": "bd36907d6de13a837044dd559d4419d11ea8069f6694fc6f473a1515d2b37cb9",
+      "smooth_memory_seed11/test_metrics.csv": "1b3ced0dbd0b61538bfc4cf4cbbc91861b094c25fad7ff6af35f060fe67f61ea",
+      "smooth_memory_seed22/manifest.json": "b50ddd4034b89ca8e4ff306a319d456998653cea4b392a7884a383df4b220a8f",
+      "smooth_memory_seed22/models.json": "f5e7314e43b15b2f82c1a626035bcc44a0a895087364f105898c217ccb3212e0",
+      "smooth_memory_seed22/diagnostics.json": "b1c165b0d58970a667f8a0909107c4d74266b06051e8854c41b7cfc82927de6f",
+      "smooth_memory_seed22/test_metrics.csv": "ea2fb1051e0f158f289214e9196974e526573b52e5fc330b89f50111e9a47c2f",
+      "smooth_memory_seed33/manifest.json": "8c7d1dc53973e49ff615013db9648b6a2f33e84adf739acd3d32140dbf7cd791",
+      "smooth_memory_seed33/models.json": "e41867bcc006777a638f1b4e6d70f78b1225a25ab5b5d98baf7ebf19c1be3e84",
+      "smooth_memory_seed33/diagnostics.json": "d562c9f6f5b05b1a677fd813eefa454d9ccbb9bd960c092469e4f7d4cabb3aa9",
+      "smooth_memory_seed33/test_metrics.csv": "40acfa7cc75ba2ef80f8eeaedcb85ef3d64eba2d6cb590ddffac44206310a924",
+      "smooth_static_seed11/manifest.json": "4bd2e26f96950beb51a13c87513841fb2b07b61f0f82d4078369610598133f2d",
+      "smooth_static_seed11/models.json": "7ce4ba2f25bdadb5e637b342ac79e913a518e166eef377d914a699bdb0be5d37",
+      "smooth_static_seed11/diagnostics.json": "c8823f0cb047220cc5fbe1ac4cb138fb34c8a5b328ab56fb4611cd1ffab56649",
+      "smooth_static_seed11/test_metrics.csv": "2434e0e9fd68a723edc15640f6205de7cb2b0ec0931cf73cf514596692ebf4dd",
+      "smooth_static_seed22/manifest.json": "dcf5556098e7ab7c3606b39f5af769cbbb916d3b4a218fa9715d8ff4e9dc88fe",
+      "smooth_static_seed22/models.json": "a2bfeb6ec52f33abecf3b706d8b4f3ae8778940012faf4a0ee59530a9cdf1ad1",
+      "smooth_static_seed22/diagnostics.json": "6be0abc8dbeaea078e0177ea2b3d1fb3d9ec93c37b5b0e241795523c7d843bfa",
+      "smooth_static_seed22/test_metrics.csv": "d1aa3fc6810d978af73d5c067917649240f97ae4619235d87244839bfa404826",
+      "smooth_static_seed33/manifest.json": "b10ee0ad836f240d271f823f7da3d93cea1bf9075da4f874d4b32b29ef9ac480",
+      "smooth_static_seed33/models.json": "44c0ff5defc6305756efadfae09112e2da8d9a7f5a1f9c0be4b5c3cd89a3cc1d",
+      "smooth_static_seed33/diagnostics.json": "c5f08b4c4a84ed022cddd6970e10dbb8867a0edb0ed75b50b176e936c8865076",
+      "smooth_static_seed33/test_metrics.csv": "4dd5afe35650b8b70186e0df49a099a28bf815d173f145c5c1506e2afb54575f"
+    }
+  },
+  "model_change": "Removed custom cubic/FIR converter. Original static/memory/quantizer APIs; nominal input gain changed .99 to 1.",
+  "historical_results_preserved": true,
+  "new_results_are_behavioral_not_measured": true,
+  "validation": {
+    "passed": 45,
+    "skipped": 1,
+    "warnings": 2,
+    "skip_reason": "Windows directory symlink privilege unavailable",
+    "test_command": "uv run --with pytest pytest tests/unit/test_calibration_workflows.py tests/unit/test_foreground_bitweights_example.py tests/unit/test_combined_foreground_example.py tests/unit/test_skill_cli.py tests/integration/test_user_guide_skill_examples.py -q -rs",
+    "test_log": "agent_playground/foreground_repository_20261102/tests.log",
+    "sphinx": "passed (-W --keep-going)",
+    "build": "passed (wheel and sdist)",
+    "distribution": "passed (842 installed-package frozen rows)"
+  },
+  "distribution_audit": {
+    "wheel_import": "E:\\ADCToolbox\\agent_playground\\foreground_repository_20261102\\wheel_unpack\\adctoolbox\\__init__.py",
+    "wheel_and_sdist_assets": true,
+    "output_excluded": true,
+    "example_copy": true,
+    "temporary_skill_install_matches": true,
+    "removed_custom_class": true,
+    "installed_audit": {
+      "status": "passed",
+      "plant_model": "repository_siggen_static_coarse_memory_v1",
+      "inherited_checks": {
+        "baseline": {
+          "cases": 2,
+          "frozen_model_metric_rows_replayed": 360,
+          "maximum_replay_error_db": 0.0,
+          "aggregate_recomputed": true,
+          "optimizer_not_converged": [
+            {
+              "case": "static_seed11",
+              "message": "STOP: TOTAL NO. OF ITERATIONS REACHED LIMIT"
+            },
+            {
+              "case": "memory_seed11",
+              "message": "STOP: TOTAL NO. OF ITERATIONS REACHED LIMIT"
+            }
+          ]
+        },
+        "mixed": {
+          "cases": 2,
+          "mixed_model_metric_rows_replayed": 200,
+          "aggregate_recomputed": true
+        }
+      },
+      "rows_by_run": [
+        360,
+        440,
+        42
+      ],
+      "rows_replayed": 842,
+      "fresh_captures": 6,
+      "max_independent_fft_difference_db": 1.3443468560581096e-11,
+      "public_single_tone_checks": 666,
+      "auto_peak_mismatches": 14,
+      "frozen_models_unchanged": true,
+      "aggregate_recomputed": true,
+      "normal_capture_overloads": 0,
+      "optimizer_diagnostics": [
+        {
+          "case": "static_seed11",
+          "excitation": "single",
+          "samples": 256,
+          "validation_samples": 128,
+          "parameters": 102,
+          "selected_iteration": 1,
+          "iterations": 3,
+          "optimizer_converged": false,
+          "optimizer_message": "STOP: TOTAL NO. OF ITERATIONS REACHED LIMIT",
+          "validation_rmse": 0.003475469883017774,
+          "seed": 11,
+          "l2": 1e-06,
+          "wall_seconds": 0.013342499998543644
+        },
+        {
+          "case": "static_seed11",
+          "excitation": "mixed",
+          "samples": 256,
+          "validation_samples": 128,
+          "parameters": 102,
+          "selected_iteration": 0,
+          "iterations": 3,
+          "optimizer_converged": false,
+          "optimizer_message": "STOP: TOTAL NO. OF ITERATIONS REACHED LIMIT",
+          "validation_rmse": 0.004179946539283383,
+          "seed": 11,
+          "l2": 1e-06
+        },
+        {
+          "case": "memory_seed11",
+          "excitation": "single",
+          "samples": 256,
+          "validation_samples": 128,
+          "parameters": 102,
+          "selected_iteration": 1,
+          "iterations": 3,
+          "optimizer_converged": false,
+          "optimizer_message": "STOP: TOTAL NO. OF ITERATIONS REACHED LIMIT",
+          "validation_rmse": 0.003495213340487485,
+          "seed": 11,
+          "l2": 1e-06,
+          "wall_seconds": 0.013039500001468696
+        },
+        {
+          "case": "memory_seed11",
+          "excitation": "mixed",
+          "samples": 256,
+          "validation_samples": 128,
+          "parameters": 102,
+          "selected_iteration": 0,
+          "iterations": 3,
+          "optimizer_converged": false,
+          "optimizer_message": "STOP: TOTAL NO. OF ITERATIONS REACHED LIMIT",
+          "validation_rmse": 0.004273918324364479,
+          "seed": 11,
+          "l2": 1e-06
+        }
+      ],
+      "model_artifact_sha256": {
+        "single/static_seed11/models.json": "1153434b935b5e0b189adbd511015decf2347a733f9e58bb1205efb9ba5dafcc",
+        "single/static_seed11/training_diagnostics.json": "986ffbe51623b9e984e880cb6681b06e74e500a1ed5dccb168b1aa929899776f",
+        "single/static_seed11/mlp_history.csv": "97c3cd6b3249d87dd84c511d0a757d02b916c69b1140f7c85d77931b5ef8a103",
+        "mixed/static_seed11/models.json": "3bc0235358c8c552156c7488b68e0e63a50a29edab82fd8a9ad9206d9371eec9",
+        "mixed/static_seed11/training_diagnostics.json": "5ecb321e4de4f419b2eb712abd5568459d82b6de5a3283766c550bd47dfdf1e2",
+        "mixed/static_seed11/mlp_history.csv": "0e4996cb42cd147e50cc8d1bde87ea6fa899bdd73d492699f0e429a9c1b7e80f",
+        "single/memory_seed11/models.json": "b0806cf5d7458dbe58a910246e91a0c85b4a49c376a7fc9745407535e7456ded",
+        "single/memory_seed11/training_diagnostics.json": "fc8a8e3d090e934a040b3e1c341cf8212e77c93f6644b8a1b9b8e9b9ab5243d1",
+        "single/memory_seed11/mlp_history.csv": "81e00410dd638f4188b1429152fadc119bcdedccf1eb65b24d4b88eedf4c4105",
+        "mixed/memory_seed11/models.json": "82d3c9bdcbaba1f62404bde2448de866c128ed32ce8ca2ca32c1567fc6fa661b",
+        "mixed/memory_seed11/training_diagnostics.json": "15ef150375dd75dbabc4a428434ca28e240c5e6c26e7cd56785dafed6201ea66",
+        "mixed/memory_seed11/mlp_history.csv": "850b211943cb8ea041c4d2479f700c5e63939f065cbdf958f263b41fd032873f"
+      },
+      "source_sha256": "a21b15127deb751549058ac635125e460b58a7089f2d2ea1e24e48da66e84b3c"
+    },
+    "html_math_and_results": true
+  },
+  "published_sha256": {
+    "foreground-repository-bitweights-20261102.csv": "e3354d8de2972c9cce0bd967377b793a104537df891a9721cb3e23edf2027342",
+    "foreground-repository-summary-20261102.csv": "24a3c33f73c553593b4b8726d0a82af729fe85395dcd1a6311e84ac7e6fc04b8",
+    "foreground-repository-tests-20261102.csv": "45abfe6a8ecb5982049ec1a16a47dd9543148031133b05821e175389d3cc8b4c",
+    "foreground-repository-transfer-summary-20261102.csv": "345bad9d25053ca532fb1f37cc2523d449d8842f6672d241178fadf96b050530",
+    "foreground-repository-transfer-tests-20261102.csv": "0992121c6ab311a4b8fbaa7cea700621b3292417999e4ffd666ba875e75ae136"
+  }
+}

@@ -48,7 +48,7 @@ python 01_basic/exp_b01_environment_check.py
 python 02_spectrum/exp_s01_analyze_spectrum_simplest.py
 ```
 
-The package currently ships 59 runnable examples across spectrum analysis,
+The package ships runnable examples across spectrum analysis,
 signal generation, analog debug, digital calibration, toolset dashboards,
 unit conversions, time-interleaved ADC analysis, and subsample output behavior.
 
@@ -109,3 +109,10 @@ MIT License.
   url = {https://github.com/Arcadia-1/ADCToolbox}
 }
 ```
+
+## Supervised foreground correction
+
+The packaged `12_foreground/` examples cover polynomial/MLP fitting, frozen
+inference, original repository error models, SNDR/SFDR comparisons and combined
+bit-weight/nonlinearity correction. Read their README and theory before choosing
+reference captures or interpreting learned parameters.

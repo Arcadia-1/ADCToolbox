@@ -10,6 +10,7 @@ This section provides detailed documentation for all ADCToolbox modules and func
    spectrum
    aout
    dout
+   calibration
    models
    siggen
    timeinterleave

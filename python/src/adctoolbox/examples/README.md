@@ -1,6 +1,6 @@
 # ADCToolbox Examples
 
-This directory contains 64 runnable ADCToolbox examples. They are copied to a
+This directory contains runnable ADCToolbox examples. They are copied to a
 user workspace by:
 
 ```bash
@@ -126,6 +126,13 @@ python 05_debug_digital/exp_d02_cal_weight_sine.py
 | File | Topic |
 |---|---|
 | `exp_d00_subsample_aliasing.py` | Subsample-only debug output and aliasing behavior |
+
+### `12_foreground/` - supervised foreground correction
+
+The packaged examples cover polynomial/MLP fitting, frozen inference, original
+repository error models, SNDR/SFDR comparisons and combined bit-weight/nonlinearity
+correction. Read their README and theory before choosing reference captures or
+interpreting learned parameters. The original experiment numbers are retained.
 
 ### `10_oversampling/` - oversampling and noise shaping
 

@@ -1,0 +1,527 @@
+{
+  "date": "2026-11-02",
+  "base_commit": "322eb84",
+  "scope": "behavioral foreground post-correction",
+  "baseline_configuration": {
+    "output": "E:\\ADCToolbox\\python\\src\\adctoolbox\\examples\\11_calibration\\output\\foreground_acceptance_20261101",
+    "size": 8192,
+    "records": 400,
+    "validation_records": 40,
+    "stride": 16,
+    "iterations": 200,
+    "hidden_units": 16,
+    "seeds": [
+      11,
+      22,
+      33
+    ],
+    "plants": [
+      "static",
+      "memory"
+    ],
+    "history": 3,
+    "source_sha256": {
+      "exp_cal03_foreground_nonlinear.py": "68078d73c1e07b335ac3b3bb4489237a38c0f8090c4a1d071e715cae033e7eef",
+      "foreground_benchmark.py": "3674b94c513a7687857f19cf0ed8e348a3c5f5a8537084311ef5688a5bc51a3a",
+      "foreground.py": "83784ea2879fea3a8be8c247658928ffd85bb0f7bbe3f0b0eb10daed53e59084",
+      "exp_cal01_dither_background.py": "61357a6e76c04f30f8b84726d64698a74786f123d65846e0bc3e165cce118a8b"
+    },
+    "selection": "MLP iterate selected by independent monitor-reference validation MSE; test data unused",
+    "training_rows_per_case": 204800
+  },
+  "mixed_configuration": {
+    "baseline": "E:\\ADCToolbox\\python\\src\\adctoolbox\\examples\\11_calibration\\output\\foreground_acceptance_20261101",
+    "records": 400,
+    "size": 8192,
+    "stride": 16,
+    "plants": [
+      "static",
+      "memory"
+    ],
+    "seeds": [
+      11,
+      22,
+      33
+    ],
+    "ridge": 1e-10,
+    "retrain_mlp": true,
+    "validation_records": 40,
+    "hidden_units": 16,
+    "iterations": 200,
+    "mlp_l2": 1e-06,
+    "baseline_configuration_sha256": "bffc1e9b90907ec29c7a6930c621c49908ee0830b9bdbfa68a96288c6af19f33",
+    "source_sha256": {
+      "exp_cal05_foreground_excitation.py": "febd60fd1efb7596b9633b514c2c568e0f04f8e3ece457fac87ab6649d9ee55c",
+      "exp_cal03_foreground_nonlinear.py": "68078d73c1e07b335ac3b3bb4489237a38c0f8090c4a1d071e715cae033e7eef",
+      "foreground_benchmark.py": "3674b94c513a7687857f19cf0ed8e348a3c5f5a8537084311ef5688a5bc51a3a",
+      "foreground.py": "0e34d02928f5698d224a76195d15594c3c053ce214ce24607743c1ee7e63879d",
+      "exp_cal01_dither_background.py": "61357a6e76c04f30f8b84726d64698a74786f123d65846e0bc3e165cce118a8b"
+    },
+    "control": "same model sizes and capture/row budgets; new half single/half dual tone records; MLP retrained with independent mixed validation; same optimizer budget"
+  },
+  "fresh_configuration": {
+    "baseline": "E:\\ADCToolbox\\python\\src\\adctoolbox\\examples\\11_calibration\\output\\foreground_acceptance_20261101",
+    "mixed": "E:\\ADCToolbox\\python\\src\\adctoolbox\\examples\\11_calibration\\output\\excitation_mlp_acceptance_20261102",
+    "records_per_group": 4,
+    "size": 8192,
+    "plants": [
+      "static",
+      "memory"
+    ],
+    "seeds": [
+      11,
+      22,
+      33
+    ],
+    "source_sha256": {
+      "audit_foreground_transfer.py": "bc183c162deeb4871fdff1c7b1f5b2bb4e54f875320965047757ba22ee530fac",
+      "exp_cal03_foreground_nonlinear.py": "68078d73c1e07b335ac3b3bb4489237a38c0f8090c4a1d071e715cae033e7eef",
+      "foreground_benchmark.py": "3674b94c513a7687857f19cf0ed8e348a3c5f5a8537084311ef5688a5bc51a3a",
+      "foreground.py": "0e34d02928f5698d224a76195d15594c3c053ce214ce24607743c1ee7e63879d",
+      "exp_cal05_foreground_excitation.py": "febd60fd1efb7596b9633b514c2c568e0f04f8e3ece457fac87ab6649d9ee55c",
+      "exp_cal01_dither_background.py": "61357a6e76c04f30f8b84726d64698a74786f123d65846e0bc3e165cce118a8b"
+    },
+    "input_sha256": {
+      "single/static_seed11/models.json": "26efe59b26f3b5721892634ee01a06ee11f5307d988e09c751b3f4bc0939c9de",
+      "mixed/static_seed11/models.json": "54be3ceeafafca2e8ff4e0f8e28f1d0bd99fdae1cd33a79b91e928e33b9f54b1",
+      "single/static_seed22/models.json": "ed01bde7104a27b3428aa266702852655ef7f78ca5fc052373694ca12cfd0a3e",
+      "mixed/static_seed22/models.json": "20fb6c0b163c26ada80d95242636a8cfdb737f88d14bc1be511574410a6c3746",
+      "single/static_seed33/models.json": "1e9e3d8991e34d5c46351a35a54b5d86ab76cda0b260c7930296ca703cfa1d1d",
+      "mixed/static_seed33/models.json": "874f66f95a8338dfedd50c56cd6617c904693d3773b9943e0a884819479c9e10",
+      "single/memory_seed11/models.json": "bc17730a10ba3fbac33e5a7009b2c1d0b24abb22f8b303ef3f4d1a8199d52b73",
+      "mixed/memory_seed11/models.json": "27b52d9caccc64768e3a0883cb6c5c298bb2724541ecfb38caeb20ecedee0b0d",
+      "single/memory_seed22/models.json": "291845faa60290d1c806fec022eeaff0b7a282d6edf235a9c5066b6a5f88411e",
+      "mixed/memory_seed22/models.json": "ac123d374284e215285f7dc7e9a1303790beb4b1cc3b43bffc53bb03386da1e5",
+      "single/memory_seed33/models.json": "826d37121cafb3b83a92ea7c7488b5d34c14bc15109b87f96255ae89084f142e",
+      "mixed/memory_seed33/models.json": "d15acbfff37da0fdda5a712390f794022bc80af25ccf424f8daf6e4ab5fbcf58"
+    },
+    "policy": "frozen models; new random 2/3/5 tones; no tuning or selection"
+  },
+  "mixed_diagnostics": {
+    "memory_seed11": {
+      "affine_history": {
+        "samples": 204800,
+        "parameters": 5,
+        "design_rank": 5,
+        "rank_deficient": false,
+        "ridge": 1e-10,
+        "design_condition_number": 1.2938183461081043,
+        "training_rmse": 0.0034190483352888002
+      },
+      "poly5_static": {
+        "samples": 204800,
+        "parameters": 6,
+        "design_rank": 6,
+        "rank_deficient": false,
+        "ridge": 1e-10,
+        "design_condition_number": 65.72037871476189,
+        "training_rmse": 0.012805527343976424
+      },
+      "poly3_history": {
+        "samples": 204800,
+        "parameters": 35,
+        "design_rank": 35,
+        "rank_deficient": false,
+        "ridge": 1e-10,
+        "design_condition_number": 17.80308351748317,
+        "training_rmse": 0.00011086705838181255
+      },
+      "poly5_history": {
+        "samples": 204800,
+        "parameters": 126,
+        "design_rank": 126,
+        "rank_deficient": false,
+        "ridge": 1e-10,
+        "design_condition_number": 474.2353435911674,
+        "training_rmse": 3.7052094402020405e-05
+      },
+      "mlp_history": {
+        "samples": 204800,
+        "validation_samples": 20480,
+        "parameters": 102,
+        "selected_iteration": 191,
+        "iterations": 200,
+        "optimizer_converged": false,
+        "optimizer_message": "STOP: TOTAL NO. OF ITERATIONS REACHED LIMIT",
+        "validation_rmse": 0.000146102482074301,
+        "seed": 11,
+        "l2": 1e-06
+      }
+    },
+    "memory_seed22": {
+      "affine_history": {
+        "samples": 204800,
+        "parameters": 5,
+        "design_rank": 5,
+        "rank_deficient": false,
+        "ridge": 1e-10,
+        "design_condition_number": 1.3278765432873403,
+        "training_rmse": 0.0035150556618135016
+      },
+      "poly5_static": {
+        "samples": 204800,
+        "parameters": 6,
+        "design_rank": 6,
+        "rank_deficient": false,
+        "ridge": 1e-10,
+        "design_condition_number": 64.09442806710527,
+        "training_rmse": 0.013086669148082056
+      },
+      "poly3_history": {
+        "samples": 204800,
+        "parameters": 35,
+        "design_rank": 35,
+        "rank_deficient": false,
+        "ridge": 1e-10,
+        "design_condition_number": 19.262657764864937,
+        "training_rmse": 0.00011279308292206337
+      },
+      "poly5_history": {
+        "samples": 204800,
+        "parameters": 126,
+        "design_rank": 126,
+        "rank_deficient": false,
+        "ridge": 1e-10,
+        "design_condition_number": 508.1679802804702,
+        "training_rmse": 3.7033406200333016e-05
+      },
+      "mlp_history": {
+        "samples": 204800,
+        "validation_samples": 20480,
+        "parameters": 102,
+        "selected_iteration": 198,
+        "iterations": 200,
+        "optimizer_converged": false,
+        "optimizer_message": "STOP: TOTAL NO. OF ITERATIONS REACHED LIMIT",
+        "validation_rmse": 9.956980062170814e-05,
+        "seed": 22,
+        "l2": 1e-06
+      }
+    },
+    "memory_seed33": {
+      "affine_history": {
+        "samples": 204800,
+        "parameters": 5,
+        "design_rank": 5,
+        "rank_deficient": false,
+        "ridge": 1e-10,
+        "design_condition_number": 1.2597031818773632,
+        "training_rmse": 0.003679247192104234
+      },
+      "poly5_static": {
+        "samples": 204800,
+        "parameters": 6,
+        "design_rank": 6,
+        "rank_deficient": false,
+        "ridge": 1e-10,
+        "design_condition_number": 67.81486549983505,
+        "training_rmse": 0.013105529228821215
+      },
+      "poly3_history": {
+        "samples": 204800,
+        "parameters": 35,
+        "design_rank": 35,
+        "rank_deficient": false,
+        "ridge": 1e-10,
+        "design_condition_number": 18.43964314233585,
+        "training_rmse": 0.0001219795032526128
+      },
+      "poly5_history": {
+        "samples": 204800,
+        "parameters": 126,
+        "design_rank": 126,
+        "rank_deficient": false,
+        "ridge": 1e-10,
+        "design_condition_number": 465.54793449519366,
+        "training_rmse": 3.712326393913815e-05
+      },
+      "mlp_history": {
+        "samples": 204800,
+        "validation_samples": 20480,
+        "parameters": 102,
+        "selected_iteration": 195,
+        "iterations": 200,
+        "optimizer_converged": false,
+        "optimizer_message": "STOP: TOTAL NO. OF ITERATIONS REACHED LIMIT",
+        "validation_rmse": 0.00013596549517262712,
+        "seed": 33,
+        "l2": 1e-06
+      }
+    },
+    "static_seed11": {
+      "affine_history": {
+        "samples": 204800,
+        "parameters": 5,
+        "design_rank": 5,
+        "rank_deficient": false,
+        "ridge": 1e-10,
+        "design_condition_number": 1.2462404883077982,
+        "training_rmse": 0.0034189499240648196
+      },
+      "poly5_static": {
+        "samples": 204800,
+        "parameters": 6,
+        "design_rank": 6,
+        "rank_deficient": false,
+        "ridge": 1e-10,
+        "design_condition_number": 65.52731172440382,
+        "training_rmse": 3.7043576803488156e-05
+      },
+      "poly3_history": {
+        "samples": 204800,
+        "parameters": 35,
+        "design_rank": 35,
+        "rank_deficient": false,
+        "ridge": 1e-10,
+        "design_condition_number": 15.788388243357854,
+        "training_rmse": 0.0001107659018855383
+      },
+      "poly5_history": {
+        "samples": 204800,
+        "parameters": 126,
+        "design_rank": 126,
+        "rank_deficient": false,
+        "ridge": 1e-10,
+        "design_condition_number": 397.0074572254784,
+        "training_rmse": 3.7014729809499456e-05
+      },
+      "mlp_history": {
+        "samples": 204800,
+        "validation_samples": 20480,
+        "parameters": 102,
+        "selected_iteration": 198,
+        "iterations": 200,
+        "optimizer_converged": false,
+        "optimizer_message": "STOP: TOTAL NO. OF ITERATIONS REACHED LIMIT",
+        "validation_rmse": 0.0001819187959423968,
+        "seed": 11,
+        "l2": 1e-06
+      }
+    },
+    "static_seed22": {
+      "affine_history": {
+        "samples": 204800,
+        "parameters": 5,
+        "design_rank": 5,
+        "rank_deficient": false,
+        "ridge": 1e-10,
+        "design_condition_number": 1.2939396919534354,
+        "training_rmse": 0.0035151544394212654
+      },
+      "poly5_static": {
+        "samples": 204800,
+        "parameters": 6,
+        "design_rank": 6,
+        "rank_deficient": false,
+        "ridge": 1e-10,
+        "design_condition_number": 63.411413258743856,
+        "training_rmse": 3.70150596440871e-05
+      },
+      "poly3_history": {
+        "samples": 204800,
+        "parameters": 35,
+        "design_rank": 35,
+        "rank_deficient": false,
+        "ridge": 1e-10,
+        "design_condition_number": 17.17085647027064,
+        "training_rmse": 0.00011251763308219505
+      },
+      "poly5_history": {
+        "samples": 204800,
+        "parameters": 126,
+        "design_rank": 126,
+        "rank_deficient": false,
+        "ridge": 1e-10,
+        "design_condition_number": 431.468660930777,
+        "training_rmse": 3.697895487179383e-05
+      },
+      "mlp_history": {
+        "samples": 204800,
+        "validation_samples": 20480,
+        "parameters": 102,
+        "selected_iteration": 197,
+        "iterations": 200,
+        "optimizer_converged": false,
+        "optimizer_message": "STOP: TOTAL NO. OF ITERATIONS REACHED LIMIT",
+        "validation_rmse": 9.564499030387733e-05,
+        "seed": 22,
+        "l2": 1e-06
+      }
+    },
+    "static_seed33": {
+      "affine_history": {
+        "samples": 204800,
+        "parameters": 5,
+        "design_rank": 5,
+        "rank_deficient": false,
+        "ridge": 1e-10,
+        "design_condition_number": 1.1986352769152544,
+        "training_rmse": 0.003679228842495906
+      },
+      "poly5_static": {
+        "samples": 204800,
+        "parameters": 6,
+        "design_rank": 6,
+        "rank_deficient": false,
+        "ridge": 1e-10,
+        "design_condition_number": 67.4766976603522,
+        "training_rmse": 3.7070356317912454e-05
+      },
+      "poly3_history": {
+        "samples": 204800,
+        "parameters": 35,
+        "design_rank": 35,
+        "rank_deficient": false,
+        "ridge": 1e-10,
+        "design_condition_number": 16.580595313401236,
+        "training_rmse": 0.00012187030759404906
+      },
+      "poly5_history": {
+        "samples": 204800,
+        "parameters": 126,
+        "design_rank": 126,
+        "rank_deficient": false,
+        "ridge": 1e-10,
+        "design_condition_number": 396.8361905043305,
+        "training_rmse": 3.704039294590952e-05
+      },
+      "mlp_history": {
+        "samples": 204800,
+        "validation_samples": 20480,
+        "parameters": 102,
+        "selected_iteration": 200,
+        "iterations": 200,
+        "optimizer_converged": false,
+        "optimizer_message": "STOP: TOTAL NO. OF ITERATIONS REACHED LIMIT",
+        "validation_rmse": 0.00012285192335183997,
+        "seed": 33,
+        "l2": 1e-06
+      }
+    }
+  },
+  "mixed_replay": {
+    "cases": 6,
+    "mixed_model_metric_rows_replayed": 600,
+    "aggregate_recomputed": true
+  },
+  "independent_transfer_replay": {
+    "captures": 72,
+    "error_snr_rows_replayed": 504,
+    "max_error_snr_difference_db": 0.0,
+    "overloads": 0,
+    "frequency_exclusions_verified": true,
+    "model_hashes_verified": true,
+    "independent_plant_and_inference": true
+  },
+  "distribution": {
+    "wheel_import": "E:\\ADCToolbox\\agent_playground\\foreground_release_20261102\\wheel_unpack\\adctoolbox\\__init__.py",
+    "wheel_and_sdist_assets": true,
+    "example_copy": true,
+    "temporary_skill_install_matches": true,
+    "wheel_train_mixed_transfer_smoke": true,
+    "html_math_rendered": true
+  },
+  "tests": {
+    "passed": 39,
+    "skipped": 1,
+    "warnings": 2,
+    "skip": "Windows directory symlink permission",
+    "warnings_note": "existing sine-fit examples: one-iteration convergence warnings"
+  },
+  "sphinx_warnings_as_errors": "passed",
+  "artifact_sha256": {
+    "baseline/configuration.json": "bffc1e9b90907ec29c7a6930c621c49908ee0830b9bdbfa68a96288c6af19f33",
+    "baseline/foreground_comparison.png": "f6a848e60cb553fe82ba95b6a818623cba70c2664055c44745205773675b937f",
+    "baseline/memory_seed11/data_manifest.json": "ac8bb616a76e0b4b8eaa883a5bf9b7c235d62dabb7afdbc6b41a6414a58b0092",
+    "baseline/memory_seed11/mlp_history.csv": "d0395925ddddd07945e1a4e5baaeeea9fb8483948fce05ea1274024ac19d04c9",
+    "baseline/memory_seed11/models.json": "bc17730a10ba3fbac33e5a7009b2c1d0b24abb22f8b303ef3f4d1a8199d52b73",
+    "baseline/memory_seed11/test_metrics.csv": "2797f1cfd044279fccad28ee92bad53285a076aca9247a3f2bdb0d8014232b15",
+    "baseline/memory_seed11/training_diagnostics.json": "4ec09bc22b257a2520a4accc882446cb46f4906a8c662570956782664f4cd4f7",
+    "baseline/memory_seed22/data_manifest.json": "7d9b64cbdb23352ba16320c7dd342096b868a7dd4179b63c2abc5ad5257a6870",
+    "baseline/memory_seed22/mlp_history.csv": "b5e59ba03157f80ba66d1318ae8d6524e11e8b059124c6d2a7ba3fa3b09a8c63",
+    "baseline/memory_seed22/models.json": "291845faa60290d1c806fec022eeaff0b7a282d6edf235a9c5066b6a5f88411e",
+    "baseline/memory_seed22/test_metrics.csv": "2a2c664f3a38c9aa41879351e41f783c13965d0694ad4ceb167de1aa9945e05b",
+    "baseline/memory_seed22/training_diagnostics.json": "63c5e66d5d32d189b32bcf3b0fec8d4c2b978e675620b86ccdc53bfe72fe593e",
+    "baseline/memory_seed33/data_manifest.json": "7d717fc35869b1f657f7c1f580495d64a1cd1c4eda7afe7639334d4e4492c7a3",
+    "baseline/memory_seed33/mlp_history.csv": "2eb7223b762c2fa07f7ddbc5a513f5d1d5f4087f32bea976fd7f4850a727b76e",
+    "baseline/memory_seed33/models.json": "826d37121cafb3b83a92ea7c7488b5d34c14bc15109b87f96255ae89084f142e",
+    "baseline/memory_seed33/test_metrics.csv": "d245614908aa38a9571dfdf2e3c67173f9485857b640d63ff045788a84d3de62",
+    "baseline/memory_seed33/training_diagnostics.json": "ece3c04af871d22442f9132de89bb788746f2ed22dbd20164fbbbe6128c56aeb",
+    "baseline/source_snapshot/exp_cal01_dither_background.py": "61357a6e76c04f30f8b84726d64698a74786f123d65846e0bc3e165cce118a8b",
+    "baseline/source_snapshot/exp_cal03_foreground_nonlinear.py": "68078d73c1e07b335ac3b3bb4489237a38c0f8090c4a1d071e715cae033e7eef",
+    "baseline/source_snapshot/foreground.py": "83784ea2879fea3a8be8c247658928ffd85bb0f7bbe3f0b0eb10daed53e59084",
+    "baseline/source_snapshot/foreground_benchmark.py": "3674b94c513a7687857f19cf0ed8e348a3c5f5a8537084311ef5688a5bc51a3a",
+    "baseline/static_seed11/data_manifest.json": "431d8ffabc84e2b58bb2b434308a6e22dbc6af2b5d84ef90e209fce595433809",
+    "baseline/static_seed11/mlp_history.csv": "7f1a5257ea452c00b20036929e0d54cd80cf6ebb236e3ed3ac12c755164b6488",
+    "baseline/static_seed11/models.json": "26efe59b26f3b5721892634ee01a06ee11f5307d988e09c751b3f4bc0939c9de",
+    "baseline/static_seed11/test_metrics.csv": "bed0be00a33da6e3dffe5b2d3d5c6dd4870488cdf24d37c44015cc8c89e20c50",
+    "baseline/static_seed11/training_diagnostics.json": "d180111dd11f5972e9596180f12fe4cdf75e3260eedb491d17fd4605cf5bdbeb",
+    "baseline/static_seed22/data_manifest.json": "55fa8654758b889b7d62dfbdd8be62f3bf1963b76e5de74d472b6b7fbdee7c60",
+    "baseline/static_seed22/mlp_history.csv": "32600203daa7c6c593527151d8c5d25b337bb7bba4c1363417666b826c55ab9d",
+    "baseline/static_seed22/models.json": "ed01bde7104a27b3428aa266702852655ef7f78ca5fc052373694ca12cfd0a3e",
+    "baseline/static_seed22/test_metrics.csv": "2e569817e74758b177fed626e523d94cdfbc8b84734bf1817e583af46ecdb892",
+    "baseline/static_seed22/training_diagnostics.json": "cfdfe3f89cbab0cb46ffb45999ce5e1be10412af0ad6dd5cf0496d30edf5d5de",
+    "baseline/static_seed33/data_manifest.json": "a37962487f6962792eb17bebeee4a7ef13158d34bc52c92a1b998cec5c57cb12",
+    "baseline/static_seed33/mlp_history.csv": "b4c2ee713438b9a45e794faa5c5f6fd56ae4a2a399892cbe983716d906e20491",
+    "baseline/static_seed33/models.json": "1e9e3d8991e34d5c46351a35a54b5d86ab76cda0b260c7930296ca703cfa1d1d",
+    "baseline/static_seed33/test_metrics.csv": "892cf8e3f35a0e0539b8c0cd528397b94bb60586b4e4732a5df16982251bd8a6",
+    "baseline/static_seed33/training_diagnostics.json": "74988760a150f51bd8419cbc9d8134ba0a8db8ed499bd5a454ad1d176eec87e9",
+    "baseline/summary.csv": "83e36fa609a85f50857cd1c8f359fad45eb28523b120c3f704963b3b60510ce0",
+    "baseline/summary.json": "8e16662d6563efe9a6b6a28123b27332ed5959058336e2cb233f9b4b8ca84999",
+    "baseline/test_metrics.csv": "025a174a6796664241dc62a1f14905580727494c5f48053df19de150a2d8015a",
+    "mixed/configuration.json": "94f1ce65da104a955a89996795a98189e9017e8efe84bcf965a0790d0142d3a3",
+    "mixed/excitation_comparison.png": "737ddcbe49290be19042dedb70e102d0a83fbf01ea9f6d1b72f0195125b7d795",
+    "mixed/memory_seed11/mlp_history.csv": "c251571ab2370ebbd3faf84bead09ed7cded40bfdb3b4c6e825ef668deb5d883",
+    "mixed/memory_seed11/models.json": "27b52d9caccc64768e3a0883cb6c5c298bb2724541ecfb38caeb20ecedee0b0d",
+    "mixed/memory_seed11/training_diagnostics.json": "3dadcb8331b0f27c457a6fb1d43559b43e555609b6e7ee16370d25ce3a79049b",
+    "mixed/memory_seed11/training_manifest.json": "0b94a4028041372e109828251c772a4b296a09ee51c6ca1890e6f1dee0328fae",
+    "mixed/memory_seed11/validation_manifest.json": "54f277ee7135183ffa84e13884df646df47e55faf22b6e0eb976075ef566da29",
+    "mixed/memory_seed22/mlp_history.csv": "83f836e9fbf4fb8b0dec7603c979c806d98d2da80d5efce379010bf33a0c4439",
+    "mixed/memory_seed22/models.json": "ac123d374284e215285f7dc7e9a1303790beb4b1cc3b43bffc53bb03386da1e5",
+    "mixed/memory_seed22/training_diagnostics.json": "0b64ea0cd3050e7fbeb6af9611829abe157371b59f41aba89c427cc7a5ba278c",
+    "mixed/memory_seed22/training_manifest.json": "1646e35e405a63696b54ff23cd947189e0d57fe5c882a75812f67e5058e30375",
+    "mixed/memory_seed22/validation_manifest.json": "fe9dde1e8632ae10c5b5e9521ede99046b8e313e5e23c0dee2fed35f5578ca5a",
+    "mixed/memory_seed33/mlp_history.csv": "ac7e026353328bf134020555e267961c48dabc54edb7bcc26c52e44440879cae",
+    "mixed/memory_seed33/models.json": "d15acbfff37da0fdda5a712390f794022bc80af25ccf424f8daf6e4ab5fbcf58",
+    "mixed/memory_seed33/training_diagnostics.json": "c34aba29c94ef89c51fa1a862cdf59759bc42eb60311e9ba4e0c49760dfe641d",
+    "mixed/memory_seed33/training_manifest.json": "0138581006a11f0bd6ef03f10ed5726ec9b64f44554b5d749f5a033c9ee53876",
+    "mixed/memory_seed33/validation_manifest.json": "586d8273a118cf98dc7700cff73ad8bf0390408d4d9a83303db20cd365178c24",
+    "mixed/source_snapshot/exp_cal01_dither_background.py": "61357a6e76c04f30f8b84726d64698a74786f123d65846e0bc3e165cce118a8b",
+    "mixed/source_snapshot/exp_cal03_foreground_nonlinear.py": "68078d73c1e07b335ac3b3bb4489237a38c0f8090c4a1d071e715cae033e7eef",
+    "mixed/source_snapshot/exp_cal05_foreground_excitation.py": "febd60fd1efb7596b9633b514c2c568e0f04f8e3ece457fac87ab6649d9ee55c",
+    "mixed/source_snapshot/foreground.py": "0e34d02928f5698d224a76195d15594c3c053ce214ce24607743c1ee7e63879d",
+    "mixed/source_snapshot/foreground_benchmark.py": "3674b94c513a7687857f19cf0ed8e348a3c5f5a8537084311ef5688a5bc51a3a",
+    "mixed/static_seed11/mlp_history.csv": "d23851016996f09f563a7d757835da6e6396167a52ee0ae9b41049b13e214623",
+    "mixed/static_seed11/models.json": "54be3ceeafafca2e8ff4e0f8e28f1d0bd99fdae1cd33a79b91e928e33b9f54b1",
+    "mixed/static_seed11/training_diagnostics.json": "1d756f4d2efd9f0f78512e2b6ac724d498c46c69147d4f62efad8f69eeda1895",
+    "mixed/static_seed11/training_manifest.json": "0b94a4028041372e109828251c772a4b296a09ee51c6ca1890e6f1dee0328fae",
+    "mixed/static_seed11/validation_manifest.json": "54f277ee7135183ffa84e13884df646df47e55faf22b6e0eb976075ef566da29",
+    "mixed/static_seed22/mlp_history.csv": "a3a52d8f95ec3ea69f1b3a9616604ba43788da579ff412becdf41b2f9cf3ba90",
+    "mixed/static_seed22/models.json": "20fb6c0b163c26ada80d95242636a8cfdb737f88d14bc1be511574410a6c3746",
+    "mixed/static_seed22/training_diagnostics.json": "618f3a9c1aa1e643f49311669120dcc1c3a73c5c287af6dc2fad72c9c3430777",
+    "mixed/static_seed22/training_manifest.json": "1646e35e405a63696b54ff23cd947189e0d57fe5c882a75812f67e5058e30375",
+    "mixed/static_seed22/validation_manifest.json": "fe9dde1e8632ae10c5b5e9521ede99046b8e313e5e23c0dee2fed35f5578ca5a",
+    "mixed/static_seed33/mlp_history.csv": "f2d39f289314a7a3ce67df79615e26568775b4802fad93b12bf77d31e93b5fad",
+    "mixed/static_seed33/models.json": "874f66f95a8338dfedd50c56cd6617c904693d3773b9943e0a884819479c9e10",
+    "mixed/static_seed33/training_diagnostics.json": "5af47c60cff96d1ba9bc0f66ec06c1b139307d899513ad043d773abf64150460",
+    "mixed/static_seed33/training_manifest.json": "0138581006a11f0bd6ef03f10ed5726ec9b64f44554b5d749f5a033c9ee53876",
+    "mixed/static_seed33/validation_manifest.json": "586d8273a118cf98dc7700cff73ad8bf0390408d4d9a83303db20cd365178c24",
+    "mixed/summary.csv": "775226f3c7e488ad8e4d829d3079f23db33adeb8793aa19e76a03fe7ebd2d74b",
+    "mixed/summary.json": "6b97d545bde7b5e251585cd7940a3ad016c2537b62a69b3de23166fb709f40db",
+    "mixed/test_metrics.csv": "eda1104996fa90429ec65ac7229c60f4b090771f8420ac71fb313209b41b1420",
+    "fresh/configuration.json": "408fe2ce3f84f83c85e317b8bc79ed801ec41210e028da701a7f2e7790ec3bb9",
+    "fresh/source_snapshot/audit_foreground_transfer.py": "bc183c162deeb4871fdff1c7b1f5b2bb4e54f875320965047757ba22ee530fac",
+    "fresh/source_snapshot/exp_cal01_dither_background.py": "61357a6e76c04f30f8b84726d64698a74786f123d65846e0bc3e165cce118a8b",
+    "fresh/source_snapshot/exp_cal03_foreground_nonlinear.py": "68078d73c1e07b335ac3b3bb4489237a38c0f8090c4a1d071e715cae033e7eef",
+    "fresh/source_snapshot/exp_cal05_foreground_excitation.py": "febd60fd1efb7596b9633b514c2c568e0f04f8e3ece457fac87ab6649d9ee55c",
+    "fresh/source_snapshot/foreground.py": "0e34d02928f5698d224a76195d15594c3c053ce214ce24607743c1ee7e63879d",
+    "fresh/source_snapshot/foreground_benchmark.py": "3674b94c513a7687857f19cf0ed8e348a3c5f5a8537084311ef5688a5bc51a3a",
+    "fresh/summary.csv": "f31bfcd10731522983178f0155c7fb7b1526b6ca59b5129d229802aead9ccddf",
+    "fresh/summary.json": "ea93b4cb665a54e3b0c52555f6cbd3d0e6cfb92e668cbe876180b1513cebdbf6",
+    "fresh/test_manifest.json": "5905e971ed2cca2013871550e182957598e5da8d591fe0657183809d1ab81dae",
+    "fresh/test_metrics.csv": "d905cbc33bda2665b12f150bc3c22c06152022cc15a5e01a0368b9a94dbd4982",
+    "dist/.gitignore": "684888c0ebb17f374298b65ee2807526c066094c701bcc7ebbe1c1095f494fc1",
+    "dist/adctoolbox-0.9.1-py3-none-any.whl": "d0130bfc63b2bc1ee8761256a9a1b65fd12324d7791e37c71d486b8a6a3a0186",
+    "dist/adctoolbox-0.9.1.tar.gz": "5bf83b6c73048c841273fac2f6063dae409b8e50158d27184096b3bd08520e08"
+  }
+}
