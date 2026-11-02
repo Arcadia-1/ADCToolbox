@@ -28,7 +28,8 @@ def balanced_moments():
     q = np.where(x > .25,1,np.where(x < -.25,-1,0))
     qp = np.where(xp > .25,1,np.where(xp < -.25,-1,0))
     a, rows = 1/15, []
-    for k, h, delta, quantized in product((0.,-.04,-.24),(0.,FINAL.history/FINAL.gain),(0.,FINAL.delta),(False,True)):
+    for k, h, delta, quantized in product((0.,-.04,-.24),(0.,FINAL.history/FINAL.gain),
+                                          (0.,FINAL.delta),(False,True)):
         u, up = x-(1+delta*s)*q/2, xp-(1+delta*sp)*qp/2
         z = u+h*(up+a*pp.sum(axis=1))
         t = z+a*p.sum(axis=1)
@@ -70,7 +71,8 @@ def headroom_controls():
         bounds.append(dict(device=name, conservative_peak_at_input_point8=residue(.8),
                            headroom_at_point8=1-residue(.8),
                            maximum_input_peak_no_noise=brentq(lambda x:residue(x)-1,.7,.9),
-                           maximum_input_peak_six_sigma=brentq(lambda x:residue(x)+6*.0002-1,.7,.9)))
+                           maximum_input_peak_six_sigma=brentq(
+                               lambda x:residue(x)+6*.0002-1,.7,.9)))
     return rows, bounds
 
 

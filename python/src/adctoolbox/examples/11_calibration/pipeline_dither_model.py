@@ -46,7 +46,8 @@ class PipelineConfig:
         if not isinstance(self.backend_bits, int) or not 2 <= self.backend_bits <= 24:
             raise ValueError("backend_bits must be an integer in [2, 24]")
         values = (self.probe_amplitude, self.input_noise_rms, self.residue_noise_rms)
-        if not all(np.isfinite(v) for v in values) or self.probe_amplitude <= 0 or min(values[1:]) < 0:
+        if (not all(np.isfinite(v) for v in values) or self.probe_amplitude <= 0
+                or min(values[1:]) < 0):
             raise ValueError("Probe must be positive and noise RMS nonnegative, all finite")
 
 
@@ -78,7 +79,8 @@ class DitherPipeline:
 
     def reset(self):
         streams = np.random.SeedSequence(self.seed).spawn(3)
-        self._pn_rng, self._input_rng, self._residue_rng = [np.random.default_rng(s) for s in streams]
+        self._pn_rng, self._input_rng, self._residue_rng = [np.random.default_rng(s)
+                                                            for s in streams]
         self.sample_count = 0
 
     def convert(self, signal, gain, *, probe_enabled=True):

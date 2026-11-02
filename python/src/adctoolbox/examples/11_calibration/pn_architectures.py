@@ -28,8 +28,10 @@ class ThreePN:
         if self.pending is None:
             p = np.column_stack([s.draw(size) for s in self.streams]).astype(np.int8)
         else:
-            tail = np.column_stack([s.draw(size-1) for s in self.streams]).astype(np.int8) if size > 1 else np.empty((0,3),np.int8)
-            p = np.vstack([self.pending,tail]); self.pending = None
+            tail = (np.column_stack([s.draw(size-1) for s in self.streams]).astype(np.int8)
+                    if size > 1 else np.empty((0,3),np.int8))
+            p = np.vstack([self.pending,tail])
+            self.pending = None
         return p, self.peak/3*p.sum(axis=1)
 
     def adjacent(self, size):
@@ -106,7 +108,9 @@ class SARWeights:
         if plus.shape != minus.shape or plus.shape != (len(d),len(self.weights)):
             raise ValueError('decision vectors and probe length disagree')
         y,u,r,z = sar_adapt(plus,minus,d,self.weights,self.nominal,self.rate,self.active,learn)
-        self.updated += u; self.rejected += r; self.unexcited += z
+        self.updated += u
+        self.rejected += r
+        self.unexcited += z
         return y
 
 
@@ -147,7 +151,8 @@ def sigma_delta(x,d,at_quantizer=True,state=0.):
     Quantizer injection: y=x+Delta(d)+Delta(e).
     Input injection:     y=x+d+Delta(e).
     """
-    y = np.empty(len(x)); e = np.empty(len(x))
+    y = np.empty(len(x))
+    e = np.empty(len(x))
     maximum = abs(state)
     for n in range(len(x)):
         u = state+x[n]+(0. if at_quantizer else d[n])

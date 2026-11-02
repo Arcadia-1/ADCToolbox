@@ -43,22 +43,31 @@ def fixed_block(r, p, pp, s, q, coeff, prev, a, fraction, bits, accumulator_bits
     for i in range(len(r)):
         c1, k3, h, delta = coeff
         d = a*(p[i, 0]+p[i, 1]+p[i, 2])
-        linear, ov = mul(c1, r[i], fraction, bits); saturations += ov
-        square, ov = mul(linear, linear, fraction, bits); saturations += ov
-        cube, ov = mul(square, linear, fraction, bits); saturations += ov
-        nonlinear, ov = mul(k3, cube, fraction, bits); saturations += ov
+        linear, ov = mul(c1, r[i], fraction, bits)
+        saturations += ov
+        square, ov = mul(linear, linear, fraction, bits)
+        saturations += ov
+        cube, ov = mul(square, linear, fraction, bits)
+        saturations += ov
+        nonlinear, ov = mul(k3, cube, fraction, bits)
+        saturations += ov
         raw_w = linear-nonlinear
-        w = saturate(raw_w, bits); saturations += int(w != raw_w)
-        memory, ov = mul(h, prev, fraction, bits); saturations += ov
+        w = saturate(raw_w, bits)
+        saturations += int(w != raw_w)
+        memory, ov = mul(h, prev, fraction, bits)
+        saturations += ov
         raw_v = w-memory
-        v = saturate(raw_v, bits); saturations += int(v != raw_v)
+        v = saturate(raw_v, bits)
+        saturations += int(v != raw_v)
         prev = v
         y = q[i]*(scale//2)+v-d
         correction = rounded_shift(delta, 1)*s[i]*q[i]
         raw_x = y+correction
-        output[i] = saturate(raw_x, bits); saturations += int(output[i] != raw_x)
+        output[i] = saturate(raw_x, bits)
+        saturations += int(output[i] != raw_x)
         ss = r[i]-d
-        eta, ov = mul(ss, ss, fraction, bits); saturations += ov
+        eta, ov = mul(ss, ss, fraction, bits)
+        saturations += ov
         values = (ss*p[i, 0], ss*p[i, 0]*p[i, 1]*p[i, 2], eta,
                   w*pp[i], s[i]*q[i]*y, q[i]*q[i])
         for j in range(6):
@@ -161,7 +170,8 @@ class Tracker:
             if self.a == 0 or a3 == 0 or ov2 or ov3:
                 raise ValueError('Dither moment denominator is zero or saturated after '
                                  'fixed-point rounding; increase fraction or dither_peak')
-        self.coefficients = np.array([self.scale, 0, 0, 0], dtype=np.int64) if fixed else np.array([1., 0., 0., 0.])
+        self.coefficients = (np.array([self.scale, 0, 0, 0], dtype=np.int64) if fixed
+                             else np.array([1., 0., 0., 0.]))
         self.sums = np.zeros(6, dtype=np.int64 if fixed else float)
         self.previous = 0 if fixed else 0.
         self.count = self.updates = self.held = self.samples = 0
@@ -248,15 +258,19 @@ class Tracker:
                 y, self.previous, ov, aov = fixed_block(r, p, pp, s, q,
                     self.coefficients, self.previous, self.a, self.fraction, self.bits,
                     self.accumulator_bits, self.sums)
-                self.saturations += ov; self.accumulator_saturations += aov
+                self.saturations += ov
+                self.accumulator_saturations += aov
                 self.window_bad |= bool(ov or aov)
                 outputs.append(y/self.scale)
             else:
                 y, self.previous = float_block(capture['r'][sl], p, pp, s, q,
                     self.coefficients, self.previous, self.a, self.sums)
                 outputs.append(y)
-            self.window_bad |= bool(np.any(capture['rails'][sl])) if 'rails' in capture else bool(capture['rail'])
-            self.count += size; self.samples += size; offset += size
+            self.window_bad |= (bool(np.any(capture['rails'][sl])) if 'rails' in capture
+                                else bool(capture['rail']))
+            self.count += size
+            self.samples += size
+            offset += size
             if self.count == self.window:
                 old_overflow = self.controller_saturations
                 self._delta_hold = False
@@ -265,7 +279,8 @@ class Tracker:
                     estimate = None
                 if learn:
                     self.events.append(dict(sample=self.samples, accepted=estimate is not None,
-                        rails_or_overflow=self.window_bad, cap_excited=bool(self.sums[5] > self.window//20),
+                        rails_or_overflow=self.window_bad,
+                        cap_excited=bool(self.sums[5] > self.window//20),
                         delta_held=estimate is not None and self._delta_hold,
                         shadow_coefficients=None if estimate is None else
                             (estimate/self.scale if self.fixed else estimate).tolist()))
@@ -276,5 +291,7 @@ class Tracker:
                         self.delta_holds += int(self._delta_hold)
                     else:
                         self.held += 1
-                self.sums[:] = 0; self.count = 0; self.window_bad = False
+                self.sums[:] = 0
+                self.count = 0
+                self.window_bad = False
         return np.concatenate(outputs)

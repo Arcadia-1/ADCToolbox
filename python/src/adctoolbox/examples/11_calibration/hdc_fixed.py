@@ -103,4 +103,5 @@ def resource_budget(fraction=24, bits=28, window_log2=24):
                 serial_dividers=1, controller_latency_samples=512,
                 divider_width=D, division_iterations_per_update=6*D,
                 registers=registers, total_register_bits=sum(registers.values()),
-                scope='One calibrated stage; sample-rate unpipelined datapath; excludes backend, IO, test counters and physical analog elements; no synthesis/PPA claim')
+                scope='One calibrated stage; sample-rate unpipelined datapath; excludes backend, '
+                      'IO, test counters and physical analog elements; no synthesis/PPA claim')

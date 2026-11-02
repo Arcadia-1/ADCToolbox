@@ -32,7 +32,8 @@ def quantize(value, bits=12):
     """Midrise backend; rail flags are observable, overload count is evaluator-only."""
     levels = 2**bits
     code = np.clip(np.floor((value+1)*levels/2), 0, levels-1).astype(np.int64)
-    return (code+.5)*2/levels-1, bool(np.any((code == 0) | (code == levels-1))), int(np.sum(abs(value) >= 1))
+    return ((code+.5)*2/levels-1, bool(np.any((code == 0) | (code == levels-1))),
+            int(np.sum(abs(value) >= 1)))
 
 
 def coarse4(value):
@@ -271,7 +272,8 @@ def foreground_fit(plant, parameters, mechanism, size=32768, blocks=16):
         n = np.arange(block*size, (block+1)*size)
         signal = .81*np.sin(2*np.pi*frequency*n+.71)
         c = plant.convert(signal, parameters, probe_on=mechanism == 'capacitor')
-        nuisance = np.column_stack([np.sin(2*np.pi*frequency*n), np.cos(2*np.pi*frequency*n), np.ones(size)])
+        nuisance = np.column_stack([np.sin(2*np.pi*frequency*n), np.cos(2*np.pi*frequency*n),
+                                    np.ones(size)])
         if mechanism in ('gain', 'memory'):
             features = np.column_stack([-c['q'], -np.r_[previous_q, c['q'][:-1]]])
             previous_q = c['q'][-1]

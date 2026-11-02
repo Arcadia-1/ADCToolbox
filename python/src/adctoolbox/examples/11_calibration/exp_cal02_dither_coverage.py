@@ -45,11 +45,13 @@ def waveform(n, size, kind):
         bins, amplitudes = [int(round(.137*size)) | 1], [.8]
     else:
         bins, amplitudes = [int(round(.083*size)) | 1, int(round(.217*size)) | 1], [.46, .34]
-    return sum(a*np.sin(2*np.pi*k*n/size+.37+.81*j) for j, (a, k) in enumerate(zip(amplitudes, bins))), bins
+    return sum(a*np.sin(2*np.pi*k*n/size+.37+.81*j)
+               for j, (a, k) in enumerate(zip(amplitudes, bins))), bins
 
 
 def make_plant(mechanism, seed):
-    cls = dm.MemoryPlant if mechanism in ('gain', 'memory') else dm.CapacitorPlant if mechanism == 'capacitor' else dm.NonlinearPlant
+    cls = (dm.MemoryPlant if mechanism in ('gain', 'memory')
+           else dm.CapacitorPlant if mechanism == 'capacitor' else dm.NonlinearPlant)
     return cls(seed)
 
 
@@ -79,12 +81,14 @@ def run_case(mechanism, kind, scenario, seed, blocks, size, output=None, foregro
     for block in range(blocks):
         n = np.arange(block*size, (block+1)*size)
         clean, bins = waveform(n, size, kind)
-        truth = np.array(FINAL[mechanism] if scenario == 'step' and block >= blocks//2 else INITIAL[mechanism])
+        truth = np.array(FINAL[mechanism] if scenario == 'step' and block >= blocks//2
+                         else INITIAL[mechanism])
         c, off = plant.convert(clean, truth), off_plant.convert(clean, truth, probe_on=False)
         before, scalar_before = matched.parameters.copy(), scalar.parameters.copy()
         params = dict(nominal=NOMINAL[mechanism], scalar_correlation=scalar_before,
                       foreground_frozen=fg, matched_background=before, oracle=truth,
-                      nominal_probe_off=NOMINAL[mechanism], foreground_probe_off=fg, oracle_probe_off=truth)
+                      nominal_probe_off=NOMINAL[mechanism], foreground_probe_off=fg,
+                      oracle_probe_off=truth)
         row = dict(block=block, time_ms=(block+1)*size/FS*1e3, overloads=c['overload'],
                    off_overloads=off['overload'])
         for name, parameter in params.items():
@@ -110,12 +114,14 @@ def run_case(mechanism, kind, scenario, seed, blocks, size, output=None, foregro
         windows['step_transient'] = rows[blocks//2:3*blocks//4]
     summary = dict(mechanism=mechanism, waveform=kind, scenario=scenario, seed=seed,
                    foreground=fg.tolist(), final_parameters=matched.parameters.tolist(),
-                   overloads=sum(r['overloads'] for r in rows), off_overloads=sum(r['off_overloads'] for r in rows),
+                   overloads=sum(r['overloads'] for r in rows),
+                   off_overloads=sum(r['off_overloads'] for r in rows),
                    held_updates=sum(r['status'] != 'updated' for r in rows),
                    scalar_held_updates=sum(r['scalar_status'] != 'updated' for r in rows),
                    max_causality_gap=max(abs(rows[j][f'used_{i}']-rows[j-1][f'next_{i}'])
                                          for j in range(1, blocks) for i in range(len(truth))),
-                   windows={window: {method: {key: float(np.mean([r[method+'_'+key] for r in records]))
+                   windows={window: {method: {key: float(np.mean([r[method+'_'+key]
+                                                                  for r in records]))
                               for key in ('spectral_ratio_db', 'spur_ratio_db', 'error_snr_db')}
                               for method in METHODS} for window, records in windows.items()})
     if output is not None:
@@ -143,11 +149,12 @@ def linearization_sweep(seeds, size=131072):
                 # Dither is added AFTER this upstream nonlinearity.
                 front = clean+front_cubic*clean**3
                 for method, injected, removed in (('off', 0., 0.), ('unsubtracted', d, 0.),
-                                                  ('subtractive', d, d), ('dac_scale_error_1pct', 1.01*d, d)):
+                                                  ('subtractive', d, d),
+                                                  ('dac_scale_error_1pct', 1.01*d, d)):
                     analog = front+injected
                     result = -1+(np.searchsorted(thresholds, analog)+.5)*lsb-removed
-                    row = dict(seed=seed, amplitude=amplitude, front_cubic=front_cubic, method=method,
-                               overloads=int(np.sum(abs(analog) >= 1)))
+                    row = dict(seed=seed, amplitude=amplitude, front_cubic=front_cubic,
+                               method=method, overloads=int(np.sum(abs(analog) >= 1)))
                     row.update(metrics(result, clean, [tone]))
                     rows.append(row)
     return rows
@@ -158,7 +165,8 @@ def diagnostics(size=524288):
     p = dm.PRBS(17).draw(size)
     nuisance = .1*np.sin(2*np.pi*.137*np.arange(size)+.31)
     response = 3.88*(nuisance+.0625*p)
-    estimate = lambda probe, observed: float(dm.covariance(probe, observed)[0, 0]/dm.covariance(probe, probe)[0, 0]/.0625)
+    estimate = lambda probe, observed: float(dm.covariance(probe, observed)[0, 0]
+                                             /dm.covariance(probe, probe)[0, 0]/.0625)
     sequence = []
     for count in (1024, 8192, 65536, size):
         sequence.append(dict(samples=count, estimate=estimate(p[:count], response[:count])))
@@ -194,14 +202,18 @@ def aggregate(summaries):
     for mechanism in sorted({s['mechanism'] for s in summaries}):
         for kind in sorted({s['waveform'] for s in summaries}):
             for scenario in sorted({s['scenario'] for s in summaries}):
-                selected = [s for s in summaries if (s['mechanism'], s['waveform'], s['scenario']) == (mechanism, kind, scenario)]
+                selected = [s for s in summaries
+                            if (s['mechanism'], s['waveform'], s['scenario'])
+                            == (mechanism, kind, scenario)]
                 for window in selected[0]['windows']:
                     for method in METHODS:
-                        row = dict(mechanism=mechanism, waveform=kind, scenario=scenario, window=window, method=method, seeds=len(selected))
+                        row = dict(mechanism=mechanism, waveform=kind, scenario=scenario,
+                                   window=window, method=method, seeds=len(selected))
                         for key in ('spectral_ratio_db', 'spur_ratio_db', 'error_snr_db'):
                             values = [s['windows'][window][method][key] for s in selected]
                             row[key+'_mean'] = float(np.mean(values))
-                            row[key+'_sd'] = float(np.std(values, ddof=1)) if len(values) > 1 else 0.
+                            row[key+'_sd'] = (float(np.std(values, ddof=1)) if len(values) > 1
+                                              else 0.)
                         rows.append(row)
     return rows
 
@@ -209,30 +221,42 @@ def aggregate(summaries):
 def plot_results(traces, linearization, output):
     selected = [(key, rows) for key, rows in traces.items() if key[1:] == ('sine', 'step')]
     if selected:
-        fig, axes = plt.subplots(2, len(selected), figsize=(4.5*len(selected), 7.5), squeeze=False, layout='constrained')
+        fig, axes = plt.subplots(2, len(selected), figsize=(4.5*len(selected), 7.5), squeeze=False,
+                                 layout='constrained')
         for col, (key, rows) in enumerate(selected):
             t = [r['time_ms'] for r in rows]
             index = 1 if key[0] in ('memory', 'nonlinear') else 0
-            for prefix, label, color in [('true', 'Truth (evaluation)', 'black'), ('foreground', 'Foreground frozen', '#bb761a'), ('used', 'Background, causal', '#147caa')]:
-                axes[0, col].plot(t, [r[f'{prefix}_{index}'] for r in rows], label=label, color=color)
+            for prefix, label, color in [('true', 'Truth (evaluation)', 'black'),
+                                         ('foreground', 'Foreground frozen', '#bb761a'),
+                                         ('used', 'Background, causal', '#147caa')]:
+                axes[0, col].plot(t, [r[f'{prefix}_{index}'] for r in rows], label=label,
+                                  color=color)
             axes[0, col].set_title(key[0].capitalize())
-            axes[0, col].set_ylabel(('G', 'H')[index] if key[0] in ('gain', 'memory') else 'Cap mismatch delta' if key[0] == 'capacitor' else 'Inverse cubic coefficient')
-            for name, color in [('nominal', '#999999'), ('scalar_correlation', '#9467bd'), ('foreground_frozen', '#bb761a'), ('matched_background', '#147caa'), ('oracle', '#31955b')]:
-                axes[1, col].plot(t, [r[name+'_spectral_ratio_db'] for r in rows], color=color, label=name.replace('_', ' '))
+            axes[0, col].set_ylabel(('G', 'H')[index] if key[0] in ('gain', 'memory')
+                                    else 'Cap mismatch delta' if key[0] == 'capacitor'
+                                    else 'Inverse cubic coefficient')
+            for name, color in [('nominal', '#999999'), ('scalar_correlation', '#9467bd'),
+                                ('foreground_frozen', '#bb761a'), ('matched_background', '#147caa'),
+                                ('oracle', '#31955b')]:
+                axes[1, col].plot(t, [r[name+'_spectral_ratio_db'] for r in rows], color=color,
+                                  label=name.replace('_', ' '))
             axes[1, col].set_xlabel('Normal-operation time (ms)')
             axes[1, col].set_ylabel('SNDR (dB)')
             for ax in axes[:, col]:
                 ax.grid(alpha=.25)
         axes[0, 0].legend(fontsize=7)
         axes[1, 0].legend(fontsize=7)
-        fig.suptitle('Mechanism-specific dither calibration | first seed, same probe-on captures\nDifferent plant models: columns are not an algorithm ranking')
+        fig.suptitle('Mechanism-specific dither calibration | first seed, same probe-on captures\n'
+                     'Different plant models: columns are not an algorithm ranking')
         fig.savefig(output/'mechanisms.png', dpi=170)
         plt.close(fig)
     fig, axes = plt.subplots(1, 2, figsize=(11, 4.5), layout='constrained')
     amplitudes = sorted({r['amplitude'] for r in linearization})
     for method in ('off', 'unsubtracted', 'subtractive', 'dac_scale_error_1pct'):
         for ax, metric in zip(axes, ('spectral_ratio_db', 'spur_ratio_db')):
-            means = [np.mean([r[metric] for r in linearization if r['method'] == method and r['amplitude'] == a and r['front_cubic'] == 0]) for a in amplitudes]
+            means = [np.mean([r[metric] for r in linearization if r['method'] == method
+                              and r['amplitude'] == a and r['front_cubic'] == 0])
+                     for a in amplitudes]
             ax.plot(20*np.log10(amplitudes), means, 'o-', label=method.replace('_', ' '))
             ax.set_xlabel('Input amplitude (dBFS)')
             ax.grid(alpha=.25)
@@ -246,26 +270,34 @@ def plot_results(traces, linearization, output):
 
 def main(argv=None):
     parser = argparse.ArgumentParser(description=__doc__)
-    parser.add_argument('--output', type=Path, default=Path(__file__).parent/'output'/'dither_coverage')
+    parser.add_argument('--output', type=Path,
+                        default=Path(__file__).parent/'output'/'dither_coverage')
     parser.add_argument('--blocks', type=int, default=256)
     parser.add_argument('--block-size', type=int, default=32768)
     parser.add_argument('--foreground-blocks', type=int, default=16)
     parser.add_argument('--seeds', nargs='+', type=int, default=[11, 22, 33])
     parser.add_argument('--mechanisms', nargs='+', choices=list(INITIAL), default=list(INITIAL))
-    parser.add_argument('--waveforms', nargs='+', choices=['sine', 'multitone'], default=['sine', 'multitone'])
-    parser.add_argument('--scenarios', nargs='+', choices=['constant', 'step'], default=['constant', 'step'])
+    parser.add_argument('--waveforms', nargs='+', choices=['sine', 'multitone'],
+                        default=['sine', 'multitone'])
+    parser.add_argument('--scenarios', nargs='+', choices=['constant', 'step'],
+                        default=['constant', 'step'])
     args = parser.parse_args(argv)
-    if args.blocks < 16 or args.blocks % 4 or args.block_size < 1024 or args.block_size % 2 or args.foreground_blocks < 1:
-        parser.error('Require blocks >=16 divisible by 4, even block-size >=1024, foreground-blocks >=1')
+    if (args.blocks < 16 or args.blocks % 4 or args.block_size < 1024 or args.block_size % 2
+            or args.foreground_blocks < 1):
+        parser.error(
+            'Require blocks >=16 divisible by 4, even block-size >=1024, foreground-blocks >=1')
     for values in (args.seeds, args.mechanisms, args.waveforms, args.scenarios):
         if len(values) != len(set(values)):
             parser.error('Duplicate case selections are not allowed')
     if args.output.exists() and any(args.output.iterdir()):
         parser.error('Choose a new or empty output directory')
     args.output.mkdir(parents=True, exist_ok=True)
-    source = [Path(__file__), Path(dm.__file__), Path(__file__).with_name('exp_cal01_dither_background.py'), Path(__file__).with_name('pipeline_dither_model.py')]
-    config = {**vars(args), 'output': str(args.output.resolve()), 'fs_hz': FS, 'initial_parameters': INITIAL,
-              'final_parameters': FINAL, 'normal_samples_per_case': args.blocks*args.block_size,
+    source = [Path(__file__), Path(dm.__file__),
+              Path(__file__).with_name('exp_cal01_dither_background.py'),
+              Path(__file__).with_name('pipeline_dither_model.py')]
+    config = {**vars(args), 'output': str(args.output.resolve()), 'fs_hz': FS,
+              'initial_parameters': INITIAL, 'final_parameters': FINAL,
+              'normal_samples_per_case': args.blocks*args.block_size,
               'foreground_samples_per_case': args.foreground_blocks*args.block_size,
               'source_sha256': {p.name: hashlib.sha256(p.read_bytes()).hexdigest() for p in source}}
     write_json(args.output/'configuration.json', config)
@@ -275,14 +307,17 @@ def main(argv=None):
             for scenario in args.scenarios:
                 for seed in args.seeds:
                     name = f'{mechanism}_{kind}_{scenario}_seed{seed}'
-                    rows, summary = run_case(mechanism, kind, scenario, seed, args.blocks, args.block_size,
-                                             args.output/name, foreground_blocks=args.foreground_blocks)
+                    rows, summary = run_case(mechanism, kind, scenario, seed, args.blocks,
+                                             args.block_size, args.output/name,
+                                             foreground_blocks=args.foreground_blocks)
                     summaries.append(summary)
                     if seed == args.seeds[0]:
                         traces[(mechanism, kind, scenario)] = rows
                     final = summary['windows']['final_quarter']
-                    print(name+': '+', '.join(f'{m}={final[m]["spectral_ratio_db"]:.2f}' for m in METHODS[:5])
-                          +f'; held={summary["held_updates"]}; overloads={summary["overloads"]}', flush=True)
+                    print(name+': '+', '.join(f'{m}={final[m]["spectral_ratio_db"]:.2f}'
+                                              for m in METHODS[:5])
+                          +f'; held={summary["held_updates"]}; overloads={summary["overloads"]}',
+                          flush=True)
     table = aggregate(summaries)
     linearization = linearization_sweep(args.seeds)
     save_csv(args.output/'aggregate.csv', table)
@@ -290,7 +325,8 @@ def main(argv=None):
     write_json(args.output/'summary.json', dict(runs=summaries, aggregate=table))
     write_json(args.output/'diagnostics.json', diagnostics())
     plot_results(traces, linearization, args.output)
-    print(f'Saved {len(summaries)} causal runs and {len(linearization)} randomization measurements to {args.output.resolve()}', flush=True)
+    print(f'Saved {len(summaries)} causal runs and {len(linearization)} randomization '
+          f'measurements to {args.output.resolve()}', flush=True)
 
 
 if __name__ == '__main__':

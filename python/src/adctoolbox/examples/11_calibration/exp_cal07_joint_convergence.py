@@ -59,8 +59,10 @@ def run_case(seed, kind, scenario, blocks=256, size=32768):
                        method=method, **diag, **{'used_'+k: v for k, v in estimate.items()},
                        **{'true_'+k: v for k, v in asdict(truth).items()})
             row.update(previous.metrics(corrector.apply(c, coeff)['signal'], x, bins))
-            row['in_band'] = all(abs(estimate[k]-getattr(truth, k)) <= BANDS[k]*abs(getattr(truth, k)) for k in BANDS)
-            row['causality_gap'] = float(np.max(abs(coeff-last_next[method]))) if method in last_next else 0.
+            row['in_band'] = all(abs(estimate[k]-getattr(truth, k))
+                                 <= BANDS[k]*abs(getattr(truth, k)) for k in BANDS)
+            row['causality_gap'] = (float(np.max(abs(coeff-last_next[method])))
+                                    if method in last_next else 0.)
             if method in trackers:
                 row.update(trackers[method].update(c))
                 row['condition'] = trackers[method].condition
@@ -73,8 +75,11 @@ def run_case(seed, kind, scenario, blocks=256, size=32768):
 
 def summarize(rows, blocks):
     result = []
-    for seed, kind, scenario, method in sorted({(r['seed'], r['waveform'], r['scenario'], r['method']) for r in rows}):
-        selected = [r for r in rows if (r['seed'], r['waveform'], r['scenario'], r['method']) == (seed, kind, scenario, method)]
+    for seed, kind, scenario, method in sorted(
+            {(r['seed'], r['waveform'], r['scenario'], r['method']) for r in rows}):
+        selected = [r for r in rows
+                    if (r['seed'], r['waveform'], r['scenario'], r['method'])
+                    == (seed, kind, scenario, method)]
         for window, lo, hi in [('pre_midpoint', blocks//4, blocks//2),
                                ('post_step_transient', blocks//2, 3*blocks//4),
                                ('final_quarter', 3*blocks//4, blocks)]:
@@ -108,7 +113,8 @@ def long_record(seed, blocks=1024, size=32768):
     for block in range(blocks):
         x, _ = previous.waveform(np.arange(block*size, (block+1)*size), size, 'sine')
         for label, plant in plants.items():
-            truth = jm.Parameters(jm.FINAL.gain, 0., 0., jm.FINAL.beta) if label.endswith('no_memory_cap') else jm.FINAL
+            truth = (jm.Parameters(jm.FINAL.gain, 0., 0., jm.FINAL.beta)
+                     if label.endswith('no_memory_cap') else jm.FINAL)
             c, d = plant.convert(x, truth)
             if d['overloads']:
                 raise RuntimeError('Long-record diagnostic clipped')
@@ -120,7 +126,8 @@ def long_record(seed, blocks=1024, size=32768):
 def summarize_long(arrays, seed, size):
     rows = []
     for label, stats in arrays.items():
-        for method, rate in [('ema04', .04), ('ema01', .01), ('cumulative', None), ('fixed_c3_oracle', .04)]:
+        for method, rate in [('ema04', .04), ('ema01', .01), ('cumulative', None),
+                             ('fixed_c3_oracle', .04)]:
             a, b = np.zeros((3, 3)), np.zeros(3)
             estimates = []
             cosines, conditions = [], []
@@ -152,7 +159,8 @@ def summarize_long(arrays, seed, size):
                            scaled_condition=float(np.mean(conditions[3*count//4:])),
                            max_basis_change_gap=algebra_gap)
                 for k in ('gain', 'beta', 'history'):
-                    truth = 0. if k == 'history' and label.endswith('no_memory_cap') else getattr(jm.FINAL, k)
+                    truth = (0. if k == 'history' and label.endswith('no_memory_cap')
+                             else getattr(jm.FINAL, k))
                     error = np.array([t[k]-truth for t in tail])
                     row[k+'_rmse'] = float(np.sqrt(np.mean(error**2)))
                     row[k+'_bias'] = float(error.mean())
@@ -190,20 +198,24 @@ def balanced_controls():
             tracker.update(c)
             estimate = jm.physical(tracker.coefficients)
             rows.append(dict(noise_sigma=sigma, bits=bits or 'unquantized', grouped=grouped,
-                             **{k+'_error': estimate[k]-getattr(truth, k) for k in ('gain', 'beta', 'history')},
+                             **{k+'_error': estimate[k]-getattr(truth, k)
+                                for k in ('gain', 'beta', 'history')},
                              c1_error=float(tracker.coefficients[0]-truth.inverse()[0]),
                              c1_noise_prediction=float(-3*sigma**2*truth.inverse()[1])))
     return rows
 
 
 def plot(rows, long_rows, output, seed, size):
-    selected = [r for r in rows if r['seed'] == seed and r['waveform'] == 'sine' and r['scenario'] == 'step']
+    selected = [r for r in rows if r['seed'] == seed and r['waveform'] == 'sine'
+                and r['scenario'] == 'step']
     fig, axes = plt.subplots(2, 2, figsize=(11, 7), layout='constrained')
-    colors = dict(pooled_04='#d47720', pooled_01='#94999e', grouped_04='#147caa', grouped_01='#148a58')
+    colors = dict(pooled_04='#d47720', pooled_01='#94999e', grouped_04='#147caa',
+                  grouped_01='#148a58')
     for method, color in colors.items():
         record = [r for r in selected if r['method'] == method]
         t = [(r['block']+1)*size/previous.FS*1000 for r in record]
-        for ax, key in zip(axes.flat, ('used_gain', 'used_beta', 'spectral_ratio_db', 'spur_ratio_db')):
+        for ax, key in zip(axes.flat,
+                           ('used_gain', 'used_beta', 'spectral_ratio_db', 'spur_ratio_db')):
             ax.plot(t, [r[key] for r in record], label=method, color=color, lw=1)
     for ax, k in zip(axes[0], ('gain', 'beta')):
         record = [r for r in selected if r['method'] == 'oracle']
@@ -211,22 +223,29 @@ def plot(rows, long_rows, output, seed, size):
         ax.plot(t, truth, color='black', lw=1)
         ax.fill_between(t, truth*(1-BANDS[k]), truth*(1+BANDS[k]), color='black', alpha=.07)
         ax.set_ylabel(k)
-    axes[1, 0].set_ylabel('SNDR (dB)'); axes[1, 1].set_ylabel('SFDR (dB)')
+    axes[1, 0].set_ylabel('SNDR (dB)')
+    axes[1, 1].set_ylabel('SFDR (dB)')
     for ax in axes.flat:
-        ax.set_xlabel('Time (ms)'); ax.grid(alpha=.2)
+        ax.set_xlabel('Time (ms)')
+        ax.grid(alpha=.2)
     axes[0, 0].legend(fontsize=8)
     fig.suptitle(f'Fixed probe peak 0.2; held-out seed {seed}')
-    fig.savefig(output/'fixed_probe_convergence.png', dpi=160); plt.close(fig)
+    fig.savefig(output/'fixed_probe_convergence.png', dpi=160)
+    plt.close(fig)
     fig, axes = plt.subplots(1, 2, figsize=(10, 4), layout='constrained')
     for method in ('ema04', 'ema01', 'cumulative', 'fixed_c3_oracle'):
         entries = [r for r in long_rows if r['plant'] == 'noisy_joint' and r['method'] == method]
         counts = sorted({r['blocks'] for r in entries})
         for ax, k in zip(axes, ('gain', 'beta')):
-            values = [np.sqrt(np.mean([r[k+'_rmse']**2 for r in entries if r['blocks'] == n])) for n in counts]
+            values = [np.sqrt(np.mean([r[k+'_rmse']**2 for r in entries if r['blocks'] == n]))
+                      for n in counts]
             ax.loglog(np.array(counts)*size, values, 'o-', label=method)
-            ax.set_xlabel('Acquired samples'); ax.set_ylabel(k+' RMSE, last quarter'); ax.grid(alpha=.2)
+            ax.set_xlabel('Acquired samples')
+            ax.set_ylabel(k+' RMSE, last quarter')
+            ax.grid(alpha=.2)
     axes[0].legend(fontsize=8)
-    fig.savefig(output/'sample_budget.png', dpi=160); plt.close(fig)
+    fig.savefig(output/'sample_budget.png', dpi=160)
+    plt.close(fig)
 
 
 def main(argv=None):
@@ -247,9 +266,12 @@ def main(argv=None):
     config = dict(blocks=args.blocks, long_blocks=args.long_blocks, block_size=args.block_size,
                   seeds=args.seeds, amplitude=.2, peak=.8, sample_rate=previous.FS,
                   methods=list(METHODS), bands=BANDS, pilot_seed=44,
-                  parameter_policy='constant FINAL; step INITIAL to FINAL at midpoint; no estimator reset',
-                  versions=dict(python=platform.python_version(), numpy=np.__version__, scipy=scipy.__version__),
-                  source_sha256={p.name: hashlib.sha256(p.read_bytes()).hexdigest() for p in sources})
+                  parameter_policy='constant FINAL; step INITIAL to FINAL at midpoint; '
+                                   'no estimator reset',
+                  versions=dict(python=platform.python_version(), numpy=np.__version__,
+                                scipy=scipy.__version__),
+                  source_sha256={p.name: hashlib.sha256(p.read_bytes()).hexdigest()
+                                 for p in sources})
     previous.write_json(args.output/'configuration.json', config)
     rows, long_rows = [], []
     for seed in args.seeds:
@@ -274,7 +296,8 @@ def main(argv=None):
         minimum_headroom=min(r['headroom'] for r in rows),
         overloads=sum(r['overloads'] for r in rows if r['method'] == 'nominal'),
         max_causality_gap=max(r['causality_gap'] for r in rows),
-        finite_numeric_results=all(np.isfinite(v) for r in rows for v in r.values() if isinstance(v, (int, float))),
+        finite_numeric_results=all(np.isfinite(v) for r in rows for v in r.values()
+                                   if isinstance(v, (int, float))),
         all_outputs_use_start_of_block_coefficients=True))
     print(f'finished {args.output}', flush=True)
 

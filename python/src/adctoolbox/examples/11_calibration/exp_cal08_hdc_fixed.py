@@ -56,7 +56,8 @@ def run_case(output, seed, kind, total_log2, window_log2, formats=False,
                     fixed24=Tracker(window_log2=window_log2, dither_peak=dither_peak),
                     short24=Tracker(window_log2=short_log2, dither_peak=dither_peak))
     if formats:
-        trackers.update({f'fixed{f}':Tracker(fraction=f, bits=f+4, window_log2=window_log2, dither_peak=dither_peak)
+        trackers.update({f'fixed{f}':Tracker(fraction=f, bits=f+4, window_log2=window_log2,
+                                             dither_peak=dither_peak)
                          for f in (16, 20)})
     clean, bins = waveform(np.arange(size), fft_size, kind, peak)
     rows = []
@@ -64,7 +65,8 @@ def run_case(output, seed, kind, total_log2, window_log2, formats=False,
                 maximum_internal_peak=0., minimum_slope=1.)
     t0 = time.monotonic()
     for block in range(blocks):
-        truth = device if device is not None else (FINAL if scenario == 'constant' or block >= blocks//2 else INITIAL)
+        truth = device if device is not None else (
+            FINAL if scenario == 'constant' or block >= blocks//2 else INITIAL)
         c, d = plant.convert(clean, truth)
         diag['minimum_headroom'] = min(diag['minimum_headroom'], d['headroom'])
         diag['overloads'] += d['overloads']
@@ -77,14 +79,17 @@ def run_case(output, seed, kind, total_log2, window_log2, formats=False,
         for name, tracker in trackers.items():
             y = tracker.process(c)
             if evaluate:
-                row.update({name+'_'+k:v for k,v in metrics(y[-fft_size:], clean[-fft_size:], bins).items()})
+                row.update({name+'_'+k:v
+                            for k,v in metrics(y[-fft_size:], clean[-fft_size:], bins).items()})
                 row.update({name+'_'+k:v for k,v in tracker.physical().items()})
         if evaluate:
             nominal = c['q']/2+c['r']-dither_peak/3*c['p'].sum(axis=1)
             tail = {k:(v[-fft_size-64:] if isinstance(v, np.ndarray) else v) for k,v in c.items()}
-            for name, y in [('nominal',nominal), ('oracle_hdc',oracle(tail, truth, dither_peak=dither_peak)),
+            for name, y in [('nominal',nominal),
+                            ('oracle_hdc',oracle(tail, truth, dither_peak=dither_peak)),
                             ('oracle_exact',oracle(tail, truth, True, dither_peak=dither_peak))]:
-                row.update({name+'_'+k:v for k,v in metrics(y[-fft_size:],clean[-fft_size:],bins).items()})
+                row.update({name+'_'+k:v
+                            for k,v in metrics(y[-fft_size:],clean[-fft_size:],bins).items()})
             rows.append(row)
     final = [r for r in rows if r['sample'] > 3*2**total_log2//4]
     summaries = {}
@@ -93,14 +98,22 @@ def run_case(output, seed, kind, total_log2, window_log2, formats=False,
                 for m in ('spectral_ratio_db','spur_ratio_db','error_snr_db')}
         if name in trackers:
             tracker = trackers[name]
-            item.update(parameter_mean={k:float(np.mean([r[name+'_'+k] for r in final])) for k in PARAMETERS},
-                        parameter_rmse={k:float(np.sqrt(np.mean([(r[name+'_'+k]-r['true_'+k])**2 for r in final]))) for k in PARAMETERS},
-                        parameter_relative_rmse={k:float(np.sqrt(np.mean([((r[name+'_'+k]-r['true_'+k])/r['true_'+k])**2 for r in final])))
+            item.update(parameter_mean={k:float(np.mean([r[name+'_'+k] for r in final]))
+                                        for k in PARAMETERS},
+                        parameter_rmse={k:float(np.sqrt(np.mean([(r[name+'_'+k]-r['true_'+k])**2
+                                                                 for r in final])))
+                                        for k in PARAMETERS},
+                        parameter_relative_rmse={
+                            k:float(np.sqrt(np.mean([((r[name+'_'+k]-r['true_'+k])/r['true_'+k])**2
+                                                     for r in final])))
                             for k in PARAMETERS if final[0]['true_'+k] != 0},
-                        in_band_fraction=float(np.mean([all(abs(r[name+'_'+k]-r['true_'+k]) <= BANDS[k]*abs(r['true_'+k])
-                            for k in PARAMETERS) for r in final])),
+                        in_band_fraction=float(np.mean([
+                            all(abs(r[name+'_'+k]-r['true_'+k]) <= BANDS[k]*abs(r['true_'+k])
+                                for k in PARAMETERS)
+                            for r in final])),
                         accepted=tracker.updates, held=tracker.held,
-                        saturations=tracker.saturations, accumulator_saturations=tracker.accumulator_saturations,
+                        saturations=tracker.saturations,
+                        accumulator_saturations=tracker.accumulator_saturations,
                         controller_saturations=tracker.controller_saturations)
         summaries[name] = item
     result = dict(seed=seed, kind=kind, scenario=scenario, total_log2=total_log2,
@@ -121,13 +134,18 @@ def plot(rows, output):
         ax.plot(t, [r['true_'+key] for r in rows], 'k--', label='Truth (evaluation only)')
         for name in ('short24','float','fixed24'):
             ax.plot(t, [r[name+'_'+key] for r in rows], label=name, alpha=.8)
-        ax.set(title=key, xlabel='Time at 100 MS/s (ms)'); ax.grid(alpha=.2)
-    for ax, key, title in zip(axes.flat[4:], ('spectral_ratio_db','spur_ratio_db'), ('SNDR (dB)','SFDR (dB)')):
+        ax.set(title=key, xlabel='Time at 100 MS/s (ms)')
+        ax.grid(alpha=.2)
+    for ax, key, title in zip(axes.flat[4:], ('spectral_ratio_db','spur_ratio_db'),
+                              ('SNDR (dB)','SFDR (dB)')):
         for name in ('nominal','short24','fixed24','oracle_hdc','oracle_exact'):
             ax.plot(t, [r[name+'_'+key] for r in rows], label=name)
-        ax.set(title=title, xlabel='Time at 100 MS/s (ms)'); ax.grid(alpha=.2)
-    axes[0,0].legend(fontsize=8); axes[2,0].legend(fontsize=8)
-    fig.savefig(output, dpi=150); plt.close(fig)
+        ax.set(title=title, xlabel='Time at 100 MS/s (ms)')
+        ax.grid(alpha=.2)
+    axes[0,0].legend(fontsize=8)
+    axes[2,0].legend(fontsize=8)
+    fig.savefig(output, dpi=150)
+    plt.close(fig)
 
 
 def main(argv=None):
@@ -136,7 +154,8 @@ def main(argv=None):
     parser.add_argument('--total-log2', type=int, default=27)
     parser.add_argument('--window-log2', type=int, default=24)
     parser.add_argument('--seeds', type=int, nargs='+', default=[101,202,303])
-    parser.add_argument('--kinds', nargs='+', choices=['sine','multitone'], default=['sine','multitone'])
+    parser.add_argument('--kinds', nargs='+', choices=['sine','multitone'],
+                        default=['sine','multitone'])
     parser.add_argument('--scenario', choices=['step','constant'], default='step')
     parser.add_argument('--dither-peak', type=float, default=.2)
     parser.add_argument('--input-peak', type=float, default=.8)
@@ -158,23 +177,31 @@ def main(argv=None):
         parser.error('Output directory is not empty; choose a new directory')
     args.output.mkdir(parents=True, exist_ok=True)
     here = Path(__file__).parent
-    sources = ['hdc_fixed.py','exp_cal08_hdc_fixed.py','exp_cal06_joint_dither.py','dither_mechanisms.py']
+    sources = ['hdc_fixed.py','exp_cal08_hdc_fixed.py','exp_cal06_joint_dither.py',
+               'dither_mechanisms.py']
     source_paths = {name: here/name for name in sources}
     source_paths['_dither_hdc.py'] = Path(_dither_hdc.__file__)
     write_json(args.output/'config.json', dict(arguments={**vars(args),'output':str(args.output)},
-        sources={name:hashlib.sha256(path.read_bytes()).hexdigest() for name, path in source_paths.items()},
+        sources={name:hashlib.sha256(path.read_bytes()).hexdigest()
+                 for name, path in source_paths.items()},
         python=platform.python_version(), numpy=np.__version__, scipy=scipy.__version__,
-        initial=asdict(INITIAL), final=asdict(FINAL), physical_dither_peak=args.dither_peak, pn_lengths=[31,29,23],
-        cap_switch_length=27, fraction=24, word_bits=28, fft_size=32768,
-        noise_rms_backend=args.noise_rms, backend_bits=args.backend_bits, controller_latency_samples=512,
-        bands=BANDS, final_evaluation='last quarter, sample active coefficients; arithmetic mean of per-FFT dB metrics',
-        multitone_metrics='desired-tone power / other power; strongest desired tone / largest unwanted bin, not single-tone SNDR/SFDR'))
+        initial=asdict(INITIAL), final=asdict(FINAL), physical_dither_peak=args.dither_peak,
+        pn_lengths=[31,29,23], cap_switch_length=27, fraction=24, word_bits=28, fft_size=32768,
+        noise_rms_backend=args.noise_rms, backend_bits=args.backend_bits,
+        controller_latency_samples=512, bands=BANDS,
+        final_evaluation='last quarter, sample active coefficients; '
+                         'arithmetic mean of per-FFT dB metrics',
+        multitone_metrics='desired-tone power / other power; '
+                          'strongest desired tone / largest unwanted bin, '
+                          'not single-tone SNDR/SFDR'))
     write_json(args.output/'resources.json', resource_budget(window_log2=args.window_log2))
     all_summaries, table = [], []
     for kind in args.kinds:
         for seed in args.seeds:
-            rows, result = run_case(args.output/f'{kind}_{seed}', seed, kind, args.total_log2,
-                                   args.window_log2, formats=(kind == args.kinds[0] and seed == args.seeds[0]), scenario=args.scenario,
+            rows, result = run_case(args.output/f'{kind}_{seed}', seed, kind,
+                                   args.total_log2, args.window_log2,
+                                   formats=(kind == args.kinds[0] and seed == args.seeds[0]),
+                                   scenario=args.scenario,
                                    peak=args.input_peak, dither_peak=args.dither_peak,
                                    backend_bits=args.backend_bits, noise=args.noise_rms)
             all_summaries.append(result)

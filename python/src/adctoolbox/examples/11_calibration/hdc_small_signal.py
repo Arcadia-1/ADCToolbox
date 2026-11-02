@@ -35,7 +35,8 @@ def balanced_scan(offsets=None, amplitudes=None, phase_count=256, dither_peak=.2
     if offsets is None:
         offsets = np.unique(np.r_[np.linspace(-.24, .24, 513), -.6, -.3, -.251, -.249,
                                  .137, .249, .251, .3, .6])
-    if amplitudes is None: amplitudes = [0., 1e-6, 1e-5, 1e-4, .001, .01, .05]
+    if amplitudes is None:
+        amplitudes = [0., 1e-6, 1e-5, 1e-4, .001, .01, .05]
     p = np.array(list(product((-1, 1), repeat=3)))
     phase = np.arange(phase_count)*2*np.pi/phase_count
     a = dither_peak/3
@@ -102,10 +103,12 @@ def train(seed, noise, train_log2, window_log2, dither_peak):
     for _ in range((1 << train_log2)//size):
         capture, diag = plant.convert(x, FINAL)
         headroom, overloads = min(headroom, diag['headroom']), overloads+diag['overloads']
-        for tracker in trackers.values(): tracker.process(capture)
+        for tracker in trackers.values():
+            tracker.process(capture)
     # Finish the controller delay on the same large signal, then snapshot.
     capture, diag = plant.convert(x[:1024], FINAL)
-    for tracker in trackers.values(): tracker.process(capture, learn=False)
+    for tracker in trackers.values():
+        tracker.process(capture, learn=False)
     headroom, overloads = min(headroom, diag['headroom']), overloads+diag['overloads']
     result = dict(seed=seed, noise=noise, samples=(1 << train_log2)+1024,
         headroom=headroom, overloads=overloads,
@@ -128,7 +131,8 @@ def stream_case(plant_source, trained, name, offset, amplitude, test_log2, windo
     size, fft_size = 65536, 32768
     wave, bins = waveform(np.arange(size), fft_size, 'sine', amplitude)
     clean = offset+wave
-    if amplitude == 0: bins = []
+    if amplitude == 0:
+        bins = []
     rows, headroom, overloads = [], 1., 0
     # Include active-coefficient trajectories at shorter-window cadence.
     cadence = 1 << max(0, short_log2-16)
@@ -142,7 +146,8 @@ def stream_case(plant_source, trained, name, offset, amplitude, test_log2, windo
                     sample=(block+1)*size, offset=offset, amplitude=amplitude,
                     **tracker.physical(), **score(y[-fft_size:], clean[-fft_size:], bins),
                     accepted=tracker.updates, held=tracker.held,
-                    saturations=tracker.saturations, accumulator_saturations=tracker.accumulator_saturations,
+                    saturations=tracker.saturations,
+                    accumulator_saturations=tracker.accumulator_saturations,
                     controller_saturations=tracker.controller_saturations))
     np.testing.assert_array_equal(trackers['frozen_fixed'].values(), initial_frozen)
     # Independent high-amplitude/frequency test reveals bad small-input learning;
@@ -179,38 +184,48 @@ def main(argv=None):
     args = parser.parse_args(argv)
     if not 16 <= args.short_log2 < args.window_log2 <= min(args.train_log2, args.test_log2)-2 <= 28:
         parser.error('Require 16 <= short < window <= min(train,test)-2 <= 28')
-    if any(not np.isfinite(n) or n < 0 for n in args.noise_rms): parser.error('noise-rms must be finite and nonnegative')
-    try: Tracker(dither_peak=args.dither_peak)
-    except ValueError as error: parser.error(str(error))
-    if args.output.exists() and any(args.output.iterdir()): parser.error('Output directory is not empty')
+    if any(not np.isfinite(n) or n < 0 for n in args.noise_rms):
+        parser.error('noise-rms must be finite and nonnegative')
+    try:
+        Tracker(dither_peak=args.dither_peak)
+    except ValueError as error:
+        parser.error(str(error))
+    if args.output.exists() and any(args.output.iterdir()):
+        parser.error('Output directory is not empty')
     args.output.mkdir(parents=True, exist_ok=True)
     names = ['hdc_small_signal.py','hdc_fixed.py','exp_cal08_hdc_fixed.py',
              'exp_cal06_joint_dither.py','dither_mechanisms.py']
     source_paths = {n: Path(__file__).with_name(n) for n in names}
     source_paths['_dither_hdc.py'] = Path(_dither_hdc.__file__)
     source = {n:hashlib.sha256(path.read_bytes()).hexdigest() for n, path in source_paths.items()}
-    write_json(args.output/'configuration.json', dict(arguments={**vars(args),'output':str(args.output)},
+    write_json(args.output/'configuration.json', dict(
+        arguments={**vars(args),'output':str(args.output)},
         sources=source, truth=asdict(FINAL), backend_bits=13, fraction=24, bits=28,
         cases=CASES, controller_latency=512, phase_count=256,
         balanced_scope='No memory/DAC/noise; phase quadrature and exact PN expectation',
-        streaming_scope='Joint gain/cubic/memory/DAC, three PN peak unchanged; active final estimates, not best-window selection'))
+        streaming_scope='Joint gain/cubic/memory/DAC, three PN peak unchanged; '
+                        'active final estimates, not best-window selection'))
     start = time.monotonic()
     save_csv(args.output/'balanced_scan.csv', balanced_scan(dither_peak=args.dither_peak))
     all_rows, results, training = [], [], []
     for seed, noise in product(args.seeds, args.noise_rms):
-        plant, trained, summary = train(seed, noise, args.train_log2, args.window_log2, args.dither_peak)
+        plant, trained, summary = train(seed, noise, args.train_log2, args.window_log2,
+                                        args.dither_peak)
         training.append(summary)
         print('trained', seed, noise, summary['methods']['fixed']['parameters'], flush=True)
         for name, offset, amplitude in CASES:
             rows, summary = stream_case(plant, trained, name, offset, amplitude,
                 args.test_log2, args.window_log2, args.short_log2, seed, noise, args.dither_peak)
-            all_rows.extend(rows); results.append(summary)
+            all_rows.extend(rows)
+            results.append(summary)
             print('completed', seed, noise, name, flush=True)
     save_csv(args.output/'trajectories.csv', all_rows)
     write_json(args.output/'training.json', training)
     write_json(args.output/'summary.json', results)
     write_json(args.output/'completion.json', dict(elapsed_seconds=time.monotonic()-start,
-        cases=len(results), source_hashes_match=all(hashlib.sha256(source_paths[n].read_bytes()).hexdigest()==h for n,h in source.items())))
+        cases=len(results),
+        source_hashes_match=all(hashlib.sha256(source_paths[n].read_bytes()).hexdigest()==h
+                                for n,h in source.items())))
     return 0
 
 

@@ -23,10 +23,13 @@ def apply_dither_gain(coarse, backend, pn, *, gain_estimate, probe_amplitude):
     reconstructs the digital output; it does not inject a probe.
     """
     q, r, p = [np.asarray(a, float) for a in (coarse, backend, pn)]
-    if q.ndim != 1 or r.shape != q.shape or p.shape != q.shape or not all(np.isfinite(a).all() for a in (q, r, p)):
+    if (q.ndim != 1 or r.shape != q.shape or p.shape != q.shape
+            or not all(np.isfinite(a).all() for a in (q, r, p))):
         raise ValueError("coarse, backend and pn must be matching finite 1D arrays")
-    if not np.isfinite(gain_estimate) or gain_estimate <= 0 or not np.isfinite(probe_amplitude) or probe_amplitude < 0:
-        raise ValueError("gain_estimate must be positive and probe_amplitude nonnegative, both finite")
+    if (not np.isfinite(gain_estimate) or gain_estimate <= 0
+            or not np.isfinite(probe_amplitude) or probe_amplitude < 0):
+        raise ValueError(
+            "gain_estimate must be positive and probe_amplitude nonnegative, both finite")
     return {"calibrated_signal": q+r/gain_estimate-probe_amplitude*p,
             "gain_used": float(gain_estimate)}
 
@@ -72,7 +75,8 @@ class DitherGainTracker:
             raise ValueError("learning_rate must be in (0, 1]")
         if not _is_integer(backend_bits) or not 2 <= backend_bits <= 24:
             raise ValueError("backend_bits must be an integer in [2, 24]")
-        if len(gain_bounds) != 2 or not (0 < gain_bounds[0] <= initial_gain <= gain_bounds[1] < np.inf):
+        if (len(gain_bounds) != 2
+                or not (0 < gain_bounds[0] <= initial_gain <= gain_bounds[1] < np.inf)):
             raise ValueError("initial_gain must lie in finite positive gain_bounds")
         self.probe_amplitude = probe_amplitude
         self.initial_gain = initial_gain
@@ -100,10 +104,13 @@ class DitherGainTracker:
         """
         r, p, codes = np.asarray(backend, float), np.asarray(pn, float), np.asarray(backend_code)
         if r.ndim != 1 or r.shape != p.shape or r.shape != codes.shape or r.size < 2:
-            raise ValueError("backend, pn and backend_code must have matching 1D shapes with >=2 samples")
-        if not np.isfinite(r).all() or not np.isfinite(p).all() or not np.isin(p, [-1., 0., 1.]).all():
+            raise ValueError(
+                "backend, pn and backend_code must have matching 1D shapes with >=2 samples")
+        if (not np.isfinite(r).all() or not np.isfinite(p).all()
+                or not np.isin(p, [-1., 0., 1.]).all()):
             raise ValueError("Finite backend and PN in {-1, 0, 1} required")
-        if not np.isfinite(codes).all() or np.any(codes != np.floor(codes)) or np.any((codes < 0) | (codes >= 2**self.backend_bits)):
+        if (not np.isfinite(codes).all() or np.any(codes != np.floor(codes))
+                or np.any((codes < 0) | (codes >= 2**self.backend_bits))):
             raise ValueError("Invalid backend codes")
         status, observed = "updated", None
         centered = p-p.mean()
@@ -233,18 +240,21 @@ class DitherHDCTracker:
         _HDCTracker(**self._configuration)
         self._initial = dict(zip(self._names, (1., 0., 0., 0.)))
         if initial_coefficients is not None:
-            if not isinstance(initial_coefficients, dict) or set(initial_coefficients) != set(self._names):
+            if (not isinstance(initial_coefficients, dict)
+                    or set(initial_coefficients) != set(self._names)):
                 raise ValueError(f"initial_coefficients must contain exactly {self._names}")
             self._initial = dict(initial_coefficients)
         values = np.asarray([self._initial[name] for name in self._names], dtype=float)
         if values.shape != (4,) or not np.all(np.isfinite(values)) or values[0] <= 0:
-            raise ValueError("initial coefficients must be finite scalars with positive linear gain")
+            raise ValueError(
+                "initial coefficients must be finite scalars with positive linear gain")
         # Bound the recursive inverse and reject unrepresentable fixed words.
         if abs(values[2]) >= 1:
             raise ValueError("initial memory coefficient must have magnitude below one")
         if fixed:
             words = np.rint(values * (1 << int(fraction)))
-            if np.any(words < -(1 << (int(bits)-1))) or np.any(words >= (1 << (int(bits)-1))) or words[0] <= 0:
+            if (np.any(words < -(1 << (int(bits)-1))) or np.any(words >= (1 << (int(bits)-1)))
+                    or words[0] <= 0):
                 raise ValueError("initial coefficients do not fit the fixed-point format")
         self.reset()
 

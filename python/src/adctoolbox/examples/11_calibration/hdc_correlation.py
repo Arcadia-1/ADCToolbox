@@ -78,7 +78,8 @@ def block_moments(capture, truth, permutation, independent_reference):
             error_positive=float(np.sum(e[c3>0])),error_negative=float(np.sum(e[c3<0])),
             shuffled_quant_m3=float(np.sum(e[permutation]*c3)),
             independent_m3=float(np.sum(ss*independent_reference)))
-    return rows,dict(headroom=float(1-np.max(abs(2*actual))),overloads=int(np.sum(abs(2*actual)>=1)))
+    return rows,dict(headroom=float(1-np.max(abs(2*actual))),
+                     overloads=int(np.sum(abs(2*actual)>=1)))
 
 
 def summarize(sums, truth, a):
@@ -106,7 +107,8 @@ def summarize(sums, truth, a):
         estimated_normalized_gain=gain_hat,gain_error=gain_hat-g,
         gamma1_finite_error=gamma1_finite,gamma1_noise_error=m['noise_m1']/a,
         gamma1_quant_error=m['quant_m1']/a,eta_gain_bias=eta_bias,cubic_gain_coupling=coupling,
-        gain_decomposition_residual=(gain_hat-g)-(gamma1_finite+m['noise_m1']/a+m['quant_m1']/a+eta_bias+coupling),
+        gain_decomposition_residual=(gain_hat-g)-(gamma1_finite+m['noise_m1']/a+m['quant_m1']/a
+                                                  +eta_bias+coupling),
         mean_p1=m['p1'],mean_p2=m['p2'],mean_p3=m['p3'],mean_c3=m['c3'],
         mean_p1p2=m['p12'],mean_p1p3=m['p13'],mean_p2p3=m['p23'],
         mean_quant_error=m['error_sum'],quant_error_rms=np.sqrt(m['error_square']),
@@ -125,7 +127,8 @@ def streaming(seed, mode, case, noise, checkpoints, peak=.2):
     plant = DiagnosticPlant(seed,truth,noise,peak)
     control_rng = np.random.default_rng(seed+50000)
     reference = PRBS(seed+70000,19)
-    sums={b:None for b in BITS}; rows=[]
+    sums={b:None for b in BITS}
+    rows=[]
     headroom,overloads = 1.,0
     # Prefixes are nested and share all physical samples. Shuffle is local to
     # each fixed-size block and never changes the measured error histogram.
@@ -134,16 +137,20 @@ def streaming(seed, mode, case, noise, checkpoints, peak=.2):
         n = np.arange(start,start+size)
         x = offset+amplitude*np.sin(2*np.pi*4489*(n%32768)/32768+.37)
         capture = plant.capture(x)
-        moments,diag = block_moments(capture,truth,control_rng.permutation(size),reference.draw(size))
+        moments,diag = block_moments(capture,truth,control_rng.permutation(size),
+                                     reference.draw(size))
         headroom,overloads = min(headroom,diag['headroom']),overloads+diag['overloads']
         for b,chunk in moments.items():
-            if sums[b] is None: sums[b]=chunk
+            if sums[b] is None:
+                sums[b]=chunk
             else:
-                for key,value in chunk.items(): sums[b][key]+=value
+                for key,value in chunk.items():
+                    sums[b][key]+=value
         if start+size in {1 << log2 for log2 in checkpoints}:
             for b in BITS:
-                rows.append(dict(kind='stream',seed=seed,mode=mode,case=name,offset=offset,amplitude=amplitude,
-                    noise=noise,backend_bits=b,**summarize(sums[b],truth,peak/3),
+                rows.append(dict(kind='stream',seed=seed,mode=mode,case=name,offset=offset,
+                    amplitude=amplitude,noise=noise,backend_bits=b,
+                    **summarize(sums[b],truth,peak/3),
                     minimum_headroom=headroom,overloads=overloads))
     return rows
 
@@ -152,7 +159,8 @@ def balanced_controls(seed=919, repeats=(1,16,256), peak=.2):
     """Balanced PN/phase repeats are an expectation control, not a PN design."""
     truth=Device(FINAL.gain,FINAL.cubic,0.,0.)
     signs=np.array(list(product((-1.,1.),repeat=3)))
-    rng=np.random.default_rng(seed); rows=[]
+    rng=np.random.default_rng(seed)
+    rows=[]
     for name,offset,amplitude in CASES:
         x=offset+amplitude*np.sin(2*np.pi*np.arange(256)/256+.37)
         q=np.where(x>.25,1,np.where(x<-.25,-1,0))
@@ -160,14 +168,17 @@ def balanced_controls(seed=919, repeats=(1,16,256), peak=.2):
             # Enumerate independent-reference +/-1 for EVERY phase/PN tuple.
             # A merely random finite reference retains DC leakage and would
             # obscure this balanced expectation control.
-            p=np.tile(signs,(512*repeat,1)); z=np.tile(np.repeat(x-q/2,8),2*repeat)
-            d=peak/3*p.sum(axis=1); r0=truth.gain/2*(z+d)+truth.cubic*(z+d)**3
+            p=np.tile(signs,(512*repeat,1))
+            z=np.tile(np.repeat(x-q/2,8),2*repeat)
+            d=peak/3*p.sum(axis=1)
+            r0=truth.gain/2*(z+d)+truth.cubic*(z+d)**3
             capture=dict(p=p,d=d,z=z,r0=r0,noise_r=np.zeros(len(d)))
             independent=np.r_[np.ones(len(d)//2),-np.ones(len(d)//2)]
             moments,diag=block_moments(capture,truth,rng.permutation(len(d)),independent)
             for b in BITS:
                 rows.append(dict(kind='balanced',seed=seed,mode='isolated',case=name,offset=offset,
-                    amplitude=amplitude,noise=0.,backend_bits=b,**summarize(moments[b],truth,peak/3),
+                    amplitude=amplitude,noise=0.,backend_bits=b,
+                    **summarize(moments[b],truth,peak/3),
                     minimum_headroom=diag['headroom'],overloads=diag['overloads']))
     return rows
 
@@ -181,19 +192,28 @@ def main(argv=None):
     parser.add_argument('--dither-peak',type=float,default=.2)
     parser.add_argument('--quick',action='store_true')
     args=parser.parse_args(argv)
-    if not args.checkpoints or any(not 8<=v<=26 for v in args.checkpoints): parser.error('checkpoints must be sample log2 values in [8,26]')
-    if not np.isfinite(args.dither_peak) or not 0<args.dither_peak<1: parser.error('dither-peak must be in (0,1)')
-    if any(not np.isfinite(v) or v<0 for v in args.noise_rms): parser.error('noise-rms must be finite and nonnegative')
-    if args.quick: args.checkpoints=[12,14]
-    if args.output.exists() and any(args.output.iterdir()): parser.error('Output directory is not empty')
+    if not args.checkpoints or any(not 8<=v<=26 for v in args.checkpoints):
+        parser.error('checkpoints must be sample log2 values in [8,26]')
+    if not np.isfinite(args.dither_peak) or not 0<args.dither_peak<1:
+        parser.error('dither-peak must be in (0,1)')
+    if any(not np.isfinite(v) or v<0 for v in args.noise_rms):
+        parser.error('noise-rms must be finite and nonnegative')
+    if args.quick:
+        args.checkpoints=[12,14]
+    if args.output.exists() and any(args.output.iterdir()):
+        parser.error('Output directory is not empty')
     args.output.mkdir(parents=True,exist_ok=True)
     sources=['hdc_correlation.py','hdc_fixed.py','dither_mechanisms.py','exp_cal06_joint_dither.py']
     source_paths = {name: Path(__file__).with_name(name) for name in sources}
     source_paths['_dither_hdc.py'] = Path(_dither_hdc.__file__)
-    hashes={name:hashlib.sha256(path.read_bytes()).hexdigest() for name, path in source_paths.items()}
-    write_json(args.output/'configuration.json',dict(arguments={**vars(args),'output':str(args.output)},
-        sources=hashes,truth=asdict(FINAL),cases=CASES,backend_bits=BITS,python=platform.python_version(),numpy=np.__version__,
-        scope='Diagnostic truth decomposition and nonphysical error permutation; no estimator changes; no 2013 RD implementation'))
+    hashes={name:hashlib.sha256(path.read_bytes()).hexdigest()
+            for name, path in source_paths.items()}
+    write_json(args.output/'configuration.json',dict(
+        arguments={**vars(args),'output':str(args.output)},
+        sources=hashes,truth=asdict(FINAL),cases=CASES,backend_bits=BITS,
+        python=platform.python_version(),numpy=np.__version__,
+        scope='Diagnostic truth decomposition and nonphysical error permutation; '
+              'no estimator changes; no 2013 RD implementation'))
     start=time.monotonic()
     balanced=balanced_controls(repeats=(1,4) if args.quick else (1,16,256),peak=args.dither_peak)
     save_csv(args.output/'balanced.csv',balanced)
@@ -202,11 +222,16 @@ def main(argv=None):
         rows.extend(streaming(seed,mode,case,noise,args.checkpoints,args.dither_peak))
         print('completed',seed,mode,noise,case[0],flush=True)
     save_csv(args.output/'streaming.csv',rows)
-    write_json(args.output/'completion.json',dict(elapsed_seconds=time.monotonic()-start,stream_rows=len(rows),balanced_rows=len(balanced),
-        source_hashes_match=all(hashlib.sha256(source_paths[n].read_bytes()).hexdigest()==h for n,h in hashes.items()),
-        maximum_cubic_identity_error=max(abs(r['cubic_decomposition_residual']) for r in rows+balanced),
-        maximum_gain_identity_error=max(abs(r['gain_decomposition_residual']) for r in rows+balanced)))
+    write_json(args.output/'completion.json',dict(
+        elapsed_seconds=time.monotonic()-start,stream_rows=len(rows),balanced_rows=len(balanced),
+        source_hashes_match=all(hashlib.sha256(source_paths[n].read_bytes()).hexdigest()==h
+                                for n,h in hashes.items()),
+        maximum_cubic_identity_error=max(abs(r['cubic_decomposition_residual'])
+                                         for r in rows+balanced),
+        maximum_gain_identity_error=max(abs(r['gain_decomposition_residual'])
+                                        for r in rows+balanced)))
     return 0
 
 
-if __name__=='__main__': raise SystemExit(main())
+if __name__=='__main__':
+    raise SystemExit(main())
