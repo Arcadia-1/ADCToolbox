@@ -1,7 +1,7 @@
 Examples
 ================
 
-ADCToolbox includes 63 ready-to-run examples organized into 10 categories. This
+ADCToolbox includes ready-to-run examples organized by topic. This
 page demonstrates common use cases and analysis workflows.
 
 Getting the Examples
@@ -41,6 +41,10 @@ within each category folder.
 * ``08_time_interleave/`` - Time-interleaved ADC analysis examples
 * ``09_downsample/`` - Subsample and aliasing examples
 * ``10_oversampling/`` - Oversampling and noise-shaping examples
+* ``11_calibration/`` - Dither mechanisms, fixed-point HDC and PN architecture controls
+
+See :doc:`../dither` for injection and identification assumptions. The same
+guide ships as ``11_calibration/DITHER_GUIDE.md`` with the copied examples.
 
 Expected Outputs
 ----------------

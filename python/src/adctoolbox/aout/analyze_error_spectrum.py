@@ -51,6 +51,7 @@ def analyze_error_spectrum(signal, fs=1, frequency=None, create_plot: bool = Tru
     -------
     result : dict
         Dictionary containing spectrum analysis results:
+
         - 'enob': Effective Number of Bits
         - 'sndr_db': Signal-to-Noise and Distortion Ratio (dB)
         - 'sfdr_db': Spurious-Free Dynamic Range (dB)

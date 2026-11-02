@@ -29,6 +29,12 @@
 - **Realistic Signal Modeling**: generates high-fidelity ADC waveforms simulating real-world impairments, including clock jitter, thermal noise, quantization effects, settling errors, and noise-shaped quantization.
 
 - **Calibration Algorithms**: built-in reference implementations for digital calibration, including bit-weight extraction and redundancy management for SAR and Pipeline architectures.
+  The [Dither examples](python/src/adctoolbox/examples/11_calibration/DITHER_GUIDE.md)
+  add PN injection, mechanism-specific identification, fixed-point HDC and
+  architecture-specific controls. See the [physical model review](docs/experiments/2026-11-02-hdc-physical-state-and-phases.md)
+  for memory and capacitor assumptions.
+  A compact [results summary](docs/experiments/dither-results.md) links to the
+  archived detailed measurements.
 
 - **Oversampling Workflows**: MATLAB-compatible `ifilter`, `perfosr`, and
   `ntfperf` entry points for in-band extraction, performance-vs-OSR sweeps,
@@ -54,7 +60,7 @@ python -c "import adctoolbox; print(adctoolbox.__version__)"
 
 ## Quick Start
 
-**Get all 63 runnable examples in one command:**
+**Get all runnable examples in one command:**
 
 ```bash
 cd /path/to/your/workspace
@@ -96,6 +102,7 @@ See [Usage Examples](#usage-examples) section below for detailed code examples.
 | `08_time_interleave/` | 2 | Time-interleaved ADC skew extraction, spur prediction, and foreground calibration |
 | `09_downsample/` | 1 | Subsample-only debug output and aliasing behavior |
 | `10_oversampling/` | 3 | Noise shaping, in-band filtering, NTF analysis, and OSR sweeps |
+| `11_calibration/` | 6 | Dither mechanisms, joint calibration, fixed-point HDC and PN architecture controls |
 
 See the packaged `examples/README.md` after running `adctoolbox-get-examples`
 for the full script map.

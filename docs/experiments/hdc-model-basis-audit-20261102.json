@@ -1,0 +1,25 @@
+{
+  "scope": "Algebraic consistency only; no calibration, SNDR, SFDR, or circuit validation",
+  "exact_charge_identity_cases": 216,
+  "hypothetical_one_pole_to_FIR_truncation": {
+    "initial": {
+      "h": 0.030927835051546393,
+      "second_lag": 0.0009565309809756616,
+      "maximum_transfer_difference": 0.0009870585654748849,
+      "dc_relative_difference": 0.0009565309809756616
+    },
+    "final": {
+      "h": 0.058823529411764705,
+      "second_lag": 0.0034602076124567475,
+      "maximum_transfer_difference": 0.003676470588235294,
+      "dc_relative_difference": 0.0034602076124567475
+    }
+  },
+  "source_sha256": {
+    "python/src/adctoolbox/siggen/nonidealities.py": "913f2c57d8cda2c0e26163057b02d4a1c66038f948dec3c6768fa1aa81846436",
+    "python/src/adctoolbox/models/sar.py": "795848f09ab68edd15922f82d3566c7cefa2ef07e746eb91c564fe0525f98b51",
+    "python/src/adctoolbox/examples/11_calibration/hdc_fixed.py": "c3fe7d13a73994459ef29fdf8fb6378dadcf47d854cb8cf537f10361a60f0e5b",
+    "python/src/adctoolbox/examples/11_calibration/dither_mechanisms.py": "d4349d2287b53377a97067a75d908792a6292f3257da10a1f146652eb54855f8",
+    "python/src/adctoolbox/examples/11_calibration/joint_dither_model.py": "d4cb60c0ace94a42978678dd826d29b5cb55ec8d64188d34d856260d4f0fc81d"
+  }
+}

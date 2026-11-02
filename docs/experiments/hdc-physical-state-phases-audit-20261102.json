@@ -1,0 +1,40 @@
+{
+  "scope": "Proposed phase-table charge conservation and linear RC-state algebra only; no ADC calibration or transistor simulation",
+  "state_charge_identity_samples": {
+    "ideal": 128,
+    "feedback_only": 128,
+    "equal_reset": 128,
+    "unequal_reset": 128
+  },
+  "equal_reset_PN_and_DAC_tail_cancellation_samples": 128,
+  "finite_open_loop_gain_charge_identity_cases": 384,
+  "finite_open_loop_gain_state_identity_samples": 1536,
+  "total_summing_node_capacitance_Cu": 81.0,
+  "feedback_factor": 0.18518518518518517,
+  "conditional_memory_mapping": {
+    "initial": {
+      "h": 0.030927835051546393,
+      "rho_feedback_under_static_map": 0.03188436603252205,
+      "hypothetical_reset_time_over_tau_if_rho_is_RC_retention": 3.4456394823505647,
+      "forward_tail_l1": 0.0009870585654748849,
+      "residual_after_current_inverse_l1": 0.0009574468085106382,
+      "next_impulse_coefficient": 0.0009565309809756616
+    },
+    "final": {
+      "h": 0.058823529411764705,
+      "rho_feedback_under_static_map": 0.05767012687427912,
+      "hypothetical_reset_time_over_tau_if_rho_is_RC_retention": 2.853015971352396,
+      "forward_tail_l1": 0.003676470588235294,
+      "residual_after_current_inverse_l1": 0.003472222222222222,
+      "next_impulse_coefficient": 0.0034602076124567475
+    }
+  },
+  "source_sha256": {
+    "python/src/adctoolbox/siggen/nonidealities.py": "913f2c57d8cda2c0e26163057b02d4a1c66038f948dec3c6768fa1aa81846436",
+    "python/src/adctoolbox/models/sar.py": "795848f09ab68edd15922f82d3566c7cefa2ef07e746eb91c564fe0525f98b51",
+    "python/src/adctoolbox/examples/11_calibration/hdc_fixed.py": "c3fe7d13a73994459ef29fdf8fb6378dadcf47d854cb8cf537f10361a60f0e5b",
+    "python/src/adctoolbox/examples/11_calibration/dither_mechanisms.py": "d4349d2287b53377a97067a75d908792a6292f3257da10a1f146652eb54855f8",
+    "python/src/adctoolbox/examples/11_calibration/joint_dither_model.py": "d4cb60c0ace94a42978678dd826d29b5cb55ec8d64188d34d856260d4f0fc81d"
+  },
+  "audit_script_sha256": "4728bd3ebff453fed0490407a106e219cdd09d88be2a17767df74dde5f2aeab2"
+}
