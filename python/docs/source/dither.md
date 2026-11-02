@@ -51,8 +51,8 @@ general success on every ADC or input. The public `DitherGainTracker`,
 algorithms; see the [API reference](api/dither.rst). The sine-fit baseline
 and behavioral plants remain example-only helpers.
 
-The repository also includes the {download}`model-basis review <../../../docs/experiments/2026-11-02-hdc-model-basis-review.md>`
-and {download}`physical-state and switch-phase derivation <../../../docs/experiments/2026-11-02-hdc-physical-state-and-phases.md>`.
+The repository also includes the {download}`memory and capacitor model basis <../../../docs/experiments/hdc-model-basis.md>`
+and {download}`physical-state and switch-phase derivation <../../../docs/experiments/hdc-physical-state-and-phases.md>`.
 The one-tap memory extension is a conditional behavioral approximation, not a
 validated model of every reset/settling mechanism.
 

@@ -31,7 +31,7 @@
 - **Calibration Algorithms**: built-in reference implementations for digital calibration, including bit-weight extraction and redundancy management for SAR and Pipeline architectures.
   The [Dither examples](python/src/adctoolbox/examples/11_calibration/DITHER_GUIDE.md)
   add PN injection, mechanism-specific identification, fixed-point HDC and
-  architecture-specific controls. See the [physical model review](docs/experiments/2026-11-02-hdc-physical-state-and-phases.md)
+  architecture-specific controls. See the [physical model derivation](docs/experiments/hdc-physical-state-and-phases.md)
   for memory and capacitor assumptions.
   A compact [results summary](docs/experiments/dither-results.md) links to the
   archived detailed measurements.

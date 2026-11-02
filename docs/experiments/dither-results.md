@@ -54,9 +54,9 @@ not synthesis/PPA evidence. Full assumptions and register accounting are in
 
 ## Physical and statistical limits
 
-- The [model review](2026-11-02-hdc-model-basis-review.md) and
-  [state/phase derivation](2026-11-02-hdc-physical-state-and-phases.md) remain
-  alongside their executable algebra checks. The fixed-feedback capacitor
+- The [model basis](hdc-model-basis.md) and
+  [state/phase derivation](hdc-physical-state-and-phases.md) come with
+  executable algebra checks. The fixed-feedback capacitor
   connection supports the static charge equation; the one-tap memory model is
   conditional and PN need not observe every physical memory state.
 - Finite-record correlation variance, quantization-correlated bias and

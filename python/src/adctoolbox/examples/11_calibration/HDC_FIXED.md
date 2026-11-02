@@ -8,11 +8,11 @@ The one-tap memory inverse and two-element DAC mismatch correlator below are
 our extensions. This repository version is an arithmetic model and an explicit
 architecture budget, not RTL, a synthesized netlist, or a transistor simulation.
 
-The repository-side physical review derives a fixed-feedback switch-phase
-candidate that supports the static DAC equation. Actual reset memory can include
+A physical derivation in the repository gives a candidate fixed-feedback
+switch-phase table that supports the static DAC equation. Actual reset memory can include
 previous output, DAC and PN states; the one-tap residue model here is a conditional
 approximation. A delayed-PN correlation need not observe all physical memory.
-See `docs/experiments/2026-11-02-hdc-physical-state-and-phases.md` in the repository.
+See `docs/experiments/hdc-physical-state-and-phases.md` in the repository.
 
 The public `adctoolbox.DitherHDCTracker` uses the same kernel, by default with
 floating arithmetic and 2^24-sample windows; `fixed=True` selects the
