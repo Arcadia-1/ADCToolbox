@@ -447,7 +447,8 @@ model change.**
 - From the repository root,
   `python docs/experiments/check_hdc_physical_equations_20261102.py --output <new JSON path>`
   repeats these checks. The script first requires the five model sources to
-  match the hashes in the model-basis audit record and stops otherwise.
+  match the hashes in the model-basis audit record and stops otherwise; the
+  current result is in [Dither validation](dither-validation.md).
 - Figs. 13–16 of the HDC paper were checked against local renderings. The Keane
   author site could not be accessed directly, so its equations come from the
   readable preprint mirror; the candidate phases above do not paraphrase

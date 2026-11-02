@@ -56,7 +56,7 @@ identification, quantization error and independent symmetric backend-noise
 bias. The two-point noise integrates cubic noise moments exactly; it is a
 diagnostic distribution, while streaming experiments use Gaussian noise.
 
-## Why the original averaging can fluctuate indefinitely
+## Why exp_cal06's EMA averaging can fluctuate indefinitely
 
 The update is an EMA of correlation matrices followed by a direct solve,
 not gradient descent. With block-independent equal-variance moments, the
@@ -76,9 +76,9 @@ averaging reduces stationary variance but keeps stale pre-step observations.
 
 ## Preserve valid conditional moments instead of pooling them
 
-The original estimator centers three instruments within each of nine observed
-`(q[n],q[n-1])` pairs, then pools them into three equations. The new estimator
-retains a separate equation for each occupied group. With
+The pooled estimator of exp_cal06 centers three instruments within each of
+nine observed `(q[n],q[n-1])` pairs, then pools them into three equations. The
+grouped estimator retains a separate equation for each occupied group. With
 
 ```text
 z = [p, p^3-41*p/45, p_previous]
@@ -92,7 +92,7 @@ it fits up to 27 moments to three unknowns. Conditional exogeneity is valid
 in this plant because q is determined **before** the probe and independently
 of the capacitor-switch sequence. Business residue remains a nuisance, but
 different coarse-code pairs retain different cubic response sensitivities.
-Both schemes center within the same groups; the change is retaining these
+Both schemes center within the same groups; the difference is retaining these
 moments separately, not adding new analog excitation or assuming a sine fit.
 
 Weight matrices come from the within-group covariance of `z*residual`, using
@@ -103,7 +103,7 @@ is feasible generalized method of moments (GMM); the weights do not model
 all temporal correlation and are not claimed universally optimal. Finite
 records and estimated weights can still introduce bias and variation.
 
-An invertible basis change to the original three equations cannot supply
+An invertible basis change to the three pooled equations cannot supply
 additional statistical information. The improvement being tested comes from
 additional valid conditional moments; whitening is numerical implementation.
 
@@ -115,7 +115,7 @@ inverse linear coefficient by `-3*sigma^2*c3`. It does not make the physical
 gain/cubic ratios exactly unbiased. The balanced controls quantify the shift
 and separate it from finite excitation variance. Unknown probe amplitude,
 wrong delay, clipping or a missing physical nonlinear term can create much
-larger structural errors; this study retains the original modeled assumptions.
+larger structural errors; this study keeps the model assumptions of exp_cal06.
 
 ## Outputs and interpretation
 
@@ -137,5 +137,6 @@ this example, not a universal convergence guarantee.
 sample counts, clipping and causal application. Output directories must be new
 or empty. `fixed_probe_convergence.png` and `sample_budget.png` provide figures.
 
-The archived [2026-11-01 results](https://github.com/chenzc24/ADCToolbox/blob/daa4e4a28425265b94a5dc97c182e37da7b8d4c3/docs/experiments/2026-11-01-joint-convergence.md)
-record the fixed-seed measurements and remaining multitone limitations.
+The fixed-seed measurements and remaining multitone limitations are in the
+archived convergence report linked from `docs/experiments/dither-results.md`
+in the repository.

@@ -74,7 +74,7 @@ Detailed CSV/JSON outputs, trajectories, figures and dated reports are retained
 on [`codex/dither-evidence-20261102`](https://github.com/chenzc24/ADCToolbox/tree/codex/dither-evidence-20261102).
 The links below pin the complete snapshot to commit
 `daa4e4a28425265b94a5dc97c182e37da7b8d4c3`, so later branch changes cannot alter
-the cited evidence. Large generated outputs are excluded from this PR.
+the cited evidence. Large generated outputs are not stored in this repository.
 
 | Evidence | Archived report |
 |---|---|
@@ -85,9 +85,8 @@ the cited evidence. Large generated outputs are excluded from this PR.
 | Pipeline, SAR, TI and Delta-sigma controls | [Architectures](https://github.com/chenzc24/ADCToolbox/blob/daa4e4a28425265b94a5dc97c182e37da7b8d4c3/docs/experiments/2026-11-02-pn-architectures.md) |
 
 Reports link to their data and original configuration/source SHA-256 records.
-These historical full runs were not rerun during PR restructuring. Since then the
-frozen gain-fit helper changed, and the HDC tracker holds only the mismatch
-coefficient when that estimate is unobservable or out of range, instead of
-rejecting the whole update. Do not interpret
-old source hashes as hashes of every file in the current tree. Current checks
-are recorded separately in [PR validation](2026-11-02-dither-pr.md).
+The archived full runs predate the current code: the frozen gain-fit helper has
+since changed, and the HDC tracker now holds only the mismatch coefficient when
+that estimate is unobservable or out of range, instead of rejecting the whole
+update. Their source hashes identify the archived files, not every file in the
+current tree. Current checks are recorded in [Dither validation](dither-validation.md).

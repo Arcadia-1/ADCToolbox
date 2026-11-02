@@ -1,7 +1,7 @@
 # Dither mechanisms and reproducible experiments
 
 Start with [DITHER_GUIDE.md](DITHER_GUIDE.md) for the architecture/injection map
-and the shared three-PN experiments. This document preserves the original
+and the shared three-PN experiments. This document covers the
 isolated-mechanism models and their different probe distributions. Published-form
 fixed-point HDC is documented separately in [HDC_FIXED.md](HDC_FIXED.md).
 

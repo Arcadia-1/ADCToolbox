@@ -20,6 +20,11 @@ bit-accurate datapath described here. Its `estimate_memory` and
 `estimate_dac_mismatch` switches hold an extension's coefficient, and its
 `selection` input must be balanced random DAC role tags.
 
+The datapath audits in these examples use `Tracker` and the integer helpers of
+the private module `adctoolbox.calibration._dither_hdc`, re-exported by
+`hdc_fixed.py`. Private modules may change between releases; application code
+should use `adctoolbox.DitherHDCTracker`.
+
 ## Run
 
 From `python/`, with a new output directory each time:
@@ -256,8 +261,9 @@ unobservable, so holding its value is not evidence of convergence.
 The small-signal runner exposes `--train-log2`, `--test-log2`, `--window-log2`,
 `--short-log2`, `--seeds`, `--noise-rms`, and `--dither-peak`. Its declared
 offset/amplitude matrix and the balanced-scan grid are recorded with source
-hashes. See the [archived small-signal report](https://github.com/chenzc24/ADCToolbox/blob/daa4e4a28425265b94a5dc97c182e37da7b8d4c3/docs/experiments/2026-11-02-hdc-small-signal.md) for the dated
-results and acceptance limits.
+hashes. The dated results and acceptance limits are in the archived
+small-signal report linked from `docs/experiments/dither-results.md` in the
+repository.
 
 ## Correlation attribution experiments
 
@@ -310,8 +316,9 @@ uv run --no-sync python src/adctoolbox/examples/11_calibration/hdc_correlation.p
 ```
 
 Defaults retain peak 0.2, seeds 601/702/803, and sample counts 2^16/2^20/2^24.
-`--quick` is only a command/artifact smoke check. Dated evidence is under
-[the archived correlation report](https://github.com/chenzc24/ADCToolbox/blob/daa4e4a28425265b94a5dc97c182e37da7b8d4c3/docs/experiments/2026-11-02-hdc-correlation.md).
+`--quick` is only a command/artifact smoke check. Dated evidence is in the
+archived correlation report linked from `docs/experiments/dither-results.md`
+in the repository.
 
 ## Explicit resource budget, one stage
 
@@ -388,5 +395,6 @@ Gaussian noise is unbounded; six sigma is a design allowance, not an absolute
 guarantee. Reference, injection-capacitor, and PVT tolerances remain additional
 circuit design budgets.
 
-See the [archived HDC report](https://github.com/chenzc24/ADCToolbox/blob/daa4e4a28425265b94a5dc97c182e37da7b8d4c3/docs/experiments/2026-11-02-hdc-fixed.md) for measured results, source
-hashes, convergence limitations, and regression tests.
+Measured results, source hashes, convergence limitations and regression tests
+are in the archived HDC report linked from `docs/experiments/dither-results.md`
+in the repository.

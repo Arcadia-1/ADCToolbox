@@ -1,4 +1,4 @@
-"""Three-PN HDC with bounded integer arithmetic; example plant and public calibration kernel.
+"""Three-PN HDC with bounded integer arithmetic; example plant and audited calibration kernel.
 
 HDC follows Panigada/Galton JSSC 2009 equations (8)-(11), with additive
 instead of subtractive probe polarity. A one-tap memory inverse and a
@@ -7,6 +7,8 @@ two-element DAC mismatch correlator are explicit extensions, not from HDC.
 from __future__ import annotations
 from dataclasses import dataclass
 import numpy as np
+# Datapath audits use the private integer kernel, which may change between
+# releases; applications should use adctoolbox.DitherHDCTracker instead.
 from adctoolbox.calibration._dither_hdc import (
     Tracker, njit, rounded_shift, saturate, mul, fixed_block, float_block,
     divide_round, serial_divide_round,
