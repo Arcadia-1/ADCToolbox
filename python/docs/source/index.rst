@@ -38,6 +38,11 @@ Complete Documentation
    examples/index
    python_matlab_parity
    changelog
+   calibration_workflows
+   foreground_theory
+   foreground_repository_results
+   foreground_bitweights
+   combined_foreground
 
 Common Starting Points
 ----------------------

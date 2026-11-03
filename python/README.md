@@ -116,3 +116,10 @@ MIT License.
   url = {https://github.com/Arcadia-1/ADCToolbox}
 }
 ```
+
+## Supervised foreground correction
+
+The packaged `12_foreground/` examples cover polynomial/MLP fitting, frozen
+inference, original repository error models, SNDR/SFDR comparisons and combined
+bit-weight/nonlinearity correction. Read their README and theory before choosing
+reference captures or interpreting learned parameters.

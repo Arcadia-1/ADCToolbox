@@ -47,6 +47,10 @@ Do NOT use for:
 - Spectre simulation, pre/post-layout audit → `analog-verify`, `analog-audit`
 - Editing ADCToolbox's own source → `adctoolbox-contributor-guide`
 
+For supervised polynomial/MLP correction with explicit aligned references, read
+[calibration workflows](references/calibration-workflows.md). Frozen inference
+uses ADC outputs/history; learned parameters are not physical component values.
+
 ## 2. Critical conventions (read first — these are the common bug sources)
 
 ### Names

@@ -33,7 +33,8 @@ Modules:
 - fundamentals: Core utilities (sine fitting, frequency utils, unit conversions, FOM metrics)
 - spectrum: FFT-based analysis (single-tone, polar visualization)
 - aout: Analog output error analysis (decomposition, PDF, autocorrelation, etc.)
-- dout: Digital output calibration (foreground calibration, weight estimation)
+- calibration: Foreground bit-weight identification and supervised digital correction
+- dout: Digital output diagnostics (bit activity, overflow, weight radix)
 - siggen: Signal generation with non-idealities
 - oversampling: Noise transfer function analysis
 
@@ -189,6 +190,10 @@ from .calibration import (
     calibrate_weight_sine,
     scale_calibration_output,
     diagnose_calibration_matrix,
+    build_calibration_features,
+    fit_calibration_polynomial,
+    fit_calibration_mlp,
+    apply_calibration,
 )
 
 _export('DitherGainTracker', DitherGainTracker)
@@ -197,6 +202,10 @@ _export('apply_dither_gain', apply_dither_gain)
 _export('calibrate_weight_sine', calibrate_weight_sine)
 _export('scale_calibration_output', scale_calibration_output)
 _export('diagnose_calibration_matrix', diagnose_calibration_matrix)
+_export('build_calibration_features', build_calibration_features)
+_export('fit_calibration_polynomial', fit_calibration_polynomial)
+_export('fit_calibration_mlp', fit_calibration_mlp)
+_export('apply_calibration', apply_calibration)
 
 # ======================================================================
 # Digital Output (DOUT) Analysis Functions

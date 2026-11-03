@@ -24,6 +24,10 @@
 ## MATLAB Project metadata files use LF line endings
 /resources/project/**/*.xml text eol=lf
 
+# Keep foreground source snapshots reproducible.
+/python/src/adctoolbox/examples/12_foreground/*.py text eol=lf
+/python/src/adctoolbox/calibration/foreground.py text eol=lf
+
 ## Other common binary file types
 *.docx binary
 *.exe binary
