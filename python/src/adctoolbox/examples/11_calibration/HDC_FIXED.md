@@ -12,7 +12,7 @@ A physical derivation in the repository gives a candidate fixed-feedback
 switch-phase table that supports the static DAC equation. Actual reset memory can include
 previous output, DAC and PN states; the one-tap residue model here is a conditional
 approximation. A delayed-PN correlation need not observe all physical memory.
-See `docs/experiments/hdc-physical-state-and-phases.md` in the repository.
+See [`docs/experiments/hdc-physical-state-and-phases.md`](https://github.com/Arcadia-1/ADCToolbox/blob/main/docs/experiments/hdc-physical-state-and-phases.md) in the repository.
 
 The public `adctoolbox.DitherHDCTracker` uses the same kernel, by default with
 floating arithmetic and 2^24-sample windows; `fixed=True` selects the
@@ -27,16 +27,19 @@ should use `adctoolbox.DitherHDCTracker`.
 
 ## Run
 
-From `python/`, with a new output directory each time:
+Run from the `11_calibration/` folder of a workspace copied with
+`adctoolbox-get-examples` (or from `python/src/adctoolbox/examples/11_calibration/`
+in a repository checkout), with a new output directory each time:
 
-```powershell
-uv run --no-sync --with numba python src/adctoolbox/examples/11_calibration/exp_cal08_hdc_fixed.py --output ../agent_playground/hdc-main
-uv run --no-sync --with numba python src/adctoolbox/examples/11_calibration/exp_cal08_hdc_fixed.py --output ../agent_playground/hdc-long --total-log2 30 --window-log2 28 --seeds 404 --kinds sine --scenario constant
-uv run --no-sync --with numba python src/adctoolbox/examples/11_calibration/hdc_fixed_controls.py --output ../agent_playground/hdc-controls
-uv run --no-sync --with numba python src/adctoolbox/examples/11_calibration/hdc_small_signal.py --output ../agent_playground/hdc-small
+```bash
+cd adctoolbox_examples/11_calibration
+python exp_cal08_hdc_fixed.py --output runs/hdc-main
+python exp_cal08_hdc_fixed.py --output runs/hdc-long --total-log2 30 --window-log2 28 --seeds 404 --kinds sine --scenario constant
+python hdc_fixed_controls.py --output runs/hdc-controls
+python hdc_small_signal.py --output runs/hdc-small
 ```
 
-Numba (the optional `accel` extra) only accelerates the scalar reference loops. Without it, the same Python
+Numba (the optional `accel` extra, `pip install "adctoolbox[accel]"`) only accelerates the scalar reference loops. Without it, the same Python
 integer operations run, but billion-sample experiments are slow. No matrix
 inversion, SVD, GMM, sine fit, or simulator truth enters the tracker. The
 Newton inverse in `oracle()` is strictly an evaluation control.
@@ -262,7 +265,7 @@ The small-signal runner exposes `--train-log2`, `--test-log2`, `--window-log2`,
 `--short-log2`, `--seeds`, `--noise-rms`, and `--dither-peak`. Its declared
 offset/amplitude matrix and the balanced-scan grid are recorded with source
 hashes. The dated results and acceptance limits are in the archived
-small-signal report linked from `docs/experiments/dither-results.md` in the
+small-signal report linked from [`docs/experiments/dither-results.md`](https://github.com/Arcadia-1/ADCToolbox/blob/main/docs/experiments/dither-results.md) in the
 repository.
 
 ## Correlation attribution experiments
@@ -311,13 +314,13 @@ learner. They identify causes; they do not implement residue decorrelation,
 prove a universal convergence rate, or justify a new hardware resource claim.
 For reproduction, choose a fresh output directory:
 
-```powershell
-uv run --no-sync python src/adctoolbox/examples/11_calibration/hdc_correlation.py --output ../agent_playground/hdc-correlation
+```bash
+python hdc_correlation.py --output runs/hdc-correlation
 ```
 
 Defaults retain peak 0.2, seeds 601/702/803, and sample counts 2^16/2^20/2^24.
 `--quick` is only a command/artifact smoke check. Dated evidence is in the
-archived correlation report linked from `docs/experiments/dither-results.md`
+archived correlation report linked from [`docs/experiments/dither-results.md`](https://github.com/Arcadia-1/ADCToolbox/blob/main/docs/experiments/dither-results.md)
 in the repository.
 
 ## Explicit resource budget, one stage
@@ -396,5 +399,5 @@ guarantee. Reference, injection-capacitor, and PVT tolerances remain additional
 circuit design budgets.
 
 Measured results, source hashes, convergence limitations and regression tests
-are in the archived HDC report linked from `docs/experiments/dither-results.md`
+are in the archived HDC report linked from [`docs/experiments/dither-results.md`](https://github.com/Arcadia-1/ADCToolbox/blob/main/docs/experiments/dither-results.md)
 in the repository.
