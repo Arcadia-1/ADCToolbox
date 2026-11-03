@@ -95,7 +95,7 @@ See [Usage Examples](#usage-examples) section below for detailed code examples.
 | `01_basic/` | 2 | Environment checks and coherent sampling basics |
 | `02_spectrum/` | 14 | FFT analysis, windows, averaging, polar plots, and near-Nyquist handling |
 | `03_generate_signals/` | 6 | Synthetic ADC signals with noise, jitter, quantization, nonlinearities, and interference |
-| `04_debug_analog/` | 15 | Sine fitting, error PDFs, phase/value error analysis, INL/DNL, harmonics, and phase-plane views |
+| `04_debug_analog/` | 16 | Sine fitting, error PDFs, phase/value error analysis, INL/DNL, harmonics, and phase-plane views |
 | `05_debug_digital/` | 11 | Bit activity, overflow, digital weight calibration, SAR redundancy, and mismatch calibration |
 | `06_use_toolsets/` | 4 | One-command AOUT/DOUT dashboard workflows |
 | `07_conversions/` | 5 | Aliasing, dB/unit conversions, FoM, SNR, and NSD conversions |
@@ -103,6 +103,7 @@ See [Usage Examples](#usage-examples) section below for detailed code examples.
 | `09_downsample/` | 1 | Subsample-only debug output and aliasing behavior |
 | `10_oversampling/` | 3 | Noise shaping, in-band filtering, NTF analysis, and OSR sweeps |
 | `11_calibration/` | 6 | Dither mechanisms, joint calibration, fixed-point HDC and PN architecture controls |
+| `12_foreground/` | 4 | Supervised foreground correction: polynomial/MLP fits, excitation, SAR bit weights and combined errors |
 
 See the packaged `examples/README.md` after running `adctoolbox-get-examples`
 for the full script map.

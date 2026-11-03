@@ -42,6 +42,7 @@ within each category folder.
 * ``09_downsample/`` - Subsample and aliasing examples
 * ``10_oversampling/`` - Oversampling and noise-shaping examples
 * ``11_calibration/`` - Dither mechanisms, fixed-point HDC and PN architecture controls
+* ``12_foreground/`` - Supervised foreground correction with frozen polynomial/MLP models
 
 See :doc:`../dither` for injection and identification assumptions. The same
 guide ships as ``11_calibration/DITHER_GUIDE.md`` with the copied examples.

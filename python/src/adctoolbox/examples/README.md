@@ -127,13 +127,6 @@ python 05_debug_digital/exp_d02_cal_weight_sine.py
 |---|---|
 | `exp_d00_subsample_aliasing.py` | Subsample-only debug output and aliasing behavior |
 
-### `12_foreground/` - supervised foreground correction
-
-The packaged examples cover polynomial/MLP fitting, frozen inference, original
-repository error models, SNDR/SFDR comparisons and combined bit-weight/nonlinearity
-correction. Read their README and theory before choosing reference captures or
-interpreting learned parameters. The original experiment numbers are retained.
-
 ### `10_oversampling/` - oversampling and noise shaping
 
 | File | Topic |
@@ -158,4 +151,12 @@ observable statistics, correction paths and model limitations.
 
 Historical experiment numbers are retained. `hdc_small_signal.py` and
 `hdc_correlation.py` provide offset/amplitude and correlation diagnostics.
-All calibrators in this directory are example-only interfaces.
+`dither_gain.py` re-exports the public `DitherGainTracker`; the other
+calibrators in this directory are example-only interfaces.
+
+### `12_foreground/` - supervised foreground correction
+
+The packaged examples cover polynomial/MLP fitting, frozen inference, original
+repository error models, SNDR/SFDR comparisons and combined bit-weight/nonlinearity
+correction. Read their README and theory before choosing reference captures or
+interpreting learned parameters. The original experiment numbers are retained.
