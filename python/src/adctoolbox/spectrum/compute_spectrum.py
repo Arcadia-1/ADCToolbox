@@ -15,7 +15,11 @@ from adctoolbox.spectrum._window import (
     _get_auto_side_bin_fallback,
     _get_default_side_bin,
 )
-from adctoolbox.spectrum._side_bin_auto import _detect_side_bin_auto
+from adctoolbox.spectrum._side_bin_auto import (
+    _detect_side_bin_auto_with_reference,
+    _find_hidden_components,
+    _warn_hidden_components,
+)
 from adctoolbox.spectrum._estimate_noise_power import _estimate_noise_power
 
 
@@ -46,7 +50,12 @@ def compute_spectrum(
     win_type
         Window type: 'boxcar', 'hann', 'hamming', etc.
     side_bin
-        Side bins around fundamental; None triggers auto detection
+        Side bins around fundamental. None or "auto" triggers auto detection,
+        which follows the ideal tone's window leakage down to the noise floor.
+        With non-coherent sampling that window can span tens of bins; a
+        UserWarning is raised when it also contains a spur or second tone
+        whose power would be counted as signal. Numeric values are truncated
+        to a non-negative integer.
     osr
         Oversampling ratio
     max_harmonic
@@ -63,6 +72,13 @@ def compute_spectrum(
     verbose
         Verbosity level
     """
+    if isinstance(side_bin, str):
+        if side_bin != "auto":
+            raise TypeError(
+                f"side_bin must be an integer, None or 'auto'; got {side_bin!r}"
+            )
+        side_bin = None
+
     data_normalized = _prepare_fft_input(data, max_scale_range)
     M, N = data_normalized.shape
     n_inband = rfft_inband_bin_count(N, osr)
@@ -99,7 +115,8 @@ def compute_spectrum(
     fundamental_bin, fundamental_bin_fractional = _locate_fundamental(power_spectrum, n_inband)
 
     if side_bin is None:
-        side_bin = _detect_side_bin_auto(
+        minimum_side_bin = _get_default_side_bin(win_type)
+        side_bin, ideal_spec, noise_floor_per_bin = _detect_side_bin_auto_with_reference(
             power_spectrum,
             fundamental_bin,
             fundamental_bin_fractional,
@@ -108,8 +125,23 @@ def compute_spectrum(
             window_vector,
             power_correction,
             fallback_side_bin=_get_auto_side_bin_fallback(win_type),
-            minimum_side_bin=_get_default_side_bin(win_type),
+            minimum_side_bin=minimum_side_bin,
         )
+        hidden_bins = _find_hidden_components(
+            power_spectrum,
+            fundamental_bin,
+            side_bin,
+            ideal_spec,
+            noise_floor_per_bin,
+            core_half_width=minimum_side_bin + 1,
+            n_inband=n_inband,
+        )
+        _warn_hidden_components(
+            "compute_spectrum", power_spectrum, fundamental_bin, side_bin,
+            hidden_bins, stacklevel=3,
+        )
+    else:
+        side_bin = int(max(side_bin, 0))
 
     sig_bin_start = max(fundamental_bin - side_bin, 0)
     sig_bin_end = min(fundamental_bin + side_bin + 1, n_inband)
