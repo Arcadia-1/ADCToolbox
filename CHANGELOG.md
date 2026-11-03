@@ -7,6 +7,12 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.9.2] - 2026-11-03
+
+**Calibration and SFDR Release** - adds Dither and supervised foreground
+calibration APIs, fixes optimistic SFDR at masked spectrum boundaries, and
+warns when the auto signal window hides a spur.
+
 ### Added
 - Dither calibration (#102): public `DitherGainTracker`, `apply_dither_gain` and
   `DitherHDCTracker` in `adctoolbox` and `adctoolbox.calibration`, the
