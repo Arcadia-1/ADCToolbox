@@ -38,8 +38,14 @@ From the repository root:
 
 ```powershell
 python docs/experiments/check_hdc_model_basis_20261102.py --output <new-model-audit.json>
-python docs/experiments/check_hdc_physical_equations_20261102.py --output <new-physical-audit.json>
+python docs/experiments/check_hdc_physical_equations_20261102.py --model-audit <new-model-audit.json> --output <new-physical-audit.json>
 ```
+
+Run these two commands in order on the same checkout. The physical-equations
+check validates the source hashes in the newly generated model-basis audit,
+including the shared `calibration/_dither_hdc.py` kernel. The committed JSON
+files remain historical records; their byte hashes can differ because of
+source edits or platform line endings. Neither audit is circuit validation.
 
 ## Current results
 
@@ -52,17 +58,13 @@ With Python 3.13.1 on Windows:
 - Strict English and zh_CN Sphinx builds and wheel/sdist builds passed; the
   wheel declares the `accel` extra.
 - All nine reduced runs completed without errors.
-- The model-basis check reproduces its 216 exact charge/inversion identities.
-  Its output differs from the [stored record](hdc-model-basis-audit-20261102.json)
-  only in the hashes of `hdc_fixed.py` and `dither_mechanisms.py`.
-- The physical-equations check stops at its source-hash guard, because those
-  two files no longer match the hashes in the model-basis record: the integer
-  kernel moved from `hdc_fixed.py` to `calibration/_dither_hdc.py`, and long
-  lines in both files were wrapped. The `Device` and `Plant` definitions and
-  the `INITIAL`/`FINAL` parameters the derivations refer to are unchanged, and
-  `dither_mechanisms.py` parses to the same syntax tree. With the recorded
-  source versions restored, the check reproduces its
+- The model-basis check reproduces the 216 exact charge/inversion identities in
+  the [stored record](hdc-model-basis-audit-20261102.json). Fresh records track
+  the current source bytes and also include the extracted HDC kernel.
+- The original physical-equations command required restoring historical source
+  versions to match the committed model-basis hashes. The current command
+  instead takes a fresh `--model-audit` as shown above and reproduces the
   [stored record](hdc-physical-state-phases-audit-20261102.json) apart from the
-  script hash: 512 state transitions in ideal virtual ground (four reset
-  conditions), 1536 finite-gain state transitions, 384 static finite-gain
+  source and audit provenance hashes: 512 state transitions in ideal virtual
+  ground (four reset conditions), 1536 finite-gain state transitions, 384 static finite-gain
   charge relations and 128 equal-residue cancellations.

@@ -8,6 +8,17 @@ import json
 import math
 
 ROOT = Path(__file__).resolve().parents[2]
+parser = argparse.ArgumentParser(description=__doc__)
+parser.add_argument('--model-audit', type=Path, required=True,
+                    help='Fresh model-basis JSON generated from this checkout')
+parser.add_argument('--output', type=Path, required=True, help='Fresh JSON output path')
+args = parser.parse_args()
+out = args.output
+assert not out.exists(), 'Use a fresh audit file; do not overwrite prior evidence'
+model_audit = json.loads(args.model_audit.read_text(encoding='utf-8'))
+for path, digest in model_audit['source_sha256'].items():
+    assert hashlib.sha256((ROOT/path).read_bytes()).hexdigest() == digest, path
+
 rng = Random(20261102)
 cf, cx = F(15), F(30)
 cp = [F(2)] * 3
@@ -106,9 +117,6 @@ for name,gain,history in [('initial',F(194,100),F(6,100)),('final',F(204,100),F(
         residual_after_current_inverse_l1=float(h*h/(1-h*h)),
         next_impulse_coefficient=float(h*h))
 
-old = json.loads((ROOT/'docs/experiments/hdc-model-basis-audit-20261102.json').read_text(encoding='utf-8'))
-for p,digest in old['source_sha256'].items():
-    assert hashlib.sha256((ROOT/p).read_bytes()).hexdigest()==digest,p
 result = dict(scope='Proposed phase-table charge conservation and linear RC-state algebra only; no ADC calibration or transistor simulation',
     state_charge_identity_samples=counts,
     equal_reset_PN_and_DAC_tail_cancellation_samples=128,
@@ -116,12 +124,9 @@ result = dict(scope='Proposed phase-table charge conservation and linear RC-stat
     finite_open_loop_gain_state_identity_samples=finite_state_cases,
     total_summing_node_capacitance_Cu=float(ct),feedback_factor=float(beta),
     conditional_memory_mapping=numerics,
-    source_sha256=old['source_sha256'],
+    source_sha256=model_audit['source_sha256'],
+    model_audit_sha256=hashlib.sha256(args.model_audit.read_bytes()).hexdigest(),
     audit_script_sha256=hashlib.sha256(Path(__file__).read_bytes()).hexdigest())
-parser = argparse.ArgumentParser(description=__doc__)
-parser.add_argument('--output', type=Path, required=True, help='Fresh JSON output path')
-out = parser.parse_args().output
-assert not out.exists(), 'Use a fresh audit file; do not overwrite prior evidence'
 out.parent.mkdir(parents=True, exist_ok=True)
 out.write_text(json.dumps(result,indent=2,ensure_ascii=False)+'\n',encoding='utf-8')
 print(json.dumps(result,indent=2,ensure_ascii=False))
