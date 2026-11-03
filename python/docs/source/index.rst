@@ -40,7 +40,7 @@ Complete Documentation
    changelog
    calibration_workflows
    foreground_theory
-   foreground_repository_results
+   FOREGROUND_REPOSITORY_RESULTS
    foreground_bitweights
    combined_foreground
 

@@ -9,6 +9,7 @@ ROOT = Path(__file__).resolve().parents[2]
 paths = [
     'python/src/adctoolbox/siggen/nonidealities.py',
     'python/src/adctoolbox/models/sar.py',
+    'python/src/adctoolbox/calibration/_dither_hdc.py',
     'python/src/adctoolbox/examples/11_calibration/hdc_fixed.py',
     'python/src/adctoolbox/examples/11_calibration/dither_mechanisms.py',
     'python/src/adctoolbox/examples/11_calibration/joint_dither_model.py',

@@ -200,7 +200,8 @@ class DitherHDCTracker:
         w = c1*r - k3*(c1*r)**3, v = w - h*v_previous and
         output = stage_code/2 + v - probe + delta*selection*stage_code/2.
     fraction, bits : int, default 24 and 28
-        Fixed-point fractional and total word bits; unused when ``fixed`` is False.
+        Fixed-point fractional and total word bits. Validated in both modes,
+        but used in arithmetic only when ``fixed`` is True.
     accumulator_bits : int, optional
         Fixed-point correlation accumulator width, default ``bits + window_log2``.
     controller_latency : int, default 512

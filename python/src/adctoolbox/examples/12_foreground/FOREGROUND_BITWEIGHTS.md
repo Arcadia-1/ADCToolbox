@@ -37,6 +37,9 @@ python 12_foreground/audit_foreground_bitweights.py --directory output/bitweight
 The audit checks hashes, split separation, saved validation selection and frozen
 test outputs. It independently recalculates spectral ratios using a full complex
 FFT and recomputes aggregate statistics.
+For smooth-front-end comparisons, keep the original baseline and mixed-model
+directories at their original paths: the audit verifies those inputs using the
+absolute paths saved in `configuration.json`.
 
 ## Models and observation contracts
 
