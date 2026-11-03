@@ -211,10 +211,12 @@ tracking are not implied by passing these tests.
 
 ## Reproduction and acceptance
 
-From `python/`, choose a new output directory:
+From the copied `11_calibration/` folder (or
+`python/src/adctoolbox/examples/11_calibration/` in a repository checkout),
+choose a new output directory:
 
-```powershell
-uv run --no-sync --with numba python src/adctoolbox/examples/11_calibration/exp_cal09_pn_architectures.py --output ../agent_playground/pn-architectures
+```bash
+python exp_cal09_pn_architectures.py --output runs/pn-architectures
 ```
 
 Numba is optional acceleration; output directories are never overwritten.

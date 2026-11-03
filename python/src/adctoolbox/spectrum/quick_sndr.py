@@ -13,7 +13,11 @@ import numpy as np
 from adctoolbox.spectrum._bin_ranges import rfft_inband_bin_count
 from adctoolbox.spectrum._locate_fundamental import _locate_fundamental
 from adctoolbox.spectrum._prepare_fft_input import _prepare_fft_input
-from adctoolbox.spectrum._side_bin_auto import _detect_side_bin_auto
+from adctoolbox.spectrum._side_bin_auto import (
+    _detect_side_bin_auto_with_reference,
+    _find_hidden_components,
+    _warn_hidden_components,
+)
 from adctoolbox.spectrum._spectrum_averaging import _power_average
 from adctoolbox.spectrum._window import (
     _calculate_power_correction,
@@ -25,7 +29,14 @@ from adctoolbox.spectrum._window import (
 
 def quick_sndr(data, fs=1.0, win_type="hann", side_bin=None, max_scale_range=None):
     """
-    SNDR + ENOB from a single 1-D capture (same SNDR definition as analyze_spectrum).
+    SNDR + ENOB from a single 1-D capture.
+
+    The SNDR definition matches analyze_spectrum for the same side_bin. The
+    defaults differ: here None means the window's coherent side_bin, while
+    analyze_spectrum/compute_spectrum default to auto detection. For a
+    coherent capture both agree; for a non-coherent capture pass
+    ``side_bin="auto"`` to match analyze_spectrum, because the coherent
+    default counts the window leakage outside the main lobe as noise.
 
     Parameters
     ----------
@@ -39,8 +50,10 @@ def quick_sndr(data, fs=1.0, win_type="hann", side_bin=None, max_scale_range=Non
         Side bins around fundamental. None uses the window's coherent default
         fast path. "auto" uses waveform-based side-bin detection matching
         ``compute_spectrum(..., side_bin=None)``; this adds an extra ideal-tone
-        FFT pass and assumes a dominant single-tone capture. For multi-tone,
-        strongly distorted, or very noisy captures, pass an explicit integer.
+        FFT pass and assumes a dominant single-tone capture, and it raises a
+        UserWarning when the detected window also contains a spur or second
+        tone. For multi-tone, strongly distorted, or very noisy captures, pass
+        an explicit integer.
     max_scale_range
         Optional full-scale range for input normalization
 
@@ -60,7 +73,8 @@ def quick_sndr(data, fs=1.0, win_type="hann", side_bin=None, max_scale_range=Non
 
     fundamental_bin, fundamental_bin_fractional = _locate_fundamental(power_spectrum, n_inband)
     if isinstance(side_bin, str) and side_bin == "auto":
-        side_bin = _detect_side_bin_auto(
+        minimum_side_bin = _get_default_side_bin(win_type)
+        side_bin, ideal_spec, noise_floor_per_bin = _detect_side_bin_auto_with_reference(
             power_spectrum,
             fundamental_bin,
             fundamental_bin_fractional,
@@ -69,7 +83,20 @@ def quick_sndr(data, fs=1.0, win_type="hann", side_bin=None, max_scale_range=Non
             window_vector,
             power_correction,
             fallback_side_bin=_get_auto_side_bin_fallback(win_type),
-            minimum_side_bin=_get_default_side_bin(win_type),
+            minimum_side_bin=minimum_side_bin,
+        )
+        hidden_bins = _find_hidden_components(
+            power_spectrum,
+            fundamental_bin,
+            side_bin,
+            ideal_spec,
+            noise_floor_per_bin,
+            core_half_width=minimum_side_bin + 1,
+            n_inband=n_inband,
+        )
+        _warn_hidden_components(
+            "quick_sndr", power_spectrum, fundamental_bin, side_bin,
+            hidden_bins, stacklevel=3,
         )
     elif side_bin is None:
         side_bin = _get_default_side_bin(win_type)

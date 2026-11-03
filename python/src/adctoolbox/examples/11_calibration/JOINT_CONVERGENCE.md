@@ -138,5 +138,5 @@ sample counts, clipping and causal application. Output directories must be new
 or empty. `fixed_probe_convergence.png` and `sample_budget.png` provide figures.
 
 The fixed-seed measurements and remaining multitone limitations are in the
-archived convergence report linked from `docs/experiments/dither-results.md`
+archived convergence report linked from [`docs/experiments/dither-results.md`](https://github.com/Arcadia-1/ADCToolbox/blob/main/docs/experiments/dither-results.md)
 in the repository.

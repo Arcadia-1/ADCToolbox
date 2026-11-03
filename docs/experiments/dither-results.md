@@ -70,6 +70,12 @@ not synthesis/PPA evidence. Full assumptions and register accounting are in
 
 ## Detailed evidence archive
 
+> **External archive.** The reports below live in a contributor's fork
+> (`chenzc24/ADCToolbox`), not in this repository. They are not maintained here
+> and stay reachable only while that fork keeps the pinned commit. The runnable
+> source of truth is `python/src/adctoolbox/examples/11_calibration/`; rerun
+> its scripts to regenerate the evidence.
+
 Detailed CSV/JSON outputs, trajectories, figures and dated reports are retained
 on [`codex/dither-evidence-20261102`](https://github.com/chenzc24/ADCToolbox/tree/codex/dither-evidence-20261102).
 The links below pin the complete snapshot to commit
