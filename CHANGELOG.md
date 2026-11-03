@@ -7,12 +7,55 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Added
+- Dither calibration (#102): public `DitherGainTracker`, `apply_dither_gain` and
+  `DitherHDCTracker` in `adctoolbox` and `adctoolbox.calibration`, the
+  `11_calibration/` examples (PN gain tracking, joint identification,
+  fixed-point three-PN HDC, architecture controls) and an optional `accel`
+  extra (`pip install "adctoolbox[accel]"`) that uses Numba for the HDC loop.
+- Supervised foreground calibration (#103): `build_calibration_features`,
+  `fit_calibration_polynomial`, `fit_calibration_mlp` and `apply_calibration`,
+  with the `12_foreground/` examples.
+- `analyze_error_envelope_spectrum(..., input_kind="residual")` analyzes an
+  already computed error signal without refitting a sine, matching MATLAB
+  `errevspec` (#90).
+- `convert_cap_to_weight(..., input_order=..., output_order=...)` makes the
+  LSB/MSB ordering explicit; `"msb_to_lsb"` matches MATLAB `cdacwgt` (#95).
+- `ntfperf(..., n_grid=...)`; the default grid now matches MATLAB `ntfperf.m` (#92).
+- `compute_spectrum` and `analyze_spectrum` accept `side_bin="auto"` as an alias
+  for `None`, as `quick_sndr` already did. Numeric `side_bin` values are
+  truncated to a non-negative integer, as in `quick_sndr`; other strings raise
+  `TypeError`.
+- Auto `side_bin` (the `compute_spectrum` default and `quick_sndr(side_bin="auto")`)
+  raises a `UserWarning` when the detected signal window contains a spur or
+  second tone that is at least 10 dB above the fundamental's leakage. With
+  non-coherent sampling and a Hann window the window can span tens of bins, and
+  such a component is counted as signal power, so SFDR and SNDR read
+  optimistic. Metrics are unchanged.
+
+### Changed
+- `analyze_enob_sweep` gains `calibration_mode`. The default,
+  `"prefix_of_full_calibration"`, calibrates all bits once and sweeps prefixes
+  of that solution; `"recalibrate_each_subset"` refits each prefix (#89, #96).
+  MATLAB `bitsweep` now also calibrates once with all bits instead of refitting
+  each prefix.
+- The errsin compatibility wrappers in `adctoolbox.aout` use the new
+  MATLAB-compatible `errsin_compat` residual binning (#94).
+- Documentation moved to <https://adctoolbox.tokenzhang.com/doc/>.
+
 ### Fixed
+- SFDR read up to 1.8 dB optimistic when the spur's lobe touched the masked
+  signal or DC bins or the band edge; the hidden part of the lobe is now
+  restored from the fundamental's lobe-to-peak ratio. MATLAB `plotspec`
+  `sideBin='auto'` no longer collapses to 0 on a noise-free record (#100, #101).
 - `predict_spurs` reported every offset tone except the one at fs/2 twice, as the
   DFT coefficients k and M-k, each at half the tone's amplitude, so offset spurs
   read 6.02 dB low. It now reports each offset tone once (k = 1 ... M/2) at its
   full amplitude, and the integration test checks every predicted spur against
   the measured spectrum rather than the three largest.
+- The MATLAB test runner now runs from the right working directory.
+- Packaged `11_calibration` guides gave commands that only worked in the
+  contributor's checkout; they now run from a copied examples workspace.
 
 ## [0.9.1] - 2026-07-06
 
