@@ -32,6 +32,7 @@ Complete Documentation
 
    installation
    quickstart
+   dither
    api/index
    algorithms/index
    examples/index

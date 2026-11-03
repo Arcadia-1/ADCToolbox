@@ -1,6 +1,6 @@
 # ADCToolbox Examples
 
-This directory contains 64 runnable ADCToolbox examples. They are copied to a
+This directory contains runnable ADCToolbox examples. They are copied to a
 user workspace by:
 
 ```bash
@@ -134,3 +134,21 @@ python 05_debug_digital/exp_d02_cal_weight_sine.py
 | `exp_o01_noise_shaping_spectrum.py` | Noise-shaped quantization spectra |
 | `exp_o02_ifilter_band_analysis.py` | In-band extraction with MATLAB-compatible `ifilter` |
 | `exp_o03_ntfperf_perfosr.py` | NTF theory and performance-vs-OSR sweep |
+
+### `11_calibration/` - Dither calibration examples
+
+Start with [DITHER_GUIDE.md](11_calibration/DITHER_GUIDE.md) for injection nodes,
+observable statistics, correction paths and model limitations.
+
+| File | Topic |
+|---|---|
+| `exp_cal01_dither_background.py` | Binary-PN gain tracking and frozen sine-fit control |
+| `exp_cal02_dither_coverage.py` | Randomization, gain, memory, capacitor and nonlinear mechanisms |
+| `exp_cal06_joint_dither.py` | Joint behavior model, correction ablations and headroom |
+| `exp_cal07_joint_convergence.py` | Sample budget, finite correlation and estimator coupling |
+| `exp_cal08_hdc_fixed.py` | Three-PN HDC, fixed arithmetic and joint memory/DAC extensions |
+| `exp_cal09_pn_architectures.py` | Pipeline, paired SAR, TI timing and Delta-sigma controls |
+
+Historical experiment numbers are retained. `hdc_small_signal.py` and
+`hdc_correlation.py` provide offset/amplitude and correlation diagnostics.
+All calibrators in this directory are example-only interfaces.

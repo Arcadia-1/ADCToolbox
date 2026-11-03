@@ -26,6 +26,9 @@ Router, not a full manual. Keep the basic tier resident; open
 Use for:
 - Writing, fixing, or reviewing Python that calls ADCToolbox APIs
 - Picking the right spectrum / calibration helper
+- For Dither gain tracking or three-PN HDC, use the public calibration APIs
+  listed in `references/api-quickref.md`; theory and complete experiments are
+  in packaged `11_calibration/DITHER_GUIDE.md` and `HDC_FIXED.md`.
 - Getting from a raw `dout` / `aout` buffer to SNDR / SFDR / ENOB
 - Generating synthetic ADC stimulus for a testbench
 - **Forward-modeling an ADC architecture in Python** — for SAR, use

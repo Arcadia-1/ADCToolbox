@@ -31,3 +31,7 @@
 *.pdf binary
 *.png binary
 *.xlsx binary
+
+# Preserve source hashes in Dither experiment audits.
+/python/src/adctoolbox/examples/11_calibration/*.py text eol=lf
+/docs/experiments/check_hdc_*.py text eol=lf

@@ -5,3 +5,7 @@ include LICENSE
 # Include examples and bundled example READMEs
 graft src/adctoolbox/examples
 prune src/adctoolbox/examples/*/output
+
+# Exclude optional acceleration caches from copied examples.
+global-exclude *.py[cod]
+global-exclude *.nbi *.nbc

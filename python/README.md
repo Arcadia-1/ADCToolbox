@@ -48,9 +48,16 @@ python 01_basic/exp_b01_environment_check.py
 python 02_spectrum/exp_s01_analyze_spectrum_simplest.py
 ```
 
-The package currently ships 59 runnable examples across spectrum analysis,
+The package ships runnable examples across spectrum analysis,
 signal generation, analog debug, digital calibration, toolset dashboards,
-unit conversions, time-interleaved ADC analysis, and subsample output behavior.
+unit conversions, time-interleaved ADC analysis, oversampling, and Dither calibration.
+
+For PN injection, identification, fixed-point HDC and architecture-specific
+controls, open `11_calibration/DITHER_GUIDE.md` in the copied examples. These
+are behavioral research examples with explicit physical and statistical limits.
+`DitherGainTracker`, `apply_dither_gain` and `DitherHDCTracker` are public APIs;
+plants and the dedicated sine-fit baseline remain in the examples. Install
+`adctoolbox[accel]` to run the HDC tracker's per-sample loop with Numba.
 
 ## Common APIs
 

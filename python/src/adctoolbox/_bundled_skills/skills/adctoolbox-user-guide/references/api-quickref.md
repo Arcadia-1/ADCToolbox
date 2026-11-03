@@ -43,6 +43,35 @@ from adctoolbox.spectrum import compute_spectrum
   `validate_aout_data`, `validate_dout_data`, `find_coherent_frequency`,
   `fit_sine_4param`
 
+## Dither calibration
+
+Public imports: `from adctoolbox import DitherGainTracker, apply_dither_gain,
+DitherHDCTracker` (also available from `adctoolbox.calibration`).
+
+- Gain-only: construct with the stage's facts, `DitherGainTracker(
+  probe_amplitude=..., initial_gain=..., backend_bits=..., gain_bounds=(lo, hi))`;
+  `gain_bounds` must contain the true gain. Per block,
+  `tracker.process(coarse, backend, pn, backend_code)` corrects with the active
+  gain, then updates; `learn=False` freezes. PN is in {-1, 0, 1}, its known
+  amplitude is referred to the residue input, and backend codes supply the
+  rail guard.
+- Three-PN HDC: `tracker.process(backend, pn_signs, stage_code, selection,
+  backend_rails, learn=True)["calibrated_signal"]`. Backend is normalized to
+  [-1, 1]; signs have shape (N, 3); signed stage codes are {-1, 0, 1}; rails
+  are Boolean. This model has nominal gain 2. `selection` must be balanced
+  random DAC role tags; for a stage without role swapping construct
+  `DitherHDCTracker(estimate_dac_mismatch=False)` and pass `selection=None`.
+  Defaults are floating arithmetic and 2^24-sample windows; each update uses
+  one window, so shorter windows are noisier. `learn=False` freezes active
+  coefficients and cancels pending updates; retain the tracker across
+  contiguous blocks, `reset()` for a new capture. Install
+  `adctoolbox[accel]` (Numba) for long captures.
+
+Use existing `11_calibration/exp_cal01_dither_background.py` and
+`exp_cal08_hdc_fixed.py` for complete simulations. `DITHER_GUIDE.md` and
+`HDC_FIXED.md` hold the physical assumptions and derivations. Other
+architecture experiments are not interchangeable estimators.
+
 ## Advanced
 
 Open `advanced-debug.md` first when working on these — it has
