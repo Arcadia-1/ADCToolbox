@@ -63,7 +63,7 @@ def extract_freq_components(din, bands):
 
         # Set negative frequency bins (Hermitian symmetry)
         # Exclude DC (0) and Nyquist (N/2) to avoid double-setting
-        valid = ids[(ids > 0) & (ids < N // 2)]
+        valid = ids[(ids > 0) & (ids < N / 2)]
         mask[N - valid] = 1
 
     # Apply mask to all columns
