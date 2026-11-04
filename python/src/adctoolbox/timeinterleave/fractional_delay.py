@@ -66,7 +66,7 @@ def fractional_delay_farrow(
     Causal / streaming alternative to :func:`fractional_delay_fft`. The
     ``n_taps``-tap centered filter trades accuracy against boundary transient
     length (``n_taps // 2`` samples on each end are unreliable, because the
-    `same`-mode convolution zero-pads the input edges).
+    centered convolution zero-pads the input edges).
 
     Parameters
     ----------
@@ -108,7 +108,9 @@ def fractional_delay_farrow(
         for j in range(n_taps):
             if j != i:
                 h[i] *= (p_eval - j) / (i - j)
-    return np.convolve(y, h, mode="same")
+    # NumPy's "same" returns max(len(y), len(h)), which grows short records.
+    # Remove the filter's group delay explicitly and keep exactly len(x) samples.
+    return np.convolve(y, h, mode="full")[P:P + x.size]
 
 
 def _integer_shift_zero_pad(x: np.ndarray, D: int) -> np.ndarray:
