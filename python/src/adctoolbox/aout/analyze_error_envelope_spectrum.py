@@ -118,15 +118,8 @@ def analyze_error_envelope_spectrum(signal, fs=1, frequency=None, create_plot: b
         if title is not None:
             plt.gca().set_title(title, fontsize=10, fontweight='bold')
     else:
-        # Analyze without plotting
-        import matplotlib
-        backend_orig = matplotlib.get_backend()
-        matplotlib.use('Agg')  # Non-interactive backend
-
-        result = analyze_spectrum(env, fs=fs, show_label=False, max_harmonic=5)
-        plt.close()
-
-        matplotlib.use(backend_orig)  # Restore original backend
+        result = analyze_spectrum(env, fs=fs, show_label=False, max_harmonic=5,
+                                  create_plot=False)
 
     # Add error signal and envelope to result
     result['error_signal'] = e
