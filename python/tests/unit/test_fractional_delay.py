@@ -13,6 +13,7 @@ import numpy as np
 import pytest
 
 from adctoolbox import fractional_delay_farrow, fractional_delay_fft
+from adctoolbox.timeinterleave import calibrate_foreground
 
 
 # -------------------- fractional_delay_fft --------------------
@@ -81,3 +82,34 @@ def test_farrow_half_sample_tone_reasonable_accuracy():
 def test_farrow_rejects_even_taps():
     with pytest.raises(ValueError):
         fractional_delay_farrow(np.zeros(32), 0.1, 1.0, n_taps=6)
+
+
+@pytest.mark.parametrize('n_taps', [1, 3, 7, 9])
+@pytest.mark.parametrize('length', [1, 3, 7, 9, 13])
+@pytest.mark.parametrize('delay', [0., .2, -.2, 1., -1.])
+def test_farrow_preserves_record_length_and_alignment(n_taps, length, delay):
+    x = np.arange(1., length+1)
+    y = fractional_delay_farrow(x, delay, fs=1., n_taps=n_taps)
+    assert y.shape == x.shape
+    if delay == 0:
+        np.testing.assert_array_equal(y, x)
+    elif abs(delay) == 1:
+        expected = np.zeros_like(x)
+        if delay > 0:
+            expected[1:] = x[:-1]
+        else:
+            expected[:-1] = x[1:]
+        np.testing.assert_array_equal(y, expected)
+    else:
+        # A long zero-padded record gives an independent reference for short edges.
+        padded = np.pad(x, (n_taps, n_taps))
+        reference = fractional_delay_farrow(padded, delay, fs=1., n_taps=n_taps)
+        np.testing.assert_allclose(y, reference[n_taps:n_taps+length])
+
+
+def test_farrow_short_timeinterleaved_calibration():
+    x = np.arange(8.)
+    result = calibrate_foreground(x, 2, dict(offset=[0, 0], gain=[1, 1], skew=[.1, -.1]),
+                                  fs=1., skew_method='farrow')
+    assert result.shape == x.shape
+    assert np.all(np.isfinite(result))

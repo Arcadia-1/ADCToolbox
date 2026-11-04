@@ -11,6 +11,17 @@ import matplotlib.pyplot as plt
 from adctoolbox.spectrum._bin_ranges import rfft_inband_bin_count
 
 
+def _format_frequency(f):
+    """Format a physical frequency in Hz with a consistent SI prefix."""
+    if f >= 1e9:
+        return f'{f/1e9:.1f}G'
+    if f >= 1e6:
+        return f'{f/1e6:.1f}M'
+    if f >= 1e3:
+        return f'{f/1e3:.1f}K'
+    return f'{f:.1f}' if f >= 1 else f'{f:.3f}'
+
+
 def _noise_floor_axis_min(
     nf_line_level,
     step_db=20,
@@ -252,21 +263,9 @@ def plot_spectrum(compute_results, show_title=True, show_label=True, plot_harmon
         metric_y_start = 0.94
         metric_y_step = 0.06
 
-        # Format helpers
-        def format_freq(f):
-            if f >= 1e9: return f'{f/1e9:.1f}G'
-            elif f >= 1e6: return f'{f/1e6:.1f}M'
-            elif f >= 1e3: return f'{f/1e3:.1f}K'
-            else: return f'{f:.1f}'
-
-        txt_fs = format_freq(fs)
+        txt_fs = _format_frequency(fs)
         Fin = fundamental_bin/N * fs
-
-        if Fin >= 1e9: txt_fin = f'{Fin/1e9:.1f}G'
-        elif Fin >= 1e6: txt_fin = f'{Fin/1e6:.1f}M'
-        elif Fin >= 1e3: txt_fin = f'{Fin/1e3:.1f}K'
-        elif Fin >= 1: txt_fin = f'{Fin/1e3:.1f}'  # Matches original logic
-        else: txt_fin = f'{Fin:.3f}'
+        txt_fin = _format_frequency(Fin)
 
         snr_text = f'{snr_dbc:.2f} dB' if np.isfinite(snr_dbc) else 'N/A'
         noise_floor_text = f'{noise_floor_dbfs:.2f} dB' if np.isfinite(noise_floor_dbfs) else 'N/A'
