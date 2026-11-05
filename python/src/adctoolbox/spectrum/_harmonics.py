@@ -199,7 +199,14 @@ def _extract_highest_spur(
     fundamental_bin: int,
     measured_signal_power: float,
 ) -> tuple[int, float]:
-    """Extract the highest spur from in-band spectrum (excluding fundamental).
+    """Extract the strongest spur from in-band spectrum (excluding fundamental).
+
+    Every local peak outside the DC and fundamental masks is a spur
+    candidate. Candidates are ranked by integrated lobe power (center
+    ± side_bin, with the masked-lobe compensation below), not by the height
+    of a single FFT bin: a window splits the power of an off-bin spur across
+    several bins, so its tallest bin can be lower than that of a weaker
+    on-bin spur.
 
     Parameters
     ----------
@@ -222,39 +229,66 @@ def _extract_highest_spur(
     Returns
     -------
     spur_bin_idx : int
-        Bin index of the maximum spur
+        Center bin of the strongest spur
     spur_power : float
         Spur power (linear scale, summed over center ± side_bin)
     """
     # Copy in-band spectrum for search and zero regions that must not
     # contribute to spur power.
     spectrum_copy = spectrum_power[:n_search_inband].copy()
-    spectrum_copy[: min(side_bin, n_search_inband)] = 0
+    dc_mask_end = min(side_bin, n_search_inband)
+    spectrum_copy[:dc_mask_end] = 0
     if sig_bin_start < sig_bin_end:
         spectrum_copy[sig_bin_start:sig_bin_end] = 0
 
-    spur_bin_idx = int(np.argmax(spectrum_copy))
-    spur_start = max(spur_bin_idx - side_bin, 0)
-    spur_end = min(spur_bin_idx + side_bin + 1, n_search_inband)
-    spur_power = float(np.sum(spectrum_copy[spur_start:spur_end]))
+    centers = np.arange(n_search_inband)
+    lobe_start = np.maximum(centers - side_bin, 0)
+    lobe_end = np.minimum(centers + side_bin + 1, n_search_inband)
 
     # A spur lobe can touch the fundamental/DC masks or a one-sided analysis
     # boundary. Summing the masked spectrum then drops part of the lobe and
     # makes SFDR optimistic. Estimate the complete lobe from its center bin
     # using the measured fundamental lobe-to-peak ratio. Leave fully visible
     # lobes on the direct integrated-power path.
-    touches_boundary = spur_start == 0 or spur_end == n_search_inband
-    touches_dc_mask = spur_start < min(side_bin, n_search_inband)
-    touches_signal_mask = (
-        max(spur_start, sig_bin_start) < min(spur_end, sig_bin_end)
+    touches_mask = (
+        (lobe_start == 0)
+        | (lobe_end == n_search_inband)
+        | (lobe_start < dc_mask_end)
+        | (np.maximum(lobe_start, sig_bin_start) < np.minimum(lobe_end, sig_bin_end))
     )
-    if touches_boundary or touches_dc_mask or touches_signal_mask:
-        signal_peak_power = float(spectrum_power[fundamental_bin])
-        spur_peak_power = float(spectrum_copy[spur_bin_idx])
-        if signal_peak_power > 0 and spur_peak_power > 0:
-            lobe_to_peak_ratio = measured_signal_power / signal_peak_power
-            compensated_spur_power = spur_peak_power * lobe_to_peak_ratio
-            spur_power = max(spur_power, compensated_spur_power)
+    compensated_power = np.zeros(n_search_inband)
+    signal_peak_power = float(spectrum_power[fundamental_bin])
+    if signal_peak_power > 0:
+        lobe_to_peak_ratio = measured_signal_power / signal_peak_power
+        compensated_power[touches_mask] = spectrum_copy[touches_mask] * lobe_to_peak_ratio
+
+    # Rank the local peaks by lobe power; masked bins are zero and never
+    # qualify. Prefix sums keep this linear in the FFT length; the selected
+    # lobe is summed directly below.
+    cumulative_power = np.concatenate(([0.0], np.cumsum(spectrum_copy)))
+    ranking_power = np.maximum(
+        cumulative_power[lobe_end] - cumulative_power[lobe_start],
+        compensated_power,
+    )
+    left_neighbor = np.concatenate(([-np.inf], spectrum_copy[:-1]))
+    right_neighbor = np.concatenate((spectrum_copy[1:], [-np.inf]))
+    is_candidate = (
+        (spectrum_copy > 0)
+        & (spectrum_copy >= left_neighbor)
+        & (spectrum_copy >= right_neighbor)
+    )
+    candidates = np.flatnonzero(is_candidate)
+    if candidates.size:
+        spur_bin_idx = int(candidates[np.argmax(ranking_power[candidates])])
+    else:
+        spur_bin_idx = int(np.argmax(spectrum_copy))
+
+    spur_start = lobe_start[spur_bin_idx]
+    spur_end = lobe_end[spur_bin_idx]
+    spur_power = max(
+        float(np.sum(spectrum_copy[spur_start:spur_end])),
+        float(compensated_power[spur_bin_idx]),
+    )
 
     return spur_bin_idx, spur_power
 
