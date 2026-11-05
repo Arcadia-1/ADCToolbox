@@ -25,7 +25,8 @@ def analyze_inl_from_sine(data, num_bits=None, full_scale=None, clip_percent=0.0
     num_bits : int, optional
         ADC number of bits. If None, infers from data range.
     full_scale : float, optional
-        Full scale voltage for quantization. If provided with analog input,
+        Full scale voltage for quantization. If provided with floating-point
+        input, the data are voltages whatever their range, and
         codes = round(data * 2^num_bits / full_scale).
         If None, assumes normalized input (0-1 range).
     clip_percent : float, default=0.01
