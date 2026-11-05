@@ -39,8 +39,12 @@ def test_nf_method3_excludes_windowed_harmonic_lobes_from_snr():
     metrics = result["metrics"]
 
     expected_sndr = 10 * np.log10(1 / (10 ** (hd2_dbc / 10) + 10 ** (noise_dbc / 10)))
+    # Bins 0..4096 are in band. DC (1 bin) and the signal lobe (3 bins) are
+    # masked; the H2..H5 lobes (12 bins) are filled at the mean level of the
+    # 4081 remaining bins, so the -80 dBc noise tone is scaled by 4093/4081.
+    expected_snr = noise_dbc * -1 - 10 * np.log10(4093 / 4081)
 
-    assert metrics["snr_dbc"] == pytest.approx(80.0, abs=1e-9)
+    assert metrics["snr_dbc"] == pytest.approx(expected_snr, abs=1e-9)
     assert metrics["harmonics_dbc"][0] == pytest.approx(hd2_dbc, abs=1e-9)
     assert metrics["thd_dbc"] == pytest.approx(hd2_dbc, abs=1e-9)
     assert metrics["sndr_dbc"] == pytest.approx(expected_sndr, abs=1e-9)
@@ -171,7 +175,9 @@ def test_nf_method3_clips_harmonic_lobe_when_center_is_just_out_of_band():
         side_bin=2,
     )
 
-    assert noise_power == pytest.approx(1.0)
+    # Bins 6 and 7 are the clipped H2 lobe: their power (2 + 3) is excluded
+    # and they are filled at the mean of the one remaining bin, 5 (power 1).
+    assert noise_power == pytest.approx(1.0 * (1 + 2) / 1)
 
 
 def test_thd_counts_harmonic_annulus_near_fundamental_lobe():
@@ -213,7 +219,10 @@ def test_nf_method3_excludes_harmonic_annulus_near_fundamental_lobe():
         side_bin=2,
     )
 
-    assert noise_power == pytest.approx(7.0)
+    # Bins 11-13 are the H2 annulus outside the fundamental lobe: their power
+    # (2 + 3 + 5) is excluded and they are filled at the mean of the six
+    # remaining bins 2-5, 14 and 15, which hold only bin 14 (power 7).
+    assert noise_power == pytest.approx(7.0 * (6 + 3) / 6)
 
 
 def test_compute_spectrum_handles_hd2_alias_near_fundamental_lobe():
@@ -243,7 +252,10 @@ def test_compute_spectrum_handles_hd2_alias_near_fundamental_lobe():
     expected_sndr = 10 * np.log10(1 / (10 ** (hd2_dbc / 10) + 10 ** (noise_dbc / 10)))
 
     assert result["plot_data"]["harmonic_bins"][0] == 344
-    assert metrics["snr_dbc"] == pytest.approx(80.0, abs=1e-9)
+    # Of the 513 in-band bins, DC (2) and the fundamental lobe (5) are masked
+    # and the HD2 annulus 343-346 (4) is filled at the mean level of the 502
+    # remaining bins, so the -80 dBc noise tone is scaled by 506/502.
+    assert metrics["snr_dbc"] == pytest.approx(80.0 - 10 * np.log10(506 / 502), abs=1e-9)
     assert metrics["harmonics_dbc"][0] == pytest.approx(hd2_dbc, abs=1e-9)
     assert metrics["thd_dbc"] == pytest.approx(hd2_dbc, abs=1e-9)
     assert metrics["sndr_dbc"] == pytest.approx(expected_sndr, abs=1e-9)
