@@ -3,6 +3,7 @@
 import warnings
 
 import numpy as np
+from scipy.special import gammaincinv
 
 from adctoolbox.spectrum._exclude_bins import _exclude_bins_from_spectrum
 
@@ -32,6 +33,20 @@ def _zeroed_inband_spectrum(
     return spec
 
 
+def _median_to_mean_ratio(n_records: int, coherent_averaging: bool) -> float:
+    """Median/mean ratio of a white-noise bin in an averaged power spectrum.
+
+    One complex FFT bin of white Gaussian noise has exponentially distributed
+    power. Power averaging of ``n_records`` captures takes the mean of that
+    many independent exponentials, a Gamma(n_records) / n_records variable.
+    Coherent averaging adds complex bins, which stay complex Gaussian, so the
+    averaged bin power is exponential (median/mean = ln 2) for any number of
+    captures.
+    """
+    n_exponentials = 1 if coherent_averaging else max(int(n_records), 1)
+    return float(gammaincinv(n_exponentials, 0.5) / n_exponentials)
+
+
 def _estimate_noise_power(
     spectrum_power: np.ndarray,
     nf_method: int,
@@ -41,11 +56,15 @@ def _estimate_noise_power(
     harmonic_bins: np.ndarray,
     side_bin: int,
     *,
+    coherent_averaging: bool = False,
     return_parts: bool = False,
 ) -> float | tuple[float, dict[str, float]]:
     """Estimate noise power (linear). Methods 0-3 match MATLAB plotspec NFMethod.
 
     0=auto, 1=median, 2=trimmed mean, 3=exclude harmonics; 4=legacy wide exclude.
+    ``M`` is the number of captures averaged into ``spectrum_power`` and
+    ``coherent_averaging`` states how they were averaged; together they set
+    the median-to-mean ratio of the median method.
     """
     if nf_method == 4:
         noise_spectrum = _exclude_bins_from_spectrum(
@@ -86,8 +105,8 @@ def _estimate_noise_power(
         spec_for_floor = spec
 
     def _median_noise() -> float:
-        mn = 0.72 if M == 1 else (1 - 2 / (9 * M)) ** 3
-        return float(np.median(spec_for_floor) / mn * n_inband)
+        median_to_mean = _median_to_mean_ratio(M, coherent_averaging)
+        return float(np.median(spec_for_floor) / median_to_mean * n_inband)
 
     def _trimmed_noise() -> float:
         spec_sorted = np.sort(spec_for_floor)
