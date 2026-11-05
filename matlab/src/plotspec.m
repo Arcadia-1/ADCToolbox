@@ -575,12 +575,16 @@ end
 n_inband = length(spec_inband);
 
 % Method 1: Median-based estimation (robust to spurs)
-if(N_run == 1)
-    % Mn = 0.4549364231; % theoretical value of the median of chi-squared distribution, but not working well
-    Mn = 0.72;      % this empirical value works well, but why??
+% Mn is the median/mean ratio of a white-noise bin. One complex FFT bin has
+% exponentially distributed power. Power averaging of ME captures takes the
+% mean of ME exponentials, a Gamma(ME)/ME variable. Coherent averaging adds
+% complex bins, so the bin power stays exponential (Mn = log(2)).
+if(coAvg)
+    n_exponentials = 1;
 else
-    Mn = (1-2/(9*N_run))^3;     % Wilson–Hilferty approximation of the median of chi-squared distribution
+    n_exponentials = max(ME, 1);
 end
+Mn = gammaincinv(0.5, n_exponentials) / n_exponentials;
 noi_median = median(spec_inband)/Mn * inbandEnd;
 % Method 2: Trimmed mean (removes top/bottom 5%)
 spec_sort = sort(spec_inband);

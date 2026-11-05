@@ -87,9 +87,10 @@ def compute_spectrum(
     data_windowed = data_normalized * window_vector
 
     if coherent_averaging:
-        power_spectrum, complex_spectrum = _coherent_average(data_windowed, osr)
+        power_spectrum, complex_spectrum, n_averaged = _coherent_average(data_windowed, osr)
     else:
         power_spectrum, complex_spectrum = _power_average(data_windowed)
+        n_averaged = M
 
     power_correction = _calculate_power_correction(window_gain, equiv_noise_bw_factor)
     power_spectrum = power_spectrum * power_correction
@@ -199,10 +200,11 @@ def compute_spectrum(
         spectrum_power=power_spectrum,
         nf_method=nf_method,
         n_inband=n_inband,
-        M=M,
+        M=n_averaged,
         bin_idx=fundamental_bin,
         harmonic_bins=harmonic_bins,
         side_bin=side_bin,
+        coherent_averaging=coherent_averaging,
         return_parts=True,
     )
     noise_power, noise_parts = noise_result

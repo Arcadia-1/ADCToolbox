@@ -2,6 +2,7 @@
 
 run_tomdec
 run_plotspec
+run_plotspec_averaged_noise
 run_plotspec_dynamic_metric_masks
 run_plotspec_marker
 run_plotspec_sfdr_boundaries

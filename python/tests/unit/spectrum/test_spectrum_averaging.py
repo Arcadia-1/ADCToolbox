@@ -70,10 +70,11 @@ def test_coherent_average(M, N, osr):
     t = np.arange(N)
     data = A * np.sin(2 * np.pi * bin_target * t / N + phases)
 
-    spectrum_power, spectrum_complex = _coherent_average(data, osr)
+    spectrum_power, spectrum_complex, n_averaged = _coherent_average(data, osr)
 
     # Shape and power/voltage duality checks
     print(f"\n[Coherent Average Test] M={M}, N={N}, OSR={osr}, size(spectrum_complex)={spectrum_complex.shape}")
+    assert n_averaged == M
     assert spectrum_power.shape == spectrum_complex.shape == (N // 2 + 1,)
     assert np.allclose(np.abs(spectrum_complex), np.sqrt(spectrum_power), rtol=1e-10)
 
@@ -81,7 +82,7 @@ def test_coherent_average(M, N, osr):
     peak_idx = np.argmax(spectrum_power)
 
     if M > 1:
-        spectrum_power_single, _ = _coherent_average(data[0:1, :], osr)
+        spectrum_power_single, _, _ = _coherent_average(data[0:1, :], osr)
         assert np.isclose(spectrum_power[peak_idx], spectrum_power_single[peak_idx], rtol=0.1)
 
     # SNR check (coherent averaging should suppress uncorrelated noise)

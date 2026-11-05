@@ -44,11 +44,12 @@ def _power_average(
 def _coherent_average(
     data_processed: np.ndarray,
     osr: int
-) -> tuple[np.ndarray, np.ndarray]:
+) -> tuple[np.ndarray, np.ndarray, int]:
     """Compute coherent-averaged spectrum with phase alignment.
 
     For each run: finds fundamental, performs parabolic interpolation, aligns
-    phase to first run, then coherently averages. Skips runs with zero data.
+    phase to first run, then coherently averages. Skips runs with zero data
+    and runs whose fundamental falls at DC.
     Returns raw FFT results without correction (correction applied in compute_spectrum).
 
     Parameters
@@ -66,6 +67,8 @@ def _coherent_average(
     spectrum_complex
         Raw complex spectrum for polar plots, shape (N//2 + 1,)
         Normalized by N and n_valid_runs, with DC/Nyquist boundary correction
+    n_valid_runs
+        Number of runs included in the average
     """
     M, N = data_processed.shape
     n_output = N // 2 + 1
@@ -116,4 +119,4 @@ def _coherent_average(
         spectrum_power[-1] /= 2.0
         spectrum_complex[-1] /= np.sqrt(2.0)
 
-    return spectrum_power, spectrum_complex
+    return spectrum_power, spectrum_complex, n_valid_runs
