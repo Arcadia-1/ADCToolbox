@@ -12,6 +12,7 @@ run_errsin_code
 run_errsin_phase
 run_errpdf
 run_errac
+run_plotspec_rect_auto_sidebin
 run_errspec
 run_errevspec
 
