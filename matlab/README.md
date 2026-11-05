@@ -782,7 +782,7 @@ errsinv(sig)
 1. Histogram the ADC output codes
 2. Apply cosine transform to linearize sine distribution
 3. Calculate DNL from differences in linearized histogram
-4. Normalize to LSB = 1 and remove DC offset
+4. Normalize each internal code width by the mean internal code width (missing codes are exactly -1 LSB)
 5. Compute INL as cumulative sum of DNL
 
 **Parameters:**

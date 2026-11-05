@@ -31,7 +31,7 @@ function [inl, dnl, code] = inlsin(data, varargin)
 %       Vector (same length as code)
 %       Deviation from ideal 1 LSB code width
 %     code - Code values corresponding to INL/DNL measurements
-%       Vector
+%       Vector (excludes the first and last codes, which absorb clipping)
 %
 %   Examples:
 %     % Generate ADC output from sine wave and calculate INL/DNL
@@ -52,7 +52,7 @@ function [inl, dnl, code] = inlsin(data, varargin)
 %     - Input data should be integer ADC codes (non-integer will be rounded)
 %     - This function assumes LSB = 1 (unit code width)
 %     - The sine histogram method assumes an ideal sinewave input
-%     - DNL is normalized to have zero mean
+%     - DNL is normalized to the mean width of the reported codes (zero mean)
 %     - Missing codes (DNL <= -1) are highlighted in red when displayed
 %
 %   Algorithm:
@@ -106,20 +106,21 @@ function [inl, dnl, code] = inlsin(data, varargin)
     histogram_counts = histcounts(data, [code-0.5, code(end)+0.5]);
     cumulative_distribution = -cos(pi * cumsum(histogram_counts) / sum(histogram_counts));
 
-    % Calculate DNL from differences in linearized distribution
+    % Calculate code widths from differences in linearized distribution.
+    % cumulative_distribution(k) is the upper transition of code(k). The
+    % first and last codes absorb clipped samples, so only the internal
+    % codes have two measured transitions.
     dnl = cumulative_distribution(2:end-1) - cumulative_distribution(1:end-2);
-    code = code(1:end-2);
+    code = code(2:end-1);
 
 %    % Apply secondary exclusion to remove edge effects
 %    excl_codes = floor(excl * (max_data - min_data + 1) / 2);
 %    code = code(excl_codes+1 : end-excl_codes);
 %    dnl = dnl(excl_codes+1 : end-excl_codes);
 
-    % Normalize DNL to LSB units
-    dnl = dnl ./ sum(dnl);
-    dnl = dnl * (max_data - min_data + 1) - 1;
-    dnl = dnl - mean(dnl);  % Remove DC offset
-    dnl = max(dnl, -1);
+    % Normalize DNL to LSB units: one LSB is the mean width of the reported
+    % codes, so missing codes are exactly -1 and DNL has zero mean.
+    dnl = dnl / mean(dnl) - 1;
 
     % Calculate INL as cumulative sum of DNL
     inl = cumsum(dnl);

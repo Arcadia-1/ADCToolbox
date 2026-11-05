@@ -72,12 +72,15 @@ This maps the nonlinear sine wave distribution to a linear ideal ADC response.
 ### 3. DNL Calculation
 
 ```python
-DNL_raw = np.diff(Linearized_CDF)
-DNL_normalized = DNL_raw / np.mean(DNL_raw) * (num_codes - 1) - 1
-DNL = DNL_normalized - np.mean(DNL_normalized)  # Remove offset
+# Linearized_CDF[k] is the upper transition of code k. The first and last
+# codes absorb clipped samples, so only the internal codes are reported.
+code_width = np.diff(Linearized_CDF[:-1])
+code = code_valid[1:-1]
+DNL = code_width / np.mean(code_width) - 1
 ```
 
-**Units**: LSB (Least Significant Bit)
+**Units**: LSB (Least Significant Bit), defined as the mean width of the
+reported codes, so the DNL has zero mean and the INL ends at zero.
 - DNL = 0: Ideal step size
 - DNL = -1: Missing code
 - DNL > 0: Code width > 1 LSB
