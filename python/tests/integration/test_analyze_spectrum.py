@@ -16,8 +16,7 @@ def _process_analyze_spectrum(raw_data, sub_folder, dataset_name, figures_folder
         raw_data,
         show_label=True,
         n_thd=5,
-        osr=1,
-        nf_method=0
+        osr=1
     )
     enob = result['enob']
     sndr = result['sndr_db']
