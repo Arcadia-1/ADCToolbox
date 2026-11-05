@@ -18,8 +18,10 @@ def compute_inl_from_sine(
     Calculate ADC INL/DNL.
 
     Auto-detection treats integer input as ADC codes. Floating-point input
-    with range greater than 2.0 is treated as code-like data, otherwise it is
-    treated as normalized voltage and quantized to ``num_bits``.
+    is treated as voltage when ``full_scale`` is given. Without it,
+    floating-point input with range greater than 2.0 is treated as code-like
+    data, otherwise as normalized voltage. Voltage input is quantized to
+    ``num_bits``.
 
     Parameters
     ----------
@@ -30,8 +32,10 @@ def compute_inl_from_sine(
         the resolution is inferred from the data range when omitted.
     full_scale : float, optional
         Full scale voltage range for quantization. If provided with float input,
-        used for quantization: codes = round(data * 2^num_bits / full_scale).
-        If None, assumes normalized input (0-1 or -1 to 1).
+        the data are voltages whatever their range, quantized as
+        codes = round(data * 2^num_bits / full_scale). Integer input is
+        always treated as codes. If None, assumes normalized input (0-1 or
+        -1 to 1).
     clip_percent : float, default=0.01
         Percentage of codes to clip from edges.
     """
@@ -46,8 +50,9 @@ def compute_inl_from_sine(
     is_voltage = False
 
     if np.issubdtype(data.dtype, np.floating):
-        # If float and range is small (e.g. 0.0 to 1.0), it's likely voltage
-        if span <= 2.0:
+        # An explicit full_scale declares voltage input. Otherwise a small
+        # range (e.g. 0.0 to 1.0) is likely normalized voltage.
+        if full_scale is not None or span <= 2.0:
             is_voltage = True
 
     # --- 2. Process Data ---
