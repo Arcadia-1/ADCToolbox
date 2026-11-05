@@ -205,6 +205,11 @@ weights_fast = calibrate_weight_sine_lite(bits, freq_norm)   # ndarray, no dict
 `calibrated_signal`, `ideal`, `error`, `refined_frequency`. The `_lite` variant
 returns just the weights ndarray and is positional (no `freq=` kw).
 `calibrated_signal` is in solver-unit-sine scale unless explicitly rescaled.
+For a list of bit matrices calibrated together, `weight` is shared, `offset`
+is an array with one DC term per dataset (a scalar for a single dataset), and
+the first dataset sets the unit-sine scale: the fundamental of `ideal[0]` has
+unit amplitude and every other dataset keeps its amplitude relative to it.
+Residuals are `error[k] = calibrated_signal[k] - offset[k] - ideal[k]`.
 Ratio metrics are scale-invariant; `sig_pwr_dbfs`, `noise_floor_dbfs`, and
 `nsd_dbfs_hz` are not.
 `max_scale_range=None` is self-referenced, so calibrated dBFS can look tidy

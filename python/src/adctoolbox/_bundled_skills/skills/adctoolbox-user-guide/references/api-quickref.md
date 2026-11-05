@@ -193,6 +193,9 @@ adctoolbox-install-skill --dev --editable --force --dest ~/.codex/skills
 - `calibrate_weight_sine(...)` returns a dict: `weight`, `offset`,
   `calibrated_signal`, `ideal`, `error`, `refined_frequency`,
   `initial_frequency`, `frequency_policy`, `scale_convention`.
+  With a list of bit matrices, `offset` has one entry per dataset (a scalar
+  for one dataset), the first dataset sets the unit-sine scale, and
+  `error[k] = calibrated_signal[k] - offset[k] - ideal[k]`.
   `calibrate_weight_sine_lite(...)` returns just the weights ndarray.
   Calibration waveform fields are solver-unit-sine scaled by default; use
   `scale_calibration_output(...)` before comparing calibrated dBFS, noise

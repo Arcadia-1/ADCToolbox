@@ -13,6 +13,8 @@ replacement for FFT dynamic SNDR/ENOB of ``calibrated_signal``.
 
 import numpy as np
 
+from adctoolbox.calibration._lstsq_solver import _unpack_harmonic_coefficients
+
 def _post_process(
     weights_final: np.ndarray,
     solution_vector: np.ndarray,
@@ -28,18 +30,24 @@ def _post_process(
 ) -> dict:
     """
     Unified result assembly for single and multi-dataset calibration.
+
+    Each dataset has its own fitted DC term, so ``offset`` is a scalar for a
+    single dataset and an array with one entry per dataset otherwise.
     """
     num_datasets = len(bit_segments)
-    num_harm_total = num_datasets * harmonic_order
     is_single = (num_datasets == 1)
 
     # Copy weights for local modification (polarity enforcement)
     weights = weights_final.copy()
 
-    dc_offset = -solution_vector[bit_width_effective] / norm_factor
+    dc_offsets = -solution_vector[
+        bit_width_effective : bit_width_effective + num_datasets
+    ] / norm_factor
 
     # 3. Reconstruct per-dataset quantities
-    harm_start = bit_width_effective + num_datasets
+    cos_coeffs, sin_coeffs = _unpack_harmonic_coefficients(
+        solution_vector, bit_width_effective, num_datasets, harmonic_order, basis_choice
+    )
     
     calibrated_signals = []
     reference_sines = []
@@ -58,15 +66,15 @@ def _post_process(
         # Fitted reference reconstruction. This includes harmonics up to
         # harmonic_order, so those fitted harmonics are excluded from err_k.
         ref_k = _reconstruct_sine_k(
-            solution_vector, k, harmonic_order, num_harm_total,
-            harm_start, basis_choice, 
             cos_basis[row_start:row_end, k*harmonic_order:(k+1)*harmonic_order],
             sin_basis[row_start:row_end, k*harmonic_order:(k+1)*harmonic_order],
+            cos_coeffs[k],
+            sin_coeffs[k],
             norm_factor
         )
         
         # Calibration residual metrics, not FFT dynamic SNDR/ENOB.
-        err_k = sig_k - dc_offset - ref_k
+        err_k = sig_k - dc_offsets[k] - ref_k
         p_sig = np.mean(ref_k**2)
         p_noise = np.mean(err_k**2)
         residual_snr_k = 10 * np.log10(p_sig / p_noise) if p_noise > 0 else 200.0 # Cap max SNR
@@ -84,7 +92,7 @@ def _post_process(
     polarity = -1.0 if np.sum(weights) < 0 else 1.0
     
     weights *= polarity
-    dc_offset *= polarity
+    dc_offsets *= polarity
     
     # Using list comprehensions for compact correction
     calibrated_signals = [s * polarity for s in calibrated_signals]
@@ -94,7 +102,7 @@ def _post_process(
     # 5. Format final output dictionary
     return {
         'weight': weights,
-        'offset': dc_offset,
+        'offset': dc_offsets[0] if is_single else dc_offsets,
         'calibrated_signal': calibrated_signals,
         'ideal': reference_sines,
         'error': residual_errors,
@@ -105,43 +113,18 @@ def _post_process(
     }
 
 def _reconstruct_sine_k(
-    solution_vector: np.ndarray,
-    k: int,
-    harmonic_order: int,
-    num_harm_total: int,
-    harm_start: int,
-    basis_choice: int,
     cos_basis_k: np.ndarray,
     sin_basis_k: np.ndarray,
+    cos_coeffs_k: np.ndarray,
+    sin_coeffs_k: np.ndarray,
     norm_factor: float
 ) -> np.ndarray:
     """
     Reconstruct the fitted reference waveform for the k-th dataset.
 
     The reference contains the fundamental and any fitted harmonic nuisance
-    terms requested by harmonic_order.
-    Handles index mapping based on basis_choice (0: Cos=1, 1: Sin=1).
+    terms requested by harmonic_order. The coefficients are dataset k's rows
+    from ``_unpack_harmonic_coefficients``.
     """
-    # The size of the first half of harmonic columns (where one fund is unity)
-    unity_side_size = num_harm_total - 1 
-
-    if basis_choice == 0:  # Cosine is unity
-        # Cosine coeffs: first one is implicit 1.0, others are in solution_vector
-        # Indices for dataset k: harm_start + k*(H-1) : harm_start + (k+1)*(H-1)
-        h_idx = harm_start + k * (harmonic_order - 1)
-        cos_coeffs_k = np.concatenate([[1.0], solution_vector[h_idx : h_idx + harmonic_order - 1]])
-        
-        # Sine coeffs: all are in solution_vector, after the unity_side_size block
-        sin_idx = harm_start + unity_side_size + k * harmonic_order
-        sin_coeffs_k = solution_vector[sin_idx : sin_idx + harmonic_order]
-    else:  # Sine is unity
-        # Sine coeffs: first one is implicit 1.0
-        h_idx = harm_start + k * (harmonic_order - 1)
-        sin_coeffs_k = np.concatenate([[1.0], solution_vector[h_idx : h_idx + harmonic_order - 1]])
-        
-        # Cosine coeffs
-        cos_idx = harm_start + unity_side_size + k * harmonic_order
-        cos_coeffs_k = solution_vector[cos_idx : cos_idx + harmonic_order]
-
     # Reference = -(Basis_Cos * Coeffs_Cos + Basis_Sin * Coeffs_Sin) / Norm
     return -(cos_basis_k @ cos_coeffs_k + sin_basis_k @ sin_coeffs_k) / norm_factor
