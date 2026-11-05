@@ -393,12 +393,20 @@ end
 
 % Find signal bin and refine using parabolic interpolation
 [~, bin] = max(spec_inband);
-sig_e = log10(spec(bin));
-sig_l = log10(spec(min(max(bin-1,1),Nd2)));
-sig_r = log10(spec(min(max(bin+1,1),Nd2)));
-% Parabolic interpolation for sub-bin frequency accuracy
-bin_r = bin + (sig_r-sig_l)/(2*sig_e-sig_l-sig_r)/2;
-if(isnan(bin_r))
+sig_e = log10(max(spec(bin), 1e-20));
+sig_l = log10(max(spec(min(max(bin-1,1),Nd2)), 1e-20));
+sig_r = log10(max(spec(min(max(bin+1,1),Nd2)), 1e-20));
+% Parabolic interpolation for sub-bin frequency accuracy. For a coherent
+% tone the neighbouring bins can be floor-level noise or spurs rather than
+% window leakage (always with a rectangular window); interpolating them
+% moves the tone off its bin, and the leakage of the off-bin ideal tone
+% then widens sideBin 'auto' far beyond the main lobe. Interpolate only when
+% both neighbours lie within 40 dB of the peak, as compute_spectrum does.
+bin_r = bin;
+if min(sig_l, sig_r) >= sig_e - 4
+    bin_r = bin + (sig_r-sig_l)/(2*sig_e-sig_l-sig_r)/2;
+end
+if(isnan(bin_r) || isinf(bin_r))
     bin_r = bin;
 end
 
