@@ -144,6 +144,11 @@ scale. This is a mathematical gauge used to make the least-squares problem
 identifiable: the fitted fundamental sine magnitude is fixed to one. It is not
 automatically the ADC voltage or code full-scale.
 
+With multiple datasets, the first dataset's fundamental sets this unit. The
+shared weights keep every other dataset at its amplitude relative to the first,
+so `ideal[k]` has amplitude `A_k / A_0`, and each dataset has its own fitted DC
+term in the `offset` array.
+
 The result dictionary includes `scale_convention = "solver_unit_sine"`. Ratio
 metrics in the calibration result, such as `snr_db` and `enob`, are unchanged
 by a later linear rescale. Absolute full-scale-referenced spectrum metrics,

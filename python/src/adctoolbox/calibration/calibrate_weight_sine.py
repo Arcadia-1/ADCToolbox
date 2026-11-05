@@ -24,6 +24,7 @@ from adctoolbox.calibration._estimate_frequencies import _estimate_frequencies
 
 from adctoolbox.calibration._lstsq_solver import _solve_weights_with_known_freq
 from adctoolbox.calibration._lstsq_solver import _solve_weights_searching_freq
+from adctoolbox.calibration._lstsq_solver import _unpack_harmonic_coefficients
 
 from adctoolbox.calibration._post_process import _post_process
 
@@ -119,6 +120,14 @@ def calibrate_weight_sine(
         against a physical ADC full-scale, rescale the result with
         ``scale_calibration_output`` and pass an explicit full-scale range to
         the spectrum analyzer.
+
+        Multi-dataset input shares ``weight`` across all datasets, while each
+        dataset keeps its own fitted DC term, amplitude and phase. ``offset``
+        is then a 1-D array with one DC offset per dataset (a scalar for
+        single-dataset input), and ``error[k] = calibrated_signal[k] -
+        offset[k] - ideal[k]``. The unit-sine scale is set by the first
+        dataset's fundamental; every other dataset keeps its amplitude
+        relative to the first.
     """
 
     # 0. Frequency-unit guard: freq must be NORMALIZED Fin/Fs in [0, 0.5].
@@ -214,10 +223,15 @@ def calibrate_weight_sine(
             bits_segments_scaled, freq_array, harmonic_order, verbose=verbose
         )
 
+    # Solver-unit-sine gauge: the first dataset's fitted fundamental magnitude
+    # becomes one. The solver fixes one of its two quadrature coefficients to
+    # one; the other is a free coefficient.
     num_datasets = len(bits_segments)
-    num_harm_total = num_datasets * harmonic_order
-    idx_quadrature = bit_width_effective + num_harm_total
-    norm_factor = np.sqrt(1.0 + coeffs[idx_quadrature]**2)
+    cos_coeffs, sin_coeffs = _unpack_harmonic_coefficients(
+        coeffs, bit_width_effective, num_datasets, harmonic_order, basis_choice
+    )
+    first_quadrature = sin_coeffs[0, 0] if basis_choice == 0 else cos_coeffs[0, 0]
+    norm_factor = np.sqrt(1.0 + first_quadrature**2)
 
     w_phys_effective = _recover_columns_for_conditioning(
         coeffs=coeffs,
