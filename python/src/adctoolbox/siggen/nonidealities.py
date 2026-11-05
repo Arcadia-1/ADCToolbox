@@ -120,20 +120,66 @@ class ADC_Signal_Generator:
         return signal_distorted + self.DC
 
     def apply_static_nonlinearity_hd(self, input_signal=None, hd2_dB=None, hd3_dB=None, hd4_dB=None, hd5_dB=None):
-        """Converts specified Harmonic Distortion levels (dBc) to polynomial coefficients and applies the nonlinearity."""
-        def db_to_k(db_val, order):
-            if db_val is None: 
-                return 0.0
-                        
-            amp_ratio = 10 ** (db_val / 20.0) # k = (2^(n-1) * 10^(dB/20)) / A^(n-1)
-            return (2**(order-1) * amp_ratio) / (self.A**(order-1))
-        
-        _k2 = db_to_k(hd2_dB, 2)
-        _k3 = db_to_k(hd3_dB, 3)
-        _k4 = db_to_k(hd4_dB, 4)
-        _k5 = db_to_k(hd5_dB, 5)
-        
-        return self.apply_static_nonlinearity(input_signal, k2=_k2, k3=_k3, k4=_k4, k5=_k5)
+        """
+        Apply a static polynomial nonlinearity that produces the requested HD2-HD5 levels.
+
+        The polynomial is designed in the Chebyshev basis of ``u = (x - DC) / A``.
+        Because ``T_n(sin(wt)) = cos(n*wt - n*pi/2)`` is a single harmonic, each
+        requested order adds only its own harmonic. For the generator's clean
+        sine, the output fundamental keeps amplitude ``A`` and every requested
+        ``HDn`` is exact relative to that output fundamental, at any level and in
+        any combination. Harmonic phases match those of positive ``k2``-``k5``
+        coefficients in ``apply_static_nonlinearity``.
+
+        Parameters
+        ----------
+        input_signal : array_like, optional
+            Input signal. If omitted, the generator's clean sine wave is used.
+            A provided signal passes through the same static polynomial, so the
+            requested levels are exact only for a sine of amplitude ``A``
+            centered at ``DC``.
+        hd2_dB, hd3_dB, hd4_dB, hd5_dB : float, optional
+            Harmonic level in dBc relative to the output fundamental. ``None``
+            omits that harmonic.
+
+        Returns
+        -------
+        ndarray
+            Distorted signal. The transfer curve maps an input of ``DC`` to an
+            output of ``DC``, so even-order terms shift the output mean.
+
+        Raises
+        ------
+        ValueError
+            If a harmonic is requested while the generator amplitude ``A`` is zero.
+        """
+        cheb = np.zeros(6)
+        cheb[1] = 1.0
+        for order, level_db in ((2, hd2_dB), (3, hd3_dB), (4, hd4_dB), (5, hd5_dB)):
+            if level_db is not None:
+                cheb[order] = 10.0 ** (level_db / 20.0)
+
+        k = np.zeros(6)
+        k[1] = 1.0
+        if cheb[2:].any():
+            if self.A == 0:
+                raise ValueError("apply_static_nonlinearity_hd requires a nonzero amplitude A.")
+            # Power-series coefficients in u; drop the constant so that DC maps to DC.
+            coeffs_u = np.zeros(6)
+            converted = np.polynomial.chebyshev.cheb2poly(cheb)
+            coeffs_u[:len(converted)] = converted
+            coeffs_u[0] = 0.0
+            # y_ac = A * sum(c_n * u^n) = sum(c_n * A^(1-n) * x^n)
+            k = coeffs_u * float(self.A) ** (1 - np.arange(6))
+
+        signal = self._resolve_signal(input_signal)
+        signal_ac = signal - self.DC
+        signal_distorted = k[1] * signal_ac
+        for order in range(2, 6):
+            if k[order] != 0:
+                signal_distorted = signal_distorted + k[order] * signal_ac ** order
+
+        return signal_distorted + self.DC
     
     def apply_memory_effect(self, input_signal=None, memory_strength=0.009):
         """Apply memory effect (charge injection). The previous MSB decision leaks back to the input.
