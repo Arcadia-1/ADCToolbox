@@ -273,14 +273,14 @@ fprintf('Max INL: %.3f LSB\n', max(abs(rep.linearity.inl)));
 - Supports oversampling ratio (OSR) for noise-shaping ADCs
 - Multiple averaging modes: normal (power averaging) and coherent (phase-aligned)
 - Flexible windowing: built-in Hanning/rectangle or custom window functions
-- Noise floor estimation modes: auto (median of methods), median-based, trimmed mean, or exclude harmonics
+- Noise estimate for SNR: direct integration excluding the harmonics (default), or random-floor estimates for white noise (auto, median-based, trimmed mean)
 - Configurable signal bandwidth and flicker noise removal
 
 **Parameters:**
 - `'OSR'` - Oversampling ratio (default: 1)
 - `'window'` - Window function: 'hann', 'rect', or function handle (default: 'hann')
 - `'averageMode'` - 'normal' or 'coherent' averaging (default: 'normal')
-- `'NFMethod'` - Noise floor estimation: 'auto', 'median', 'mean', or 'exclude' (default: 'auto'); numeric: 0=auto, 1=median, 2=mean, 3=exclude
+- `'NFMethod'` - Noise estimate for SNR, noise floor and NSD: 'exclude' (direct integration, default), or 'auto', 'median', 'mean' (random-floor estimates that assume random, spectrally flat noise); numeric: 3=exclude, 0=auto, 1=median, 2=mean
 - `'sideBin'` - Extra bins on each side of signal peak (default: 'auto')
 - `'cutoff'` - High-pass cutoff frequency for flicker noise removal (default: 0)
 - `'label'` - Enable plot annotations (default: true)

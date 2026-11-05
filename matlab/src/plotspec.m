@@ -60,9 +60,14 @@ function [enob,sndr,sfdr,snr,thd,sigpwr,noi,nsd,h] = plotspec(sig,varargin)
 %       String: 'normal' (power averaging), 'coherent' (coherent averaging with phase alignment)
 %       Number: 0 (normal), 1 (coherent)
 %       Alias: 'coAvg' (deprecated, use 'averageMode')
-%     'NFMethod' - Noise floor estimation method. Default: 'auto'
-%       String: 'auto' (median of all methods), 'median' (median-based), 'mean' (trimmed mean), 'exclude' (exclude harmonics)
-%       Number: 0 (auto), 1 (median-based), 2 (trimmed mean), 3 (exclude harmonics)
+%     'NFMethod' - Noise estimate for SNR, noise floor and NSD. Default: 'exclude'
+%       String: 'exclude' (direct integration), 'auto' (median of all methods), 'median' (median-based), 'mean' (trimmed mean)
+%       Number: 3 (direct integration), 0 (auto), 1 (median-based), 2 (trimmed mean)
+%       'exclude' integrates all in-band power except DC, the signal and its harmonics: non-harmonic
+%       spurs count as noise, the noise under the harmonic lobes is filled at the mean level of the
+%       remaining bins, and SNR >= SNDR. 'auto', 'median' and 'mean' estimate the random floor between
+%       spectral lines; they assume random, spectrally flat noise and are not valid for noiseless
+%       simulations, deterministic line spectra or shaped or otherwise colored noise.
 %     'dispItem' - Display items selector. Default: 'sfedutrlyhop' (all items)
 %       String or char array where each character (case insensitive) enables a display item:
 %       's' - Signal power text and signal bin marker
@@ -164,7 +169,7 @@ addParameter(p, 'sideBin', 'auto', @(x) (isnumeric(x) && isscalar(x) && (x >= 0)
 addParameter(p, 'label', true, validLogical);
 addParameter(p, 'assumedSignal', NaN);
 addParameter(p, 'nTHD', 5, validScalarPosInt);
-addParameter(p, 'NFMethod', 'auto', validNFMethod);
+addParameter(p, 'NFMethod', 'exclude', validNFMethod);
 addParameter(p, 'dispItem', 'sfedutrlyhop', @(x) ischar(x) || isstring(x));
 parse(p, varargin{:});
 
@@ -585,15 +590,32 @@ noi_median = median(spec_inband)/Mn * inbandEnd;
 % Method 2: Trimmed mean (removes top/bottom 5%)
 spec_sort = sort(spec_inband);
 noi_mean = mean(spec_sort(max(1,floor(n_inband*0.05)):max(1,floor(n_inband*0.95)))) * inbandEnd;
-% Method 3: Exclude harmonics from noise calculation
-spec_noise = spec;
+% Method 3: Direct integration of all in-band power except DC, the signal
+% lobe and the harmonic lobes. The noise under the harmonic lobes is filled
+% at the mean power of the remaining bins, which assumes nothing about the
+% noise distribution. The result never exceeds the noise-plus-distortion
+% total noi, so SNR >= SNDR, and it is noi when the harmonic lobes leave no
+% other bin.
+spec_band = spec(1:inbandEnd);
+masked = false(1, inbandEnd);
+masked(1:min(sideBin, inbandEnd)) = true;
+masked(max(bin-sideBin,1):min(bin+sideBin,inbandEnd)) = true;
+harm_lobes = false(1, inbandEnd);
 for i = 2:nTHD
     b = alias(round((bin_r-1)*i),N_fft) +1;
     h_start = max(b-sideBin,1);
     h_end = min(b+sideBin,inbandEnd);
-    spec_noise(h_start:h_end) = 0;
+    if h_start <= h_end
+        harm_lobes(h_start:h_end) = true;
+    end
 end
-noi_exclude = sum(spec_noise(1:inbandEnd));
+harm_lobes = harm_lobes & ~masked;
+rest = ~(masked | harm_lobes);
+if any(rest)
+    noi_exclude = min(sum(spec_band(rest)) * (nnz(rest) + nnz(harm_lobes)) / nnz(rest), noi);
+else
+    noi_exclude = noi;
+end
 
 if(nfmethod == 0)
     % Auto: median of all methods

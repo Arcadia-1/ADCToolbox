@@ -95,16 +95,32 @@ def _estimate_noise_power(
         return float(np.mean(spec_sorted[start:end]) * n_inband)
 
     def _exclude_noise() -> float:
-        spec_noise = spec.copy()
+        # Direct integration of all in-band power except DC, the fundamental
+        # lobe and the harmonic lobes. The noise under the harmonic lobes is
+        # not dropped: those bins get the mean power of the remaining bins,
+        # which assumes nothing about the noise distribution. The result never
+        # exceeds the total non-signal power used for SNDR, so SNR >= SNDR,
+        # and it is that total when the harmonic lobes leave no other bin.
+        masked = np.zeros(spec.size, dtype=bool)
+        masked[: min(side_bin, spec.size)] = True
+        masked[max(bin_idx - side_bin, 0) : min(bin_idx + side_bin + 1, spec.size)] = True
+        harmonic_lobes = np.zeros(spec.size, dtype=bool)
         for h_bin in harmonic_bins:
             h_bin = int(h_bin)
             if h_bin <= side_bin:
                 continue
             lo = max(h_bin - side_bin, 0)
-            hi = min(h_bin + side_bin + 1, n_inband)
+            hi = min(h_bin + side_bin + 1, spec.size)
             if lo < hi:
-                spec_noise[lo:hi] = 0.0
-        return float(np.sum(spec_noise))
+                harmonic_lobes[lo:hi] = True
+        harmonic_lobes &= ~masked
+        rest = ~(masked | harmonic_lobes)
+        total = float(np.sum(spec))
+        n_rest = int(np.count_nonzero(rest))
+        if n_rest == 0:
+            return total
+        n_filled = n_rest + int(np.count_nonzero(harmonic_lobes))
+        return min(float(np.sum(spec[rest])) * n_filled / n_rest, total)
 
     parts = {
         "median": _median_noise(),

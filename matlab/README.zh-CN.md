@@ -257,14 +257,14 @@ fprintf('Max INL: %.3f LSB\n', max(abs(rep.linearity.inl)));
 - 支持噪声整形 ADC 的过采样比（OSR）
 - 多种平均模式：普通（功率平均）和相干（相位对齐）
 - 灵活的窗函数：内置 Hanning/矩形窗或自定义窗函数
-- 噪底估计模式：auto（多种方法的中值）、median、trimmed mean 或 exclude harmonics
+- SNR 的噪声估计：默认对去掉谐波后的带内功率直接积分；auto、median、trimmed mean 是适用于白噪声的随机噪底估计
 - 可配置信号带宽和闪烁噪声消除
 
 **参数：**
 - `'OSR'` - 过采样比（默认：1）
 - `'window'` - 窗函数：'hann'、'rect' 或函数句柄（默认：'hann'）
 - `'averageMode'` - 'normal' 或 'coherent' 平均（默认：'normal'）
-- `'NFMethod'` - 噪底估计：'auto'、'median'、'mean' 或 'exclude'（默认：'auto'）；数值：0=auto，1=median，2=mean，3=exclude
+- `'NFMethod'` - SNR、噪底和 NSD 的噪声估计：'exclude'（直接积分，默认），或 'auto'、'median'、'mean'（随机噪底估计，假设噪声随机且频谱平坦）；数值：3=exclude，0=auto，1=median，2=mean
 - `'sideBin'` - 信号峰值两侧的额外 bin 数（默认：'auto'）
 - `'cutoff'` - 闪烁噪声消除的高通截止频率（默认：0）
 - `'label'` - 启用图形标注（默认：true）

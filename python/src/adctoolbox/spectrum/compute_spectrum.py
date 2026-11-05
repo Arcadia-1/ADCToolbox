@@ -31,7 +31,7 @@ def compute_spectrum(
     side_bin: int | None = None,
     osr: int = 1,
     max_harmonic: int = 5,
-    nf_method: int = 0,
+    nf_method: int = 3,
     assumed_sig_pwr_dbfs: float | None = None,
     coherent_averaging: bool = False,
     cutoff_freq: float = 0,
@@ -61,8 +61,20 @@ def compute_spectrum(
     max_harmonic
         Maximum harmonic order for THD (5 => H2..H5)
     nf_method
-        0=auto (default), 1=median, 2=trimmed mean, 3=exclude harmonics,
-        4=legacy wide harmonic exclusion
+        Noise estimate behind ``snr_dbc``, ``noise_floor_dbfs`` and
+        ``nsd_dbfs_hz``.
+
+        - 3 (default): direct integration of all in-band power except DC,
+          the fundamental and harmonics 2..``max_harmonic``. Non-harmonic
+          spurs count as noise. The noise under the harmonic lobes is filled
+          at the mean level of the remaining bins, and the estimate never
+          exceeds the SNDR noise plus distortion, so SNR >= SNDR.
+        - 0 (auto: median of methods 1-3), 1 (median), 2 (trimmed mean):
+          estimates of the random floor between spectral lines, which ignore
+          spurs. They assume random, spectrally flat noise and are not valid
+          for noiseless simulations, deterministic line spectra or shaped or
+          otherwise colored noise.
+        - 4: legacy wide harmonic exclusion.
     assumed_sig_pwr_dbfs
         Override signal power in dBFS
     coherent_averaging

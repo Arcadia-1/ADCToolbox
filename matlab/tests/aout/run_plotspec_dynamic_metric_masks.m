@@ -25,7 +25,11 @@ sig = sin(2*pi*fundBin*n/N) ...
 
 expected_sndr = 10*log10(1 / (10^(hd2_dbc/10) + 10^(noise_dbc/10)));
 
-assert(abs(snr - 80) < 1e-9, 'NFMethod=exclude should remove HD2 lobe from SNR noise.');
+% Bins 1..4097 are in band. DC (1 bin) and the signal lobe (3 bins) are
+% masked; the H2..H5 lobes (12 bins) are filled at the mean level of the
+% 4081 remaining bins, so the -80 dBc noise tone is scaled by 4093/4081.
+expected_snr = 80 - 10*log10(4093/4081);
+assert(abs(snr - expected_snr) < 1e-9, 'NFMethod=exclude should remove HD2 lobe from SNR noise.');
 assert(abs(thd - hd2_dbc) < 1e-9, 'THD should integrate the HD2 lobe.');
 assert(abs(sndr - expected_sndr) < 1e-9, 'SNDR should still include both HD2 and noise.');
 
@@ -82,6 +86,11 @@ sig = sin(2*pi*fundBin*n/N) ...
 
 expected_sndr_near = 10*log10(1 / (10^(hd2_dbc/10) + 10^(noise_dbc/10)));
 
-assert(abs(snr_near - 80) < 1e-9, 'Near-fundamental HD2 annulus should be excluded from SNR noise.');
+% Of the 513 in-band bins, DC (2) and the signal lobe (5) are masked. The
+% nTHD=5 harmonic lobes outside them (H2 at 344, H3 at 4, H4 at 336, H5 at
+% 348; 17 bins) are filled at the mean level of the 489 remaining bins, so
+% the -80 dBc noise tone is scaled by 506/489.
+expected_snr_near = 80 - 10*log10(506/489);
+assert(abs(snr_near - expected_snr_near) < 1e-9, 'Near-fundamental HD2 annulus should be excluded from SNR noise.');
 assert(abs(thd_near - hd2_dbc) < 1e-9, 'Near-fundamental HD2 annulus should remain in THD.');
 assert(abs(sndr_near - expected_sndr_near) < 1e-9, 'SNDR should include near-fundamental HD2 and noise.');
