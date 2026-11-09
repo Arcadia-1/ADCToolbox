@@ -27,8 +27,10 @@ from adctoolbox import (analyze_spectrum, apply_calibration, build_calibration_f
 from adctoolbox.models import sar_convert, sar_ideal_weights, sar_reconstruct
 try:
     from . import exp_cal03_foreground_nonlinear as ex
+    from ._source_snapshot import snapshot_sources
 except ImportError:
     import exp_cal03_foreground_nonlinear as ex
+    from _source_snapshot import snapshot_sources
 
 
 def read_json(path):
@@ -229,13 +231,8 @@ def main(argv=None):
     package = Path(inspect.getfile(fit_calibration_mlp)).parent.parent
     sources = [Path(__file__), Path(ex.__file__), Path(ex.fb.__file__), Path(inspect.getfile(ex.metrics))]
     sources += list((package/'calibration').glob('*.py'))+list((package/'spectrum').glob('*.py'))+[Path(inspect.getfile(sar_convert)), Path(inspect.getfile(ex.fb.ADC_Signal_Generator))]
-    hashes = {}
-    for source in sources:
-        relative = source.relative_to(package)
-        target = args.output/'source_snapshot'/relative
-        target.parent.mkdir(parents=True, exist_ok=True)
-        target.write_bytes(source.read_bytes())
-        hashes[relative.as_posix()] = hashlib.sha256(source.read_bytes()).hexdigest()
+    hashes = snapshot_sources(sources, package=package, example_dir=Path(__file__).parent,
+                              output=args.output)
     config = {k: str(v.resolve()) if isinstance(v, Path) else v for k, v in vars(args).items()}
     config.update(source_sha256=hashes, input_sha256={}, history=3, hidden_units=16,
                   sar_msb_relative_error=.01, sar_bits=14,

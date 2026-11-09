@@ -24,6 +24,7 @@ import matplotlib.pyplot as plt
 from adctoolbox.spectrum._bin_ranges import rfft_inband_bin_count
 from adctoolbox.spectrum.plot_spectrum import (
     _attach_max_spur_annotation,
+    _format_frequency,
     _lobe_bounds,
     _noise_floor_axis_min,
     _should_label_harmonic,
@@ -166,12 +167,6 @@ def plot_spectrum_virtuoso(compute_results, show_title=True, show_label=True,
     metric_y_start = 0.94
     metric_y_step = 0.06
 
-    def _fmt_freq(f):
-        if f >= 1e9: return f'{f/1e9:.1f}G'
-        if f >= 1e6: return f'{f/1e6:.1f}M'
-        if f >= 1e3: return f'{f/1e3:.1f}K'
-        return f'{f:.1f}'
-
     Fin = fundamental_bin / N * fs
 
     ax.text(freq[fundamental_bin], 0.98,
@@ -192,7 +187,7 @@ def plot_spectrum_virtuoso(compute_results, show_title=True, show_label=True,
     )
 
     metric_lines = [
-        f'Fin/fs = {_fmt_freq(Fin)} / {_fmt_freq(fs)} Hz',
+        f'Fin/fs = {_format_frequency(Fin)} / {_format_frequency(fs)} Hz',
         f'ENoB = {metrics["enob"]:.2f}',
         f'SNDR = {metrics["sndr_dbc"]:.2f} dB',
         f'SFDR = {metrics["sfdr_dbc"]:.2f} dB',

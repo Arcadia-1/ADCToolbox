@@ -46,7 +46,9 @@ def _locate_harmonic_bins(
         # Apply aliasing using fold_bin_to_nyquist
         aliased_bin = fold_bin_to_nyquist(harmonic_bin, n_fft)
 
-        harmonic_bins[h - 2] = round(aliased_bin)
+        # Odd N has no bin at the true Nyquist boundary N/2. Quantize to
+        # the nearest available rFFT bin, including at a half-bin tie.
+        harmonic_bins[h - 2] = min(round(aliased_bin), n_fft // 2)
 
     return harmonic_bins
 
