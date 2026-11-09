@@ -93,7 +93,10 @@ def test_calibration_multi_datasets():
         print(f"[Unit Test] Set weights: {normalized_set_weights.tolist()}") 
         print(f"[Unit Test] Calibrated weights: {recovered_weights.tolist()}")  
         print(f"[Unit Test] Max weight error: [{max_weight_error:.2e}] <-- Should be smaller than LSB=[{1/(2**bit_width):.2e}]")
-        print(f"[Unit Test] Offset: {offset:.6f}")
+        assert len(offset) == len(bits_mangled_list)
+        assert np.all(np.isfinite(offset))
+        assert min(snr_db) > 55
+        print(f"[Unit Test] Offsets: {[f'{value:.6f}' for value in offset]}")
 
         results = analyze_spectrum(quantized_signal)
         sndr_db_before = results['sndr_db']
@@ -196,7 +199,10 @@ def test_calibration_multi_datasets_search_freq():
         print(f"[Unit Test] Set weights: {normalized_set_weights.tolist()}") 
         print(f"[Unit Test] Calibrated weights: {recovered_weights.tolist()}")  
         print(f"[Unit Test] Max weight error: [{max_weight_error:.2e}] <-- Should be smaller than LSB=[{1/(2**bit_width):.2e}]")
-        print(f"[Unit Test] Offset: {offset:.6f}")
+        assert len(offset) == len(bits_mangled_list)
+        assert np.all(np.isfinite(offset))
+        assert min(snr_db) > 55
+        print(f"[Unit Test] Offsets: {[f'{value:.6f}' for value in offset]}")
 
         results = analyze_spectrum(quantized_signal)
         sndr_db_before = results['sndr_db']
