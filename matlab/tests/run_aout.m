@@ -16,3 +16,4 @@ run_errspec
 run_errevspec
 
 run_inlsine
+run_inlsine_code_widths

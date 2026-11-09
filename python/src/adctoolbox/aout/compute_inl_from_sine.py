@@ -34,6 +34,20 @@ def compute_inl_from_sine(
         If None, assumes normalized input (0-1 or -1 to 1).
     clip_percent : float, default=0.01
         Percentage of codes to clip from edges.
+
+    Returns
+    -------
+    inl : ndarray
+        INL in LSB at the upper transition of each code in ``code``,
+        relative to the line through the outer transitions of the reported
+        codes. It ends at zero.
+    dnl : ndarray
+        Width error of each code in ``code``, in LSB. One LSB is the mean
+        width of the reported codes, so missing codes are exactly -1 and the
+        DNL has zero mean.
+    code : ndarray
+        Reported codes. The lowest and highest codes after clipping absorb
+        the clipped samples and are not reported.
     """
     data = np.asarray(data).flatten()
 
@@ -111,27 +125,19 @@ def compute_inl_from_sine(
     # MATLAB: cumulative_distribution = -cos(pi * cumsum(histogram_counts) / sum(histogram_counts))
     cumulative_distribution = -np.cos(np.pi * np.cumsum(counts) / np.sum(counts))
 
-    # DNL Calculation (MATLAB inlsin.m line 110)
-    # MATLAB: dnl = cumulative_distribution(2:end-1) - cumulative_distribution(1:end-2)
-    # This takes differences: [2]-[1], [3]-[2], ..., [end-1]-[end-2]
-    # In Python indexing: [1]-[0], [2]-[1], ..., [-2]-[-3]
-    # Which is simply np.diff(cumulative_distribution[0:-1])
+    # Code widths (MATLAB inlsin.m lines 109-114)
+    # cumulative_distribution[k] is the upper transition of code_axis[k]. The
+    # first and last codes absorb clipped samples, so only the internal codes
+    # code_axis[1:-1] have two measured transitions.
     dnl = np.diff(cumulative_distribution[0:-1])
+    valid_codes = code_axis[1:-1]
 
-    # Align code axis (MATLAB line 111: code = code(1:end-2))
-    # Drop last 2 codes
-    valid_codes = code_axis[0:-2]
+    # Normalize DNL to LSB units (MATLAB lines 121-123)
+    # One LSB is the mean width of the reported codes, so missing codes are
+    # exactly -1 and the DNL has zero mean.
+    dnl = dnl / np.mean(dnl) - 1
 
-    # Normalize DNL to LSB units (MATLAB lines 119-122)
-    # MATLAB: dnl = dnl ./ sum(dnl)
-    # MATLAB: dnl = dnl * (max_data - min_data + 1) - 1
-    code_range = len(code_axis)  # This is max_data - min_data + 1
-    dnl = dnl / np.sum(dnl)  # Normalize to sum to 1
-    dnl = dnl * code_range - 1  # Scale to code range
-    dnl = dnl - np.mean(dnl)  # Remove DC offset (gain error)
-    dnl = np.maximum(dnl, -1)  # Clip missing codes to -1 LSB
-
-    # INL Calculation (MATLAB line 125)
+    # INL Calculation (MATLAB line 126)
     inl = np.cumsum(dnl)
     
     return inl, dnl, valid_codes
