@@ -228,7 +228,7 @@ def compute_spectrum(
 
     return {
         "N": N,
-        "M": M,
+        "M": n_averaged,
         "fs": fs,
         "osr": osr,
         "metrics": {

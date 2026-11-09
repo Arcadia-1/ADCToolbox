@@ -739,11 +739,11 @@ if(dispPlot)
     % Set axis labels and title
     xlabel('Freq (Hz)');
     ylabel('dBFS');
-    if(N_run > 1)
+    if(ME > 1)
         if(coAvg)
-            title(sprintf('Power Spectrum (%dx Coherently Averaged)',N_run));
+            title(sprintf('Power Spectrum (%dx Coherently Averaged)',ME));
         else
-            title(sprintf('Power Spectrum (%dx Averaged)',N_run));
+            title(sprintf('Power Spectrum (%dx Averaged)',ME));
         end
     else
         title('Power Spectrum');

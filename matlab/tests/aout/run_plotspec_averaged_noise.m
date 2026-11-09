@@ -83,4 +83,25 @@ for ii = 1:numel(nfMethods)
         nfMethods{ii});
 end
 
+%% Plot titles must use the records that actually entered the average.
+fig = figure('Visible', 'off');
+cleanupFigure = onCleanup(@() close(fig));
+for averageMode = {'normal', 'coherent'}
+    for nValid = [1, 3]
+        clf(fig);
+        plotspec([repmat(capture, nValid, 1); zeros(7, N)], 1, 2, 5, ...
+            'window', 'rect', 'sideBin', 0, ...
+            'averageMode', averageMode{1}, 'disp', true, 'label', false);
+        titleText = get(get(gca, 'Title'), 'String');
+        if nValid == 1
+            assert(strcmp(titleText, 'Power Spectrum'));
+        elseif strcmp(averageMode{1}, 'coherent')
+            assert(strcmp(titleText, 'Power Spectrum (3x Coherently Averaged)'));
+        else
+            assert(strcmp(titleText, 'Power Spectrum (3x Averaged)'));
+        end
+    end
+end
+clear cleanupFigure;
+
 rng(rngState);

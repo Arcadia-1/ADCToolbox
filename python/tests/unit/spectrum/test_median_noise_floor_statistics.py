@@ -90,6 +90,7 @@ def test_coherent_average_ignores_skipped_empty_records(layout, nf_method):
     reference = _spectrum(captures, coherent_averaging=True, nf_method=nf_method)
     result = _spectrum(padded, coherent_averaging=True, nf_method=nf_method)
 
+    assert result["M"] == reference["M"] == layout.count("D")
     for key in SCALAR_METRICS:
         assert result["metrics"][key] == pytest.approx(
             reference["metrics"][key], rel=1e-12, abs=1e-12
@@ -111,3 +112,30 @@ def test_coherent_average_reports_records_used():
     _, _, n_averaged = _coherent_average(data, osr=1)
 
     assert n_averaged == 3
+
+
+@pytest.mark.parametrize("style", ["standard", "virtuoso"])
+@pytest.mark.parametrize("n_records", [1, 3])
+def test_coherent_plot_labels_count_only_accepted_records(style, n_records):
+    import matplotlib.pyplot as plt
+    from adctoolbox.spectrum.plot_spectrum import plot_spectrum
+    from adctoolbox.spectrum.plot_spectrum_virtuoso import plot_spectrum_virtuoso
+
+    captures = _noisy_tones(1024, n_records, seed=20261109)
+    padded = np.vstack([captures, np.zeros((7, 1024))])
+    result = _spectrum(padded, coherent_averaging=True)
+    plotter = plot_spectrum if style == "standard" else plot_spectrum_virtuoso
+    fig, ax = plt.subplots()
+    try:
+        plotter(result, ax=ax)
+        labels = "\n".join(text.get_text() for text in ax.texts)
+        if n_records == 1:
+            if style == "standard":
+                assert ax.get_title() == "Coherent Spectrum"
+            assert "Coherent Gain" not in labels
+        else:
+            if style == "standard":
+                assert ax.get_title() == f"Coherent averaging (N_run = {n_records})"
+            assert f"Coherent Gain = {10 * np.log10(n_records):.2f} dB" in labels
+    finally:
+        plt.close(fig)
