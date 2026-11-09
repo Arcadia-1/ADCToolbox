@@ -46,7 +46,7 @@ def _locate_harmonic_bins(
         # Apply aliasing using fold_bin_to_nyquist
         aliased_bin = fold_bin_to_nyquist(harmonic_bin, n_fft)
 
-        harmonic_bins[h - 2] = round(aliased_bin)
+        harmonic_bins[h - 2] = min(round(aliased_bin), n_fft // 2)
 
     return harmonic_bins
 
@@ -233,28 +233,35 @@ def _extract_highest_spur(
     if sig_bin_start < sig_bin_end:
         spectrum_copy[sig_bin_start:sig_bin_end] = 0
 
-    spur_bin_idx = int(np.argmax(spectrum_copy))
-    spur_start = max(spur_bin_idx - side_bin, 0)
-    spur_end = min(spur_bin_idx + side_bin + 1, n_search_inband)
-    spur_power = float(np.sum(spectrum_copy[spur_start:spur_end]))
-
-    # A spur lobe can touch the fundamental/DC masks or a one-sided analysis
-    # boundary. Summing the masked spectrum then drops part of the lobe and
-    # makes SFDR optimistic. Estimate the complete lobe from its center bin
-    # using the measured fundamental lobe-to-peak ratio. Leave fully visible
-    # lobes on the direct integrated-power path.
-    touches_boundary = spur_start == 0 or spur_end == n_search_inband
-    touches_dc_mask = spur_start < min(side_bin, n_search_inband)
-    touches_signal_mask = (
-        max(spur_start, sig_bin_start) < min(spur_end, sig_bin_end)
+    # Compare integrated lobes at local peaks. Window scalloping can make
+    # the largest individual bin belong to a weaker spur.
+    padded = np.pad(spectrum_copy, 1, constant_values=-np.inf)
+    peaks = np.flatnonzero(
+        (spectrum_copy > 0)
+        & (spectrum_copy >= padded[:-2])
+        & (spectrum_copy >= padded[2:])
     )
-    if touches_boundary or touches_dc_mask or touches_signal_mask:
-        signal_peak_power = float(spectrum_power[fundamental_bin])
-        spur_peak_power = float(spectrum_copy[spur_bin_idx])
-        if signal_peak_power > 0 and spur_peak_power > 0:
-            lobe_to_peak_ratio = measured_signal_power / signal_peak_power
-            compensated_spur_power = spur_peak_power * lobe_to_peak_ratio
-            spur_power = max(spur_power, compensated_spur_power)
+    if peaks.size == 0:
+        return 0, 0.0
+    starts = np.maximum(peaks - side_bin, 0)
+    ends = np.minimum(peaks + side_bin + 1, n_search_inband)
+    cumulative = np.concatenate(([0.0], np.cumsum(spectrum_copy)))
+    powers = cumulative[ends] - cumulative[starts]
+
+    # Apply existing masked-lobe compensation to every candidate before
+    # selecting the strongest, using the measured fundamental's lobe ratio.
+    clipped = (
+        (starts == 0) | (ends == n_search_inband)
+        | (starts < min(side_bin, n_search_inband))
+        | (np.maximum(starts, sig_bin_start) < np.minimum(ends, sig_bin_end))
+    )
+    signal_peak_power = float(spectrum_power[fundamental_bin])
+    if signal_peak_power > 0:
+        corrected = spectrum_copy[peaks] * measured_signal_power / signal_peak_power
+        powers = np.where(clipped, np.maximum(powers, corrected), powers)
+    strongest = int(np.argmax(powers))
+    spur_bin_idx = int(peaks[strongest])
+    spur_power = float(powers[strongest])
 
     return spur_bin_idx, spur_power
 

@@ -108,7 +108,9 @@ def fractional_delay_farrow(
         for j in range(n_taps):
             if j != i:
                 h[i] *= (p_eval - j) / (i - j)
-    return np.convolve(y, h, mode="same")
+    # NumPy's "same" returns max(len(y), len(h)), so explicitly retain the
+    # signal interval even when the record is shorter than the filter.
+    return np.convolve(y, h, mode="full")[P:P + len(y)]
 
 
 def _integer_shift_zero_pad(x: np.ndarray, D: int) -> np.ndarray:

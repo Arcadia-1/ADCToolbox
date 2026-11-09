@@ -108,7 +108,7 @@ function [inl, dnl, code] = inlsin(data, varargin)
 
     % Calculate DNL from differences in linearized distribution
     dnl = cumulative_distribution(2:end-1) - cumulative_distribution(1:end-2);
-    code = code(1:end-2);
+    code = code(2:end-1);
 
 %    % Apply secondary exclusion to remove edge effects
 %    excl_codes = floor(excl * (max_data - min_data + 1) / 2);
@@ -116,10 +116,7 @@ function [inl, dnl, code] = inlsin(data, varargin)
 %    dnl = dnl(excl_codes+1 : end-excl_codes);
 
     % Normalize DNL to LSB units
-    dnl = dnl ./ sum(dnl);
-    dnl = dnl * (max_data - min_data + 1) - 1;
-    dnl = dnl - mean(dnl);  % Remove DC offset
-    dnl = max(dnl, -1);
+    dnl = dnl ./ mean(dnl) - 1;
 
     % Calculate INL as cumulative sum of DNL
     inl = cumsum(dnl);

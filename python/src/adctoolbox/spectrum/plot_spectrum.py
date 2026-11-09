@@ -262,11 +262,7 @@ def plot_spectrum(compute_results, show_title=True, show_label=True, plot_harmon
         txt_fs = format_freq(fs)
         Fin = fundamental_bin/N * fs
 
-        if Fin >= 1e9: txt_fin = f'{Fin/1e9:.1f}G'
-        elif Fin >= 1e6: txt_fin = f'{Fin/1e6:.1f}M'
-        elif Fin >= 1e3: txt_fin = f'{Fin/1e3:.1f}K'
-        elif Fin >= 1: txt_fin = f'{Fin/1e3:.1f}'  # Matches original logic
-        else: txt_fin = f'{Fin:.3f}'
+        txt_fin = format_freq(Fin) if Fin >= 1 else f'{Fin:.3f}'
 
         snr_text = f'{snr_dbc:.2f} dB' if np.isfinite(snr_dbc) else 'N/A'
         noise_floor_text = f'{noise_floor_dbfs:.2f} dB' if np.isfinite(noise_floor_dbfs) else 'N/A'

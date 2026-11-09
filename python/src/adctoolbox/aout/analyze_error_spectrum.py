@@ -112,20 +112,14 @@ def analyze_error_spectrum(signal, fs=1, frequency=None, create_plot: bool = Tru
             plt.gca().set_title(title, fontsize=10, fontweight='bold')
     else:
         # Analyze without plotting
-        import matplotlib
-        backend_orig = matplotlib.get_backend()
-        matplotlib.use('Agg')  # Non-interactive backend
-
         result = analyze_spectrum(
             error_signal,
             fs=fs,
             max_scale_range=max_scale_range,
             show_label=False,
             max_harmonic=5,
+            create_plot=False,
         )
-        plt.close()
-
-        matplotlib.use(backend_orig)  # Restore original backend
 
     # Add error signal to results
     result['error_signal'] = error_signal

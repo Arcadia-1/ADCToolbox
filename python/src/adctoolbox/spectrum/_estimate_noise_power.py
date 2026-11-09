@@ -3,6 +3,7 @@
 import warnings
 
 import numpy as np
+from scipy.special import gammaincinv
 
 from adctoolbox.spectrum._exclude_bins import _exclude_bins_from_spectrum
 
@@ -42,6 +43,7 @@ def _estimate_noise_power(
     side_bin: int,
     *,
     return_parts: bool = False,
+    coherent_averaging: bool = False,
 ) -> float | tuple[float, dict[str, float]]:
     """Estimate noise power (linear). Methods 0-3 match MATLAB plotspec NFMethod.
 
@@ -86,7 +88,10 @@ def _estimate_noise_power(
         spec_for_floor = spec
 
     def _median_noise() -> float:
-        mn = 0.72 if M == 1 else (1 - 2 / (9 * M)) ** 3
+        # Complex averaging leaves exponential bin power; power averaging
+        # produces Gamma(M, scale=mean/M). Use its exact median/mean ratio.
+        shape = 1 if coherent_averaging else M
+        mn = float(gammaincinv(shape, 0.5) / shape)
         return float(np.median(spec_for_floor) / mn * n_inband)
 
     def _trimmed_noise() -> float:

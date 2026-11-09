@@ -120,21 +120,26 @@ class ADC_Signal_Generator:
         return signal_distorted + self.DC
 
     def apply_static_nonlinearity_hd(self, input_signal=None, hd2_dB=None, hd3_dB=None, hd4_dB=None, hd5_dB=None):
-        """Converts specified Harmonic Distortion levels (dBc) to polynomial coefficients and applies the nonlinearity."""
-        def db_to_k(db_val, order):
-            if db_val is None: 
-                return 0.0
-                        
-            amp_ratio = 10 ** (db_val / 20.0) # k = (2^(n-1) * 10^(dB/20)) / A^(n-1)
-            return (2**(order-1) * amp_ratio) / (self.A**(order-1))
-        
-        _k2 = db_to_k(hd2_dB, 2)
-        _k3 = db_to_k(hd3_dB, 3)
-        _k4 = db_to_k(hd4_dB, 4)
-        _k5 = db_to_k(hd5_dB, 5)
-        
-        return self.apply_static_nonlinearity(input_signal, k2=_k2, k3=_k3, k4=_k4, k5=_k5)
-    
+        """Apply independently specified HD2–HD5 levels relative to the output fundamental.
+
+        Chebyshev polynomials generate one harmonic each for a pure sine of
+        peak amplitude ``self.A`` centered on ``self.DC``. The fundamental
+        retains that amplitude; omitted harmonic orders are zero. For other
+        input amplitudes or waveforms the same static polynomial is applied,
+        but the requested dBc levels no longer describe its output spectrum.
+        Use ``apply_static_nonlinearity`` for fixed monomial coefficients.
+        """
+        signal = self._resolve_signal(input_signal)
+        levels = (hd2_dB, hd3_dB, hd4_dB, hd5_dB)
+        if all(level is None for level in levels):
+            return signal.copy()
+        if self.A == 0:
+            raise ValueError("a nonzero reference sine amplitude is required")
+        coefficients = [0.0, 1.0]
+        coefficients.extend(0.0 if level is None else 10**(level / 20.0) for level in levels)
+        normalized = (signal - self.DC) / self.A
+        return self.DC + self.A * np.polynomial.chebyshev.chebval(normalized, coefficients)
+
     def apply_memory_effect(self, input_signal=None, memory_strength=0.009):
         """Apply memory effect (charge injection). The previous MSB decision leaks back to the input.
         Params: input_signal, memory_strength (default 0.009)."""

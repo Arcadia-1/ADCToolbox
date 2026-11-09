@@ -193,6 +193,10 @@ adctoolbox-install-skill --dev --editable --force --dest ~/.codex/skills
 - `calibrate_weight_sine(...)` returns a dict: `weight`, `offset`,
   `calibrated_signal`, `ideal`, `error`, `refined_frequency`,
   `initial_frequency`, `frequency_policy`, `scale_convention`.
+  Waveform fields are lists with one array per dataset. `offset` is a scalar
+  for a single dataset and a list of DC offsets for multiple datasets.
+  Joint calibration shares `weight` and sets the first fitted fundamental's
+  magnitude to one; other datasets retain their relative amplitudes.
   `calibrate_weight_sine_lite(...)` returns just the weights ndarray.
   Calibration waveform fields are solver-unit-sine scaled by default; use
   `scale_calibration_output(...)` before comparing calibrated dBFS, noise

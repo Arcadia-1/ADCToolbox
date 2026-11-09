@@ -15,6 +15,27 @@ import pytest
 from adctoolbox import fractional_delay_farrow, fractional_delay_fft
 
 
+@pytest.mark.parametrize('length', [1, 3, 7, 9])
+@pytest.mark.parametrize('delay', [-1, 0, 1])
+def test_farrow_short_integer_delays_preserve_record(length, delay):
+    x = np.arange(1., length+1)
+    expected = np.zeros_like(x)
+    for k in range(length):
+        source = k-delay
+        if 0 <= source < length:
+            expected[k] = x[source]
+    np.testing.assert_array_equal(fractional_delay_farrow(x, delay, 1), expected)
+
+
+def test_short_timeinterleaved_farrow_calibration():
+    from adctoolbox.timeinterleave import calibrate_foreground
+    result = calibrate_foreground(np.arange(8.), 2,
+        dict(offset=[0, 0], gain=[1, 1], skew=[.1, -.1]),
+        fs=1, skew_method='farrow')
+    assert result.shape == (8,)
+    assert np.all(np.isfinite(result))
+
+
 # -------------------- fractional_delay_fft --------------------
 
 

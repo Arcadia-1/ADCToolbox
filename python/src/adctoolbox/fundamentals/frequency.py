@@ -202,7 +202,7 @@ def fold_bin_to_nyquist(bin_idx: float, n_fft: int) -> float:
     bin_idx = bin_idx % n_fft
 
     # For real signals, bins > n_fft/2 are mirrored
-    if bin_idx > n_fft // 2:
+    if bin_idx > n_fft / 2:
         bin_idx = n_fft - bin_idx
 
     return bin_idx

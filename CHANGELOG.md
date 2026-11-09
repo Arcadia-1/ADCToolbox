@@ -7,6 +7,30 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Fixed
+- Sine INL/DNL now labels the interior code widths correctly and normalizes
+  by their mean without clipping-induced INL drift (#106). The corresponding
+  MATLAB formula is updated; old reference results need regeneration.
+- Explicit floating-point voltage `full_scale` takes precedence over input
+  auto-detection in sine INL/DNL (#108).
+- Joint sine calibration reconstructs each dataset's harmonic coefficients
+  and DC offset correctly, including frequency refinement. Multi-record
+  `offset` is now a list; single-record `offset` remains a scalar (#107).
+- Odd-length FFT folding, harmonic-bin rounding and frequency extraction
+  preserve valid bins and conjugate symmetry (#109).
+- SFDR compares integrated candidate spur lobes instead of selecting the
+  tallest single FFT bin (#110).
+- Median noise estimation uses the appropriate exponential distribution for
+  coherent averaging and the Gamma median for power averaging (#111).
+- `apply_static_nonlinearity_hd` uses independent Chebyshev harmonic terms
+  referenced to the final fundamental, preserving its amplitude for a sine
+  with the generator's configured amplitude and DC (#112).
+- Copied foreground examples can snapshot sources outside the installed
+  package (#113); short Farrow records retain their input length (#114).
+- Error-spectrum computations with `create_plot=False` preserve existing
+  figures (#115), and sub-kHz spectrum annotations retain the correct units
+  (#116).
+
 ## [0.9.2] - 2026-11-03
 
 **Calibration and SFDR Release** - adds Dither and supervised foreground

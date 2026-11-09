@@ -240,13 +240,7 @@ def main(argv=None):
     sources += [Path(__file__), Path(prior.__file__), Path(prior.ex.__file__), Path(prior.ex.fb.__file__),
                 Path(inspect.getfile(prior.ex.metrics)), Path(inspect.getfile(sar_convert)),
                 Path(inspect.getfile(ADC_Signal_Generator))]
-    hashes = {}
-    for source in sources:
-        relative = source.relative_to(package)
-        target = args.output/'source_snapshot'/relative
-        target.parent.mkdir(parents=True, exist_ok=True)
-        target.write_bytes(source.read_bytes())
-        hashes[relative.as_posix()] = hashlib.sha256(source.read_bytes()).hexdigest()
+    hashes = prior.snapshot_sources(sources, package, args.output)
     config = {**vars(args), 'output': str(args.output.resolve()), 'status': 'running',
         'source_sha256': hashes, 'history': 0, 'hidden_units': 16, 'degree': 5,
         'ridge': 1e-10, 'mlp_l2': 1e-6, 'bit_stage_extra_samples': args.size,

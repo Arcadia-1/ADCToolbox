@@ -575,11 +575,10 @@ end
 n_inband = length(spec_inband);
 
 % Method 1: Median-based estimation (robust to spurs)
-if(N_run == 1)
-    % Mn = 0.4549364231; % theoretical value of the median of chi-squared distribution, but not working well
-    Mn = 0.72;      % this empirical value works well, but why??
+if coAvg
+    Mn = log(2);  % Complex-averaged Gaussian noise still has exponential power.
 else
-    Mn = (1-2/(9*N_run))^3;     % Wilson–Hilferty approximation of the median of chi-squared distribution
+    Mn = gammaincinv(0.5, max(ME, 1)) / max(ME, 1);
 end
 noi_median = median(spec_inband)/Mn * inbandEnd;
 % Method 2: Trimmed mean (removes top/bottom 5%)

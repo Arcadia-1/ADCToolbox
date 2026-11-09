@@ -26,6 +26,7 @@ from adctoolbox.calibration._lstsq_solver import _solve_weights_with_known_freq
 from adctoolbox.calibration._lstsq_solver import _solve_weights_searching_freq
 
 from adctoolbox.calibration._post_process import _post_process
+from adctoolbox.calibration._harmonic_coefficients import _unpack_harmonic_coefficients
 
 def calibrate_weight_sine(
     bits: np.ndarray | list[np.ndarray],
@@ -108,14 +109,16 @@ def calibrate_weight_sine(
         ``harmonic_order`` is greater than 1. Use spectrum analysis on
         ``calibrated_signal`` for ADC dynamic SNDR/THD/HDx. The ``rank_patch``
         entry reports any dropped or merged rank-deficient bit columns.
-        Array-valued entries are returned as a single array for single-dataset
-        input or as a list of arrays for multi-dataset input.
+        Waveform entries are lists of arrays, with one entry per dataset.
+        ``offset`` is a scalar for one dataset and a list of per-dataset DC
+        offsets for multiple datasets; ``weight`` is shared by all datasets.
         ``initial_frequency`` records the coarse frequency used before fine
         search, and ``frequency_policy`` records the coarse-estimator policy.
 
         The calibrated waveform fields use ``scale_convention ==
         "solver_unit_sine"``: the least-squares solve fixes the fitted
-        fundamental sine magnitude to one. Before interpreting dBFS or NSD
+        first dataset's fundamental sine magnitude to one; other datasets
+        retain their relative amplitudes. Before interpreting dBFS or NSD
         against a physical ADC full-scale, rescale the result with
         ``scale_calibration_output`` and pass an explicit full-scale range to
         the spectrum analyzer.
@@ -216,8 +219,10 @@ def calibrate_weight_sine(
 
     num_datasets = len(bits_segments)
     num_harm_total = num_datasets * harmonic_order
-    idx_quadrature = bit_width_effective + num_harm_total
-    norm_factor = np.sqrt(1.0 + coeffs[idx_quadrature]**2)
+    cos_coeffs, sin_coeffs = _unpack_harmonic_coefficients(
+        coeffs, bit_width_effective + num_datasets, num_harm_total, basis_choice
+    )
+    norm_factor = np.hypot(cos_coeffs[0], sin_coeffs[0])
 
     w_phys_effective = _recover_columns_for_conditioning(
         coeffs=coeffs,

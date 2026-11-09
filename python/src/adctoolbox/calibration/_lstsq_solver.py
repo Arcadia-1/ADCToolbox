@@ -3,6 +3,7 @@
 import numpy as np
 
 from scipy.linalg import lstsq
+from adctoolbox.calibration._harmonic_coefficients import _unpack_harmonic_coefficients
 
 def _build_harmonic_basis(
     n_samples: int,
@@ -255,7 +256,6 @@ def _solve_weights_searching_freq(
   
     # Extract harmonic coefficients for this dataset
     harmonic_start = bit_width + num_datasets  # After weights and single DC term
-    unity_harmonics_size = num_datasets * harmonic_order - 1  # Total harmonics minus fundamental
     
     row_start = 0
     for ds_idx, n_samples_k in enumerate(segment_lengths):
@@ -282,27 +282,13 @@ def _solve_weights_searching_freq(
             row_end = row_start + segment_lengths[k]            
             n_samples_k = segment_lengths[k]
 
-            # For dataset k, find its harmonics in the coefficient vector
-            if basis_choice_temp == 0:
-                # Cosine is unity: [weights, DC, cos[1:], sin[:]]
-                # cos[0] is implicit 1, cos[1:] are in coeffs
-                # For dataset k, cos harmonics are at columns k*harmonic_order : (k+1)*harmonic_order
-                h_idx = harmonic_start + k * (harmonic_order - 1)
-                cos_coeffs_k = np.concatenate([[1.0], coeffs_temp[h_idx : h_idx + harmonic_order - 1]])
-
-                # Sin coefficients start after cos
-                sin_idx = harmonic_start + unity_harmonics_size + k * harmonic_order
-                sin_coeffs_k = coeffs_temp[sin_idx : sin_idx + harmonic_order]
-            else:
-                # Sine is unity: [weights, DC, sin[1:], cos[:]]
-                h_idx = harmonic_start + k * (harmonic_order - 1)
-                sin_coeffs_k = np.concatenate(
-                    [[1.0], coeffs_temp[h_idx : h_idx + harmonic_order - 1]]
-                )
-
-                # Cos coefficients start after sin
-                cos_idx = harmonic_start + unity_harmonics_size + k * harmonic_order
-                cos_coeffs_k = coeffs_temp[cos_idx : cos_idx + harmonic_order]
+            cos_coeffs, sin_coeffs = _unpack_harmonic_coefficients(
+                coeffs_temp, harmonic_start, num_datasets * harmonic_order,
+                basis_choice_temp,
+            )
+            dataset = slice(k * harmonic_order, (k + 1) * harmonic_order)
+            cos_coeffs_k = cos_coeffs[dataset]
+            sin_coeffs_k = sin_coeffs[dataset]
 
             # Build coefficient matrices
             cos_coeffs_weighted = cos_coeffs_k * harmonic_orders

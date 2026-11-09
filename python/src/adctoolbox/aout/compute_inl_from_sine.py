@@ -18,8 +18,9 @@ def compute_inl_from_sine(
     Calculate ADC INL/DNL.
 
     Auto-detection treats integer input as ADC codes. Floating-point input
-    with range greater than 2.0 is treated as code-like data, otherwise it is
-    treated as normalized voltage and quantized to ``num_bits``.
+    with an explicit ``full_scale`` is treated as voltage. Otherwise floats
+    with range greater than 2.0 are treated as code-like data; smaller ranges
+    are treated as normalized voltage and quantized to ``num_bits``.
 
     Parameters
     ----------
@@ -47,7 +48,7 @@ def compute_inl_from_sine(
 
     if np.issubdtype(data.dtype, np.floating):
         # If float and range is small (e.g. 0.0 to 1.0), it's likely voltage
-        if span <= 2.0:
+        if full_scale is not None or span <= 2.0:
             is_voltage = True
 
     # --- 2. Process Data ---
@@ -111,25 +112,15 @@ def compute_inl_from_sine(
     # MATLAB: cumulative_distribution = -cos(pi * cumsum(histogram_counts) / sum(histogram_counts))
     cumulative_distribution = -np.cos(np.pi * np.cumsum(counts) / np.sum(counts))
 
-    # DNL Calculation (MATLAB inlsin.m line 110)
-    # MATLAB: dnl = cumulative_distribution(2:end-1) - cumulative_distribution(1:end-2)
-    # This takes differences: [2]-[1], [3]-[2], ..., [end-1]-[end-2]
-    # In Python indexing: [1]-[0], [2]-[1], ..., [-2]-[-3]
-    # Which is simply np.diff(cumulative_distribution[0:-1])
-    dnl = np.diff(cumulative_distribution[0:-1])
-
-    # Align code axis (MATLAB line 111: code = code(1:end-2))
-    # Drop last 2 codes
-    valid_codes = code_axis[0:-2]
-
-    # Normalize DNL to LSB units (MATLAB lines 119-122)
-    # MATLAB: dnl = dnl ./ sum(dnl)
-    # MATLAB: dnl = dnl * (max_data - min_data + 1) - 1
-    code_range = len(code_axis)  # This is max_data - min_data + 1
-    dnl = dnl / np.sum(dnl)  # Normalize to sum to 1
-    dnl = dnl * code_range - 1  # Scale to code range
-    dnl = dnl - np.mean(dnl)  # Remove DC offset (gain error)
-    dnl = np.maximum(dnl, -1)  # Clip missing codes to -1 LSB
+    # CDF[k] is the upper transition of code k. Remove both endpoint codes,
+    # whose outer transitions cannot be inferred from a finite sine capture.
+    widths = np.diff(cumulative_distribution[:-1])
+    valid_codes = code_axis[1:-1]
+    if widths.size == 0 or np.mean(widths) <= 0:
+        raise ValueError("at least one nonzero interior code width is required")
+    # Normalize by the mean of exactly the retained widths. A missing code
+    # then has DNL=-1 naturally, without clipping or a second DC subtraction.
+    dnl = widths / np.mean(widths) - 1
 
     # INL Calculation (MATLAB line 125)
     inl = np.cumsum(dnl)

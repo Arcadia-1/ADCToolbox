@@ -21,8 +21,8 @@ def scale_calibration_output(
 ) -> dict[str, Any]:
     """Scale ``calibrate_weight_sine`` output to a chosen ADC convention.
 
-    ``calibrate_weight_sine`` fixes the fitted fundamental sine magnitude to
-    one so that the least-squares problem is identifiable. The returned
+    ``calibrate_weight_sine`` fixes the first dataset's fitted fundamental sine
+    magnitude to one so that the least-squares problem is identifiable. The returned
     ``weight``, ``calibrated_signal``, ``ideal``, and ``error`` are therefore
     in solver-unit-sine scale by default, not automatically in an ADC voltage
     or code full-scale convention.

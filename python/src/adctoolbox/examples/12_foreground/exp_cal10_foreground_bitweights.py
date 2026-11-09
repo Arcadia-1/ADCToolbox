@@ -35,6 +35,25 @@ def read_json(path):
     return json.loads(Path(path).read_text(encoding='utf-8'))
 
 
+def snapshot_sources(sources, package, output):
+    """Snapshot installed modules and copied example scripts with stable keys."""
+    hashes = {}
+    package = package.resolve()
+    examples = Path(__file__).resolve().parent
+    for source in sources:
+        source = source.resolve()
+        if source.is_relative_to(package):
+            relative = source.relative_to(package)
+        else:
+            relative = Path('examples') / examples.name / source.relative_to(examples)
+        target = output / 'source_snapshot' / relative
+        target.parent.mkdir(parents=True, exist_ok=True)
+        content = source.read_bytes()
+        target.write_bytes(content)
+        hashes[relative.as_posix()] = hashlib.sha256(content).hexdigest()
+    return hashes
+
+
 def decode_midrise(raw, bits=14):
     """Observable final-code binary digits, not extra analog information."""
     codes = np.rint((np.asarray(raw)+1)*2**(bits-1)-.5).astype(np.int64)
@@ -229,13 +248,7 @@ def main(argv=None):
     package = Path(inspect.getfile(fit_calibration_mlp)).parent.parent
     sources = [Path(__file__), Path(ex.__file__), Path(ex.fb.__file__), Path(inspect.getfile(ex.metrics))]
     sources += list((package/'calibration').glob('*.py'))+list((package/'spectrum').glob('*.py'))+[Path(inspect.getfile(sar_convert)), Path(inspect.getfile(ex.fb.ADC_Signal_Generator))]
-    hashes = {}
-    for source in sources:
-        relative = source.relative_to(package)
-        target = args.output/'source_snapshot'/relative
-        target.parent.mkdir(parents=True, exist_ok=True)
-        target.write_bytes(source.read_bytes())
-        hashes[relative.as_posix()] = hashlib.sha256(source.read_bytes()).hexdigest()
+    hashes = snapshot_sources(sources, package, args.output)
     config = {k: str(v.resolve()) if isinstance(v, Path) else v for k, v in vars(args).items()}
     config.update(source_sha256=hashes, input_sha256={}, history=3, hidden_units=16,
                   sar_msb_relative_error=.01, sar_bits=14,

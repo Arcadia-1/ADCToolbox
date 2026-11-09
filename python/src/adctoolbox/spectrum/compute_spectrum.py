@@ -204,6 +204,7 @@ def compute_spectrum(
         harmonic_bins=harmonic_bins,
         side_bin=side_bin,
         return_parts=True,
+        coherent_averaging=coherent_averaging,
     )
     noise_power, noise_parts = noise_result
 
