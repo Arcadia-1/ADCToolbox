@@ -99,7 +99,52 @@ def _dual_basis_lstsq(
     else:
         return coeffs2, 1, float(err2)
 
-    
+
+def _unpack_harmonic_coefficients(
+    coeffs: np.ndarray,
+    bit_width: int,
+    num_datasets: int,
+    harmonic_order: int,
+    basis_choice: int,
+) -> tuple[np.ndarray, np.ndarray]:
+    """
+    Decode the per-dataset harmonic coefficients of a dual-basis solution.
+
+    ``_dual_basis_lstsq`` fixes a single coefficient to one: the fundamental
+    cosine (basis_choice=0) or sine (basis_choice=1) of the first dataset.
+    Every other dataset's fundamental is an ordinary free column. The global
+    layout is::
+
+        [weights (bit_width), DC (one per dataset),
+         unity-side harmonics except the fixed term (num_datasets*H - 1),
+         other-side harmonics (num_datasets*H), (frequency derivatives)]
+
+    and each harmonic block is ordered dataset-major (dataset k, harmonic h at
+    position k*H + h), matching the columns of the harmonic basis matrices.
+
+    Returns
+    -------
+    cos_coeffs, sin_coeffs : ndarray
+        Arrays of shape (num_datasets, harmonic_order). Row k holds dataset
+        k's coefficients for harmonics 1..harmonic_order, with the fixed unity
+        coefficient restored only in row 0.
+    """
+    num_harm_total = num_datasets * harmonic_order
+    harm_start = bit_width + num_datasets
+    other_start = harm_start + num_harm_total - 1
+
+    unity_side = np.concatenate([[1.0], coeffs[harm_start:other_start]])
+    other_side = coeffs[other_start:other_start + num_harm_total]
+
+    if basis_choice == 0:
+        cos_coeffs, sin_coeffs = unity_side, other_side
+    else:
+        cos_coeffs, sin_coeffs = other_side, unity_side
+
+    shape = (num_datasets, harmonic_order)
+    return cos_coeffs.reshape(shape), sin_coeffs.reshape(shape)
+
+
 def _solve_weights_with_known_freq(
     bits_list: list[np.ndarray],
     freq_array: np.ndarray,
@@ -252,11 +297,7 @@ def _solve_weights_searching_freq(
 
     # Build derivative columns for each dataset        
     offset_matrix = np.zeros((n_samples_total, num_datasets))
-  
-    # Extract harmonic coefficients for this dataset
-    harmonic_start = bit_width + num_datasets  # After weights and single DC term
-    unity_harmonics_size = num_datasets * harmonic_order - 1  # Total harmonics minus fundamental
-    
+
     row_start = 0
     for ds_idx, n_samples_k in enumerate(segment_lengths):
         row_end = row_start + n_samples_k
@@ -272,9 +313,11 @@ def _solve_weights_searching_freq(
             bits_list, freq_array, harmonic_order, verbose=verbose
         )
 
-        # Extract coefficients based on which basis is unity
-        # Layout when basis_choice=0: [weights, DC, cos_harmonics[1:], sin_harmonics[:]]
-        # Layout when basis_choice=1: [weights, DC, sin_harmonics[1:], cos_harmonics[:]]
+        # Per-dataset harmonic coefficients; only dataset 0's fundamental is
+        # the fixed unity term (see _unpack_harmonic_coefficients).
+        cos_coeffs, sin_coeffs = _unpack_harmonic_coefficients(
+            coeffs_temp, bit_width, num_datasets, harmonic_order, basis_choice_temp
+        )
         derivative_cols = []
         row_start = 0
         harmonic_orders = np.arange(1, harmonic_order + 1)
@@ -282,31 +325,9 @@ def _solve_weights_searching_freq(
             row_end = row_start + segment_lengths[k]            
             n_samples_k = segment_lengths[k]
 
-            # For dataset k, find its harmonics in the coefficient vector
-            if basis_choice_temp == 0:
-                # Cosine is unity: [weights, DC, cos[1:], sin[:]]
-                # cos[0] is implicit 1, cos[1:] are in coeffs
-                # For dataset k, cos harmonics are at columns k*harmonic_order : (k+1)*harmonic_order
-                h_idx = harmonic_start + k * (harmonic_order - 1)
-                cos_coeffs_k = np.concatenate([[1.0], coeffs_temp[h_idx : h_idx + harmonic_order - 1]])
-
-                # Sin coefficients start after cos
-                sin_idx = harmonic_start + unity_harmonics_size + k * harmonic_order
-                sin_coeffs_k = coeffs_temp[sin_idx : sin_idx + harmonic_order]
-            else:
-                # Sine is unity: [weights, DC, sin[1:], cos[:]]
-                h_idx = harmonic_start + k * (harmonic_order - 1)
-                sin_coeffs_k = np.concatenate(
-                    [[1.0], coeffs_temp[h_idx : h_idx + harmonic_order - 1]]
-                )
-
-                # Cos coefficients start after sin
-                cos_idx = harmonic_start + unity_harmonics_size + k * harmonic_order
-                cos_coeffs_k = coeffs_temp[cos_idx : cos_idx + harmonic_order]
-
             # Build coefficient matrices
-            cos_coeffs_weighted = cos_coeffs_k * harmonic_orders
-            sin_coeffs_weighted = sin_coeffs_k * harmonic_orders
+            cos_coeffs_weighted = cos_coeffs[k] * harmonic_orders
+            sin_coeffs_weighted = sin_coeffs[k] * harmonic_orders
 
             # Compute time and phase grids
             time_grid = np.arange(n_samples_k)[:, np.newaxis]
