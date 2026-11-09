@@ -33,14 +33,24 @@ def installed_examples(tmp_path_factory):
     temporary.mkdir()
     env.update(TEMP=str(temporary), TMP=str(temporary))
     env.update(MPLBACKEND='Agg', OPENBLAS_NUM_THREADS='1', OMP_NUM_THREADS='1', MKL_NUM_THREADS='1')
-    wheels = root/'wheels'
-    _run([sys.executable, '-m', 'pip', 'wheel', '--no-deps', '--no-build-isolation',
-          '--no-index', '--wheel-dir', str(wheels), str(build)], cwd=root, env=env)
     environment = root/'venv'
-    # Reuse NumPy/SciPy/Matplotlib while installing the toolbox itself from the wheel.
-    venv.EnvBuilder(with_pip=False, system_site_packages=True).create(environment)
+    # Symlinks preserve the shared-library location of standalone CPython on
+    # macOS. Seed pip here: uv-created parent environments need not have it.
+    venv.EnvBuilder(with_pip=True, system_site_packages=True,
+                    symlinks=os.name != 'nt').create(environment)
     scripts = environment/('Scripts' if os.name == 'nt' else 'bin')
     python = scripts/('python.exe' if os.name == 'nt' else 'python')
+    purelib = Path(_run([str(python), '-I', '-c',
+        'import sysconfig; print(sysconfig.get_path("purelib"))'], cwd=root, env=env).stdout.strip())
+    # Nested venvs inherit the base interpreter's packages, not the active
+    # parent's. Reuse its third-party dependencies while installing and
+    # verifying the toolbox itself inside the child environment.
+    dependency_paths = [str(Path(path).resolve()) for path in sys.path
+                        if Path(path).name in {'site-packages', 'dist-packages'}]
+    (purelib/'test_dependencies.pth').write_text('\n'.join(dependency_paths)+'\n', encoding='utf-8')
+    wheels = root/'wheels'
+    _run([str(python), '-m', 'pip', 'wheel', '--no-deps', '--no-build-isolation',
+          '--no-index', '--wheel-dir', str(wheels), str(build)], cwd=root, env=env)
     _run([str(python), '-m', 'pip', 'install', '--no-deps', '--no-index', '--ignore-installed',
           str(next(wheels.glob('adctoolbox-*.whl')))], cwd=root, env=env)
     package = Path(_run([str(python), '-I', '-c',
