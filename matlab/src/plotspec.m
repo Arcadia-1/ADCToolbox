@@ -535,24 +535,43 @@ spec(1:sideBin) = 0;
 spec_inband = spec(1:inbandEnd);
 noi = sum(spec_inband);  % Total noise + distortion power
 
-% Find largest spur for SFDR
-[~, sbin] = max(spec_inband);
-spur_start = max(sbin-sideBin,1);
-spur_end = min(sbin+sideBin,inbandEnd);
-spur = sum(spec_inband(spur_start:spur_end));
+% Find the strongest spur for SFDR. Every local peak outside the DC and
+% signal masks is a candidate, ranked by integrated lobe power rather than
+% by its tallest bin: a window splits an off-bin spur across several bins,
+% so its peak can be lower than that of a weaker on-bin spur.
+lobe_start = max((1:inbandEnd)-sideBin, 1);
+lobe_end = min((1:inbandEnd)+sideBin, inbandEnd);
 
 % If a spur lobe touches a mask or a one-sided analysis boundary, direct
 % integration loses part of its power. Recover the complete lobe using the
 % measured fundamental lobe-to-peak ratio. Fully visible lobes retain the
 % direct integrated-power definition.
-touches_boundary = (spur_start == 1) || (spur_end == inbandEnd);
-touches_dc_mask = spur_start <= sideBin;
-touches_signal_mask = max(spur_start, sig_start) <= min(spur_end, sig_end);
-if (touches_boundary || touches_dc_mask || touches_signal_mask) ...
-        && sig_peak > 0 && spec_inband(sbin) > 0
-    compensated_spur = spec_inband(sbin) * sig_measured / sig_peak;
-    spur = max(spur, compensated_spur);
+touches_mask = (lobe_start == 1) | (lobe_end == inbandEnd) ...
+    | (lobe_start <= sideBin) ...
+    | (max(lobe_start, sig_start) <= min(lobe_end, sig_end));
+compensated_lobe = zeros(1, inbandEnd);
+if sig_peak > 0
+    compensated_lobe(touches_mask) = spec_inband(touches_mask) * sig_measured / sig_peak;
 end
+
+% Rank the local peaks by lobe power; masked bins are zero and never
+% qualify. Prefix sums keep this linear in the FFT length; the selected
+% lobe is summed directly.
+cumulative_spec = [0, cumsum(spec_inband)];
+lobe_power = max(cumulative_spec(lobe_end+1) - cumulative_spec(lobe_start), compensated_lobe);
+is_candidate = spec_inband > 0 ...
+    & spec_inband >= [-inf, spec_inband(1:end-1)] ...
+    & spec_inband >= [spec_inband(2:end), -inf];
+candidates = find(is_candidate);
+if isempty(candidates)
+    [~, sbin] = max(spec_inband);
+else
+    [~, best_candidate] = max(lobe_power(candidates));
+    sbin = candidates(best_candidate);
+end
+spur_start = lobe_start(sbin);
+spur_end = lobe_end(sbin);
+spur = max(sum(spec_inband(spur_start:spur_end)), compensated_lobe(sbin));
 SNDR = 10*log10(sig/noi);
 SFDR = 10*log10(sig/spur);
 ENoB = (SNDR-1.76)/6.02;
