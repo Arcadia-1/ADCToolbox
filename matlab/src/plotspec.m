@@ -53,8 +53,9 @@ function [enob,sndr,sfdr,snr,thd,sigpwr,noi,nsd,h] = plotspec(sig,varargin)
 %       Alias: 'isPlot' (deprecated, use 'disp')
 %     'cutoff' - High-pass cutoff frequency for low-frequency noise removal in Hz. Default: 0
 %       Scalar, non-negative real number
-%       Bins below ceil(cutoff/Fs*N) are left out of SNDR, ENOB, SNR, the noise floor and NSD.
-%       If no in-band bin remains, those metrics are NaN.
+%       Bins below ceil(cutoff/Fs*N) are left out of SNDR, ENOB, SNR, the noise floor and NSD,
+%       and NSD divides the noise by the passband width. If no in-band bin remains, those
+%       metrics are NaN.
 %       Alias: 'noFlicker' (deprecated, use 'cutoff')
 %     'nTHD' - Number of harmonics for THD calculation. Default: 5
 %       Scalar, positive integer
@@ -709,7 +710,17 @@ thd = sum(spec(thd_mask));
 THD = 10*log10(thd/sig);
 SNR = 10*log10(sig/noi);
 noise_floor_dbfs = pwr - SNR;  % dBFS (negative below 0 dBFS; matches Python noise_floor_dbfs)
-nsd = noise_floor_dbfs - 10*log10(Fs/2/OSR);
+% Width of the passband the noise is integrated over. The full band spans
+% N_fft/2/OSR bins with the DC bin counting half, so a cutoff that keeps
+% bins passbandStart.. (1-based) removes passbandStart-1.5 bins.
+removedBins = max(passbandStart - 1.5, 0);
+noiseBandBins = N_fft/2/OSR - removedBins;
+noiseBandHz = Fs/2/OSR - removedBins*Fs/N_fft;
+if noiseBandBins <= 0
+    noiseBandBins = NaN;
+    noiseBandHz = NaN;
+end
+nsd = noise_floor_dbfs - 10*log10(noiseBandHz);
 
 % Finalize plot formatting and annotations
 if(dispPlot)
@@ -798,7 +809,7 @@ if(dispPlot)
                 text(bin/N_fft*Fs,min(pwr,TYD/2),['Sig = ',num2str(pwr,'%.2f'),' dB']);
             end
             if(show_y)
-                semilogx([Fs/N_fft,Fs/2/OSR],[1,1]*(noise_floor_dbfs-10*log10(N_fft/2/OSR)),'r--');
+                semilogx([Fs/N_fft,Fs/2/OSR],[1,1]*(noise_floor_dbfs-10*log10(noiseBandBins)),'r--');
                 TYN = TYN + 1;
                 text(TX,TYD*TYN,['NSD = ',num2str(nsd,'%.2f'),' dBFS/Hz']);
             end
@@ -816,7 +827,7 @@ if(dispPlot)
                 end
             end
             if(show_y)
-                plot([0,Fs/2],[1,1]*(noise_floor_dbfs-10*log10(N_fft/2/OSR)),'r--');
+                plot([0,Fs/2],[1,1]*(noise_floor_dbfs-10*log10(noiseBandBins)),'r--');
                 TYN = TYN + 1;
                 text(TX,TYD*TYN,['NSD = ',num2str(nsd,'%.2f'),' dBFS/Hz']);
             end

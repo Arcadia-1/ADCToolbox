@@ -79,8 +79,9 @@ def compute_spectrum(
         Use coherent FFT averaging when True
     cutoff_freq
         High-pass cutoff in Hz. Bins below ``ceil(cutoff_freq / fs * N)`` are
-        left out of SNDR, ENOB, SNR, the noise floor and NSD. If no in-band bin
-        remains, those metrics are NaN.
+        left out of SNDR, ENOB, SNR, the noise floor and NSD, and NSD divides
+        the noise by the passband width. If no in-band bin remains, those
+        metrics are NaN.
     verbose
         Verbosity level
     """
@@ -235,8 +236,18 @@ def compute_spectrum(
         snr_dbc = np.nan
         noise_floor_dbfs = np.nan
 
+    # Width of the passband the noise is integrated over. The full band spans
+    # N/(2*osr) bins with the DC bin counting half, so a cutoff at bin
+    # passband_start removes passband_start - 1/2 bins.
+    removed_bins = max(passband_start - 0.5, 0)
+    noise_bandwidth_bins = N / (2 * osr) - removed_bins
+    noise_bandwidth_hz = fs / (2 * osr) - removed_bins * fs / N
+    if noise_bandwidth_bins <= 0:
+        noise_bandwidth_bins = np.nan
+        noise_bandwidth_hz = np.nan
+
     nsd_dbfs_hz = (
-        noise_floor_dbfs - 10 * np.log10(fs / (2 * osr))
+        noise_floor_dbfs - 10 * np.log10(noise_bandwidth_hz)
         if np.isfinite(noise_floor_dbfs)
         else np.nan
     )
@@ -276,5 +287,6 @@ def compute_spectrum(
             "collided_harmonics": collided_harmonics,
             "v_offset": v_offset,
             "noise_parts": noise_parts,
+            "noise_bandwidth_bins": noise_bandwidth_bins,
         },
     }

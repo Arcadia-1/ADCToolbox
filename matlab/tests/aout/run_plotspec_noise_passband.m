@@ -21,16 +21,30 @@ rng(20261110);
 noise = amplitude/sqrt(2) * 1e-4 * randn(1, N);
 x = amplitude * sin(2*pi*2809*n/N + 0.4) + noise;
 cutoffBin = N/8;
-for method = {'median', 'mean', 'exclude'}
-    [~, ~, ~, ~, ~, ~, nfAll] = plotspec(x, 1, 2, 5, args{:}, 'NFMethod', method{1});
-    [~, ~, ~, ~, ~, ~, nfCut] = plotspec(x, 1, 2, 5, args{:}, 'NFMethod', method{1}, ...
+% NSD is noise per hertz, so white noise has the same NSD whatever band it is
+% integrated over; dividing the passband noise by the full band width read
+% 1.25 dB low here for every method.
+for method = {'auto', 'median', 'mean', 'exclude'}
+    [~, ~, ~, ~, ~, ~, nfAll, nsdAll] = plotspec(x, 1, 2, 5, args{:}, 'NFMethod', method{1});
+    [~, ~, ~, ~, ~, ~, nfCut, nsdCut] = plotspec(x, 1, 2, 5, args{:}, 'NFMethod', method{1}, ...
         'cutoff', (cutoffBin - 0.5)/N);
     errAll = nfAll - passband_noise_dbfs(noise, 0, nInband);
     errCut = nfCut - passband_noise_dbfs(noise, cutoffBin, nInband);
     assert(abs(errCut - errAll) < 0.15, ...
         'NFMethod=%s: noise floor error %.4f dB with the cutoff, %.4f dB without.', ...
         method{1}, errCut, errAll);
+    assert(abs(nsdCut - nsdAll) < 0.15, ...
+        'NFMethod=%s: NSD %.4f dB/Hz with the cutoff, %.4f dB/Hz without.', ...
+        method{1}, nsdCut, nsdAll);
 end
+
+% The truth passband runs from bin max(cutoffBin, 1) to Nyquist, where the
+% Nyquist bin counts half; with Fs = 1 one bin is 1/N Hz wide.
+[~, ~, ~, ~, ~, ~, ~, nsd] = plotspec(x, 1, 2, 5, args{:}, 'NFMethod', 'exclude', ...
+    'cutoff', (cutoffBin - 0.5)/N);
+trueNsd = passband_noise_dbfs(noise, cutoffBin, nInband) - 10*log10((N/2 - cutoffBin + 0.5)/N);
+assert(abs(nsd - trueNsd) < 0.1, 'NFMethod=exclude with the cutoff: NSD %.4f dB/Hz, truth %.4f dB/Hz.', ...
+    nsd, trueNsd);
 
 %% Wide harmonic lobes: 'exclude' fills them instead of dropping their noise.
 % A non-coherent tone at 100 dB SNR widens sideBin 'auto' to about 120 bins,
@@ -61,6 +75,7 @@ warning(warnState);
 [~, warnId] = lastwarn;
 assert(strcmp(warnId, 'plotspec:emptyPassband'), 'An empty passband must raise plotspec:emptyPassband.');
 assert(all(isnan([enob, sndr, snr, nf, nsd])), 'An empty passband must leave the noise metrics NaN.');
+assert(isreal(nsd), 'An empty passband must not give a complex NSD.');
 
 rng(rngState);
 
