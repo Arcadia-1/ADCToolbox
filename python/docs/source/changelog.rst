@@ -3,7 +3,37 @@ Changelog
 
 For the complete changelog with detailed version history, see the `CHANGELOG.md <https://github.com/Arcadia-1/ADCToolbox/blob/main/CHANGELOG.md>`_ file in the repository.
 
-Version 0.9.0 (Latest)
+Version 0.9.3 (Latest)
+----------------------
+
+**Release Date**: 2026-11-10
+
+**In-Band Calibration and Algorithm Fixes** - adds oversampled ADC weight
+calibration and corrects linearity, spectrum and calibration results.
+
+Added
+~~~~~
+
+* Python sine-weight calibration accepts ``osr`` for a lowpass-filtered fit
+  objective. The default ``osr=1`` preserves full-band calibration. Returned
+  waveforms keep their original length/rate; no automatic decimation occurs.
+* Separate FIR-weighted ``inband_snr_db`` and ``inband_enob`` metrics, filter
+  metadata, and a held-out noise-shaping SAR example.
+
+Fixed
+~~~~~
+
+* Sine-histogram code labels, DNL normalization and artificial INL drift.
+* Multi-record sine references, frequency refinement and per-record offsets.
+  Multi-record ``offset`` is an array; the single-record value stays scalar.
+* Explicit voltage full-scale handling, integrated-spur SFDR selection,
+  coherent-average noise statistics, and effective averaging-count labels.
+* Static harmonic targets and DC preservation, odd-length FFT boundaries,
+  short-record Farrow delays, copied foreground examples, no-plot figure
+  preservation and low-frequency units.
+* MATLAB rectangular-window coherent-tone peak refinement.
+
+Version 0.9.0
 ----------------------
 
 **Release Date**: 2026-06-11
