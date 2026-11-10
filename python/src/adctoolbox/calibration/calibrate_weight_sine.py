@@ -13,6 +13,7 @@ import warnings
 import numpy as np
 
 from adctoolbox.calibration._prepare_input import _prepare_input
+from adctoolbox.calibration._calibration_filter import _make_calibration_filter
 
 from adctoolbox.calibration._patch_rank_deficiency import _patch_rank_deficiency
 from adctoolbox.calibration._patch_rank_deficiency import _recover_rank_deficiency
@@ -39,6 +40,8 @@ def calibrate_weight_sine(
     max_iter: int = 100,
     verbose: int = 0,
     frequency_policy: str = "python",
+    *,
+    osr: float = 1,
 ) -> dict:
     """
     FGCalSine — Foreground calibration using a sinewave input
@@ -79,7 +82,8 @@ def calibrate_weight_sine(
         nominally reconstructed rank-patched bit prefixes. Explicit nonzero
         frequencies are not changed by this option. Default is ``"python"``.
     nominal_weights : array-like, optional
-        Nominal bit weights (only effective when rank is deficient).
+        Nominal bit weights for rank-deficiency recovery and, with osr > 1,
+        the automatic coarse frequency estimate.
         Default is 2^(M-1) down to 2^0.
     harmonic_order : int, optional
         Number of harmonic terms included in the fitted reference. Default is
@@ -96,6 +100,15 @@ def calibrate_weight_sine(
         Maximum iterations for fine frequency search, default is 100.
     verbose : int, optional
         Print frequency search progress (1) or not (0), default is 0.
+    osr : float, optional
+        Oversampling ratio, >= 1. Default 1 preserves the unfiltered solve.
+        For osr > 1, minimize a lowpass-filtered residual: apply the same
+        Kaiser FIR (16*ceil(osr)+1 taps, beta=8.6, half-amplitude cutoff
+        0.5/osr cycles/sample) to every bit, DC, reference and frequency
+        derivative column. Each capture is filtered separately using valid
+        convolution. The tone must be inside this band. Automatic frequency
+        estimation uses filtered nominal reconstruction (prefixes for the
+        MATLAB policy). No decimation is performed.
 
     Returns
     -------
@@ -128,6 +141,14 @@ def calibrate_weight_sine(
         offset[k] - ideal[k]``. The unit-sine scale is set by the first
         dataset's fundamental; every other dataset keeps its amplitude
         relative to the first.
+
+        With osr > 1, ``calibration_filter`` describes the FIR and retained
+        sample counts; ``inband_snr_db`` and ``inband_enob`` describe its
+        filtered fitted residual. These are FIR-weighted metrics, not ideal
+        brickwall FFT metrics. Existing waveform fields keep their original
+        length and sample rate, and ``snr_db`` / ``enob`` remain full-band
+        fitted-residual metrics. Digital weights optimize the selected band;
+        they are not guaranteed to identify physical capacitor values.
     """
 
     # 0. Frequency-unit guard: freq must be NORMALIZED Fin/Fs in [0, 0.5].
@@ -152,6 +173,7 @@ def calibrate_weight_sine(
     bits_segments = clean_input["bits_segments"]
     segment_lengths = clean_input["segment_lengths"]
     nominal_weights = clean_input["nominal_weights"]
+    fit_filter = _make_calibration_filter(osr, segment_lengths)
 
     
     # 2. Patch rank deficiency globally
@@ -197,6 +219,7 @@ def calibrate_weight_sine(
         verbose,
         frequency_policy=frequency_policy,
         nominal_weights=frequency_nominal_weights,
+        fit_filter=fit_filter,
     )
     initial_freq_array = freq_array.copy()
 
@@ -215,12 +238,13 @@ def calibrate_weight_sine(
         # Iterative frequency search (unified for single and multi-dataset)
         freq_array, coeffs, basis_choice, cos_basis, sin_basis = _solve_weights_searching_freq(
             bits_segments_scaled, freq_array, harmonic_order,
-            learning_rate, reltol, max_iter, verbose=verbose
+            learning_rate, reltol, max_iter, verbose=verbose, fit_filter=fit_filter,
         )
     else:
         # Static solve at known frequencies (unified for single and multi-dataset)
         coeffs, basis_choice, cos_basis, sin_basis = _solve_weights_with_known_freq(
-            bits_segments_scaled, freq_array, harmonic_order, verbose=verbose
+            bits_segments_scaled, freq_array, harmonic_order, verbose=verbose,
+            fit_filter=fit_filter,
         )
 
     # Solver-unit-sine gauge: the first dataset's fitted fundamental magnitude
@@ -274,6 +298,18 @@ def calibrate_weight_sine(
     results["initial_frequency"] = (
         initial_freq_array[0] if is_single else initial_freq_array.copy()
     )
+
+    if fit_filter is not None:
+        inband_snr = []
+        for reference, error in zip(results["ideal"], results["error"]):
+            signal_power = np.mean(fit_filter.apply_record(reference)**2)
+            noise_power = np.mean(fit_filter.apply_record(error)**2)
+            inband_snr.append(10 * np.log10(signal_power / noise_power)
+                              if noise_power > 0 else 200.0)
+        results["calibration_filter"] = fit_filter.metadata()
+        results["inband_snr_db"] = inband_snr[0] if is_single else inband_snr
+        inband_enob = [(snr - 1.76) / 6.02 for snr in inband_snr]
+        results["inband_enob"] = inband_enob[0] if is_single else inband_enob
 
     return results
 

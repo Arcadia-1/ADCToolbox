@@ -2,10 +2,13 @@
 
 import numpy as np
 from scipy.linalg import lstsq
+from adctoolbox.calibration._calibration_filter import _make_calibration_filter
 
 def calibrate_weight_sine_lite(
     bits: np.ndarray,
-    freq: float
+    freq: float,
+    *,
+    osr: float = 1,
 ) -> np.ndarray:
     """
     Minimal calibration at known frequency. Returns normalized weights.
@@ -15,6 +18,11 @@ def calibrate_weight_sine_lite(
     ``calibrate_weight_sine``: the fitted fundamental sine magnitude is fixed
     to one for identifiability. Apply an explicit scale factor before using
     the reconstructed waveform for physical dBFS or NSD interpretation.
+
+    ``osr > 1`` fits a lowpass-filtered residual, using the same finite-record
+    FIR as ``calibrate_weight_sine``. Filter both the bit columns and the
+    sine/DC reference; returned weights still apply to the original bits.
+    The default ``osr=1`` preserves the unfiltered solve.
     """
     if freq is not None and freq > 0.5:
         raise ValueError(
@@ -22,6 +30,9 @@ def calibrate_weight_sine_lite(
             f"If you have Fin in Hz, pass freq=Fin/Fs instead."
         )
     n_samples, bit_width = bits.shape
+    fit_filter = _make_calibration_filter(osr, [n_samples])
+    if fit_filter is not None:
+        fit_filter.validate_frequencies(freq)
 
     # Build fundamental basis
     t = np.arange(n_samples)
@@ -33,6 +44,11 @@ def calibrate_weight_sine_lite(
     offset_col = np.ones((n_samples, 1))
     A = np.column_stack([bits, offset_col, sin_basis])
     b = -cos_basis
+    if fit_filter is not None:
+        A = fit_filter.apply(A)
+        b = fit_filter.apply(b)
+        if len(b) <= A.shape[1]:
+            raise ValueError("Too few samples remain after calibration filtering for the fit.")
     coeffs, _, _, _ = lstsq(A, b)
 
     # Extract weights and normalization

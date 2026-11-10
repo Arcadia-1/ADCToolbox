@@ -20,6 +20,7 @@ def _estimate_frequencies(
     verbose: int = 0,
     frequency_policy: str = "python",
     nominal_weights: np.ndarray | None = None,
+    fit_filter=None,
 ) -> np.ndarray:
     """
     Standardize or estimate the starting frequency for each dataset segment.
@@ -50,6 +51,30 @@ def _estimate_frequencies(
                 f"number of datasets ({num_datasets})."
             )
         return freq_array
+
+    if fit_filter is not None:
+        # Out-of-band shaped noise must not win the coarse tone search.
+        # The MATLAB policy keeps its prefix/median selection, but each
+        # candidate is now filtered and its FFT peak is restricted to band.
+        offsets = np.insert(np.cumsum(segment_lengths), 0, 0)
+        estimates = []
+        for start, end in zip(offsets[:-1], offsets[1:]):
+            segment = bits_stacked[start:end]
+            prefixes = (range(1, min(segment.shape[1], 5) + 1)
+                        if frequency_policy == "matlab" else [segment.shape[1]])
+            candidates = []
+            for count in prefixes:
+                signal = fit_filter.apply_record(segment[:, :count] @ nominal_weights[:count])
+                signal = signal - np.mean(signal)
+                power = np.abs(np.fft.rfft(signal * np.hanning(len(signal))))
+                frequencies = np.fft.rfftfreq(len(signal))
+                inband = np.flatnonzero((frequencies > 0) & (frequencies < fit_filter.cutoff))
+                if not len(inband):
+                    raise ValueError("Capture is too short to resolve an in-band calibration tone.")
+                peak = inband[np.argmax(power[inband])]
+                candidates.append(estimate_frequency(signal, frequency_estimate=frequencies[peak]))
+            estimates.append(np.median(candidates))
+        return fit_filter.bound_frequencies(np.asarray(estimates))
 
     if frequency_policy == "matlab":
         return _estimate_frequencies_matlab(

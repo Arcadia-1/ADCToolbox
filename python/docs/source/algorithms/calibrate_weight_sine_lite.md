@@ -1,5 +1,13 @@
 # calibrate_weight_sine_lite
 
+The keyword-only `osr` option defaults to `1` (the existing full-band solve).
+For an oversampled capture, use `calibrate_weight_sine_lite(bits, fin/fs, osr=16)`.
+It filters the design matrix and reference with the same finite-record lowpass
+FIR as `calibrate_weight_sine`; the returned weights still apply to the raw
+bit matrix. It does not filter or decimate the reconstructed output. See
+[the full calibration guide](calibrate_weight_sine.md)
+for filter bandwidth, record length and metric conventions.
+
 ## Overview
 
 `calibrate_weight_sine_lite` provides a minimal, fast implementation of ADC foreground calibration using a known-frequency sinewave input. This is a simplified version of the full `calibrate_weight_sine` algorithm, optimized for speed and code simplicity.

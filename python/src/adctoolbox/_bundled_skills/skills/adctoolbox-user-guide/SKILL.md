@@ -221,6 +221,18 @@ training frequency is already known, pass `freq=k/N` to keep that exact
 frequency fixed; use `force_search=True` only when you deliberately want to
 refine a provided frequency.
 
+For oversampled/noise-shaping ADCs, pass `osr=16` (or the actual OSR) to
+`calibrate_weight_sine` or `_lite` to fit a lowpass-filtered residual. The same
+FIR filters bit, reference and frequency-derivative columns per capture; output
+waveforms keep their original length/rate. The tone must lie below
+`0.5/osr` cycles/sample, and each capture must exceed `16*ceil(osr)+1` samples.
+`inband_snr_db` is a FIR-weighted fitted-residual metric; existing `snr_db`
+remains full-band. `analyze_spectrum(..., osr=...)` only evaluates the band and
+does not change fitted weights. Start with
+`10_oversampling/exp_o04_inband_weight_calibration.py` for a held-out NS-SAR
+comparison. For automatic frequency estimation with a segmented DAC, supply
+its nominal weights. This option is currently Python-only.
+
 ## 5. Import rules (compressed)
 
 | Kind | Use |

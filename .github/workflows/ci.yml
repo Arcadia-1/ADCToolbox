@@ -192,6 +192,7 @@ jobs:
             exp_o01_noise_shaping_spectrum.py
             exp_o02_ifilter_band_analysis.py
             exp_o03_ntfperf_perfosr.py
+            exp_o04_inband_weight_calibration.py
           "
 
           for script in $EXAMPLES; do
