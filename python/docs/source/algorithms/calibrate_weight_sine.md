@@ -10,6 +10,7 @@
 - ✅ Harmonic nuisance fitting for source/test-chain harmonic terms
 - ✅ Multi-dataset calibration for time-interleaved ADCs
 - ✅ Numerical conditioning for robust convergence
+- ✅ Optional lowpass fit objective for oversampled ADCs (`osr > 1`)
 - ✅ Comprehensive diagnostics (weights, fitted residual metrics, error signals)
 
 ## Syntax
@@ -61,7 +62,7 @@ result = calibrate_weight_sine([bits_ch0, bits_ch1, bits_ch2, bits_ch3])
   - `"matlab"` uses the MATLAB `wcalsin(freq=0)` compatible estimator: rank-patched nominal bit-prefix reconstructions, one frequency fit per prefix, then the median candidate
   - Explicit nonzero `freq` values remain fixed unless `force_search=True`
 
-- **`nominal_weights`** (array, optional) — Nominal bit weights (only effective when rank is deficient)
+- **`nominal_weights`** (array, optional) — Nominal bit weights for rank recovery and oversampled automatic frequency estimation
   - Default: `[2^(M-1), 2^(M-2), ..., 2, 1]`
   - Required for redundant ADCs (e.g., `[128, 128, 64, ...]`)
 
@@ -87,6 +88,60 @@ result = calibrate_weight_sine([bits_ch0, bits_ch1, bits_ch2, bits_ch3])
   - `0`: Silent (default)
   - `1`: Basic progress
   - `2`: Detailed diagnostics
+
+- **`osr`** (float, keyword-only, optional) — Oversampling ratio, finite and >= 1
+  - Default `1` preserves the existing full-band solve exactly
+  - Values > 1 use the lowpass objective described below
+
+## Oversampled ADC calibration
+
+```python
+result = calibrate_weight_sine(bits, freq=fin_hz / fs, osr=16)
+raw_calibrated = result["calibrated_signal"][0]
+print(result["inband_snr_db"])
+```
+
+Noise-shaping ADCs can have much more error power outside the signal band.
+Minimizing full-band error can trade away in-band accuracy. With `osr > 1`,
+the objective is `||H(bits @ weights - offset - reference)||²`, where `H` is
+the same lowpass operation on every bit, DC, sine/harmonic and frequency
+derivative column. This changes the weights being fitted; filtering only the
+output after a full-band fit does not give the same optimization.
+
+The filter is a symmetric Kaiser FIR, beta 8.6, with
+`16*ceil(osr)+1` taps and half-amplitude cutoff `Fs/(2*osr)`. It weights the
+transition band smoothly; it is not an ideal brickwall band restriction.
+Each capture uses valid convolution independently, discarding half the filter
+length at each edge. There is no wrapping across capture ends, concatenation
+of unrelated captures, or decimation. Captures must be longer than the FIR
+and leave enough samples for the fit. The fundamental must lie strictly
+inside `0 < Fin/Fs < 0.5/osr`.
+
+Known, automatically estimated, and refined frequencies are supported.
+Automatic estimation starts from filtered nominal reconstruction and searches
+for the spectral peak inside the signal band; the `matlab` policy uses filtered
+nominal prefixes and their median. For segmented DACs, supply the appropriate
+`nominal_weights` for this coarse estimate. The new filtered objective is
+Python-only; it does not claim parity with MATLAB `wcalsin` in this mode.
+
+`calibrated_signal`, `ideal`, and `error` retain their full original lengths
+and sampling rate. `snr_db` / `enob` continue to describe the unfiltered fitted
+residual. The added `inband_snr_db` / `inband_enob` use the FIR-filtered reference
+and residual, while `calibration_filter` records OSR, normalized cutoff, tap
+count and retained samples. These ratios survive `scale_calibration_output`.
+For dynamic in-band SNDR, evaluate the reconstructed output separately with
+`analyze_spectrum(..., osr=16)`; when fitting harmonic nuisance terms, neither
+fitted-residual metric is a replacement for dynamic SNDR.
+
+The learned weights optimize digital performance in the selected band; they
+need not equal physical capacitor values. Use multiple excited captures and
+validate frozen weights on a separate capture. Filtering reduces available
+information and cannot make unobservable bit combinations identifiable.
+
+Run `10_oversampling/exp_o04_inband_weight_calibration.py` for a 6-bit SAR with
+ideal second-order residue feedback and mismatched analog DAC weights. It
+fits one record and compares nominal, full-band and in-band digital weights
+on a different frequency, amplitude and phase, using the same FFT band.
 
 ## Returns
 

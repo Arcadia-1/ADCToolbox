@@ -162,6 +162,12 @@ adctoolbox-install-skill --dev --editable --force --dest ~/.codex/skills
 - `calibrate_weight_sine(bits, freq=...)` and `calibrate_weight_sine_lite(bits,
   freq)` expect normalized `freq = Fin/Fs`. The `_lite` variant takes `freq`
   positionally (not as a keyword) and is required (no auto-search).
+- Both sine-weight APIs accept keyword-only `osr=1`. Values > 1 fit through
+  a lowpass FIR, applying it to bit and reference columns together. The cutoff
+  is `0.5/osr` in Fin/Fs units; the tone must be below it. Raw reconstructed
+  waveforms keep their length/rate. Full calibration adds `inband_snr_db`,
+  `inband_enob`, and `calibration_filter`; the original residual metrics stay
+  full-band. This is distinct from setting OSR only during spectrum analysis.
 - If `freq` is omitted, `calibrate_weight_sine` estimates the tone frequency
   and fine-searches it against the calibration residual. The default
   `frequency_policy="python"` preserves the historical Python coarse estimator;

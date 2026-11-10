@@ -65,11 +65,25 @@ def _dual_basis_lstsq(
     offset_matrix: np.ndarray,
     deriv_matrix: np.ndarray | None = None,
     verbose: int = 0,
+    fit_filter=None,
 ) -> tuple[np.ndarray, int, float]:
     """
     Core dual-basis solver: tries both cosine=1 and sine=1 assumptions.
     Returns the solution with the minimum residual.
     """
+    if fit_filter is not None:
+        A_common = fit_filter.apply(A_common)
+        cos_basis = fit_filter.apply(cos_basis)
+        sin_basis = fit_filter.apply(sin_basis)
+        offset_matrix = fit_filter.apply(offset_matrix)
+        if deriv_matrix is not None:
+            deriv_matrix = fit_filter.apply(deriv_matrix)
+        n_columns = (A_common.shape[1] + offset_matrix.shape[1]
+                     + 2 * cos_basis.shape[1] - 1
+                     + (0 if deriv_matrix is None else deriv_matrix.shape[1]))
+        if A_common.shape[0] <= n_columns:
+            raise ValueError("Too few samples remain after calibration filtering for the fit.")
+
     # Assumption 1: Cosine fundamental is unity
     # Layout: [Weights, Offsets, Cos_harmonics[1:], Sin_harmonics[:], (Derivs)]
     columns1 = [A_common, offset_matrix, cos_basis[:, 1:], sin_basis]
@@ -150,6 +164,7 @@ def _solve_weights_with_known_freq(
     freq_array: np.ndarray,
     harmonic_order: int,
     verbose: int = 0,
+    fit_filter=None,
 ) -> tuple[np.ndarray, int, np.ndarray, np.ndarray]:
     """
     Static solve at known frequencies (unified for single/multi datasets).
@@ -178,6 +193,8 @@ def _solve_weights_with_known_freq(
     sin_basis : ndarray
         Sine basis matrix (n_samples_total, num_datasets * harmonic_order)
     """
+    if fit_filter is not None:
+        fit_filter.validate_frequencies(freq_array)
     num_datasets = len(bits_list)
     segment_lengths = np.array([bits.shape[0] for bits in bits_list])
     n_samples_total = sum(segment_lengths)
@@ -224,6 +241,7 @@ def _solve_weights_with_known_freq(
         sin_basis,
         offset_matrix,
         verbose=verbose,
+        fit_filter=fit_filter,
     )
 
     return coeffs, basis_choice, cos_basis, sin_basis
@@ -235,7 +253,8 @@ def _solve_weights_searching_freq(
     learning_rate: float = 0.5,
     reltol: float = 1e-12,
     max_iter: int = 100,
-    verbose: int = 0
+    verbose: int = 0,
+    fit_filter=None,
 ) -> tuple[np.ndarray, np.ndarray, int, np.ndarray, np.ndarray]:
     """
     Iterative frequency refinement using gradient descent (unified for single/multi datasets).
@@ -310,7 +329,8 @@ def _solve_weights_searching_freq(
 
         # Solve for current coefficients
         coeffs_temp, basis_choice_temp, cos_basis, sin_basis = _solve_weights_with_known_freq(
-            bits_list, freq_array, harmonic_order, verbose=verbose
+            bits_list, freq_array, harmonic_order, verbose=verbose,
+            fit_filter=fit_filter,
         )
 
         # Per-dataset harmonic coefficients; only dataset 0's fundamental is
@@ -358,17 +378,23 @@ def _solve_weights_searching_freq(
             offset_matrix,
             deriv_matrix,
             verbose=verbose,
+            fit_filter=fit_filter,
         )
 
         # Extract frequency corrections (last num_datasets elements)
         delta_f_raw = coeffs[-num_datasets:]
         delta_f_array = delta_f_raw * learning_rate / segment_lengths
+        if fit_filter is not None:
+            delta_f_array = fit_filter.bound_frequencies(freq_array + delta_f_array) - freq_array
 
         # Compute relative error using first harmonic magnitude for normalization
         fundamental_other_idx = bit_width + num_datasets + (num_datasets * harmonic_order - 1)
         other_fundamental_val = coeffs[fundamental_other_idx]
         w0 = np.sqrt(1 + other_fundamental_val**2)
-        relerr = np.sqrt(np.mean((deriv_matrix @ (delta_f_raw * learning_rate))**2)) / w0
+        correction = deriv_matrix @ (delta_f_raw * learning_rate)
+        if fit_filter is not None:
+            correction = fit_filter.apply(deriv_matrix @ (delta_f_array * segment_lengths))
+        relerr = np.sqrt(np.mean(correction**2)) / w0
 
         if verbose >= 1:
             header = f"[{ii+1:3d}] Iteration - RelErr: [{relerr:.2e}]"
@@ -384,4 +410,12 @@ def _solve_weights_searching_freq(
         if relerr < reltol:
             break
 
+    if fit_filter is not None:
+        # A bounded frequency step may differ from the unconstrained linear
+        # derivative solve. Refit at the actual final frequencies so returned
+        # weights/reference describe that model, without derivative columns.
+        freq_array = fit_filter.bound_frequencies(freq_array + delta_f_array)
+        coeffs, basis_choice, cos_basis, sin_basis = _solve_weights_with_known_freq(
+            bits_list, freq_array, harmonic_order, verbose=verbose, fit_filter=fit_filter)
+        return freq_array, coeffs, basis_choice, cos_basis, sin_basis
     return freq_array, coeffs[:-num_datasets], basis_choice, cos_basis, sin_basis

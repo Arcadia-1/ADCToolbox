@@ -21,6 +21,23 @@ import numpy as np
 import pytest
 
 
+def test_skill_oversampling_calibration_options():
+    """Run the OSR calls documented in SKILL.md and the API quick reference."""
+    from adctoolbox import calibrate_weight_sine
+    from adctoolbox.calibration import calibrate_weight_sine_lite
+
+    n = np.arange(4096)
+    freq = 31 / len(n)
+    code = np.floor(256 * (0.5 + 0.35 * np.sin(2 * np.pi * freq * n + 1.2))).astype(int)
+    bits = (code[:, None] >> np.arange(7, -1, -1)) & 1
+    result = calibrate_weight_sine(bits, freq=freq, osr=16)
+    weights_fast = calibrate_weight_sine_lite(bits, freq, osr=16)
+    assert result["calibrated_signal"][0].shape == n.shape
+    assert weights_fast.shape == (8,)
+    assert np.isfinite(result["inband_snr_db"])
+    assert result["calibration_filter"]["osr"] == 16
+
+
 def test_dither_quickref_public_calls():
     """The short Dither recipe in references/api-quickref.md."""
     from adctoolbox import DitherGainTracker, apply_dither_gain, DitherHDCTracker

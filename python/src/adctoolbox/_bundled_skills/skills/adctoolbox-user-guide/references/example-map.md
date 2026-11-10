@@ -63,6 +63,8 @@ current packaged examples under `python/src/adctoolbox/examples/`.
   `06_use_toolsets/exp_t03_dout_dashboard_single.py`
 - In-band extraction with MATLAB-compatible `ifilter`:
   `10_oversampling/exp_o02_ifilter_band_analysis.py`
+- In-band digital weight calibration of a noise-shaping SAR (Python):
+  `10_oversampling/exp_o04_inband_weight_calibration.py`
 - NTF theory and performance-vs-OSR sweep:
   `10_oversampling/exp_o03_ntfperf_perfosr.py`
 
