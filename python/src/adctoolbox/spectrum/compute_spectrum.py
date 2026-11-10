@@ -61,14 +61,26 @@ def compute_spectrum(
     max_harmonic
         Maximum harmonic order for THD (5 => H2..H5)
     nf_method
-        0=auto (default), 1=median, 2=trimmed mean, 3=exclude harmonics,
-        4=legacy wide harmonic exclusion
+        Noise estimate behind ``snr_dbc``, ``noise_floor_dbfs`` and
+        ``nsd_dbfs_hz``: 0=auto (default, the median of 1, 2 and the direct
+        part of 3), 1=median, 2=trimmed mean, 3=exclude harmonics,
+        4=legacy wide harmonic exclusion.
+
+        1 and 2 scale a robust per-bin level to the whole passband; they
+        assume a flat floor of random noise and ignore spurs. 3 sums all
+        passband bins outside the DC region, the fundamental lobe and the
+        harmonic lobes, so spurs count as noise, and fills the harmonic lobes
+        at the mean level of those bins; the fill is reported separately in
+        ``plot_data["noise_parts"]["exclude_extrapolated"]``. If the lobes
+        leave no such bin, method 3 is NaN.
     assumed_sig_pwr_dbfs
         Override signal power in dBFS
     coherent_averaging
         Use coherent FFT averaging when True
     cutoff_freq
-        High-pass cutoff in Hz
+        High-pass cutoff in Hz. Bins below ``ceil(cutoff_freq / fs * N)`` are
+        left out of SNDR, ENOB, SNR, the noise floor and NSD. If no in-band bin
+        remains, those metrics are NaN.
     verbose
         Verbosity level
     """
@@ -100,8 +112,10 @@ def compute_spectrum(
     power_spectrum_db = 10 * np.log10(power_spectrum + 1e-20)
     freq = np.arange(len(power_spectrum)) * (fs / N)
 
+    passband_start = 0
     if cutoff_freq > 0:
         cutoff_bin = min(int(np.ceil(cutoff_freq / fs * N)), len(power_spectrum))
+        passband_start = cutoff_bin
         if cutoff_freq >= (fs / 2):
             import warnings
 
@@ -188,12 +202,16 @@ def compute_spectrum(
 
     spec_sndr = power_spectrum.copy()
     spec_sndr[: min(side_bin, len(spec_sndr))] = 0.0
+    spec_sndr[:passband_start] = 0.0
     lo = max(fundamental_bin - side_bin, 0)
     hi = min(fundamental_bin + side_bin + 1, n_inband)
     if lo < hi:
         spec_sndr[lo:hi] = 0.0
     noi_sndr = float(np.sum(spec_sndr[:n_inband]))
-    sndr_dbc = 10 * np.log10(sig_linear / (noi_sndr + 1e-20))
+    if passband_start < n_inband:
+        sndr_dbc = 10 * np.log10(sig_linear / (noi_sndr + 1e-20))
+    else:
+        sndr_dbc = np.nan
     enob = (sndr_dbc - 1.76) / 6.02
 
     noise_result = _estimate_noise_power(
@@ -205,6 +223,7 @@ def compute_spectrum(
         harmonic_bins=harmonic_bins,
         side_bin=side_bin,
         coherent_averaging=coherent_averaging,
+        passband_start=passband_start,
         return_parts=True,
     )
     noise_power, noise_parts = noise_result

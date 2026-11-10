@@ -53,6 +53,8 @@ function [enob,sndr,sfdr,snr,thd,sigpwr,noi,nsd,h] = plotspec(sig,varargin)
 %       Alias: 'isPlot' (deprecated, use 'disp')
 %     'cutoff' - High-pass cutoff frequency for low-frequency noise removal in Hz. Default: 0
 %       Scalar, non-negative real number
+%       Bins below ceil(cutoff/Fs*N) are left out of SNDR, ENOB, SNR, the noise floor and NSD.
+%       If no in-band bin remains, those metrics are NaN.
 %       Alias: 'noFlicker' (deprecated, use 'cutoff')
 %     'nTHD' - Number of harmonics for THD calculation. Default: 5
 %       Scalar, positive integer
@@ -63,6 +65,13 @@ function [enob,sndr,sfdr,snr,thd,sigpwr,noi,nsd,h] = plotspec(sig,varargin)
 %     'NFMethod' - Noise floor estimation method. Default: 'auto'
 %       String: 'auto' (median of all methods), 'median' (median-based), 'mean' (trimmed mean), 'exclude' (exclude harmonics)
 %       Number: 0 (auto), 1 (median-based), 2 (trimmed mean), 3 (exclude harmonics)
+%       All methods estimate the noise in the passband (in-band bins above the cutoff).
+%       'median' and 'mean' scale a robust per-bin level to the whole passband; they assume a
+%       flat floor of random noise and ignore spurs. 'exclude' sums the passband bins outside
+%       the DC region, the signal lobe and the harmonic lobes, so spurs count as noise, and
+%       fills the harmonic lobes at the mean level of those bins (never above the noise plus
+%       distortion behind SNDR; NaN if the lobes leave no such bin). 'auto' is the median of
+%       'median', 'mean' and the direct sum of 'exclude' without the fill.
 %     'dispItem' - Display items selector. Default: 'sfedutrlyhop' (all items)
 %       String or char array where each character (case insensitive) enables a display item:
 %       's' - Signal power text and signal bin marker
@@ -386,9 +395,13 @@ end
 spec_inband = spec(1:inbandEnd);  % Extract signal band
 
 
-% Remove flicker noise (1/f noise) if requested
+% Remove flicker noise (1/f noise) if requested. The passband for SNDR, SNR
+% and the noise floor starts at the first bin above the cutoff.
+passbandStart = 1;
 if cutoffFreq > 0
-    spec(1:ceil(cutoffFreq/Fs*N_fft)) = 0;
+    cutoffBins = min(ceil(cutoffFreq/Fs*N_fft), Nd2);
+    spec(1:cutoffBins) = 0;
+    passbandStart = cutoffBins + 1;
 end
 
 % Find signal bin and refine using parabolic interpolation
@@ -592,16 +605,30 @@ if(dispPlot && label && show_p)
     text((sbin-1)/N_fft*Fs,spur_marker_db+5,'MaxSpur','fontname','Arial','fontsize',10,'horizontalalignment','center');
 end
 
-% Calculate noise floor using all methods and select per NFMethod
+% Calculate noise floor using all methods and select per NFMethod.
+% All methods estimate the noise in the passband, the in-band bins from the
+% cutoff up. Inside it, the DC region, the signal lobe and the harmonic
+% lobes hold noise that cannot be separated from DC leakage, the signal or
+% distortion.
 spec_inband_all = spec(1:inbandEnd);
+passband = false(1, inbandEnd);
+passband(passbandStart:inbandEnd) = true;
+n_passband = nnz(passband);
+if n_passband == 0
+    warning('plotspec:emptyPassband', ...
+        'No in-band bins remain above the cutoff frequency; SNDR, ENOB, SNR, noise floor and NSD are undefined.');
+    SNDR = NaN;
+    ENoB = NaN;
+end
 
-spec_inband = spec_inband_all(abs(spec_inband_all) > 1E-20);    % exclude zeros while estimating noisefloor
+spec_passband = spec_inband_all(passband);
+spec_inband = spec_passband(abs(spec_passband) > 1E-20);    % exclude zeros while estimating noisefloor
 if isempty(spec_inband)
-    spec_inband = spec_inband_all;
+    spec_inband = spec_passband;
 end
 n_inband = length(spec_inband);
 
-% Method 1: Median-based estimation (robust to spurs)
+% Method 1: Median-based estimation (robust to spurs), scaled to the passband
 % Mn is the median/mean ratio of a white-noise bin. One complex FFT bin has
 % exponentially distributed power. Power averaging of ME captures takes the
 % mean of ME exponentials, a Gamma(ME)/ME variable. Coherent averaging adds
@@ -612,23 +639,55 @@ else
     n_exponentials = max(ME, 1);
 end
 Mn = gammaincinv(0.5, n_exponentials) / n_exponentials;
-noi_median = median(spec_inband)/Mn * inbandEnd;
-% Method 2: Trimmed mean (removes top/bottom 5%)
-spec_sort = sort(spec_inband);
-noi_mean = mean(spec_sort(max(1,floor(n_inband*0.05)):max(1,floor(n_inband*0.95)))) * inbandEnd;
-% Method 3: Exclude harmonics from noise calculation
-spec_noise = spec;
+% Method 3: Sum the passband bins outside the DC region, the signal lobe and
+% the harmonic lobes (direct part), then fill the harmonic lobes at the mean
+% level of those bins (extrapolated part). The estimate never exceeds the
+% passband noise plus distortion behind SNDR. When no bin is left to
+% average, the noise cannot be separated and the estimate is NaN.
+masked = false(1, inbandEnd);
+masked(1:min(sideBin, inbandEnd)) = true;
+masked(max(bin-sideBin,1):min(bin+sideBin,inbandEnd)) = true;
+harm_lobes = false(1, inbandEnd);
 for i = 2:nTHD
     b = alias(round((bin_r-1)*i),N_fft) +1;
     h_start = max(b-sideBin,1);
     h_end = min(b+sideBin,inbandEnd);
-    spec_noise(h_start:h_end) = 0;
+    if h_start <= h_end
+        harm_lobes(h_start:h_end) = true;
+    end
 end
-noi_exclude = sum(spec_noise(1:inbandEnd));
+harm_lobes = harm_lobes & ~masked;
+remaining = passband & ~masked & ~harm_lobes;
+
+if n_passband == 0
+    noi_median = NaN;
+    noi_mean = NaN;
+    noi_exclude_direct = NaN;
+    noi_exclude = NaN;
+else
+    noi_median = median(spec_inband)/Mn * n_passband;
+    % Method 2: Trimmed mean (removes top/bottom 5%), scaled to the passband
+    spec_sort = sort(spec_inband);
+    noi_mean = mean(spec_sort(max(1,floor(n_inband*0.05)):max(1,floor(n_inband*0.95)))) * n_passband;
+    noi_exclude_direct = sum(spec_inband_all .* remaining);
+    noi_total = sum(spec_inband_all .* (passband & ~masked));
+    n_remaining = nnz(remaining);
+    if n_remaining > 0
+        noi_exclude = min(noi_exclude_direct + noi_exclude_direct / n_remaining * nnz(harm_lobes & passband), ...
+            noi_total);
+    else
+        noi_exclude = NaN;
+        if nfmethod == 3
+            warning('plotspec:noRemainingNoiseBins', ...
+                ['No passband bins remain outside the DC region, the signal lobe and the harmonic lobes; ' ...
+                'SNR, noise floor and NSD are undefined for NFMethod=exclude.']);
+        end
+    end
+end
 
 if(nfmethod == 0)
-    % Auto: median of all methods
-    noi = median([noi_median, noi_mean, noi_exclude]);
+    % Auto: median of the median, the trimmed mean and the direct part of method 3
+    noi = median([noi_median, noi_mean, noi_exclude_direct]);
 elseif(nfmethod == 1)
     noi = noi_median;
 elseif(nfmethod == 2)

@@ -50,7 +50,8 @@ def analyze_spectrum(data, fs=1.0, osr=1, max_scale_range=None, win_type='hann',
                   explicit integer to force a fixed signal-lobe width.
         osr: Oversampling ratio
         max_harmonic: Number of harmonics for THD calculation
-        nf_method: Noise floor method (0=auto default, 1=median, 2=trimmed mean, 3=exclude, 4=legacy wide exclude)
+        nf_method: Noise floor method (0=auto default, 1=median, 2=trimmed mean, 3=exclude, 4=legacy wide exclude);
+            see compute_spectrum for what each method assumes
         assumed_sig_pwr_dbfs: Pre-defined signal level in dBFS
         create_plot: Plot the spectrum (True) or not (False)
         show_title: Display auto-generated title (True) or not (False)
