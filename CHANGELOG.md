@@ -7,6 +7,49 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.9.3] - 2026-11-10
+
+**In-Band Calibration and Algorithm Fixes** - adds filtered weight fitting
+for oversampled ADCs and corrects linearity, spectrum and calibration results.
+
+### Added
+- Python `calibrate_weight_sine(..., osr=...)` and
+  `calibrate_weight_sine_lite(..., osr=...)` fit a lowpass-filtered residual for
+  oversampled/noise-shaping ADCs. The same FIR filters bit, reference, DC and
+  frequency-derivative columns independently per capture. The default `osr=1`
+  keeps the existing full-band path; output waveforms keep their original
+  length and sample rate. Full calibration adds `inband_snr_db`, `inband_enob`
+  and `calibration_filter` metadata (#128).
+- A held-out noise-shaping SAR calibration example, with spectra, weight
+  comparisons and JSON metrics, in `10_oversampling/exp_o04_inband_weight_calibration.py`.
+
+### Fixed
+- Sine-histogram DNL/INL code labels and width normalization. Missing codes
+  are reported at the correct code with DNL exactly -1; clipping no longer
+  causes artificial INL drift. Python and MATLAB are aligned (#118).
+- Multi-record sine calibration reconstructs each record's reference and
+  frequency derivative correctly and retains its own DC offset. Multi-record
+  `offset` is now an array; single-record behavior is preserved (#119).
+- Explicit `full_scale` takes precedence over the voltage/code span heuristic
+  for floating-point sine-linearity input (#120).
+- SFDR selects the strongest integrated spur lobe rather than the largest
+  individual peak bin (#121).
+- Median noise estimation uses the correct statistics for power versus
+  coherent averaging and the effective number of accepted records. Plot
+  labels also use the accepted-record count (#122).
+- Static nonlinearity generation meets the requested harmonic levels and
+  preserves the input DC operating point (#123).
+- Odd-length FFT boundary handling no longer halves the highest-bin filtered
+  tone or produces invalid harmonic indices (#117).
+- Copied foreground-calibration examples run outside the installed package
+  while retaining their source snapshots; wheel integration tests also work
+  in uv/macOS environments (#117).
+- Farrow fractional delay preserves short input lengths; error-spectrum
+  calls with `create_plot=False` preserve existing figures; low-frequency
+  spectrum labels use the correct Hz units (#117).
+- MATLAB rectangular-window coherent tones no longer trigger spurious peak
+  interpolation and overly wide automatic signal masks (#125).
+
 ## [0.9.2] - 2026-11-03
 
 **Calibration and SFDR Release** - adds Dither and supervised foreground
