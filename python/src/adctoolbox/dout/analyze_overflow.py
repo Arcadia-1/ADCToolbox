@@ -74,6 +74,12 @@ def analyze_overflow(
     ovf_percent_zero = np.zeros(M)
     ovf_percent_one = np.zeros(M)
 
+    # An all-ones tail gives tmp == sum_weight mathematically, but the dot
+    # product and np.sum add the same weights in different orders, so the
+    # normalized residue can land one rounding step below 1. Compare with a
+    # tolerance of a few ulp per summed term.
+    overflow_tolerance = 8 * np.finfo(float).eps * M
+
     # Calculate normalized residue at each bit position
     for ii in range(M):
         # Weighted sum of remaining bits (from current bit to LSB)
@@ -86,14 +92,14 @@ def analyze_overflow(
         range_max[ii] = np.max(tmp) / sum_weight
 
         # Calculate overflow percentages
-        ovf_percent_zero[ii] = np.sum(data_decom[:, ii] <= 0) / N * 100
-        ovf_percent_one[ii] = np.sum(data_decom[:, ii] >= 1) / N * 100
+        ovf_percent_zero[ii] = np.sum(data_decom[:, ii] <= overflow_tolerance) / N * 100
+        ovf_percent_one[ii] = np.sum(data_decom[:, ii] >= 1 - overflow_tolerance) / N * 100
 
     # Detect overflow at specified bit position
     # MATLAB: ovf_zero = (data_decom(:,M-chkpos+1) <= 0);
     # Python 0-indexed: M-ofb+1-1 = M-ofb
-    ovf_zero = data_decom[:, M - ofb] <= 0
-    ovf_one = data_decom[:, M - ofb] >= 1
+    ovf_zero = data_decom[:, M - ofb] <= overflow_tolerance
+    ovf_one = data_decom[:, M - ofb] >= 1 - overflow_tolerance
     non_ovf = ~(ovf_zero | ovf_one)
 
     # Only plot if display requested

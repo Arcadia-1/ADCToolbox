@@ -7,7 +7,6 @@ for applying various ADC non-idealities to a base sine wave signal.
 
 import numpy as np
 from scipy import signal as scipy_signal
-from scipy.interpolate import CubicSpline
 
 class ADC_Signal_Generator:
     """
@@ -82,22 +81,26 @@ class ADC_Signal_Generator:
         
         Logic:
         - Case 1 (Source Generation): If input_signal is None, regenerates from scratch (Perfect Precision).
-        - Case 2 (Chain Processing): If input is provided, uses Cubic Spline interpolation (Preserves previous errors).
+        - Case 2 (Chain Processing): If input is provided, adds the error that the
+          same jitter causes on the generator's own sine (Preserves previous errors).
         """
         # 1. Generate timing jitter
         t_jitter = np.random.randn(self.N) * jitter_rms
 
+        total_phase = 2 * np.pi * self.Fin * (self.t + t_jitter)
         if input_signal is None:
             # Case 1: Perfect mathematical generation (No interpolation error)
-            total_phase = 2 * np.pi * self.Fin * (self.t + t_jitter)
             return self.A * np.sin(total_phase) + self.DC
         else:
-            # Case 2: High-precision interpolation (Preserves previous distortions) 
-            signal = input_signal.copy()
-            t_sample = self.t + t_jitter
-            # Cubic Spline is much better than linear interp for preserving SNR
-            cs = CubicSpline(self.t, signal)
-            return cs(t_sample)
+            # Case 2: The input is only known at the sampling instants, so its
+            # value at t + jitter cannot be interpolated from the samples: near
+            # Nyquist a spline through them has the wrong slope, and above
+            # Nyquist it follows the alias. The carrier is known exactly, so
+            # add the sampling error of the carrier instead. Jitter acting on
+            # the earlier, much smaller error terms is second order.
+            nominal_phase = 2 * np.pi * self.Fin * self.t
+            jitter_error = self.A * (np.sin(total_phase) - np.sin(nominal_phase))
+            return input_signal + jitter_error
 
     def apply_static_nonlinearity(self, input_signal=None, k2=0, k3=0, k4=0, k5=0):
         """Applies static nonlinear distortion to the signal using direct polynomial coefficients (k2 to k5)."""

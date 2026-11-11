@@ -62,9 +62,10 @@ def predict_spurs(
     A_in = float(params.get("A", 1.0))
 
     if fin is None:
-        fin = float(params.get("fin"))
+        fin = params.get("fin")
         if fin is None:
             raise ValueError("fin must be provided via argument or params['fin']")
+    fin = float(fin)
 
     M = gain.size
     if not (offset.size == M and skew.size == M):
