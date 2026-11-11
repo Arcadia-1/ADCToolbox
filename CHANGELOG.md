@@ -7,6 +7,79 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Changed
+- `fit_sine_4param` and every analysis that calls it (`analyze_error_pdf`,
+  `analyze_error_spectrum`, `analyze_error_autocorr`,
+  `analyze_error_envelope_spectrum`, `analyze_error_by_phase`,
+  `analyze_error_by_value`, the harmonic decompositions, `fit_static_nonlin`,
+  `estimate_frequency`, `sweep_performance_vs_osr`) now refine the frequency
+  until it converges: `max_iterations` defaults to 100 instead of 1, as in
+  MATLAB `sinfit`. Typical fits stop after 2 to 5 iterations. The default call
+  no longer raises "did not converge in 1 iterations".
+- `estimate_frequency(..., frequency_estimate=...)` takes the estimate in the
+  units of `fs` (Hz when `fs` is in Hz). It was read as cycles per sample
+  whatever `fs` was, so a value in Hz returned a frequency of about 1e17 Hz.
+- `sweep_performance_vs_osr` raises `ValueError` for several records instead
+  of concatenating them (four 60 dB records read as -2 dB SNDR).
+
+### Fixed
+- `fit_sine_4param` returned the amplitude and phase of the linearized step at
+  the previous frequency. With the old single-step default a clean
+  non-coherent tone kept a residual of up to -29 dBc (N=256) or -75 dBc
+  (N=1024), which the error analyses reported as ADC error: the error PDF of
+  an ideal 14-bit tone with 12.6 cycles read 1.43 LSB rms instead of 0.29.
+  A, B and C are now the least-squares solution at the returned frequency.
+- `fit_sine_4param` no longer returns a fit that is worse than its starting
+  point (chirps, noise) or runs to the frequency limit with an amplitude of
+  several hundred thousand (odd-length records with the tone in the top bin,
+  less than one cycle in the record). It falls back to the initial estimate,
+  sets `converged=False` and warns. The FFT start now includes the top bin.
+- `fit_static_nonlin` returned `k2/g` and `k3/g^2`, with
+  `g = 1 + 0.75*k3*A^2` the gain of the cubic term on the fundamental
+  (true 0.10/-0.30 at A=1 read 0.129/-0.499), and was biased on records with a
+  non-integer number of cycles (k2 12 % high at 7.4 cycles).
+- `calibrate_weight_sine_lite` returned near-zero weights for an input sine
+  starting at zero phase, and 110 LSB of error at phase pi. It now solves both
+  quadrature gauges like `calibrate_weight_sine`.
+- `calibrate_weight_sine` with a per-record `freq` array that mixes known
+  values and 0 placeholders returned all-zero weights with `snr_db` of 200.
+  Placeholders are now estimated. A 0-d array `freq` no longer raises, and the
+  residual SNR is NaN, not 200 dB, when there is no reconstructed signal.
+- In-band weight calibration (`osr > 1`) with an automatic frequency started
+  the tone search up to 0.93 bin away when the tone sat just below the cutoff.
+- `analyze_overflow` missed all-ones codes at some bit positions with
+  non-integer weights (0 % instead of 1.19 %), because of an exact float
+  comparison.
+- `scale_calibration_output(target_weights=...)` doubled the scale when a bit
+  never toggled in the capture.
+- Coherent averaging with any window other than rectangular lost the window's
+  side bins across runs: signal power read 1.7 dB low with Hann (the default),
+  3 dB with Blackman-Harris and 5 dB with Kaiser, and SNR dropped with it.
+  MATLAB `plotspec` has the same alignment and is not changed here.
+- Auto `side_bin` was cut to the distance from DC or from the band edge, so
+  part of the tone's own lobe counted as distortion (Blackman-Harris tone at
+  bin 2: SNDR 38.9 dB for a 60 dB capture; OSR 16 near the band edge: 16.9 dB).
+- `compute_spectrum` on integer codes with no declared range overflowed in
+  the input dtype (int16 codes: signal at +20.7 dBFS). `max_scale_range` now
+  also accepts a NumPy array, and power averaging skips all-zero records as
+  coherent averaging already did.
+- `ADC_Signal_Generator.apply_jitter(input_signal=...)` under-applied jitter
+  near and above Nyquist (SNR 10 dB too high at fin/fs = 0.45, 19 dB at 0.9).
+- `analyze_error_by_value` without `value_range` dropped or collapsed signals
+  outside [0, 1], [-0.5, 0.5] and [-1, 1] (1.2 +/- 0.7 V lost 40 % of its
+  samples; a +/-5 mV signal filled 2 of 100 bins).
+- `analyze_error_by_phase` and `analyze_error_by_value` report the fitted
+  frequency in `norm_freq`, not the caller's estimate.
+- `validate_dout_data` accepts a boolean bit matrix; `predict_spurs` raises
+  the intended `ValueError` when `fin` is missing.
+
+### Removed
+- 16 test functions (23 collected cases) that duplicated another test or
+  asserted nothing a stricter test does not already check, and three test
+  scripts that pytest never collected
+  (`tests/run_full_test_suite.py`, `tests/compare/run_analog_comparisons.py`,
+  `tests/compare/run_digital_comparisons.py`).
+
 ## [0.9.3] - 2026-11-10
 
 **In-Band Calibration and Algorithm Fixes** - adds filtered weight fitting
