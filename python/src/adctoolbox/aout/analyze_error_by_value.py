@@ -14,7 +14,7 @@ def analyze_error_by_value(
     create_plot: bool = True,
     axes=None, ax=None,
     title: str = None,
-    max_iterations: int = 1,
+    max_iterations: int = 100,
     tolerance: float = 1e-9,
     return_fit: bool = False
 ) -> dict[str, Any]:
@@ -37,7 +37,10 @@ def analyze_error_by_value(
     clip_percent : float, default=0.01
         Ratio of values to clip from edges.
     value_range : tuple(min, max), optional
-        Physical range mapping to bin 0 and bin (N-1).
+        Physical range mapping to bin 0 and bin (N-1). If omitted, a signal
+        that fits inside and spans at least a quarter of [0, 1], [-0.5, 0.5]
+        or [-1, 1] is binned over that range; any other signal is binned over
+        its own minimum to maximum.
     create_plot : bool, default=True
         Whether to display result plot.
     axes : tuple or array, optional
@@ -46,8 +49,9 @@ def analyze_error_by_value(
         Single axis to plot on (will be split).
     title : str, optional
         Test setup description for title.
-    max_iterations : int, default=1
-        Frequency-refinement iterations passed to fit_sine_4param.
+    max_iterations : int, default=100
+        Maximum frequency-refinement iterations passed to fit_sine_4param;
+        refinement stops early once it converges.
     tolerance : float, default=1e-9
         Frequency-refinement convergence threshold passed to fit_sine_4param.
     return_fit : bool, default=False

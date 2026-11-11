@@ -13,7 +13,7 @@ def analyze_error_by_phase(
     create_plot: bool = True,
     axes=None, ax=None,
     title: str = None,
-    max_iterations: int = 1,
+    max_iterations: int = 100,
     tolerance: float = 1e-9,
     return_fit: bool = False
 ) -> dict[str, Any]:
@@ -42,8 +42,9 @@ def analyze_error_by_phase(
         Single axis to split into 2 panels.
     title : str, optional
         Test setup description for title.
-    max_iterations : int, default=1
-        Frequency-refinement iterations passed to fit_sine_4param.
+    max_iterations : int, default=100
+        Maximum frequency-refinement iterations passed to fit_sine_4param;
+        refinement stops early once it converges.
     tolerance : float, default=1e-9
         Frequency-refinement convergence threshold passed to fit_sine_4param.
     return_fit : bool, default=False

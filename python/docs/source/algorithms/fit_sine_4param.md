@@ -25,7 +25,7 @@ result = fit_sine_4param(data, frequency_estimate=0.123,
 - **`data`** (array_like) — ADC output signal (1D or 2D array)
 - **`frequency_estimate`** (float, optional) — Initial normalized frequency (0 to 0.5)
   - If None: auto-detect using FFT peak with parabolic interpolation
-- **`max_iterations`** (int, default=1) — Number of iterations for frequency refinement
+- **`max_iterations`** (int, default=100) — Maximum number of iterations for frequency refinement; the loop stops as soon as the update is below `tolerance`, typically after 2 to 5
 - **`tolerance`** (float, default=1e-9) — Convergence threshold for frequency updates
 
 ## Returns

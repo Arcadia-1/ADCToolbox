@@ -12,7 +12,7 @@ def rearrange_error_by_value(
     n_bins: int = 100,
     clip_percent: float = 0.01,
     value_range: tuple[float, float | None] = None,
-    max_iterations: int = 1,
+    max_iterations: int = 100,
     tolerance: float = 1e-9,
     return_fit: bool = False,
 ) -> dict[str, Any]:
@@ -66,8 +66,10 @@ def rearrange_error_by_value(
     if norm_freq is None or np.isnan(norm_freq):
         fit_res = fit_sine_4param(signal, **fit_kwargs)
         norm_freq = fit_res['frequency']
-    else:        
+    else:
         fit_res = fit_sine_4param(signal, frequency_estimate=norm_freq, **fit_kwargs)
+        # Report the frequency the fit ended on, not the caller's estimate.
+        norm_freq = fit_res['frequency']
 
     fitted_signal = fit_res['fitted_signal']
     error = signal - fitted_signal

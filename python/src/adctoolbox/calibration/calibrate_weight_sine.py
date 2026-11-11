@@ -68,13 +68,14 @@ def calibrate_weight_sine(
         Normalized frequency Fin/Fs. Default is None (triggers auto frequency search).
         Use None for automatic frequency search, a float for one frequency
         shared by all datasets, or an array-like value for per-dataset
-        frequencies in multi-dataset mode.
+        frequencies in multi-dataset mode. A 0 entry in the array is a
+        placeholder: that dataset's frequency is estimated automatically.
     force_search : bool or None, optional
-        Frequency fine-search policy. Default is None, which refines
-        automatically estimated frequencies while keeping explicitly provided
-        frequencies fixed. Set True to refine provided frequencies too, or
-        False to disable fine search unless a zero frequency placeholder
-        remains.
+        Frequency fine-search policy. Default is None, which runs the fine
+        search when any frequency was estimated automatically and keeps
+        fully specified frequencies fixed. Set True to refine provided
+        frequencies too, or False to disable the fine search and use the
+        provided and coarse-estimated frequencies as they are.
     frequency_policy : {"python", "matlab"}, optional
         Coarse frequency estimator used when ``freq`` is ``None`` or zero.
         ``"python"`` preserves the historical Python estimator. ``"matlab"``
@@ -199,7 +200,8 @@ def calibrate_weight_sine(
     # Scale columns for numerical conditioning
     bits_stacked_effective_scaled, bit_scales = _scale_columns_for_conditioning(bits_stacked_effective, verbose)
 
-    auto_frequency_requested = freq is None or np.all(np.asarray(freq) == 0)
+    # A 0 entry is a placeholder for "estimate this record's frequency".
+    auto_frequency_requested = freq is None or np.any(np.asarray(freq) == 0)
 
     # Estimate or validate frequencies
     frequency_bits = bits_stacked

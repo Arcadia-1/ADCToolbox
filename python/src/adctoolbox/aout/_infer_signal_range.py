@@ -2,6 +2,11 @@
 
 import numpy as np
 
+# Smallest fraction of a guessed standard range that the signal must span
+# (-12 dBFS) for the guess to be kept.
+_MIN_RANGE_FILL = 0.25
+
+
 def _infer_signal_range(
     signal: np.ndarray,
     full_scale_range: tuple[float, float] = None,
@@ -27,10 +32,21 @@ def _infer_signal_range(
         return float(s_min), float(s_max)
 
     # Case B: Small values -> Treat as Voltage / Normalized
-    # Infer standard ranges
+    # Guess a standard full-scale range, so that a signal normalized to it is
+    # binned over the whole ADC range rather than over its own swing.
     if mean_val > 0.1:
-        return 0.0, 1.0  # Unipolar [0, 1]
+        guess = (0.0, 1.0)    # Unipolar [0, 1]
     elif abs_max <= 0.6:
-        return -0.5, 0.5 # Bipolar small [-0.5, 0.5]
+        guess = (-0.5, 0.5)   # Bipolar small [-0.5, 0.5]
     else:
-        return -1.0, 1.0 # Bipolar large [-1, 1]
+        guess = (-1.0, 1.0)   # Bipolar large [-1, 1]
+
+    # The guess is only usable if the signal lies inside it and occupies a
+    # reasonable part of it. A 1.2 +/- 0.7 V signal would otherwise lose every
+    # sample above 1 V, and a +/-5 mV signal would land in two bins. Fall back
+    # to the signal's own span in those cases.
+    fits = s_min >= guess[0] and s_max <= guess[1]
+    fills = (s_max - s_min) >= _MIN_RANGE_FILL * (guess[1] - guess[0])
+    if fits and fills:
+        return guess
+    return float(s_min), float(s_max)

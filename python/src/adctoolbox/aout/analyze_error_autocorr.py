@@ -13,7 +13,7 @@ from adctoolbox.fundamentals.fit_sine_4param import fit_sine_4param
 from adctoolbox.aout._fit_diagnostics import extract_fit_diagnostics
 
 def analyze_error_autocorr(signal, frequency=None, max_lag=50, normalize=True, create_plot: bool = True,
-                           ax=None, title: str = None, max_iterations: int = 1,
+                           ax=None, title: str = None, max_iterations: int = 100,
                            tolerance: float = 1e-9, return_fit: bool = False):
     """
     Compute and optionally plot autocorrelation function (ACF) of error signal.
@@ -37,8 +37,9 @@ def analyze_error_autocorr(signal, frequency=None, max_lag=50, normalize=True, c
         Axes to plot on. If None, uses current axes (plt.gca())
     title : str, optional
         Title for the plot. If None, uses default title
-    max_iterations : int, default=1
-        Frequency-refinement iterations passed to fit_sine_4param.
+    max_iterations : int, default=100
+        Maximum frequency-refinement iterations passed to fit_sine_4param;
+        refinement stops early once it converges.
     tolerance : float, default=1e-9
         Frequency-refinement convergence threshold passed to fit_sine_4param.
     return_fit : bool, default=False
