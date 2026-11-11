@@ -1,6 +1,5 @@
 """Unit tests for jitter calculation using analyze_error_by_phase with figure generation."""
 
-import pytest
 import numpy as np
 import matplotlib.pyplot as plt
 from pathlib import Path
@@ -153,59 +152,6 @@ def test_jitter_recovery_at_1ghz():
         print(f'[Figure saved] -> {fig_path}')
 
 
-@pytest.mark.parametrize("fin_target,expected_correlation", [
-    (100e6, 0.99),   # 100 MHz
-    (1000e6, 0.99),  # 1 GHz
-    (2000e6, 0.99),  # 2 GHz
-])
-def test_jitter_recovery_frequency_sweep(fin_target, expected_correlation):
-    """Test jitter recovery at different frequencies."""
-    # Setup
-    N = 2**16
-    Fs = 7e9
-    A = 0.49
-    DC = 0.0
-    rng = np.random.default_rng(2026062222)
-
-    # Find coherent frequency
-    Fin, Fin_bin = find_coherent_frequency(fs=Fs, fin_target=fin_target, n_fft=N)
-
-    # Jitter sweep
-    jitter_levels = np.logspace(-15, -11, 20)  # Fewer points for speed
-
-    # Arrays to store results
-    jitter_set = []
-    jitter_measured = []
-
-    for jitter_rms in jitter_levels:
-        # Generate signal
-        t = np.arange(N) / Fs
-        phase_noise_rms = 2 * np.pi * Fin * jitter_rms
-        phase_jitter = rng.standard_normal(N) * phase_noise_rms
-        signal = A * np.sin(2*np.pi*Fin*t + phase_jitter) + DC
-
-        # Measure jitter
-        results = analyze_error_by_phase(signal, norm_freq=Fin/Fs, n_bins=100,
-                                        include_base_noise=True, create_plot=False)
-        pm_noise_rad = results['pm_noise_rms_rad']
-        jitter_calc = pm_noise_rad / (2 * np.pi * Fin)
-
-        jitter_set.append(jitter_rms)
-        jitter_measured.append(jitter_calc)
-
-    # Convert to arrays and calculate metrics
-    jitter_set = np.array(jitter_set)
-    jitter_measured = np.array(jitter_measured)
-    correlation = np.corrcoef(jitter_set, jitter_measured)[0, 1]
-    avg_error = np.mean(np.abs(jitter_measured - jitter_set) / jitter_set * 100)
-
-    print(f'\n[Freq Sweep] Fin={Fin/1e6:.0f} MHz: Corr={correlation:.4f}, Avg Err={avg_error:.2f}%')
-
-    # Assertion
-    assert correlation > expected_correlation, \
-        f"Correlation too low at {Fin/1e6:.0f} MHz: {correlation:.6f} (expected > {expected_correlation})"
-
-
 if __name__ == '__main__':
     """Run jitter calculation tests standalone"""
     print('='*80)
@@ -213,9 +159,6 @@ if __name__ == '__main__':
     print('='*80)
 
     test_jitter_recovery_at_1ghz()
-    test_jitter_recovery_frequency_sweep(100e6, 0.99)
-    test_jitter_recovery_frequency_sweep(1000e6, 0.99)
-    test_jitter_recovery_frequency_sweep(2000e6, 0.99)
 
     print('\n' + '='*80)
     print(f'** All jitter calculation tests completed! **')

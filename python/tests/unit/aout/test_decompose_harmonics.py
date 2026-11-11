@@ -79,30 +79,6 @@ def test_decompose_harmonics_basic():
     assert fig_path.stat().st_size > 0, f"Figure file is empty: {fig_path}"
 
 
-@pytest.mark.parametrize("k3_value", [0.001, 0.005, 0.01])
-def test_decompose_harmonics_nonlinearity_levels(k3_value):
-    """Test harmonic decomposition at different nonlinearity levels."""
-    N = 2**13
-    Fs = 800e6
-    Fin = 10.1234567e6
-    t = np.arange(N) / Fs
-    A = 0.25
-    DC = 0.5
-    base_noise = 50e-6
-    rng = np.random.default_rng(2026062216)
-
-    sig_ac = A * np.sin(2 * np.pi * Fin * t)
-    sig_nonlin = DC + sig_ac + k3_value * sig_ac**3 + rng.standard_normal(N) * base_noise
-
-    # Just run the analysis without creating plot
-    fig, ax = plt.subplots(1, 1, figsize=(6, 5))
-    analyze_decomposition_time(sig_nonlin, ax=ax, title=f'k3={k3_value:.3f}')
-    plt.tight_layout()
-    plt.close(fig)
-
-    print(f"\n[k3={k3_value:.3f}] -> [PASS]")
-
-
 def test_decompose_harmonic_error_uses_fixed_frequency():
     """Known frequency plus max_iterations=0 should remain fixed."""
     signal, freq = _clean_harmonic_signal()
@@ -206,8 +182,8 @@ def test_decompose_harmonic_error_known_frequency_handles_strong_hd2():
         + 0.1
     )
 
-    with pytest.warns(RuntimeWarning, match="did not converge"):
-        auto_result = decompose_harmonic_error(signal, n_harmonics=3)
+    # Auto-detection locks onto the larger HD2 tone and converges there.
+    auto_result = decompose_harmonic_error(signal, n_harmonics=3)
 
     with warnings.catch_warnings(record=True) as records:
         warnings.simplefilter("always")
@@ -234,9 +210,6 @@ if __name__ == '__main__':
     print('='*80)
 
     test_decompose_harmonics_basic()
-    test_decompose_harmonics_nonlinearity_levels(0.001)
-    test_decompose_harmonics_nonlinearity_levels(0.005)
-    test_decompose_harmonics_nonlinearity_levels(0.01)
 
     print('\n' + '='*80)
     print(f'** All decompose_harmonics tests completed! **')

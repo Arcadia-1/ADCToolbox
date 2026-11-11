@@ -14,44 +14,6 @@ from adctoolbox.calibration._lstsq_solver import (
     _dual_basis_lstsq
 )
 
-@pytest.fixture
-def adc_factory():
-    """
-    A factory fixture to generate physically consistent synthetic ADC data.
-    Model: analog_signal -> quantization -> bits -> solver input
-    """
-    def _create_mock_data(num_datasets=2, n_samples=2048, freq_error=0.0):
-        # 1. Setup Ground Truth: Using specific non-ideal weights for realism
-        true_weights = np.array([1.0, 2.0, 4.0, 8.0, 15.9, 32.1, 64.2, 127.5])
-        bit_width = len(true_weights)
-        
-        # Unique frequency and DC offset per dataset
-        true_freqs = np.linspace(0.11, 0.14, num_datasets)
-        true_dcs = np.linspace(-2.0, 2.0, num_datasets)
-        
-        bits_list = []
-        for k in range(num_datasets):
-            t = np.arange(n_samples)
-            # 2. Generate target analog signal
-            # Centering the signal at 127 to fully utilize the 8-bit range
-            analog_signal = 100 * np.sin(2 * np.pi * true_freqs[k] * t + 0.5) + 127 + true_dcs[k]
-            
-            # 3. Quantization: Convert analog signal to integer codes
-            # This ensures that bits @ true_weights is mathematically linked to the frequency
-            codes = np.clip(np.round(analog_signal), 0, 2**bit_width - 1).astype(int)
-            
-            # 4. Deconstruct integer codes into bit matrix (n_samples, bit_width)
-            bits = np.zeros((n_samples, bit_width))
-            for b in range(bit_width):
-                bits[:, b] = (codes >> b) & 1
-            
-            bits_list.append(bits)
-
-        init_freqs = true_freqs + freq_error
-        return bits_list, true_freqs, init_freqs, true_weights, true_dcs
-
-    return _create_mock_data
-
 def test_harmonic_basis_properties():
     """
     Test 1: Verify the mathematical properties of the harmonic basis matrix.

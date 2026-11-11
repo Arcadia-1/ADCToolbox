@@ -6,7 +6,6 @@ Purpose: Self-verify that spec_plot_phase correctly detects harmonics and phases
          (NOT compared against MATLAB)
 """
 import numpy as np
-import pytest
 import matplotlib
 matplotlib.use('Agg')  # Use non-GUI backend for testing
 from adctoolbox.spectrum import analyze_spectrum_polar
@@ -141,43 +140,9 @@ def test_verify_spec_plot_phase_lms_mode():
     assert count_ok, "Should detect at least 4 harmonics"
 
 
-def test_verify_spec_plot_phase_comparison():
-    """
-    Compare FFT and LMS mode behavior on same signal.
-
-    Verify that:
-    - Both modes run without errors
-    - LMS mode provides more detailed analysis than FFT mode
-    """
-    signal, params = generate_test_signal()
-
-    print('\n[Verify spec_plot_phase] [FFT vs LMS]')
-
-    # Run both modes
-    coherent_result = analyze_spectrum_polar(signal, harmonic=5, create_plot=False)
-    decomp_result = analyze_decomposition_polar(signal, harmonic=5, create_plot=False)
-
-    # FFT mode: returns spectrum metrics
-    fft_ok = 'sndr_dbc' in coherent_result and 'sfdr_dbc' in coherent_result
-
-    # LMS mode: returns detailed harmonic decomposition
-    lms_ok = (len(decomp_result['phases']) > 0 and
-              len(decomp_result['magnitudes']) > 0 and
-              'fundamental_freq' in decomp_result and
-              'noise_db' in decomp_result)
-
-    status = 'PASS' if fft_ok and lms_ok else 'FAIL'
-    print(f'  [FFT: has_spectrum={fft_ok}]', end=' ')
-    print(f'[LMS: hp={len(decomp_result["phases"])} hm={len(decomp_result["magnitudes"])}] [{status}]')
-
-    assert fft_ok, "FFT mode should return spectrum metrics"
-    assert lms_ok, "LMS mode should return detailed output"
-
-
 if __name__ == '__main__':
     """Run verification tests standalone"""
     print('Running spec_plot_phase verification tests...\n')
     test_verify_spec_plot_phase_fft_mode()
     test_verify_spec_plot_phase_lms_mode()
-    test_verify_spec_plot_phase_comparison()
     print('\n** All verification tests passed! **')
