@@ -222,9 +222,9 @@ exp_s07_spectrum_averaging.py
    ================================================================================
    POWER SPECTRUM AVERAGING vs COHERENT SPECTRUM AVERAGING
    ================================================================================
-   [  1 Run(s)] Power Avg: ENoB=[11.49 b], SNR=[ 71.02 dB] | Coherent Avg: ENoB=[11.49 b], SNR=[ 71.02 dB]
-   [ 10 Run(s)] Power Avg: ENoB=[11.49 b], SNR=[ 71.01 dB] | Coherent Avg: ENoB=[12.84 b], SNR=[ 79.41 dB]
-   [100 Run(s)] Power Avg: ENoB=[11.49 b], SNR=[ 70.97 dB] | Coherent Avg: ENoB=[14.05 b], SNR=[ 89.21 dB]
+   [  1 Run(s)] Power Avg: ENoB=[11.49 b], SNR=[ 71.00 dB], sig_pwr=[ -0.00 dBFS] | Coherent Avg: ENoB=[11.49 b], SNR=[ 71.00 dB], sig_pwr=[ -0.00 dBFS]
+   [ 10 Run(s)] Power Avg: ENoB=[11.49 b], SNR=[ 70.99 dB], sig_pwr=[ -0.01 dBFS] | Coherent Avg: ENoB=[13.05 b], SNR=[ 80.92 dB], sig_pwr=[ -0.01 dBFS]
+   [100 Run(s)] Power Avg: ENoB=[11.48 b], SNR=[ 70.94 dB], sig_pwr=[ -0.01 dBFS] | Coherent Avg: ENoB=[14.19 b], SNR=[ 90.97 dB], sig_pwr=[ -0.01 dBFS]
    
    [Save fig] -> [D:\ADCToolbox\python\src\adctoolbox\examples\02_spectrum\output\exp_s07_spectrum_averaging.png]
 
@@ -236,11 +236,11 @@ exp_s07_spectrum_averaging.py
    Method               |  Runs | SNR (dB) |  Gain (dB) | Theory (dB) | Status
    -----------------------------------------------------------------------------------------------
    Theoretical (1 run)  |     1 |    70.95 |        --- |         --- | Reference
-   Power Average        |     1 |    71.02 |       0.00 |         --- | Baseline
-   Power Average        |    10 |    71.01 |      -0.01 |         --- | Noise floor smoother
-   Coherent Average     |    10 |    79.41 |       8.40 |       10.00 | True processing gain
-   Power Average        |   100 |    70.97 |      -0.05 |         --- | Noise floor smoother
-   Coherent Average     |   100 |    89.21 |      18.19 |       20.00 | True processing gain
+   Power Average        |     1 |    71.00 |       0.00 |         --- | Baseline
+   Power Average        |    10 |    70.99 |      -0.01 |         --- | Noise floor smoother
+   Coherent Average     |    10 |    80.92 |       9.91 |       10.00 | True processing gain
+   Power Average        |   100 |    70.94 |      -0.06 |         --- | Noise floor smoother
+   Coherent Average     |   100 |    90.97 |      19.96 |       20.00 | True processing gain
    ===============================================================================================
    
    ================================================================================

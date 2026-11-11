@@ -42,8 +42,10 @@ def analyze_spectrum(data, fs=1.0, osr=1, max_scale_range=None, win_type='hann',
     Parameters:
         data: Input data (N,) or (M, N)
         fs: Sampling frequency
-        max_scale_range: Full scale range for normalization.
-            Can be: scalar (direct range), tuple/list [min, max], or None (auto-detect)
+        max_scale_range: Full scale for dBFS normalization.
+            Can be: scalar (peak amplitude of the centered signal, i.e. half
+            of max - min; 0.5 for a 0..1 V or +/-0.5 V range), tuple/list
+            [min, max], or None (auto-detect from the data)
         win_type: Window function type ('hann', 'hamming', 'boxcar')
         side_bin: Number of side bins around fundamental. None triggers
                   waveform-based auto detection in compute_spectrum; pass an

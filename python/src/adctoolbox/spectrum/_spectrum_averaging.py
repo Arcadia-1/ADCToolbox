@@ -43,7 +43,8 @@ def _power_average(
 
 def _coherent_average(
     data_processed: np.ndarray,
-    osr: int
+    osr: int,
+    lobe_half_width: int = 0,
 ) -> tuple[np.ndarray, np.ndarray, int]:
     """Compute coherent-averaged spectrum with phase alignment.
 
@@ -58,6 +59,9 @@ def _coherent_average(
         Windowed data, shape (M runs, N samples)
     osr
         Oversampling ratio for fundamental search range
+    lobe_half_width
+        Half-width in bins of the window main lobe of a coherent tone. The
+        side bins of every harmonic are phase-aligned with that harmonic.
 
     Returns
     -------
@@ -98,7 +102,10 @@ def _coherent_average(
             original_fundamental_phase = np.angle(fft_data[fundamental_bin])
 
         # Phase alignment (MATLAB plotspec.m:292-322)
-        fft_aligned = _align_spectrum_phase(fft_data, fundamental_bin, fundamental_bin_frantional, N)
+        fft_aligned = _align_spectrum_phase(
+            fft_data, fundamental_bin, fundamental_bin_frantional, N,
+            lobe_half_width=lobe_half_width,
+        )
         spec_coherent_sum += fft_aligned
         n_valid_runs += 1
 
