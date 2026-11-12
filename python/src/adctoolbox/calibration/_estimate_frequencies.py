@@ -5,13 +5,61 @@ Known Bugs:
 - For very short N (sample size) or certain frequency points, the coarse estimation will fail.
 - Known phenomenon:
   - Frequency 0.2 may be detected as 0.4 (2nd harmonic)
-  - Frequency 0.5 (Nyquist) is definitely failed
 """
 
 from adctoolbox.fundamentals.frequency import estimate_frequency
 from adctoolbox.spectrum.compute_spectrum import compute_spectrum
 import numpy as np
 from collections import Counter
+
+def _interpolate_hann_peak(magnitude: np.ndarray, peak: int) -> float:
+    """Fractional bin of a Hann-windowed tone from its peak and larger neighbour.
+
+    For a single tone the two largest Hann bins satisfy
+    ``offset = (2*ratio - 1) / (ratio + 1)`` with
+    ``ratio = |X[neighbour]| / |X[peak]|``. ``peak`` need not be the global
+    maximum: when the search is restricted to a band the neighbour can be the
+    larger bin, and the offset then lies between 0.5 and 1.
+    """
+    last = len(magnitude) - 1
+    left = magnitude[peak - 1] if peak > 0 else -np.inf
+    right = magnitude[peak + 1] if peak < last else -np.inf
+    if not np.isfinite(max(left, right)) or magnitude[peak] <= 0:
+        return float(peak)
+    direction = 1 if right >= left else -1
+    ratio = max(left, right) / magnitude[peak]
+    offset = np.clip((2.0 * ratio - 1.0) / (ratio + 1.0), 0.0, 1.0)
+    return float(peak + direction * offset)
+
+
+# A tone outside the calibration band must exceed the strongest in-band bin by
+# this amplitude ratio (20 dB) before the capture is rejected. Shaped
+# quantization noise stays far below that, so it never trips the check.
+_OUT_OF_BAND_TONE_RATIO = 10.0
+
+
+def _require_inband_tone(signal: np.ndarray, cutoff: float) -> None:
+    """Reject a capture whose dominant tone lies outside the calibration band.
+
+    The in-band search would otherwise lock onto whatever small component is
+    left below the cutoff and return weights fitted to noise.
+    """
+    signal = np.asarray(signal, dtype=float)
+    magnitude = np.abs(np.fft.rfft((signal - np.mean(signal)) * np.hanning(len(signal))))
+    frequencies = np.fft.rfftfreq(len(signal))
+    inband = (frequencies > 0) & (frequencies < cutoff)
+    outside = frequencies >= cutoff
+    if not np.any(inband) or not np.any(outside):
+        return
+    strongest_outside = int(np.flatnonzero(outside)[np.argmax(magnitude[outside])])
+    if magnitude[strongest_outside] > _OUT_OF_BAND_TONE_RATIO * np.max(magnitude[inband]):
+        raise ValueError(
+            "The capture's strongest tone is at about "
+            f"{frequencies[strongest_outside]:.6g} cycles/sample, outside the "
+            f"calibration band 0 < freq < 0.5/osr ({cutoff:g}). Use a lower osr "
+            "or an in-band training tone."
+        )
+
 
 def _estimate_frequencies(
     bits_stacked: np.ndarray,
@@ -41,16 +89,31 @@ def _estimate_frequencies(
     # --- Part 1: Handle User-Provided Frequencies ---
     # If freq_init is not 0/None, we validate and return
     if freq_init is not None and not np.all(np.asarray(freq_init) == 0):
-        if np.isscalar(freq_init):
-            return np.full(num_datasets, float(freq_init))
-        
         freq_array = np.asarray(freq_init, dtype=float)
+        if freq_array.ndim == 0:
+            return np.full(num_datasets, float(freq_array))
+
         if len(freq_array) != num_datasets:
             raise ValueError(
                 f"Frequency array length ({len(freq_array)}) must match "
                 f"number of datasets ({num_datasets})."
             )
-        return freq_array
+        if np.all(freq_array != 0):
+            return freq_array
+
+        # Some records have a known frequency and others a 0 placeholder.
+        # Estimate the placeholders; a search started from 0 Hz cannot find
+        # the tone and returns all-zero weights.
+        estimated = _estimate_frequencies(
+            bits_stacked,
+            segment_lengths,
+            freq_init=0,
+            verbose=verbose,
+            frequency_policy=frequency_policy,
+            nominal_weights=nominal_weights,
+            fit_filter=fit_filter,
+        )
+        return np.where(freq_array != 0, freq_array, estimated)
 
     if fit_filter is not None:
         # Out-of-band shaped noise must not win the coarse tone search.
@@ -60,6 +123,7 @@ def _estimate_frequencies(
         estimates = []
         for start, end in zip(offsets[:-1], offsets[1:]):
             segment = bits_stacked[start:end]
+            _require_inband_tone(segment @ nominal_weights, fit_filter.cutoff)
             prefixes = (range(1, min(segment.shape[1], 5) + 1)
                         if frequency_policy == "matlab" else [segment.shape[1]])
             candidates = []
@@ -72,7 +136,12 @@ def _estimate_frequencies(
                 if not len(inband):
                     raise ValueError("Capture is too short to resolve an in-band calibration tone.")
                 peak = inband[np.argmax(power[inband])]
-                candidates.append(estimate_frequency(signal, frequency_estimate=frequencies[peak]))
+                # Start the sine fit from the interpolated peak, not the bin
+                # centre: a tone just below the cutoff has its nearest bin
+                # outside the band, which leaves the in-band peak almost a
+                # full bin away, too far for the fit to converge.
+                start_frequency = _interpolate_hann_peak(power, peak) / len(signal)
+                candidates.append(estimate_frequency(signal, frequency_estimate=start_frequency))
             estimates.append(np.median(candidates))
         return fit_filter.bound_frequencies(np.asarray(estimates))
 

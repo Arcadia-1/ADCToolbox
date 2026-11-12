@@ -31,7 +31,9 @@ def analyze_spectrum_polar(
 
     Parameters:
         data: Input ADC data, shape (N,) or (M, N)
-        max_code: Maximum code level for normalization. If None, uses (max - min)
+        max_code: Full scale for normalization, as a peak amplitude (half of
+            the code span, e.g. 2048 for a 12-bit ADC). If None, uses the
+            data's own (max - min) / 2
         harmonic: Number of harmonics to mark on polar plot
         osr: Oversampling ratio
         cutoff_freq: High-pass cutoff frequency in Hz

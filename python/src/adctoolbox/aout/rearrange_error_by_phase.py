@@ -17,7 +17,7 @@ def rearrange_error_by_phase(
     norm_freq: float = None,
     n_bins: int = 100,
     include_base_noise: bool = True,
-    max_iterations: int = 1,
+    max_iterations: int = 100,
     tolerance: float = 1e-9,
     return_fit: bool = False,
 ) -> dict[str, np.ndarray]:
@@ -33,8 +33,9 @@ def rearrange_error_by_phase(
         Number of phase bins for visualization.
     include_base_noise : bool, default=True
         Include base noise floor in fitting model.
-    max_iterations : int, default=1
-        Frequency-refinement iterations passed to fit_sine_4param.
+    max_iterations : int, default=100
+        Maximum frequency-refinement iterations passed to fit_sine_4param;
+        refinement stops early once it converges.
     tolerance : float, default=1e-9
         Frequency-refinement convergence threshold passed to fit_sine_4param.
     return_fit : bool, default=False
@@ -77,9 +78,9 @@ def rearrange_error_by_phase(
     phase_offset = fit_result['phase']
     phase = 2 * np.pi * freq * t + phase_offset
 
-    # Use detected frequency if norm_freq was not provided
-    if norm_freq is None:
-        norm_freq = freq
+    # Report the frequency the fit ended on, which is what the phase axis
+    # uses, not the caller's initial estimate.
+    norm_freq = freq
 
     error = signal - fitted_signal
     phase_wrapped = np.mod(phase, 2 * np.pi)

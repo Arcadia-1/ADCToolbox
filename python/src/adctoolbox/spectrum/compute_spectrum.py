@@ -87,10 +87,18 @@ def compute_spectrum(
     data_windowed = data_normalized * window_vector
 
     if coherent_averaging:
-        power_spectrum, complex_spectrum, n_averaged = _coherent_average(data_windowed, osr)
+        power_spectrum, complex_spectrum, n_averaged = _coherent_average(
+            data_windowed, osr, lobe_half_width=_get_default_side_bin(win_type),
+        )
     else:
+        # Leave out all-zero records, as the coherent path and MATLAB plotspec
+        # do. Averaging them in would scale every power down by the fraction
+        # of empty records.
+        nonzero_runs = np.max(np.abs(data_windowed), axis=1) >= 1e-10
+        if np.any(nonzero_runs):
+            data_windowed = data_windowed[nonzero_runs]
         power_spectrum, complex_spectrum = _power_average(data_windowed)
-        n_averaged = M
+        n_averaged = data_windowed.shape[0]
 
     power_correction = _calculate_power_correction(window_gain, equiv_noise_bw_factor)
     power_spectrum = power_spectrum * power_correction

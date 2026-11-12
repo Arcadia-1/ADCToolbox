@@ -88,7 +88,7 @@ def analyze_error_phase_plane(data, fs=1.0, ax=None, title=None, create_plot: bo
 
     # --- 2. IEEE 1057 Sine Fit (Fast & Robust) ---
     # Use standardized 4-parameter fit instead of curve_fit
-    fit_result = fit_sine_4param(data, max_iterations=3)
+    fit_result = fit_sine_4param(data)
     residual = fit_result['residuals']
 
     # --- 3. Robust Polynomial Fitting (Exclude Clipping) ---

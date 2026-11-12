@@ -39,6 +39,11 @@ def fit_static_nonlin(sig_distorted, order):
     ``y`` is the zero-mean actual output, and ``k2`` / ``k3`` are the
     nonlinearity coefficients.
 
+    The fitted sine is the fundamental of the *output*, whose amplitude the
+    cubic term changes by ``g = 1 + 0.75*k3*A^2``. The polynomial is therefore
+    fitted against ``g*x`` and each coefficient is referred back to the input
+    with the matching power of the fitted linear term: ``k_i = c_i / c_1^i``.
+
     Examples
     --------
     Extract coefficients only::
@@ -86,7 +91,11 @@ def fit_static_nonlin(sig_distorted, order):
     # Extract transfer function components
     # x = ideal input (zero-mean)
     # y = actual output (zero-mean)
-    x_ideal = fitted_sine - np.mean(fitted_sine)
+    # Remove the fitted DC, not the record mean: over a non-integer number of
+    # cycles the mean of a sine is not zero, which would shift x and leak the
+    # linear term into k2.
+    x_offset = fit_result['dc_offset']
+    x_ideal = fitted_sine - x_offset
     y_actual = sig_distorted - np.mean(sig_distorted)
 
     # Normalize for numerical stability
@@ -110,17 +119,18 @@ def fit_static_nonlin(sig_distorted, order):
     # Linear coefficient (we don't return this, but need it for normalization)
     k1 = polycoeff[-2] / x_max
 
-    # Quadratic coefficient (k2) - normalized by k1 to represent pure 2nd-order distortion
+    # The fit is against the output fundamental g*x, so c_i = k_i / g^i with
+    # c_1 = 1/g. Referring a coefficient to the input takes k1 to the same
+    # power: k_i = c_i / k1^i.
     if order >= 2:
         k2_abs = polycoeff[-3] / (x_max**2)
-        k2_extracted = k2_abs / k1  # Normalize to unity gain
+        k2_extracted = k2_abs / k1**2
     else:
         k2_extracted = np.nan
 
-    # Cubic coefficient (k3) - normalized by k1 to represent pure 3rd-order distortion
     if order >= 3:
         k3_abs = polycoeff[-4] / (x_max**3)
-        k3_extracted = k3_abs / k1  # Normalize to unity gain
+        k3_extracted = k3_abs / k1**3
     else:
         k3_extracted = np.nan
 
@@ -129,7 +139,7 @@ def fit_static_nonlin(sig_distorted, order):
     x_smooth = np.linspace(np.min(fitted_sine), np.max(fitted_sine), 1000)
 
     # Normalize smooth x values (same normalization as used in fitting)
-    x_smooth_norm = (x_smooth - np.mean(fitted_sine)) / x_max
+    x_smooth_norm = (x_smooth - x_offset) / x_max
 
     # Evaluate polynomial at smooth points
     y_smooth_norm = np.polyval(polycoeff, x_smooth_norm)

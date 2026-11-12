@@ -114,8 +114,9 @@ def test_automatic_frequency_estimation_with_noisy_shuffled_bits(n_samples):
     np.testing.assert_allclose(freq_array, freqs, atol=1 / n_samples, rtol=0)
 
 
-@pytest.mark.xfail(strict=True, reason="Nyquist estimation is a documented limitation.")
-def test_automatic_frequency_estimation_documents_nyquist_limit():
+def test_automatic_frequency_estimation_finds_a_tone_at_nyquist():
+    # Formerly a documented limitation: the FFT peak search stopped one bin
+    # short of Nyquist.
     n_samples = 1024
     freqs = np.array([0.5])
     bits = _quantized_sine_bits(freqs, n_samples)

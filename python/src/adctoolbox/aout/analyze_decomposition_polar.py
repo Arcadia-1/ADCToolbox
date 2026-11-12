@@ -12,7 +12,7 @@ def analyze_decomposition_polar(
     ax=None,
     title: str = None,
     frequency: float = None,
-    max_iterations: int = 1,
+    max_iterations: int = 100,
     tolerance: float = 1e-9,
 ) -> dict[str, Any]:
     """
@@ -34,8 +34,9 @@ def analyze_decomposition_polar(
         Custom title for the plot.
     frequency : float, optional
         Normalized fundamental frequency (0 to 0.5). If None, auto-detected.
-    max_iterations : int, default=1
-        Frequency-refinement iterations passed to fit_sine_4param.
+    max_iterations : int, default=100
+        Maximum frequency-refinement iterations passed to fit_sine_4param;
+        refinement stops early once it converges.
     tolerance : float, default=1e-9
         Frequency-refinement convergence threshold passed to fit_sine_4param.
 

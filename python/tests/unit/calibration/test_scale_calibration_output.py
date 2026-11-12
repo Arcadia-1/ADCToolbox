@@ -126,3 +126,21 @@ def test_scale_calibration_output_rejects_ambiguous_or_invalid_inputs():
         scale_calibration_output(result, scale=0.0)
     with pytest.raises(ValueError, match="target_weights must not be empty"):
         scale_calibration_output(result, target_weights=[])
+
+
+def test_target_weights_scale_ignores_bits_the_capture_never_exercised():
+    # The input stays below mid-scale, so the MSB never toggles and its solved
+    # weight is forced to zero. Summing the target over all bits but the
+    # solution over the observed ones doubled the scale (0.40 instead of 0.20).
+    n_samples, n_bits, freq = 2048, 10, 255 / 2048
+    weights = sar_ideal_weights(n_bits)
+    vin = 0.25 + 0.2 * np.sin(2 * np.pi * freq * np.arange(n_samples) + 0.3)
+    bits = sar_convert(vin, weights)
+
+    result = calibrate_weight_sine(bits, freq=freq)
+    scaled = scale_calibration_output(result, target_weights=weights)
+
+    assert list(result["rank_patch"]["unmapped_bits"]) == [0]
+    assert scaled["scale_factor"] == pytest.approx(0.2, rel=1e-3)
+    np.testing.assert_allclose(scaled["weight"][1:], weights[1:], rtol=0, atol=0.05 * weights[-1])
+    assert np.max(np.abs(scaled["ideal"][0])) == pytest.approx(0.2, rel=1e-3)

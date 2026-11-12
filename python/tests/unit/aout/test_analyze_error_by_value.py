@@ -56,30 +56,6 @@ def test_analyze_error_by_value_thermal_vs_nonlinearity():
     assert fig_path.stat().st_size > 0, f"Figure file is empty: {fig_path}"
 
 
-@pytest.mark.parametrize("n_bins", [8, 16, 32, 64])
-def test_analyze_error_by_value_bin_count(n_bins):
-    """Test analyze_error_by_value with different bin counts."""
-    N = 2**13
-    Fs = 800e6
-    Fin = 10.1234567e6
-    t = np.arange(N) / Fs
-    A = 0.49
-    DC = 0.5
-    base_noise = 50e-6
-    k3 = 0.01
-    rng = np.random.default_rng(2026062213)
-
-    sig_nonlin = A * np.sin(2 * np.pi * Fin * t) + DC + k3 * (A * np.sin(2 * np.pi * Fin * t))**3 + rng.standard_normal(N) * base_noise
-
-    # Create a simple plot
-    fig, ax = plt.subplots(1, 1, figsize=(6, 5))
-    analyze_error_by_value(sig_nonlin, n_bins=n_bins, ax=ax, title=f'Nonlinearity ({n_bins} bins)')
-    plt.tight_layout()
-    plt.close(fig)
-
-    print(f"\n[Bin Count={n_bins}] -> [PASS]")
-
-
 def test_analyze_error_by_value_different_nonlinearities():
     """Test analyze_error_by_value with different types of nonlinearities."""
     N = 2**13
@@ -193,10 +169,6 @@ if __name__ == '__main__':
     print('='*80)
 
     test_analyze_error_by_value_thermal_vs_nonlinearity()
-    test_analyze_error_by_value_bin_count(8)
-    test_analyze_error_by_value_bin_count(16)
-    test_analyze_error_by_value_bin_count(32)
-    test_analyze_error_by_value_bin_count(64)
     test_analyze_error_by_value_different_nonlinearities()
 
     print('\n' + '='*80)

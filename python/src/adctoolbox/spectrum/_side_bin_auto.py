@@ -68,8 +68,13 @@ def _detect_side_bin_auto_with_reference(
     numerical_floor = peak * 1e-24
     noise_floor_per_bin = max(noise_floor_per_bin, numerical_floor)
 
+    # The crossing search needs a bin on both sides, so it stops at the
+    # nearer of DC and the band edge. The window's coherent main-lobe width is
+    # a floor that this distance must not reduce: a lobe cut short there would
+    # have its remaining bins counted as distortion. The signal mask itself is
+    # clipped to the band by the caller.
     max_sidebin = min(fundamental_bin, n_inband - 1 - fundamental_bin)
-    minimum_side_bin = int(min(max(minimum_side_bin, 0), max_sidebin))
+    minimum_side_bin = int(max(minimum_side_bin, 0))
     for sb in range(1, max_sidebin + 1):
         left = fundamental_bin - sb
         right = fundamental_bin + sb
@@ -79,7 +84,7 @@ def _detect_side_bin_auto_with_reference(
             return int(max(sb - 1, minimum_side_bin)), ideal_spec, noise_floor_per_bin
 
     fallback_side_bin = int(max(fallback_side_bin, 0))
-    side_bin = int(min(max(fallback_side_bin, minimum_side_bin), max_sidebin))
+    side_bin = int(max(min(fallback_side_bin, max_sidebin), minimum_side_bin))
     return side_bin, ideal_spec, noise_floor_per_bin
 
 

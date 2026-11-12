@@ -26,14 +26,16 @@ def _prepare_fft_input(
 
         - ``None`` : auto-detect from data as (max - min)
         - float : peak amplitude (e.g., 0.5 for ±0.5V range)
-        - tuple/list : (min, max) ADC range
+        - tuple/list/array : (min, max) ADC range
 
     Returns
     -------
     np.ndarray
         Processed data (DC removed, normalized to ±1), shape (M, N).
     """
-    data = np.atleast_2d(data)
+    # Work in float: integer ADC codes would otherwise overflow in
+    # (max - min) and in the DC removal (int16 codes spanning +/-30000 wrap).
+    data = np.atleast_2d(np.asarray(data, dtype=float))
     if data.ndim > 2:
         raise ValueError(f"Input must be 1D or 2D, got {data.ndim}D")
 
@@ -52,7 +54,7 @@ def _prepare_fft_input(
     range_limits = None
     if max_scale_range is None:
         peak_amplitude = (np.max(data) - np.min(data)) / 2
-    elif isinstance(max_scale_range, (list, tuple)):
+    elif np.ndim(max_scale_range) > 0:
         if len(max_scale_range) != 2:
             raise ValueError(f"Range tuple/list must have 2 elements, got {len(max_scale_range)}")
         range_limits = (float(max_scale_range[0]), float(max_scale_range[1]))
@@ -60,7 +62,7 @@ def _prepare_fft_input(
         peak_amplitude = fsr / 2
     else:
         # When max_scale_range is a scalar, treat it as the peak amplitude directly
-        peak_amplitude = max_scale_range
+        peak_amplitude = float(max_scale_range)
 
     if range_limits is not None:
         _warn_if_raw_overrange(data, range_limits)

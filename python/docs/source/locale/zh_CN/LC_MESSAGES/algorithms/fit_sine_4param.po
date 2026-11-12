@@ -58,8 +58,9 @@ msgstr ""
 
 #: ../../source/algorithms/fit_sine_4param.md:28
 msgid ""
-"**`max_iterations`** (int, default=1) — Number of iterations for frequency "
-"refinement"
+"**`max_iterations`** (int, default=100) — Maximum number of iterations for "
+"frequency refinement; the loop stops as soon as the update is below "
+"`tolerance`, typically after 2 to 5"
 msgstr ""
 
 #: ../../source/algorithms/fit_sine_4param.md:29

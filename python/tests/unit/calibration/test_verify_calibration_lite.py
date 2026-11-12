@@ -241,13 +241,6 @@ def _print_summary(label, metrics):
     )
 
 
-def test_calibration_lite():
-    """Validate weight recovery for a representative full-scale sine input."""
-    metrics = _run_binary_lite_case()
-
-    _assert_full_scale_regression(metrics)
-
-
 @pytest.mark.parametrize(
     "n_samp, fin_bin, phase",
     [

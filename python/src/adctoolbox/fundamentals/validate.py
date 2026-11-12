@@ -74,6 +74,10 @@ def validate_dout_data(bits, min_samples=100):
     Expects: (N_samples, N_bits) matrix.
     """
     # Step 1: Basic checks (Reused)
+    # A boolean bit matrix is valid digital data; count it as 0/1 integers.
+    bits = np.asarray(bits)
+    if bits.dtype == bool:
+        bits = bits.astype(np.uint8)
     data = _validate_basic_integrity(bits, name="Digital Data")
 
     # Step 2: Dimension Check

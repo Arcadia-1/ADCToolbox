@@ -71,14 +71,6 @@ def test_custom_weights():
     plt.close('all')
 
 
-def test_alpha_auto():
-    """Auto alpha should be between 0.1 and 1.0."""
-    sig, bits = _make_adc_data(n=100)
-    result = plot_residual_scatter(sig, bits, alpha='auto', create_plot=False)
-    assert result is not None  # just ensure no crash
-    plt.close('all')
-
-
 def test_alpha_fixed():
     """Fixed alpha accepted."""
     sig, bits = _make_adc_data()

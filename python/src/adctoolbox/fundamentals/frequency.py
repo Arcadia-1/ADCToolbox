@@ -219,6 +219,10 @@ def estimate_frequency(data, frequency_estimate=None, fs=1.0):
     ----------
     data : np.ndarray
         Input signal data. 1D or 2D array.
+    frequency_estimate : float, optional
+        Starting frequency for the fit, in the same units as ``fs`` (Hz when
+        ``fs`` is in Hz, cycles per sample for the default ``fs=1``). Must lie
+        in (0, fs/2]. If omitted, the start is taken from the FFT peak.
     fs : float, optional
         Sampling frequency in Hz (default: 1.0)
 
@@ -238,6 +242,15 @@ def estimate_frequency(data, frequency_estimate=None, fs=1.0):
     >>> print(f"Estimated frequency: {freq/1e6:.2f} MHz")
     Estimated frequency: 100.00 MHz
     """
+    if frequency_estimate is not None:
+        normalized_estimate = frequency_estimate / fs
+        if not 0 < normalized_estimate <= 0.5:
+            raise ValueError(
+                f"frequency_estimate must be in (0, fs/2] in the units of fs; "
+                f"got {frequency_estimate} with fs={fs}."
+            )
+        frequency_estimate = normalized_estimate
+
     result = fit_sine_4param(data, frequency_estimate=frequency_estimate)
 
     freq_norm = result['frequency']

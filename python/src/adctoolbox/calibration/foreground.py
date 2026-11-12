@@ -24,6 +24,32 @@ def _features(values, *, empty=False):
     return x
 
 
+def _unpack_features(features, *, empty=False):
+    """Return the feature matrix and, when known, its channel/history layout.
+
+    ``features`` is either a matrix or the dict returned by
+    ``build_calibration_features``. Only the dict carries the layout.
+    """
+    layout = None
+    if isinstance(features, dict):
+        if "features" not in features:
+            raise ValueError('a feature dict must contain "features"')
+        layout = features.get("layout")
+        if layout is not None:
+            layout = {"channels": int(layout["channels"]), "history": int(layout["history"])}
+        features = features["features"]
+    return _features(features, empty=empty), layout
+
+
+def _check_layout(expected, actual, what):
+    if expected is not None and actual is not None and expected != actual:
+        raise ValueError(
+            f"feature layout mismatch: {what} uses channels={actual['channels']}, "
+            f"history={actual['history']}, but the model was built for "
+            f"channels={expected['channels']}, history={expected['history']}"
+        )
+
+
 def _reference(values, size):
     y = np.asarray(values, dtype=float)
     if y.shape != (size,) or not np.isfinite(y).all():
@@ -50,6 +76,12 @@ def build_calibration_features(samples, *, history=0, state=None):
         ``features`` has columns [current channels, lag-1 channels, ...].
         ``sample_indices`` selects matching labels from this input block.
         ``state`` contains at most history final input rows, oldest first.
+        ``layout`` records the channel count and history. Pass this dict
+        itself (not only ``features``) to the fit functions and to
+        ``apply_calibration`` to have the layout stored in the model and
+        checked at application: two layouts with the same number of columns
+        (two channels with history 1, one channel with history 3) are
+        otherwise indistinguishable.
         A short startup block may return zero feature rows.
     """
     if isinstance(history, bool) or not isinstance(history, (int, np.integer)) or history < 0:
@@ -63,7 +95,8 @@ def build_calibration_features(samples, *, history=0, state=None):
     pos = indices + len(previous)
     features = np.concatenate([joined[pos-lag] for lag in range(history+1)], axis=1)
     tail = joined[-history:].copy() if history else np.empty((0, x.shape[1]))
-    return {"features": features, "sample_indices": indices, "state": tail}
+    return {"features": features, "sample_indices": indices, "state": tail,
+            "layout": {"channels": int(x.shape[1]), "history": int(history)}}
 
 
 def _terms(count, degree):
@@ -111,7 +144,7 @@ def fit_calibration_polynomial(features, reference, *, degree=3, ridge=1e-8):
     Full rank and a finite condition number do not establish joint coverage.
     """
     from math import comb
-    x = _features(features)
+    x, layout = _unpack_features(features)
     y = _reference(reference, len(x))
     if isinstance(degree, bool) or not isinstance(degree, (int, np.integer)) or degree < 1:
         raise ValueError("degree must be a positive integer")
@@ -128,6 +161,8 @@ def fit_calibration_polynomial(features, reference, *, degree=3, ridge=1e-8):
     rank = int(np.sum(singular > threshold))
     condition = float(singular[0]/singular[-1]) if rank == len(terms) else None
     model.update(kind="polynomial", degree=int(degree), coefficients=coefficients.tolist())
+    if layout is not None:
+        model["feature_layout"] = layout
     return {"model": model, "diagnostics": {"samples": len(x), "parameters": len(terms),
             "design_rank": rank, "rank_deficient": rank < len(terms), "ridge": float(ridge),
             "design_condition_number": condition,
@@ -150,12 +185,13 @@ def fit_calibration_mlp(features, reference, *, validation_features, validation_
     weights are not physical ADC parameters. See the packaged FOREGROUND_THEORY.md
     for equations, reference requirements and measured-hardware literature.
     """
-    x = _features(features)
+    x, layout = _unpack_features(features)
     y = _reference(reference, len(x))
-    xv = _features(validation_features)
+    xv, validation_layout = _unpack_features(validation_features)
     yv = _reference(validation_reference, len(xv))
     if xv.shape[1] != x.shape[1]:
         raise ValueError("training and validation feature counts must match")
+    _check_layout(layout, validation_layout, "validation_features")
     for name, value in (("hidden_units", hidden_units), ("max_iterations", max_iterations)):
         if isinstance(value, bool) or not isinstance(value, (int, np.integer)) or value < 1:
             raise ValueError(f"{name} must be a positive integer")
@@ -169,7 +205,10 @@ def fit_calibration_mlp(features, reference, *, validation_features, validation_
     target = residual/scale
     target_v = (yv-affine[0]-zv@affine[1:])/scale
     count, hidden = x.shape[1], int(hidden_units)
-    rng = np.random.default_rng(seed)
+    # Resolve the seed before the fit: an unusable value used to fail only
+    # after the whole optimization had run.
+    reported_seed = None if seed is None else int(seed)
+    rng = np.random.default_rng(reported_seed)
     # Nonzero output weights allow every layer to learn from the first step.
     initial = np.r_[rng.normal(0, .5/np.sqrt(count), count*hidden),
                     rng.normal(0, .15, hidden), rng.normal(0, .01, hidden), 0.]
@@ -211,6 +250,8 @@ def fit_calibration_mlp(features, reference, *, validation_features, validation_
         # Record a final point only if the callback has not already observed it.
         observe(result.x)
     w, b, v, c = unpack(best["theta"])
+    if layout is not None:
+        model["feature_layout"] = layout
     model.update(kind="mlp", affine=affine.tolist(), residual_scale=scale,
                  hidden_weights=w.tolist(), hidden_bias=b.tolist(),
                  output_weights=v.tolist(), output_bias=float(c))
@@ -219,7 +260,7 @@ def fit_calibration_mlp(features, reference, *, validation_features, validation_
         "parameters": len(initial)+len(affine), "selected_iteration": best["iteration"],
         "iterations": int(result.nit), "optimizer_converged": bool(result.success),
         "optimizer_message": str(result.message), "validation_rmse": float(np.sqrt(best["loss"])),
-        "seed": int(seed), "l2": float(l2)}}
+        "seed": reported_seed, "l2": float(l2)}}
 
 
 def apply_calibration(features, model):
@@ -229,10 +270,16 @@ def apply_calibration(features, model):
     The mask checks marginal feature ranges, not joint coverage or reliability.
     Extrapolated values are returned without clipping. Models are ordinary
     JSON-compatible dictionaries produced by the fit functions.
+
+    ``features`` may be a matrix or the dict from
+    ``build_calibration_features``. With the dict, a model that recorded its
+    feature layout rejects features built with a different channel count or
+    history; a bare matrix is only checked for its number of columns.
     """
-    x = _features(features, empty=True)
+    x, layout = _unpack_features(features, empty=True)
     if model.get("schema_version") != 1 or model.get("feature_count") != x.shape[1]:
         raise ValueError("unsupported model schema or mismatched feature count")
+    _check_layout(model.get("feature_layout"), layout, "features")
     mean, scale, low, high = [np.asarray(model[k], float) for k in
                               ("input_mean", "input_scale", "training_min", "training_max")]
     if any(a.shape != (x.shape[1],) or not np.isfinite(a).all() for a in (mean, scale, low, high)) or np.any(scale <= 0) or np.any(low > high):

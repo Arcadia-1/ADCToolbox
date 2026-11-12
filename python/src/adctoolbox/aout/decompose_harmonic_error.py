@@ -14,7 +14,7 @@ def decompose_harmonic_error(
     signal: np.ndarray,
     n_harmonics: int = 5,
     frequency: float = None,
-    max_iterations: int = 1,
+    max_iterations: int = 100,
     tolerance: float = 1e-9,
 ) -> dict[str, Any]:
     """Decompose ADC error into harmonic distortion and other errors using least-squares fitting.
@@ -32,8 +32,9 @@ def decompose_harmonic_error(
         Number of harmonics to extract (default: 5)
     frequency : float, optional
         Normalized fundamental frequency (0 to 0.5). If None, auto-detected.
-    max_iterations : int, default=1
-        Frequency-refinement iterations passed to fit_sine_4param.
+    max_iterations : int, default=100
+        Maximum frequency-refinement iterations passed to fit_sine_4param;
+        refinement stops early once it converges.
     tolerance : float, default=1e-9
         Frequency-refinement convergence threshold passed to fit_sine_4param.
 

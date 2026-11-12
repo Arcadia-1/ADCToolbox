@@ -77,7 +77,14 @@ def _post_process(
         err_k = sig_k - dc_offsets[k] - ref_k
         p_sig = np.mean(ref_k**2)
         p_noise = np.mean(err_k**2)
-        residual_snr_k = 10 * np.log10(p_sig / p_noise) if p_noise > 0 else 200.0 # Cap max SNR
+        if p_sig <= 0:
+            # No reconstructed signal (e.g. all-zero weights): the ratio is
+            # undefined, not a perfect fit.
+            residual_snr_k = float("nan")
+        elif p_noise > 0:
+            residual_snr_k = 10 * np.log10(p_sig / p_noise)
+        else:
+            residual_snr_k = 200.0  # Cap max SNR
         enob_k = (residual_snr_k - 1.76) / 6.02
 
         calibrated_signals.append(sig_k)

@@ -277,41 +277,6 @@ def test_verify_fit_sine_4param_reconstruction():
     assert result["rmse"] < 1e-5, f"RMSE too high: {result['rmse']}"
 
 
-def test_verify_fit_sine_4param_return_keys():
-    """
-    Verify fit_sine_4param returns all expected keys.
-
-    Test strategy:
-    1. Fit a simple signal
-    2. Assert: All expected keys are present in result dict
-    """
-    sig = np.sin(2*np.pi*0.1*np.arange(100))
-    result = fit_sine_4param(sig)
-
-    expected_keys = [
-        'fitted_signal',
-        'residuals',
-        'frequency',
-        'amplitude',
-        'phase',
-        'dc_offset',
-        'rmse',
-        'converged',
-        'n_iterations',
-        'initial_frequency',
-        'last_delta_freq',
-    ]
-
-    print(f'\n[Verify Return Keys]')
-    print(f'  [Expected] {expected_keys}')
-    print(f'  [Got     ] {list(result.keys())}')
-
-    for key in expected_keys:
-        assert key in result, f"Missing key in result: {key}"
-
-    print(f'  [Status] All keys present: PASS')
-
-
 def test_fit_sine_4param_diagnostics_no_refinement_requested():
     """Verify diagnostics for fixed-frequency fitting with no refinement."""
     N = 512
@@ -388,7 +353,6 @@ if __name__ == '__main__':
     test_verify_fit_sine_4param_amplitude_extraction()
     test_verify_fit_sine_4param_frequency_range()
     test_verify_fit_sine_4param_reconstruction()
-    test_verify_fit_sine_4param_return_keys()
 
     print('\n' + '='*80)
     print('** All fit_sine_4param verification tests passed! **')

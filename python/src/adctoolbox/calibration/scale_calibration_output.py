@@ -33,7 +33,9 @@ def scale_calibration_output(
     Exactly one scale source must be supplied:
 
     - ``scale``: direct linear factor.
-    - ``target_weights``: use ``sum(target_weights) / sum(result["weight"])``.
+    - ``target_weights``: use ``sum(target_weights) / sum(result["weight"])``,
+      summed over the bits the capture exercised (bits listed in
+      ``result["rank_patch"]["unmapped_bits"]`` are left out of both sums).
     - ``target_sine_peak``: map the solver unit sine peak to this peak value.
     """
     if not isinstance(result, dict):
@@ -95,6 +97,18 @@ def _resolve_scale_factor(
         raise ValueError('result["weight"] must contain only finite values')
     if not np.all(np.isfinite(target_weights_arr)):
         raise ValueError("target_weights must contain only finite values")
+
+    # Bits the capture never exercised have their solved weight forced to
+    # zero. Leave them out of both sums: counting them only on the target
+    # side would inflate the scale by their share of the total weight.
+    unmapped_bits = np.asarray(
+        result.get("rank_patch", {}).get("unmapped_bits", []), dtype=int
+    )
+    if unmapped_bits.size and source_weights.shape == target_weights_arr.shape:
+        observed = np.ones(source_weights.shape, dtype=bool)
+        observed[unmapped_bits] = False
+        source_weights = source_weights[observed]
+        target_weights_arr = target_weights_arr[observed]
 
     source_sum = float(np.sum(source_weights))
     target_sum = float(np.sum(target_weights_arr))

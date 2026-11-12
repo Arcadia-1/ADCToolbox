@@ -64,7 +64,15 @@ def sweep_performance_vs_osr(
         'sfdr': Fast residual-spectrum single-bin SFDR estimate in dB at each OSR
         'enob': ENOB in bits at each OSR
     """
-    data = np.asarray(data, dtype=float).ravel()
+    data = np.asarray(data, dtype=float)
+    if data.ndim > 1 and min(data.shape) > 1:
+        # Concatenating several records would splice their phases together
+        # and read as a broadband error (SNDR near 0 dB).
+        raise ValueError(
+            f"data must be a single 1-D record, got shape {data.shape}; "
+            "analyze each record separately."
+        )
+    data = data.ravel()
     n = len(data)
 
     # Default OSR: sweep from 1 to N/2

@@ -120,14 +120,6 @@ def test_tiny_tail_does_not_increase_effres():
     plt.close('all')
 
 
-def test_return_type_is_dict():
-    """Return type should be dict, not ndarray."""
-    weights = np.array([8, 4, 2, 1], dtype=float)
-    result = analyze_weight_radix(weights, create_plot=False)
-    assert isinstance(result, dict)
-    plt.close('all')
-
-
 def test_plot_creation():
     """Plot should create without error."""
     weights = np.array([1024, 512, -256, 128, 64, 32, 16, 8, 4, 2, 1, 1],

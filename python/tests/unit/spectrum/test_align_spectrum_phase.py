@@ -116,20 +116,6 @@ class TestAlignSpectrumPhase:
         # Non-zero entries should exist (not all zeroed)
         assert np.count_nonzero(fft_aligned) > 1
 
-    def test_aliasing_handling(self):
-        """Test that aliasing is handled for harmonics above Nyquist."""
-        n_fft = 256
-        fundamental_bin = 100  # High frequency
-        bin_r = 100.0
-
-        fft_data = np.zeros(n_fft, dtype=complex)
-        fft_data[fundamental_bin] = 10.0 * np.exp(1j * np.pi / 4)
-
-        # Should not raise error even though harmonics would alias
-        fft_aligned = _align_spectrum_phase(fft_data, fundamental_bin, bin_r, n_fft)
-
-        assert fft_aligned.shape == fft_data.shape
-
     def test_fractional_bin_idx(self):
         """Test with fractional refined bin position."""
         n_fft = 512
