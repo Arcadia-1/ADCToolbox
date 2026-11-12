@@ -32,6 +32,35 @@ def _interpolate_hann_peak(magnitude: np.ndarray, peak: int) -> float:
     return float(peak + direction * offset)
 
 
+# A tone outside the calibration band must exceed the strongest in-band bin by
+# this amplitude ratio (20 dB) before the capture is rejected. Shaped
+# quantization noise stays far below that, so it never trips the check.
+_OUT_OF_BAND_TONE_RATIO = 10.0
+
+
+def _require_inband_tone(signal: np.ndarray, cutoff: float) -> None:
+    """Reject a capture whose dominant tone lies outside the calibration band.
+
+    The in-band search would otherwise lock onto whatever small component is
+    left below the cutoff and return weights fitted to noise.
+    """
+    signal = np.asarray(signal, dtype=float)
+    magnitude = np.abs(np.fft.rfft((signal - np.mean(signal)) * np.hanning(len(signal))))
+    frequencies = np.fft.rfftfreq(len(signal))
+    inband = (frequencies > 0) & (frequencies < cutoff)
+    outside = frequencies >= cutoff
+    if not np.any(inband) or not np.any(outside):
+        return
+    strongest_outside = int(np.flatnonzero(outside)[np.argmax(magnitude[outside])])
+    if magnitude[strongest_outside] > _OUT_OF_BAND_TONE_RATIO * np.max(magnitude[inband]):
+        raise ValueError(
+            "The capture's strongest tone is at about "
+            f"{frequencies[strongest_outside]:.6g} cycles/sample, outside the "
+            f"calibration band 0 < freq < 0.5/osr ({cutoff:g}). Use a lower osr "
+            "or an in-band training tone."
+        )
+
+
 def _estimate_frequencies(
     bits_stacked: np.ndarray,
     segment_lengths: np.ndarray,
@@ -94,6 +123,7 @@ def _estimate_frequencies(
         estimates = []
         for start, end in zip(offsets[:-1], offsets[1:]):
             segment = bits_stacked[start:end]
+            _require_inband_tone(segment @ nominal_weights, fit_filter.cutoff)
             prefixes = (range(1, min(segment.shape[1], 5) + 1)
                         if frequency_policy == "matlab" else [segment.shape[1]])
             candidates = []

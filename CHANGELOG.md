@@ -7,6 +7,15 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Added
+- `build_calibration_features` returns a `layout` entry (channel count and
+  history). `fit_calibration_polynomial`, `fit_calibration_mlp` and
+  `apply_calibration` accept that dict in place of the bare matrix, store the
+  layout in the model and reject features built with another layout. Two
+  channels with history 1 and one channel with history 3 both have four
+  columns, and a model for one was applied to the other without an error.
+  Bare matrices and models saved earlier keep working unchanged.
+
 ### Changed
 - `fit_sine_4param` and every analysis that calls it (`analyze_error_pdf`,
   `analyze_error_spectrum`, `analyze_error_autocorr`,
@@ -72,6 +81,20 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   frequency in `norm_freq`, not the caller's estimate.
 - `validate_dout_data` accepts a boolean bit matrix; `predict_spurs` raises
   the intended `ValueError` when `fin` is missing.
+- `calibrate_foreground` (time-interleaved) corrected skew with a delay at
+  each sub-ADC's own rate `fs/M`. An input above `fs/(2M)` is aliased inside
+  one channel, so the correction did almost nothing there: 58 to 75 dB of SFDR
+  for 1 ps of skew. Skew is now corrected on the full-rate stream; the FFT
+  method exceeds 200 dB anywhere below `fs/2`, and a warning is raised for a
+  tone above `fs/2`.
+- In-band weight calibration (`osr > 1`) with an automatic frequency fitted
+  whatever was left in band when the training tone was outside it, returning
+  weights hundreds of times too large. It now raises `ValueError`, as an
+  explicit out-of-band `freq` already did.
+- `fit_calibration_mlp(seed=None)` failed with `TypeError` after the whole
+  fit had run; the seed is now resolved first and reported as `None`.
+- The `calibrate_weight_sine` docstring said the waveform fields are single
+  arrays for one dataset. They are lists with one array per dataset.
 
 ### Removed
 - 16 test functions (23 collected cases) that duplicated another test or

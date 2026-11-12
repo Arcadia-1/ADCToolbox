@@ -123,8 +123,11 @@ def calibrate_weight_sine(
         ``harmonic_order`` is greater than 1. Use spectrum analysis on
         ``calibrated_signal`` for ADC dynamic SNDR/THD/HDx. The ``rank_patch``
         entry reports any dropped or merged rank-deficient bit columns.
-        Array-valued entries are returned as a single array for single-dataset
-        input or as a list of arrays for multi-dataset input.
+        The waveform entries ``calibrated_signal``, ``ideal`` and ``error``
+        are always lists with one array per dataset, also for a single
+        dataset (use ``result["error"][0]``). Per-dataset scalars such as
+        ``offset``, ``snr_db``, ``enob`` and ``refined_frequency`` are plain
+        scalars for single-dataset input and arrays or lists otherwise.
         ``initial_frequency`` records the coarse frequency used before fine
         search, and ``frequency_policy`` records the coarse-estimator policy.
 
