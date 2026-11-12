@@ -7,6 +7,7 @@ run_plotspec_dynamic_metric_masks
 run_plotspec_marker
 run_plotspec_sfdr_boundaries
 run_plotspec_integrated_spurs
+run_plotspec_noise_passband
 run_plotphase_fft
 run_plotphase_lms
 

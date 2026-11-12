@@ -157,8 +157,10 @@ def plot_spectrum(compute_results, show_title=True, show_label=True, plot_harmon
     osr = compute_results['osr']
     n_inband = rfft_inband_bin_count(N, osr)
     spur_bin_start, spur_bin_end = _lobe_bounds(spur_bin_idx, side_bin, n_inband)
-    # Per-bin noise floor on plot (plotspec.m: noise_floor_dbfs - 10*log10(N_fft/2/OSR))
-    nf_line_level = metrics['noise_floor_dbfs'] - 10 * np.log10(N / (2 * osr))
+    # Per-bin noise floor on plot: the noise spread over the passband bins
+    # (plotspec.m: noise_floor_dbfs - 10*log10(noiseBandBins))
+    noise_bandwidth_bins = plot_data.get('noise_bandwidth_bins', N / (2 * osr))
+    nf_line_level = metrics['noise_floor_dbfs'] - 10 * np.log10(noise_bandwidth_bins)
 
     # Build harmonics list from plot_data and metrics (for plotting)
     harmonic_bins = plot_data.get('harmonic_bins', [])
