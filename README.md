@@ -3,6 +3,7 @@
 [![CI](https://github.com/Arcadia-1/ADCToolbox/actions/workflows/ci.yml/badge.svg)](https://github.com/Arcadia-1/ADCToolbox/actions/workflows/ci.yml)
 [![Documentation](https://github.com/Arcadia-1/ADCToolbox/actions/workflows/docs.yml/badge.svg)](https://adctoolbox.tokenzhang.com/doc/)
 [![PyPI version](https://badge.fury.io/py/adctoolbox.svg)](https://badge.fury.io/py/adctoolbox)
+[![PyPI Downloads](https://static.pepy.tech/personalized-badge/adctoolbox?period=total&units=INTERNATIONAL_SYSTEM&left_color=BLACK&right_color=GREEN&left_text=downloads)](https://pepy.tech/projects/adctoolbox)
 [![PyPI - Downloads](https://img.shields.io/pypi/dm/adctoolbox)](https://pypi.org/project/adctoolbox/)
 [![Python 3.10+](https://img.shields.io/badge/python-3.10+-blue.svg)](https://www.python.org/downloads/)
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
