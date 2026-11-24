@@ -78,31 +78,44 @@ def _dual_basis_lstsq(
         offset_matrix = fit_filter.apply(offset_matrix)
         if deriv_matrix is not None:
             deriv_matrix = fit_filter.apply(deriv_matrix)
-        n_columns = (A_common.shape[1] + offset_matrix.shape[1]
-                     + 2 * cos_basis.shape[1] - 1
-                     + (0 if deriv_matrix is None else deriv_matrix.shape[1]))
-        if A_common.shape[0] <= n_columns:
+
+    def _solve_system(columns: list[np.ndarray], rhs: np.ndarray, n_protected_prefix: int, n_protected_suffix: int):
+        A_full = np.column_stack(columns)
+        n_cols = A_full.shape[1]
+        active = np.ones(n_cols, dtype=bool)
+        # Drop identically-zero harmonic columns (e.g. out-of-band harmonics
+        # masked when osr > 1) so lstsq remains full-rank and well-conditioned.
+        harm_end = n_cols - n_protected_suffix
+        if harm_end > n_protected_prefix:
+            harm_block = A_full[:, n_protected_prefix:harm_end]
+            active[n_protected_prefix:harm_end] = np.any(harm_block != 0.0, axis=0)
+
+        A_active = A_full[:, active]
+        if fit_filter is not None and A_active.shape[0] <= A_active.shape[1]:
             raise ValueError("Too few samples remain after calibration filtering for the fit.")
+
+        coeffs_active, _, _, _ = lstsq(A_active, rhs)
+        coeffs_full = np.zeros(n_cols, dtype=float)
+        coeffs_full[active] = coeffs_active
+        err = float(np.linalg.norm(A_active @ coeffs_active - rhs))
+        return coeffs_full, err
+
+    n_prefix = A_common.shape[1] + offset_matrix.shape[1]
+    n_suffix = 0 if deriv_matrix is None else deriv_matrix.shape[1]
 
     # Assumption 1: Cosine fundamental is unity
     # Layout: [Weights, Offsets, Cos_harmonics[1:], Sin_harmonics[:], (Derivs)]
     columns1 = [A_common, offset_matrix, cos_basis[:, 1:], sin_basis]
     if deriv_matrix is not None:
         columns1.append(deriv_matrix)
-    A1 = np.column_stack(columns1)
-    b1 = -cos_basis[:, 0]
-    coeffs1, _, _, _ = lstsq(A1, b1)
-    err1 = np.linalg.norm(A1 @ coeffs1 - b1)
+    coeffs1, err1 = _solve_system(columns1, -cos_basis[:, 0], n_prefix, n_suffix)
 
     # Assumption 2: Sine fundamental is unity
     # Layout: [Weights, Offsets, Sin_harmonics[1:], Cos_harmonics[:], (Derivs)]
     columns2 = [A_common, offset_matrix, sin_basis[:, 1:], cos_basis]
     if deriv_matrix is not None:
         columns2.append(deriv_matrix)
-    A2 = np.column_stack(columns2)
-    b2 = -sin_basis[:, 0]
-    coeffs2, _, _, _ = lstsq(A2, b2)
-    err2 = np.linalg.norm(A2 @ coeffs2 - b2)
+    coeffs2, err2 = _solve_system(columns2, -sin_basis[:, 0], n_prefix, n_suffix)
     
     if verbose >= 2:
         print(f"\nDEBUG: err1 (Cos assumption) = {err1:.2e}")
@@ -211,6 +224,15 @@ def _solve_weights_with_known_freq(
         # Build basis for dataset k
         n_samples_k = segment_lengths[k]
         cos_basis_k, sin_basis_k = _build_harmonic_basis(n_samples_k, freq_array[k], harmonic_order)
+        if fit_filter is not None and harmonic_order > 1:
+            # Exclude harmonics at or above the lowpass cutoff (0.5/osr):
+            # filtering attenuates stopband columns to ~1e-5..1e-9, which would
+            # let lstsq assign huge unconstrained amplitudes to stopband noise.
+            harmonics = np.arange(1, harmonic_order + 1)
+            out_of_band = (harmonics >= 2) & (harmonics * freq_array[k] >= fit_filter.cutoff)
+            if np.any(out_of_band):
+                cos_basis_k[:, out_of_band] = 0.0
+                sin_basis_k[:, out_of_band] = 0.0
 
         # Pad with zeros for other datasets' harmonics
         cos_basis_full = np.zeros((n_samples_k, num_harmonic_cols))
@@ -381,20 +403,29 @@ def _solve_weights_searching_freq(
             fit_filter=fit_filter,
         )
 
-        # Extract frequency corrections (last num_datasets elements)
+        # Extract frequency corrections (last num_datasets elements).
+        # deriv_matrix was formed using cos_coeffs/sin_coeffs in basis_choice_temp's
+        # gauge (where one fundamental component of dataset 0 is 1). If the
+        # augmented dual-basis solve switched to the other quadrature gauge, the
+        # whole linear equation was divided by gauge_scale (the newly chosen unity
+        # component in the old gauge), so delta_f_raw = (N * delta_f) / gauge_scale.
+        # Multiplying by gauge_scale restores the true signed N * delta_f.
+        gauge_scale = cos_coeffs[0, 0] if basis_choice == 0 else sin_coeffs[0, 0]
         delta_f_raw = coeffs[-num_datasets:]
-        delta_f_array = delta_f_raw * learning_rate / segment_lengths
+        delta_f_scaled = delta_f_raw * gauge_scale
+        delta_f_array = delta_f_scaled * learning_rate / segment_lengths
         if fit_filter is not None:
             delta_f_array = fit_filter.bound_frequencies(freq_array + delta_f_array) - freq_array
+        else:
+            eps = np.finfo(float).eps
+            delta_f_array = np.clip(freq_array + delta_f_array, eps, 0.5 - eps) - freq_array
 
-        # Compute relative error using first harmonic magnitude for normalization
-        fundamental_other_idx = bit_width + num_datasets + (num_datasets * harmonic_order - 1)
-        other_fundamental_val = coeffs[fundamental_other_idx]
-        w0 = np.sqrt(1 + other_fundamental_val**2)
-        correction = deriv_matrix @ (delta_f_raw * learning_rate)
+        # Compute gauge-invariant relative error using dataset-0 fundamental norm
+        w0_temp = float(np.hypot(cos_coeffs[0, 0], sin_coeffs[0, 0]))
+        correction = deriv_matrix @ (delta_f_array * segment_lengths)
         if fit_filter is not None:
-            correction = fit_filter.apply(deriv_matrix @ (delta_f_array * segment_lengths))
-        relerr = np.sqrt(np.mean(correction**2)) / w0
+            correction = fit_filter.apply(correction)
+        relerr = np.sqrt(np.mean(correction**2)) / w0_temp if w0_temp > 0 else 0.0
 
         if verbose >= 1:
             header = f"[{ii+1:3d}] Iteration - RelErr: [{relerr:.2e}]"
@@ -410,12 +441,16 @@ def _solve_weights_searching_freq(
         if relerr < reltol:
             break
 
+    # Apply the final frequency step and perform a static refit without
+    # derivative columns so returned weights/reference are the exact
+    # least-squares solution at the returned refined frequencies (also handles
+    # max_iter=0 and early termination consistently for both osr==1 and osr>1).
     if fit_filter is not None:
-        # A bounded frequency step may differ from the unconstrained linear
-        # derivative solve. Refit at the actual final frequencies so returned
-        # weights/reference describe that model, without derivative columns.
         freq_array = fit_filter.bound_frequencies(freq_array + delta_f_array)
-        coeffs, basis_choice, cos_basis, sin_basis = _solve_weights_with_known_freq(
-            bits_list, freq_array, harmonic_order, verbose=verbose, fit_filter=fit_filter)
-        return freq_array, coeffs, basis_choice, cos_basis, sin_basis
-    return freq_array, coeffs[:-num_datasets], basis_choice, cos_basis, sin_basis
+    else:
+        eps = np.finfo(float).eps
+        freq_array = np.clip(freq_array + delta_f_array, eps, 0.5 - eps)
+    coeffs, basis_choice, cos_basis, sin_basis = _solve_weights_with_known_freq(
+        bits_list, freq_array, harmonic_order, verbose=verbose, fit_filter=fit_filter
+    )
+    return freq_array, coeffs, basis_choice, cos_basis, sin_basis

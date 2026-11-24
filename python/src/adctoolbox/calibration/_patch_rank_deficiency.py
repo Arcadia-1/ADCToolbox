@@ -1,10 +1,52 @@
 """Helper functions for handling rank deficiency in calibration."""
 import numpy as np
 
+def _build_offset_matrix(n_samples_total: int, segment_lengths: np.ndarray | None) -> np.ndarray:
+    """Build per-dataset DC offset basis (N_total, num_datasets)."""
+    if segment_lengths is None or len(segment_lengths) <= 1:
+        return np.ones((n_samples_total, 1), dtype=float)
+    lengths = np.asarray(segment_lengths, dtype=int)
+    offset_matrix = np.zeros((n_samples_total, len(lengths)), dtype=float)
+    row_start = 0
+    for idx, length in enumerate(lengths):
+        row_end = row_start + int(length)
+        offset_matrix[row_start:row_end, idx] = 1.0
+        row_start = row_end
+    return offset_matrix
+
+
+def _center_by_segment(col: np.ndarray, segment_lengths: np.ndarray | None) -> np.ndarray:
+    """Subtract each dataset's own DC mean from a stacked column."""
+    if segment_lengths is None or len(segment_lengths) <= 1:
+        return col - np.mean(col)
+    centered = np.empty_like(col, dtype=float)
+    row_start = 0
+    for length in segment_lengths:
+        row_end = row_start + int(length)
+        seg = col[row_start:row_end]
+        centered[row_start:row_end] = seg - np.mean(seg)
+        row_start = row_end
+    return centered
+
+
+def _is_constant_in_every_segment(col: np.ndarray, segment_lengths: np.ndarray | None) -> bool:
+    """True if a bit column has zero variation inside every dataset segment."""
+    if segment_lengths is None or len(segment_lengths) <= 1:
+        return bool(np.ptp(col) < 1e-15)
+    row_start = 0
+    for length in segment_lengths:
+        row_end = row_start + int(length)
+        if np.ptp(col[row_start:row_end]) >= 1e-15:
+            return False
+        row_start = row_end
+    return True
+
+
 def _patch_rank_deficiency(
     bits_stacked: np.ndarray,
     nominal_weights: np.ndarray,
-    verbose: int = 0
+    verbose: int = 0,
+    segment_lengths: np.ndarray | None = None,
 ) -> dict:
     """
     Unified patching for both single and multi-dataset scenarios.
@@ -19,6 +61,9 @@ def _patch_rank_deficiency(
         Nominal bit weights (M,)
     verbose : int
         Verbosity level
+    segment_lengths : ndarray, optional
+        Per-dataset row counts for multi-dataset calibration. When provided,
+        rank and constant-column checks account for the per-dataset DC offsets.
 
     Returns
     -------
@@ -33,11 +78,13 @@ def _patch_rank_deficiency(
             Number of effective columns after patching
     """
     n_samples_total, bit_width = bits_stacked.shape
+    offset_matrix = _build_offset_matrix(n_samples_total, segment_lengths)
+    n_offsets = offset_matrix.shape[1]
 
     # 1. Check if rank deficiency exists (Fast path)
-    matrix_to_check = np.column_stack([bits_stacked, np.ones(n_samples_total)])
-    # Full rank if rank >= M + 1 (including DC offset)
-    if np.linalg.matrix_rank(matrix_to_check) >= bit_width + 1:
+    matrix_to_check = np.column_stack([bits_stacked, offset_matrix])
+    # Full rank if rank >= M + n_offsets (including per-dataset DC offsets)
+    if np.linalg.matrix_rank(matrix_to_check) >= bit_width + n_offsets:
         return {
             "bits_effective": bits_stacked,
             "bit_to_col_map": np.arange(bit_width),
@@ -61,18 +108,19 @@ def _patch_rank_deficiency(
     for bit_idx in range(bit_width):
         col = bits_stacked[:, bit_idx]
 
-        # Case A: Constant column = dead bit, drop it
+        # Case A: Constant column (within every dataset segment) = dead bit, drop it
         # bit_to_col_map stays -1, bit_weight_ratios stays 0, eff_col_to_bit unchanged
-        if np.ptp(col) < 1e-15:
+        if _is_constant_in_every_segment(col, segment_lengths):
             constant_bits.append(bit_idx)
             if verbose >= 1:
                 print(f"[DEBUG] Bit [{bit_idx}] is constant (dead bit). Dropping this column.")
             continue
 
-        # Case B: New column is linearly independent, keep it
-        # bit_to_col_map = new index, weight ratio = 1.0, eff_col_to_bit = updated
-        current_matrix = np.column_stack([np.ones(n_samples_total), bits_effective])
-        if np.linalg.matrix_rank(np.column_stack([current_matrix, col])) > np.linalg.matrix_rank(current_matrix):
+        # Case B: New column is linearly independent of per-dataset offsets and
+        # previously accepted columns, keep it.
+        current_matrix = np.column_stack([offset_matrix, bits_effective])
+        current_rank = np.linalg.matrix_rank(current_matrix)
+        if np.linalg.matrix_rank(np.column_stack([current_matrix, col])) > current_rank:
             bits_effective = np.column_stack([bits_effective, col])
             idx_eff = bits_effective.shape[1] - 1
             eff_col_to_bit.append(bit_idx)
@@ -81,26 +129,30 @@ def _patch_rank_deficiency(
             if verbose >= 2:
                 print(f"[DEBUG] Bit [{bit_idx}] is independent. Keeping as new effective column [{idx_eff}].")
 
-        # Case C: New column is linearly dependent, merge it
-        # bit_to_col_map = existing index, weight ratio = nominal ratio, eff_col_to_bit = unchanged
+        # Case C: New column is linearly dependent, merge it only if the merge
+        # preserves full rank (e.g. avoid collapsing complementary equal-weight
+        # pairs b0 + (1 - b0) == 1 into a constant column).
         else:
+            col_centered = _center_by_segment(col, segment_lengths)
+            col_norm = np.sqrt(np.mean(col_centered**2))
             for col_idx, founding_bit_idx in enumerate(eff_col_to_bit):
-                col_centered = col - np.mean(col)
-                eff_centered = bits_effective[:, col_idx] - np.mean(bits_effective[:, col_idx])
-
-                # Pearson correlation coefficient
-                norm = np.sqrt(np.mean(col_centered**2)) * np.sqrt(np.mean(eff_centered**2))
+                eff_centered = _center_by_segment(bits_effective[:, col_idx], segment_lengths)
+                norm = col_norm * np.sqrt(np.mean(eff_centered**2))
                 if norm < 1e-15:
                     correlation = 0.0
                 else:
                     correlation = np.mean(col_centered * eff_centered) / norm
 
                 if abs(abs(correlation) - 1.0) < 1e-3:
-                    bit_to_col_map[bit_idx] = col_idx
-                    bit_weight_ratios[bit_idx] = nominal_weights[bit_idx] / nominal_weights[founding_bit_idx]
-                    # Merge contribution into effective column
-                    bits_effective[:, col_idx] += col * bit_weight_ratios[bit_idx]
-                    break
+                    ratio = nominal_weights[bit_idx] / nominal_weights[founding_bit_idx]
+                    candidate_effective = bits_effective.copy()
+                    candidate_effective[:, col_idx] = candidate_effective[:, col_idx] + col * ratio
+                    expected_rank = n_offsets + candidate_effective.shape[1]
+                    if np.linalg.matrix_rank(np.column_stack([offset_matrix, candidate_effective])) >= expected_rank:
+                        bit_to_col_map[bit_idx] = col_idx
+                        bit_weight_ratios[bit_idx] = ratio
+                        bits_effective = candidate_effective
+                        break
             if verbose >= 1:
                 print(f"[DEBUG] Bit [{bit_idx}] is dependent. Merging into effective column [{bit_to_col_map[bit_idx]}] "
                       f"with weight ratio {bit_weight_ratios[bit_idx]:.4f}.")

@@ -285,8 +285,12 @@ class Tracker:
                         shadow_coefficients=None if estimate is None else
                             (estimate/self.scale if self.fixed else estimate).tolist()))
                     if estimate is not None:
-                        self.pending = estimate
-                        self.commit_at = self.samples+self.controller_latency
+                        if self.controller_latency == 0:
+                            self.coefficients = estimate
+                            self.pending = self.commit_at = None
+                        else:
+                            self.pending = estimate
+                            self.commit_at = self.samples+self.controller_latency
                         self.updates += 1
                         self.delta_holds += int(self._delta_hold)
                     else:

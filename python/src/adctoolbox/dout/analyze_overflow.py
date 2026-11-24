@@ -64,13 +64,19 @@ def analyze_overflow(
     if len(weight) != M:
         raise ValueError(f"Weight length ({len(weight)}) must match number of bits ({M})")
 
-    # Default ofb is M (LSB)
+    # Default ofb is M (MSB, MATLAB convention: 1=LSB, M=MSB)
     if ofb is None:
         ofb = M
+    else:
+        if not isinstance(ofb, (int, np.integer)) or isinstance(ofb, bool):
+            raise ValueError(f"ofb must be an integer in [1, {M}], got {ofb!r}")
+        ofb = int(ofb)
+        if ofb < 1 or ofb > M:
+            raise ValueError(f"ofb must be in [1, {M}], got {ofb}")
 
-    data_decom = np.zeros((N, M))
-    range_min = np.zeros(M)
-    range_max = np.zeros(M)
+    data_decom = np.full((N, M), np.nan, dtype=float)
+    range_min = np.full(M, np.nan, dtype=float)
+    range_max = np.full(M, np.nan, dtype=float)
     ovf_percent_zero = np.zeros(M)
     ovf_percent_one = np.zeros(M)
 
@@ -86,14 +92,18 @@ def analyze_overflow(
         tmp = raw_code[:, ii:] @ weight[ii:]
 
         # Normalize by sum of remaining weights
-        sum_weight = np.sum(weight[ii:])
-        data_decom[:, ii] = tmp / sum_weight
-        range_min[ii] = np.min(tmp) / sum_weight
-        range_max[ii] = np.max(tmp) / sum_weight
+        sum_weight = float(np.sum(weight[ii:]))
+        if sum_weight == 0.0:
+            continue
+
+        decom = tmp / sum_weight
+        data_decom[:, ii] = decom
+        range_min[ii] = float(np.min(decom))
+        range_max[ii] = float(np.max(decom))
 
         # Calculate overflow percentages
-        ovf_percent_zero[ii] = np.sum(data_decom[:, ii] <= overflow_tolerance) / N * 100
-        ovf_percent_one[ii] = np.sum(data_decom[:, ii] >= 1 - overflow_tolerance) / N * 100
+        ovf_percent_zero[ii] = np.sum(decom <= overflow_tolerance) / N * 100
+        ovf_percent_one[ii] = np.sum(decom >= 1 - overflow_tolerance) / N * 100
 
     # Detect overflow at specified bit position
     # MATLAB: ovf_zero = (data_decom(:,M-chkpos+1) <= 0);

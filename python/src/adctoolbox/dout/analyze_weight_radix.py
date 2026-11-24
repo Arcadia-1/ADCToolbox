@@ -63,24 +63,36 @@ def analyze_weight_radix(
     - Consistent pattern: Expected architecture behavior
     - Random jumps: Calibration errors or bit mismatch
     """
-    weights = np.asarray(weights, dtype=float)
+    weights = np.asarray(weights, dtype=float).ravel()
     n_bits = len(weights)
+    if n_bits == 0:
+        raise ValueError("weights must not be empty")
     is_negative = weights < 0
     abs_weights = np.abs(weights)
+    if not np.any(abs_weights > 0):
+        raise ValueError("weights must contain at least one non-zero value")
 
     # Calculate radix between consecutive bits (|weight[i-1]| / |weight[i]|)
-    radix = np.zeros(n_bits)
-    radix[0] = np.nan  # No radix for first bit
+    radix = np.full(n_bits, np.nan, dtype=float)
     for i in range(1, n_bits):
-        radix[i] = abs_weights[i-1] / abs_weights[i]
+        if abs_weights[i] > 0:
+            radix[i] = abs_weights[i - 1] / abs_weights[i]
+        elif abs_weights[i - 1] > 0:
+            radix[i] = np.inf
 
     # --- Compute wgtsca and effres ---
     # Step 1: Sort absolute weights descending
     sort_idx = np.argsort(abs_weights)[::-1]
     abs_w_sorted = abs_weights[sort_idx]
 
-    # Step 2: Calculate ratios between adjacent sorted weights
-    ratios = abs_w_sorted[:-1] / abs_w_sorted[1:]
+    # Step 2: Calculate ratios between adjacent sorted weights (guard zeros)
+    denom = abs_w_sorted[1:]
+    num = abs_w_sorted[:-1]
+    ratios = np.where(
+        denom > 0,
+        np.divide(num, denom, out=np.zeros_like(num), where=denom > 0),
+        np.where(num > 0, np.inf, 1.0),
+    )
 
     # Step 3: Find significance threshold (first ratio >= 3.0)
     sig_break = np.where(ratios >= 3.0)[0]
@@ -99,17 +111,29 @@ def analyze_weight_radix(
     # Step 4: Initial wgtsca - normalize smallest significant weight to 1
     wgtsca = 1.0 / abs_w_sig[-1]
 
-    # Step 5: Refine wgtsca by searching integer MSB values
-    w_err = np.sqrt(np.mean((abs_w_sig * wgtsca - np.round(abs_w_sig * wgtsca)) ** 2))
-    wmsb_init = round(abs_w_sorted[0] * wgtsca)
-    wmsb_min = max(1, round(wmsb_init * 0.5))
-    wmsb_max = max(wmsb_min, round(wmsb_init * 1.5))
-    for wmsb in range(wmsb_min, wmsb_max + 1):
-        w_refine = wmsb / abs_w_sorted[0]
-        w_err_ref = np.sqrt(np.mean((abs_w_sig * w_refine - np.round(abs_w_sig * w_refine)) ** 2))
-        if w_err_ref < w_err:
-            w_err = w_err_ref
-            wgtsca = w_refine
+    # Step 5: Refine wgtsca by searching integer MSB values near wmsb_init.
+    # Skip immediately if already integer-aligned (prevents O(2^B) hang on
+    # high-resolution binary weights), bound the search radius, and only accept
+    # refinements that genuinely align to near-integers without distorting the
+    # LSB scale on non-integer sub-radix weights.
+    w_err = float(np.sqrt(np.mean((abs_w_sig * wgtsca - np.round(abs_w_sig * wgtsca)) ** 2)))
+    if w_err > 1e-12:
+        wmsb_init = round(abs_w_sorted[0] * wgtsca)
+        radius = min(max(1, round(wmsb_init * 0.1)), 2048)
+        wmsb_min = max(1, wmsb_init - radius)
+        wmsb_max = max(wmsb_min, wmsb_init + radius)
+        best_err = w_err
+        best_sca = wgtsca
+        for wmsb in range(wmsb_min, wmsb_max + 1):
+            w_refine = wmsb / abs_w_sorted[0]
+            w_err_ref = float(
+                np.sqrt(np.mean((abs_w_sig * w_refine - np.round(abs_w_sig * w_refine)) ** 2))
+            )
+            if w_err_ref < best_err:
+                best_err = w_err_ref
+                best_sca = w_refine
+        if best_err < 0.1:
+            wgtsca = best_sca
 
     # Step 6: Effective resolution
     effres = np.log2(np.sum(abs_w_sig) / abs_w_sig[-1] + 1)

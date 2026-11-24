@@ -25,11 +25,6 @@ from adctoolbox import find_coherent_frequency
 from adctoolbox.toolset import generate_dout_dashboard
 
 
-# Create output directory for test figures
-output_dir = Path(__file__).parent / "test_output"
-output_dir.mkdir(exist_ok=True)
-
-
 # Common signal parameters from common_gen_dout.m
 N = 2**13
 Fs = 1e9
@@ -202,7 +197,7 @@ def generate_sar_bits(signal, CDAC):
     return dout, weights
 
 
-def test_dout_dashboard_pipeline2s():
+def test_dout_dashboard_pipeline2s(tmp_path):
     """Test dashboard with 2-stage pipeline ADC architecture."""
     print(f"\n[Test] 2-stage Pipeline ADC Dashboard")
     print(f"[Config] Fs={Fs/1e6:.0f} MHz, Fin≈{Fin_target/1e6:.0f} MHz, N={N}")
@@ -215,7 +210,7 @@ def test_dout_dashboard_pipeline2s():
     print(f"[Pipeline2s] Weights: {weights[:5]} ... {weights[-3:]}")
 
     # Generate dashboard
-    fig_path = output_dir / 'test_dout_dashboard_pipeline2s.png'
+    fig_path = tmp_path / 'test_dout_dashboard_pipeline2s.png'
     fig, axes = generate_dout_dashboard(
         bits=bits,
         freq=Fin/Fs,
@@ -235,7 +230,7 @@ def test_dout_dashboard_pipeline2s():
     assert len(axes) == 6, "Dashboard should have 6 subplots"
 
 
-def test_dout_dashboard_pipeline3s():
+def test_dout_dashboard_pipeline3s(tmp_path):
     """Test dashboard with 3-stage pipeline ADC architecture."""
     print(f"\n[Test] 3-stage Pipeline ADC Dashboard")
     print(f"[Config] Fs={Fs/1e6:.0f} MHz, Fin≈{Fin_target/1e6:.0f} MHz, N={N}")
@@ -249,7 +244,7 @@ def test_dout_dashboard_pipeline3s():
 
     weights[2] *= 0.99
     # Generate dashboard
-    fig_path = output_dir / 'test_dout_dashboard_pipeline3s.png'
+    fig_path = tmp_path / 'test_dout_dashboard_pipeline3s.png'
     fig, axes = generate_dout_dashboard(
         bits=bits,
         freq=Fin/Fs,
@@ -269,7 +264,7 @@ def test_dout_dashboard_pipeline3s():
     assert len(axes) == 6, "Dashboard should have 6 subplots"
 
 
-def test_dout_dashboard_sar_binary():
+def test_dout_dashboard_sar_binary(tmp_path):
     """Test dashboard with SAR ADC using binary CDAC weights."""
     print(f"\n[Test] SAR ADC Dashboard (Binary Weights)")
     print(f"[Config] Fs={Fs/1e6:.0f} MHz, Fin≈{Fin_target/1e6:.0f} MHz, N={N}")
@@ -286,7 +281,7 @@ def test_dout_dashboard_sar_binary():
     print(f"[SAR Binary] Weights (with LSB/2): {weights}")
 
     # Generate dashboard
-    fig_path = output_dir / 'test_dout_dashboard_sar_binary.png'
+    fig_path = tmp_path / 'test_dout_dashboard_sar_binary.png'
     fig, axes = generate_dout_dashboard(
         bits=bits,
         freq=Fin/Fs,
@@ -306,7 +301,7 @@ def test_dout_dashboard_sar_binary():
     assert len(axes) == 6, "Dashboard should have 6 subplots"
 
 
-def test_dout_dashboard_sar_subradix():
+def test_dout_dashboard_sar_subradix(tmp_path):
     """Test dashboard with SAR ADC using sub-radix CDAC weights."""
     print(f"\n[Test] SAR ADC Dashboard (Sub-radix Weights)")
     print(f"[Config] Fs={Fs/1e6:.0f} MHz, Fin≈{Fin_target/1e6:.0f} MHz, N={N}")
@@ -323,7 +318,7 @@ def test_dout_dashboard_sar_subradix():
     print(f"[SAR Sub-radix] Weights (with LSB/2): {weights}")
 
     # Generate dashboard
-    fig_path = output_dir / 'test_dout_dashboard_sar_subradix.png'
+    fig_path = tmp_path / 'test_dout_dashboard_sar_subradix.png'
     fig, axes = generate_dout_dashboard(
         bits=bits,
         freq=Fin/Fs,
@@ -345,14 +340,16 @@ def test_dout_dashboard_sar_subradix():
 
 if __name__ == '__main__':
     """Run dout_dashboard tests standalone"""
+    output_dir = Path(__file__).parent / "test_output"
+    output_dir.mkdir(exist_ok=True)
     print('='*80)
     print('RUNNING DOUT_DASHBOARD TESTS')
     print('='*80)
 
-    test_dout_dashboard_pipeline2s()
-    test_dout_dashboard_pipeline3s()
-    test_dout_dashboard_sar_binary()
-    test_dout_dashboard_sar_subradix()
+    test_dout_dashboard_pipeline2s(output_dir)
+    test_dout_dashboard_pipeline3s(output_dir)
+    test_dout_dashboard_sar_binary(output_dir)
+    test_dout_dashboard_sar_subradix(output_dir)
 
     print('\n' + '='*80)
     print(f'** All dout_dashboard tests completed! **')

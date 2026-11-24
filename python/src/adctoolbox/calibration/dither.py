@@ -333,6 +333,8 @@ class DitherHDCTracker:
         p, q, s = (a.astype(np.int64) for a in (p, q, s))
         tracker = self._tracker
         if not learn or self._learning != learn:
+            if tracker.pending is not None and tracker.samples == tracker.commit_at:
+                tracker.coefficients = tracker.pending
             tracker.pending = tracker.commit_at = None
             tracker.sums[:] = 0
             tracker.count = 0

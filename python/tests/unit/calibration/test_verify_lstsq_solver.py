@@ -147,16 +147,18 @@ def test_dual_basis_sine_switch():
     Verify that the solver correctly switches to Sine basis when signal is Sine-like.
     """
     n_samples = 500
-    bits = np.zeros((n_samples, 2))
-    cos_basis = np.cos(np.linspace(0, 10, n_samples)).reshape(-1, 1)
-    sin_basis = np.sin(np.linspace(0, 10, n_samples)).reshape(-1, 1)
-    offset = np.zeros((n_samples, 1))
-    
-    # Force Sine assumption to be better
-    # Target = -1.0 * sin_basis
-    coeffs, basis_choice, _ = _dual_basis_lstsq(bits, cos_basis, sin_basis, offset)
-    
+    t = np.arange(n_samples)
+    freq = 17.0 / n_samples
+    cos_basis = np.cos(2 * np.pi * freq * t).reshape(-1, 1)
+    sin_basis = np.sin(2 * np.pi * freq * t).reshape(-1, 1)
+    offset = np.ones((n_samples, 1))
+    # Pure sine signal bits @ [0.5, 0.5] = sin_basis -> Sine assumption is exact, Cosine is singular.
+    bits = np.column_stack([sin_basis[:, 0], 0.5 * sin_basis[:, 0] + 0.25])
+
+    coeffs, basis_choice, err = _dual_basis_lstsq(bits, cos_basis, sin_basis, offset)
+
     assert basis_choice == 1, "Should have switched to Sine basis"
+    assert err < 1e-12
 
 
 def test_solve_weights_multi_dataset_structure():
@@ -198,94 +200,55 @@ def test_solve_weights_multi_dataset_structure():
 
 def test_solve_weights_shared_recovery():
     """
-    Test 6: Verify that weights are shared across datasets but DCs are independent.
+    Test 6: Verify that weights are shared across datasets while per-dataset DCs are independent.
     """
-    n_samples = 500
+    n_samples = 2048
+    t = np.arange(n_samples)
+    f1, f2 = 37.0 / n_samples, 73.0 / n_samples
+    true_weights = np.array([2.0, 1.0])
+    dc1, dc2 = 5.0, -3.0
+
+    # Construct exact linear combinations: bits_k @ true_weights + dc_k = cos(2*pi*f_k*t)
+    s1 = np.cos(2 * np.pi * f1 * t) - dc1
+    s2 = np.cos(2 * np.pi * f2 * t) - dc2
     rng = np.random.default_rng(2026062206)
-    true_weights = np.array([10.0, 20.0]) # Shared
-    dc1, dc2 = 5.0, -3.0 # Different DCs
-    
-    # Dataset 1: bits @ weights + dc1
-    bits1 = rng.integers(0, 2, (n_samples, 2)).astype(float)
-    sig1 = bits1 @ true_weights + dc1
-    
-    # Dataset 2: bits @ weights + dc2
-    bits2 = rng.integers(0, 2, (n_samples, 2)).astype(float)
-    sig2 = bits2 @ true_weights + dc2
-    
-    # Mocking the basis to be the signals themselves to force direct recovery
-    # We'll use a trick: make the cos_basis fundamental match the negative of the signals
-    freqs = np.array([0.1, 0.2])
-    
-    # Note: Testing this requires internal knowledge that coeffs = [weights, DCs, harmonics]
-    # For simplicity, we just check if solve_weights_with_known_freq returns a valid shape
-    coeffs, _, _, _ = _solve_weights_with_known_freq([bits1, bits2], freqs, 1)
-    
-    # Layout should be: [w0, w1, dc1, dc2, harmonic1_cos_skip, harmonic2_cos_skip, h1_sin, h2_sin]
-    # Total length: 2 (weights) + 2 (DCs) + (2 datasets * 1 order * 2 sin/cos) - 1 (unity) = 7? 
-    # Let's just check if it's not empty and has no NaNs
-    assert not np.any(np.isnan(coeffs))
+    b1_0 = rng.standard_normal(n_samples)
+    b2_0 = rng.standard_normal(n_samples)
+    bits1 = np.column_stack([b1_0, (s1 - true_weights[0] * b1_0) / true_weights[1]])
+    bits2 = np.column_stack([b2_0, (s2 - true_weights[0] * b2_0) / true_weights[1]])
+
+    coeffs, basis_choice, _, _ = _solve_weights_with_known_freq([bits1, bits2], np.array([f1, f2]), 1)
+
+    assert basis_choice == 0
+    np.testing.assert_allclose(coeffs[:2], -true_weights, rtol=1e-10, atol=1e-10)
+    np.testing.assert_allclose(coeffs[2:4], [-dc1, -dc2], rtol=1e-10, atol=1e-10)
 
 def test_8bit_sine_calibration_recovery():
     """
-    Test 6: Real-world simulation. 
-    Can the solver recover 8-bit weights from a quantized sine wave?
+    Test 6: Real-world simulation.
+    Recover 8-bit non-ideal SAR weights accurately from a quantized sine wave.
     """
-    n_samples = 4096  # More samples for better quantization averaging
-    freq = 0.1234
-    t = np.arange(n_samples)
-    
-    # 1. Define True Physical Weights (Non-ideal 8-bit)
-    true_weights = np.array([1.0, 2.0, 4.0, 8.0, 16.1, 32.2, 64.4, 128.8])
-    true_dc = 5.5
-    amplitude = 100.0
-    
-    # 2. Generate a "Perfect" Sine Wave in the analog domain
-    # V = A * sin(2*pi*f*t) + Offset
-    analog_signal = amplitude * np.sin(2 * np.pi * freq * t) + 127.0 + true_dc
-    
-    # 3. Quantize to Bits
-    # This simulates the actual ADC process
-    codes = np.clip(np.round(analog_signal), 0, 255).astype(int)
-    bits = np.zeros((n_samples, 8))
-    for b in range(8):
-        bits[:, b] = (codes >> b) & 1
-        
-    # 4. Run the unified solver
-    # We use harmonic_order=1 to focus on the fundamental
-    bits_list = [bits]
-    freq_array = np.array([freq])
-    
-    coeffs, basis_choice, _, _ = _solve_weights_with_known_freq(
-        bits_list, freq_array, harmonic_order=1
-    )
-    
-    # 5. Extraction
-    recovered_weights = coeffs[:8]
-    
-    # 6. Verification Logic:
-    # Since the solver fits Bits @ W = -1.0 * Basis_Fundamental,
-    # the recovered weights should be: -(true_weights / amplitude)
-    # We check the RATIO to be sure.
-    
-    expected_ratios = true_weights / true_weights[0]
-    recovered_ratios = recovered_weights / recovered_weights[0]
-    
-    print(f"\nBasis Choice: {basis_choice}")
-    print(f"First Weight (Magnitude): {recovered_weights[0]}")
-    
-    # Check if the weight ratios match within a few percent. This simulation
-    # deconstructs rounded integer codes back into bits, so quantization
-    # residue and clipping bias the recovered ratios slightly.
-    np.testing.assert_allclose(
-        recovered_ratios, 
-        expected_ratios, 
-        rtol=3e-2,
-        err_msg="Weight ratios diverged in 8-bit sine simulation!"
-    )
+    from adctoolbox.models.sar import sar_convert
 
-    # Check if the magnitude makes sense: 1.0 / 100.0 = 0.01
-    # Recovered weight[0] should be around 0.01 (sign might be negative depending on basis)
-    assert abs(recovered_weights[0]) > 0.008 and abs(recovered_weights[0]) < 0.012
+    n_samples = 4096
+    freq = 127.0 / n_samples
+    t = np.arange(n_samples)
+
+    # Sub-radix non-ideal 8-bit SAR weights (no missing codes, MSB to LSB)
+    true_weights = np.array([124.0, 63.0, 31.5, 16.0, 8.0, 4.0, 2.0, 1.0])
+    w_norm = true_weights / true_weights.sum()
+    analog_signal = 0.5 + 0.45 * np.sin(2 * np.pi * freq * t + 0.3)
+    bits = sar_convert(analog_signal, w_norm)
+
+    coeffs, _, _, _ = _solve_weights_with_known_freq([bits], np.array([freq]), harmonic_order=1)
+    recovered_weights = coeffs[:8]
+
+    recovered_norm = recovered_weights / recovered_weights.sum()
+    np.testing.assert_allclose(
+        recovered_norm,
+        w_norm,
+        atol=2e-3,
+        err_msg="Normalized weights diverged in 8-bit SAR sine simulation!",
+    )
 if __name__ == "__main__":
     pytest.main([__file__])
