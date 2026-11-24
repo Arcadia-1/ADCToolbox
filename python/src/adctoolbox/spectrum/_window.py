@@ -9,6 +9,7 @@ their parameters:
 This is an internal helper module, not intended for direct use by end users.
 """
 
+import warnings
 import numpy as np
 from scipy.signal import windows
 
@@ -43,7 +44,7 @@ _SIDE_BIN_DEFAULTS = {
     },
     'kaiser': {
         'enbw': 3.51,
-        'coherent': 8,
+        'coherent': 9,
     },
     'chebwin': {
         'enbw': 1.94,
@@ -59,7 +60,7 @@ _SIDE_BIN_AUTO_FALLBACKS = {
     'blackman': 4,
     'blackmanharris': 5,
     'flattop': 6,
-    'kaiser': 10,
+    'kaiser': 14,
     'chebwin': 6,
 }
 
@@ -86,7 +87,7 @@ def _create_window(win_type: str, N: int) -> tuple[np.ndarray, float, float]:
     """
     win_lower = win_type.lower()
 
-    if win_lower in ('boxcar', 'rectangular'):
+    if win_lower in ('boxcar', 'rectangular', 'rect'):
         window_vector = np.ones(N)
     elif win_lower == 'kaiser':
         window_vector = windows.kaiser(N, beta=38, sym=False)
@@ -101,7 +102,11 @@ def _create_window(win_type: str, N: int) -> tuple[np.ndarray, float, float]:
     elif win_lower == 'flattop':
         window_vector = windows.flattop(N, sym=False)
     else:
-        # Default to hann if window type not recognized
+        warnings.warn(
+            f"Unrecognized win_type {win_type!r}; falling back to 'hann'.",
+            UserWarning,
+            stacklevel=3,
+        )
         window_vector = windows.hann(N, sym=False)
 
     window_gain = np.sum(window_vector) / N
@@ -129,7 +134,7 @@ def _get_default_side_bin(win_type: str, is_coherent: bool | None = None) -> int
     """
     # Normalize window type (handle aliases)
     win_key = win_type.lower()
-    if win_key == 'boxcar':
+    if win_key in ('boxcar', 'rect'):
         win_key = 'rectangular'
 
     # Default to hann if window type not recognized
@@ -142,7 +147,7 @@ def _get_default_side_bin(win_type: str, is_coherent: bool | None = None) -> int
 def _get_auto_side_bin_fallback(win_type: str) -> int:
     """Small conservative fallback when side_bin auto cannot find a crossing."""
     win_key = win_type.lower()
-    if win_key == 'boxcar':
+    if win_key in ('boxcar', 'rect'):
         win_key = 'rectangular'
 
     if win_key not in _SIDE_BIN_AUTO_FALLBACKS:

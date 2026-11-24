@@ -89,19 +89,21 @@ def analyze_error_phase_plane(data, fs=1.0, ax=None, title=None, create_plot: bo
     # --- 2. IEEE 1057 Sine Fit (Fast & Robust) ---
     # Use standardized 4-parameter fit instead of curve_fit
     fit_result = fit_sine_4param(data)
+    fitted_sine = fit_result['fitted_signal']
     residual = fit_result['residuals']
 
     # --- 3. Robust Polynomial Fitting (Exclude Clipping) ---
-    # Only fit central 96% of amplitude range to avoid clipping artifacts
-    sort_idx = np.argsort(data)
-    x_sorted = data[sort_idx]
-    residual_sorted = residual[sort_idx]
+    # Regress residual against the noiseless fitted_sine (not noisy data) to
+    # avoid errors-in-variables bias (Tweedie S-curve on pure thermal noise).
+    sort_idx = np.argsort(fitted_sine)
+    x_sorted = fitted_sine[sort_idx]
 
     # Exclude top/bottom 2% to handle clipping
-    valid_mask = (data > np.percentile(data, 2)) & (data < np.percentile(data, 98))
+    valid_mask = (fitted_sine > np.percentile(fitted_sine, 2)) & (fitted_sine < np.percentile(fitted_sine, 98))
+    x_valid_sorted = np.sort(fitted_sine[valid_mask])
 
     # Fit polynomial on non-clipped region
-    poly_coeff = np.polyfit(data[valid_mask], residual[valid_mask], fit_polynomial_order)
+    poly_coeff = np.polyfit(fitted_sine[valid_mask], residual[valid_mask], fit_polynomial_order)
     poly_trend = np.polyval(poly_coeff, x_sorted)
 
     # --- 4. Hysteresis Detection (Memory Effect) ---
@@ -110,31 +112,34 @@ def analyze_error_phase_plane(data, fs=1.0, ax=None, title=None, create_plot: bo
     coeff_fall = None
 
     if detect_hysteresis:
-        # Calculate gradient to separate rising from falling edges
-        gradient = np.gradient(data)
-        mask_rise = gradient > 0
-        mask_fall = gradient < 0
+        # Use exact analytical slope of fitted cosine A*cos(2*pi*f*t + phi):
+        # derivative = -2*pi*f*A*sin(2*pi*f*t + phi). Immune to quantization
+        # plateaus (where np.gradient == 0) and near-Nyquist noise.
+        t = np.arange(len(data))
+        slope = -np.sin(2 * np.pi * fit_result['frequency'] * t + fit_result['phase'])
+        mask_rise = slope > 0
+        mask_fall = slope < 0
 
         # Only compute if we have sufficient samples in each direction
         if np.sum(mask_rise) > 100 and np.sum(mask_fall) > 100:
             # Fit rising edge
             valid_rise = mask_rise & valid_mask
             if np.sum(valid_rise) > 50:
-                coeff_rise = np.polyfit(data[valid_rise], residual[valid_rise], fit_polynomial_order)
+                coeff_rise = np.polyfit(fitted_sine[valid_rise], residual[valid_rise], fit_polynomial_order)
 
             # Fit falling edge
             valid_fall = mask_fall & valid_mask
             if np.sum(valid_fall) > 50:
-                coeff_fall = np.polyfit(data[valid_fall], residual[valid_fall], fit_polynomial_order)
+                coeff_fall = np.polyfit(fitted_sine[valid_fall], residual[valid_fall], fit_polynomial_order)
 
-            # Calculate hysteresis gap (average separation)
+            # Calculate hysteresis gap over the central non-clipped region
             if coeff_rise is not None and coeff_fall is not None:
-                trend_rise = np.polyval(coeff_rise, x_sorted)
-                trend_fall = np.polyval(coeff_fall, x_sorted)
-                hysteresis_gap = np.mean(np.abs(trend_rise - trend_fall))
+                trend_rise_valid = np.polyval(coeff_rise, x_valid_sorted)
+                trend_fall_valid = np.polyval(coeff_fall, x_valid_sorted)
+                hysteresis_gap = float(np.mean(np.abs(trend_rise_valid - trend_fall_valid)))
 
     # --- 5. Visualization ---
-    if create_plot or ax is not None:
+    if create_plot:
         # Use current axes if available, otherwise use pyplot's implicit axes
         if ax is None:
             ax = plt.gca()

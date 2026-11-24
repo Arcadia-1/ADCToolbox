@@ -62,8 +62,11 @@ def analyze_phase_plane(data, lag='auto', fs=1.0, detect_outliers=True, threshol
             # - Target is ~1/4 period (90 degrees), with margin for estimation error
             # - Prevent excessive search that could pick up jitter/drift artifacts
 
-            estimated_period = 1.0 / norm_freq
-            search_limit = min(N // 2, int(estimated_period * 0.6) + 20)
+            # For tones near DC or near Nyquist, the phase slip per sample is
+            # min(f, 0.5 - f); reaching 90 deg requires k ≈ 0.25 / slip.
+            phase_slip = min(norm_freq, abs(0.5 - norm_freq))
+            estimated_period = 1.0 / max(phase_slip, 1e-6)
+            search_limit = min(N // 2, max(int(estimated_period * 0.6) + 20, 20))
             best_k = 1
             best_metric = -1
 
@@ -85,19 +88,17 @@ def analyze_phase_plane(data, lag='auto', fs=1.0, detect_outliers=True, threshol
     else:
         k = int(lag)
 
-    if k >= N:
-        raise ValueError(f"Lag {k} is too large for data length {N}.")
+    if k <= 0 or k >= N:
+        raise ValueError(f"Lag {k} must be in [1, {N - 1}] for data length {N}.")
 
     # --- 2. Construct Phase Space Vectors ---
     # x axis: current sample, y axis: delayed sample
     x_vec = data[:-k]
     y_vec = data[k:]
-    
-    # Indices corresponding to y_vec (the "current" point in time sense)
-    indices = np.arange(k, N)
 
     # --- 3. Outlier Detection (Sparkle Hunter) ---
     outlier_mask = np.zeros_like(x_vec, dtype=bool)
+    sample_outlier_mask = np.zeros(N, dtype=bool)
 
     if detect_outliers:
         # Center data to origin
@@ -123,10 +124,34 @@ def analyze_phase_plane(data, lag='auto', fs=1.0, detect_outliers=True, threshol
         # Flag points far from the "donut" ring
         outlier_mask = deviation > (threshold * r_sigma_robust)
 
-    outlier_indices = indices[outlier_mask]
+        # A single glitch at sample m corrupts BOTH pair (m-k, m) and pair (m, m+k).
+        # Map pair flags back to true sample indices so each isolated glitch is
+        # reported once (at m) rather than twice (at m and m+k).
+        n_pairs = len(outlier_mask)
+        if n_pairs > 0:
+            # Interior samples [k, N-k): appear as y in pair m-k and x in pair m
+            if N > 2 * k:
+                sample_outlier_mask[k : N - k] = outlier_mask[: N - 2 * k] & outlier_mask[k:]
+            # Leading samples [0, min(k, n_pairs)): appear only as x in pair m
+            lead = min(k, n_pairs)
+            sample_outlier_mask[:lead] = outlier_mask[:lead] & ~np.concatenate(
+                (outlier_mask[k : k + lead], np.zeros(max(0, lead - max(0, n_pairs - k)), dtype=bool))
+            )
+            # Trailing samples [max(k, N-k), N): appear only as y in pair m-k
+            trail_start = max(k, N - k)
+            trail_len = N - trail_start
+            if trail_len > 0:
+                prev_pair = np.zeros(trail_len, dtype=bool)
+                for idx_t in range(trail_len):
+                    m_idx = trail_start + idx_t
+                    if m_idx - 2 * k >= 0:
+                        prev_pair[idx_t] = outlier_mask[m_idx - 2 * k]
+                sample_outlier_mask[trail_start:] = outlier_mask[trail_start - k :] & ~prev_pair
+
+    outlier_indices = np.flatnonzero(sample_outlier_mask)
 
     # --- 4. Visualization ---
-    if create_plot or ax is not None:
+    if create_plot:
         # Use current axes if available, otherwise use pyplot's implicit axes
         if ax is None:
             ax = plt.gca()

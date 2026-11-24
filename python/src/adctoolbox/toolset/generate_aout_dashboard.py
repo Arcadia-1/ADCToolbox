@@ -43,6 +43,7 @@ def generate_aout_dashboard(signal, fs=1.0, freq=None, output_path=None, resolut
 
     # Calculate normalized frequency if freq is provided
     norm_freq = freq / fs if freq is not None else None
+    fit_kwargs = {"max_iterations": 0} if norm_freq is not None else {}
 
     # Create 2x4 panel
     fig, axes = plt.subplots(2, 4, figsize=(26, 12))
@@ -65,24 +66,22 @@ def generate_aout_dashboard(signal, fs=1.0, freq=None, output_path=None, resolut
     axes[1].set_title('(2) Spectrum Polar', fontsize=12, pad=20)
 
     # Plot 3: analyze_error_by_value
-    analyze_error_by_value(signal, ax=axes[2], title='(3) Error by Value')
+    analyze_error_by_value(signal, norm_freq=norm_freq, ax=axes[2], title='(3) Error by Value', **fit_kwargs)
 
     # Plot 4: analyze_error_by_phase
-    analyze_error_by_phase(signal, ax=axes[3], title='(4) Error by Phase')
+    analyze_error_by_phase(signal, norm_freq=norm_freq, ax=axes[3], title='(4) Error by Phase', **fit_kwargs)
 
     # Plot 5: analyze_decomposition_time
-    analyze_decomposition_time(signal, ax=axes[4], title='(5) Time Domain Error Decomposition')
+    analyze_decomposition_time(signal, frequency=norm_freq, ax=axes[4], title='(5) Time Domain Error Decomposition', **fit_kwargs)
 
     # Plot 6: analyze_decomposition_polar
-    plt.sca(axes[5])
-    analyze_decomposition_polar(signal)
-    axes[5].set_title('(6) Polar Plot of Error Decomposition', fontsize=12, pad=20)
+    analyze_decomposition_polar(signal, frequency=norm_freq, ax=axes[5], title='(6) Polar Plot of Error Decomposition', **fit_kwargs)
 
     # Plot 7: analyze_error_pdf
-    analyze_error_pdf(signal, resolution=resolution, ax=axes[6], title='(7) Error PDF')
+    analyze_error_pdf(signal, resolution=resolution, frequency=norm_freq, ax=axes[6], title='(7) Error PDF', **fit_kwargs)
 
     # Plot 8: analyze_error_autocorr
-    analyze_error_autocorr(signal, frequency=norm_freq, ax=axes[7], title='(8) Error Autocorrelation')
+    analyze_error_autocorr(signal, frequency=norm_freq, ax=axes[7], title='(8) Error Autocorrelation', **fit_kwargs)
 
     plt.tight_layout()
     if output_path is not None:

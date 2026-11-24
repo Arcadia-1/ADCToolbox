@@ -37,8 +37,8 @@ def perfosr(
     if smooth is not None and smooth < 1:
         raise ValueError("smooth must be at least 1")
     if osr is not None:
-        osr_arr = np.asarray(osr, dtype=float)
-        if np.any(osr_arr <= 0):
+        osr_arr = np.atleast_1d(np.asarray(osr, dtype=float))
+        if np.any(~np.isfinite(osr_arr)) or np.any(osr_arr <= 0):
             raise ValueError("osr values must be positive")
     else:
         osr_arr = None

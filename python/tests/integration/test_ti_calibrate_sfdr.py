@@ -54,7 +54,7 @@ def test_calibration_lifts_sfdr_above_floor(skew_method, floor_db, n_taps):
     M = 4
     fs = 1e9
     N = 8192
-    fin = 37 * fs / N
+    fin = 1013 * fs / N     # ~123.7 MHz: skew spurs (~-54 dBc) clearly dominate unless skew is corrected
     A = 0.5
 
     rng = np.random.default_rng(7)
@@ -65,8 +65,13 @@ def test_calibration_lifts_sfdr_above_floor(skew_method, floor_db, n_taps):
 
     x = _synth(M, N, fs, fin, A, gain, offset, skew)
     sfdr_before = _sfdr_dbc(x, N, fs, fin)
-
+    # Without skew correction, offset+gain alone cannot pass the floor_db bar
     params = extract_mismatch_sine(x, M, fs=fs, fin=fin)
+    y_og_only = calibrate_foreground(
+        x, M, {**params, "skew": np.zeros(M)}, fs, skew_method=skew_method, n_taps=n_taps
+    )
+    assert _sfdr_dbc(y_og_only, N, fs, fin) < 65.0
+
     y = calibrate_foreground(x, M, params, fs, skew_method=skew_method, n_taps=n_taps)
     sfdr_after = _sfdr_dbc(y, N, fs, fin)
 

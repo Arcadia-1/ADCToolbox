@@ -123,6 +123,7 @@ def generate_aout_dashboard(signal, fs=1.0, freq=None, output_path=None, resolut
         frequency=norm_freq,
         ax=axes[7],
         title='(8) Error Autocorrelation',
+        **fit_kwargs,
     )
 
     # Plot 9: analyze_error_spectrum
@@ -170,6 +171,10 @@ def generate_aout_dashboard(signal, fs=1.0, freq=None, output_path=None, resolut
         output_path.parent.mkdir(parents=True, exist_ok=True)
         fig.savefig(output_path, dpi=150, bbox_inches='tight')
         print(f"[Dashboard saved] -> {output_path}")
+
+    if show:
+        plt.show()
+    elif output_path is not None:
         plt.close(fig)
 
     return fig, axes

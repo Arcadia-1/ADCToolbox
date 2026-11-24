@@ -74,7 +74,16 @@ def diagnose_calibration_matrix(
         condition_number = float(singular_values[0] / singular_values[rank - 1])
         singular_value_ratio = singular_values / singular_values[0]
 
-    with_offset = np.column_stack([matrix, np.ones(matrix.shape[0])])
+    if len(segment_lengths) <= 1:
+        offset_block = np.ones((matrix.shape[0], 1), dtype=float)
+    else:
+        offset_block = np.zeros((matrix.shape[0], len(segment_lengths)), dtype=float)
+        row_start = 0
+        for idx, length in enumerate(segment_lengths):
+            row_end = row_start + int(length)
+            offset_block[row_start:row_end, idx] = 1.0
+            row_start = row_end
+    with_offset = np.column_stack([matrix, offset_block])
     if rank_tol is None:
         rank_with_offset = int(np.linalg.matrix_rank(with_offset))
     else:

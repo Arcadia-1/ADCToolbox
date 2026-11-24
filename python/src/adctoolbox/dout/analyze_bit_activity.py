@@ -55,7 +55,9 @@ def analyze_bit_activity(
 
         ax.axhline(50, color='red', linestyle='--', linewidth=2, label='Ideal (50%)')
         ax.set_xlim([0.5, B + 0.5])
-        ax.set_ylim([40, 60])
+        y_lo = min(40.0, float(np.min(bit_usage)) - 5.0)
+        y_hi = max(60.0, float(np.max(bit_usage)) + 5.0)
+        ax.set_ylim([max(-5.0, y_lo), min(108.0, y_hi)])
         ax.set_xlabel('Bit Index (1=MSB)', fontsize=11)
         ax.set_ylabel("Activity of 1's (%)", fontsize=11)
 

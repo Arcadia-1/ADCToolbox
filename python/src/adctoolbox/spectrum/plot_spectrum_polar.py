@@ -24,6 +24,11 @@ def plot_spectrum_polar(analysis_results, show_metrics=True, harmonic=5, fixed_r
     metrics = analysis_results.get('metrics', {})
 
     spec = plot_data['complex_spectrum']
+    osr = analysis_results.get('osr', 1)
+    if osr and osr > 1 and 'N' in analysis_results:
+        from adctoolbox.spectrum._bin_ranges import rfft_inband_bin_count
+        n_inband = rfft_inband_bin_count(int(analysis_results['N']), osr)
+        spec = spec[:n_inband]
     bin_idx = plot_data['fundamental_bin']
     harmonic_bins = plot_data['harmonic_bins']
     collided_harmonics = plot_data.get('collided_harmonics', [])
@@ -47,12 +52,12 @@ def plot_spectrum_polar(analysis_results, show_metrics=True, harmonic=5, fixed_r
 
     # Normalize to noise floor
     if fixed_radial_range is not None:
-        reference_dB = -fixed_radial_range
-        mag_dB = np.maximum(mag_dB, reference_dB)
-        radius = mag_dB - reference_dB
+        reference_dB = -float(fixed_radial_range)
     else:
-        mag_dB = np.maximum(mag_dB, minR_dB)
-        radius = mag_dB - minR_dB
+        reference_dB = float(minR_dB)
+
+    mag_dB = np.maximum(mag_dB, reference_dB)
+    radius = mag_dB - reference_dB
 
     spec_polar = phi * radius
     phase = np.angle(spec_polar)
@@ -62,18 +67,15 @@ def plot_spectrum_polar(analysis_results, show_metrics=True, harmonic=5, fixed_r
     ax.set_theta_zero_location('N')
     ax.set_theta_direction(-1)
 
-    # Set radial axis
-    if fixed_radial_range is not None:
-        max_radius = fixed_radial_range
-        minR_dB_rounded = np.round(-fixed_radial_range / 10) * 10
-    else:
-        max_radius = -minR_dB
-        minR_dB_rounded = np.round(minR_dB / 10) * 10
-
-    tick_values = np.arange(0, max_radius + 1, 10)
+    # Set radial axis so tick labels align exactly with plotted radii:
+    # radius = dB - reference_dB -> a ring labeled L sits at radius L - reference_dB.
+    max_radius = -reference_dB
+    first_label = int(np.ceil(reference_dB / 10.0) * 10)
+    db_ticks = np.arange(first_label, 1, 10)
+    tick_values = db_ticks - reference_dB
     ax.set_ylim([0, max_radius])
     ax.set_rticks(tick_values)
-    tick_labels = [str(int(minR_dB_rounded + val)) for val in tick_values]
+    tick_labels = [str(int(db)) for db in db_ticks]
     ax.set_yticklabels(tick_labels, fontsize=10)
 
     # Plot spectrum

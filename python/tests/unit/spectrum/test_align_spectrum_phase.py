@@ -195,10 +195,12 @@ class TestAlignSpectrumPhase:
         fft_data = np.zeros(n_fft, dtype=complex)
         fft_data[bin_idx] = 10.0 * np.exp(1j * np.pi / 4)
 
-        # Should handle edge case
+        # Should align Nyquist bin to zero phase (not double its phase to +90 deg)
         fft_aligned = _align_spectrum_phase(fft_data, bin_idx, bin_r, n_fft)
 
         assert fft_aligned.shape == fft_data.shape
+        assert np.angle(fft_aligned[bin_idx]) == pytest.approx(0.0, abs=1e-12)
+        assert abs(fft_aligned[bin_idx]) == pytest.approx(10.0, rel=1e-12)
 
     def test_small_fft_size(self):
         """Test with very small FFT size."""

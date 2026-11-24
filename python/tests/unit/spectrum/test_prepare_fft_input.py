@@ -41,17 +41,17 @@ def test_prepare_fft_input_transpose_handling(input_shape, expected_output_shape
     ((-0.99, 0.99), None, (-1.0, 1.0)),
     ((0, 1024), None, (-1.0, 1.0)),
     ((256, 768), None, (-1.0, 1.0)),
-    ((0, 2048), 2048, (-1.0, 1.0)),
+    ((0, 2048), 2048, (-0.5, 0.5)),
     ((0, 2048), (0, 2048), (-1.0, 1.0)),
-    ((512, 1536), 2048, (-0.5, 0.5)),
+    ((512, 1536), 2048, (-0.25, 0.25)),
     ((256, 768), (0, 2048), (-0.25, 0.25)),
-    ((-512, 512), 1024, (-1.0, 1.0)),
-    ((-0.5,0.5), (-0.5,0.5), (-1.0, 1.0)),
-    ((-0.25,0.25), (-0.5, 0.5), (-0.5, 0.5)),
-    ((-0.05,0.05), (-0.5, 0.5), (-0.1, 0.1)),
-    ((-0.5,0.5), (-1, 1), (-0.5, 0.5)),
-    ((-0.5,0.5), 0, (-0.5, 0.5)),
-    ((-0.05,0.05), 0, (-0.05, 0.05)),
+    ((-512, 512), 1024, (-0.5, 0.5)),
+    ((-0.5, 0.5), (-0.5, 0.5), (-1.0, 1.0)),
+    ((-0.25, 0.25), (-0.5, 0.5), (-0.5, 0.5)),
+    ((-0.05, 0.05), (-0.5, 0.5), (-0.1, 0.1)),
+    ((-0.5, 0.5), (-1, 1), (-0.5, 0.5)),
+    ((-0.5, 0.5), 0, (-0.5, 0.5)),
+    ((-0.05, 0.05), 0, (-0.05, 0.05)),
 ])
 def test_prepare_fft_input_max_scale_range(signal_range, max_scale_range, expected_range):
     """Test max_scale_range normalization."""
@@ -65,8 +65,8 @@ def test_prepare_fft_input_max_scale_range(signal_range, max_scale_range, expect
     actual_max = np.max(processed)
     print(f"\n[Test Normalization] Range={signal_range}, FSR={max_scale_range} -> Expected: [{expected_range[0]:.2f}, {expected_range[1]:.2f}], Actual: [{actual_min:.2f}, {actual_max:.2f}]")
 
-    assert actual_min >= expected_range[0] - 0.1
-    assert actual_max <= expected_range[1] + 0.1
+    assert actual_min == pytest.approx(expected_range[0], abs=0.05)
+    assert actual_max == pytest.approx(expected_range[1], abs=0.05)
 
 
 def test_prepare_fft_input_warns_on_tuple_raw_overrange():

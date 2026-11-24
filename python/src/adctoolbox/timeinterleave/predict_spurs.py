@@ -71,13 +71,18 @@ def predict_spurs(
     if not (offset.size == M and skew.size == M):
         raise ValueError("gain / offset / skew must all have length M")
 
-    fundamental_amp = A_in * gain.mean()
+    alpha = gain * np.exp(1j * 2 * np.pi * fin * skew)
+    # Exact carrier amplitude includes skew-induced phase dispersion across channels.
+    fundamental_amp = A_in * float(np.abs(alpha.mean()))
     fund_dbfs = 20 * np.log10(max(fundamental_amp / full_scale, 1e-300))
 
-    def _to_db(amp: float) -> tuple[float, float]:
+    def _to_db(amp: float, is_nyquist_real: bool = False) -> tuple[float, float]:
         if amp <= 0:
             return (-np.inf, -np.inf)
-        dbfs = 20 * np.log10(amp / full_scale)
+        # A real Nyquist tone amp * (-1)^n has RMS power amp^2 (twice a sinusoid's
+        # amp^2 / 2), so its equivalent sine amplitude for dBFS/dBc is amp * sqrt(2).
+        equiv_amp = amp * np.sqrt(2.0) if is_nyquist_real else amp
+        dbfs = 20 * np.log10(equiv_amp / full_scale)
         dbc = dbfs - fund_dbfs
         return dbfs, dbc
 
@@ -86,19 +91,19 @@ def predict_spurs(
     # ---- offset spurs: DFT of offset sequence ----
     # A real offset pattern puts O[k] and O[M-k] = conj(O[k]) on the same folded
     # frequency: together they are one tone of amplitude 2|O[k]|/M. Only k = M/2
-    # is its own mirror.
+    # is its own mirror (alternating Nyquist sequence).
     O = np.fft.fft(offset)
     for k in range(1, M // 2 + 1):
         f = float(fold_frequency_to_nyquist(k * fs / M, fs))
-        amp = np.abs(O[k]) / M * (1 if 2 * k == M else 2)
-        dbfs, dbc = _to_db(amp)
+        is_nyq = (2 * k == M)
+        amp = np.abs(O[k]) / M * (1 if is_nyq else 2)
+        dbfs, dbc = _to_db(amp, is_nyquist_real=is_nyq)
         spurs.append(
             {"freq_hz": f, "kind": "offset", "k": int(k),
              "amp": float(amp), "dbfs": float(dbfs), "dbc": float(dbc)}
         )
 
     # ---- gain + skew spurs: DFT of centered complex gain ----
-    alpha = gain * np.exp(1j * 2 * np.pi * fin * skew)
     alpha_ac = alpha - alpha.mean()
     A_fft = np.fft.fft(alpha_ac)
     for k in range(1, M):

@@ -60,11 +60,21 @@ def plot_residual_scatter(
     if weights is None:
         weights = np.power(2.0, np.arange(m - 1, -1, -1))
     else:
-        weights = np.asarray(weights, dtype=float)
+        weights = np.asarray(weights, dtype=float).ravel()
+        if weights.size != m:
+            raise ValueError(
+                f"weights length ({weights.size}) must match bits columns ({m})."
+            )
 
     # Default pairs
     if pairs is None:
         pairs = [(i, m) for i in range(m)]
+    else:
+        for x_bit, y_bit in pairs:
+            if not (0 <= x_bit <= m and 0 <= y_bit <= m):
+                raise ValueError(
+                    f"pair ({x_bit}, {y_bit}) out of range [0, {m}]."
+                )
 
     # Resolve alpha
     if isinstance(alpha, str) and alpha == 'auto':
@@ -87,7 +97,7 @@ def plot_residual_scatter(
         residuals_x.append(res_x)
         residuals_y.append(res_y)
 
-    if create_plot:
+    if create_plot and len(pairs) > 0:
         n_pairs = len(pairs)
         n_cols = min(n_pairs, 4)
         n_rows = int(np.ceil(n_pairs / n_cols))

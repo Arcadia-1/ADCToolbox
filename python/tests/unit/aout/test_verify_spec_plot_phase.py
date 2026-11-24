@@ -49,21 +49,15 @@ def generate_test_signal():
     # Add DC offset and small noise
     signal = signal + 0.5 + rng.standard_normal(N) * 1e-5
 
-    # Calculate maxSignal for normalization (needed for expected values)
-    maxSignal = np.max(signal) - np.min(signal)
-
-    # Expected magnitudes in normalized units (what the function returns)
-    # Function returns: sqrt(I^2 + Q^2) * 2, where I,Q are from normalized signal
-    # For normalized signal: amplitude_norm = amplitude_original / maxSignal
-    # So expected_mag_normalized = (amplitude_original / maxSignal) * 2
-    amplitudes_normalized = [A * 2 / maxSignal for A in [A_fundamental, A_HD2, A_HD3, A_HD4]]
+    # decompose_harmonic_error returns peak-to-peak magnitudes (2*A) in signal units
+    amplitudes_vpp = [A * 2 for A in [A_fundamental, A_HD2, A_HD3, A_HD4]]
 
     params = {
         'N': N,
         'Fs': Fs,
         'Fin': Fin,
         'Fin_normalized': Fin / Fs,
-        'amplitudes': amplitudes_normalized,  # Now in normalized units
+        'amplitudes': amplitudes_vpp,
         'phases': [phi_fundamental, phi_HD2, phi_HD3, phi_HD4]
     }
 

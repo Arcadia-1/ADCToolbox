@@ -138,6 +138,7 @@ function [enob,sndr,sfdr,snr,thd,sigpwr,noi,nsd,h] = plotspec(sig,varargin)
 % Input parsing and validation
 p = inputParser;
 validScalarPosNum = @(x) isnumeric(x) && isscalar(x) && (x > 0);
+validScalarNonNegNum = @(x) isnumeric(x) && isscalar(x) && (x >= 0);
 validScalarPosInt = @(x) isnumeric(x) && isscalar(x) && (x > 0) && (mod(x,1) == 0);
 validInteger = @(x) isnumeric(x) && isscalar(x) && (mod(x,1) == 0);
 validWindow = @(x) (ischar(x) && ismember(x, {'hann', 'rect'})) || isa(x, 'function_handle');
@@ -151,13 +152,13 @@ addParameter(p, 'OSR', 1, validScalarPosNum);
 % Old parameter names (for backward compatibility)
 addParameter(p, 'winType', 'hann', validWindow);
 addParameter(p, 'isPlot', true, validLogical);
-addParameter(p, 'noFlicker', 0, validScalarPosNum);
+addParameter(p, 'noFlicker', 0, validScalarNonNegNum);
 addParameter(p, 'coAvg', 0, @(x)ismember(x, [0, 1]));
 % New parameter names (aliases with higher priority)
 addParameter(p, 'window', 'hann', validWindow);
 addParameter(p, 'maxSignal', NaN, validScalarPosNum);
 addParameter(p, 'disp', NaN, validLogical);
-addParameter(p, 'cutoff', 0, validScalarPosNum);
+addParameter(p, 'cutoff', 0, validScalarNonNegNum);
 addParameter(p, 'averageMode', 'normal', validAvgMode);
 % Other parameters
 addParameter(p, 'sideBin', 'auto', @(x) (isnumeric(x) && isscalar(x) && (x >= 0)) || (ischar(x) && strcmp(x, 'auto')));
@@ -383,13 +384,11 @@ spec = spec(1:Nd2);  % Keep only positive frequencies
 if mod(N_fft, 2) == 0
     spec(end) = spec(end) / 2;  % Nyquist is a one-sided boundary bin
 end
-spec_inband = spec(1:inbandEnd);  % Extract signal band
-
-
-% Remove flicker noise (1/f noise) if requested
+% Remove flicker noise (1/f noise) before slicing the signal band
 if cutoffFreq > 0
-    spec(1:ceil(cutoffFreq/Fs*N_fft)) = 0;
+    spec(1:min(ceil(cutoffFreq/Fs*N_fft), Nd2)) = 0;
 end
+spec_inband = spec(1:inbandEnd);  % Extract signal band
 
 % Find signal bin and refine using parabolic interpolation
 [~, bin] = max(spec_inband);
@@ -699,7 +698,7 @@ if(dispPlot)
         elseif(Fin >= 1)
             txt_fin = num2str(Fin,'%.1f');
         else
-            txt_fin = num2str(bin_r/N_fft*Fs,'%.3f');
+            txt_fin = num2str(Fin,'%.3f');
         end
 
         % Display performance metrics

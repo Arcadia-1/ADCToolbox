@@ -100,15 +100,15 @@ def run_comparison_suite(project_root, matlab_test_name,
             continue
 
         if variables is None:
-            # Discover Variables (Python-Centric: scan what Python generated)
-            python_csv_files = sorted(py_dir.glob("*_python.csv"))
-            if not python_csv_files:
+            # Discover union of MATLAB reference and Python output variables so
+            # missing Python outputs are caught rather than silently skipped.
+            matlab_vars = {f.stem.replace("_matlab", "") for f in mat_dir.glob("*_matlab.csv")}
+            python_vars = {f.stem.replace("_python", "") for f in py_dir.glob("*_python.csv")}
+            if not python_vars:
                 log(f"  -> [FAIL] No Python output files found in {py_dir}")
                 failures.append(f"{display_name}: No Python output files found in {py_dir}")
                 continue
-
-            # Extract variable names from Python files
-            target_variables = [f.stem.replace("_python", "") for f in python_csv_files]
+            target_variables = sorted(matlab_vars | python_vars)
         else:
             target_variables = list(variables)
 

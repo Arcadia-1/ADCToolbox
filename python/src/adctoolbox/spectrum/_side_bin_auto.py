@@ -59,7 +59,7 @@ def _detect_side_bin_auto_with_reference(
     ideal_spec *= peak / max(ideal_spec[fundamental_bin], 1e-30)
 
     inband = power_spectrum[:n_inband]
-    positive = inband[inband > 1e-20]
+    positive = inband[inband > 0.0]
     if len(positive) >= 3:
         noise_floor_per_bin = float(np.median(positive))
     else:
@@ -69,10 +69,11 @@ def _detect_side_bin_auto_with_reference(
     noise_floor_per_bin = max(noise_floor_per_bin, numerical_floor)
 
     # The crossing search needs a bin on both sides, so it stops at the
-    # nearer of DC and the band edge. The window's coherent main-lobe width is
-    # a floor that this distance must not reduce: a lobe cut short there would
-    # have its remaining bins counted as distortion. The signal mask itself is
-    # clipped to the band by the caller.
+    # nearer of DC and the band edge (matching MATLAB plotspec.m and preventing
+    # slow-decay windows like rectangular/hamming from swallowing most of the
+    # band once the nearer side clips). The window's coherent main-lobe width
+    # is a floor that this distance must not reduce: a lobe cut short there
+    # would have its remaining bins counted as distortion.
     max_sidebin = min(fundamental_bin, n_inband - 1 - fundamental_bin)
     minimum_side_bin = int(max(minimum_side_bin, 0))
     for sb in range(1, max_sidebin + 1):

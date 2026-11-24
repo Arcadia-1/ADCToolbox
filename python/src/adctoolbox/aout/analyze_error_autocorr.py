@@ -14,7 +14,8 @@ from adctoolbox.aout._fit_diagnostics import extract_fit_diagnostics
 
 def analyze_error_autocorr(signal, frequency=None, max_lag=50, normalize=True, create_plot: bool = True,
                            ax=None, title: str = None, max_iterations: int = 100,
-                           tolerance: float = 1e-9, return_fit: bool = False):
+                           tolerance: float = 1e-9, return_fit: bool = False,
+                           input_kind: str = "signal"):
     """
     Compute and optionally plot autocorrelation function (ACF) of error signal.
 
@@ -61,21 +62,32 @@ def analyze_error_autocorr(signal, frequency=None, max_lag=50, normalize=True, c
     - White noise shows ACF ≈ 0 for all lags except 0
     - Correlated errors show non-zero ACF at specific lags
     """
-    # Fit ideal sine to extract reference
-    fit_kwargs = {"max_iterations": max_iterations, "tolerance": tolerance}
-    if frequency is None:
-        fit_result = fit_sine_4param(signal, **fit_kwargs)
+    if input_kind not in {"signal", "residual"}:
+        raise ValueError(f"input_kind must be 'signal' or 'residual', got {input_kind!r}")
+
+    fit_result = None
+    if input_kind == "signal":
+        # Fit ideal sine to extract reference
+        fit_kwargs = {"max_iterations": max_iterations, "tolerance": tolerance}
+        if frequency is None:
+            fit_result = fit_sine_4param(signal, **fit_kwargs)
+        else:
+            fit_result = fit_sine_4param(signal, frequency_estimate=frequency, **fit_kwargs)
+
+        sig_ideal = fit_result['fitted_signal']
+
+        # Compute error
+        error_signal = signal - sig_ideal
     else:
-        fit_result = fit_sine_4param(signal, frequency_estimate=frequency, **fit_kwargs)
-
-    sig_ideal = fit_result['fitted_signal']
-
-    # Compute error
-    error_signal = signal - sig_ideal
+        error_signal = np.asarray(signal, dtype=float)
 
     # Ensure column data
-    e = np.asarray(error_signal).flatten()
+    e = np.asarray(error_signal, dtype=float).flatten()
     N = len(e)
+
+    max_lag = int(max_lag)
+    if max_lag < 0 or max_lag >= N:
+        raise ValueError(f"max_lag ({max_lag}) must be in [0, {N - 1}] for signal length {N}")
 
     # Subtract mean
     e = e - np.mean(e)
@@ -125,6 +137,6 @@ def analyze_error_autocorr(signal, frequency=None, max_lag=50, normalize=True, c
         'error_signal': error_signal
     }
     if return_fit:
-        result['fit'] = extract_fit_diagnostics(fit_result)
+        result['fit'] = extract_fit_diagnostics(fit_result) if fit_result is not None else None
 
     return result

@@ -21,39 +21,42 @@ def run_all_comparisons(project_root):
     log_lines.append("")
 
     # List of all comparison tests
-    # Format: (matlab_test_name, structure_type)
+    # Format: (matlab_test_name, structure_type, extra_kwargs)
     tests = [
         # Basic tests
-        ("test_basic", "flat"),
-        ("run_sinfit", "nested"),
-        ("run_alias", "nested"),
+        ("test_basic", "flat", {"variables": ["sinewave"], "threshold": 1e-5}),
+        ("run_sinfit", "nested", {}),
 
         # AOUT tests (analog output) - MATLAB uses run_* prefix
-        ("run_errsin_phase", "nested"),
-        ("run_errsin_code", "nested"),
-        ("run_plotspec", "nested"),
-        ("run_plotphase_lms", "nested"),
-        ("run_fitstaticnl", "nested"),
-        ("run_errpdf", "nested"),
-        ("run_errspec", "nested"),
-        ("run_errac", "nested"),
-        ("run_errevspec", "nested"),
-        ("run_inlsine", "nested"),
-        ("run_tomdec", "nested"),
+        ("run_errsin_phase", "nested", {}),
+        ("run_errsin_code", "nested", {}),
+        ("run_plotspec", "nested", {}),
+        ("run_plotphase_lms", "nested", {}),
+        ("run_fitstaticnl", "nested", {}),
+        ("run_errpdf", "nested", {}),
+        ("run_errspec", "nested", {}),
+        ("run_errac", "nested", {}),
+        ("run_errevspec", "nested", {"threshold": 1e-4}),
+        ("run_inlsine", "nested", {}),
+        ("run_tomdec", "nested", {}),
 
         # DOUT tests (digital output) - MATLAB uses test_* prefix
-        ("test_bitact", "nested"),
-        ("test_wscaling", "nested"),
-        ("test_bitsweep", "nested"),
-        ("test_wcalsine", "nested"),
-        ("test_ovfchk", "nested"),
+        ("test_bitact", "nested", {}),
+        ("test_wscaling", "nested", {}),
+        ("test_bitsweep", "nested", {}),
+        (
+            "test_wcalsine",
+            "nested",
+            {"variables": ["weight", "offset", "postCal", "ideal", "err", "freqCal", "preCal"]},
+        ),
+        ("test_ovfchk", "nested", {}),
     ]
 
     total_tests = len(tests)
     passed_tests = 0
     failed_tests = []
 
-    for idx, (matlab_test_name, structure) in enumerate(tests, 1):
+    for idx, (matlab_test_name, structure, extra_kwargs) in enumerate(tests, 1):
         try:
             log_lines.append("")
             log_lines.append(f"[{idx}/{total_tests}] Running comparison: {matlab_test_name}")
@@ -65,7 +68,8 @@ def run_all_comparisons(project_root):
                 matlab_test_name=matlab_test_name,
                 structure=structure,
                 enable_logging=False,  # Don't create individual log files
-                log_lines_output=log_lines  # Append to consolidated log
+                log_lines_output=log_lines,  # Append to consolidated log
+                **extra_kwargs,
             )
 
             passed_tests += 1

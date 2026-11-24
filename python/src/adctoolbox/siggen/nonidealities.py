@@ -188,9 +188,9 @@ class ADC_Signal_Generator:
         """Apply memory effect (charge injection). The previous MSB decision leaks back to the input.
         Params: input_signal, memory_strength (default 0.009)."""
         signal = self._resolve_signal(input_signal)
-        # Quantize into MSB (4-bit coarse) and LSB (12-bit fine) stages
+        # Quantize into MSB (4-bit coarse) and LSB (12-bit fine -> 16-bit total) stages
         msb = np.floor(signal * 2**4) / 2**4
-        lsb = np.floor((signal - msb) * 2**12) / 2**12
+        lsb = np.floor((signal - msb) * 2**16) / 2**16
 
         # Apply memory effect from previous MSB
         msb_shifted = np.roll(msb, shift=1)
@@ -236,9 +236,12 @@ class ADC_Signal_Generator:
         signal = self._resolve_signal(input_signal)
         signal_ac = signal - self.DC
 
-        # Quantize into MSB and LSB stages
+        # Quantize into MSB (coarse) and LSB (fine) stages:
+        # residue signal_ac - msb spans [0, 2^-msb_bits), so fine quantization
+        # with lsb_bits uses step 2^-(msb_bits + lsb_bits).
+        total_bits = msb_bits + lsb_bits
         msb = np.floor(signal_ac * 2**msb_bits) / 2**msb_bits
-        lsb = np.floor((signal_ac - msb) * 2**lsb_bits) / 2**lsb_bits
+        lsb = np.floor((signal_ac - msb) * 2**total_bits) / 2**total_bits
 
         if mode == "coarse_path":
             return msb * relative_gain + lsb + self.DC
@@ -277,9 +280,10 @@ class ADC_Signal_Generator:
         for n in range(self.N):
             v_in_ac = signal_ac[n]
             
-            # Coarse Quantization (V_DAC)
+            # Coarse Quantization (V_DAC) and fine LSB quantization
+            total_bits = msb_bits + lsb_bits
             v_msb_code = np.floor(v_in_ac * 2**msb_bits) / 2**msb_bits            
-            v_lsb_code = np.floor((v_in_ac - v_msb_code) * 2**lsb_bits) / 2**lsb_bits
+            v_lsb_code = np.floor((v_in_ac - v_msb_code) * 2**total_bits) / 2**total_bits
 
             G_dynamic = relative_gain + coeff_3 * (v_dynamic_state_prev_ac ** 2)
             if mode == "coarse_path":
@@ -308,12 +312,15 @@ class ADC_Signal_Generator:
         signal = self._resolve_signal(input_signal)
         signal_ac = signal - self.DC
 
-        # Calculate Vref droop using IIR filter to simulate exponential decay
+        # Calculate normalized Vref droop using unit-DC-gain IIR decay.
+        # Since ADC output scales as Vin / Vref, a Vref drop of vref_droop
+        # amplifies the measured signal by 1 / (1 - vref_droop).
         current_kick = droop_strength * np.abs(signal_ac)
         decay = np.exp(-1.0 / settling_tau)
         from scipy.signal import lfilter
-        vref_droop = lfilter([1], [1, -decay], current_kick)
-        signal_settled = signal_ac * (1.0 - vref_droop)
+        vref_droop = lfilter([1.0 - decay], [1.0, -decay], current_kick)
+        vref_droop = np.clip(vref_droop, -0.5, 0.5)
+        signal_settled = signal_ac / (1.0 - vref_droop)
 
         return signal_settled + self.DC
 

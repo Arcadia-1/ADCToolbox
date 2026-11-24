@@ -85,8 +85,29 @@ def rearrange_error_by_phase(
     error = signal - fitted_signal
     phase_wrapped = np.mod(phase, 2 * np.pi)
 
-    # ===== Step 2: Path A - Raw fitting (The Numerics) =====
-    error_sq = error ** 2
+    # ===== Step 2: Binned deterministic mean & random-error separation =====
+    bin_width = 2 * np.pi / n_bins
+    bin_indices = np.floor(phase_wrapped / bin_width).astype(int)
+    bin_indices = np.clip(bin_indices, 0, n_bins - 1)
+
+    bin_counts = np.bincount(bin_indices, minlength=n_bins).astype(float)
+    bin_sum = np.bincount(bin_indices, weights=error, minlength=n_bins)
+
+    with np.errstate(divide='ignore', invalid='ignore'):
+        bin_error_mean_v = np.where(bin_counts > 0, bin_sum / bin_counts, np.nan)
+
+    # Remove the deterministic phase-locked error (harmonics / static NL) before
+    # estimating random AM/PM/base noise variance (matches MATLAB errsin.m).
+    random_error = error - np.where(np.isfinite(bin_error_mean_v[bin_indices]), bin_error_mean_v[bin_indices], 0.0)
+    error_sq = random_error ** 2
+    bin_sum_sq = np.bincount(bin_indices, weights=error_sq, minlength=n_bins)
+    with np.errstate(divide='ignore', invalid='ignore'):
+        bin_error_rms_v = np.where(bin_counts > 0, np.sqrt(bin_sum_sq / bin_counts), np.nan)
+
+    # Phase bin centers: use geometric center (not left edge) for accurate alignment
+    phase_bin_centers_rad = np.linspace(0, 2 * np.pi, n_bins, endpoint=False) + bin_width / 2
+
+    # ===== Step 3: Raw AM/PM/base-noise fitting on centered random error =====
     raw_result = _fit_error_phase(error_sq, phase_wrapped, include_base_noise)
     r_squared_raw = raw_result['r_squared']  # Energy ratio (typically low)
     coeffs = raw_result['coeffs']  # [am², pm², base_noise]
@@ -141,24 +162,6 @@ def rearrange_error_by_phase(
 
     # Convert PM to radians
     pm_rad = pm_v / amplitude if amplitude > 1e-10 else 0.0
-
-    # ===== Step 3: Path B - Binned statistics (The Visualization) =====
-    bin_width = 2 * np.pi / n_bins
-    bin_indices = np.floor(phase_wrapped / bin_width).astype(int)
-    bin_indices = np.clip(bin_indices, 0, n_bins - 1)
-
-    # Vectorized binning using np.bincount
-    bin_counts = np.bincount(bin_indices, minlength=n_bins).astype(float)
-    bin_sum = np.bincount(bin_indices, weights=error, minlength=n_bins)
-    bin_sum_sq = np.bincount(bin_indices, weights=error_sq, minlength=n_bins)
-
-    # Compute mean and RMS per bin
-    with np.errstate(divide='ignore', invalid='ignore'):
-        bin_error_mean_v = np.where(bin_counts > 0, bin_sum / bin_counts, np.nan)
-        bin_error_rms_v = np.where(bin_counts > 0, np.sqrt(bin_sum_sq / bin_counts), np.nan)
-
-    # Phase bin centers: use geometric center (not left edge) for accurate alignment
-    phase_bin_centers_rad = np.linspace(0, 2 * np.pi, n_bins, endpoint=False) + bin_width / 2
 
     # ===== Step 4: Cross-validation (Final coeffs → Path B trend) =====
     # Use final coefficients to measure fit quality (R²)

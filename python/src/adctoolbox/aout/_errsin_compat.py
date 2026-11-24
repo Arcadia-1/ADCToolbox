@@ -179,8 +179,10 @@ def _bin_by_value(signal: np.ndarray, error: np.ndarray, phase_deg: np.ndarray, 
     bin_indices = np.minimum(np.floor((signal - dat_min) / bin_width).astype(int), bins - 1)
 
     emean, erms = _centered_bin_stats(error, bin_indices, bins)
-    emean_rise = _bin_mean(error, bin_indices, bins, phase_deg < 180.0)
-    emean_fall = _bin_mean(error, bin_indices, bins, phase_deg >= 180.0)
+    # Cosine reference A*cos(theta) + C has derivative -A*sin(theta):
+    # theta in [0, 180) deg is falling; theta in [180, 360) deg is rising.
+    emean_rise = _bin_mean(error, bin_indices, bins, phase_deg >= 180.0)
+    emean_fall = _bin_mean(error, bin_indices, bins, phase_deg < 180.0)
 
     return {
         "emean": emean,
@@ -253,7 +255,7 @@ def _plot_value(result: dict[str, Any]) -> None:
     plot_error = result["error"]
 
     fig, (ax1, ax2) = plt.subplots(2, 1, figsize=(8, 6))
-    idx_rise = plot_phase_deg < 180.0
+    idx_rise = plot_phase_deg >= 180.0
     idx_fall = ~idx_rise
     ax1.plot(plot_signal[idx_rise], plot_error[idx_rise], ".", color=[1.0, 0.5, 0.5], markersize=2)
     ax1.plot(plot_signal[idx_fall], plot_error[idx_fall], ".", color=[0.5, 0.5, 1.0], markersize=2)

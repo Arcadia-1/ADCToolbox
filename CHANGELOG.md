@@ -95,6 +95,61 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   fit had run; the seed is now resolved first and reported as `None`.
 - The `calibrate_weight_sine` docstring said the waveform fields are single
   arrays for one dataset. They are lists with one array per dataset.
+- `calibrate_weight_sine` / `_lstsq_solver` now restores the signed frequency
+  step across quadrature gauge flips, uses a gauge-invariant convergence
+  metric, clamps frequencies to `(eps, 0.5 - eps)`, runs a final static refit
+  without derivative columns, excludes stopband harmonics when `osr > 1`, and
+  patches multi-dataset piecewise-constant or complementary rank-deficient bits
+  before coarse frequency estimation. MATLAB `wcalsin.m` received the matching
+  `b1`/`b2`, gauge-flip, `relerr`, and static-refit fixes.
+- `dither` / `DitherHDCTracker` commits immediately when
+  `controller_latency == 0` and flushes matured updates before freezing
+  (`learn=False`).
+- `analyze_overflow`, `analyze_enob_sweep`, `analyze_weight_radix`,
+  `plot_residual_scatter`, and `analyze_bit_activity` (and MATLAB `bitchk.m` /
+  `plotres.m`) handle negative/zero weights, non-finite ENOB values, `osr`
+  forwarding, high-bitweight `O(2^B)` stalls, and non-integer Diophantine
+  scale distortion.
+- `sweep_performance_vs_osr` / `perfosr` mask DC and fundamental Hann leakage
+  bins, apply 3-bin Hann SFDR lobe compensation, accept scalar `osr`, and use
+  prefix accumulation so single-point and multi-point OSR sweeps agree bit for
+  bit.
+- Spectrum analysis (`compute_spectrum`, `quick_sndr`, `_align_spectrum_phase`,
+  `_locate_fundamental`, `_harmonics`, `_estimate_noise_power`, `_window`,
+  `_side_bin_auto`, `_prepare_fft_input`, `plot_spectrum_polar`, `ntf_analyzer`,
+  and MATLAB `plotspec.m` / `findbin.m` / `noiseshape.m` / `ntfperf.m`) fixed
+  coherent-average Nyquist folding and harmonic lobe ownership, skipped
+  parabolic interpolation against DC/halved Nyquist bins, lowered the power
+  floor from `1e-15` to `1e-30`, fixed `cutoff_freq` masking, updated Kaiser
+  window widths and `rect` alias, removed per-row DC before auto-range
+  detection, and switched `ntf_analyzer` to trapezoidal band quadrature.
+- `fit_sine_4param` (and MATLAB `sinfit.m`) normalizes the frequency-derivative
+  column to avoid SVD truncation at large `A * N^2` and resolves near-Nyquist
+  convergence deadlocks. `fold_bin_to_nyquist` is vectorized; `snr_to_nsd` /
+  `nsd_to_snr` are unified across `snr_nsd` and `units`; `vpp_for_target_dbfs`
+  broken import is fixed.
+- Analog error analyses (`decompose_harmonic_error`, `_fit_sine_harmonics`,
+  `rearrange_error_by_phase`, `rearrange_error_by_value`, `_errsin_compat`,
+  `compute_inl_from_sine`, `analyze_error_pdf`, `analyze_error_phase_plane`,
+  `analyze_phase_plane`, `analyze_error_autocorr`, `fit_static_nonlin`, and
+  MATLAB `errsin.m`) fixed harmonic phase sign and true `residual_rms`,
+  subtracted per-bin deterministic means before random noise / AM-PM fitting,
+  corrected cosine rising/falling edge masks, added bipolar INL range support,
+  ensured non-negative KL divergence, eliminated EIV cubic bias and duplicate
+  glitch indices, and avoided double sine fitting in `plot_error_autocorr`.
+- `siggen.nonidealities` fixed fine-stage quantization resolution
+  (`2**(msb_bits + lsb_bits)`) and reference-droop IIR gain/polarity;
+  `models.sar` validates `redundant_bit`.
+- Time-interleaved utilities (`extract_mismatch_sine`, `calibrate_foreground`,
+  `predict_spurs`, `fractional_delay`) switched mismatch extraction to exact
+  per-channel 3-parameter least squares, replaced iterative FFT skew inversion
+  with exact frequency-domain block linear solves, guarded Farrow divergence
+  and `fin > fs / 2`, corrected fundamental gain scaling and Nyquist offset
+  spur power (+3.01 dB), and applied Lagrange convolution before integer shift.
+- Dashboard generators (`generate_aout_dashboard`, `generate_aout_dashboard_3x4`)
+  forward `norm_freq` and `fit_kwargs` consistently; comparison harness
+  (`tests/compare`) and unit tests were repaired and expanded with audit
+  regression suites.
 
 ### Removed
 - 16 test functions (23 collected cases) that duplicated another test or

@@ -115,20 +115,27 @@ range_max = zeros([1,M]);
 ovf_percent_zero = zeros([1,M]);
 ovf_percent_one = zeros([1,M]);
 
+ovfTol = 8 * eps * M;
 for ii = 1:M
     tmp = bits(:,ii:end)*wgt(ii:end)';
-
-    data_decom(:,ii) = tmp / sum(wgt(ii:end));
-    range_min(ii) = min(tmp) / sum(wgt(ii:end));
-    range_max(ii) = max(tmp) / sum(wgt(ii:end));
+    sumW = sum(wgt(ii:end));
+    if sumW == 0
+        data_decom(:,ii) = 0;
+        range_min(ii) = 0;
+        range_max(ii) = 0;
+    else
+        data_decom(:,ii) = tmp / sumW;
+        range_min(ii) = min(data_decom(:,ii));
+        range_max(ii) = max(data_decom(:,ii));
+    end
 
     % Calculate overflow percentages
-    ovf_percent_zero(ii) = sum(data_decom(:,ii) <= 0) / N * 100;
-    ovf_percent_one(ii) = sum(data_decom(:,ii) >= 1) / N * 100;
+    ovf_percent_zero(ii) = sum(data_decom(:,ii) <= ovfTol) / N * 100;
+    ovf_percent_one(ii) = sum(data_decom(:,ii) >= 1 - ovfTol) / N * 100;
 end
 
-ovf_zero = (data_decom(:,M-chkpos+1) <= 0);
-ovf_one = (data_decom(:,M-chkpos+1) >= 1);
+ovf_zero = (data_decom(:,M-chkpos+1) <= ovfTol);
+ovf_one = (data_decom(:,M-chkpos+1) >= 1 - ovfTol);
 non_ovf = ~(ovf_zero | ovf_one);
 
 % Plot if display is enabled

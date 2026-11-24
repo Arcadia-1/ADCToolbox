@@ -23,9 +23,9 @@ def _zeroed_inband_spectrum(
     fundamental_bin: int,
     side_bin: int,
 ) -> np.ndarray:
-    """In-band spectrum with MATLAB plotspec low bins and fundamental lobe cleared."""
+    """In-band spectrum with DC, low bins, and fundamental lobe cleared."""
     spec = spectrum_power[:n_inband].copy()
-    spec[: min(side_bin, n_inband)] = 0.0
+    spec[: min(max(side_bin, 1), n_inband)] = 0.0
     lo = max(fundamental_bin - side_bin, 0)
     hi = min(fundamental_bin + side_bin + 1, n_inband)
     if lo < hi:
@@ -94,13 +94,13 @@ def _estimate_noise_power(
             return np.nan
 
         noise_power = float(np.sum(noise_spectrum))
-        noise_power = max(noise_power, 1e-15) if np.isfinite(noise_power) else np.nan
+        noise_power = max(noise_power, 1e-30) if np.isfinite(noise_power) else np.nan
         if return_parts:
             return noise_power, {"legacy_wide_exclude": noise_power}
         return noise_power
 
     spec = _zeroed_inband_spectrum(spectrum_power, n_inband, bin_idx, side_bin)
-    spec_for_floor = spec[np.abs(spec) > 1e-20]
+    spec_for_floor = spec[spec > 0.0]
     if spec_for_floor.size == 0:
         spec_for_floor = spec
 
@@ -113,8 +113,14 @@ def _estimate_noise_power(
         start, end = _matlab_trimmed_indices(spec_for_floor.size)
         return float(np.mean(spec_sorted[start:end]) * n_inband)
 
-    def _exclude_noise() -> float:
+    def _exclude_noise() -> tuple[float, int]:
         spec_noise = spec.copy()
+        unmasked = np.ones(n_inband, dtype=bool)
+        unmasked[: min(max(side_bin, 1), n_inband)] = False
+        f_lo = max(bin_idx - side_bin, 0)
+        f_hi = min(bin_idx + side_bin + 1, n_inband)
+        if f_lo < f_hi:
+            unmasked[f_lo:f_hi] = False
         for h_bin in harmonic_bins:
             h_bin = int(h_bin)
             if h_bin <= side_bin:
@@ -123,12 +129,14 @@ def _estimate_noise_power(
             hi = min(h_bin + side_bin + 1, n_inband)
             if lo < hi:
                 spec_noise[lo:hi] = 0.0
-        return float(np.sum(spec_noise))
+                unmasked[lo:hi] = False
+        return float(np.sum(spec_noise)), int(np.count_nonzero(unmasked))
 
+    exclude_power, exclude_bins_remaining = _exclude_noise()
     parts = {
         "median": _median_noise(),
         "trimmed": _trimmed_noise(),
-        "exclude": _exclude_noise(),
+        "exclude": exclude_power,
     }
 
     if nf_method == 0:
@@ -139,11 +147,21 @@ def _estimate_noise_power(
     elif nf_method == 2:
         noise_power = parts["trimmed"]
     elif nf_method == 3:
+        if exclude_bins_remaining == 0:
+            warnings.warn(
+                "No noise bins remain after excluding DC, fundamental, and harmonics; "
+                "SNR, noise_floor_dbfs, and nsd_dbfs_hz are undefined.",
+                RuntimeWarning,
+                stacklevel=2,
+            )
+            if return_parts:
+                return np.nan, parts
+            return np.nan
         noise_power = parts["exclude"]
     else:
         raise ValueError(f"nf_method must be 0-4, got {nf_method}")
 
-    noise_power = max(float(noise_power), 1e-15)
+    noise_power = max(float(noise_power), 1e-30)
     if return_parts:
         return noise_power, parts
     return noise_power

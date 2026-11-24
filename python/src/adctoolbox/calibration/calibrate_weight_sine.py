@@ -170,6 +170,11 @@ def calibrate_weight_sine(
                 f"freq must be normalized Fin/Fs (Nyquist range [0, 0.5]); got {freq}. "
                 f"If you have Fin in Hz, pass freq=Fin/Fs instead."
             )
+        if osr == 1 and (not np.all(np.isfinite(_freq_check)) or np.any(_freq_check < 0.0)):
+            raise ValueError(
+                f"freq must be finite normalized Fin/Fs (Nyquist range [0, 0.5]); got {freq}. "
+                f"If you have Fin in Hz, pass freq=Fin/Fs instead."
+            )
 
     # 1. Normalize input to unified format
     clean_input = _prepare_input(bits, nominal_weights, verbose)
@@ -180,8 +185,10 @@ def calibrate_weight_sine(
     fit_filter = _make_calibration_filter(osr, segment_lengths)
 
     
-    # 2. Patch rank deficiency globally
-    patched_input = _patch_rank_deficiency(bits_stacked, nominal_weights, verbose)
+    # 2. Patch rank deficiency globally (accounting for per-dataset DC offsets)
+    patched_input = _patch_rank_deficiency(
+        bits_stacked, nominal_weights, verbose, segment_lengths=segment_lengths
+    )
     bits_stacked_effective = patched_input["bits_effective"]
     bit_to_col_map = patched_input["bit_to_col_map"]
     bit_weight_ratios = patched_input["bit_weight_ratios"]
@@ -206,16 +213,14 @@ def calibrate_weight_sine(
     # A 0 entry is a placeholder for "estimate this record's frequency".
     auto_frequency_requested = freq is None or np.any(np.asarray(freq) == 0)
 
-    # Estimate or validate frequencies
-    frequency_bits = bits_stacked
-    frequency_nominal_weights = nominal_weights
-    if frequency_policy == "matlab":
-        frequency_bits = bits_stacked_effective
-        frequency_nominal_weights = _effective_nominal_weights(
-            nominal_weights=nominal_weights,
-            bit_to_col_map=bit_to_col_map,
-            bit_width_effective=bit_width_effective,
-        )
+    # Estimate or validate frequencies using rank-patched (active) columns so
+    # constant dead MSBs cannot poison toggle-based coarse frequency estimation.
+    frequency_bits = bits_stacked_effective
+    frequency_nominal_weights = _effective_nominal_weights(
+        nominal_weights=nominal_weights,
+        bit_to_col_map=bit_to_col_map,
+        bit_width_effective=bit_width_effective,
+    )
 
     freq_array = _estimate_frequencies(
         frequency_bits,
@@ -227,6 +232,17 @@ def calibrate_weight_sine(
         fit_filter=fit_filter,
     )
     initial_freq_array = freq_array.copy()
+
+    if fit_filter is not None and harmonic_order > 1:
+        harmonics = np.arange(2, harmonic_order + 1)
+        if np.any(np.outer(freq_array, harmonics) >= fit_filter.cutoff):
+            warnings.warn(
+                f"Harmonics at or above the calibration filter cutoff "
+                f"0.5/osr ({fit_filter.cutoff:g}) lie in the stopband and "
+                f"are excluded from the fitted reference.",
+                UserWarning,
+                stacklevel=2,
+            )
 
     bits_segments_scaled = []
     curr = 0

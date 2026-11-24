@@ -55,11 +55,11 @@ def test_analyze_phase_plane_basic():
 
     # Analyze each case
     result1 = analyze_phase_plane(sig_thermal, lag='auto', fs=Fs, detect_outliers=True,
-                                  threshold=4.0, ax=axes[0], title='Thermal Noise', create_plot=False)
+                                  threshold=4.0, ax=axes[0], title='Thermal Noise', create_plot=True)
     result2 = analyze_phase_plane(sig_glitch, lag='auto', fs=Fs, detect_outliers=True,
-                                  threshold=4.0, ax=axes[1], title='Glitch', create_plot=False)
+                                  threshold=4.0, ax=axes[1], title='Glitch', create_plot=True)
     result3 = analyze_phase_plane(sig_quantization, lag='auto', fs=Fs, detect_outliers=True,
-                                  threshold=4.0, ax=axes[2], title='Quantization Noise', create_plot=False)
+                                  threshold=4.0, ax=axes[2], title='Quantization Noise', create_plot=True)
 
     print(f"Thermal Noise    : Lag={result1['lag']:3d}, Outliers={len(result1['outliers']):5d}")
     print(f"Glitch           : Lag={result2['lag']:3d}, Outliers={len(result2['outliers']):5d}")

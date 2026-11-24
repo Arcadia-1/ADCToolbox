@@ -87,12 +87,17 @@ def _resolve_scale_factor(
     if "weight" not in result:
         raise KeyError('result must contain "weight" when target_weights is used')
 
-    source_weights = np.asarray(result["weight"], dtype=float)
-    target_weights_arr = np.asarray(target_weights, dtype=float)
+    source_weights = np.asarray(result["weight"], dtype=float).ravel()
+    target_weights_arr = np.asarray(target_weights, dtype=float).ravel()
     if source_weights.size == 0:
         raise ValueError('result["weight"] must not be empty')
     if target_weights_arr.size == 0:
         raise ValueError("target_weights must not be empty")
+    if target_weights_arr.shape != source_weights.shape:
+        raise ValueError(
+            f"target_weights length ({target_weights_arr.size}) must match "
+            f'result["weight"] length ({source_weights.size})'
+        )
     if not np.all(np.isfinite(source_weights)):
         raise ValueError('result["weight"] must contain only finite values')
     if not np.all(np.isfinite(target_weights_arr)):
@@ -104,7 +109,7 @@ def _resolve_scale_factor(
     unmapped_bits = np.asarray(
         result.get("rank_patch", {}).get("unmapped_bits", []), dtype=int
     )
-    if unmapped_bits.size and source_weights.shape == target_weights_arr.shape:
+    if unmapped_bits.size:
         observed = np.ones(source_weights.shape, dtype=bool)
         observed[unmapped_bits] = False
         source_weights = source_weights[observed]

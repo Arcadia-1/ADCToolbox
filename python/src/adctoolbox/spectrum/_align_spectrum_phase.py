@@ -65,22 +65,62 @@ def _align_spectrum_phase(
     lobe_half_width = int(max(lobe_half_width, 0))
 
     # Step 1: Align harmonics with Nyquist folding.
-    # Harmonic h sits at (h * bin_idx) mod n_fft. In an even Nyquist zone that
-    # position is in the lower half of the spectrum and rotates by h times the
-    # fundamental rotation; in an odd zone its mirror image is, and rotates by
-    # the conjugate.
+    # Harmonic h sits at (h * bin_idx) mod n_fft. In an even Nyquist zone
+    # (0 <= folded <= n_fft/2) it rotates by +h times the fundamental rotation;
+    # in an odd zone (folded > n_fft/2) its mirror image rotates by -h.
     orders = np.arange(1, n_fft + 1, dtype=np.int64)
     folded = (orders * int(bin_idx)) % n_fft
-    odd_zone = 2 * folded >= n_fft
+    odd_zone = 2 * folded > n_fft
     centers = np.where(odd_zone, n_fft - folded, folded)
 
-    # Lowest harmonic order whose lobe covers each lower-half bin.
+    # Assign harmonic ownership in priority passes so that:
+    # 1. The fundamental (order 1) always owns its full window main lobe.
+    # 2. Low-order harmonics' exact center bins are never overwritten by a
+    #    lower-order harmonic's side bin (e.g. an empty H2 lobe cancelling an
+    #    adjacent H3 peak).
+    # 3. Side bins of low-order harmonics go to the nearest harmonic center
+    #    (lowest order tie-break), then higher-order harmonic centers fill any
+    #    remaining unclaimed bins.
     no_owner = n_fft + 1
     owner = np.full(n_half + 1, no_owner, dtype=np.int64)
-    for offset in range(-lobe_half_width, lobe_half_width + 1):
-        positions = centers + offset
-        inside = (positions >= 0) & (positions <= n_half)
-        np.minimum.at(owner, positions[inside], orders[inside])
+
+    # Pass 1: Fundamental full lobe
+    f_lo = max(0, int(centers[0]) - lobe_half_width)
+    f_hi = min(n_half + 1, int(centers[0]) + lobe_half_width + 1)
+    owner[f_lo:f_hi] = 1
+
+    # Pass 2: Low-order harmonic center bins (orders 2..n_priority)
+    n_priority = min(n_fft, 16)
+    if n_priority >= 2:
+        pri_orders = orders[1:n_priority]
+        pri_centers = centers[1:n_priority]
+        inside = (pri_centers >= 0) & (pri_centers <= n_half)
+        pos = pri_centers[inside]
+        ord_in = pri_orders[inside]
+        free = owner[pos] == no_owner
+        np.minimum.at(owner, pos[free], ord_in[free])
+
+        # Pass 3: Low-order harmonic side bins by increasing distance from center
+        for dist in range(1, lobe_half_width + 1):
+            dist_owner = np.full(n_half + 1, no_owner, dtype=np.int64)
+            for sign in (-1, 1):
+                positions = pri_centers + sign * dist
+                in_b = (positions >= 0) & (positions <= n_half)
+                pos_b = positions[in_b]
+                free_b = owner[pos_b] == no_owner
+                np.minimum.at(dist_owner, pos_b[free_b], pri_orders[in_b][free_b])
+            newly = (owner == no_owner) & (dist_owner != no_owner)
+            owner[newly] = dist_owner[newly]
+
+    # Pass 4: Remaining high-order harmonic centers
+    if n_fft > n_priority:
+        rem_orders = orders[n_priority:]
+        rem_centers = centers[n_priority:]
+        inside = (rem_centers >= 0) & (rem_centers <= n_half)
+        pos = rem_centers[inside]
+        ord_in = rem_orders[inside]
+        free = owner[pos] == no_owner
+        np.minimum.at(owner, pos[free], ord_in[free])
 
     fft_aligned = fft_data.copy()
     owned = owner != no_owner

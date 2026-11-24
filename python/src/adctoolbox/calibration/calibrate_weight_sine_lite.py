@@ -24,9 +24,9 @@ def calibrate_weight_sine_lite(
     sine/DC reference; returned weights still apply to the original bits.
     The default ``osr=1`` preserves the unfiltered solve.
     """
-    if freq is not None and freq > 0.5:
+    if freq is None or not np.isfinite(freq) or freq <= 0.0 or freq > 0.5:
         raise ValueError(
-            f"freq must be normalized Fin/Fs (Nyquist range [0, 0.5]); got {freq}. "
+            f"freq must be normalized Fin/Fs in (0, 0.5]; got {freq}. "
             f"If you have Fin in Hz, pass freq=Fin/Fs instead."
         )
     n_samples, bit_width = bits.shape

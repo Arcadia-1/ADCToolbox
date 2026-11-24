@@ -130,7 +130,7 @@ def analyze_enob_sweep(
         ax.set_xlim([0.5, m_bits + 0.5])
         ax.set_xticks(n_bits_vec)
 
-        valid_enob = enob_sweep[~np.isnan(enob_sweep)]
+        valid_enob = enob_sweep[np.isfinite(enob_sweep)]
         if len(valid_enob) > 0:
             ax.set_ylim([np.min(valid_enob) - 0.5, np.max(valid_enob) + 2])
 
@@ -143,12 +143,12 @@ def analyze_enob_sweep(
             y_offset = 0.1
 
         for i in range(m_bits):
-            if not np.isnan(enob_sweep[i]) and not np.isnan(delta_enob[i]):
+            if np.isfinite(enob_sweep[i]) and np.isfinite(delta_enob[i]):
                 if i == 0:
                     annotation_text = f'{delta_enob[i]:.2f}'
                     text_color = [0, 0, 0]
                 else:
-                    annotation_text = f'+{delta_enob[i]:.2f}'
+                    annotation_text = f'{delta_enob[i]:+.2f}'
                     normalized_delta = max(0, min(1, delta_enob[i]))
                     text_color = [1 - normalized_delta, 0, 0]
 
@@ -173,12 +173,14 @@ def _sweep_recalibrating_each_subset(
     enob_sweep = np.zeros(m_bits)
 
     auto_frequency_requested = freq is None or np.all(np.asarray(freq) == 0)
+    cal_osr_kwargs = {"osr": osr} if osr != 1 else {}
     if auto_frequency_requested:
         full_result = calibrate_weight_sine(
             bits,
             freq=freq,
             harmonic_order=harmonic_order,
             frequency_policy=frequency_policy,
+            **cal_osr_kwargs,
         )
         subset_freq = full_result["refined_frequency"]
     else:
@@ -194,6 +196,7 @@ def _sweep_recalibrating_each_subset(
                 force_search=False,
                 harmonic_order=harmonic_order,
                 frequency_policy=frequency_policy,
+                **cal_osr_kwargs,
             )
             spectrum_result = analyze_spectrum(
                 result["calibrated_signal"],
@@ -227,11 +230,13 @@ def _sweep_prefix_of_full_calibration(
     _, m_bits = bits.shape
     enob_sweep = np.zeros(m_bits)
 
+    cal_osr_kwargs = {"osr": osr} if osr != 1 else {}
     result = calibrate_weight_sine(
         bits,
         freq=freq,
         harmonic_order=harmonic_order,
         frequency_policy=frequency_policy,
+        **cal_osr_kwargs,
     )
     weights_all = result["weight"]
 

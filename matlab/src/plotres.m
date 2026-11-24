@@ -89,6 +89,15 @@ function plotres(sig, bits, varargin)
 
     [wgt, xy, alphaVal] = parsePlotresInputs(varargin, M);
 
+    % Normalize wgt to row vector and validate length
+    wgt = wgt(:)';
+    if numel(wgt) ~= M
+        error('plotres:invalidInput', 'Length of wgt (%d) must match number of bit columns (%d).', numel(wgt), M);
+    end
+    if any(xy(:) < 0) || any(xy(:) > M) || any(xy(:) ~= floor(xy(:)))
+        error('plotres:invalidInput', 'xy indices must be integers in [0, %d].', M);
+    end
+
     % Resolve alpha
     if ischar(alphaVal) || isstring(alphaVal)
         alphaVal = min(max(1000 / N, 0.1), 1);

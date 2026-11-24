@@ -250,14 +250,14 @@ function [weight,offset,postcal,ideal,err,freqcal] = wcalsin(bits,varargin)
 
         % Assumption 1: cosine is the unity basis
         A1 = [bits_patch_all,ones(Ntot,1),xc(:,2:end),xs];
-        b = -xc(:,1);
-        x1 = linsolve(A1,b);                      % solution vector for assumption 1
+        b1 = -xc(:,1);
+        x1 = linsolve(A1,b1);                      % solution vector for assumption 1
         % Assumption 2: sine is the unity basis
         A2 = [bits_patch_all,ones(Ntot,1),xs(:,2:end),xc];
-        b = -xs(:,1);
-        x2 = linsolve(A2,b);                      % solution vector for assumption 2
+        b2 = -xs(:,1);
+        x2 = linsolve(A2,b2);                      % solution vector for assumption 2
 
-        if(rms(A1*x1-b) < rms(A2*x2-b))            % chooses the better solution based on the residual
+        if(rms(A1*x1-b1) < rms(A2*x2-b2))            % chooses the better solution based on the residual
             x = x1;
             sel = 0;                             % uses cosine-based solution
         else
@@ -441,13 +441,13 @@ function [weight,offset,postcal,ideal,err,freqcal] = wcalsin(bits,varargin)
     xs = sin(theta_mat*2*pi);                % sine basis (cols: harmonics)
     % Assumption 1: cosine is the unity basis
     A1 = [bits_patch(1:N,1:M),ones(N,1),xc(:,2:end),xs];
-    b = -xc(:,1);
-    x1 = linsolve(A1,b);                      % solution vector for assumption 1
+    b1 = -xc(:,1);
+    x1 = linsolve(A1,b1);                      % solution vector for assumption 1
     % Assumption 2: sine is the unity basis
     A2 = [bits_patch(1:N,1:M),ones(N,1),xs(:,2:end),xc];
-    b = -xs(:,1);
-    x2 = linsolve(A2,b);                      % solution vector for assumption 2
-    if(rms(A1*x1-b) < rms(A2*x2-b))            % chooses the better solution based on the residual
+    b2 = -xs(:,1);
+    x2 = linsolve(A2,b2);                      % solution vector for assumption 2
+    if(rms(A1*x1-b1) < rms(A2*x2-b2))            % chooses the better solution based on the residual
         x = x1;
         sel = 0;                             % uses cosine-based solution
     else
@@ -459,41 +459,46 @@ function [weight,offset,postcal,ideal,err,freqcal] = wcalsin(bits,varargin)
     % Optional fine frequency search: augment matrix with d/d(freq) column and iterate
     if(fsearch)
 
-        warning off;
+        warnState = warning('off');
 
         delta_f = 0;
+        relerr = 0;
+        ii = 0;
         time_mat = (0:(N-1))'*ones([1,order]);   % time index matrix for derivative terms
 
         for ii = 1:niter
-            freq = freq+delta_f;                % update frequency by prior correction
+            freq = min(max(freq+delta_f, eps), 0.5-eps);  % update frequency by prior correction
             theta_mat = (0:(N-1))'*freq*(1:order);
 
             xc = cos(theta_mat*2*pi);  % cosine basis (cols: harmonics)
             xs = sin(theta_mat*2*pi);  % sine basis (cols: harmonics)
 
+            sel_prev = sel;
+            x_prev = x;
+
             order_mat = ones([N,1]) * (1:order);   % scale derivatives by harmonic index
-            if(sel)
-                KS = ones([N,1]) * [1,x(M+2:M+order)'] .* order_mat;        % coefficients for sine terms
-                KC = ones([N,1]) * x(M+1+order:M+order*2)' .* order_mat;    % coefficients for cosine terms
+            if(sel_prev)
+                KS = ones([N,1]) * [1,x_prev(M+2:M+order)'] .* order_mat;        % coefficients for sine terms
+                KC = ones([N,1]) * x_prev(M+1+order:M+order*2)' .* order_mat;    % coefficients for cosine terms
             else
-                KC = ones([N,1]) * [1,x(M+2:M+order)'] .* order_mat;        % coefficients for cosine terms
-                KS = ones([N,1]) * x(M+1+order:M+order*2)' .* order_mat;    % coefficients for sine terms
+                KC = ones([N,1]) * [1,x_prev(M+2:M+order)'] .* order_mat;        % coefficients for cosine terms
+                KS = ones([N,1]) * x_prev(M+1+order:M+order*2)' .* order_mat;    % coefficients for sine terms
             end
             % Partial derivatives w.r.t. frequency for each harmonic term
             xcd = -2*pi * KC .* time_mat .* sin(theta_mat*2*pi) / N;    % d/d(freq) of cosine series
             xsd =  2*pi * KS .* time_mat .* cos(theta_mat*2*pi) / N;    % d/d(freq) of sine series
-
+            dcol = sum(xcd+xsd,2);
 
             % Re-solve augmented systems with derivative column appended
-            A = [bits_patch(1:N,1:M),ones(N,1),xc(:,2:end),xs,sum(xcd+xsd,2)];
-            b = -xc(:,1);
-            x1 = linsolve(A,b);
-            e1 = A*x1-b;
+            A1 = [bits_patch(1:N,1:M),ones(N,1),xc(:,2:end),xs,dcol];
+            b1 = -xc(:,1);
+            x1 = linsolve(A1,b1);
+            e1 = A1*x1-b1;
 
-            A = [bits_patch(1:N,1:M),ones(N,1),xs(:,2:end),xc,sum(xcd+xsd,2)];
-            b = -xs(:,1);
-            x2 = linsolve(A,b);
-            e2 = A*x2-b;
+            A2 = [bits_patch(1:N,1:M),ones(N,1),xs(:,2:end),xc,dcol];
+            b2 = -xs(:,1);
+            x2 = linsolve(A2,b2);
+            e2 = A2*x2-b2;
 
             if(rms(e1) < rms(e2))
                 x = x1;       % prefer cosine-targeted update
@@ -503,8 +508,17 @@ function [weight,offset,postcal,ideal,err,freqcal] = wcalsin(bits,varargin)
                 sel = 1;
             end
 
-            delta_f = x(end)*rate /N;                           % scaled frequency correction
-            relerr = rms(x(end)/N*A(:,end)) / sqrt(1+x(M+1+order)^2);  % calculate the relative error
+            % Restore signed frequency step if the augmented solve flipped quadrature gauge
+            if sel == sel_prev
+                gauge_scale = 1;
+            else
+                gauge_scale = x_prev(M+1+order);
+            end
+
+            delta_f = x(end) * gauge_scale * rate / N;          % scaled frequency correction
+            delta_f = min(max(freq + delta_f, eps), 0.5-eps) - freq;
+            w0_prev = sqrt(1+x_prev(M+1+order)^2);
+            relerr = rms((delta_f * N) * dcol) / w0_prev;       % gauge-invariant relative error
 
             if verbose
                 fprintf('Freq fine iterating (%d): freq = %d, delta_f = %d, rel_err = %d\n',ii,freq,delta_f, relerr);
@@ -517,12 +531,31 @@ function [weight,offset,postcal,ideal,err,freqcal] = wcalsin(bits,varargin)
         end
 
         % Warn if not converged
-        if ii == niter && relerr >= reltol
+        if niter > 0 && ii == niter && relerr >= reltol
             warning('wcalsin:noConvergence', ...
                 'Failed to converge in %d iterations. Relative error = %.2e', niter, relerr);
         end
 
-        warning on;
+        % Apply final frequency step and perform a static refit without the derivative column
+        freq = min(max(freq+delta_f, eps), 0.5-eps);
+        theta_mat = (0:(N-1))'*freq*(1:order);
+        xc = cos(theta_mat*2*pi);
+        xs = sin(theta_mat*2*pi);
+        A1 = [bits_patch(1:N,1:M),ones(N,1),xc(:,2:end),xs];
+        b1 = -xc(:,1);
+        x1 = linsolve(A1,b1);
+        A2 = [bits_patch(1:N,1:M),ones(N,1),xs(:,2:end),xc];
+        b2 = -xs(:,1);
+        x2 = linsolve(A2,b2);
+        if(rms(A1*x1-b1) < rms(A2*x2-b2))
+            x = x1;
+            sel = 0;
+        else
+            x = x2;
+            sel = 1;
+        end
+
+        warning(warnState);
     end
 
 

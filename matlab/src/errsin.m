@@ -182,7 +182,7 @@ function [emean, erms, xx, anoi, pnoi, err, errxx] = errsin(sig, varargin)
         enum = zeros(1,bin);
         esum = zeros(1,bin);
         erms = zeros(1,bin);
-        % Separate accumulators for rising [0,180) and falling [180,360) phases
+        % Separate accumulators for rising [180,360) and falling [0,180) cosine phases
         enum_rise = zeros(1,bin);
         esum_rise = zeros(1,bin);
         enum_fall = zeros(1,bin);
@@ -193,8 +193,9 @@ function [emean, erms, xx, anoi, pnoi, err, errxx] = errsin(sig, varargin)
             b = min(floor((sig(ii)-dat_min)/bin_wid)+1,bin);
             esum(b) = esum(b) + err(ii);
             enum(b) = enum(b) + 1;
-            % Accumulate separately by phase
-            if phase(ii) < 180
+            % Accumulate separately by slope: d/dtheta cos(theta) = -sin(theta)
+            % Rising edge is [180, 360) deg; falling edge is [0, 180) deg
+            if phase(ii) >= 180
                 esum_rise(b) = esum_rise(b) + err(ii);
                 enum_rise(b) = enum_rise(b) + 1;
             else
@@ -217,6 +218,9 @@ function [emean, erms, xx, anoi, pnoi, err, errxx] = errsin(sig, varargin)
         anoi = nan;
         pnoi = nan;
 
+        % Preserve unfiltered errors for full scatter display
+        err_all = err;
+
         % Apply error range filter if specified
         if(~isempty(erange))
             eid = (errxx >= erange(1)) & (errxx <= erange(2));
@@ -229,18 +233,18 @@ function [emean, erms, xx, anoi, pnoi, err, errxx] = errsin(sig, varargin)
 
             nexttile;
 
-            % Plot data points colored by phase (no legend)
-            idx_first = (phase < 180);   % [0, 180) phase
-            idx_second = (phase >= 180); % [180, 360) phase
-            plot(sig(idx_first), err(idx_first), '.', 'Color', [1,0.5,0.5], 'HandleVisibility', 'off');
+            % Plot data points colored by slope (no legend)
+            idx_rise = (phase >= 180);  % [180, 360) rising edge of cos
+            idx_fall = (phase < 180);   % [0, 180) falling edge of cos
+            plot(sig(idx_rise), err_all(idx_rise), '.', 'Color', [1,0.5,0.5], 'HandleVisibility', 'off');
             hold on;
-            plot(sig(idx_second), err(idx_second), '.', 'Color', [0.5,0.5,1], 'HandleVisibility', 'off');
+            plot(sig(idx_fall), err_all(idx_fall), '.', 'Color', [0.5,0.5,1], 'HandleVisibility', 'off');
 
             % Plot averaged traces
             plot(xx, emean_rise, 'r-', 'LineWidth', 1.5);
             plot(xx, emean_fall, 'b-', 'LineWidth', 1.5);
             plot(xx, emean, 'k-', 'LineWidth', 1.5);
-            axis([dat_min, dat_max, min(err)*1.05-max(err)*0.05, max(err)*1.05-min(err)*0.05]);
+            axis([dat_min, dat_max, min(err_all)*1.05-max(err_all)*0.05, max(err_all)*1.05-min(err_all)*0.05]);
             ylabel('error');
             xlabel('value');
 
@@ -248,7 +252,7 @@ function [emean, erms, xx, anoi, pnoi, err, errxx] = errsin(sig, varargin)
                 plot(errxx, err, 'm.', 'HandleVisibility', 'off');
             end
 
-            legend('Rising aveg. (0~180 deg)', 'Falling aveg. (180~360 deg)', 'All aveg.');
+            legend('Rising aveg. (180~360 deg)', 'Falling aveg. (0~180 deg)', 'All aveg.');
 
             nexttile;
             bar(xx, erms, 'FaceColor', [0.8 0.8 0.8], 'EdgeColor', [0.6 0.6 0.6]);
@@ -305,6 +309,10 @@ function [emean, erms, xx, anoi, pnoi, err, errxx] = errsin(sig, varargin)
         anoi = sqrt(max(tmp(1), 0));  % Clamp to non-negative before sqrt
         pnoi = sqrt(max(tmp(2), 0));
 
+        % Preserve unfiltered arrays for full scatter display
+        errxx_all = errxx;
+        err_all = err;
+
         % Apply error range filter if specified
         if(~isempty(erange))
             eid = (errxx >= erange(1)) & (errxx <= erange(2));
@@ -318,22 +326,22 @@ function [emean, erms, xx, anoi, pnoi, err, errxx] = errsin(sig, varargin)
             nexttile;
 
             yyaxis left;
-            plot(errxx,sig,'k.');
+            plot(errxx_all,sig,'k.');
             axis([0,360,min(sig)*1.05-max(sig)*0.05, max(sig)*1.05-min(sig)*0.05]);
             ylabel('data');
 
             yyaxis right;
-            plot(errxx,err,'r.');
+            plot(errxx_all,err_all,'r.');
             hold on;
             plot(xx,emean,'b-','LineWidth', 1.5);
-            axis([0,360,min(err)*1.05-max(err)*0.05, max(err)*1.05-min(err)*0.05]);
+            axis([0,360,min(err_all)*1.05-max(err_all)*0.05, max(err_all)*1.05-min(err_all)*0.05]);
             ylabel('error');
 
             legend('Data','Error','Error aver.');
             xlabel('phase(deg)');
 
             if(~isempty(erange))
-                plot(errxx,err,'m.');
+                plot(errxx,err,'m.','HandleVisibility','off');
             end
 
             nexttile;

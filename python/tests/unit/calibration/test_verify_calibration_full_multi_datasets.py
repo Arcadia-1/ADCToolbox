@@ -109,10 +109,10 @@ def test_calibration_multi_datasets():
             sndr_db_after = results['sndr_db']
             enob_after = results['enob']
             print(f"[Unit Test] [{n_sig}], After Calibration: SNDR=[{sndr_db_after:.2f} dB], ENOB=[{enob_after:.2f}]")
-
+            np.testing.assert_allclose(sndr_db_before, sndr_db_after, atol=3.0)
 
         np.testing.assert_allclose(sndr_db_before, sndr_db_cal, atol=3.0)
-        np.testing.assert_allclose(sndr_db_before, sndr_db_after, atol=3.0)
+        assert max_weight_error < 2.0 / (2**bit_width)
 
 
         # np.testing.assert_allclose(sndr_db_before, sndr_db_cal, atol=3.0)

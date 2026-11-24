@@ -153,6 +153,9 @@ def fold_frequency_to_nyquist(fin, fs):
     >>> fold_frequency_to_nyquist(900e6, 800e6)
     100000000.0
     """
+    if fs <= 0:
+        raise ValueError(f"fs must be positive, got {fs}")
+
     fin = np.asarray(fin)
 
     # The mathematical one-liner for folding:
@@ -168,7 +171,7 @@ def fold_frequency_to_nyquist(fin, fs):
 
     return f_alias
 
-def fold_bin_to_nyquist(bin_idx: float, n_fft: int) -> float:
+def fold_bin_to_nyquist(bin_idx: float | np.ndarray, n_fft: int) -> float | np.ndarray:
     """
     Calculate the aliased bin index in the first Nyquist zone [0, n_fft/2].
 
@@ -177,14 +180,14 @@ def fold_bin_to_nyquist(bin_idx: float, n_fft: int) -> float:
 
     Parameters
     ----------
-    bin_idx : float
+    bin_idx : float or array_like
         Bin index (can be fractional, negative, or > n_fft)
     n_fft : int
         Total number of FFT bins
 
     Returns
     -------
-    float
+    float or np.ndarray
         Aliased bin index in range [0, n_fft/2]
 
     Examples
@@ -198,14 +201,15 @@ def fold_bin_to_nyquist(bin_idx: float, n_fft: int) -> float:
     >>> fold_bin_to_nyquist(-100, 8192)  # Negative wraps around
     100.0
     """
-    # First wrap to [0, n_fft) range
-    bin_idx = bin_idx % n_fft
+    if n_fft <= 0:
+        raise ValueError(f"n_fft must be positive, got {n_fft}")
 
-    # For real signals, bins > n_fft/2 are mirrored
-    if bin_idx > n_fft / 2:
-        bin_idx = n_fft - bin_idx
-
-    return bin_idx
+    is_scalar = np.ndim(bin_idx) == 0
+    arr = np.asarray(bin_idx, dtype=float) % n_fft
+    folded = np.where(arr > n_fft / 2, n_fft - arr, arr)
+    if is_scalar:
+        return float(folded)
+    return folded
 
 def estimate_frequency(data, frequency_estimate=None, fs=1.0):
     """

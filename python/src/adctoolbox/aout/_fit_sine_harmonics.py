@@ -7,6 +7,9 @@ and harmonic components using least-squares fitting.
 
 import numpy as np
 
+from adctoolbox.fundamentals.frequency import fold_frequency_to_nyquist
+
+
 def _fit_sine_harmonics(
     sig: np.ndarray,
     freq: float,
@@ -86,13 +89,29 @@ def _fit_sine_harmonics(
     else:
         dc_basis = None
 
-    # Build harmonic basis: cos and sin for each harmonic order
+    # Build harmonic basis: cos and sin for each harmonic order, tracking
+    # active (non-aliased) columns so rank-deficient aliasing collisions
+    # (e.g. f=0.25 where H3/H5 alias onto H1, H4 onto DC, H2 sin==0) do not
+    # split fundamental energy into fake harmonics.
     harmonic_basis_list = []
+    active_cols = [True] if include_dc else []
+    seen_freqs = [0.0] if include_dc else []
+
     for h in range(1, order + 1):
         cos_h = np.cos(h * phase)
         sin_h = np.sin(h * phase)
         harmonic_basis_list.append(cos_h)
         harmonic_basis_list.append(sin_h)
+
+        f_fold = float(fold_frequency_to_nyquist(h * normalized_freq, 1.0))
+        collides = any(abs(f_fold - f_prev) < 1e-9 for f_prev in seen_freqs)
+        if collides:
+            active_cols.extend([False, False])
+        else:
+            seen_freqs.append(f_fold)
+            # At exact DC or Nyquist, sin(h * phase) == 0 identically.
+            sin_active = (f_fold >= 1e-9) and (abs(f_fold - 0.5) >= 1e-9)
+            active_cols.extend([True, sin_active])
 
     harmonic_basis = np.column_stack(harmonic_basis_list)
 
@@ -102,8 +121,11 @@ def _fit_sine_harmonics(
     else:
         basis_matrix = harmonic_basis
 
-    # Solve least-squares problem
-    W, residuals, rank, s = np.linalg.lstsq(basis_matrix, sig, rcond=None)
+    active_mask = np.asarray(active_cols, dtype=bool)
+    W = np.zeros(basis_matrix.shape[1], dtype=float)
+    if np.any(active_mask):
+        W_active, _, _, _ = np.linalg.lstsq(basis_matrix[:, active_mask], sig, rcond=None)
+        W[active_mask] = W_active
 
     # Reconstruct fitted signal
     fitted_signal = basis_matrix @ W
