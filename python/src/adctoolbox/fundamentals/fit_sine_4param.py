@@ -98,20 +98,36 @@ def _fit_core(y, freq_init, max_iter, tol, verbose=0):
     a, b, c, fitted_sig = _solve_three_param(y, t, freq)
     initial_fit = (a, b, c, fitted_sig)
     initial_sse = float(np.sum((y - fitted_sig) ** 2))
+    energy = float(np.sum(np.square(y, dtype=float)))
+
+    # At exact Nyquist (freq >= _MAX_FREQUENCY) sin(pi*t) == 0 identically for
+    # integer t, which makes the 4-param Jacobian column vanish and deadlocks.
+    # If the 3-param fit at Nyquist is already exact, converge immediately;
+    # otherwise nudge the starting frequency slightly below Nyquist so
+    # Gauss-Newton can move freely (while keeping initial_fit as fallback).
+    if max_iter > 0 and freq >= _MAX_FREQUENCY:
+        if energy == 0.0 or initial_sse <= _DIVERGENCE_ENERGY_FRACTION * energy:
+            converged = True
+            max_iter = 0
+        else:
+            freq = 0.5 - 0.25 / max(n, 2)
+            a, b, c, fitted_sig = _solve_three_param(y, t, freq)
 
     for i in range(1, max_iter + 1):
         omega = 2 * np.pi * freq
         cos_vec = np.cos(omega * t)
         sin_vec = np.sin(omega * t)
 
-        # 4-parameter step: the fourth column is the derivative of the model
-        # with respect to angular frequency, linearized at the current A, B.
-        freq_corr = t * (-a * sin_vec + b * cos_vec)
+        # 4-parameter step: normalize the frequency-derivative column by
+        # N * hypot(a, b) so its singular value stays O(sqrt(N)), preventing
+        # lstsq SVD truncation when A * N^2 is large (e.g. 16-24 bit codes).
+        col_scale = max(float(n) * float(np.hypot(a, b)), 1.0)
+        freq_corr = (t / col_scale) * (-a * sin_vec + b * cos_vec)
         design_matrix = np.column_stack((cos_vec, sin_vec, np.ones(n), freq_corr))
         coeffs = np.linalg.lstsq(design_matrix, y, rcond=None)[0]
         a, b, c = coeffs[:3]
 
-        delta_freq = coeffs[3] / (2 * np.pi)
+        delta_freq = (coeffs[3] / col_scale) / (2 * np.pi)
         last_delta_freq = delta_freq
         n_iterations += 1
         freq += delta_freq
@@ -140,7 +156,6 @@ def _fit_core(y, freq_init, max_iter, tol, verbose=0):
         # returned fit is the least-squares optimum for that frequency.
         a, b, c, fitted_sig = _solve_three_param(y, t, freq)
         refined_sse = float(np.sum((y - fitted_sig) ** 2))
-        energy = float(np.sum(np.square(y, dtype=float)))
         reverted = refined_sse - initial_sse > _DIVERGENCE_ENERGY_FRACTION * energy
 
     if reverted:
@@ -200,10 +215,14 @@ def _estimate_frequency_fft(y):
     spec = spec[:n // 2 + 1]
     k = np.argmax(spec)
 
-    # Parabolic interpolation for sub-bin precision
+    # Parabolic interpolation for sub-bin precision (including left-sided
+    # interpolation when the peak sits on the top bin so near-Nyquist tones
+    # like (N/2 - 0.3)/N do not lock onto exact Nyquist 0.5).
     if 0 < k < len(spec) - 1:
         r = 1 if spec[k + 1] > spec[k - 1] else -1
         delta = r * spec[k + r] / (spec[k] + spec[k + r])
         k += delta
+    elif k == len(spec) - 1 and k > 1 and spec[k - 1] > 1e-12 * spec[k]:
+        k -= spec[k - 1] / (spec[k] + spec[k - 1])
 
     return k / n

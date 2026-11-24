@@ -76,8 +76,8 @@ def fit_static_nonlin(sig_distorted, order):
         warnings.warn('Polynomial order > 10 may cause numerical instability',
                      UserWarning)
 
-    # Ensure column vector orientation
-    sig_distorted = sig_distorted.flatten()
+    # Ensure 1D float array
+    sig_distorted = np.asarray(sig_distorted, dtype=float).flatten()
     N = len(sig_distorted)
 
     if N < order + 2:

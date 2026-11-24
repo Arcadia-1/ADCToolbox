@@ -51,8 +51,8 @@ def validate_aout_data(aout_data, min_samples=100):
     if data.ndim > 2:
         raise ValueError(f"Analog data must be 1D or 2D, got {data.ndim}D.")
     
-    # Determine sample count based on shape (assuming N x M or just N)
-    n_samples = data.shape[0] if data.ndim == 1 else max(data.shape)
+    # Determine sample count based on shape (N,) or (N_samples, M_channels)
+    n_samples = data.shape[0]
 
     if n_samples < min_samples:
         raise ValueError(f"Insufficient analog samples ({n_samples}), need at least {min_samples}.")

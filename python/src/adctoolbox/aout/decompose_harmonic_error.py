@@ -135,12 +135,15 @@ def decompose_harmonic_error(
     # Note: harmonic_signal and noise_residual remain centered at 0 (no DC added)
 
     # Calculate noise metrics in original signal units
-    residual_rms = np.sqrt(np.mean(noise_residual**2)) * 2 * np.sqrt(2)
-    signal_range = np.max(sig_avg) - np.min(sig_avg)
-    noise_db = 20 * np.log10(residual_rms / signal_range)
+    residual_rms = float(np.sqrt(np.mean(noise_residual**2)))
+    signal_range = float(np.max(sig_avg) - np.min(sig_avg))
+    # Equivalent sine peak-to-peak for RMS noise is 2*sqrt(2)*rms, matching
+    # magnitudes = 2*A (peak-to-peak) relative to signal_range (~2*A).
+    noise_db = float(20 * np.log10(max(residual_rms * 2 * np.sqrt(2), 1e-30) / max(signal_range, 1e-30)))
 
-    # Extract magnitude and phase for each harmonic from coefficients (vectorized)
-    # Use complex number representation: I + jQ
+    # Extract magnitude and phase for each harmonic from coefficients (vectorized).
+    # Since a*cos(h*wt) + b*sin(h*wt) = R*cos(h*wt + phi) with phi = atan2(-b, a),
+    # the complex phasor with angle phi is a - 1j*b.
     if include_dc:
         # W layout: [DC, cos(H1), sin(H1), cos(H2), sin(H2), ..., cos(Hn), sin(Hn)]
         # Coefficients are interleaved: cos at odd indices, sin at even indices (after DC)
@@ -152,7 +155,7 @@ def decompose_harmonic_error(
         cos_coeffs = W[0:2*n_harmonics:2]  # W[0], W[2], W[4], ..., W[2*n_harmonics-2]
         sin_coeffs = W[1:2*n_harmonics:2]  # W[1], W[3], W[5], ..., W[2*n_harmonics-1]
 
-    coeffs = cos_coeffs + 1j * sin_coeffs
+    coeffs = cos_coeffs - 1j * sin_coeffs
     magnitudes = np.abs(coeffs) * 2
     phases = np.angle(coeffs)
 

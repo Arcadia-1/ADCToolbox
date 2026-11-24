@@ -69,11 +69,11 @@ def test_analyze_error_phase_plane_basic():
 
     # Analyze each case
     result1 = analyze_error_phase_plane(sig_thermal, fs=Fs, ax=axes[0], title='Thermal Noise',
-                                        create_plot=False, fit_polynomial_order=3)
+                                        create_plot=True, fit_polynomial_order=3)
     result2 = analyze_error_phase_plane(sig_hd2, fs=Fs, ax=axes[1], title='Static HD2 (-80 dBc)',
-                                        create_plot=False, fit_polynomial_order=3)
+                                        create_plot=True, fit_polynomial_order=3)
     result3 = analyze_error_phase_plane(sig_hd3, fs=Fs, ax=axes[2], title='Static HD3 (-70 dBc)',
-                                        create_plot=False, fit_polynomial_order=3)
+                                        create_plot=True, fit_polynomial_order=3)
 
     # Print metrics
     rms1_uV = result1['residual'].std() * 1e6
@@ -151,7 +151,7 @@ def test_analyze_error_phase_plane_unit_modes():
             signal,
             fs=Fs,
             ax=ax,
-            create_plot=False,
+            create_plot=True,
             detect_hysteresis=False,
             unit_mode=unit_mode,
         )

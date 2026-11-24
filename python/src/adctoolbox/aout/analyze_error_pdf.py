@@ -82,30 +82,41 @@ def analyze_error_pdf(signal, resolution=12, full_scale=None, frequency=None, cr
     err_lsb = np.asarray(err_data).flatten() / lsb
     N = len(err_lsb)
 
-    # Silverman's rule for bandwidth
-    h = 1.06 * np.std(err_lsb, ddof=1) * N**(-1/5)
-
-    # Determine x-axis range
-    max_abs_noise = np.max(np.abs(err_lsb))
-    xlim_range = max(0.5, max_abs_noise)
-    x = np.linspace(-xlim_range, xlim_range, 200)
-    fx = np.zeros_like(x)
-
-    # KDE computation
-    for i in range(len(x)):
-        u = (x[i] - err_lsb) / h
-        fx[i] = np.mean(np.exp(-0.5 * u**2)) / (h * np.sqrt(2*np.pi))
-
     # Gaussian fit
-    mu = np.mean(err_lsb)
-    sigma = np.std(err_lsb, ddof=1)
-    gauss_pdf = (1/(sigma*np.sqrt(2*np.pi))) * np.exp(-(x - mu)**2 / (2*sigma**2))
+    mu = float(np.mean(err_lsb))
+    sigma = float(np.std(err_lsb, ddof=1))
 
-    # KL divergence calculation
-    dx = x[1] - x[0]
+    # Silverman's rule for bandwidth (guard degenerate zero-variance residuals)
+    h = max(1.06 * sigma * N**(-1 / 5), np.finfo(float).eps)
+
+    # Determine x-axis range covering both KDE tails (+/- 4h) and Gaussian (+/- 5*sigma)
+    max_abs_noise = float(np.max(np.abs(err_lsb)))
+    half_span = max(max_abs_noise + 4.0 * h, abs(mu) + 5.0 * sigma)
+    if sigma < 0.05 and max_abs_noise < 0.1:
+        # Narrow error distribution: center grid on the actual distribution so
+        # the quadrature grid resolves both KDE and Gaussian peaks accurately.
+        narrow_span = max(5.0 * sigma, 4.0 * h, max_abs_noise + 4.0 * h, 1e-12)
+        x = np.linspace(mu - narrow_span, mu + narrow_span, 200)
+    else:
+        xlim_range = max(0.5, half_span)
+        x = np.linspace(-xlim_range, xlim_range, 200)
+
+    # KDE computation (vectorized)
+    u = (x[:, None] - err_lsb[None, :]) / h
+    fx = np.mean(np.exp(-0.5 * u**2), axis=1) / (h * np.sqrt(2 * np.pi))
+
+    if sigma > 0:
+        gauss_pdf = (1 / (sigma * np.sqrt(2 * np.pi))) * np.exp(-((x - mu) ** 2) / (2 * sigma**2))
+    else:
+        gauss_pdf = np.zeros_like(x)
+
+    # Normalize discrete densities on the quadrature grid so KL >= 0 always
+    # holds by Gibbs' inequality (prevents negative KL from tail truncation).
     p = fx + np.finfo(float).eps
     q = gauss_pdf + np.finfo(float).eps
-    kl_divergence = np.sum(p * np.log(p / q)) * dx
+    p_norm = p / np.sum(p)
+    q_norm = q / np.sum(q)
+    kl_divergence = float(max(0.0, np.sum(p_norm * np.log(p_norm / q_norm))))
 
     # Plot if requested
     if create_plot:

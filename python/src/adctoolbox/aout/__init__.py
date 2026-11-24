@@ -113,10 +113,12 @@ def plot_error_pdf(*args, **kwargs):
 
 def plot_error_autocorr(error_signal, max_lag=50, normalize=True, **kwargs):
     """Compatibility wrapper for autocorrelation of a precomputed error signal."""
+    input_kind = kwargs.pop("input_kind", "residual")
     result = analyze_error_autocorr(
         error_signal,
         max_lag=max_lag,
         normalize=normalize,
+        input_kind=input_kind,
         **kwargs,
     )
     return result['acf'], result['lags']

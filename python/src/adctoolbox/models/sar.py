@@ -78,6 +78,10 @@ def sar_ideal_weights(num_bits: int, redundant_bit: Optional[int] = None) -> np.
     """
     w = [2 ** (num_bits - 1 - i) for i in range(num_bits)]
     if redundant_bit is not None:
+        if not isinstance(redundant_bit, (int, np.integer)) or isinstance(redundant_bit, bool):
+            raise ValueError(f"redundant_bit must be an integer in [0, {num_bits - 1}], got {redundant_bit!r}")
+        if redundant_bit < 0 or redundant_bit >= num_bits:
+            raise ValueError(f"redundant_bit must be in [0, {num_bits - 1}], got {redundant_bit}")
         w.insert(redundant_bit + 1, w[redundant_bit])
     w = np.asarray(w, dtype=float)
     return w / (w.sum() + w[-1])

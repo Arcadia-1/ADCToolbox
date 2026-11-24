@@ -53,6 +53,9 @@ def compute_inl_from_sine(
         Reported codes. The lowest and highest codes after clipping absorb
         the clipped samples and are not reported.
     """
+    if not np.isfinite(clip_percent) or clip_percent < 0.0 or clip_percent >= 0.5:
+        raise ValueError(f"clip_percent must be in [0, 0.5), got {clip_percent}")
+
     data = np.asarray(data).flatten()
 
     data_min = np.min(data)
@@ -65,8 +68,14 @@ def compute_inl_from_sine(
 
     if np.issubdtype(data.dtype, np.floating):
         # An explicit full_scale declares voltage input. Otherwise a small
-        # range (e.g. 0.0 to 1.0) is likely normalized voltage.
-        if full_scale is not None or span <= 2.0:
+        # range (e.g. 0..1, -0.5..0.5, -1..1) is treated as normalized voltage,
+        # except when values are integer-valued codes above 1.0 (e.g. 2-bit [0,1,2]).
+        looks_like_small_int_codes = (
+            full_scale is None
+            and data_max > 1.0
+            and np.allclose(data, np.round(data), atol=1e-12)
+        )
+        if full_scale is not None or (span <= 2.0 and not looks_like_small_int_codes):
             is_voltage = True
 
     # --- 2. Process Data ---
@@ -79,20 +88,39 @@ def compute_inl_from_sine(
 
         # Quantize based on full_scale or auto-detect
         if full_scale is not None:
-            # User provided full_scale: data in volts, scale to 0..2^n_bits-1
-            codes_input = np.round(data / full_scale * adc_full_scale).astype(int)
+            if np.ndim(full_scale) > 0:
+                if len(full_scale) != 2:
+                    raise ValueError(f"full_scale range must have 2 elements, got {len(full_scale)}")
+                v_min, v_max = float(full_scale[0]), float(full_scale[1])
+                if v_max <= v_min:
+                    raise ValueError(f"full_scale range must satisfy v_min < v_max, got {full_scale}")
+                codes_input = np.round((data - v_min) / (v_max - v_min) * adc_full_scale).astype(int)
+            else:
+                fs_val = float(full_scale)
+                if fs_val <= 0:
+                    raise ValueError(f"full_scale must be positive, got {full_scale}")
+                if data_min < 0.0:
+                    # Bipolar voltage centered around 0: [-FS/2, +FS/2]
+                    codes_input = np.round((data + fs_val / 2.0) / fs_val * adc_full_scale).astype(int)
+                else:
+                    # Unipolar voltage: [0, FS]
+                    codes_input = np.round(data / fs_val * adc_full_scale).astype(int)
         else:
-            # Auto-detect: assume normalized voltage
-            # Handle Bipolar (-1 to 1) vs Unipolar (0 to 1)
-            if data_min < -0.1:
-                # Map -1..1 to 0..FS
-                data = (data + 1.0) / 2.0 * adc_full_scale
+            # Auto-detect normalized voltage range:
+            # Bipolar (-0.5..0.5), bipolar (-1..1), or unipolar (0..1)
+            if data_min < 0.0:
+                if data_min >= -0.55 and data_max <= 0.55:
+                    # Map -0.5..0.5 to 0..FS
+                    scaled = (data + 0.5) * adc_full_scale
+                else:
+                    # Map -1..1 to 0..FS
+                    scaled = (data + 1.0) / 2.0 * adc_full_scale
             else:
                 # Map 0..1 to 0..FS
-                data = data * adc_full_scale
+                scaled = data * adc_full_scale
 
             # Quantize to Code
-            codes_input = np.round(data).astype(int)
+            codes_input = np.round(scaled).astype(int)
 
         # Clip to valid code range
         codes_input = np.clip(codes_input, 0, adc_full_scale - 1)

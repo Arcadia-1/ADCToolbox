@@ -57,6 +57,9 @@ def amplitudes_to_snr(
     sig_amplitude = np.asarray(sig_amplitude)
     noise_amplitude = np.asarray(noise_amplitude)
 
+    if not np.isfinite(osr) or osr <= 0:
+        raise ValueError(f"osr must be finite and positive, got {osr}")
+
     # 1. Calculate Signal RMS and Power
     # For a sine wave: RMS = Peak / sqrt(2)
     sig_rms = sig_amplitude / np.sqrt(2)
@@ -68,18 +71,16 @@ def amplitudes_to_snr(
     noise_power = noise_amplitude ** 2
 
     # 3. Calculate SNR (dB) using the power ratio: 10 * log10(P_sig / P_noise)
-    # Use np.errstate to handle division by zero gracefully (noise_amplitude = 0)
+    # Use np.errstate to handle division by zero gracefully (noise_amplitude = 0).
+    # Keep 0/0 as NaN rather than +inf.
     with np.errstate(divide='ignore', invalid='ignore'):
-        # Calculate amplitude ratio: RMS_sig / RMS_noise
         ratio = sig_rms / noise_amplitude
-        # Replace any inf/-inf with positive inf for zero noise
-        ratio = np.where(noise_amplitude == 0, np.inf, ratio)
-
-    # Convert amplitude ratio to SNR in dB: 20 * log10(Ratio)
-    snr_db = 20 * np.log10(ratio)
+        ratio = np.where((noise_amplitude == 0) & (sig_amplitude > 0), np.inf, ratio)
+        ratio = np.where((noise_amplitude == 0) & (sig_amplitude == 0), np.nan, ratio)
+        snr_db = 20 * np.log10(ratio)
 
     # Apply oversampling gain
-    if osr > 1:
+    if osr != 1:
         osr_gain_db = 10 * np.log10(osr)
         snr_db = snr_db + osr_gain_db
 
@@ -99,7 +100,9 @@ def snr_to_nsd(
     snr_db: float | np.ndarray,
     fs: float,
     osr: float = 1.0,
-    psignal_dbfs: float = 0.0
+    psignal_dbfs: float = 0.0,
+    *,
+    signal_pwr_dbfs: float | None = None,
 ) -> float | np.ndarray:
     """Convert Signal-to-Noise Ratio (SNR) to Noise Spectral Density (NSD).
 
@@ -143,6 +146,13 @@ def snr_to_nsd(
     >>> print(f"NSD = {nsd:.2f} dBFS/Hz")
     NSD = -122.99 dBFS/Hz
     """
+    if signal_pwr_dbfs is not None:
+        psignal_dbfs = signal_pwr_dbfs
+    if not np.isfinite(fs) or fs <= 0:
+        raise ValueError(f"fs must be finite and positive, got {fs}")
+    if not np.isfinite(osr) or osr <= 0:
+        raise ValueError(f"osr must be finite and positive, got {osr}")
+
     # Check if input is scalar before converting to arrays
     is_scalar_input = np.ndim(snr_db) == 0
 
@@ -181,7 +191,9 @@ def nsd_to_snr(
     nsd_dbfs_hz: float | np.ndarray,
     fs: float,
     osr: float = 1.0,
-    psignal_dbfs: float = 0.0
+    psignal_dbfs: float = 0.0,
+    *,
+    signal_pwr_dbfs: float | None = None,
 ) -> float | np.ndarray:
     """Convert Noise Spectral Density (NSD) to Signal-to-Noise Ratio (SNR).
 
@@ -225,6 +237,13 @@ def nsd_to_snr(
     >>> print(f"SNR = {snr:.2f} dB")
     SNR = 70.01 dB
     """
+    if signal_pwr_dbfs is not None:
+        psignal_dbfs = signal_pwr_dbfs
+    if not np.isfinite(fs) or fs <= 0:
+        raise ValueError(f"fs must be finite and positive, got {fs}")
+    if not np.isfinite(osr) or osr <= 0:
+        raise ValueError(f"osr must be finite and positive, got {osr}")
+
     # Check if input is scalar before converting to arrays
     is_scalar_input = np.ndim(nsd_dbfs_hz) == 0
 

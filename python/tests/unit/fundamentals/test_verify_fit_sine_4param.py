@@ -176,23 +176,18 @@ def test_verify_fit_sine_4param_phase_extraction():
     sig = np.sin(2*np.pi*freq*t + phase_true)
     result = fit_sine_4param(sig)
 
-    # Phase is atan2(-B, A) where y = A*cos(ωt) + B*sin(ωt) + C
-    # For y = sin(ωt + φ) = -cos(φ)*cos(ωt) + sin(φ)*sin(ωt)
-    # We have A = -cos(φ), B = sin(φ)
-    # So phase = atan2(-sin(φ), -cos(φ)) = atan2(-B, A) = -(π/2 + φ) mod 2π
-
+    # sin(wt + phi) = cos(wt + phi - pi/2), so the cosine-basis phase
+    # returned by fit_sine_4param (atan2(-B, A)) is exactly (phase_true - pi/2).
     phase_fit = result["phase"]
+    expected_cos_phase = phase_true - np.pi / 2
 
-    # Normalize phases to [-π, π]
-    phase_diff = np.arctan2(np.sin(phase_fit - phase_true), np.cos(phase_fit - phase_true))
+    # Normalize phase error to [-pi, pi]
+    phase_diff = np.arctan2(
+        np.sin(phase_fit - expected_cos_phase),
+        np.cos(phase_fit - expected_cos_phase),
+    )
 
-    print(f'\n[Verify Phase] [True={phase_true:.4f} rad ({np.degrees(phase_true):.1f}°)]')
-    print(f'  [Fitted] {phase_fit:.4f} rad ({np.degrees(phase_fit):.1f}°)')
-    print(f'  [Diff  ] {abs(phase_diff):.6f} rad')
-
-    # Phase should be within tolerance (accounting for sine fitting properties)
-    # Note: Phase extraction has inherent π/2 offset due to cos/sin representation
-    assert abs(phase_diff) < np.pi/2 + 0.1, f"Phase error too large: {abs(phase_diff)} rad"
+    assert abs(phase_diff) < 1e-9, f"Phase error too large: {abs(phase_diff)} rad"
 
 
 def test_verify_fit_sine_4param_amplitude_extraction():

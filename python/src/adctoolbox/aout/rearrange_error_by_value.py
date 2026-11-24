@@ -92,13 +92,16 @@ def rearrange_error_by_value(
     # Compute statistics using vectorized operations
     count_per_bin = np.bincount(valid_indices, minlength=n_bins)
     sum_err_per_bin = np.bincount(valid_indices, weights=valid_error, minlength=n_bins)
-    sum_sq_err_per_bin = np.bincount(valid_indices, weights=valid_error**2, minlength=n_bins)
 
     with np.errstate(divide='ignore', invalid='ignore'):
-        # INL Profile
+        # INL Profile (deterministic mean error per value bin)
         error_mean = np.where(count_per_bin > 0, sum_err_per_bin / count_per_bin, np.nan)
-        # Noise Profile
-        error_rms = np.where(count_per_bin > 0, np.sqrt(sum_sq_err_per_bin / count_per_bin), np.nan)
+
+    # Noise Profile: standard deviation around each bin's deterministic mean
+    centered_error = valid_error - error_mean[valid_indices]
+    sum_centered_sq = np.bincount(valid_indices, weights=centered_error**2, minlength=n_bins)
+    with np.errstate(divide='ignore', invalid='ignore'):
+        error_rms = np.where(count_per_bin > 0, np.sqrt(sum_centered_sq / count_per_bin), np.nan)
 
     result = {
         'error_mean': error_mean,

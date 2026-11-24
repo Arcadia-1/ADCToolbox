@@ -39,7 +39,8 @@ def test_reference_error_droop_preserves_dc_reference_frame():
     out = gen.apply_reference_error(clean, settling_tau=2.0, droop_strength=0.01)
 
     assert abs(np.mean(out) - gen.DC) < 0.02
-    assert np.max(np.abs(out - gen.DC)) < np.max(np.abs(clean - gen.DC))
+    # Vref droop lowers Vref, so ADC output Vin/Vref expands rather than attenuates
+    assert np.max(np.abs(out - gen.DC)) > np.max(np.abs(clean - gen.DC))
 
 
 def test_ra_gain_error_modes_have_explicit_path_semantics():
@@ -48,10 +49,11 @@ def test_ra_gain_error_modes_have_explicit_path_semantics():
     signal_ac = signal - gen.DC
     msb_bits = 4
     lsb_bits = 12
+    total_bits = msb_bits + lsb_bits
     gain = 0.99
 
     msb = np.floor(signal_ac * 2**msb_bits) / 2**msb_bits
-    lsb = np.floor((signal_ac - msb) * 2**lsb_bits) / 2**lsb_bits
+    lsb = np.floor((signal_ac - msb) * 2**total_bits) / 2**total_bits
 
     coarse_gain = gen.apply_ra_gain_error(
         signal,
@@ -76,6 +78,11 @@ def test_ra_gain_error_modes_have_explicit_path_semantics():
 
     np.testing.assert_allclose(coarse_gain - nominal, (gain - 1.0) * msb)
     np.testing.assert_allclose(residue_gain - nominal, (gain - 1.0) * lsb)
+
+    # Symmetric 6+6 bit pipeline must have active (non-zero) fine LSB stage
+    y1 = gen.apply_ra_gain_error(signal, relative_gain=1.0, msb_bits=6, lsb_bits=6, mode="residue_path")
+    y2 = gen.apply_ra_gain_error(signal, relative_gain=0.9, msb_bits=6, lsb_bits=6, mode="residue_path")
+    assert np.max(np.abs(y2 - y1)) > 1e-3
 
 
 def test_ra_gain_error_rejects_unknown_mode():
@@ -117,9 +124,10 @@ def test_dynamic_ra_gain_error_coarse_path_preserves_legacy_formula():
     expected_ac = np.zeros(gen.N)
     prev_output_ac = 0.0
 
+    total_bits = msb_bits + lsb_bits
     for n, v_in_ac in enumerate(signal_ac):
         msb = np.floor(v_in_ac * 2**msb_bits) / 2**msb_bits
-        lsb = np.floor((v_in_ac - msb) * 2**lsb_bits) / 2**lsb_bits
+        lsb = np.floor((v_in_ac - msb) * 2**total_bits) / 2**total_bits
         dynamic_gain = relative_gain + coeff_3 * (prev_output_ac**2)
         expected_ac[n] = msb * dynamic_gain + lsb
         prev_output_ac = expected_ac[n]
