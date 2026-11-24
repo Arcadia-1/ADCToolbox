@@ -79,6 +79,9 @@ def compute_spectrum(
             )
         side_bin = None
 
+    if not np.isfinite(osr) or osr < 1:
+        raise ValueError(f"osr must be finite and >= 1, got {osr}")
+
     data_normalized = _prepare_fft_input(data, max_scale_range)
     M, N = data_normalized.shape
     n_inband = rfft_inband_bin_count(N, osr)
@@ -116,8 +119,8 @@ def compute_spectrum(
             warnings.warn(f"cutoff_freq [{cutoff_freq} Hz] exceeds Nyquist.")
         if verbose >= 2:
             print(f"Applying cutoff frequency: [{cutoff_freq} Hz], cut bin [0:{cutoff_bin}]")
-        power_spectrum[:cutoff_bin] = 1e-20
-        power_spectrum_db = 10 * np.log10(power_spectrum)
+        power_spectrum[:cutoff_bin] = 0.0
+        power_spectrum_db = 10 * np.log10(power_spectrum + 1e-20)
         if complex_spectrum is not None:
             complex_spectrum[:cutoff_bin] = 0j
 
@@ -195,14 +198,18 @@ def compute_spectrum(
         sfdr_dbc = np.nan
 
     spec_sndr = power_spectrum.copy()
-    spec_sndr[: min(side_bin, len(spec_sndr))] = 0.0
+    spec_sndr[: min(max(side_bin, 1), len(spec_sndr))] = 0.0
     lo = max(fundamental_bin - side_bin, 0)
     hi = min(fundamental_bin + side_bin + 1, n_inband)
     if lo < hi:
         spec_sndr[lo:hi] = 0.0
     noi_sndr = float(np.sum(spec_sndr[:n_inband]))
-    sndr_dbc = 10 * np.log10(sig_linear / (noi_sndr + 1e-20))
-    enob = (sndr_dbc - 1.76) / 6.02
+    if sig_linear > 0:
+        sndr_dbc = 10 * np.log10(sig_linear / (noi_sndr + 1e-30))
+        enob = (sndr_dbc - 1.76) / 6.02
+    else:
+        sndr_dbc = np.nan
+        enob = np.nan
 
     noise_result = _estimate_noise_power(
         spectrum_power=power_spectrum,
@@ -217,7 +224,7 @@ def compute_spectrum(
     )
     noise_power, noise_parts = noise_result
 
-    if np.isfinite(noise_power):
+    if sig_linear > 0 and np.isfinite(noise_power) and noise_power > 0:
         snr_dbc = 10 * np.log10(sig_linear / noise_power)
         noise_floor_dbfs = sig_pwr_dbfs - snr_dbc
     else:

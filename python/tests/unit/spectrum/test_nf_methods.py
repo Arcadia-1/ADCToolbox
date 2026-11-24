@@ -76,7 +76,7 @@ def test_nf_methods_handle_empty_nonzero_noise_bins():
             side_bin=1,
         )
         assert np.isfinite(noise_power)
-        assert noise_power == 1e-15
+        assert noise_power == 1e-30
 
 
 if __name__ == "__main__":

@@ -211,8 +211,8 @@ def _run_distorted_sine_test(A, max_scale_range=None, N=2**13):
     # THD is relative to the fundamental signal amplitude (in dBc)
     thd_expected = 10 * np.log10((hd2_amp**2 + hd3_amp**2) / A**2)
 
-    # SFDR = maximum spur level relative to signal (absolute value)
-    sfdr_expected = -min(hd2_db_expected, hd3_db_expected)  # Max spur (most negative is smallest)
+    # SFDR = strongest (least negative) spur level relative to signal
+    sfdr_expected = -max(hd2_db_expected, hd3_db_expected)
 
     print(f'\n[Verify Distorted Sine] [N={N}, Fs={Fs/1e6:.0f} MHz, Fin={Fin/1e6:.2f} MHz, A={A:.3f} V, MaxScaleRange={max_scale_range}]')
     print(f'  [Expected] Sig={sig_pwr_expected:6.2f} dBFs, HD2={hd2_db_expected:6.2f} dBc, HD3={hd3_db_expected:6.2f} dBc, THD={thd_expected:6.2f} dBc, SFDR={sfdr_expected:6.2f} dBc')

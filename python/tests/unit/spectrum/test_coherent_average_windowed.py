@@ -95,7 +95,7 @@ def test_zero_lobe_width_reproduces_harmonic_only_alignment():
     done = np.zeros(n_fft, dtype=bool)
     for order in range(1, n_fft + 1):
         folded = (fund * order) % n_fft
-        if 2 * folded < n_fft:
+        if 2 * folded <= n_fft:
             position, rotation = folded, phasor**order
         else:
             position, rotation = n_fft - folded, np.conj(phasor**order)

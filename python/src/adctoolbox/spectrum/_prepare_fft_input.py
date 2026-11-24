@@ -48,12 +48,16 @@ def _prepare_fft_input(
         warnings.warn(f"[Auto-transpose] Input shape [{n_rows}, {n_cols}] -> [{n_cols}, {n_rows}]. Standard format is (M runs, N samples).", UserWarning, stacklevel=3)
         data = data.T
 
+    # Remove DC per run before auto-scaling so inter-run DC offset drift in 2D
+    # captures does not inflate the inferred AC amplitude.
+    data_dc_removed = data - np.mean(data, axis=1, keepdims=True)
+
     # Determine peak amplitude for normalization. Tuple/list ranges declare
     # absolute ADC limits before DC removal; scalar ranges declare centered
     # peak amplitude after DC removal.
     range_limits = None
     if max_scale_range is None:
-        peak_amplitude = (np.max(data) - np.min(data)) / 2
+        peak_amplitude = (np.max(data_dc_removed) - np.min(data_dc_removed)) / 2
     elif np.ndim(max_scale_range) > 0:
         if len(max_scale_range) != 2:
             raise ValueError(f"Range tuple/list must have 2 elements, got {len(max_scale_range)}")
@@ -67,7 +71,6 @@ def _prepare_fft_input(
     if range_limits is not None:
         _warn_if_raw_overrange(data, range_limits)
 
-    data_dc_removed = data - np.mean(data, axis=1, keepdims=True)
     if max_scale_range is not None and range_limits is None:
         _warn_if_centered_overrange(data_dc_removed, peak_amplitude)
 

@@ -53,19 +53,24 @@ def _locate_fundamental(
     # Using 3 points: (bin-1, bin, bin+1)
     fundamental_bin_frantional = float(fundamental_bin)
 
-    # Get the three points for interpolation
-    if fundamental_bin > 0 and fundamental_bin < len(spectrum_search) - 1:
+    # Get the three points for interpolation.
+    # Avoid DC bin 0 (fundamental_bin == 1) and the halved Nyquist bin
+    # (fundamental_bin == len(spectrum) - 2 when osr == 1): their boundary
+    # folding doubles/halves sidelobe power and biases coherent integer tones.
+    upper_interp_limit = min(len(spectrum_search) - 1, len(spectrum) - 2)
+    if 1 < fundamental_bin < upper_interp_limit:
         # Convert to log scale for interpolation (more robust)
-        y_m1 = np.log10(max(spectrum_search[fundamental_bin - 1], 1e-20))
-        y_0 = np.log10(max(spectrum_search[fundamental_bin], 1e-20))
-        y_p1 = np.log10(max(spectrum_search[fundamental_bin + 1], 1e-20))
+        y_m1 = np.log10(max(spectrum_search[fundamental_bin - 1], 1e-30))
+        y_0 = np.log10(max(spectrum_search[fundamental_bin], 1e-30))
+        y_p1 = np.log10(max(spectrum_search[fundamental_bin + 1], 1e-30))
 
         # For coherent integer-bin tones, neighboring bins can be floor-level
         # or independent spurs/harmonics rather than FFT leakage. Interpolating
         # those points shifts the fundamental and misplaces harmonics.
-        if min(y_m1, y_p1) >= y_0 - 4.0:
+        denom = 2 * (2 * y_0 - y_m1 - y_p1)
+        if min(y_m1, y_p1) >= y_0 - 4.0 and abs(denom) > 0.0:
             # Parabolic interpolation formula
-            delta = (y_p1 - y_m1) / (2 * (2 * y_0 - y_m1 - y_p1))
+            delta = (y_p1 - y_m1) / denom
             fundamental_bin_frantional = fundamental_bin + delta
 
             # Check for invalid result

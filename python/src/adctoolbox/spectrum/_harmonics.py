@@ -37,6 +37,9 @@ def _locate_harmonic_bins(
         Contains H2, H3, ..., H(max_harmonic), rounded to nearest integer
 
     """
+    if max_harmonic < 2:
+        return np.zeros(0, dtype=int)
+
     harmonic_bins = np.zeros(max_harmonic - 1, dtype=int)
 
     for h in range(2, max_harmonic + 1):
@@ -113,19 +116,26 @@ def _calculate_harmonic_power(
     - Minimum power floor of 1e-15 prevents log(0) errors
     """
     # --- Stage 1: Build index map ---
+    if max_harmonic < 2:
+        return 1e-30, np.zeros(0, dtype=float), []
+
     thd_bins_to_sum = set()  # Bin indices for THD calculation (auto-deduplicates)
     collided_harmonics = []
-    harmonic_powers = np.full(max_harmonic - 1, 1e-15)  # Powers for harmonics 2 to max_harmonic
+    harmonic_powers = np.full(max_harmonic - 1, 1e-30)  # Powers for harmonics 2 to max_harmonic
     max_bin = len(power_spectrum) if n_inband is None else min(int(n_inband), len(power_spectrum))
 
     for harmonic_index in range(max_harmonic - 1):
         harmonic_order = harmonic_index + 2  # Harmonic number (HD2 = 2, HD3 = 3, etc.)
         harmonic_bin_center = int(harmonic_bins[harmonic_index])  # Already int from _locate_harmonic_bins
 
-        # Collision detection: DC or fully hidden by the fundamental lobe
+        # Collision detection: DC or harmonic center inside the fundamental lobe
         is_dc_collision = harmonic_bin_center <= side_bin
 
         if is_dc_collision:
+            continue
+
+        if abs(harmonic_bin_center - fundamental_bin) <= side_bin:
+            collided_harmonics.append(harmonic_order)
             continue
 
         # Determine bin range for this harmonic
@@ -147,7 +157,7 @@ def _calculate_harmonic_power(
 
         # Extract individual harmonic power (independent of deduplication)
         current_harmonic_power = np.sum(power_spectrum[list(harmonic_lobe_bins)])
-        harmonic_powers[harmonic_index] = max(current_harmonic_power, 1e-15)
+        harmonic_powers[harmonic_index] = max(current_harmonic_power, 1e-30)
 
         # Add bin indices to THD set (automatic deduplication for overlapping ranges)
         thd_bins_to_sum.update(harmonic_lobe_bins)
@@ -157,10 +167,10 @@ def _calculate_harmonic_power(
         # Use fancy indexing to sum power from deduplicated bins
         thd_power = float(np.sum(power_spectrum[list(thd_bins_to_sum)]))
     else:
-        thd_power = 1e-15
+        thd_power = 1e-30
 
     # Apply minimum floor
-    thd_power = max(thd_power, 1e-15)
+    thd_power = max(thd_power, 1e-30)
 
     return thd_power, harmonic_powers, collided_harmonics
 
@@ -173,8 +183,10 @@ def _calculate_harmonic_power_plotspec(
     max_harmonic: int,
 ) -> tuple[float, np.ndarray, list]:
     """THD/HD like MATLAB plotspec: single FFT bin per harmonic, sum for THD."""
+    if max_harmonic < 2:
+        return 1e-30, np.zeros(0, dtype=float), []
     collided_harmonics: list[int] = []
-    harmonic_powers = np.full(max_harmonic - 1, 1e-15)
+    harmonic_powers = np.full(max_harmonic - 1, 1e-30)
     thd_power = 0.0
 
     for harmonic_index in range(max_harmonic - 1):
@@ -186,10 +198,10 @@ def _calculate_harmonic_power_plotspec(
         if h_bin <= side_bin:
             continue
         p = float(power_spectrum[h_bin])
-        harmonic_powers[harmonic_index] = max(p, 1e-15)
+        harmonic_powers[harmonic_index] = max(p, 1e-30)
         thd_power += p
 
-    return max(thd_power, 1e-15), harmonic_powers, collided_harmonics
+    return max(thd_power, 1e-30), harmonic_powers, collided_harmonics
 
 
 def _extract_highest_spur(
@@ -238,7 +250,7 @@ def _extract_highest_spur(
     # Copy in-band spectrum for search and zero regions that must not
     # contribute to spur power.
     spectrum_copy = spectrum_power[:n_search_inband].copy()
-    dc_mask_end = min(side_bin, n_search_inband)
+    dc_mask_end = min(max(side_bin, 1), n_search_inband)
     spectrum_copy[:dc_mask_end] = 0
     if sig_bin_start < sig_bin_end:
         spectrum_copy[sig_bin_start:sig_bin_end] = 0
@@ -247,15 +259,20 @@ def _extract_highest_spur(
     lobe_start = np.maximum(centers - side_bin, 0)
     lobe_end = np.minimum(centers + side_bin + 1, n_search_inband)
 
-    # A spur lobe can touch the fundamental/DC masks or a one-sided analysis
-    # boundary. Summing the masked spectrum then drops part of the lobe and
-    # makes SFDR optimistic. Estimate the complete lobe from its center bin
-    # using the measured fundamental lobe-to-peak ratio. Leave fully visible
-    # lobes on the direct integrated-power path.
+    # A spur lobe can touch the fundamental/DC masks, overflow the analysis
+    # boundary, or include the halved Nyquist rFFT bin (when osr == 1). Summing
+    # the masked spectrum then drops part of the lobe and makes SFDR optimistic.
+    # Leave lobes that fit completely inside the unmasked interior on the direct
+    # integrated-power path.
+    touches_nyquist = (
+        (n_search_inband == len(spectrum_power))
+        & (side_bin > 0)
+        & (centers + side_bin >= n_search_inband - 1)
+    )
     touches_mask = (
-        (lobe_start == 0)
-        | (lobe_end == n_search_inband)
-        | (lobe_start < dc_mask_end)
+        (centers - side_bin < dc_mask_end)
+        | (centers + side_bin + 1 > n_search_inband)
+        | touches_nyquist
         | (np.maximum(lobe_start, sig_bin_start) < np.minimum(lobe_end, sig_bin_end))
     )
     compensated_power = np.zeros(n_search_inband)
