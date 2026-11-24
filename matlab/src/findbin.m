@@ -90,7 +90,7 @@ function b = findbin(fs, fin, n)
         while true
             % Check upper bin first (bin_start + d)
             b_upper = bin_start + d;
-            if gcd(b_upper, n) == 1
+            if b_upper > 0 && gcd(b_upper, n) == 1
                 b(i) = b_upper;
                 break;
             end

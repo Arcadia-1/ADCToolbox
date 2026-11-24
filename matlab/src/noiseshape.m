@@ -154,7 +154,7 @@ function [num, den] = resolveNtf(ntf, order)
         return;
     end
 
-    if exist('tfdata', 'file') == 2
+    if exist('tfdata', 'file') == 2 || ismethod(ntf, 'tfdata')
         try
             [numCell, denCell] = tfdata(ntf, 'v');
             num = numCell(:)';

@@ -161,8 +161,8 @@ function [fitout,freq,mag,dc,phi] = sinfit(sig,varargin)
             dc = x(3);
             delta_f = x(4)*rate/N;  % Frequency update scaled by learning rate
 
-            % Relative error in frequency update
-            relerr = rms(x(4)/N*M(:,4)) / sqrt(x(1)^2+x(2)^2);
+            % Relative error in frequency update (M(:,4) is already scaled by 1/N)
+            relerr = rms(x(4)*M(:,4)) / sqrt(x(1)^2+x(2)^2);
 
             if verbose
                 fprintf('Freq iterating (%d): freq = %d, delta_f = %d, rel_err = %d\n', ii, freq, delta_f, relerr);

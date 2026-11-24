@@ -78,14 +78,15 @@ function snr = ntfperf(ntf,fl,fh,disp)
     if (nargin == 4 && disp == 1) || (nargin < 4 && nargout == 0)
 
         % Plot NTF magnitude response with signal band markers
-        yLimits = 20*log10([min(mag)/10, max(mag)*10]);
+        magPlot = max(mag, 1e-15);
+        yLimits = 20*log10([min(magPlot)/10, max(magPlot)*10]);
         if fl > 0   % Bandpass case
-            plot(w, 20*log10(mag));
+            plot(w, 20*log10(magPlot));
             hold on;
             plot([fl, fl], yLimits, 'k--');
             plot([fh, fh], yLimits, 'k--');
         else
-            semilogx(w, 20*log10(mag));
+            semilogx(w, 20*log10(magPlot));
             hold on;
             semilogx([fh, fh], yLimits, 'k--');
         end
