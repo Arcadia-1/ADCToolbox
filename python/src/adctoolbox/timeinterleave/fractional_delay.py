@@ -97,8 +97,6 @@ def fractional_delay_farrow(
     D_int = int(np.round(D))
     d_frac = D - D_int
 
-    y = _integer_shift_zero_pad(x, D_int)
-
     # Centered Lagrange taps: evaluation point p = P + d_frac within [0, n_taps-1].
     # d_frac == 0 yields a delta at k = P (identity).
     P = n_taps // 2
@@ -108,9 +106,22 @@ def fractional_delay_farrow(
         for j in range(n_taps):
             if j != i:
                 h[i] *= (p_eval - j) / (i - j)
-    # NumPy's "same" returns max(len(y), len(h)), which grows short records.
-    # Remove the filter's group delay explicitly and keep exactly len(x) samples.
-    return np.convolve(y, h, mode="full")[P:P + x.size]
+
+    # Convolve BEFORE shifting by D_int so valid boundary samples are never
+    # prematurely truncated when D_int and d_frac have opposite signs.
+    # full[m + P] evaluates x(m - d_frac); we need y[n] = full[n - D_int + P].
+    n_len = x.size
+    full = np.convolve(x, h, mode="full")
+    full_len = full.size
+    out = np.zeros(n_len, dtype=float)
+    # Valid source indices src = n - D_int + P in [0, full_len)
+    n_start = max(0, D_int - P)
+    n_end = min(n_len, full_len + D_int - P)
+    if n_start < n_end:
+        src_start = n_start - D_int + P
+        src_end = n_end - D_int + P
+        out[n_start:n_end] = full[src_start:src_end]
+    return out
 
 
 def _integer_shift_zero_pad(x: np.ndarray, D: int) -> np.ndarray:

@@ -181,13 +181,14 @@ def test_calibration_leaves_a_mismatch_free_capture_alone_at_high_frequency():
     np.testing.assert_allclose(y, x, atol=1e-9)
 
 
-def test_tone_above_the_aggregate_nyquist_warns_and_still_fixes_gain_and_offset():
+@pytest.mark.parametrize("fin_bin", [4096 - 1201, 4096 + 301])
+def test_tone_above_the_aggregate_nyquist_warns_and_still_fixes_gain_and_offset(fin_bin):
     M, N, fs = 4, 4096, 1e9
-    fin = (N + 301) * fs / N        # second Nyquist zone, aliases to bin 301
+    fin = fin_bin * fs / N        # 2nd Nyquist zone (N-1201) and 3rd Nyquist zone (N+301)
     rng = np.random.default_rng(2)
     gain = 1.0 + 0.01 * rng.standard_normal(M)
     offset = 0.005 * rng.standard_normal(M)
-    skew = np.array([0.4e-12, -0.3e-12, 0.1e-12, -0.2e-12])
+    skew = np.array([4e-12, -3e-12, 1e-12, -2e-12])
     n = np.arange(N)
     m = n % M
     x = gain[m] * 0.5 * np.cos(2 * np.pi * fin * (n / fs + skew[m])) + offset[m]
@@ -196,6 +197,9 @@ def test_tone_above_the_aggregate_nyquist_warns_and_still_fixes_gain_and_offset(
     with pytest.warns(UserWarning, match="above fs/2"):
         y = calibrate_foreground(x, M, params, fs)
 
+    # Offset and gain are corrected, and skew is left untouched (not amplified
+    # in the inverted-slope 2nd Nyquist zone).
     residual = extract_mismatch_sine(y, M, fs=fs, fin=fin)
     np.testing.assert_allclose(residual["gain"], np.ones(M), atol=1e-4)
     np.testing.assert_allclose(residual["offset"], np.zeros(M), atol=1e-6)
+    np.testing.assert_allclose(residual["skew"], skew, atol=1e-14)

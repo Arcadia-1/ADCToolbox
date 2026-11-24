@@ -34,16 +34,17 @@ def _synthesize(M, N, fs, fin, A, gain, offset, skew):
 
 
 @pytest.mark.parametrize("M", [2, 4])
-def test_predict_matches_measurement(M):
+@pytest.mark.parametrize("fin_bin", [37, 1499])
+def test_predict_matches_measurement(M, fin_bin):
     fs = 1e9
     N = 8192
-    fin = 37 * fs / N            # prime-ish integer bin for coherent sampling
+    fin = fin_bin * fs / N       # low-freq (gain/offset) and high-freq (skew-dominated)
     A = 0.5
 
     rng = np.random.default_rng(42)
     gain = 1.0 + 0.02 * rng.standard_normal(M)
     offset = 0.005 * rng.standard_normal(M)
-    skew = 2e-12 * rng.standard_normal(M)
+    skew = 5e-12 * rng.standard_normal(M)
     skew -= skew.mean()
 
     x = _synthesize(M, N, fs, fin, A, gain, offset, skew)

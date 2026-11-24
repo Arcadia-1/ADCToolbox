@@ -58,27 +58,56 @@ def extract_mismatch_sine(
         raise ValueError(f"expected 1-D input, got shape {x.shape}")
     if M <= 0:
         raise ValueError(f"M must be positive, got {M}")
+    if not np.isfinite(fs) or fs <= 0:
+        raise ValueError(f"fs must be finite and positive, got {fs}")
     N = x.size
+    if N == 0:
+        raise ValueError("input array x must not be empty")
     if N % M != 0:
         raise ValueError(f"len(x)={N} is not a multiple of M={M}")
 
     if fin is None:
         fin = estimate_frequency(x, fs=fs)
+    fin = float(fin)
+    if not np.isfinite(fin) or fin <= 0:
+        raise ValueError(f"fin must be finite and positive, got {fin}")
+
+    # Check sub-ADC alias collision: if 2 * fin * M / fs is an integer, the
+    # tone aliases onto DC or Nyquist inside every sub-ADC, making per-channel
+    # gain and skew unidentifiable.
+    sub_ratio = 2.0 * fin * M / fs
+    if abs(sub_ratio - round(sub_ratio)) < 1e-9:
+        raise ValueError(
+            f"fin={fin:g} Hz aliases onto DC or Nyquist of the {M} sub-ADCs "
+            f"(multiple of fs/(2M)={fs / (2 * M):g} Hz); per-channel mismatch "
+            "cannot be uniquely identified."
+        )
 
     channels = deinterleave(x, M)           # (M, K), K = N / M
     K = channels.shape[1]
+    if K < 3:
+        raise ValueError(
+            f"Need at least 3 samples per channel (got K={K} from N={N}, M={M})"
+        )
     T = 1.0 / fs
 
-    # Time of sample k in channel m: t = (k*M + m) * T
-    # Phasor at fin: P_m = (2/K) * Σ (y - offset) * exp(-j 2π fin t)
+    # 3-parameter per-channel linear least-squares fit:
+    #   y[k] ≈ a * cos(2π fin t) - b * sin(2π fin t) + c
+    #        = R * cos(2π fin t + φ) + c
+    # Exact for both coherent and non-coherent tones (unlike single-bin DFT +
+    # sample mean, which leaks negative-frequency images and DC truncation).
+    k = np.arange(K, dtype=float)
     phasors = np.empty(M, dtype=complex)
     offsets = np.empty(M, dtype=float)
+    ones = np.ones(K, dtype=float)
     for m in range(M):
         y = channels[m]
-        offsets[m] = y.mean()
-        k = np.arange(K)
         t = (k * M + m) * T
-        phasors[m] = (2.0 / K) * np.sum((y - offsets[m]) * np.exp(-1j * 2 * np.pi * fin * t))
+        omega_t = 2.0 * np.pi * fin * t
+        design = np.column_stack((np.cos(omega_t), -np.sin(omega_t), ones))
+        a, b, c = np.linalg.lstsq(design, y, rcond=None)[0]
+        offsets[m] = c
+        phasors[m] = a + 1j * b
 
     amps = np.abs(phasors)
     phases = np.angle(phasors)          # phase already referenced to absolute t=0

@@ -90,6 +90,9 @@ def calibrate_foreground(
             f"got {offset.size} / {gain.size} / {skew.size}"
         )
 
+    if np.any(~np.isfinite(gain)) or np.any(gain <= 0):
+        raise ValueError(f"gain must be finite and strictly positive, got {gain}")
+
     # 1. Offset (additive) — subtract per-channel DC
     # 2. Gain (multiplicative) — divide by per-channel relative gain
     channels = (channels - offset[:, None]) / gain[:, None]
@@ -111,21 +114,53 @@ def calibrate_foreground(
         warnings.warn(
             f"The input tone ({float(fin):g} Hz) is above fs/2 ({fs / 2:g} Hz). "
             "Skew correction interpolates the sampled stream and is only "
-            "valid in the first Nyquist zone; offset and gain are still "
-            "corrected.",
+            "valid in the first Nyquist zone; skipping skew correction "
+            "(offset and gain are still corrected).",
             UserWarning,
             stacklevel=2,
         )
+        return corrected
 
     if skew_method == "fft":
-        def advance(stream, seconds):
-            return fractional_delay_fft(stream, -seconds, fs)
-        max_passes = _MAX_SKEW_PASSES
-    else:
-        def advance(stream, seconds):
-            return fractional_delay_farrow(stream, -seconds, fs, n_taps=n_taps)
-        # The FIR's own interpolation error limits what further passes gain.
-        max_passes = _FARROW_SKEW_PASSES
+        # Exact non-iterative frequency-domain inversion: sampling channel m at
+        # t = n/fs + skew[m] couples DFT bin r + p*K only with the M aliased
+        # bins {r + q*K : q = 0..M-1}. Solving those K independent M x M blocks
+        # directly avoids Richardson fixed-point divergence at large skews.
+        N = corrected.size
+        K = N // M
+        Y = np.fft.fft(corrected).reshape(M, K)
+        freqs = np.fft.fftfreq(N, d=1.0 / fs).reshape(M, K)
+        phi = np.exp(1j * 2.0 * np.pi * skew[:, None, None] * freqs[None, :, :])
+        if N % 2 == 0:
+            q_nyq, r_nyq = divmod(N // 2, K)
+            phi[:, q_nyq, r_nyq] = np.cos(np.pi * fs * skew)
+
+        p_idx = np.arange(M)[:, None, None]
+        q_idx = np.arange(M)[None, :, None]
+        m_idx = np.arange(M)[None, None, :]
+        W = np.exp(-1j * 2.0 * np.pi * (p_idx - q_idx) * m_idx / M)
+        H = np.einsum("pqm,mqr->rpq", W, phi) / M
+        rhs = Y.T[..., None]
+        try:
+            Z_blocks = np.linalg.solve(H, rhs)[..., 0]
+        except np.linalg.LinAlgError:
+            warnings.warn(
+                "Skew coupling matrix is singular for at least one frequency bin; "
+                "falling back to least-squares inversion.",
+                RuntimeWarning,
+                stacklevel=2,
+            )
+            Z_blocks = np.empty((K, M), dtype=complex)
+            for r_idx in range(K):
+                Z_blocks[r_idx] = np.linalg.lstsq(H[r_idx], Y[:, r_idx], rcond=None)[0]
+        Z = Z_blocks.T.reshape(N)
+        return np.fft.ifft(Z).real
+
+    def advance(stream, seconds):
+        return fractional_delay_farrow(stream, -seconds, fs, n_taps=n_taps)
+
+    # The FIR's own interpolation error limits what further passes gain.
+    max_passes = _FARROW_SKEW_PASSES
 
     def resample_on_skewed_grid(stream):
         skewed = stream.copy()
@@ -133,15 +168,29 @@ def calibrate_foreground(
             skewed[m::M] = advance(stream, skew[m])[m::M]
         return skewed
 
-    # Fixed-point iteration z <- z + (y - A z). A differs from the identity
-    # by about 2*pi*fin*skew, so each pass gains tens of dB; the first pass
-    # alone is the usual first-order correction.
+    # Fixed-point iteration z <- z + (y - A z) with divergence guard: stop and
+    # keep the best iterate if residual norm stops decreasing.
     estimate = corrected.copy()
+    best_estimate = estimate.copy()
     scale = np.max(np.abs(corrected))
+    best_res_norm = np.inf
     for _ in range(max_passes):
         residual = corrected - resample_on_skewed_grid(estimate)
-        estimate += residual
-        if np.max(np.abs(residual)) <= _SKEW_RESIDUAL_TOLERANCE * scale:
+        res_norm = float(np.max(np.abs(residual)))
+        if res_norm < best_res_norm:
+            best_res_norm = res_norm
+            best_estimate = estimate.copy()
+        else:
+            warnings.warn(
+                "Farrow skew calibration iteration did not converge monotonically; "
+                "returning the lowest-residual iterate.",
+                RuntimeWarning,
+                stacklevel=2,
+            )
+            return best_estimate
+        estimate = estimate + residual
+        if res_norm <= _SKEW_RESIDUAL_TOLERANCE * scale:
             break
 
-    return estimate
+    final_res = float(np.max(np.abs(corrected - resample_on_skewed_grid(estimate))))
+    return estimate if final_res <= best_res_norm else best_estimate
